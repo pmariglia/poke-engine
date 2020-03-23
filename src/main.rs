@@ -4,8 +4,9 @@ extern crate serde;
 extern crate serde_json;
 
 mod pokedex;
+mod moves;
 
-fn main() {
+fn print_pokedex() {
     let file_path: &str = "data/pokedex.json";
     let my_pokedex = pokedex::create_pokedex(file_path);
     for (key, value) in my_pokedex {
@@ -26,4 +27,17 @@ fn main() {
             value.base_stats.speed,
         )
     }
+}
+
+
+fn print_moves() {
+    let file_path: &str = "data/moves.json";
+    let moves = moves::create_moves(file_path);
+}
+
+
+fn main() {
+    print_pokedex();
+
+    print_moves();
 }
