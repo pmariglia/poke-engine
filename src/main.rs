@@ -3,8 +3,8 @@ extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 
-mod pokedex;
 mod moves;
+mod pokedex;
 
 fn print_pokedex() {
     let file_path: &str = "data/pokedex.json";
@@ -29,15 +29,31 @@ fn print_pokedex() {
     }
 }
 
-
 fn print_moves() {
     let file_path: &str = "data/moves.json";
-    let moves = moves::create_moves(file_path);
+    let my_moves = moves::create_moves(file_path);
+    for (key, value) in my_moves {
+        println!(
+            "{}\nAccuracy: {}\nBasePower: {}\nCategory: {}\nPriority: {}\nTarget: {}\nType: {}\nPP: {}\nFlags: {:?}\nSecondary: {:?}\nMyself: {:?}\nBoosts: {:?}\nVolatileStatus: {:?}\nSideCondition: {:?}\n",
+            key,
+            value.accuracy,
+            value.base_power,
+            value.category,
+            value.priority,
+            value.target,
+            value.move_type,
+            value.pp,
+            value.flags,
+            value.secondary,
+            value.myself,
+            value.boosts,
+            value.volatile_status,
+            value.side_condition
+        );
+    }
 }
 
-
 fn main() {
-    print_pokedex();
-
+    // print_pokedex();
     print_moves();
 }
