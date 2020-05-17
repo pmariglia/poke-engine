@@ -72,6 +72,7 @@ pub struct Move {
     pub category: String,
     pub flags: Flags,
     pub name: String,
+    pub status: Option<Status>,
     pub priority: i8,
     pub secondary: Secondary,
     pub myself: Myself,
@@ -80,6 +81,10 @@ pub struct Move {
     pub pp: i8,
     pub volatile_status: Option<String>,
     pub side_condition: Option<String>,
+    pub heal: Option<f32>,
+    pub crash: Option<f32>,
+    pub drain: Option<f32>,
+    pub recoil: Option<f32>,
 }
 
 fn create_flags(info: &JsonValue) -> Flags {
@@ -176,9 +181,17 @@ fn create_secondary(info: &JsonValue) -> Secondary {
 fn create_self(info: &JsonValue) -> Myself {
     let new_self = Myself {
         volatile_status: get_volatile_status(info["self"].clone()),
-        boosts: get_boosts(info["self"].clone())
+        boosts: get_boosts(info["self"].clone()),
     };
     return new_self;
+}
+
+pub fn get_f32_option_from_f64(info: JsonValue) -> Option<f32> {
+    let value: Option<f64> = info.as_f64();
+    if value.is_some() {
+        return Some(value.unwrap() as f32);
+    }
+    return None;
 }
 
 pub fn create_moves(file_path: &str) -> HashMap<String, Move> {
@@ -189,6 +202,7 @@ pub fn create_moves(file_path: &str) -> HashMap<String, Move> {
     for (name, info) in loaded_json.as_object().unwrap() {
         // if accuracy cannot be extracted as a float, set to a negative number to signify the move does not check accuracy
         let accuracy: f32 = info["accuracy"].as_f64().unwrap_or_else(|| -1.0) as f32;
+
         moves.insert(
             name.to_string(),
             Move {
@@ -202,6 +216,7 @@ pub fn create_moves(file_path: &str) -> HashMap<String, Move> {
                     .as_str()
                     .unwrap_or_else(|| panic!("Could not unwrap category for {}", name))
                     .to_owned(),
+                status: get_status(info.to_owned()),
                 target: info["target"]
                     .as_str()
                     .unwrap_or_else(|| panic!("Could not unwrap target for {}", name))
@@ -224,6 +239,10 @@ pub fn create_moves(file_path: &str) -> HashMap<String, Move> {
                 boosts: get_boosts(info.to_owned()),
                 volatile_status: get_volatile_status(info.to_owned()),
                 side_condition: get_side_conditions(info.to_owned()),
+                heal: get_f32_option_from_f64(info["heal"].to_owned()),
+                crash: get_f32_option_from_f64(info["crash"].to_owned()),
+                drain: get_f32_option_from_f64(info["drain"].to_owned()),
+                recoil: get_f32_option_from_f64(info["recoil"].to_owned()),
             },
         );
     }

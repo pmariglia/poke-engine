@@ -16,10 +16,7 @@
         "accuracy": 100,
         "basePower": 20,
         "category": "special",
-        "drain": [
-            1,
-            2
-        ],
+        "drain": 0.5,
         "flags": {
             "protect": 1,
             "mirror": 1,
@@ -741,10 +738,7 @@
         "flags": {
             "snatch": 1
         },
-        "heal": [
-            -1,
-            2
-        ],
+        "heal": -0.5,
         "id": "bellydrum",
         "name": "Belly Drum",
         "priority": 0,
@@ -1058,10 +1052,7 @@
         "accuracy": 100,
         "basePower": 120,
         "category": "physical",
-        "recoil": [
-            1,
-            3
-        ],
+        "recoil": 0.33,
         "flags": {
             "contact": 1,
             "protect": 1,
@@ -2333,10 +2324,7 @@
         "accuracy": 100,
         "basePower": 120,
         "category": "physical",
-        "recoil": [
-            1,
-            3
-        ],
+        "recoil": 0.33,
         "flags": {
             "contact": 1,
             "protect": 1,
@@ -2612,10 +2600,7 @@
         "accuracy": 100,
         "basePower": 50,
         "category": "special",
-        "drain": [
-            3,
-            4
-        ],
+        "drain": 0.75,
         "flags": {
             "contact": 1,
             "protect": 1,
@@ -2634,10 +2619,7 @@
         "accuracy": 100,
         "basePower": 75,
         "category": "physical",
-        "drain": [
-            1,
-            2
-        ],
+        "drain": 0.5,
         "flags": {
             "contact": 1,
             "protect": 1,
@@ -2657,10 +2639,7 @@
         "accuracy": 100,
         "basePower": 100,
         "category": "special",
-        "drain": [
-            1,
-            2
-        ],
+        "drain": 0.5,
         "flags": {
             "protect": 1,
             "mirror": 1,
@@ -3063,10 +3042,7 @@
             "protect": 1,
             "mirror": 1
         },
-        "heal": [
-            -1,
-            1
-        ],
+        "heal": -1.0,
         "id": "explosion",
         "name": "Explosion",
         "priority": 0,
@@ -3339,10 +3315,7 @@
         "flags": {
             "protect": 1
         },
-        "heal": [
-          -1,
-          1
-        ],
+        "heal": -1.0,
         "id": "finalgambit",
         "name": "Final Gambit",
         "priority": 0,
@@ -3601,10 +3574,7 @@
         "accuracy": 100,
         "basePower": 120,
         "category": "physical",
-        "recoil": [
-            1,
-            3
-        ],
+        "recoil": 0.33,
         "flags": {
             "contact": 1,
             "protect": 1,
@@ -4219,10 +4189,7 @@
         "accuracy": 100,
         "basePower": 75,
         "category": "special",
-        "drain": [
-            1,
-            2
-        ],
+        "drain": 0.5,
         "flags": {
             "protect": 1,
             "mirror": 1,
@@ -4643,10 +4610,7 @@
         "accuracy": 100,
         "basePower": 120,
         "category": "physical",
-        "recoil": [
-            1,
-            4
-        ],
+        "recoil": 0.25,
         "flags": {
             "contact": 1,
             "protect": 1,
@@ -4663,10 +4627,7 @@
     "headsmash": {
         "accuracy": 80,
         "basePower": 150,
-        "recoil": [
-            1,
-            2
-        ],
+        "recoil": 0.5,
         "category": "physical",
         "flags": {
             "contact": 1,
@@ -4745,10 +4706,7 @@
             "snatch": 1,
             "heal": 1
         },
-        "heal": [
-            1,
-            2
-        ],
+        "heal": 0.5,
         "id": "healorder",
         "name": "Heal Order",
         "priority": 0,
@@ -4786,10 +4744,7 @@
             "snatch": 1,
             "heal": 1
         },
-        "heal": [
-            -1,
-            1
-        ],
+        "heal": -1.0,
         "id": "healingwish",
         "name": "Healing Wish",
         "priority": 0,
@@ -5474,10 +5429,7 @@
         "accuracy": 90,
         "basePower": 130,
         "category": "physical",
-        "crash": [
-            1,
-            2
-        ],
+        "crash": 0.5,
         "flags": {
             "contact": 1,
             "protect": 1,
@@ -5581,10 +5533,7 @@
         "accuracy": 100,
         "basePower": 75,
         "category": "physical",
-        "drain": [
-            1,
-            2
-        ],
+        "drain": 0.5,
         "flags": {
             "contact": 1,
             "protect": 1,
@@ -6175,10 +6124,7 @@
         "accuracy": 95,
         "basePower": 100,
         "category": "physical",
-        "crash": [
-            1,
-            2
-        ],
+        "crash": 0.5,
         "flags": {
             "contact": 1,
             "protect": 1,
@@ -6409,10 +6355,7 @@
         "accuracy": 100,
         "basePower": 80,
         "category": "physical",
-        "drain": [
-            1,
-            2
-        ],
+        "drain": 0.5,
         "flags": {
             "contact": 1,
             "protect": 1,
@@ -6490,10 +6433,7 @@
         "accuracy": 90,
         "basePower": 140,
         "category": "special",
-        "recoil": [
-            1,
-            2
-        ],
+        "recoil": 0.5,
         "flags": {
             "protect": 1,
             "mirror": 1
@@ -6927,10 +6867,7 @@
         "accuracy": 100,
         "basePower": 40,
         "category": "special",
-        "drain": [
-            1,
-            2
-        ],
+        "drain": 0.5,
         "flags": {
             "protect": 1,
             "mirror": 1,
@@ -7008,10 +6945,7 @@
             "protect": 1,
             "mirror": 1
         },
-        "heal": [
-            -1,
-            1
-        ],
+        "heal": -1.0,
         "id": "memento",
         "name": "Memento",
         "priority": 0,
@@ -7130,10 +7064,7 @@
             "snatch": 1,
             "heal": 1
         },
-        "heal": [
-            1,
-            2
-        ],
+        "heal": 0.5,
         "id": "milkdrink",
         "name": "Milk Drink",
         "priority": 0,
@@ -7168,10 +7099,7 @@
             "protect": 1,
             "mirror": 1
         },
-        "heal": [
-            -1,
-            2
-        ],
+        "heal": -0.5,
         "id": "mindreader",
         "name": "Mind Reader",
         "priority": 0,
@@ -7382,10 +7310,7 @@
             "snatch": 1,
             "heal": 1
         },
-        "heal": [
-            1,
-            2
-        ],
+        "heal": 0.5,
         "id": "moonlight",
         "name": "Moonlight",
         "priority": 0,
@@ -7403,10 +7328,7 @@
             "snatch": 1,
             "heal": 1
         },
-        "heal": [
-            1,
-            2
-        ],
+        "heal": 0.5,
         "id": "morningsun",
         "name": "Morning Sun",
         "priority": 0,
@@ -7756,10 +7678,7 @@
         "accuracy": 100,
         "basePower": 80,
         "category": "special",
-        "drain": [
-            3,
-            4
-        ],
+        "drain": 0.75,
         "flags": {
             "protect": 1,
             "mirror": 1,
@@ -7935,10 +7854,7 @@
         "accuracy": 100,
         "basePower": 65,
         "category": "special",
-        "drain": [
-            1,
-            2
-        ],
+        "drain": 0.5,
         "flags": {
             "protect": 1,
             "mirror": 1,
@@ -9015,10 +8931,7 @@
             "snatch": 1,
             "heal": 1
         },
-        "heal": [
-            1,
-            2
-        ],
+        "heal": 0.5,
         "id": "recover",
         "name": "Recover",
         "priority": 0,
@@ -9138,10 +9051,7 @@
             "snatch": 1,
             "heal": 1
         },
-        "heal": [
-          1,
-          1
-        ],
+        "heal": 1.0,
         "status": "slp",
         "id": "rest",
         "name": "Rest",
@@ -9507,10 +9417,7 @@
             "snatch": 1,
             "heal": 1
         },
-        "heal": [
-            1,
-            2
-        ],
+        "heal": 0.5,
         "id": "roost",
         "name": "Roost",
         "priority": 0,
@@ -9858,10 +9765,7 @@
             "protect": 1,
             "mirror": 1
         },
-        "heal": [
-            -1,
-            1
-        ],
+        "heal": -1.0,
         "id": "selfdestruct",
         "name": "Self-Destruct",
         "priority": 0,
@@ -10321,10 +10225,7 @@
             "snatch": 1,
             "heal": 1
         },
-        "heal": [
-            1,
-            2
-        ],
+        "heal": 0.5,
         "id": "slackoff",
         "name": "Slack Off",
         "priority": 0,
@@ -10702,10 +10603,7 @@
             "snatch": 1,
             "heal": 1
         },
-        "heal": [
-            1,
-            2
-        ],
+        "heal": 0.5,
         "id": "softboiled",
         "name": "Soft-Boiled",
         "priority": 0,
@@ -11315,10 +11213,7 @@
         "accuracy": 80,
         "basePower": 80,
         "category": "physical",
-        "recoil": [
-            1,
-            4
-        ],
+        "recoil": 0.25,
         "flags": {
             "contact": 1,
             "protect": 1,
@@ -11624,10 +11519,7 @@
             "snatch": 1,
             "heal": 1
         },
-        "heal": [
-            1,
-            2
-        ],
+        "heal": 0.5,
         "id": "synthesis",
         "name": "Synthesis",
         "priority": 0,
@@ -11729,10 +11621,7 @@
         "accuracy": 85,
         "basePower": 90,
         "category": "physical",
-        "recoil": [
-            1,
-            4
-        ],
+        "recoil": 0.25,
         "flags": {
             "contact": 1,
             "protect": 1,
@@ -12529,10 +12418,7 @@
         "accuracy": 100,
         "basePower": 120,
         "category": "physical",
-        "recoil": [
-            1,
-            3
-        ],
+        "recoil": 0.33,
         "flags": {
             "contact": 1,
             "protect": 1,
@@ -12760,10 +12646,7 @@
         "accuracy": 100,
         "basePower": 90,
         "category": "physical",
-        "recoil": [
-            1,
-            4
-        ],
+        "recoil": 0.25,
         "flags": {
             "contact": 1,
             "protect": 1,
@@ -12867,10 +12750,7 @@
         "accuracy": 100,
         "basePower": 120,
         "category": "physical",
-        "recoil": [
-            1,
-            3
-        ],
+        "recoil": 0.33,
         "flags": {
             "contact": 1,
             "protect": 1,
@@ -13098,10 +12978,7 @@
         "accuracy": true,
         "basePower": 120,
         "category": "physical",
-        "drain": [
-            1,
-            2
-        ],
+        "drain": 0.5,
         "flags": {
             "contact": 1,
             "recharge": 1,

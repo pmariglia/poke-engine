@@ -33,12 +33,17 @@ fn print_moves() {
     let file_path: &str = "data/moves.json";
     let my_moves = moves::create_moves(file_path);
     for (key, value) in my_moves {
+        // match value.secondary.status {
+        //     Some(status) => println!("{} has secondary status {:?} that happens {}% of the time", key, status, value.secondary.chance),
+        //     None => ()
+        // }
         println!(
-            "{}\nAccuracy: {}\nBasePower: {}\nCategory: {}\nPriority: {}\nTarget: {}\nType: {}\nPP: {}\nFlags: {:?}\nSecondary: {:?}\nMyself: {:?}\nBoosts: {:?}\nVolatileStatus: {:?}\nSideCondition: {:?}\n",
+            "{}\nAccuracy: {}\nBasePower: {}\nCategory: {}\nStatus: {:?}\nPriority: {}\nTarget: {}\nType: {}\nPP: {}\nFlags: {:?}\nSecondary: {:?}\nMyself: {:?}\nBoosts: {:?}\nVolatileStatus: {:?}\nSideCondition: {:?}\nHeal: {:?}\nCrash: {:?}\nDrain: {:?}\nRecoil: {:?}\n",
             key,
             value.accuracy,
             value.base_power,
             value.category,
+            value.status,
             value.priority,
             value.target,
             value.move_type,
@@ -48,12 +53,16 @@ fn print_moves() {
             value.myself,
             value.boosts,
             value.volatile_status,
-            value.side_condition
+            value.side_condition,
+            value.heal,
+            value.crash,
+            value.drain,
+            value.recoil
         );
     }
 }
 
 fn main() {
-    // print_pokedex();
+    print_pokedex();
     print_moves();
 }
