@@ -250,7 +250,3 @@ pub fn create_moves(file_path: &str) -> HashMap<String, Move> {
     return moves;
 }
 // heal_target
-// heal
-// crash
-// drain
-// recoil
