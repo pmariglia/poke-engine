@@ -4,15 +4,7 @@ use std::io::BufReader;
 
 use serde_json::Value as JsonValue;
 
-#[derive(Serialize, Deserialize, Debug)]
-pub enum Status {
-    Burn,
-    Sleep,
-    Freeze,
-    Paralyze,
-    Poison,
-    Toxic,
-}
+use crate::state::Status;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Boosts {

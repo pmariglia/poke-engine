@@ -5,6 +5,7 @@ extern crate serde_json;
 
 mod moves;
 mod pokedex;
+mod state;
 
 fn print_pokedex() {
     let file_path: &str = "data/pokedex.json";
