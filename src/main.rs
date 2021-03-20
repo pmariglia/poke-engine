@@ -1,69 +1,42 @@
-#[macro_use]
-extern crate serde_derive;
-extern crate serde;
-extern crate serde_json;
+extern crate lazy_static;
 
 mod moves;
 mod pokedex;
-mod state;
+// mod state;
 
-fn print_pokedex() {
-    let file_path: &str = "data/pokedex.json";
-    let my_pokedex = pokedex::create_pokedex(file_path);
-    for (key, value) in my_pokedex {
-        println!(
-            "{}\nTypes: {}, {}\nWeight: {}\nAbilities: {}, {}, {}\nBaseStats\n\tHP: {}\n\tAtk: {}\n\tDef: {}\n\tSpa: {}\n\tSpd: {}\n\tSpe: {}\n",
-            key,
-            value.types.0,
-            value.types.1,
-            value.weight,
-            value.abilities.first,
-            value.abilities.second,
-            value.abilities.hidden,
-            value.base_stats.hp,
-            value.base_stats.attack,
-            value.base_stats.defense,
-            value.base_stats.special_attack,
-            value.base_stats.special_defense,
-            value.base_stats.speed,
-        )
-    }
+fn print_pkmn(pkmn: &pokedex::PokedexPokemon) {
+    println!(
+        "{}\n    Types: {}, {}\n    Weight: {}\n    Abilities: {}, {}, {}\n    BaseStats\n    \tHP: {}\n    \tAtk: {}\n    \tDef: {}\n    \tSpa: {}\n    \tSpd: {}\n    \tSpe: {}\n    ",
+        pkmn.species,
+        pkmn.types.0,
+        pkmn.types.1,
+        pkmn.weight,
+        pkmn.abilities.first,
+        pkmn.abilities.second,
+        pkmn.abilities.hidden,
+        pkmn.base_stats.hp,
+        pkmn.base_stats.attack,
+        pkmn.base_stats.defense,
+        pkmn.base_stats.special_attack,
+        pkmn.base_stats.special_defense,
+        pkmn.base_stats.speed,
+    )
 }
 
-fn print_moves() {
-    let file_path: &str = "data/moves.json";
-    let my_moves = moves::create_moves(file_path);
-    for (key, value) in my_moves {
-        // match value.secondary.status {
-        //     Some(status) => println!("{} has secondary status {:?} that happens {}% of the time", key, status, value.secondary.chance),
-        //     None => ()
-        // }
-        println!(
-            "{}\nAccuracy: {}\nBasePower: {}\nCategory: {}\nStatus: {:?}\nPriority: {}\nTarget: {}\nType: {}\nPP: {}\nFlags: {:?}\nSecondary: {:?}\nMyself: {:?}\nBoosts: {:?}\nVolatileStatus: {:?}\nSideCondition: {:?}\nHeal: {:?}\nCrash: {:?}\nDrain: {:?}\nRecoil: {:?}\n",
-            key,
-            value.accuracy,
-            value.base_power,
-            value.category,
-            value.status,
-            value.priority,
-            value.target,
-            value.move_type,
-            value.pp,
-            value.flags,
-            value.secondary,
-            value.myself,
-            value.boosts,
-            value.volatile_status,
-            value.side_condition,
-            value.heal,
-            value.crash,
-            value.drain,
-            value.recoil
-        );
-    }
+fn print_move(mv: &moves::Move) {
+    println!(
+        "{:?}",
+        mv
+    )
 }
 
 fn main() {
-    print_pokedex();
-    print_moves();
+    let pkmn: String = "calyrexshadow".to_string();
+    let json_pkmn: &pokedex::PokedexPokemon = pokedex::get_pkmn(pkmn);
+    print_pkmn(json_pkmn);
+    
+    let m: String = "meteormash".to_string();
+    let move_obj: &moves::Move = moves::get_move(m);
+    print_move(move_obj);
+
 }
