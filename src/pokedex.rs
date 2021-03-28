@@ -28912,8 +28912,8 @@ lazy_static! {
     };
 }
 
-pub fn get_pkmn(pkmn_name: String) -> &'static PokedexPokemon {
-    return POKEDEX.get(&pkmn_name).unwrap_or_else(
+pub fn get_pkmn(pkmn_name: &str) -> &'static PokedexPokemon {
+    return POKEDEX.get(pkmn_name).unwrap_or_else(
         || panic!("Could not get pkmn for {}", pkmn_name)
     )
 }

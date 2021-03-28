@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use lazy_static::lazy_static;
 
 use super::state::PokemonTypes;
+use super::state::Status;
 
 
 lazy_static! {
@@ -20145,17 +20146,6 @@ pub fn get_move(move_name: String) -> &'static Move {
     return MOVES.get(&move_name).unwrap_or_else(
         || panic!("Could not get move {}", move_name)
     )
-}
-
-
-#[derive(Debug)]
-pub enum Status {
-    Burn,
-    Sleep,
-    Freeze,
-    Paralyze,
-    Poison,
-    Toxic
 }
 
 #[derive(Debug)]
