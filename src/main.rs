@@ -2,11 +2,11 @@ extern crate lazy_static;
 
 mod moves;
 mod pokedex;
-// mod state;
+mod state;
 
 fn print_pkmn(pkmn: &pokedex::PokedexPokemon) {
     println!(
-        "{}\n    Types: {}, {}\n    Weight: {}\n    Abilities: {}, {}, {}\n    BaseStats\n    \tHP: {}\n    \tAtk: {}\n    \tDef: {}\n    \tSpa: {}\n    \tSpd: {}\n    \tSpe: {}\n    ",
+        "{}\n    Types: {:?}, {:?}\n    Weight: {}\n    Abilities: {}, {}, {}\n    BaseStats\n    \tHP: {}\n    \tAtk: {}\n    \tDef: {}\n    \tSpa: {}\n    \tSpd: {}\n    \tSpe: {}\n    ",
         pkmn.species,
         pkmn.types.0,
         pkmn.types.1,
@@ -31,7 +31,7 @@ fn print_move(mv: &moves::Move) {
 }
 
 fn main() {
-    let pkmn: String = "calyrexshadow".to_string();
+    let pkmn: String = "pikachu".to_string();
     let json_pkmn: &pokedex::PokedexPokemon = pokedex::get_pkmn(pkmn);
     print_pkmn(json_pkmn);
     

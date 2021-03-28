@@ -1,8 +1,9 @@
 use std::collections::HashSet;
 
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug)]
 pub enum Status {
+    None,
     Burn,
     Sleep,
     Freeze,
@@ -11,6 +12,7 @@ pub enum Status {
     Toxic
 }
 
+#[derive(Debug)]
 pub enum PokemonTypes {
     Normal,
     Fire,

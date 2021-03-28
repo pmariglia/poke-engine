@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
+use crate::state::PokemonTypes;
 
 lazy_static! {
     static ref POKEDEX: HashMap<String, PokedexPokemon> = {        
@@ -25,8 +26,8 @@ lazy_static! {
                     hidden: "chlorophyll".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Poison
                 ),
                 weight: 6.9 as f32,
             }
@@ -50,8 +51,8 @@ lazy_static! {
                     hidden: "chlorophyll".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Poison
                 ),
                 weight: 13 as f32,
             }
@@ -75,8 +76,8 @@ lazy_static! {
                     hidden: "chlorophyll".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Poison
                 ),
                 weight: 100 as f32,
             }
@@ -100,8 +101,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Poison
                 ),
                 weight: 155.5 as f32,
             }
@@ -125,8 +126,8 @@ lazy_static! {
                     hidden: "solarpower".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8.5 as f32,
             }
@@ -150,8 +151,8 @@ lazy_static! {
                     hidden: "solarpower".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 19 as f32,
             }
@@ -175,8 +176,8 @@ lazy_static! {
                     hidden: "solarpower".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Flying
                 ),
                 weight: 90.5 as f32,
             }
@@ -200,8 +201,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Dragon
                 ),
                 weight: 110.5 as f32,
             }
@@ -225,8 +226,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Flying
                 ),
                 weight: 100.5 as f32,
             }
@@ -250,8 +251,8 @@ lazy_static! {
                     hidden: "raindish".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9 as f32,
             }
@@ -275,8 +276,8 @@ lazy_static! {
                     hidden: "raindish".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 22.5 as f32,
             }
@@ -300,8 +301,8 @@ lazy_static! {
                     hidden: "raindish".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 85.5 as f32,
             }
@@ -325,8 +326,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 101.1 as f32,
             }
@@ -350,8 +351,8 @@ lazy_static! {
                     hidden: "runaway".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 2.9 as f32,
             }
@@ -375,8 +376,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9.9 as f32,
             }
@@ -400,8 +401,8 @@ lazy_static! {
                     hidden: "tintedlens".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 32 as f32,
             }
@@ -425,8 +426,8 @@ lazy_static! {
                     hidden: "runaway".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Poison
                 ),
                 weight: 3.2 as f32,
             }
@@ -450,8 +451,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Poison
                 ),
                 weight: 10 as f32,
             }
@@ -475,8 +476,8 @@ lazy_static! {
                     hidden: "sniper".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Poison
                 ),
                 weight: 29.5 as f32,
             }
@@ -500,8 +501,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Poison
                 ),
                 weight: 40.5 as f32,
             }
@@ -525,8 +526,8 @@ lazy_static! {
                     hidden: "bigpecks".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 1.8 as f32,
             }
@@ -550,8 +551,8 @@ lazy_static! {
                     hidden: "bigpecks".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 30 as f32,
             }
@@ -575,8 +576,8 @@ lazy_static! {
                     hidden: "bigpecks".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 39.5 as f32,
             }
@@ -600,8 +601,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 50.5 as f32,
             }
@@ -625,8 +626,8 @@ lazy_static! {
                     hidden: "hustle".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 3.5 as f32,
             }
@@ -650,8 +651,8 @@ lazy_static! {
                     hidden: "thickfat".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "normal".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Normal
                 ),
                 weight: 3.8 as f32,
             }
@@ -675,8 +676,8 @@ lazy_static! {
                     hidden: "hustle".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 18.5 as f32,
             }
@@ -700,8 +701,8 @@ lazy_static! {
                     hidden: "thickfat".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "normal".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Normal
                 ),
                 weight: 25.5 as f32,
             }
@@ -725,8 +726,8 @@ lazy_static! {
                     hidden: "sniper".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 2 as f32,
             }
@@ -750,8 +751,8 @@ lazy_static! {
                     hidden: "sniper".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 38 as f32,
             }
@@ -775,8 +776,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6.9 as f32,
             }
@@ -800,8 +801,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 65 as f32,
             }
@@ -825,8 +826,8 @@ lazy_static! {
                     hidden: "lightningrod".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -850,8 +851,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -875,8 +876,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -900,8 +901,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -925,8 +926,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -950,8 +951,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -975,8 +976,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -1000,8 +1001,8 @@ lazy_static! {
                     hidden: "lightningrod".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 30 as f32,
             }
@@ -1025,8 +1026,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Psychic
                 ),
                 weight: 21 as f32,
             }
@@ -1050,8 +1051,8 @@ lazy_static! {
                     hidden: "sandrush".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 12 as f32,
             }
@@ -1075,8 +1076,8 @@ lazy_static! {
                     hidden: "slushrush".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Steel
                 ),
                 weight: 40 as f32,
             }
@@ -1100,8 +1101,8 @@ lazy_static! {
                     hidden: "sandrush".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 29.5 as f32,
             }
@@ -1125,8 +1126,8 @@ lazy_static! {
                     hidden: "slushrush".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Steel
                 ),
                 weight: 55 as f32,
             }
@@ -1150,8 +1151,8 @@ lazy_static! {
                     hidden: "hustle".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7 as f32,
             }
@@ -1175,8 +1176,8 @@ lazy_static! {
                     hidden: "hustle".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 20 as f32,
             }
@@ -1200,8 +1201,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Ground
                 ),
                 weight: 60 as f32,
             }
@@ -1225,8 +1226,8 @@ lazy_static! {
                     hidden: "hustle".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9 as f32,
             }
@@ -1250,8 +1251,8 @@ lazy_static! {
                     hidden: "hustle".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 19.5 as f32,
             }
@@ -1275,8 +1276,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Ground
                 ),
                 weight: 62 as f32,
             }
@@ -1300,8 +1301,8 @@ lazy_static! {
                     hidden: "friendguard".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7.5 as f32,
             }
@@ -1325,8 +1326,8 @@ lazy_static! {
                     hidden: "unaware".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 40 as f32,
             }
@@ -1350,8 +1351,8 @@ lazy_static! {
                     hidden: "drought".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9.9 as f32,
             }
@@ -1375,8 +1376,8 @@ lazy_static! {
                     hidden: "snowwarning".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9.9 as f32,
             }
@@ -1400,8 +1401,8 @@ lazy_static! {
                     hidden: "drought".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 19.9 as f32,
             }
@@ -1425,8 +1426,8 @@ lazy_static! {
                     hidden: "snowwarning".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Fairy
                 ),
                 weight: 19.9 as f32,
             }
@@ -1450,8 +1451,8 @@ lazy_static! {
                     hidden: "friendguard".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Fairy
                 ),
                 weight: 5.5 as f32,
             }
@@ -1475,8 +1476,8 @@ lazy_static! {
                     hidden: "frisk".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Fairy
                 ),
                 weight: 12 as f32,
             }
@@ -1500,8 +1501,8 @@ lazy_static! {
                     hidden: "infiltrator".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Flying
                 ),
                 weight: 7.5 as f32,
             }
@@ -1525,8 +1526,8 @@ lazy_static! {
                     hidden: "infiltrator".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Flying
                 ),
                 weight: 55 as f32,
             }
@@ -1550,8 +1551,8 @@ lazy_static! {
                     hidden: "runaway".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Poison
                 ),
                 weight: 5.4 as f32,
             }
@@ -1575,8 +1576,8 @@ lazy_static! {
                     hidden: "stench".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Poison
                 ),
                 weight: 8.6 as f32,
             }
@@ -1600,8 +1601,8 @@ lazy_static! {
                     hidden: "effectspore".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Poison
                 ),
                 weight: 18.6 as f32,
             }
@@ -1625,8 +1626,8 @@ lazy_static! {
                     hidden: "damp".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Grass
                 ),
                 weight: 5.4 as f32,
             }
@@ -1650,8 +1651,8 @@ lazy_static! {
                     hidden: "damp".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Grass
                 ),
                 weight: 29.5 as f32,
             }
@@ -1675,8 +1676,8 @@ lazy_static! {
                     hidden: "runaway".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Poison
                 ),
                 weight: 30 as f32,
             }
@@ -1700,8 +1701,8 @@ lazy_static! {
                     hidden: "wonderskin".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Poison
                 ),
                 weight: 12.5 as f32,
             }
@@ -1725,8 +1726,8 @@ lazy_static! {
                     hidden: "sandforce".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.8 as f32,
             }
@@ -1750,8 +1751,8 @@ lazy_static! {
                     hidden: "sandforce".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Steel
                 ),
                 weight: 1 as f32,
             }
@@ -1775,8 +1776,8 @@ lazy_static! {
                     hidden: "sandforce".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 33.3 as f32,
             }
@@ -1800,8 +1801,8 @@ lazy_static! {
                     hidden: "sandforce".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Steel
                 ),
                 weight: 66.6 as f32,
             }
@@ -1825,8 +1826,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4.2 as f32,
             }
@@ -1850,8 +1851,8 @@ lazy_static! {
                     hidden: "rattled".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4.2 as f32,
             }
@@ -1875,8 +1876,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 32 as f32,
             }
@@ -1900,8 +1901,8 @@ lazy_static! {
                     hidden: "rattled".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 33 as f32,
             }
@@ -1925,8 +1926,8 @@ lazy_static! {
                     hidden: "swiftswim".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 19.6 as f32,
             }
@@ -1950,8 +1951,8 @@ lazy_static! {
                     hidden: "swiftswim".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 76.6 as f32,
             }
@@ -1975,8 +1976,8 @@ lazy_static! {
                     hidden: "defiant".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 28 as f32,
             }
@@ -2000,8 +2001,8 @@ lazy_static! {
                     hidden: "defiant".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 32 as f32,
             }
@@ -2025,8 +2026,8 @@ lazy_static! {
                     hidden: "justified".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 19 as f32,
             }
@@ -2050,8 +2051,8 @@ lazy_static! {
                     hidden: "justified".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 155 as f32,
             }
@@ -2075,8 +2076,8 @@ lazy_static! {
                     hidden: "swiftswim".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 12.4 as f32,
             }
@@ -2100,8 +2101,8 @@ lazy_static! {
                     hidden: "swiftswim".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 20 as f32,
             }
@@ -2125,8 +2126,8 @@ lazy_static! {
                     hidden: "swiftswim".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Fighting
                 ),
                 weight: 54 as f32,
             }
@@ -2150,8 +2151,8 @@ lazy_static! {
                     hidden: "magicguard".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 19.5 as f32,
             }
@@ -2175,8 +2176,8 @@ lazy_static! {
                     hidden: "magicguard".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 56.5 as f32,
             }
@@ -2200,8 +2201,8 @@ lazy_static! {
                     hidden: "magicguard".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 48 as f32,
             }
@@ -2225,8 +2226,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 48 as f32,
             }
@@ -2250,8 +2251,8 @@ lazy_static! {
                     hidden: "steadfast".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 19.5 as f32,
             }
@@ -2275,8 +2276,8 @@ lazy_static! {
                     hidden: "steadfast".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 70.5 as f32,
             }
@@ -2300,8 +2301,8 @@ lazy_static! {
                     hidden: "steadfast".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 130 as f32,
             }
@@ -2325,8 +2326,8 @@ lazy_static! {
                     hidden: "gluttony".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Poison
                 ),
                 weight: 4 as f32,
             }
@@ -2350,8 +2351,8 @@ lazy_static! {
                     hidden: "gluttony".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Poison
                 ),
                 weight: 6.4 as f32,
             }
@@ -2375,8 +2376,8 @@ lazy_static! {
                     hidden: "gluttony".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Poison
                 ),
                 weight: 15.5 as f32,
             }
@@ -2400,8 +2401,8 @@ lazy_static! {
                     hidden: "raindish".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Poison
                 ),
                 weight: 45.5 as f32,
             }
@@ -2425,8 +2426,8 @@ lazy_static! {
                     hidden: "raindish".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Poison
                 ),
                 weight: 55 as f32,
             }
@@ -2450,8 +2451,8 @@ lazy_static! {
                     hidden: "sandveil".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Ground
                 ),
                 weight: 20 as f32,
             }
@@ -2475,8 +2476,8 @@ lazy_static! {
                     hidden: "galvanize".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "electric".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Electric
                 ),
                 weight: 20.3 as f32,
             }
@@ -2500,8 +2501,8 @@ lazy_static! {
                     hidden: "sandveil".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Ground
                 ),
                 weight: 105 as f32,
             }
@@ -2525,8 +2526,8 @@ lazy_static! {
                     hidden: "galvanize".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "electric".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Electric
                 ),
                 weight: 110 as f32,
             }
@@ -2550,8 +2551,8 @@ lazy_static! {
                     hidden: "sandveil".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Ground
                 ),
                 weight: 300 as f32,
             }
@@ -2575,8 +2576,8 @@ lazy_static! {
                     hidden: "galvanize".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "electric".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Electric
                 ),
                 weight: 316 as f32,
             }
@@ -2600,8 +2601,8 @@ lazy_static! {
                     hidden: "flamebody".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 30 as f32,
             }
@@ -2625,8 +2626,8 @@ lazy_static! {
                     hidden: "flamebody".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 95 as f32,
             }
@@ -2650,8 +2651,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Psychic
                 ),
                 weight: 36 as f32,
             }
@@ -2675,8 +2676,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Psychic
                 ),
                 weight: 78.5 as f32,
             }
@@ -2700,8 +2701,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Psychic
                 ),
                 weight: 120 as f32,
             }
@@ -2725,8 +2726,8 @@ lazy_static! {
                     hidden: "analytic".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Steel
                 ),
                 weight: 6 as f32,
             }
@@ -2750,8 +2751,8 @@ lazy_static! {
                     hidden: "analytic".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Steel
                 ),
                 weight: 60 as f32,
             }
@@ -2775,8 +2776,8 @@ lazy_static! {
                     hidden: "defiant".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 15 as f32,
             }
@@ -2800,8 +2801,8 @@ lazy_static! {
                     hidden: "tangledfeet".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 39.2 as f32,
             }
@@ -2825,8 +2826,8 @@ lazy_static! {
                     hidden: "tangledfeet".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 85.2 as f32,
             }
@@ -2850,8 +2851,8 @@ lazy_static! {
                     hidden: "icebody".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 90 as f32,
             }
@@ -2875,8 +2876,8 @@ lazy_static! {
                     hidden: "icebody".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ice
                 ),
                 weight: 120 as f32,
             }
@@ -2900,8 +2901,8 @@ lazy_static! {
                     hidden: "poisontouch".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 30 as f32,
             }
@@ -2925,8 +2926,8 @@ lazy_static! {
                     hidden: "powerofalchemy".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Dark
                 ),
                 weight: 42 as f32,
             }
@@ -2950,8 +2951,8 @@ lazy_static! {
                     hidden: "poisontouch".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 30 as f32,
             }
@@ -2975,8 +2976,8 @@ lazy_static! {
                     hidden: "powerofalchemy".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Dark
                 ),
                 weight: 52 as f32,
             }
@@ -3000,8 +3001,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4 as f32,
             }
@@ -3025,8 +3026,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ice
                 ),
                 weight: 132.5 as f32,
             }
@@ -3050,8 +3051,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Poison
                 ),
                 weight: 0.1 as f32,
             }
@@ -3075,8 +3076,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Poison
                 ),
                 weight: 0.1 as f32,
             }
@@ -3100,8 +3101,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Poison
                 ),
                 weight: 40.5 as f32,
             }
@@ -3125,8 +3126,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Poison
                 ),
                 weight: 40.5 as f32,
             }
@@ -3150,8 +3151,8 @@ lazy_static! {
                     hidden: "weakarmor".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Ground
                 ),
                 weight: 210 as f32,
             }
@@ -3175,8 +3176,8 @@ lazy_static! {
                     hidden: "innerfocus".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 32.4 as f32,
             }
@@ -3200,8 +3201,8 @@ lazy_static! {
                     hidden: "innerfocus".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 75.6 as f32,
             }
@@ -3225,8 +3226,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6.5 as f32,
             }
@@ -3250,8 +3251,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 60 as f32,
             }
@@ -3275,8 +3276,8 @@ lazy_static! {
                     hidden: "aftermath".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 10.4 as f32,
             }
@@ -3300,8 +3301,8 @@ lazy_static! {
                     hidden: "aftermath".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 66.6 as f32,
             }
@@ -3325,8 +3326,8 @@ lazy_static! {
                     hidden: "harvest".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Psychic
                 ),
                 weight: 2.5 as f32,
             }
@@ -3350,8 +3351,8 @@ lazy_static! {
                     hidden: "harvest".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Psychic
                 ),
                 weight: 120 as f32,
             }
@@ -3375,8 +3376,8 @@ lazy_static! {
                     hidden: "harvest".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Dragon
                 ),
                 weight: 415.6 as f32,
             }
@@ -3400,8 +3401,8 @@ lazy_static! {
                     hidden: "battlearmor".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6.5 as f32,
             }
@@ -3425,8 +3426,8 @@ lazy_static! {
                     hidden: "battlearmor".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 45 as f32,
             }
@@ -3450,8 +3451,8 @@ lazy_static! {
                     hidden: "rockhead".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Ghost
                 ),
                 weight: 34 as f32,
             }
@@ -3475,8 +3476,8 @@ lazy_static! {
                     hidden: "unburden".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 49.8 as f32,
             }
@@ -3500,8 +3501,8 @@ lazy_static! {
                     hidden: "innerfocus".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 50.2 as f32,
             }
@@ -3525,8 +3526,8 @@ lazy_static! {
                     hidden: "cloudnine".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 65.5 as f32,
             }
@@ -3550,8 +3551,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 1 as f32,
             }
@@ -3575,8 +3576,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9.5 as f32,
             }
@@ -3600,8 +3601,8 @@ lazy_static! {
                     hidden: "reckless".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Rock
                 ),
                 weight: 115 as f32,
             }
@@ -3625,8 +3626,8 @@ lazy_static! {
                     hidden: "reckless".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Rock
                 ),
                 weight: 120 as f32,
             }
@@ -3650,8 +3651,8 @@ lazy_static! {
                     hidden: "healer".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 34.6 as f32,
             }
@@ -3675,8 +3676,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 35 as f32,
             }
@@ -3700,8 +3701,8 @@ lazy_static! {
                     hidden: "innerfocus".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 80 as f32,
             }
@@ -3725,8 +3726,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100 as f32,
             }
@@ -3750,8 +3751,8 @@ lazy_static! {
                     hidden: "damp".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8 as f32,
             }
@@ -3775,8 +3776,8 @@ lazy_static! {
                     hidden: "damp".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 25 as f32,
             }
@@ -3800,8 +3801,8 @@ lazy_static! {
                     hidden: "lightningrod".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 15 as f32,
             }
@@ -3825,8 +3826,8 @@ lazy_static! {
                     hidden: "lightningrod".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 39 as f32,
             }
@@ -3850,8 +3851,8 @@ lazy_static! {
                     hidden: "analytic".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 34.5 as f32,
             }
@@ -3875,8 +3876,8 @@ lazy_static! {
                     hidden: "analytic".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Psychic
                 ),
                 weight: 80 as f32,
             }
@@ -3900,8 +3901,8 @@ lazy_static! {
                     hidden: "technician".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Fairy
                 ),
                 weight: 54.5 as f32,
             }
@@ -3925,8 +3926,8 @@ lazy_static! {
                     hidden: "steadfast".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 56 as f32,
             }
@@ -3950,8 +3951,8 @@ lazy_static! {
                     hidden: "dryskin".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Psychic
                 ),
                 weight: 40.6 as f32,
             }
@@ -3975,8 +3976,8 @@ lazy_static! {
                     hidden: "vitalspirit".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 30 as f32,
             }
@@ -4000,8 +4001,8 @@ lazy_static! {
                     hidden: "vitalspirit".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 44.5 as f32,
             }
@@ -4025,8 +4026,8 @@ lazy_static! {
                     hidden: "moxie".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 55 as f32,
             }
@@ -4050,8 +4051,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 59 as f32,
             }
@@ -4075,8 +4076,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 88.4 as f32,
             }
@@ -4100,8 +4101,8 @@ lazy_static! {
                     hidden: "rattled".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 10 as f32,
             }
@@ -4125,8 +4126,8 @@ lazy_static! {
                     hidden: "moxie".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Flying
                 ),
                 weight: 235 as f32,
             }
@@ -4150,8 +4151,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Dark
                 ),
                 weight: 305 as f32,
             }
@@ -4175,8 +4176,8 @@ lazy_static! {
                     hidden: "hydration".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ice
                 ),
                 weight: 220 as f32,
             }
@@ -4200,8 +4201,8 @@ lazy_static! {
                     hidden: "imposter".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4 as f32,
             }
@@ -4225,8 +4226,8 @@ lazy_static! {
                     hidden: "anticipation".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6.5 as f32,
             }
@@ -4250,8 +4251,8 @@ lazy_static! {
                     hidden: "hydration".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 29 as f32,
             }
@@ -4275,8 +4276,8 @@ lazy_static! {
                     hidden: "quickfeet".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 24.5 as f32,
             }
@@ -4300,8 +4301,8 @@ lazy_static! {
                     hidden: "guts".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 25 as f32,
             }
@@ -4325,8 +4326,8 @@ lazy_static! {
                     hidden: "analytic".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 36.5 as f32,
             }
@@ -4350,8 +4351,8 @@ lazy_static! {
                     hidden: "weakarmor".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Water
                 ),
                 weight: 7.5 as f32,
             }
@@ -4375,8 +4376,8 @@ lazy_static! {
                     hidden: "weakarmor".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Water
                 ),
                 weight: 35 as f32,
             }
@@ -4400,8 +4401,8 @@ lazy_static! {
                     hidden: "weakarmor".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Water
                 ),
                 weight: 11.5 as f32,
             }
@@ -4425,8 +4426,8 @@ lazy_static! {
                     hidden: "weakarmor".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Water
                 ),
                 weight: 40.5 as f32,
             }
@@ -4450,8 +4451,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Flying
                 ),
                 weight: 59 as f32,
             }
@@ -4475,8 +4476,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Flying
                 ),
                 weight: 79 as f32,
             }
@@ -4500,8 +4501,8 @@ lazy_static! {
                     hidden: "gluttony".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 460 as f32,
             }
@@ -4525,8 +4526,8 @@ lazy_static! {
                     hidden: "snowcloak".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Flying
                 ),
                 weight: 55.4 as f32,
             }
@@ -4550,8 +4551,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Flying
                 ),
                 weight: 50.9 as f32,
             }
@@ -4575,8 +4576,8 @@ lazy_static! {
                     hidden: "static".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Flying
                 ),
                 weight: 52.6 as f32,
             }
@@ -4600,8 +4601,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Flying
                 ),
                 weight: 58.2 as f32,
             }
@@ -4625,8 +4626,8 @@ lazy_static! {
                     hidden: "flamebody".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Flying
                 ),
                 weight: 60 as f32,
             }
@@ -4650,8 +4651,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Flying
                 ),
                 weight: 66 as f32,
             }
@@ -4675,8 +4676,8 @@ lazy_static! {
                     hidden: "marvelscale".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Typeless
                 ),
                 weight: 3.3 as f32,
             }
@@ -4700,8 +4701,8 @@ lazy_static! {
                     hidden: "marvelscale".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Typeless
                 ),
                 weight: 16.5 as f32,
             }
@@ -4725,8 +4726,8 @@ lazy_static! {
                     hidden: "multiscale".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Flying
                 ),
                 weight: 210 as f32,
             }
@@ -4750,8 +4751,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 122 as f32,
             }
@@ -4775,8 +4776,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Fighting
                 ),
                 weight: 127 as f32,
             }
@@ -4800,8 +4801,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 33 as f32,
             }
@@ -4825,8 +4826,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4 as f32,
             }
@@ -4850,8 +4851,8 @@ lazy_static! {
                     hidden: "leafguard".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6.4 as f32,
             }
@@ -4875,8 +4876,8 @@ lazy_static! {
                     hidden: "leafguard".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 15.8 as f32,
             }
@@ -4900,8 +4901,8 @@ lazy_static! {
                     hidden: "leafguard".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -4925,8 +4926,8 @@ lazy_static! {
                     hidden: "flashfire".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7.9 as f32,
             }
@@ -4950,8 +4951,8 @@ lazy_static! {
                     hidden: "flashfire".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 19 as f32,
             }
@@ -4975,8 +4976,8 @@ lazy_static! {
                     hidden: "flashfire".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 79.5 as f32,
             }
@@ -5000,8 +5001,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9.5 as f32,
             }
@@ -5025,8 +5026,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 25 as f32,
             }
@@ -5050,8 +5051,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 88.8 as f32,
             }
@@ -5075,8 +5076,8 @@ lazy_static! {
                     hidden: "frisk".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -5100,8 +5101,8 @@ lazy_static! {
                     hidden: "frisk".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 32.5 as f32,
             }
@@ -5125,8 +5126,8 @@ lazy_static! {
                     hidden: "tintedlens".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 21.2 as f32,
             }
@@ -5150,8 +5151,8 @@ lazy_static! {
                     hidden: "tintedlens".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 40.8 as f32,
             }
@@ -5175,8 +5176,8 @@ lazy_static! {
                     hidden: "rattled".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 10.8 as f32,
             }
@@ -5200,8 +5201,8 @@ lazy_static! {
                     hidden: "ironfist".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 35.6 as f32,
             }
@@ -5225,8 +5226,8 @@ lazy_static! {
                     hidden: "sniper".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Poison
                 ),
                 weight: 8.5 as f32,
             }
@@ -5250,8 +5251,8 @@ lazy_static! {
                     hidden: "sniper".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Poison
                 ),
                 weight: 33.5 as f32,
             }
@@ -5275,8 +5276,8 @@ lazy_static! {
                     hidden: "infiltrator".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Flying
                 ),
                 weight: 75 as f32,
             }
@@ -5300,8 +5301,8 @@ lazy_static! {
                     hidden: "waterabsorb".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "electric".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Electric
                 ),
                 weight: 12 as f32,
             }
@@ -5325,8 +5326,8 @@ lazy_static! {
                     hidden: "waterabsorb".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "electric".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Electric
                 ),
                 weight: 22.5 as f32,
             }
@@ -5350,8 +5351,8 @@ lazy_static! {
                     hidden: "lightningrod".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 2 as f32,
             }
@@ -5375,8 +5376,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 2 as f32,
             }
@@ -5400,8 +5401,8 @@ lazy_static! {
                     hidden: "friendguard".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 3 as f32,
             }
@@ -5425,8 +5426,8 @@ lazy_static! {
                     hidden: "friendguard".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Fairy
                 ),
                 weight: 1 as f32,
             }
@@ -5450,8 +5451,8 @@ lazy_static! {
                     hidden: "superluck".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 1.5 as f32,
             }
@@ -5475,8 +5476,8 @@ lazy_static! {
                     hidden: "superluck".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Flying
                 ),
                 weight: 3.2 as f32,
             }
@@ -5500,8 +5501,8 @@ lazy_static! {
                     hidden: "magicbounce".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Flying
                 ),
                 weight: 2 as f32,
             }
@@ -5525,8 +5526,8 @@ lazy_static! {
                     hidden: "magicbounce".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Flying
                 ),
                 weight: 15 as f32,
             }
@@ -5550,8 +5551,8 @@ lazy_static! {
                     hidden: "plus".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7.8 as f32,
             }
@@ -5575,8 +5576,8 @@ lazy_static! {
                     hidden: "plus".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 13.3 as f32,
             }
@@ -5600,8 +5601,8 @@ lazy_static! {
                     hidden: "plus".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 61.5 as f32,
             }
@@ -5625,8 +5626,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Dragon
                 ),
                 weight: 61.5 as f32,
             }
@@ -5650,8 +5651,8 @@ lazy_static! {
                     hidden: "healer".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 5.8 as f32,
             }
@@ -5675,8 +5676,8 @@ lazy_static! {
                     hidden: "sapsipper".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Fairy
                 ),
                 weight: 8.5 as f32,
             }
@@ -5700,8 +5701,8 @@ lazy_static! {
                     hidden: "sapsipper".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Fairy
                 ),
                 weight: 28.5 as f32,
             }
@@ -5725,8 +5726,8 @@ lazy_static! {
                     hidden: "rattled".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 38 as f32,
             }
@@ -5750,8 +5751,8 @@ lazy_static! {
                     hidden: "drizzle".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 33.9 as f32,
             }
@@ -5775,8 +5776,8 @@ lazy_static! {
                     hidden: "infiltrator".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Flying
                 ),
                 weight: 0.5 as f32,
             }
@@ -5800,8 +5801,8 @@ lazy_static! {
                     hidden: "infiltrator".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Flying
                 ),
                 weight: 1 as f32,
             }
@@ -5825,8 +5826,8 @@ lazy_static! {
                     hidden: "infiltrator".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Flying
                 ),
                 weight: 3 as f32,
             }
@@ -5850,8 +5851,8 @@ lazy_static! {
                     hidden: "skilllink".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 11.5 as f32,
             }
@@ -5875,8 +5876,8 @@ lazy_static! {
                     hidden: "earlybird".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 1.8 as f32,
             }
@@ -5900,8 +5901,8 @@ lazy_static! {
                     hidden: "earlybird".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8.5 as f32,
             }
@@ -5925,8 +5926,8 @@ lazy_static! {
                     hidden: "frisk".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 38 as f32,
             }
@@ -5950,8 +5951,8 @@ lazy_static! {
                     hidden: "unaware".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ground
                 ),
                 weight: 8.5 as f32,
             }
@@ -5975,8 +5976,8 @@ lazy_static! {
                     hidden: "unaware".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ground
                 ),
                 weight: 75 as f32,
             }
@@ -6000,8 +6001,8 @@ lazy_static! {
                     hidden: "magicbounce".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 26.5 as f32,
             }
@@ -6025,8 +6026,8 @@ lazy_static! {
                     hidden: "innerfocus".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 27 as f32,
             }
@@ -6050,8 +6051,8 @@ lazy_static! {
                     hidden: "prankster".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Flying
                 ),
                 weight: 2.1 as f32,
             }
@@ -6075,8 +6076,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Psychic
                 ),
                 weight: 79.5 as f32,
             }
@@ -6100,8 +6101,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Psychic
                 ),
                 weight: 79.5 as f32,
             }
@@ -6125,8 +6126,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 1 as f32,
             }
@@ -6150,8 +6151,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 5 as f32,
             }
@@ -6175,8 +6176,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 28.5 as f32,
             }
@@ -6200,8 +6201,8 @@ lazy_static! {
                     hidden: "sapsipper".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Psychic
                 ),
                 weight: 41.5 as f32,
             }
@@ -6225,8 +6226,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7.2 as f32,
             }
@@ -6250,8 +6251,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Steel
                 ),
                 weight: 125.8 as f32,
             }
@@ -6275,8 +6276,8 @@ lazy_static! {
                     hidden: "rattled".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 14 as f32,
             }
@@ -6300,8 +6301,8 @@ lazy_static! {
                     hidden: "immunity".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Flying
                 ),
                 weight: 64.8 as f32,
             }
@@ -6325,8 +6326,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Ground
                 ),
                 weight: 400 as f32,
             }
@@ -6350,8 +6351,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Ground
                 ),
                 weight: 740 as f32,
             }
@@ -6375,8 +6376,8 @@ lazy_static! {
                     hidden: "rattled".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7.8 as f32,
             }
@@ -6400,8 +6401,8 @@ lazy_static! {
                     hidden: "rattled".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 48.7 as f32,
             }
@@ -6425,8 +6426,8 @@ lazy_static! {
                     hidden: "intimidate".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Poison
                 ),
                 weight: 3.9 as f32,
             }
@@ -6450,8 +6451,8 @@ lazy_static! {
                     hidden: "lightmetal".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Steel
                 ),
                 weight: 118 as f32,
             }
@@ -6475,8 +6476,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Steel
                 ),
                 weight: 125 as f32,
             }
@@ -6500,8 +6501,8 @@ lazy_static! {
                     hidden: "contrary".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Rock
                 ),
                 weight: 20.5 as f32,
             }
@@ -6525,8 +6526,8 @@ lazy_static! {
                     hidden: "moxie".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Fighting
                 ),
                 weight: 54 as f32,
             }
@@ -6550,8 +6551,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Fighting
                 ),
                 weight: 62.5 as f32,
             }
@@ -6575,8 +6576,8 @@ lazy_static! {
                     hidden: "pickpocket".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Ice
                 ),
                 weight: 28 as f32,
             }
@@ -6600,8 +6601,8 @@ lazy_static! {
                     hidden: "honeygather".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8.8 as f32,
             }
@@ -6625,8 +6626,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 125.8 as f32,
             }
@@ -6650,8 +6651,8 @@ lazy_static! {
                     hidden: "weakarmor".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 35 as f32,
             }
@@ -6675,8 +6676,8 @@ lazy_static! {
                     hidden: "weakarmor".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Rock
                 ),
                 weight: 55 as f32,
             }
@@ -6700,8 +6701,8 @@ lazy_static! {
                     hidden: "thickfat".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Ground
                 ),
                 weight: 6.5 as f32,
             }
@@ -6725,8 +6726,8 @@ lazy_static! {
                     hidden: "thickfat".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Ground
                 ),
                 weight: 55.8 as f32,
             }
@@ -6750,8 +6751,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Rock
                 ),
                 weight: 5 as f32,
             }
@@ -6775,8 +6776,8 @@ lazy_static! {
                     hidden: "moody".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 12 as f32,
             }
@@ -6800,8 +6801,8 @@ lazy_static! {
                     hidden: "moody".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 28.5 as f32,
             }
@@ -6825,8 +6826,8 @@ lazy_static! {
                     hidden: "insomnia".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Flying
                 ),
                 weight: 16 as f32,
             }
@@ -6850,8 +6851,8 @@ lazy_static! {
                     hidden: "waterveil".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Flying
                 ),
                 weight: 220 as f32,
             }
@@ -6875,8 +6876,8 @@ lazy_static! {
                     hidden: "weakarmor".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Flying
                 ),
                 weight: 50.5 as f32,
             }
@@ -6900,8 +6901,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Fire
                 ),
                 weight: 10.8 as f32,
             }
@@ -6925,8 +6926,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Fire
                 ),
                 weight: 35 as f32,
             }
@@ -6950,8 +6951,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Fire
                 ),
                 weight: 49.5 as f32,
             }
@@ -6975,8 +6976,8 @@ lazy_static! {
                     hidden: "damp".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Dragon
                 ),
                 weight: 152 as f32,
             }
@@ -7000,8 +7001,8 @@ lazy_static! {
                     hidden: "sandveil".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 33.5 as f32,
             }
@@ -7025,8 +7026,8 @@ lazy_static! {
                     hidden: "sandveil".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 120 as f32,
             }
@@ -7050,8 +7051,8 @@ lazy_static! {
                     hidden: "analytic".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 32.5 as f32,
             }
@@ -7075,8 +7076,8 @@ lazy_static! {
                     hidden: "sapsipper".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 71.2 as f32,
             }
@@ -7100,8 +7101,8 @@ lazy_static! {
                     hidden: "moody".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 58 as f32,
             }
@@ -7125,8 +7126,8 @@ lazy_static! {
                     hidden: "vitalspirit".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 21 as f32,
             }
@@ -7150,8 +7151,8 @@ lazy_static! {
                     hidden: "steadfast".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 48 as f32,
             }
@@ -7175,8 +7176,8 @@ lazy_static! {
                     hidden: "hydration".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Psychic
                 ),
                 weight: 6 as f32,
             }
@@ -7200,8 +7201,8 @@ lazy_static! {
                     hidden: "vitalspirit".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 23.5 as f32,
             }
@@ -7225,8 +7226,8 @@ lazy_static! {
                     hidden: "vitalspirit".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 21.4 as f32,
             }
@@ -7250,8 +7251,8 @@ lazy_static! {
                     hidden: "sapsipper".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 75.5 as f32,
             }
@@ -7275,8 +7276,8 @@ lazy_static! {
                     hidden: "healer".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 46.8 as f32,
             }
@@ -7300,8 +7301,8 @@ lazy_static! {
                     hidden: "innerfocus".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 178 as f32,
             }
@@ -7325,8 +7326,8 @@ lazy_static! {
                     hidden: "innerfocus".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 198 as f32,
             }
@@ -7350,8 +7351,8 @@ lazy_static! {
                     hidden: "innerfocus".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 187 as f32,
             }
@@ -7375,8 +7376,8 @@ lazy_static! {
                     hidden: "sandveil".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Ground
                 ),
                 weight: 72 as f32,
             }
@@ -7400,8 +7401,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Ground
                 ),
                 weight: 152 as f32,
             }
@@ -7425,8 +7426,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Dark
                 ),
                 weight: 202 as f32,
             }
@@ -7450,8 +7451,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Dark
                 ),
                 weight: 255 as f32,
             }
@@ -7475,8 +7476,8 @@ lazy_static! {
                     hidden: "multiscale".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Flying
                 ),
                 weight: 216 as f32,
             }
@@ -7500,8 +7501,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Flying
                 ),
                 weight: 199 as f32,
             }
@@ -7525,8 +7526,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Grass
                 ),
                 weight: 5 as f32,
             }
@@ -7550,8 +7551,8 @@ lazy_static! {
                     hidden: "unburden".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 5 as f32,
             }
@@ -7575,8 +7576,8 @@ lazy_static! {
                     hidden: "unburden".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 21.6 as f32,
             }
@@ -7600,8 +7601,8 @@ lazy_static! {
                     hidden: "unburden".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 52.2 as f32,
             }
@@ -7625,8 +7626,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Dragon
                 ),
                 weight: 55.2 as f32,
             }
@@ -7650,8 +7651,8 @@ lazy_static! {
                     hidden: "speedboost".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 2.5 as f32,
             }
@@ -7675,8 +7676,8 @@ lazy_static! {
                     hidden: "speedboost".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Fighting
                 ),
                 weight: 19.5 as f32,
             }
@@ -7700,8 +7701,8 @@ lazy_static! {
                     hidden: "speedboost".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Fighting
                 ),
                 weight: 52 as f32,
             }
@@ -7725,8 +7726,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Fighting
                 ),
                 weight: 52 as f32,
             }
@@ -7750,8 +7751,8 @@ lazy_static! {
                     hidden: "damp".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7.6 as f32,
             }
@@ -7775,8 +7776,8 @@ lazy_static! {
                     hidden: "damp".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ground
                 ),
                 weight: 28 as f32,
             }
@@ -7800,8 +7801,8 @@ lazy_static! {
                     hidden: "damp".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ground
                 ),
                 weight: 81.9 as f32,
             }
@@ -7825,8 +7826,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ground
                 ),
                 weight: 102 as f32,
             }
@@ -7850,8 +7851,8 @@ lazy_static! {
                     hidden: "rattled".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 13.6 as f32,
             }
@@ -7875,8 +7876,8 @@ lazy_static! {
                     hidden: "moxie".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 37 as f32,
             }
@@ -7900,8 +7901,8 @@ lazy_static! {
                     hidden: "quickfeet".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 17.5 as f32,
             }
@@ -7925,8 +7926,8 @@ lazy_static! {
                     hidden: "quickfeet".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 32.5 as f32,
             }
@@ -7950,8 +7951,8 @@ lazy_static! {
                     hidden: "runaway".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 3.6 as f32,
             }
@@ -7975,8 +7976,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 10 as f32,
             }
@@ -8000,8 +8001,8 @@ lazy_static! {
                     hidden: "rivalry".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 28.4 as f32,
             }
@@ -8025,8 +8026,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 11.5 as f32,
             }
@@ -8050,8 +8051,8 @@ lazy_static! {
                     hidden: "compoundeyes".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Poison
                 ),
                 weight: 31.6 as f32,
             }
@@ -8075,8 +8076,8 @@ lazy_static! {
                     hidden: "owntempo".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Grass
                 ),
                 weight: 2.6 as f32,
             }
@@ -8100,8 +8101,8 @@ lazy_static! {
                     hidden: "owntempo".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Grass
                 ),
                 weight: 32.5 as f32,
             }
@@ -8125,8 +8126,8 @@ lazy_static! {
                     hidden: "owntempo".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Grass
                 ),
                 weight: 55 as f32,
             }
@@ -8150,8 +8151,8 @@ lazy_static! {
                     hidden: "pickpocket".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4 as f32,
             }
@@ -8175,8 +8176,8 @@ lazy_static! {
                     hidden: "pickpocket".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Dark
                 ),
                 weight: 28 as f32,
             }
@@ -8200,8 +8201,8 @@ lazy_static! {
                     hidden: "pickpocket".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Dark
                 ),
                 weight: 59.6 as f32,
             }
@@ -8225,8 +8226,8 @@ lazy_static! {
                     hidden: "scrappy".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 2.3 as f32,
             }
@@ -8250,8 +8251,8 @@ lazy_static! {
                     hidden: "scrappy".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 19.8 as f32,
             }
@@ -8275,8 +8276,8 @@ lazy_static! {
                     hidden: "raindish".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Flying
                 ),
                 weight: 9.5 as f32,
             }
@@ -8300,8 +8301,8 @@ lazy_static! {
                     hidden: "raindish".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Flying
                 ),
                 weight: 28 as f32,
             }
@@ -8325,8 +8326,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Fairy
                 ),
                 weight: 6.6 as f32,
             }
@@ -8350,8 +8351,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Fairy
                 ),
                 weight: 20.2 as f32,
             }
@@ -8375,8 +8376,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Fairy
                 ),
                 weight: 48.4 as f32,
             }
@@ -8400,8 +8401,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Fairy
                 ),
                 weight: 48.4 as f32,
             }
@@ -8425,8 +8426,8 @@ lazy_static! {
                     hidden: "raindish".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Water
                 ),
                 weight: 1.7 as f32,
             }
@@ -8450,8 +8451,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 3.6 as f32,
             }
@@ -8475,8 +8476,8 @@ lazy_static! {
                     hidden: "quickfeet".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4.5 as f32,
             }
@@ -8500,8 +8501,8 @@ lazy_static! {
                     hidden: "technician".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Fighting
                 ),
                 weight: 39.2 as f32,
             }
@@ -8525,8 +8526,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 24 as f32,
             }
@@ -8550,8 +8551,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 46.5 as f32,
             }
@@ -8575,8 +8576,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 130.5 as f32,
             }
@@ -8600,8 +8601,8 @@ lazy_static! {
                     hidden: "runaway".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Ground
                 ),
                 weight: 5.5 as f32,
             }
@@ -8625,8 +8626,8 @@ lazy_static! {
                     hidden: "infiltrator".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 12 as f32,
             }
@@ -8650,8 +8651,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Ghost
                 ),
                 weight: 1.2 as f32,
             }
@@ -8675,8 +8676,8 @@ lazy_static! {
                     hidden: "rattled".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 16.3 as f32,
             }
@@ -8700,8 +8701,8 @@ lazy_static! {
                     hidden: "scrappy".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 40.5 as f32,
             }
@@ -8725,8 +8726,8 @@ lazy_static! {
                     hidden: "scrappy".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 84 as f32,
             }
@@ -8750,8 +8751,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 86.4 as f32,
             }
@@ -8775,8 +8776,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 253.8 as f32,
             }
@@ -8800,8 +8801,8 @@ lazy_static! {
                     hidden: "sapsipper".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Fairy
                 ),
                 weight: 2 as f32,
             }
@@ -8825,8 +8826,8 @@ lazy_static! {
                     hidden: "sandforce".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 97 as f32,
             }
@@ -8850,8 +8851,8 @@ lazy_static! {
                     hidden: "wonderskin".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 11 as f32,
             }
@@ -8875,8 +8876,8 @@ lazy_static! {
                     hidden: "wonderskin".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 32.6 as f32,
             }
@@ -8900,8 +8901,8 @@ lazy_static! {
                     hidden: "prankster".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Ghost
                 ),
                 weight: 11 as f32,
             }
@@ -8925,8 +8926,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Ghost
                 ),
                 weight: 161 as f32,
             }
@@ -8950,8 +8951,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Fairy
                 ),
                 weight: 11.5 as f32,
             }
@@ -8975,8 +8976,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Fairy
                 ),
                 weight: 23.5 as f32,
             }
@@ -9000,8 +9001,8 @@ lazy_static! {
                     hidden: "heavymetal".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Rock
                 ),
                 weight: 60 as f32,
             }
@@ -9025,8 +9026,8 @@ lazy_static! {
                     hidden: "heavymetal".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Rock
                 ),
                 weight: 120 as f32,
             }
@@ -9050,8 +9051,8 @@ lazy_static! {
                     hidden: "heavymetal".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Rock
                 ),
                 weight: 360 as f32,
             }
@@ -9075,8 +9076,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Typeless
                 ),
                 weight: 395 as f32,
             }
@@ -9100,8 +9101,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Psychic
                 ),
                 weight: 11.2 as f32,
             }
@@ -9125,8 +9126,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Psychic
                 ),
                 weight: 31.5 as f32,
             }
@@ -9150,8 +9151,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Psychic
                 ),
                 weight: 31.5 as f32,
             }
@@ -9175,8 +9176,8 @@ lazy_static! {
                     hidden: "minus".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 15.2 as f32,
             }
@@ -9200,8 +9201,8 @@ lazy_static! {
                     hidden: "minus".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 40.2 as f32,
             }
@@ -9225,8 +9226,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 44 as f32,
             }
@@ -9250,8 +9251,8 @@ lazy_static! {
                     hidden: "lightningrod".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4.2 as f32,
             }
@@ -9275,8 +9276,8 @@ lazy_static! {
                     hidden: "voltabsorb".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4.2 as f32,
             }
@@ -9300,8 +9301,8 @@ lazy_static! {
                     hidden: "prankster".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 17.7 as f32,
             }
@@ -9325,8 +9326,8 @@ lazy_static! {
                     hidden: "prankster".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 17.7 as f32,
             }
@@ -9350,8 +9351,8 @@ lazy_static! {
                     hidden: "leafguard".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Poison
                 ),
                 weight: 2 as f32,
             }
@@ -9375,8 +9376,8 @@ lazy_static! {
                     hidden: "gluttony".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 10.3 as f32,
             }
@@ -9400,8 +9401,8 @@ lazy_static! {
                     hidden: "gluttony".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 80 as f32,
             }
@@ -9425,8 +9426,8 @@ lazy_static! {
                     hidden: "speedboost".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Dark
                 ),
                 weight: 20.8 as f32,
             }
@@ -9450,8 +9451,8 @@ lazy_static! {
                     hidden: "speedboost".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Dark
                 ),
                 weight: 88.8 as f32,
             }
@@ -9475,8 +9476,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Dark
                 ),
                 weight: 130.3 as f32,
             }
@@ -9500,8 +9501,8 @@ lazy_static! {
                     hidden: "pressure".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 130 as f32,
             }
@@ -9525,8 +9526,8 @@ lazy_static! {
                     hidden: "pressure".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 398 as f32,
             }
@@ -9550,8 +9551,8 @@ lazy_static! {
                     hidden: "owntempo".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Ground
                 ),
                 weight: 24 as f32,
             }
@@ -9575,8 +9576,8 @@ lazy_static! {
                     hidden: "angerpoint".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Ground
                 ),
                 weight: 220 as f32,
             }
@@ -9600,8 +9601,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Ground
                 ),
                 weight: 320.5 as f32,
             }
@@ -9625,8 +9626,8 @@ lazy_static! {
                     hidden: "shellarmor".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 80.4 as f32,
             }
@@ -9650,8 +9651,8 @@ lazy_static! {
                     hidden: "gluttony".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 30.6 as f32,
             }
@@ -9675,8 +9676,8 @@ lazy_static! {
                     hidden: "gluttony".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 71.5 as f32,
             }
@@ -9700,8 +9701,8 @@ lazy_static! {
                     hidden: "contrary".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 5 as f32,
             }
@@ -9725,8 +9726,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 15 as f32,
             }
@@ -9750,8 +9751,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Dragon
                 ),
                 weight: 15.3 as f32,
             }
@@ -9775,8 +9776,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Dragon
                 ),
                 weight: 82 as f32,
             }
@@ -9800,8 +9801,8 @@ lazy_static! {
                     hidden: "waterabsorb".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 51.3 as f32,
             }
@@ -9825,8 +9826,8 @@ lazy_static! {
                     hidden: "waterabsorb".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Dark
                 ),
                 weight: 77.4 as f32,
             }
@@ -9850,8 +9851,8 @@ lazy_static! {
                     hidden: "cloudnine".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 1.2 as f32,
             }
@@ -9875,8 +9876,8 @@ lazy_static! {
                     hidden: "cloudnine".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Flying
                 ),
                 weight: 20.6 as f32,
             }
@@ -9900,8 +9901,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Fairy
                 ),
                 weight: 20.6 as f32,
             }
@@ -9925,8 +9926,8 @@ lazy_static! {
                     hidden: "toxicboost".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 40.3 as f32,
             }
@@ -9950,8 +9951,8 @@ lazy_static! {
                     hidden: "infiltrator".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 52.5 as f32,
             }
@@ -9975,8 +9976,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Psychic
                 ),
                 weight: 168 as f32,
             }
@@ -10000,8 +10001,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Psychic
                 ),
                 weight: 154 as f32,
             }
@@ -10025,8 +10026,8 @@ lazy_static! {
                     hidden: "hydration".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ground
                 ),
                 weight: 1.9 as f32,
             }
@@ -10050,8 +10051,8 @@ lazy_static! {
                     hidden: "hydration".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ground
                 ),
                 weight: 23.6 as f32,
             }
@@ -10075,8 +10076,8 @@ lazy_static! {
                     hidden: "adaptability".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 11.5 as f32,
             }
@@ -10100,8 +10101,8 @@ lazy_static! {
                     hidden: "adaptability".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Dark
                 ),
                 weight: 32.8 as f32,
             }
@@ -10125,8 +10126,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Psychic
                 ),
                 weight: 21.5 as f32,
             }
@@ -10150,8 +10151,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Psychic
                 ),
                 weight: 108 as f32,
             }
@@ -10175,8 +10176,8 @@ lazy_static! {
                     hidden: "stormdrain".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Grass
                 ),
                 weight: 23.8 as f32,
             }
@@ -10200,8 +10201,8 @@ lazy_static! {
                     hidden: "stormdrain".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Grass
                 ),
                 weight: 60.4 as f32,
             }
@@ -10225,8 +10226,8 @@ lazy_static! {
                     hidden: "swiftswim".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "bug".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Bug
                 ),
                 weight: 12.5 as f32,
             }
@@ -10250,8 +10251,8 @@ lazy_static! {
                     hidden: "swiftswim".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "bug".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Bug
                 ),
                 weight: 68.2 as f32,
             }
@@ -10275,8 +10276,8 @@ lazy_static! {
                     hidden: "adaptability".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7.4 as f32,
             }
@@ -10300,8 +10301,8 @@ lazy_static! {
                     hidden: "cutecharm".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 162 as f32,
             }
@@ -10325,8 +10326,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.8 as f32,
             }
@@ -10350,8 +10351,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.8 as f32,
             }
@@ -10375,8 +10376,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.8 as f32,
             }
@@ -10400,8 +10401,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.8 as f32,
             }
@@ -10425,8 +10426,8 @@ lazy_static! {
                     hidden: "protean".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 22 as f32,
             }
@@ -10450,8 +10451,8 @@ lazy_static! {
                     hidden: "cursedbody".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 2.3 as f32,
             }
@@ -10475,8 +10476,8 @@ lazy_static! {
                     hidden: "cursedbody".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 12.5 as f32,
             }
@@ -10500,8 +10501,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 13 as f32,
             }
@@ -10525,8 +10526,8 @@ lazy_static! {
                     hidden: "frisk".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 15 as f32,
             }
@@ -10550,8 +10551,8 @@ lazy_static! {
                     hidden: "frisk".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 30.6 as f32,
             }
@@ -10575,8 +10576,8 @@ lazy_static! {
                     hidden: "harvest".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Flying
                 ),
                 weight: 100 as f32,
             }
@@ -10600,8 +10601,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 1 as f32,
             }
@@ -10625,8 +10626,8 @@ lazy_static! {
                     hidden: "justified".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 47 as f32,
             }
@@ -10650,8 +10651,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 49 as f32,
             }
@@ -10675,8 +10676,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 14 as f32,
             }
@@ -10700,8 +10701,8 @@ lazy_static! {
                     hidden: "moody".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 16.8 as f32,
             }
@@ -10725,8 +10726,8 @@ lazy_static! {
                     hidden: "moody".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 256.5 as f32,
             }
@@ -10750,8 +10751,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 350.2 as f32,
             }
@@ -10775,8 +10776,8 @@ lazy_static! {
                     hidden: "oblivious".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Water
                 ),
                 weight: 39.5 as f32,
             }
@@ -10800,8 +10801,8 @@ lazy_static! {
                     hidden: "oblivious".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Water
                 ),
                 weight: 87.6 as f32,
             }
@@ -10825,8 +10826,8 @@ lazy_static! {
                     hidden: "oblivious".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Water
                 ),
                 weight: 150.6 as f32,
             }
@@ -10850,8 +10851,8 @@ lazy_static! {
                     hidden: "rattled".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 52.5 as f32,
             }
@@ -10875,8 +10876,8 @@ lazy_static! {
                     hidden: "waterveil".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 27 as f32,
             }
@@ -10900,8 +10901,8 @@ lazy_static! {
                     hidden: "hydration".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 22.6 as f32,
             }
@@ -10925,8 +10926,8 @@ lazy_static! {
                     hidden: "sturdy".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Rock
                 ),
                 weight: 23.4 as f32,
             }
@@ -10950,8 +10951,8 @@ lazy_static! {
                     hidden: "hydration".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8.7 as f32,
             }
@@ -10975,8 +10976,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Typeless
                 ),
                 weight: 42.1 as f32,
             }
@@ -11000,8 +11001,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Typeless
                 ),
                 weight: 110.5 as f32,
             }
@@ -11025,8 +11026,8 @@ lazy_static! {
                     hidden: "moxie".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Flying
                 ),
                 weight: 102.6 as f32,
             }
@@ -11050,8 +11051,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Flying
                 ),
                 weight: 112.6 as f32,
             }
@@ -11075,8 +11076,8 @@ lazy_static! {
                     hidden: "lightmetal".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Psychic
                 ),
                 weight: 95.2 as f32,
             }
@@ -11100,8 +11101,8 @@ lazy_static! {
                     hidden: "lightmetal".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Psychic
                 ),
                 weight: 202.5 as f32,
             }
@@ -11125,8 +11126,8 @@ lazy_static! {
                     hidden: "lightmetal".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Psychic
                 ),
                 weight: 550 as f32,
             }
@@ -11150,8 +11151,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Psychic
                 ),
                 weight: 942.9 as f32,
             }
@@ -11175,8 +11176,8 @@ lazy_static! {
                     hidden: "sturdy".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 230 as f32,
             }
@@ -11200,8 +11201,8 @@ lazy_static! {
                     hidden: "icebody".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 175 as f32,
             }
@@ -11225,8 +11226,8 @@ lazy_static! {
                     hidden: "lightmetal".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Typeless
                 ),
                 weight: 205 as f32,
             }
@@ -11250,8 +11251,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Psychic
                 ),
                 weight: 40 as f32,
             }
@@ -11275,8 +11276,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Psychic
                 ),
                 weight: 52 as f32,
             }
@@ -11300,8 +11301,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Psychic
                 ),
                 weight: 60 as f32,
             }
@@ -11325,8 +11326,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Psychic
                 ),
                 weight: 70 as f32,
             }
@@ -11350,8 +11351,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 352 as f32,
             }
@@ -11375,8 +11376,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 430 as f32,
             }
@@ -11400,8 +11401,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 950 as f32,
             }
@@ -11425,8 +11426,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Fire
                 ),
                 weight: 999.7 as f32,
             }
@@ -11450,8 +11451,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Flying
                 ),
                 weight: 206.5 as f32,
             }
@@ -11475,8 +11476,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Flying
                 ),
                 weight: 392 as f32,
             }
@@ -11500,8 +11501,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Psychic
                 ),
                 weight: 1.1 as f32,
             }
@@ -11525,8 +11526,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 60.8 as f32,
             }
@@ -11550,8 +11551,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 60.8 as f32,
             }
@@ -11575,8 +11576,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 60.8 as f32,
             }
@@ -11600,8 +11601,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 60.8 as f32,
             }
@@ -11625,8 +11626,8 @@ lazy_static! {
                     hidden: "shellarmor".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 10.2 as f32,
             }
@@ -11650,8 +11651,8 @@ lazy_static! {
                     hidden: "shellarmor".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 97 as f32,
             }
@@ -11675,8 +11676,8 @@ lazy_static! {
                     hidden: "shellarmor".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Ground
                 ),
                 weight: 310 as f32,
             }
@@ -11700,8 +11701,8 @@ lazy_static! {
                     hidden: "ironfist".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6.2 as f32,
             }
@@ -11725,8 +11726,8 @@ lazy_static! {
                     hidden: "ironfist".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Fighting
                 ),
                 weight: 22 as f32,
             }
@@ -11750,8 +11751,8 @@ lazy_static! {
                     hidden: "ironfist".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Fighting
                 ),
                 weight: 55 as f32,
             }
@@ -11775,8 +11776,8 @@ lazy_static! {
                     hidden: "defiant".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 5.2 as f32,
             }
@@ -11800,8 +11801,8 @@ lazy_static! {
                     hidden: "defiant".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 23 as f32,
             }
@@ -11825,8 +11826,8 @@ lazy_static! {
                     hidden: "defiant".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Steel
                 ),
                 weight: 84.5 as f32,
             }
@@ -11850,8 +11851,8 @@ lazy_static! {
                     hidden: "reckless".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 2 as f32,
             }
@@ -11875,8 +11876,8 @@ lazy_static! {
                     hidden: "reckless".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 15.5 as f32,
             }
@@ -11900,8 +11901,8 @@ lazy_static! {
                     hidden: "reckless".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 24.9 as f32,
             }
@@ -11925,8 +11926,8 @@ lazy_static! {
                     hidden: "moody".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 20 as f32,
             }
@@ -11950,8 +11951,8 @@ lazy_static! {
                     hidden: "moody".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Water
                 ),
                 weight: 31.5 as f32,
             }
@@ -11975,8 +11976,8 @@ lazy_static! {
                     hidden: "runaway".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 2.2 as f32,
             }
@@ -12000,8 +12001,8 @@ lazy_static! {
                     hidden: "technician".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 25.5 as f32,
             }
@@ -12025,8 +12026,8 @@ lazy_static! {
                     hidden: "guts".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9.5 as f32,
             }
@@ -12050,8 +12051,8 @@ lazy_static! {
                     hidden: "guts".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 30.5 as f32,
             }
@@ -12075,8 +12076,8 @@ lazy_static! {
                     hidden: "guts".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 42 as f32,
             }
@@ -12100,8 +12101,8 @@ lazy_static! {
                     hidden: "leafguard".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Poison
                 ),
                 weight: 1.2 as f32,
             }
@@ -12125,8 +12126,8 @@ lazy_static! {
                     hidden: "technician".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Poison
                 ),
                 weight: 14.5 as f32,
             }
@@ -12150,8 +12151,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 31.5 as f32,
             }
@@ -12175,8 +12176,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 102.5 as f32,
             }
@@ -12200,8 +12201,8 @@ lazy_static! {
                     hidden: "soundproof".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Steel
                 ),
                 weight: 57 as f32,
             }
@@ -12225,8 +12226,8 @@ lazy_static! {
                     hidden: "soundproof".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Steel
                 ),
                 weight: 149.5 as f32,
             }
@@ -12250,8 +12251,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 3.4 as f32,
             }
@@ -12275,8 +12276,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Grass
                 ),
                 weight: 6.5 as f32,
             }
@@ -12300,8 +12301,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Ground
                 ),
                 weight: 6.5 as f32,
             }
@@ -12325,8 +12326,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Steel
                 ),
                 weight: 6.5 as f32,
             }
@@ -12350,8 +12351,8 @@ lazy_static! {
                     hidden: "tintedlens".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 23.3 as f32,
             }
@@ -12375,8 +12376,8 @@ lazy_static! {
                     hidden: "hustle".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 5.5 as f32,
             }
@@ -12400,8 +12401,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 38.5 as f32,
             }
@@ -12425,8 +12426,8 @@ lazy_static! {
                     hidden: "voltabsorb".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 3.9 as f32,
             }
@@ -12450,8 +12451,8 @@ lazy_static! {
                     hidden: "waterveil".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 29.5 as f32,
             }
@@ -12475,8 +12476,8 @@ lazy_static! {
                     hidden: "waterveil".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 33.5 as f32,
             }
@@ -12500,8 +12501,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 3.3 as f32,
             }
@@ -12525,8 +12526,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9.3 as f32,
             }
@@ -12550,8 +12551,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9.3 as f32,
             }
@@ -12575,8 +12576,8 @@ lazy_static! {
                     hidden: "sandforce".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6.3 as f32,
             }
@@ -12600,8 +12601,8 @@ lazy_static! {
                     hidden: "sandforce".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ground
                 ),
                 weight: 29.9 as f32,
             }
@@ -12625,8 +12626,8 @@ lazy_static! {
                     hidden: "skilllink".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 20.3 as f32,
             }
@@ -12650,8 +12651,8 @@ lazy_static! {
                     hidden: "flareboost".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Flying
                 ),
                 weight: 1.2 as f32,
             }
@@ -12675,8 +12676,8 @@ lazy_static! {
                     hidden: "flareboost".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Flying
                 ),
                 weight: 15 as f32,
             }
@@ -12700,8 +12701,8 @@ lazy_static! {
                     hidden: "limber".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 5.5 as f32,
             }
@@ -12725,8 +12726,8 @@ lazy_static! {
                     hidden: "limber".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 33.3 as f32,
             }
@@ -12750,8 +12751,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Fighting
                 ),
                 weight: 28.3 as f32,
             }
@@ -12775,8 +12776,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4.4 as f32,
             }
@@ -12800,8 +12801,8 @@ lazy_static! {
                     hidden: "moxie".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Flying
                 ),
                 weight: 27.3 as f32,
             }
@@ -12825,8 +12826,8 @@ lazy_static! {
                     hidden: "keeneye".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 3.9 as f32,
             }
@@ -12850,8 +12851,8 @@ lazy_static! {
                     hidden: "defiant".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 43.8 as f32,
             }
@@ -12875,8 +12876,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.6 as f32,
             }
@@ -12900,8 +12901,8 @@ lazy_static! {
                     hidden: "keeneye".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Dark
                 ),
                 weight: 19.2 as f32,
             }
@@ -12925,8 +12926,8 @@ lazy_static! {
                     hidden: "keeneye".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Dark
                 ),
                 weight: 38 as f32,
             }
@@ -12950,8 +12951,8 @@ lazy_static! {
                     hidden: "heavymetal".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Psychic
                 ),
                 weight: 60.5 as f32,
             }
@@ -12975,8 +12976,8 @@ lazy_static! {
                     hidden: "heavymetal".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Psychic
                 ),
                 weight: 187 as f32,
             }
@@ -13000,8 +13001,8 @@ lazy_static! {
                     hidden: "rattled".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 15 as f32,
             }
@@ -13025,8 +13026,8 @@ lazy_static! {
                     hidden: "technician".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Fairy
                 ),
                 weight: 13 as f32,
             }
@@ -13050,8 +13051,8 @@ lazy_static! {
                     hidden: "friendguard".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 24.4 as f32,
             }
@@ -13075,8 +13076,8 @@ lazy_static! {
                     hidden: "bigpecks".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 1.9 as f32,
             }
@@ -13100,8 +13101,8 @@ lazy_static! {
                     hidden: "infiltrator".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Dark
                 ),
                 weight: 108 as f32,
             }
@@ -13125,8 +13126,8 @@ lazy_static! {
                     hidden: "roughskin".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Ground
                 ),
                 weight: 20.5 as f32,
             }
@@ -13150,8 +13151,8 @@ lazy_static! {
                     hidden: "roughskin".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Ground
                 ),
                 weight: 56 as f32,
             }
@@ -13175,8 +13176,8 @@ lazy_static! {
                     hidden: "roughskin".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Ground
                 ),
                 weight: 95 as f32,
             }
@@ -13200,8 +13201,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Ground
                 ),
                 weight: 95 as f32,
             }
@@ -13225,8 +13226,8 @@ lazy_static! {
                     hidden: "gluttony".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 105 as f32,
             }
@@ -13250,8 +13251,8 @@ lazy_static! {
                     hidden: "prankster".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 20.2 as f32,
             }
@@ -13275,8 +13276,8 @@ lazy_static! {
                     hidden: "justified".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Steel
                 ),
                 weight: 54 as f32,
             }
@@ -13300,8 +13301,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Steel
                 ),
                 weight: 57.5 as f32,
             }
@@ -13325,8 +13326,8 @@ lazy_static! {
                     hidden: "sandforce".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 49.5 as f32,
             }
@@ -13350,8 +13351,8 @@ lazy_static! {
                     hidden: "sandforce".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 300 as f32,
             }
@@ -13375,8 +13376,8 @@ lazy_static! {
                     hidden: "keeneye".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "bug".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Bug
                 ),
                 weight: 12 as f32,
             }
@@ -13400,8 +13401,8 @@ lazy_static! {
                     hidden: "keeneye".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Dark
                 ),
                 weight: 61.5 as f32,
             }
@@ -13425,8 +13426,8 @@ lazy_static! {
                     hidden: "poisontouch".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Fighting
                 ),
                 weight: 23 as f32,
             }
@@ -13450,8 +13451,8 @@ lazy_static! {
                     hidden: "poisontouch".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Fighting
                 ),
                 weight: 44.4 as f32,
             }
@@ -13475,8 +13476,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 27 as f32,
             }
@@ -13500,8 +13501,8 @@ lazy_static! {
                     hidden: "waterveil".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7 as f32,
             }
@@ -13525,8 +13526,8 @@ lazy_static! {
                     hidden: "waterveil".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 24 as f32,
             }
@@ -13550,8 +13551,8 @@ lazy_static! {
                     hidden: "waterveil".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Flying
                 ),
                 weight: 65 as f32,
             }
@@ -13575,8 +13576,8 @@ lazy_static! {
                     hidden: "soundproof".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Ice
                 ),
                 weight: 50.5 as f32,
             }
@@ -13600,8 +13601,8 @@ lazy_static! {
                     hidden: "soundproof".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Ice
                 ),
                 weight: 135.5 as f32,
             }
@@ -13625,8 +13626,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Ice
                 ),
                 weight: 185 as f32,
             }
@@ -13650,8 +13651,8 @@ lazy_static! {
                     hidden: "pickpocket".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Ice
                 ),
                 weight: 34 as f32,
             }
@@ -13675,8 +13676,8 @@ lazy_static! {
                     hidden: "analytic".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Steel
                 ),
                 weight: 180 as f32,
             }
@@ -13700,8 +13701,8 @@ lazy_static! {
                     hidden: "cloudnine".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 140 as f32,
             }
@@ -13725,8 +13726,8 @@ lazy_static! {
                     hidden: "reckless".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Rock
                 ),
                 weight: 282.8 as f32,
             }
@@ -13750,8 +13751,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 128.6 as f32,
             }
@@ -13775,8 +13776,8 @@ lazy_static! {
                     hidden: "vitalspirit".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 138.6 as f32,
             }
@@ -13800,8 +13801,8 @@ lazy_static! {
                     hidden: "vitalspirit".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 68 as f32,
             }
@@ -13825,8 +13826,8 @@ lazy_static! {
                     hidden: "superluck".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Flying
                 ),
                 weight: 38 as f32,
             }
@@ -13850,8 +13851,8 @@ lazy_static! {
                     hidden: "frisk".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 51.5 as f32,
             }
@@ -13875,8 +13876,8 @@ lazy_static! {
                     hidden: "chlorophyll".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 25.5 as f32,
             }
@@ -13900,8 +13901,8 @@ lazy_static! {
                     hidden: "icebody".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 25.9 as f32,
             }
@@ -13925,8 +13926,8 @@ lazy_static! {
                     hidden: "poisonheal".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Flying
                 ),
                 weight: 42.5 as f32,
             }
@@ -13950,8 +13951,8 @@ lazy_static! {
                     hidden: "thickfat".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Ground
                 ),
                 weight: 291 as f32,
             }
@@ -13975,8 +13976,8 @@ lazy_static! {
                     hidden: "analytic".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 34 as f32,
             }
@@ -14000,8 +14001,8 @@ lazy_static! {
                     hidden: "justified".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Fighting
                 ),
                 weight: 52 as f32,
             }
@@ -14025,8 +14026,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Fighting
                 ),
                 weight: 56.4 as f32,
             }
@@ -14050,8 +14051,8 @@ lazy_static! {
                     hidden: "sandforce".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Steel
                 ),
                 weight: 340 as f32,
             }
@@ -14075,8 +14076,8 @@ lazy_static! {
                     hidden: "frisk".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 106.6 as f32,
             }
@@ -14100,8 +14101,8 @@ lazy_static! {
                     hidden: "cursedbody".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Ghost
                 ),
                 weight: 26.6 as f32,
             }
@@ -14125,8 +14126,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Ghost
                 ),
                 weight: 0.3 as f32,
             }
@@ -14150,8 +14151,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Fire
                 ),
                 weight: 0.3 as f32,
             }
@@ -14175,8 +14176,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Water
                 ),
                 weight: 0.3 as f32,
             }
@@ -14200,8 +14201,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Ice
                 ),
                 weight: 0.3 as f32,
             }
@@ -14225,8 +14226,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Flying
                 ),
                 weight: 0.3 as f32,
             }
@@ -14250,8 +14251,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Grass
                 ),
                 weight: 0.3 as f32,
             }
@@ -14275,8 +14276,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.3 as f32,
             }
@@ -14300,8 +14301,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.3 as f32,
             }
@@ -14325,8 +14326,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.3 as f32,
             }
@@ -14350,8 +14351,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Dragon
                 ),
                 weight: 683 as f32,
             }
@@ -14375,8 +14376,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Dragon
                 ),
                 weight: 336 as f32,
             }
@@ -14400,8 +14401,8 @@ lazy_static! {
                     hidden: "flamebody".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Steel
                 ),
                 weight: 430 as f32,
             }
@@ -14425,8 +14426,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 420 as f32,
             }
@@ -14450,8 +14451,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Dragon
                 ),
                 weight: 750 as f32,
             }
@@ -14475,8 +14476,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Dragon
                 ),
                 weight: 650 as f32,
             }
@@ -14500,8 +14501,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 85.6 as f32,
             }
@@ -14525,8 +14526,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 3.1 as f32,
             }
@@ -14550,8 +14551,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 1.4 as f32,
             }
@@ -14575,8 +14576,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 50.5 as f32,
             }
@@ -14600,8 +14601,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 2.1 as f32,
             }
@@ -14625,8 +14626,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Flying
                 ),
                 weight: 5.2 as f32,
             }
@@ -14650,8 +14651,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -14675,8 +14676,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -14700,8 +14701,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -14725,8 +14726,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -14750,8 +14751,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -14775,8 +14776,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -14800,8 +14801,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -14825,8 +14826,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -14850,8 +14851,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "flying".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Flying,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -14875,8 +14876,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -14900,8 +14901,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -14925,8 +14926,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -14950,8 +14951,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -14975,8 +14976,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -15000,8 +15001,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -15025,8 +15026,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -15050,8 +15051,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -15075,8 +15076,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 320 as f32,
             }
@@ -15100,8 +15101,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Fire
                 ),
                 weight: 4 as f32,
             }
@@ -15125,8 +15126,8 @@ lazy_static! {
                     hidden: "contrary".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8.1 as f32,
             }
@@ -15150,8 +15151,8 @@ lazy_static! {
                     hidden: "contrary".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 16 as f32,
             }
@@ -15175,8 +15176,8 @@ lazy_static! {
                     hidden: "contrary".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 63 as f32,
             }
@@ -15200,8 +15201,8 @@ lazy_static! {
                     hidden: "thickfat".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9.9 as f32,
             }
@@ -15225,8 +15226,8 @@ lazy_static! {
                     hidden: "thickfat".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Fighting
                 ),
                 weight: 55.5 as f32,
             }
@@ -15250,8 +15251,8 @@ lazy_static! {
                     hidden: "reckless".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Fighting
                 ),
                 weight: 150 as f32,
             }
@@ -15275,8 +15276,8 @@ lazy_static! {
                     hidden: "shellarmor".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 5.9 as f32,
             }
@@ -15300,8 +15301,8 @@ lazy_static! {
                     hidden: "shellarmor".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 24.5 as f32,
             }
@@ -15325,8 +15326,8 @@ lazy_static! {
                     hidden: "shellarmor".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 94.6 as f32,
             }
@@ -15350,8 +15351,8 @@ lazy_static! {
                     hidden: "analytic".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 11.6 as f32,
             }
@@ -15375,8 +15376,8 @@ lazy_static! {
                     hidden: "analytic".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 27 as f32,
             }
@@ -15400,8 +15401,8 @@ lazy_static! {
                     hidden: "runaway".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4.1 as f32,
             }
@@ -15425,8 +15426,8 @@ lazy_static! {
                     hidden: "scrappy".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 14.7 as f32,
             }
@@ -15450,8 +15451,8 @@ lazy_static! {
                     hidden: "scrappy".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 61 as f32,
             }
@@ -15475,8 +15476,8 @@ lazy_static! {
                     hidden: "prankster".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 10.1 as f32,
             }
@@ -15500,8 +15501,8 @@ lazy_static! {
                     hidden: "prankster".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 37.5 as f32,
             }
@@ -15525,8 +15526,8 @@ lazy_static! {
                     hidden: "overgrow".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 10.5 as f32,
             }
@@ -15550,8 +15551,8 @@ lazy_static! {
                     hidden: "overgrow".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 30.5 as f32,
             }
@@ -15575,8 +15576,8 @@ lazy_static! {
                     hidden: "blaze".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 11 as f32,
             }
@@ -15600,8 +15601,8 @@ lazy_static! {
                     hidden: "blaze".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 28 as f32,
             }
@@ -15625,8 +15626,8 @@ lazy_static! {
                     hidden: "torrent".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 13.5 as f32,
             }
@@ -15650,8 +15651,8 @@ lazy_static! {
                     hidden: "torrent".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 29 as f32,
             }
@@ -15675,8 +15676,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 23.3 as f32,
             }
@@ -15700,8 +15701,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 60.5 as f32,
             }
@@ -15725,8 +15726,8 @@ lazy_static! {
                     hidden: "rivalry".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 2.1 as f32,
             }
@@ -15750,8 +15751,8 @@ lazy_static! {
                     hidden: "rivalry".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 15 as f32,
             }
@@ -15775,8 +15776,8 @@ lazy_static! {
                     hidden: "rivalry".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 29 as f32,
             }
@@ -15800,8 +15801,8 @@ lazy_static! {
                     hidden: "sapsipper".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 29.8 as f32,
             }
@@ -15825,8 +15826,8 @@ lazy_static! {
                     hidden: "sapsipper".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 79.5 as f32,
             }
@@ -15850,8 +15851,8 @@ lazy_static! {
                     hidden: "sandforce".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 18 as f32,
             }
@@ -15875,8 +15876,8 @@ lazy_static! {
                     hidden: "sandforce".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 102 as f32,
             }
@@ -15900,8 +15901,8 @@ lazy_static! {
                     hidden: "sandforce".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 260 as f32,
             }
@@ -15925,8 +15926,8 @@ lazy_static! {
                     hidden: "simple".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Flying
                 ),
                 weight: 2.1 as f32,
             }
@@ -15950,8 +15951,8 @@ lazy_static! {
                     hidden: "simple".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Flying
                 ),
                 weight: 10.5 as f32,
             }
@@ -15975,8 +15976,8 @@ lazy_static! {
                     hidden: "moldbreaker".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8.5 as f32,
             }
@@ -16000,8 +16001,8 @@ lazy_static! {
                     hidden: "moldbreaker".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Steel
                 ),
                 weight: 40.4 as f32,
             }
@@ -16025,8 +16026,8 @@ lazy_static! {
                     hidden: "klutz".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 31 as f32,
             }
@@ -16050,8 +16051,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Fairy
                 ),
                 weight: 32 as f32,
             }
@@ -16075,8 +16076,8 @@ lazy_static! {
                     hidden: "ironfist".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 12.5 as f32,
             }
@@ -16100,8 +16101,8 @@ lazy_static! {
                     hidden: "ironfist".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 40 as f32,
             }
@@ -16125,8 +16126,8 @@ lazy_static! {
                     hidden: "ironfist".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 87 as f32,
             }
@@ -16150,8 +16151,8 @@ lazy_static! {
                     hidden: "waterabsorb".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4.5 as f32,
             }
@@ -16175,8 +16176,8 @@ lazy_static! {
                     hidden: "waterabsorb".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ground
                 ),
                 weight: 17 as f32,
             }
@@ -16200,8 +16201,8 @@ lazy_static! {
                     hidden: "waterabsorb".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ground
                 ),
                 weight: 62 as f32,
             }
@@ -16225,8 +16226,8 @@ lazy_static! {
                     hidden: "moldbreaker".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 55.5 as f32,
             }
@@ -16250,8 +16251,8 @@ lazy_static! {
                     hidden: "moldbreaker".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 51 as f32,
             }
@@ -16275,8 +16276,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Grass
                 ),
                 weight: 2.5 as f32,
             }
@@ -16300,8 +16301,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Grass
                 ),
                 weight: 7.3 as f32,
             }
@@ -16325,8 +16326,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Grass
                 ),
                 weight: 20.5 as f32,
             }
@@ -16350,8 +16351,8 @@ lazy_static! {
                     hidden: "speedboost".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Poison
                 ),
                 weight: 5.3 as f32,
             }
@@ -16375,8 +16376,8 @@ lazy_static! {
                     hidden: "speedboost".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Poison
                 ),
                 weight: 58.5 as f32,
             }
@@ -16400,8 +16401,8 @@ lazy_static! {
                     hidden: "speedboost".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Poison
                 ),
                 weight: 200.5 as f32,
             }
@@ -16425,8 +16426,8 @@ lazy_static! {
                     hidden: "chlorophyll".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Fairy
                 ),
                 weight: 0.6 as f32,
             }
@@ -16450,8 +16451,8 @@ lazy_static! {
                     hidden: "chlorophyll".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Fairy
                 ),
                 weight: 6.6 as f32,
             }
@@ -16475,8 +16476,8 @@ lazy_static! {
                     hidden: "leafguard".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6.6 as f32,
             }
@@ -16500,8 +16501,8 @@ lazy_static! {
                     hidden: "leafguard".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 16.3 as f32,
             }
@@ -16525,8 +16526,8 @@ lazy_static! {
                     hidden: "moldbreaker".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 18 as f32,
             }
@@ -16550,8 +16551,8 @@ lazy_static! {
                     hidden: "moldbreaker".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 18 as f32,
             }
@@ -16575,8 +16576,8 @@ lazy_static! {
                     hidden: "angerpoint".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Dark
                 ),
                 weight: 15.2 as f32,
             }
@@ -16600,8 +16601,8 @@ lazy_static! {
                     hidden: "angerpoint".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Dark
                 ),
                 weight: 33.4 as f32,
             }
@@ -16625,8 +16626,8 @@ lazy_static! {
                     hidden: "angerpoint".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Dark
                 ),
                 weight: 96.3 as f32,
             }
@@ -16650,8 +16651,8 @@ lazy_static! {
                     hidden: "innerfocus".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 37.5 as f32,
             }
@@ -16675,8 +16676,8 @@ lazy_static! {
                     hidden: "zenmode".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 92.9 as f32,
             }
@@ -16700,8 +16701,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Psychic
                 ),
                 weight: 92.9 as f32,
             }
@@ -16725,8 +16726,8 @@ lazy_static! {
                     hidden: "stormdrain".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 28 as f32,
             }
@@ -16750,8 +16751,8 @@ lazy_static! {
                     hidden: "weakarmor".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Rock
                 ),
                 weight: 14.5 as f32,
             }
@@ -16775,8 +16776,8 @@ lazy_static! {
                     hidden: "weakarmor".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Rock
                 ),
                 weight: 200 as f32,
             }
@@ -16800,8 +16801,8 @@ lazy_static! {
                     hidden: "intimidate".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Fighting
                 ),
                 weight: 11.8 as f32,
             }
@@ -16825,8 +16826,8 @@ lazy_static! {
                     hidden: "intimidate".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Fighting
                 ),
                 weight: 30 as f32,
             }
@@ -16850,8 +16851,8 @@ lazy_static! {
                     hidden: "tintedlens".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Flying
                 ),
                 weight: 14 as f32,
             }
@@ -16875,8 +16876,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 1.5 as f32,
             }
@@ -16900,8 +16901,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 76.5 as f32,
             }
@@ -16925,8 +16926,8 @@ lazy_static! {
                     hidden: "swiftswim".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Rock
                 ),
                 weight: 16.5 as f32,
             }
@@ -16950,8 +16951,8 @@ lazy_static! {
                     hidden: "swiftswim".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Rock
                 ),
                 weight: 81 as f32,
             }
@@ -16975,8 +16976,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Flying
                 ),
                 weight: 9.5 as f32,
             }
@@ -17000,8 +17001,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Flying
                 ),
                 weight: 32 as f32,
             }
@@ -17025,8 +17026,8 @@ lazy_static! {
                     hidden: "aftermath".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 31 as f32,
             }
@@ -17050,8 +17051,8 @@ lazy_static! {
                     hidden: "aftermath".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 107.3 as f32,
             }
@@ -17075,8 +17076,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 12.5 as f32,
             }
@@ -17100,8 +17101,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 81.1 as f32,
             }
@@ -17125,8 +17126,8 @@ lazy_static! {
                     hidden: "skilllink".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 5.8 as f32,
             }
@@ -17150,8 +17151,8 @@ lazy_static! {
                     hidden: "skilllink".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7.5 as f32,
             }
@@ -17175,8 +17176,8 @@ lazy_static! {
                     hidden: "shadowtag".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 5.8 as f32,
             }
@@ -17200,8 +17201,8 @@ lazy_static! {
                     hidden: "shadowtag".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 18 as f32,
             }
@@ -17225,8 +17226,8 @@ lazy_static! {
                     hidden: "shadowtag".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 44 as f32,
             }
@@ -17250,8 +17251,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 1 as f32,
             }
@@ -17275,8 +17276,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8 as f32,
             }
@@ -17300,8 +17301,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 20.1 as f32,
             }
@@ -17325,8 +17326,8 @@ lazy_static! {
                     hidden: "hydration".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Flying
                 ),
                 weight: 5.5 as f32,
             }
@@ -17350,8 +17351,8 @@ lazy_static! {
                     hidden: "hydration".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Flying
                 ),
                 weight: 24.2 as f32,
             }
@@ -17375,8 +17376,8 @@ lazy_static! {
                     hidden: "weakarmor".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 5.7 as f32,
             }
@@ -17400,8 +17401,8 @@ lazy_static! {
                     hidden: "weakarmor".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 41 as f32,
             }
@@ -17425,8 +17426,8 @@ lazy_static! {
                     hidden: "weakarmor".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 57.5 as f32,
             }
@@ -17450,8 +17451,8 @@ lazy_static! {
                     hidden: "serenegrace".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Grass
                 ),
                 weight: 19.5 as f32,
             }
@@ -17475,8 +17476,8 @@ lazy_static! {
                     hidden: "serenegrace".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Grass
                 ),
                 weight: 92.5 as f32,
             }
@@ -17500,8 +17501,8 @@ lazy_static! {
                     hidden: "motordrive".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Flying
                 ),
                 weight: 5 as f32,
             }
@@ -17525,8 +17526,8 @@ lazy_static! {
                     hidden: "noguard".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 5.9 as f32,
             }
@@ -17550,8 +17551,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Steel
                 ),
                 weight: 33 as f32,
             }
@@ -17575,8 +17576,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Poison
                 ),
                 weight: 1 as f32,
             }
@@ -17600,8 +17601,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Poison
                 ),
                 weight: 10.5 as f32,
             }
@@ -17625,8 +17626,8 @@ lazy_static! {
                     hidden: "damp".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ghost
                 ),
                 weight: 33 as f32,
             }
@@ -17650,8 +17651,8 @@ lazy_static! {
                     hidden: "damp".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ghost
                 ),
                 weight: 135 as f32,
             }
@@ -17675,8 +17676,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 31.6 as f32,
             }
@@ -17700,8 +17701,8 @@ lazy_static! {
                     hidden: "swarm".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "electric".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Electric
                 ),
                 weight: 0.6 as f32,
             }
@@ -17725,8 +17726,8 @@ lazy_static! {
                     hidden: "swarm".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "electric".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Electric
                 ),
                 weight: 14.3 as f32,
             }
@@ -17750,8 +17751,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Steel
                 ),
                 weight: 18.8 as f32,
             }
@@ -17775,8 +17776,8 @@ lazy_static! {
                     hidden: "anticipation".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Steel
                 ),
                 weight: 110 as f32,
             }
@@ -17800,8 +17801,8 @@ lazy_static! {
                     hidden: "clearbody".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Typeless
                 ),
                 weight: 21 as f32,
             }
@@ -17825,8 +17826,8 @@ lazy_static! {
                     hidden: "clearbody".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Typeless
                 ),
                 weight: 51 as f32,
             }
@@ -17850,8 +17851,8 @@ lazy_static! {
                     hidden: "clearbody".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Typeless
                 ),
                 weight: 81 as f32,
             }
@@ -17875,8 +17876,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.3 as f32,
             }
@@ -17900,8 +17901,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 22 as f32,
             }
@@ -17925,8 +17926,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 80.5 as f32,
             }
@@ -17950,8 +17951,8 @@ lazy_static! {
                     hidden: "analytic".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9 as f32,
             }
@@ -17975,8 +17976,8 @@ lazy_static! {
                     hidden: "analytic".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 34.5 as f32,
             }
@@ -18000,8 +18001,8 @@ lazy_static! {
                     hidden: "infiltrator".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Fire
                 ),
                 weight: 3.1 as f32,
             }
@@ -18025,8 +18026,8 @@ lazy_static! {
                     hidden: "infiltrator".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Fire
                 ),
                 weight: 13 as f32,
             }
@@ -18050,8 +18051,8 @@ lazy_static! {
                     hidden: "infiltrator".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Fire
                 ),
                 weight: 34.3 as f32,
             }
@@ -18075,8 +18076,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Typeless
                 ),
                 weight: 18 as f32,
             }
@@ -18100,8 +18101,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Typeless
                 ),
                 weight: 36 as f32,
             }
@@ -18125,8 +18126,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Typeless
                 ),
                 weight: 105.5 as f32,
             }
@@ -18150,8 +18151,8 @@ lazy_static! {
                     hidden: "rattled".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8.5 as f32,
             }
@@ -18175,8 +18176,8 @@ lazy_static! {
                     hidden: "swiftswim".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 260 as f32,
             }
@@ -18200,8 +18201,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 148 as f32,
             }
@@ -18225,8 +18226,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7.7 as f32,
             }
@@ -18250,8 +18251,8 @@ lazy_static! {
                     hidden: "unburden".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 25.3 as f32,
             }
@@ -18275,8 +18276,8 @@ lazy_static! {
                     hidden: "sandveil".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "electric".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Electric
                 ),
                 weight: 11 as f32,
             }
@@ -18300,8 +18301,8 @@ lazy_static! {
                     hidden: "reckless".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 20 as f32,
             }
@@ -18325,8 +18326,8 @@ lazy_static! {
                     hidden: "reckless".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 35.5 as f32,
             }
@@ -18350,8 +18351,8 @@ lazy_static! {
                     hidden: "moldbreaker".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Typeless
                 ),
                 weight: 139 as f32,
             }
@@ -18375,8 +18376,8 @@ lazy_static! {
                     hidden: "noguard".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Ghost
                 ),
                 weight: 92 as f32,
             }
@@ -18400,8 +18401,8 @@ lazy_static! {
                     hidden: "noguard".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Ghost
                 ),
                 weight: 330 as f32,
             }
@@ -18425,8 +18426,8 @@ lazy_static! {
                     hidden: "pressure".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Steel
                 ),
                 weight: 10.2 as f32,
             }
@@ -18450,8 +18451,8 @@ lazy_static! {
                     hidden: "pressure".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Steel
                 ),
                 weight: 70 as f32,
             }
@@ -18475,8 +18476,8 @@ lazy_static! {
                     hidden: "soundproof".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 94.6 as f32,
             }
@@ -18500,8 +18501,8 @@ lazy_static! {
                     hidden: "hustle".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 10.5 as f32,
             }
@@ -18525,8 +18526,8 @@ lazy_static! {
                     hidden: "defiant".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 41 as f32,
             }
@@ -18550,8 +18551,8 @@ lazy_static! {
                     hidden: "weakarmor".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Flying
                 ),
                 weight: 9 as f32,
             }
@@ -18575,8 +18576,8 @@ lazy_static! {
                     hidden: "weakarmor".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Flying
                 ),
                 weight: 39.5 as f32,
             }
@@ -18600,8 +18601,8 @@ lazy_static! {
                     hidden: "whitesmoke".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 58 as f32,
             }
@@ -18625,8 +18626,8 @@ lazy_static! {
                     hidden: "truant".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Steel
                 ),
                 weight: 33 as f32,
             }
@@ -18650,8 +18651,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Dragon
                 ),
                 weight: 17.3 as f32,
             }
@@ -18675,8 +18676,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Dragon
                 ),
                 weight: 50 as f32,
             }
@@ -18700,8 +18701,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Dragon
                 ),
                 weight: 160 as f32,
             }
@@ -18725,8 +18726,8 @@ lazy_static! {
                     hidden: "swarm".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Fire
                 ),
                 weight: 28.8 as f32,
             }
@@ -18750,8 +18751,8 @@ lazy_static! {
                     hidden: "swarm".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Fire
                 ),
                 weight: 46 as f32,
             }
@@ -18775,8 +18776,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Fighting
                 ),
                 weight: 250 as f32,
             }
@@ -18800,8 +18801,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Fighting
                 ),
                 weight: 260 as f32,
             }
@@ -18825,8 +18826,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Fighting
                 ),
                 weight: 200 as f32,
             }
@@ -18850,8 +18851,8 @@ lazy_static! {
                     hidden: "defiant".to_string()
                 },
                 types: (
-                    "flying".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Flying,
+                    PokemonTypes::Typeless
                 ),
                 weight: 63 as f32,
             }
@@ -18875,8 +18876,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "flying".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Flying,
+                    PokemonTypes::Typeless
                 ),
                 weight: 63 as f32,
             }
@@ -18900,8 +18901,8 @@ lazy_static! {
                     hidden: "defiant".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Flying
                 ),
                 weight: 61 as f32,
             }
@@ -18925,8 +18926,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Flying
                 ),
                 weight: 61 as f32,
             }
@@ -18950,8 +18951,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Fire
                 ),
                 weight: 330 as f32,
             }
@@ -18975,8 +18976,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "electric".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Electric
                 ),
                 weight: 345 as f32,
             }
@@ -19000,8 +19001,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Flying
                 ),
                 weight: 68 as f32,
             }
@@ -19025,8 +19026,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Flying
                 ),
                 weight: 68 as f32,
             }
@@ -19050,8 +19051,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Ice
                 ),
                 weight: 325 as f32,
             }
@@ -19075,8 +19076,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Ice
                 ),
                 weight: 325 as f32,
             }
@@ -19100,8 +19101,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Ice
                 ),
                 weight: 325 as f32,
             }
@@ -19125,8 +19126,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Fighting
                 ),
                 weight: 48.5 as f32,
             }
@@ -19150,8 +19151,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Fighting
                 ),
                 weight: 48.5 as f32,
             }
@@ -19175,8 +19176,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Psychic
                 ),
                 weight: 6.5 as f32,
             }
@@ -19200,8 +19201,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Fighting
                 ),
                 weight: 6.5 as f32,
             }
@@ -19225,8 +19226,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Steel
                 ),
                 weight: 82.5 as f32,
             }
@@ -19250,8 +19251,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Steel
                 ),
                 weight: 82.5 as f32,
             }
@@ -19275,8 +19276,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Steel
                 ),
                 weight: 82.5 as f32,
             }
@@ -19300,8 +19301,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Steel
                 ),
                 weight: 82.5 as f32,
             }
@@ -19325,8 +19326,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Steel
                 ),
                 weight: 82.5 as f32,
             }
@@ -19350,8 +19351,8 @@ lazy_static! {
                     hidden: "bulletproof".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9 as f32,
             }
@@ -19375,8 +19376,8 @@ lazy_static! {
                     hidden: "bulletproof".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 29 as f32,
             }
@@ -19400,8 +19401,8 @@ lazy_static! {
                     hidden: "bulletproof".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Fighting
                 ),
                 weight: 90 as f32,
             }
@@ -19425,8 +19426,8 @@ lazy_static! {
                     hidden: "magician".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9.4 as f32,
             }
@@ -19450,8 +19451,8 @@ lazy_static! {
                     hidden: "magician".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 14.5 as f32,
             }
@@ -19475,8 +19476,8 @@ lazy_static! {
                     hidden: "magician".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Psychic
                 ),
                 weight: 39 as f32,
             }
@@ -19500,8 +19501,8 @@ lazy_static! {
                     hidden: "protean".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7 as f32,
             }
@@ -19525,8 +19526,8 @@ lazy_static! {
                     hidden: "protean".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 10.9 as f32,
             }
@@ -19550,8 +19551,8 @@ lazy_static! {
                     hidden: "protean".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Dark
                 ),
                 weight: 40 as f32,
             }
@@ -19575,8 +19576,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Dark
                 ),
                 weight: 40 as f32,
             }
@@ -19600,8 +19601,8 @@ lazy_static! {
                     hidden: "hugepower".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 5 as f32,
             }
@@ -19625,8 +19626,8 @@ lazy_static! {
                     hidden: "hugepower".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Ground
                 ),
                 weight: 42.4 as f32,
             }
@@ -19650,8 +19651,8 @@ lazy_static! {
                     hidden: "galewings".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 1.7 as f32,
             }
@@ -19675,8 +19676,8 @@ lazy_static! {
                     hidden: "galewings".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Flying
                 ),
                 weight: 16 as f32,
             }
@@ -19700,8 +19701,8 @@ lazy_static! {
                     hidden: "galewings".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Flying
                 ),
                 weight: 24.5 as f32,
             }
@@ -19725,8 +19726,8 @@ lazy_static! {
                     hidden: "friendguard".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 2.5 as f32,
             }
@@ -19750,8 +19751,8 @@ lazy_static! {
                     hidden: "friendguard".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8.4 as f32,
             }
@@ -19775,8 +19776,8 @@ lazy_static! {
                     hidden: "friendguard".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 17 as f32,
             }
@@ -19800,8 +19801,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 17 as f32,
             }
@@ -19825,8 +19826,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Flying
                 ),
                 weight: 17 as f32,
             }
@@ -19850,8 +19851,8 @@ lazy_static! {
                     hidden: "moxie".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "normal".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Normal
                 ),
                 weight: 13.5 as f32,
             }
@@ -19875,8 +19876,8 @@ lazy_static! {
                     hidden: "moxie".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "normal".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Normal
                 ),
                 weight: 81.5 as f32,
             }
@@ -19900,8 +19901,8 @@ lazy_static! {
                     hidden: "symbiosis".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.1 as f32,
             }
@@ -19925,8 +19926,8 @@ lazy_static! {
                     hidden: "symbiosis".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.9 as f32,
             }
@@ -19950,8 +19951,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.9 as f32,
             }
@@ -19975,8 +19976,8 @@ lazy_static! {
                     hidden: "symbiosis".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 10 as f32,
             }
@@ -20000,8 +20001,8 @@ lazy_static! {
                     hidden: "grasspelt".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 31 as f32,
             }
@@ -20025,8 +20026,8 @@ lazy_static! {
                     hidden: "grasspelt".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 91 as f32,
             }
@@ -20050,8 +20051,8 @@ lazy_static! {
                     hidden: "scrappy".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8 as f32,
             }
@@ -20075,8 +20076,8 @@ lazy_static! {
                     hidden: "scrappy".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Dark
                 ),
                 weight: 136 as f32,
             }
@@ -20100,8 +20101,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 28 as f32,
             }
@@ -20125,8 +20126,8 @@ lazy_static! {
                     hidden: "owntempo".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 3.5 as f32,
             }
@@ -20150,8 +20151,8 @@ lazy_static! {
                     hidden: "prankster".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8.5 as f32,
             }
@@ -20175,8 +20176,8 @@ lazy_static! {
                     hidden: "competitive".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8.5 as f32,
             }
@@ -20200,8 +20201,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Ghost
                 ),
                 weight: 2 as f32,
             }
@@ -20225,8 +20226,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Ghost
                 ),
                 weight: 4.5 as f32,
             }
@@ -20250,8 +20251,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Ghost
                 ),
                 weight: 53 as f32,
             }
@@ -20275,8 +20276,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Ghost
                 ),
                 weight: 53 as f32,
             }
@@ -20300,8 +20301,8 @@ lazy_static! {
                     hidden: "aromaveil".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.5 as f32,
             }
@@ -20325,8 +20326,8 @@ lazy_static! {
                     hidden: "aromaveil".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 15.5 as f32,
             }
@@ -20350,8 +20351,8 @@ lazy_static! {
                     hidden: "unburden".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 3.5 as f32,
             }
@@ -20375,8 +20376,8 @@ lazy_static! {
                     hidden: "unburden".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 5 as f32,
             }
@@ -20400,8 +20401,8 @@ lazy_static! {
                     hidden: "infiltrator".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Psychic
                 ),
                 weight: 3.5 as f32,
             }
@@ -20425,8 +20426,8 @@ lazy_static! {
                     hidden: "infiltrator".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Psychic
                 ),
                 weight: 47 as f32,
             }
@@ -20450,8 +20451,8 @@ lazy_static! {
                     hidden: "pickpocket".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Water
                 ),
                 weight: 31 as f32,
             }
@@ -20475,8 +20476,8 @@ lazy_static! {
                     hidden: "pickpocket".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Water
                 ),
                 weight: 96 as f32,
             }
@@ -20500,8 +20501,8 @@ lazy_static! {
                     hidden: "adaptability".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Water
                 ),
                 weight: 7.3 as f32,
             }
@@ -20525,8 +20526,8 @@ lazy_static! {
                     hidden: "adaptability".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Dragon
                 ),
                 weight: 81.5 as f32,
             }
@@ -20550,8 +20551,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8.3 as f32,
             }
@@ -20575,8 +20576,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 35.3 as f32,
             }
@@ -20600,8 +20601,8 @@ lazy_static! {
                     hidden: "solarpower".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "normal".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Normal
                 ),
                 weight: 6 as f32,
             }
@@ -20625,8 +20626,8 @@ lazy_static! {
                     hidden: "solarpower".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "normal".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Normal
                 ),
                 weight: 21 as f32,
             }
@@ -20650,8 +20651,8 @@ lazy_static! {
                     hidden: "sturdy".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Dragon
                 ),
                 weight: 26 as f32,
             }
@@ -20675,8 +20676,8 @@ lazy_static! {
                     hidden: "rockhead".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Dragon
                 ),
                 weight: 270 as f32,
             }
@@ -20700,8 +20701,8 @@ lazy_static! {
                     hidden: "snowwarning".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Ice
                 ),
                 weight: 25.2 as f32,
             }
@@ -20725,8 +20726,8 @@ lazy_static! {
                     hidden: "snowwarning".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Ice
                 ),
                 weight: 225 as f32,
             }
@@ -20750,8 +20751,8 @@ lazy_static! {
                     hidden: "pixilate".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 23.5 as f32,
             }
@@ -20775,8 +20776,8 @@ lazy_static! {
                     hidden: "moldbreaker".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Flying
                 ),
                 weight: 21.5 as f32,
             }
@@ -20800,8 +20801,8 @@ lazy_static! {
                     hidden: "plus".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Fairy
                 ),
                 weight: 2.2 as f32,
             }
@@ -20825,8 +20826,8 @@ lazy_static! {
                     hidden: "sturdy".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Fairy
                 ),
                 weight: 5.7 as f32,
             }
@@ -20850,8 +20851,8 @@ lazy_static! {
                     hidden: "gooey".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Typeless
                 ),
                 weight: 2.8 as f32,
             }
@@ -20875,8 +20876,8 @@ lazy_static! {
                     hidden: "gooey".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Typeless
                 ),
                 weight: 17.5 as f32,
             }
@@ -20900,8 +20901,8 @@ lazy_static! {
                     hidden: "gooey".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Typeless
                 ),
                 weight: 150.5 as f32,
             }
@@ -20925,8 +20926,8 @@ lazy_static! {
                     hidden: "magician".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Fairy
                 ),
                 weight: 3 as f32,
             }
@@ -20950,8 +20951,8 @@ lazy_static! {
                     hidden: "harvest".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Grass
                 ),
                 weight: 7 as f32,
             }
@@ -20975,8 +20976,8 @@ lazy_static! {
                     hidden: "harvest".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Grass
                 ),
                 weight: 71 as f32,
             }
@@ -21000,8 +21001,8 @@ lazy_static! {
                     hidden: "insomnia".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Grass
                 ),
                 weight: 5 as f32,
             }
@@ -21025,8 +21026,8 @@ lazy_static! {
                     hidden: "insomnia".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Grass
                 ),
                 weight: 3.5 as f32,
             }
@@ -21050,8 +21051,8 @@ lazy_static! {
                     hidden: "insomnia".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Grass
                 ),
                 weight: 7.5 as f32,
             }
@@ -21075,8 +21076,8 @@ lazy_static! {
                     hidden: "insomnia".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Grass
                 ),
                 weight: 15 as f32,
             }
@@ -21100,8 +21101,8 @@ lazy_static! {
                     hidden: "insomnia".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Grass
                 ),
                 weight: 12.5 as f32,
             }
@@ -21125,8 +21126,8 @@ lazy_static! {
                     hidden: "insomnia".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Grass
                 ),
                 weight: 9.5 as f32,
             }
@@ -21150,8 +21151,8 @@ lazy_static! {
                     hidden: "insomnia".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Grass
                 ),
                 weight: 14 as f32,
             }
@@ -21175,8 +21176,8 @@ lazy_static! {
                     hidden: "insomnia".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Grass
                 ),
                 weight: 39 as f32,
             }
@@ -21200,8 +21201,8 @@ lazy_static! {
                     hidden: "sturdy".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 99.5 as f32,
             }
@@ -21225,8 +21226,8 @@ lazy_static! {
                     hidden: "sturdy".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 505 as f32,
             }
@@ -21250,8 +21251,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "flying".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Flying,
+                    PokemonTypes::Dragon
                 ),
                 weight: 8 as f32,
             }
@@ -21275,8 +21276,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "flying".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Flying,
+                    PokemonTypes::Dragon
                 ),
                 weight: 85 as f32,
             }
@@ -21300,8 +21301,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 215 as f32,
             }
@@ -21325,8 +21326,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Flying
                 ),
                 weight: 203 as f32,
             }
@@ -21350,8 +21351,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Ground
                 ),
                 weight: 305 as f32,
             }
@@ -21375,8 +21376,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Ground
                 ),
                 weight: 33.5 as f32,
             }
@@ -21400,8 +21401,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Ground
                 ),
                 weight: 610 as f32,
             }
@@ -21425,8 +21426,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Fairy
                 ),
                 weight: 8.8 as f32,
             }
@@ -21450,8 +21451,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Fairy
                 ),
                 weight: 27.8 as f32,
             }
@@ -21475,8 +21476,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Ghost
                 ),
                 weight: 9 as f32,
             }
@@ -21500,8 +21501,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Dark
                 ),
                 weight: 490 as f32,
             }
@@ -21525,8 +21526,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Water
                 ),
                 weight: 195 as f32,
             }
@@ -21550,8 +21551,8 @@ lazy_static! {
                     hidden: "longreach".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Flying
                 ),
                 weight: 1.5 as f32,
             }
@@ -21575,8 +21576,8 @@ lazy_static! {
                     hidden: "longreach".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Flying
                 ),
                 weight: 16 as f32,
             }
@@ -21600,8 +21601,8 @@ lazy_static! {
                     hidden: "longreach".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Ghost
                 ),
                 weight: 36.6 as f32,
             }
@@ -21625,8 +21626,8 @@ lazy_static! {
                     hidden: "intimidate".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4.3 as f32,
             }
@@ -21650,8 +21651,8 @@ lazy_static! {
                     hidden: "intimidate".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 25 as f32,
             }
@@ -21675,8 +21676,8 @@ lazy_static! {
                     hidden: "intimidate".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Dark
                 ),
                 weight: 83 as f32,
             }
@@ -21700,8 +21701,8 @@ lazy_static! {
                     hidden: "liquidvoice".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7.5 as f32,
             }
@@ -21725,8 +21726,8 @@ lazy_static! {
                     hidden: "liquidvoice".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 17.5 as f32,
             }
@@ -21750,8 +21751,8 @@ lazy_static! {
                     hidden: "liquidvoice".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Fairy
                 ),
                 weight: 44 as f32,
             }
@@ -21775,8 +21776,8 @@ lazy_static! {
                     hidden: "pickup".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 1.2 as f32,
             }
@@ -21800,8 +21801,8 @@ lazy_static! {
                     hidden: "pickup".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 14.8 as f32,
             }
@@ -21825,8 +21826,8 @@ lazy_static! {
                     hidden: "sheerforce".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Flying
                 ),
                 weight: 26 as f32,
             }
@@ -21850,8 +21851,8 @@ lazy_static! {
                     hidden: "adaptability".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -21875,8 +21876,8 @@ lazy_static! {
                     hidden: "adaptability".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 14.2 as f32,
             }
@@ -21900,8 +21901,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4.4 as f32,
             }
@@ -21925,8 +21926,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "electric".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Electric
                 ),
                 weight: 10.5 as f32,
             }
@@ -21950,8 +21951,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "electric".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Electric
                 ),
                 weight: 45 as f32,
             }
@@ -21975,8 +21976,8 @@ lazy_static! {
                     hidden: "angerpoint".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7 as f32,
             }
@@ -22000,8 +22001,8 @@ lazy_static! {
                     hidden: "angerpoint".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Ice
                 ),
                 weight: 180 as f32,
             }
@@ -22025,8 +22026,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Flying
                 ),
                 weight: 3.4 as f32,
             }
@@ -22050,8 +22051,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Flying
                 ),
                 weight: 3.4 as f32,
             }
@@ -22075,8 +22076,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Flying
                 ),
                 weight: 3.4 as f32,
             }
@@ -22100,8 +22101,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Flying
                 ),
                 weight: 3.4 as f32,
             }
@@ -22125,8 +22126,8 @@ lazy_static! {
                     hidden: "sweetveil".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Fairy
                 ),
                 weight: 0.2 as f32,
             }
@@ -22150,8 +22151,8 @@ lazy_static! {
                     hidden: "sweetveil".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Fairy
                 ),
                 weight: 0.5 as f32,
             }
@@ -22175,8 +22176,8 @@ lazy_static! {
                     hidden: "steadfast".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9.2 as f32,
             }
@@ -22200,8 +22201,8 @@ lazy_static! {
                     hidden: "steadfast".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 25 as f32,
             }
@@ -22225,8 +22226,8 @@ lazy_static! {
                     hidden: "noguard".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 25 as f32,
             }
@@ -22250,8 +22251,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 25 as f32,
             }
@@ -22275,8 +22276,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.3 as f32,
             }
@@ -22300,8 +22301,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 78.6 as f32,
             }
@@ -22325,8 +22326,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Water
                 ),
                 weight: 8 as f32,
             }
@@ -22350,8 +22351,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Water
                 ),
                 weight: 14.5 as f32,
             }
@@ -22375,8 +22376,8 @@ lazy_static! {
                     hidden: "innerfocus".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 110 as f32,
             }
@@ -22400,8 +22401,8 @@ lazy_static! {
                     hidden: "innerfocus".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 920 as f32,
             }
@@ -22425,8 +22426,8 @@ lazy_static! {
                     hidden: "waterabsorb".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "bug".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Bug
                 ),
                 weight: 4 as f32,
             }
@@ -22450,8 +22451,8 @@ lazy_static! {
                     hidden: "waterabsorb".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "bug".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Bug
                 ),
                 weight: 82 as f32,
             }
@@ -22475,8 +22476,8 @@ lazy_static! {
                     hidden: "contrary".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 1.5 as f32,
             }
@@ -22500,8 +22501,8 @@ lazy_static! {
                     hidden: "contrary".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 18.5 as f32,
             }
@@ -22525,8 +22526,8 @@ lazy_static! {
                     hidden: "raindish".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Fairy
                 ),
                 weight: 1.5 as f32,
             }
@@ -22550,8 +22551,8 @@ lazy_static! {
                     hidden: "raindish".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Fairy
                 ),
                 weight: 11.5 as f32,
             }
@@ -22575,8 +22576,8 @@ lazy_static! {
                     hidden: "oblivious".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Fire
                 ),
                 weight: 4.8 as f32,
             }
@@ -22600,8 +22601,8 @@ lazy_static! {
                     hidden: "oblivious".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Fire
                 ),
                 weight: 22.2 as f32,
             }
@@ -22625,8 +22626,8 @@ lazy_static! {
                     hidden: "cutecharm".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Fighting
                 ),
                 weight: 6.8 as f32,
             }
@@ -22650,8 +22651,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Fighting
                 ),
                 weight: 135 as f32,
             }
@@ -22675,8 +22676,8 @@ lazy_static! {
                     hidden: "sweetveil".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 3.2 as f32,
             }
@@ -22700,8 +22701,8 @@ lazy_static! {
                     hidden: "sweetveil".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8.2 as f32,
             }
@@ -22725,8 +22726,8 @@ lazy_static! {
                     hidden: "sweetveil".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 21.4 as f32,
             }
@@ -22750,8 +22751,8 @@ lazy_static! {
                     hidden: "naturalcure".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.3 as f32,
             }
@@ -22775,8 +22776,8 @@ lazy_static! {
                     hidden: "symbiosis".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Psychic
                 ),
                 weight: 76 as f32,
             }
@@ -22800,8 +22801,8 @@ lazy_static! {
                     hidden: "defiant".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 82.8 as f32,
             }
@@ -22825,8 +22826,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Water
                 ),
                 weight: 12 as f32,
             }
@@ -22850,8 +22851,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Water
                 ),
                 weight: 108 as f32,
             }
@@ -22875,8 +22876,8 @@ lazy_static! {
                     hidden: "sandveil".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Ground
                 ),
                 weight: 70 as f32,
             }
@@ -22900,8 +22901,8 @@ lazy_static! {
                     hidden: "sandveil".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Ground
                 ),
                 weight: 250 as f32,
             }
@@ -22925,8 +22926,8 @@ lazy_static! {
                     hidden: "unaware".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 1.2 as f32,
             }
@@ -22950,8 +22951,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 120.5 as f32,
             }
@@ -22975,8 +22976,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23000,8 +23001,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23025,8 +23026,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23050,8 +23051,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23075,8 +23076,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23100,8 +23101,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23125,8 +23126,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23150,8 +23151,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23175,8 +23176,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "flying".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Flying,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23200,8 +23201,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23225,8 +23226,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23250,8 +23251,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23275,8 +23276,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23300,8 +23301,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23325,8 +23326,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23350,8 +23351,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23375,8 +23376,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23400,8 +23401,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100.5 as f32,
             }
@@ -23425,8 +23426,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Flying
                 ),
                 weight: 0.3 as f32,
             }
@@ -23450,8 +23451,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Flying
                 ),
                 weight: 40 as f32,
             }
@@ -23475,8 +23476,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 19.9 as f32,
             }
@@ -23500,8 +23501,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Dragon
                 ),
                 weight: 212 as f32,
             }
@@ -23525,8 +23526,8 @@ lazy_static! {
                     hidden: "sturdy".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Steel
                 ),
                 weight: 3.3 as f32,
             }
@@ -23550,8 +23551,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Fairy
                 ),
                 weight: 0.7 as f32,
             }
@@ -23575,8 +23576,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Fairy
                 ),
                 weight: 0.7 as f32,
             }
@@ -23600,8 +23601,8 @@ lazy_static! {
                     hidden: "wonderskin".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Psychic
                 ),
                 weight: 19 as f32,
             }
@@ -23625,8 +23626,8 @@ lazy_static! {
                     hidden: "cloudnine".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Dragon
                 ),
                 weight: 185 as f32,
             }
@@ -23650,8 +23651,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Grass
                 ),
                 weight: 210 as f32,
             }
@@ -23675,8 +23676,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Typeless
                 ),
                 weight: 29.7 as f32,
             }
@@ -23700,8 +23701,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Fighting
                 ),
                 weight: 47 as f32,
             }
@@ -23725,8 +23726,8 @@ lazy_static! {
                     hidden: "overcoat".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Fighting
                 ),
                 weight: 78.2 as f32,
             }
@@ -23750,8 +23751,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Fairy
                 ),
                 weight: 20.5 as f32,
             }
@@ -23775,8 +23776,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Fairy
                 ),
                 weight: 18.6 as f32,
             }
@@ -23800,8 +23801,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Fairy
                 ),
                 weight: 45.5 as f32,
             }
@@ -23825,8 +23826,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Fairy
                 ),
                 weight: 21.2 as f32,
             }
@@ -23850,8 +23851,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.1 as f32,
             }
@@ -23875,8 +23876,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 999.9 as f32,
             }
@@ -23900,8 +23901,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Steel
                 ),
                 weight: 230 as f32,
             }
@@ -23925,8 +23926,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Ghost
                 ),
                 weight: 120 as f32,
             }
@@ -23950,8 +23951,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Poison
                 ),
                 weight: 55.5 as f32,
             }
@@ -23975,8 +23976,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Fighting
                 ),
                 weight: 333.6 as f32,
             }
@@ -24000,8 +24001,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Fighting
                 ),
                 weight: 25 as f32,
             }
@@ -24025,8 +24026,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100 as f32,
             }
@@ -24050,8 +24051,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Flying
                 ),
                 weight: 999.9 as f32,
             }
@@ -24075,8 +24076,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Steel
                 ),
                 weight: 0.1 as f32,
             }
@@ -24100,8 +24101,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Dragon
                 ),
                 weight: 888 as f32,
             }
@@ -24125,8 +24126,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 230 as f32,
             }
@@ -24150,8 +24151,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Fairy
                 ),
                 weight: 80.5 as f32,
             }
@@ -24175,8 +24176,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Ghost
                 ),
                 weight: 22.2 as f32,
             }
@@ -24200,8 +24201,8 @@ lazy_static! {
                     hidden: "".to_string()
                 },
                 types: (
-                    "bird".to_string(),
-                    "normal".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 1590.8 as f32,
             }
@@ -24225,8 +24226,8 @@ lazy_static! {
                     hidden: "justified".to_string()
                 },
                 types: (
-                    "flying".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Flying,
+                    PokemonTypes::Fighting
                 ),
                 weight: 37.2 as f32,
             }
@@ -24250,8 +24251,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Ghost
                 ),
                 weight: 49.6 as f32,
             }
@@ -24275,8 +24276,8 @@ lazy_static! {
                     hidden: "illuminate".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Poison
                 ),
                 weight: 41 as f32,
             }
@@ -24300,8 +24301,8 @@ lazy_static! {
                     hidden: "illusion".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Psychic
                 ),
                 weight: 193 as f32,
             }
@@ -24325,8 +24326,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Grass
                 ),
                 weight: 108.8 as f32,
             }
@@ -24350,8 +24351,8 @@ lazy_static! {
                     hidden: "bigpecks".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "flying".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Flying
                 ),
                 weight: 37 as f32,
             }
@@ -24375,8 +24376,8 @@ lazy_static! {
                     hidden: "pressure".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Fire
                 ),
                 weight: 44.5 as f32,
             }
@@ -24400,8 +24401,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Poison
                 ),
                 weight: 460 as f32,
             }
@@ -24425,8 +24426,8 @@ lazy_static! {
                     hidden: "lightmetal".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Steel
                 ),
                 weight: 510 as f32,
             }
@@ -24450,8 +24451,8 @@ lazy_static! {
                     hidden: "liquidooze".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Poison
                 ),
                 weight: 23.6 as f32,
             }
@@ -24475,8 +24476,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Poison
                 ),
                 weight: 22.5 as f32,
             }
@@ -24500,8 +24501,8 @@ lazy_static! {
                     hidden: "friendguard".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Fighting
                 ),
                 weight: 24.2 as f32,
             }
@@ -24525,8 +24526,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "bug".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Bug
                 ),
                 weight: 52 as f32,
             }
@@ -24550,8 +24551,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Fighting
                 ),
                 weight: 44 as f32,
             }
@@ -24575,8 +24576,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Grass
                 ),
                 weight: 168 as f32,
             }
@@ -24600,8 +24601,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Ground
                 ),
                 weight: 53 as f32,
             }
@@ -24625,8 +24626,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 45 as f32,
             }
@@ -24650,8 +24651,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Fighting
                 ),
                 weight: 151 as f32,
             }
@@ -24675,8 +24676,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Ghost
                 ),
                 weight: 51 as f32,
             }
@@ -24700,8 +24701,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Dragon
                 ),
                 weight: 59 as f32,
             }
@@ -24725,8 +24726,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "ground".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Ground
                 ),
                 weight: 683.6 as f32,
             }
@@ -24750,8 +24751,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Water
                 ),
                 weight: 10.6 as f32,
             }
@@ -24775,8 +24776,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Dark
                 ),
                 weight: 75.5 as f32,
             }
@@ -24800,8 +24801,8 @@ lazy_static! {
                     hidden: "moldbreaker".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 18 as f32,
             }
@@ -24825,8 +24826,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 44.5 as f32,
             }
@@ -24850,8 +24851,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Dragon
                 ),
                 weight: 150 as f32,
             }
@@ -24875,8 +24876,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Steel
                 ),
                 weight: 820 as f32,
             }
@@ -24900,8 +24901,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Ghost
                 ),
                 weight: 350 as f32,
             }
@@ -24925,8 +24926,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Ghost
                 ),
                 weight: 13 as f32,
             }
@@ -24950,8 +24951,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Steel
                 ),
                 weight: 460 as f32,
             }
@@ -24975,8 +24976,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Dragon
                 ),
                 weight: 230 as f32,
             }
@@ -25000,8 +25001,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "normal".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Normal
                 ),
                 weight: 105 as f32,
             }
@@ -25025,8 +25026,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -25050,8 +25051,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -25075,8 +25076,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -25100,8 +25101,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -25125,8 +25126,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -25150,8 +25151,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -25175,8 +25176,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -25200,8 +25201,8 @@ lazy_static! {
                     hidden: "lightningrod".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -25225,8 +25226,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Ghost
                 ),
                 weight: 98 as f32,
             }
@@ -25250,8 +25251,8 @@ lazy_static! {
                     hidden: "anticipation".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6.5 as f32,
             }
@@ -25275,8 +25276,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 60 as f32,
             }
@@ -25300,8 +25301,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "electric".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Electric
                 ),
                 weight: 147.5 as f32,
             }
@@ -25325,8 +25326,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Fairy
                 ),
                 weight: 2 as f32,
             }
@@ -25350,8 +25351,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "bug".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Bug
                 ),
                 weight: 217.5 as f32,
             }
@@ -25375,8 +25376,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 58 as f32,
             }
@@ -25400,8 +25401,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Fire
                 ),
                 weight: 81 as f32,
             }
@@ -25425,8 +25426,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Steel
                 ),
                 weight: 13 as f32,
             }
@@ -25450,8 +25451,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Fairy
                 ),
                 weight: 2.8 as f32,
             }
@@ -25475,8 +25476,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Fairy
                 ),
                 weight: 2.8 as f32,
             }
@@ -25500,8 +25501,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "fighting".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Fighting
                 ),
                 weight: 207.5 as f32,
             }
@@ -25525,8 +25526,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Fairy
                 ),
                 weight: 80.5 as f32,
             }
@@ -25550,8 +25551,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Typeless
                 ),
                 weight: 1.8 as f32,
             }
@@ -25575,8 +25576,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8 as f32,
             }
@@ -25600,8 +25601,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Typeless
                 ),
                 weight: 800 as f32,
             }
@@ -25625,8 +25626,8 @@ lazy_static! {
                     hidden: "grassysurge".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 5 as f32,
             }
@@ -25650,8 +25651,8 @@ lazy_static! {
                     hidden: "grassysurge".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 14 as f32,
             }
@@ -25675,8 +25676,8 @@ lazy_static! {
                     hidden: "grassysurge".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 90 as f32,
             }
@@ -25700,8 +25701,8 @@ lazy_static! {
                     hidden: "libero".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4.5 as f32,
             }
@@ -25725,8 +25726,8 @@ lazy_static! {
                     hidden: "libero".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 9 as f32,
             }
@@ -25750,8 +25751,8 @@ lazy_static! {
                     hidden: "libero".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Typeless
                 ),
                 weight: 33 as f32,
             }
@@ -25775,8 +25776,8 @@ lazy_static! {
                     hidden: "sniper".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4 as f32,
             }
@@ -25800,8 +25801,8 @@ lazy_static! {
                     hidden: "sniper".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 11.5 as f32,
             }
@@ -25825,8 +25826,8 @@ lazy_static! {
                     hidden: "sniper".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 45.2 as f32,
             }
@@ -25850,8 +25851,8 @@ lazy_static! {
                     hidden: "gluttony".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 2.5 as f32,
             }
@@ -25875,8 +25876,8 @@ lazy_static! {
                     hidden: "gluttony".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -25900,8 +25901,8 @@ lazy_static! {
                     hidden: "bigpecks".to_string()
                 },
                 types: (
-                    "flying".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Flying,
+                    PokemonTypes::Typeless
                 ),
                 weight: 1.8 as f32,
             }
@@ -25925,8 +25926,8 @@ lazy_static! {
                     hidden: "bigpecks".to_string()
                 },
                 types: (
-                    "flying".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Flying,
+                    PokemonTypes::Typeless
                 ),
                 weight: 16 as f32,
             }
@@ -25950,8 +25951,8 @@ lazy_static! {
                     hidden: "mirrorarmor".to_string()
                 },
                 types: (
-                    "flying".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Flying,
+                    PokemonTypes::Steel
                 ),
                 weight: 75 as f32,
             }
@@ -25975,8 +25976,8 @@ lazy_static! {
                     hidden: "mirrorarmor".to_string()
                 },
                 types: (
-                    "flying".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Flying,
+                    PokemonTypes::Steel
                 ),
                 weight: 0 as f32,
             }
@@ -26000,8 +26001,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8 as f32,
             }
@@ -26025,8 +26026,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Psychic
                 ),
                 weight: 19.5 as f32,
             }
@@ -26050,8 +26051,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Psychic
                 ),
                 weight: 40.8 as f32,
             }
@@ -26075,8 +26076,8 @@ lazy_static! {
                     hidden: "telepathy".to_string()
                 },
                 types: (
-                    "bug".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Bug,
+                    PokemonTypes::Psychic
                 ),
                 weight: 0 as f32,
             }
@@ -26100,8 +26101,8 @@ lazy_static! {
                     hidden: "stakeout".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8.9 as f32,
             }
@@ -26125,8 +26126,8 @@ lazy_static! {
                     hidden: "stakeout".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Typeless
                 ),
                 weight: 19.9 as f32,
             }
@@ -26150,8 +26151,8 @@ lazy_static! {
                     hidden: "effectspore".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 2.2 as f32,
             }
@@ -26175,8 +26176,8 @@ lazy_static! {
                     hidden: "effectspore".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Typeless
                 ),
                 weight: 2.5 as f32,
             }
@@ -26200,8 +26201,8 @@ lazy_static! {
                     hidden: "bulletproof".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 6 as f32,
             }
@@ -26225,8 +26226,8 @@ lazy_static! {
                     hidden: "bulletproof".to_string()
                 },
                 types: (
-                    "normal".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Normal,
+                    PokemonTypes::Typeless
                 ),
                 weight: 43 as f32,
             }
@@ -26250,8 +26251,8 @@ lazy_static! {
                     hidden: "swiftswim".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 8.5 as f32,
             }
@@ -26275,8 +26276,8 @@ lazy_static! {
                     hidden: "swiftswim".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Rock
                 ),
                 weight: 115.5 as f32,
             }
@@ -26300,8 +26301,8 @@ lazy_static! {
                     hidden: "swiftswim".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "rock".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Rock
                 ),
                 weight: 0 as f32,
             }
@@ -26325,8 +26326,8 @@ lazy_static! {
                     hidden: "rattled".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 13.5 as f32,
             }
@@ -26350,8 +26351,8 @@ lazy_static! {
                     hidden: "competitive".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 34 as f32,
             }
@@ -26375,8 +26376,8 @@ lazy_static! {
                     hidden: "flashfire".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 12 as f32,
             }
@@ -26400,8 +26401,8 @@ lazy_static! {
                     hidden: "flashfire".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Fire
                 ),
                 weight: 78 as f32,
             }
@@ -26425,8 +26426,8 @@ lazy_static! {
                     hidden: "flashfire".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Fire
                 ),
                 weight: 310.5 as f32,
             }
@@ -26450,8 +26451,8 @@ lazy_static! {
                     hidden: "flashfire".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "fire".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Fire
                 ),
                 weight: 0 as f32,
             }
@@ -26475,8 +26476,8 @@ lazy_static! {
                     hidden: "bulletproof".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Dragon
                 ),
                 weight: 0.5 as f32,
             }
@@ -26500,8 +26501,8 @@ lazy_static! {
                     hidden: "hustle".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Dragon
                 ),
                 weight: 1 as f32,
             }
@@ -26525,8 +26526,8 @@ lazy_static! {
                     hidden: "hustle".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Dragon
                 ),
                 weight: 0 as f32,
             }
@@ -26550,8 +26551,8 @@ lazy_static! {
                     hidden: "thickfat".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Dragon
                 ),
                 weight: 13 as f32,
             }
@@ -26575,8 +26576,8 @@ lazy_static! {
                     hidden: "thickfat".to_string()
                 },
                 types: (
-                    "grass".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Grass,
+                    PokemonTypes::Dragon
                 ),
                 weight: 0 as f32,
             }
@@ -26600,8 +26601,8 @@ lazy_static! {
                     hidden: "sandveil".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7.6 as f32,
             }
@@ -26625,8 +26626,8 @@ lazy_static! {
                     hidden: "sandveil".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 65.5 as f32,
             }
@@ -26650,8 +26651,8 @@ lazy_static! {
                     hidden: "sandveil".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0 as f32,
             }
@@ -26675,8 +26676,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "flying".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Flying,
+                    PokemonTypes::Water
                 ),
                 weight: 18 as f32,
             }
@@ -26700,8 +26701,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "flying".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Flying,
+                    PokemonTypes::Water
                 ),
                 weight: 18 as f32,
             }
@@ -26725,8 +26726,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "flying".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Flying,
+                    PokemonTypes::Water
                 ),
                 weight: 18 as f32,
             }
@@ -26750,8 +26751,8 @@ lazy_static! {
                     hidden: "propellertail".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 1 as f32,
             }
@@ -26775,8 +26776,8 @@ lazy_static! {
                     hidden: "propellertail".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Typeless
                 ),
                 weight: 30 as f32,
             }
@@ -26800,8 +26801,8 @@ lazy_static! {
                     hidden: "klutz".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Poison
                 ),
                 weight: 11 as f32,
             }
@@ -26825,8 +26826,8 @@ lazy_static! {
                     hidden: "technician".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Poison
                 ),
                 weight: 40 as f32,
             }
@@ -26850,8 +26851,8 @@ lazy_static! {
                     hidden: "technician".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Poison
                 ),
                 weight: 40 as f32,
             }
@@ -26875,8 +26876,8 @@ lazy_static! {
                     hidden: "technician".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Poison
                 ),
                 weight: 0 as f32,
             }
@@ -26900,8 +26901,8 @@ lazy_static! {
                     hidden: "flamebody".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "bug".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Bug
                 ),
                 weight: 1 as f32,
             }
@@ -26925,8 +26926,8 @@ lazy_static! {
                     hidden: "flamebody".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "bug".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Bug
                 ),
                 weight: 120 as f32,
             }
@@ -26950,8 +26951,8 @@ lazy_static! {
                     hidden: "flamebody".to_string()
                 },
                 types: (
-                    "fire".to_string(),
-                    "bug".to_string()
+                    PokemonTypes::Fire,
+                    PokemonTypes::Bug
                 ),
                 weight: 0 as f32,
             }
@@ -26975,8 +26976,8 @@ lazy_static! {
                     hidden: "technician".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4 as f32,
             }
@@ -27000,8 +27001,8 @@ lazy_static! {
                     hidden: "technician".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 39 as f32,
             }
@@ -27025,8 +27026,8 @@ lazy_static! {
                     hidden: "cursedbody".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.2 as f32,
             }
@@ -27050,8 +27051,8 @@ lazy_static! {
                     hidden: "cursedbody".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.4 as f32,
             }
@@ -27075,8 +27076,8 @@ lazy_static! {
                     hidden: "magicbounce".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 3.4 as f32,
             }
@@ -27100,8 +27101,8 @@ lazy_static! {
                     hidden: "magicbounce".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 4.8 as f32,
             }
@@ -27125,8 +27126,8 @@ lazy_static! {
                     hidden: "magicbounce".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Fairy
                 ),
                 weight: 5.1 as f32,
             }
@@ -27150,8 +27151,8 @@ lazy_static! {
                     hidden: "magicbounce".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Fairy
                 ),
                 weight: 0 as f32,
             }
@@ -27175,8 +27176,8 @@ lazy_static! {
                     hidden: "pickpocket".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Fairy
                 ),
                 weight: 5.5 as f32,
             }
@@ -27200,8 +27201,8 @@ lazy_static! {
                     hidden: "pickpocket".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Fairy
                 ),
                 weight: 12.5 as f32,
             }
@@ -27225,8 +27226,8 @@ lazy_static! {
                     hidden: "pickpocket".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Fairy
                 ),
                 weight: 61 as f32,
             }
@@ -27250,8 +27251,8 @@ lazy_static! {
                     hidden: "pickpocket".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Fairy
                 ),
                 weight: 0 as f32,
             }
@@ -27275,8 +27276,8 @@ lazy_static! {
                     hidden: "quickfeet".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "normal".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Normal
                 ),
                 weight: 17.5 as f32,
             }
@@ -27300,8 +27301,8 @@ lazy_static! {
                     hidden: "defiant".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "normal".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Normal
                 ),
                 weight: 46 as f32,
             }
@@ -27325,8 +27326,8 @@ lazy_static! {
                     hidden: "steelyspirit".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Typeless
                 ),
                 weight: 28 as f32,
             }
@@ -27350,8 +27351,8 @@ lazy_static! {
                     hidden: "perishbody".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.4 as f32,
             }
@@ -27375,8 +27376,8 @@ lazy_static! {
                     hidden: "scrappy".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 117 as f32,
             }
@@ -27400,8 +27401,8 @@ lazy_static! {
                     hidden: "icebody".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Psychic
                 ),
                 weight: 58.2 as f32,
             }
@@ -27425,8 +27426,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Ghost
                 ),
                 weight: 66.6 as f32,
             }
@@ -27450,8 +27451,8 @@ lazy_static! {
                     hidden: "aromaveil".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.3 as f32,
             }
@@ -27475,8 +27476,8 @@ lazy_static! {
                     hidden: "aromaveil".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.5 as f32,
             }
@@ -27500,8 +27501,8 @@ lazy_static! {
                     hidden: "aromaveil".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0 as f32,
             }
@@ -27525,8 +27526,8 @@ lazy_static! {
                     hidden: "defiant".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 62 as f32,
             }
@@ -27550,8 +27551,8 @@ lazy_static! {
                     hidden: "electricsurge".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 1 as f32,
             }
@@ -27575,8 +27576,8 @@ lazy_static! {
                     hidden: "icescales".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "bug".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Bug
                 ),
                 weight: 3.8 as f32,
             }
@@ -27600,8 +27601,8 @@ lazy_static! {
                     hidden: "icescales".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "bug".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Bug
                 ),
                 weight: 42 as f32,
             }
@@ -27625,8 +27626,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "rock".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Rock,
+                    PokemonTypes::Typeless
                 ),
                 weight: 520 as f32,
             }
@@ -27650,8 +27651,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 89 as f32,
             }
@@ -27675,8 +27676,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 89 as f32,
             }
@@ -27700,8 +27701,8 @@ lazy_static! {
                     hidden: "psychicsurge".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "normal".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Normal
                 ),
                 weight: 28 as f32,
             }
@@ -27725,8 +27726,8 @@ lazy_static! {
                     hidden: "psychicsurge".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "normal".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Normal
                 ),
                 weight: 28 as f32,
             }
@@ -27750,8 +27751,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Dark
                 ),
                 weight: 3 as f32,
             }
@@ -27775,8 +27776,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Dark
                 ),
                 weight: 3 as f32,
             }
@@ -27800,8 +27801,8 @@ lazy_static! {
                     hidden: "heavymetal".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Typeless
                 ),
                 weight: 100 as f32,
             }
@@ -27825,8 +27826,8 @@ lazy_static! {
                     hidden: "heavymetal".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Typeless
                 ),
                 weight: 650 as f32,
             }
@@ -27850,8 +27851,8 @@ lazy_static! {
                     hidden: "heavymetal".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0 as f32,
             }
@@ -27875,8 +27876,8 @@ lazy_static! {
                     hidden: "sandrush".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Dragon
                 ),
                 weight: 190 as f32,
             }
@@ -27900,8 +27901,8 @@ lazy_static! {
                     hidden: "slushrush".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Ice
                 ),
                 weight: 150 as f32,
             }
@@ -27925,8 +27926,8 @@ lazy_static! {
                     hidden: "sandrush".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Dragon
                 ),
                 weight: 215 as f32,
             }
@@ -27950,8 +27951,8 @@ lazy_static! {
                     hidden: "slushrush".to_string()
                 },
                 types: (
-                    "water".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Water,
+                    PokemonTypes::Ice
                 ),
                 weight: 175 as f32,
             }
@@ -27975,8 +27976,8 @@ lazy_static! {
                     hidden: "stalwart".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Dragon
                 ),
                 weight: 40 as f32,
             }
@@ -28000,8 +28001,8 @@ lazy_static! {
                     hidden: "stalwart".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Dragon
                 ),
                 weight: 0 as f32,
             }
@@ -28025,8 +28026,8 @@ lazy_static! {
                     hidden: "cursedbody".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Ghost
                 ),
                 weight: 2 as f32,
             }
@@ -28050,8 +28051,8 @@ lazy_static! {
                     hidden: "cursedbody".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Ghost
                 ),
                 weight: 11 as f32,
             }
@@ -28075,8 +28076,8 @@ lazy_static! {
                     hidden: "cursedbody".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Ghost
                 ),
                 weight: 50 as f32,
             }
@@ -28100,8 +28101,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Typeless
                 ),
                 weight: 110 as f32,
             }
@@ -28125,8 +28126,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fairy".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Fairy,
+                    PokemonTypes::Steel
                 ),
                 weight: 355 as f32,
             }
@@ -28150,8 +28151,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 210 as f32,
             }
@@ -28175,8 +28176,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Steel
                 ),
                 weight: 785 as f32,
             }
@@ -28200,8 +28201,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "dragon".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Dragon
                 ),
                 weight: 950 as f32,
             }
@@ -28225,8 +28226,8 @@ lazy_static! {
                     hidden: "unnerve".to_string()
                 },
                 types: (
-                    "steel".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Steel,
+                    PokemonTypes::Typeless
                 ),
                 weight: 7.5 as f32,
             }
@@ -28250,8 +28251,8 @@ lazy_static! {
                     hidden: "anticipation".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 24 as f32,
             }
@@ -28275,8 +28276,8 @@ lazy_static! {
                     hidden: "anticipation".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Fairy
                 ),
                 weight: 80 as f32,
             }
@@ -28300,8 +28301,8 @@ lazy_static! {
                     hidden: "scrappy".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 15 as f32,
             }
@@ -28325,8 +28326,8 @@ lazy_static! {
                     hidden: "mistysurge".to_string()
                 },
                 types: (
-                    "poison".to_string(),
-                    "fairy".to_string()
+                    PokemonTypes::Poison,
+                    PokemonTypes::Fairy
                 ),
                 weight: 16 as f32,
             }
@@ -28350,8 +28351,8 @@ lazy_static! {
                     hidden: "icebody".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "psychic".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Psychic
                 ),
                 weight: 56.8 as f32,
             }
@@ -28375,8 +28376,8 @@ lazy_static! {
                     hidden: "cursedbody".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 0.5 as f32,
             }
@@ -28400,8 +28401,8 @@ lazy_static! {
                     hidden: "quickfeet".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "normal".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Normal
                 ),
                 weight: 32.5 as f32,
             }
@@ -28425,8 +28426,8 @@ lazy_static! {
                     hidden: "innerfocus".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 40 as f32,
             }
@@ -28450,8 +28451,8 @@ lazy_static! {
                     hidden: "zenmode".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 120 as f32,
             }
@@ -28475,8 +28476,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Ghost
                 ),
                 weight: 1.5 as f32,
             }
@@ -28500,8 +28501,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ground".to_string(),
-                    "steel".to_string()
+                    PokemonTypes::Ground,
+                    PokemonTypes::Steel
                 ),
                 weight: 20.5 as f32,
             }
@@ -28525,8 +28526,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Dark
                 ),
                 weight: 105 as f32,
             }
@@ -28550,8 +28551,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Water
                 ),
                 weight: 105 as f32,
             }
@@ -28575,8 +28576,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "dark".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Dark
                 ),
                 weight: 0 as f32,
             }
@@ -28600,8 +28601,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "water".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Water
                 ),
                 weight: 105 as f32,
             }
@@ -28625,8 +28626,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Grass
                 ),
                 weight: 70 as f32,
             }
@@ -28650,8 +28651,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dark".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Dark,
+                    PokemonTypes::Grass
                 ),
                 weight: 70 as f32,
             }
@@ -28675,8 +28676,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Typeless
                 ),
                 weight: 36 as f32,
             }
@@ -28700,8 +28701,8 @@ lazy_static! {
                     hidden: "regenerator".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "poison".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Poison
                 ),
                 weight: 70.5 as f32,
             }
@@ -28725,8 +28726,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "fighting".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Fighting,
+                    PokemonTypes::Typeless
                 ),
                 weight: 12 as f32,
             }
@@ -28750,8 +28751,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "electric".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Electric,
+                    PokemonTypes::Typeless
                 ),
                 weight: 145 as f32,
             }
@@ -28775,8 +28776,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "dragon".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Dragon,
+                    PokemonTypes::Typeless
                 ),
                 weight: 200 as f32,
             }
@@ -28800,8 +28801,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ice".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ice,
+                    PokemonTypes::Typeless
                 ),
                 weight: 800 as f32,
             }
@@ -28825,8 +28826,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "ghost".to_string(),
-                    "typeless".to_string()
+                    PokemonTypes::Ghost,
+                    PokemonTypes::Typeless
                 ),
                 weight: 44.5 as f32,
             }
@@ -28850,8 +28851,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "grass".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Grass
                 ),
                 weight: 7.7 as f32,
             }
@@ -28875,8 +28876,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "ice".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Ice
                 ),
                 weight: 809.1 as f32,
             }
@@ -28900,8 +28901,8 @@ lazy_static! {
                     hidden: "none".to_string()
                 },
                 types: (
-                    "psychic".to_string(),
-                    "ghost".to_string()
+                    PokemonTypes::Psychic,
+                    PokemonTypes::Ghost
                 ),
                 weight: 56.3 as f32,
             }
@@ -28935,7 +28936,7 @@ pub struct BaseStats {
 pub struct PokedexPokemon {
     pub species: String,
     pub weight: f32,
-    pub types: (String, String),
+    pub types: (PokemonTypes, PokemonTypes),
     pub base_stats: BaseStats,
     pub abilities: Abilities,
 }
