@@ -5,11 +5,6 @@ mod pokedex;
 mod state;
 
 fn main() {
-    // let pkmn: &str = "pikachu";
-    // let json_pkmn: &pokedex::PokedexPokemon = pokedex::get_pkmn(pkmn);
-
-    // let m: String = "meteormash".to_string();
-    // let move_obj: &moves::Move = moves::get_move(m);
 
     let mut pikachu: state::Pokemon = state::create_basic_pokemon("pikachu".to_string(), 100);
     let charizard: state::Pokemon = state::create_basic_pokemon("charizard".to_string(), 100);
@@ -54,6 +49,6 @@ fn main() {
         trick_room: false
     };
 
-    println!("{:?}", state)
+    println!("{:?}", state);
 
 }
