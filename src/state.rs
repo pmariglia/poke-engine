@@ -1,3 +1,6 @@
+use std::collections::HashSet;
+
+use crate::moves::VolatileStatus;
 use crate::pokedex::get_pkmn;
 use crate::pokedex::PokedexPokemon;
 use crate::pokedex::BaseStats;
@@ -110,11 +113,9 @@ pub struct Pokemon {
     pub accuracy_boost: i8,
     pub evasion_boost: i8,
     pub status: Status,
-    pub nature: PokemonNatures
-
-    // TODO:
-    // - Volatile-Statuses
-    // - Moves
+    pub nature: PokemonNatures,
+    pub volatile_statuses: HashSet<VolatileStatus>,
+    pub moves: Vec<String>
 }
 
 #[derive(Debug)]
@@ -279,6 +280,10 @@ fn calculate_stats(
 
 
 pub fn create_basic_pokemon(pkmn_name: String, level: i8) -> Pokemon {
+    // Creates a pokemon at the given level with
+    // 31 IVs in all stats, evenly distributed EVs,
+    // a neutral nature, and their 'first'
+
     let pokedex_pkmn: &PokedexPokemon = get_pkmn(&pkmn_name);
     let nature: PokemonNatures = PokemonNatures::Serious;
 
@@ -311,6 +316,8 @@ pub fn create_basic_pokemon(pkmn_name: String, level: i8) -> Pokemon {
         accuracy_boost: 0,
         evasion_boost: 0,
         status: Status::None,
-        nature: nature
+        nature: nature,
+        volatile_statuses: HashSet::<VolatileStatus>::new(),
+        moves: vec![]
     }
 }

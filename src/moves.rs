@@ -20174,7 +20174,7 @@ pub enum MoveTarget {
     Myself
 }
 
-#[derive(Debug)]
+#[derive(PartialEq, Eq, Hash, Debug)]
 pub enum VolatileStatus {
     AquaRing,
     Attract,

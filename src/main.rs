@@ -4,42 +4,14 @@ mod moves;
 mod pokedex;
 mod state;
 
-fn print_pkmn(pkmn: &pokedex::PokedexPokemon) {
-    println!(
-        "{}\n    Types: {:?}, {:?}\n    Weight: {}\n    Abilities: {}, {}, {}\n    BaseStats\n    \tHP: {}\n    \tAtk: {}\n    \tDef: {}\n    \tSpa: {}\n    \tSpd: {}\n    \tSpe: {}\n    ",
-        pkmn.species,
-        pkmn.types.0,
-        pkmn.types.1,
-        pkmn.weight,
-        pkmn.abilities.first,
-        pkmn.abilities.second,
-        pkmn.abilities.hidden,
-        pkmn.base_stats.hp,
-        pkmn.base_stats.attack,
-        pkmn.base_stats.defense,
-        pkmn.base_stats.special_attack,
-        pkmn.base_stats.special_defense,
-        pkmn.base_stats.speed,
-    )
-}
-
-fn print_move(mv: &moves::Move) {
-    println!(
-        "{:?}",
-        mv
-    )
-}
-
 fn main() {
-    let pkmn: &str = "pikachu";
-    let json_pkmn: &pokedex::PokedexPokemon = pokedex::get_pkmn(pkmn);
-    print_pkmn(json_pkmn);
-    
-    let m: String = "meteormash".to_string();
-    let move_obj: &moves::Move = moves::get_move(m);
-    print_move(move_obj);
+    // let pkmn: &str = "pikachu";
+    // let json_pkmn: &pokedex::PokedexPokemon = pokedex::get_pkmn(pkmn);
 
-    let pikachu: state::Pokemon = state::create_basic_pokemon("pikachu".to_string(), 100);
+    // let m: String = "meteormash".to_string();
+    // let move_obj: &moves::Move = moves::get_move(m);
+
+    let mut pikachu: state::Pokemon = state::create_basic_pokemon("pikachu".to_string(), 100);
     let charizard: state::Pokemon = state::create_basic_pokemon("charizard".to_string(), 100);
     let blastoise: state::Pokemon = state::create_basic_pokemon("blastoise".to_string(), 100);
     let espeon: state::Pokemon = state::create_basic_pokemon("espeon".to_string(), 100);
@@ -53,6 +25,13 @@ fn main() {
     let gengar: state::Pokemon = state::create_basic_pokemon("gengar".to_string(), 100);
     let melmetal: state::Pokemon = state::create_basic_pokemon("melmetal".to_string(), 100);
     
+    pikachu.volatile_statuses.insert(moves::VolatileStatus::PartiallyTrapped);
+    pikachu.moves.push("volttackle".to_string());
+    pikachu.moves.push("voltswitch".to_string());
+    pikachu.moves.push("irontail".to_string());
+    pikachu.moves.push("surf".to_string());
+    
+
     let my_side: state::Side = state::Side {
         active: pikachu,
         reserve: vec![charizard, blastoise, espeon, snorlax, venusaur],
