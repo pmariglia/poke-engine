@@ -3,6 +3,8 @@ extern crate lazy_static;
 mod moves;
 mod pokedex;
 mod state;
+mod abilities;
+mod find_instructions;
 
 fn main() {
 
@@ -21,6 +23,8 @@ fn main() {
     let melmetal: state::Pokemon = state::create_basic_pokemon("melmetal".to_string(), 100);
     
     pikachu.volatile_statuses.insert(moves::VolatileStatus::PartiallyTrapped);
+    pikachu.ability = "swiftswim".to_string();
+
     pikachu.moves.push("volttackle".to_string());
     pikachu.moves.push("voltswitch".to_string());
     pikachu.moves.push("irontail".to_string());
@@ -41,7 +45,7 @@ fn main() {
         wish: (0, 0)
     };
 
-    let state: state::State = state::State {
+    let mut state: state::State = state::State {
         side_one: my_side,
         side_two: your_side,
         weather: state::Weather::None,
@@ -49,6 +53,20 @@ fn main() {
         trick_room: false
     };
 
-    println!("{:?}", state);
+    let effective_speed: i16 = find_instructions::get_effective_speed(
+        &state,
+        &state.side_two.active
+    );
+
+    println!("{}", effective_speed);
+
+    state.weather = state::Weather::Rain;
+
+    let effective_speed: i16 = find_instructions::get_effective_speed(
+        &state,
+        &state.side_two.active
+    );
+
+    println!("{}", effective_speed);
 
 }

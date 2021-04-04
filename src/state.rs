@@ -1,11 +1,11 @@
 use std::collections::HashSet;
 
-use crate::moves::VolatileStatus;
-use crate::pokedex::get_pkmn;
-use crate::pokedex::PokedexPokemon;
-use crate::pokedex::BaseStats;
+use super::moves::VolatileStatus;
+use super::pokedex::get_pkmn;
+use super::pokedex::PokedexPokemon;
+use super::pokedex::BaseStats;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Weather {
     None,
     Sun,
