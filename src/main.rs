@@ -21,9 +21,6 @@ fn main() {
     let rhyperior: state::Pokemon = state::create_basic_pokemon("rhyperior".to_string(), 100);
     let gengar: state::Pokemon = state::create_basic_pokemon("gengar".to_string(), 100);
     let melmetal: state::Pokemon = state::create_basic_pokemon("melmetal".to_string(), 100);
-    
-    pikachu.volatile_statuses.insert(moves::VolatileStatus::PartiallyTrapped);
-    pikachu.ability = "swiftswim".to_string();
 
     pikachu.moves.push("volttackle".to_string());
     pikachu.moves.push("voltswitch".to_string());
@@ -52,21 +49,26 @@ fn main() {
         terrain: state::Terrain::None,
         trick_room: false
     };
+    
+    state.side_one.active.ability = "swiftswim".to_string();
+    state.side_one.active.speed_boost = -1;
+    
+    println!("Speed: {}", state.side_one.active.speed);
 
     let effective_speed: i16 = find_instructions::get_effective_speed(
         &state,
-        &state.side_two.active
+        &state.side_one.active
     );
 
-    println!("{}", effective_speed);
+    println!("Speed after boosts: {}", effective_speed);
 
     state.weather = state::Weather::Rain;
 
     let effective_speed: i16 = find_instructions::get_effective_speed(
         &state,
-        &state.side_two.active
+        &state.side_one.active
     );
 
-    println!("{}", effective_speed);
+    println!("Speed after boosts and ability: {}", effective_speed);
 
 }
