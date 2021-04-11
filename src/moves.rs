@@ -761,7 +761,7 @@ lazy_static! {
                 boosts: Boosts { attack: -2, defense: 0, special_attack: -2, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(-1.0),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -1362,7 +1362,7 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None,
+                recoil: Some(0.5),
                 modify_priority: None
             }
         );
@@ -1517,7 +1517,7 @@ lazy_static! {
                 side_condition: None,
                 heal: None,
                 crash: None,
-                drain: None,
+                drain: Some(0.5),
                 recoil: None,
                 modify_priority: None
             }
@@ -1595,7 +1595,7 @@ lazy_static! {
                 side_condition: None,
                 heal: None,
                 crash: None,
-                drain: None,
+                drain: Some(0.5),
                 recoil: None,
                 modify_priority: None
             }
@@ -1697,7 +1697,7 @@ lazy_static! {
                 boosts: Boosts { attack: 6, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(-0.5),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -2297,7 +2297,7 @@ lazy_static! {
                 side_condition: None,
                 heal: None,
                 crash: None,
-                drain: None,
+                drain: Some(0.5),
                 recoil: None,
                 modify_priority: None
             }
@@ -3985,7 +3985,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(0.25),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -4559,7 +4559,7 @@ lazy_static! {
                 side_condition: None,
                 heal: None,
                 crash: None,
-                drain: None,
+                drain: Some(0.5),
                 recoil: None,
                 modify_priority: None
             }
@@ -6101,7 +6101,7 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None,
+                recoil: Some(1.0/3.0),
                 modify_priority: None
             }
         );
@@ -6514,7 +6514,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: Some(SideConditions::HealingWish),
-                heal: None,
+                heal: Some(-1.0),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -6540,7 +6540,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(0.5),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -6800,7 +6800,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(0.25),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -7762,7 +7762,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(0.5),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -8256,7 +8256,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(-0.5),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -8545,7 +8545,7 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None,
+                recoil: Some(1.0/3.0),
                 modify_priority: None
             }
         );
@@ -9064,7 +9064,7 @@ lazy_static! {
                 side_condition: None,
                 heal: None,
                 crash: None,
-                drain: None,
+                drain: Some(0.5),
                 recoil: None,
                 modify_priority: None
             }
@@ -9504,7 +9504,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(-1.0),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -10781,7 +10781,7 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None,
+                recoil: Some(1.0/3.0),
                 modify_priority: None
             }
         );
@@ -11090,7 +11090,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(0.5),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -11377,7 +11377,7 @@ lazy_static! {
                 volatile_status: None,
                 side_condition: None,
                 heal: None,
-                crash: None,
+                crash: Some(0.5),
                 drain: None,
                 recoil: None,
                 modify_priority: None
@@ -11587,7 +11587,7 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None,
+                recoil: Some(0.25),
                 modify_priority: None
             }
         );
@@ -12104,7 +12104,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(-1.0),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -12314,7 +12314,7 @@ lazy_static! {
                 side_condition: None,
                 heal: None,
                 crash: None,
-                drain: None,
+                drain: Some(0.5),
                 recoil: None,
                 modify_priority: None
             }
@@ -12338,7 +12338,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(1.0),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -13405,7 +13405,7 @@ lazy_static! {
                 volatile_status: None,
                 side_condition: None,
                 heal: None,
-                crash: None,
+                crash: Some(0.5),
                 drain: None,
                 recoil: None,
                 modify_priority: None
@@ -14028,7 +14028,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(0.5),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -14808,7 +14808,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(0.5),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -14888,7 +14888,7 @@ lazy_static! {
                 side_condition: None,
                 heal: None,
                 crash: None,
-                drain: None,
+                drain: Some(0.75),
                 recoil: None,
                 modify_priority: None
             }
@@ -14938,7 +14938,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(-1.0),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -15253,7 +15253,7 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None,
+                recoil: Some(0.5),
                 modify_priority: None
             }
         );
@@ -15435,7 +15435,7 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None,
+                recoil: Some(0.25),
                 modify_priority: None
             }
         );
@@ -16345,7 +16345,7 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None,
+                recoil: Some(1.0/3.0),
                 modify_priority: None
             }
         );
@@ -16420,7 +16420,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(0.5),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -16812,7 +16812,7 @@ lazy_static! {
                 side_condition: None,
                 heal: None,
                 crash: None,
-                drain: None,
+                drain: Some(0.5),
                 recoil: None,
                 modify_priority: None
             }
@@ -16992,7 +16992,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(-1.0),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -17800,7 +17800,7 @@ lazy_static! {
                 side_condition: None,
                 heal: None,
                 crash: None,
-                drain: None,
+                drain: Some(0.5),
                 recoil: None,
                 modify_priority: None
             }
@@ -18110,7 +18110,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: Some(VolatileStatus::Roost),
                 side_condition: None,
-                heal: None,
+                heal: Some(0.5),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -18814,7 +18814,7 @@ lazy_static! {
                 side_condition: None,
                 heal: None,
                 crash: None,
-                drain: None,
+                drain: Some(0.75),
                 recoil: None,
                 modify_priority: None
             }
@@ -19696,7 +19696,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(0.5),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -19777,7 +19777,7 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None,
+                recoil: Some(0.25),
                 modify_priority: None
             }
         );
@@ -20010,7 +20010,7 @@ lazy_static! {
                 side_condition: None,
                 heal: None,
                 crash: None,
-                drain: None,
+                drain: Some(0.5),
                 recoil: None,
                 modify_priority: None
             }
@@ -20398,7 +20398,7 @@ lazy_static! {
                 boosts: Boosts { attack: 0, defense: 0, special_attack: 0, special_defense: 0, speed: 0, accuracy: 0 },
                 volatile_status: None,
                 side_condition: None,
-                heal: None,
+                heal: Some(0.5),
                 crash: None,
                 drain: None,
                 recoil: None,
@@ -20505,7 +20505,7 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None,
+                recoil: Some(0.25),
                 modify_priority: None
             }
         );
@@ -20817,7 +20817,7 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None,
+                recoil: Some(1.0/3.0),
                 modify_priority: None
             }
         );
