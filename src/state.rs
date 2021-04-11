@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::collections::HashMap;
 
 use super::moves::VolatileStatus;
 use super::pokedex::get_pkmn;
@@ -16,7 +17,7 @@ pub enum Weather {
     HeavyRain
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Terrain {
     None,
     ElectricTerrain,
@@ -26,7 +27,7 @@ pub enum Terrain {
 }
 
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Status {
     None,
     Burn,
@@ -122,7 +123,7 @@ pub struct Pokemon {
 pub struct Side {
     pub active: Pokemon,
     pub reserve: Vec<Pokemon>,
-    pub side_conditions: Vec<String>,
+    pub side_conditions: HashMap<String, i8>,
     pub wish: (i8, i16)
 }
 

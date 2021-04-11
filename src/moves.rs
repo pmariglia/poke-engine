@@ -4,6 +4,11 @@ use lazy_static::lazy_static;
 
 use super::state::PokemonTypes;
 use super::state::Status;
+use super::state::State;
+use super::state::Terrain;
+
+
+type ModifyPriorityFn = fn(&State) -> i8;
 
 
 lazy_static! {
@@ -31,7 +36,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -56,7 +62,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -81,7 +88,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -106,7 +114,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -131,7 +140,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -156,7 +166,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -181,7 +192,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -206,7 +218,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -231,7 +244,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -256,7 +270,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -281,7 +296,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -306,7 +322,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -331,7 +348,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -356,7 +374,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -381,7 +400,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -406,7 +426,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -431,7 +452,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -456,7 +478,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -481,7 +504,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -506,7 +530,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -531,7 +556,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -556,7 +582,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -581,7 +608,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -606,7 +634,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -631,7 +660,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -656,7 +686,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -681,7 +712,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -706,7 +738,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -731,7 +764,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -756,7 +790,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -781,7 +816,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -806,7 +842,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -831,7 +868,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -856,7 +894,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -881,7 +920,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -906,7 +946,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -931,7 +972,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -956,7 +998,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -981,7 +1024,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1006,7 +1050,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1031,7 +1076,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1056,7 +1102,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1081,7 +1128,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1106,7 +1154,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1131,7 +1180,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1156,7 +1206,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1181,7 +1232,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1206,7 +1258,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1231,7 +1284,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1256,7 +1310,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1281,7 +1336,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1306,7 +1362,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1331,7 +1388,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1356,7 +1414,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1381,7 +1440,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1406,7 +1466,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1431,7 +1492,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1456,7 +1518,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1481,7 +1544,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1506,7 +1570,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1531,7 +1596,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1556,7 +1622,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1581,7 +1648,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1606,7 +1674,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1631,7 +1700,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1656,7 +1726,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1681,7 +1752,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1706,7 +1778,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1731,7 +1804,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1756,7 +1830,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1781,7 +1856,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1806,7 +1882,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1831,7 +1908,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1856,7 +1934,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1881,7 +1960,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1906,7 +1986,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1931,7 +2012,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1956,7 +2038,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -1981,7 +2064,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2006,7 +2090,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2031,7 +2116,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2056,7 +2142,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2081,7 +2168,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2106,7 +2194,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2131,7 +2220,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2156,7 +2246,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2181,7 +2272,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2206,7 +2298,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2231,7 +2324,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2256,7 +2350,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2281,7 +2376,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2306,7 +2402,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2331,7 +2428,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2356,7 +2454,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2381,7 +2480,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2406,7 +2506,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2431,7 +2532,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2456,7 +2558,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2481,7 +2584,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2506,7 +2610,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2531,7 +2636,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2556,7 +2662,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2581,7 +2688,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2606,7 +2714,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2631,7 +2740,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2656,7 +2766,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2681,7 +2792,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2706,7 +2818,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2731,7 +2844,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2756,7 +2870,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2781,7 +2896,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2806,7 +2922,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2831,7 +2948,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2856,7 +2974,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2881,7 +3000,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2906,7 +3026,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2931,7 +3052,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2956,7 +3078,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -2981,7 +3104,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3006,7 +3130,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3031,7 +3156,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3056,7 +3182,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3081,7 +3208,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3106,7 +3234,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3131,7 +3260,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3156,7 +3286,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3181,7 +3312,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3206,7 +3338,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3231,7 +3364,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3256,7 +3390,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3281,7 +3416,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3306,7 +3442,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3331,7 +3468,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3356,7 +3494,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3381,7 +3520,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3406,7 +3546,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3431,7 +3572,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3456,7 +3598,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3481,7 +3624,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3506,7 +3650,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3531,7 +3676,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3556,7 +3702,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3581,7 +3728,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3606,7 +3754,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3631,7 +3780,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3656,7 +3806,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3681,7 +3832,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3706,7 +3858,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3731,7 +3884,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3756,7 +3910,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3781,7 +3936,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3806,7 +3962,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3831,7 +3988,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3856,7 +4014,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3881,7 +4040,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3906,7 +4066,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3931,7 +4092,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3956,7 +4118,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -3981,7 +4144,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4006,7 +4170,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4031,7 +4196,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4056,7 +4222,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4081,7 +4248,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4106,7 +4274,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4131,7 +4300,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4156,7 +4326,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4181,7 +4352,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4206,7 +4378,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4231,7 +4404,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4256,7 +4430,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4281,7 +4456,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4306,7 +4482,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4331,7 +4508,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4356,7 +4534,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4381,7 +4560,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4406,7 +4586,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4431,7 +4612,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4456,7 +4638,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4481,7 +4664,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4506,7 +4690,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4531,7 +4716,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4556,7 +4742,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4581,7 +4768,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4606,7 +4794,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4631,7 +4820,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4656,7 +4846,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4681,7 +4872,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4706,7 +4898,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4731,7 +4924,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4756,7 +4950,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4781,7 +4976,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4806,7 +5002,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4831,7 +5028,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4856,7 +5054,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4881,7 +5080,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4906,7 +5106,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4931,7 +5132,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4956,7 +5158,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -4981,7 +5184,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5006,7 +5210,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5031,7 +5236,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5056,7 +5262,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5081,7 +5288,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5106,7 +5314,15 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: Some(
+                    |state| {
+                        if state.terrain == Terrain::GrassyTerrain {
+                            return 1;
+                        }
+                        return 0;
+                    }
+                )
             }
         );
         
@@ -5131,7 +5347,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5156,7 +5373,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5181,7 +5399,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5206,7 +5425,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5231,7 +5451,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5256,7 +5477,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5281,7 +5503,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5306,7 +5529,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5331,7 +5555,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5356,7 +5581,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5381,7 +5607,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5406,7 +5633,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5431,7 +5659,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5456,7 +5685,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5481,7 +5711,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5506,7 +5737,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5531,7 +5763,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5556,7 +5789,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5581,7 +5815,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5606,7 +5841,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5631,7 +5867,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5656,7 +5893,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5681,7 +5919,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5706,7 +5945,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5731,7 +5971,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5756,7 +5997,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5781,7 +6023,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5806,7 +6049,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5831,7 +6075,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5856,7 +6101,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5881,7 +6127,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5906,7 +6153,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5931,7 +6179,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5956,7 +6205,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -5981,7 +6231,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6006,7 +6257,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6031,7 +6283,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6056,7 +6309,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6081,7 +6335,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6106,7 +6361,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6131,7 +6387,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6156,7 +6413,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6181,7 +6439,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6206,7 +6465,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6231,7 +6491,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6256,7 +6517,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6281,7 +6543,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6306,7 +6569,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6331,7 +6595,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6356,7 +6621,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6381,7 +6647,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6406,7 +6673,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6431,7 +6699,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6456,7 +6725,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6481,7 +6751,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6506,7 +6777,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6531,7 +6803,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6556,7 +6829,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6581,7 +6855,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6606,7 +6881,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6631,7 +6907,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6656,7 +6933,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6681,7 +6959,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6706,7 +6985,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6731,7 +7011,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6756,7 +7037,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6781,7 +7063,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6806,7 +7089,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6831,7 +7115,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6856,7 +7141,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6881,7 +7167,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6906,7 +7193,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6931,7 +7219,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6956,7 +7245,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -6981,7 +7271,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7006,7 +7297,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7031,7 +7323,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7056,7 +7349,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7081,7 +7375,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7106,7 +7401,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7131,7 +7427,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7156,7 +7453,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7181,7 +7479,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7206,7 +7505,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7231,7 +7531,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7256,7 +7557,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7281,7 +7583,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7306,7 +7609,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7331,7 +7635,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7356,7 +7661,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7381,7 +7687,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7406,7 +7713,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7431,7 +7739,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7456,7 +7765,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7481,7 +7791,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7506,7 +7817,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7531,7 +7843,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7556,7 +7869,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7581,7 +7895,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7606,7 +7921,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7631,7 +7947,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7656,7 +7973,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7681,7 +7999,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7706,7 +8025,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7731,7 +8051,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7756,7 +8077,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7781,7 +8103,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7806,7 +8129,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7831,7 +8155,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7856,7 +8181,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7881,7 +8207,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7906,7 +8233,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7931,7 +8259,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7956,7 +8285,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -7981,7 +8311,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8006,7 +8337,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8031,7 +8363,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8056,7 +8389,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8081,7 +8415,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8106,7 +8441,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8131,7 +8467,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8156,7 +8493,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8181,7 +8519,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8206,7 +8545,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8231,7 +8571,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8256,7 +8597,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8281,7 +8623,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8306,7 +8649,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8331,7 +8675,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8356,7 +8701,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8381,7 +8727,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8406,7 +8753,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8431,7 +8779,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8456,7 +8805,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8481,7 +8831,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8506,7 +8857,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8531,7 +8883,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8556,7 +8909,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8581,7 +8935,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8606,7 +8961,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8631,7 +8987,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8656,7 +9013,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8681,7 +9039,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8706,7 +9065,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8731,7 +9091,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8756,7 +9117,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8781,7 +9143,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8806,7 +9169,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8831,7 +9195,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8856,7 +9221,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8881,7 +9247,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8906,7 +9273,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8931,7 +9299,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8956,7 +9325,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -8981,7 +9351,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9006,7 +9377,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9031,7 +9403,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9056,7 +9429,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9081,7 +9455,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9106,7 +9481,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9131,7 +9507,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9156,7 +9533,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9181,7 +9559,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9206,7 +9585,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9231,7 +9611,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9256,7 +9637,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9281,7 +9663,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9306,7 +9689,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9331,7 +9715,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9356,7 +9741,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9381,7 +9767,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9406,7 +9793,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9431,7 +9819,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9456,7 +9845,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9481,7 +9871,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9506,7 +9897,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9531,7 +9923,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9556,7 +9949,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9581,7 +9975,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9606,7 +10001,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9631,7 +10027,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9656,7 +10053,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9681,7 +10079,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9706,7 +10105,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9731,7 +10131,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9756,7 +10157,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9781,7 +10183,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9806,7 +10209,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9831,7 +10235,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9856,7 +10261,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9881,7 +10287,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9906,7 +10313,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9931,7 +10339,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9956,7 +10365,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -9981,7 +10391,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10006,7 +10417,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10031,7 +10443,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10056,7 +10469,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10081,7 +10495,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10106,7 +10521,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10131,7 +10547,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10156,7 +10573,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10181,7 +10599,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10206,7 +10625,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10231,7 +10651,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10256,7 +10677,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10281,7 +10703,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10306,7 +10729,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10331,7 +10755,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10356,7 +10781,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10381,7 +10807,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10406,7 +10833,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10431,7 +10859,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10456,7 +10885,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10481,7 +10911,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10506,7 +10937,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10531,7 +10963,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10556,7 +10989,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10581,7 +11015,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10606,7 +11041,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10631,7 +11067,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10656,7 +11093,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10681,7 +11119,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10706,7 +11145,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10731,7 +11171,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10756,7 +11197,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10781,7 +11223,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10806,7 +11249,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10831,7 +11275,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10856,7 +11301,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10881,7 +11327,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10906,7 +11353,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10931,7 +11379,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10956,7 +11405,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -10981,7 +11431,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11006,7 +11457,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11031,7 +11483,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11056,7 +11509,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11081,7 +11535,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11106,7 +11561,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11131,7 +11587,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11156,7 +11613,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11181,7 +11639,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11206,7 +11665,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11231,7 +11691,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11256,7 +11717,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11281,7 +11743,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11306,7 +11769,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11331,7 +11795,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11356,7 +11821,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11381,7 +11847,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11406,7 +11873,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11431,7 +11899,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11456,7 +11925,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11481,7 +11951,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11506,7 +11977,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11531,7 +12003,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11556,7 +12029,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11581,7 +12055,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11606,7 +12081,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11631,7 +12107,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11656,7 +12133,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11681,7 +12159,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11706,7 +12185,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11731,7 +12211,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11756,7 +12237,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11781,7 +12263,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11806,7 +12289,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11831,7 +12315,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11856,7 +12341,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11881,7 +12367,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11906,7 +12393,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11931,7 +12419,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11956,7 +12445,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -11981,7 +12471,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12006,7 +12497,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12031,7 +12523,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12056,7 +12549,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12081,7 +12575,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12106,7 +12601,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12131,7 +12627,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12156,7 +12653,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12181,7 +12679,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12206,7 +12705,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12231,7 +12731,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12256,7 +12757,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12281,7 +12783,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12306,7 +12809,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12331,7 +12835,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12356,7 +12861,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12381,7 +12887,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12406,7 +12913,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12431,7 +12939,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12456,7 +12965,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12481,7 +12991,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12506,7 +13017,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12531,7 +13043,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12556,7 +13069,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12581,7 +13095,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12606,7 +13121,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12631,7 +13147,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12656,7 +13173,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12681,7 +13199,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12706,7 +13225,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12731,7 +13251,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12756,7 +13277,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12781,7 +13303,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12806,7 +13329,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12831,7 +13355,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12856,7 +13381,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12881,7 +13407,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12906,7 +13433,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12931,7 +13459,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12956,7 +13485,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -12981,7 +13511,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13006,7 +13537,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13031,7 +13563,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13056,7 +13589,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13081,7 +13615,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13106,7 +13641,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13131,7 +13667,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13156,7 +13693,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13181,7 +13719,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13206,7 +13745,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13231,7 +13771,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13256,7 +13797,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13281,7 +13823,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13306,7 +13849,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13331,7 +13875,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13356,7 +13901,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13381,7 +13927,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13406,7 +13953,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13431,7 +13979,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13456,7 +14005,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13481,7 +14031,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13506,7 +14057,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13531,7 +14083,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13556,7 +14109,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13581,7 +14135,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13606,7 +14161,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13631,7 +14187,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13656,7 +14213,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13681,7 +14239,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13706,7 +14265,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13731,7 +14291,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13756,7 +14317,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13781,7 +14343,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13806,7 +14369,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13831,7 +14395,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13856,7 +14421,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13881,7 +14447,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13906,7 +14473,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13931,7 +14499,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13956,7 +14525,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -13981,7 +14551,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14006,7 +14577,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14031,7 +14603,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14056,7 +14629,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14081,7 +14655,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14106,7 +14681,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14131,7 +14707,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14156,7 +14733,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14181,7 +14759,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14206,7 +14785,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14231,7 +14811,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14256,7 +14837,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14281,7 +14863,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14306,7 +14889,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14331,7 +14915,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14356,7 +14941,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14381,7 +14967,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14406,7 +14993,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14431,7 +15019,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14456,7 +15045,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14481,7 +15071,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14506,7 +15097,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14531,7 +15123,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14556,7 +15149,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14581,7 +15175,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14606,7 +15201,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14631,7 +15227,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14656,7 +15253,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14681,7 +15279,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14706,7 +15305,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14731,7 +15331,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14756,7 +15357,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14781,7 +15383,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14806,7 +15409,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14831,7 +15435,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14856,7 +15461,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14881,7 +15487,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14906,7 +15513,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14931,7 +15539,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14956,7 +15565,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -14981,7 +15591,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15006,7 +15617,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15031,7 +15643,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15056,7 +15669,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15081,7 +15695,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15106,7 +15721,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15131,7 +15747,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15156,7 +15773,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15181,7 +15799,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15206,7 +15825,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15231,7 +15851,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15256,7 +15877,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15281,7 +15903,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15306,7 +15929,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15331,7 +15955,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15356,7 +15981,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15381,7 +16007,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15406,7 +16033,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15431,7 +16059,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15456,7 +16085,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15481,7 +16111,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15506,7 +16137,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15531,7 +16163,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15556,7 +16189,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15581,7 +16215,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15606,7 +16241,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15631,7 +16267,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15656,7 +16293,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15681,7 +16319,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15706,7 +16345,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15731,7 +16371,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15756,7 +16397,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15781,7 +16423,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15806,7 +16449,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15831,7 +16475,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15856,7 +16501,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15881,7 +16527,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15906,7 +16553,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15931,7 +16579,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15956,7 +16605,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -15981,7 +16631,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16006,7 +16657,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16031,7 +16683,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16056,7 +16709,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16081,7 +16735,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16106,7 +16761,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16131,7 +16787,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16156,7 +16813,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16181,7 +16839,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16206,7 +16865,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16231,7 +16891,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16256,7 +16917,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16281,7 +16943,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16306,7 +16969,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16331,7 +16995,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16356,7 +17021,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16381,7 +17047,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16406,7 +17073,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16431,7 +17099,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16456,7 +17125,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16481,7 +17151,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16506,7 +17177,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16531,7 +17203,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16556,7 +17229,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16581,7 +17255,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16606,7 +17281,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16631,7 +17307,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16656,7 +17333,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16681,7 +17359,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16706,7 +17385,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16731,7 +17411,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16756,7 +17437,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16781,7 +17463,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16806,7 +17489,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16831,7 +17515,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16856,7 +17541,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16881,7 +17567,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16906,7 +17593,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16931,7 +17619,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16956,7 +17645,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -16981,7 +17671,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17006,7 +17697,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17031,7 +17723,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17056,7 +17749,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17081,7 +17775,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17106,7 +17801,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17131,7 +17827,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17156,7 +17853,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17181,7 +17879,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17206,7 +17905,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17231,7 +17931,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17256,7 +17957,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17281,7 +17983,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17306,7 +18009,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17331,7 +18035,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17356,7 +18061,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17381,7 +18087,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17406,7 +18113,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17431,7 +18139,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17456,7 +18165,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17481,7 +18191,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17506,7 +18217,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17531,7 +18243,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17556,7 +18269,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17581,7 +18295,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17606,7 +18321,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17631,7 +18347,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17656,7 +18373,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17681,7 +18399,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17706,7 +18425,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17731,7 +18451,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17756,7 +18477,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17781,7 +18503,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17806,7 +18529,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17831,7 +18555,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17856,7 +18581,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17881,7 +18607,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17906,7 +18633,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17931,7 +18659,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17956,7 +18685,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -17981,7 +18711,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18006,7 +18737,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18031,7 +18763,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18056,7 +18789,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18081,7 +18815,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18106,7 +18841,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18131,7 +18867,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18156,7 +18893,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18181,7 +18919,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18206,7 +18945,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18231,7 +18971,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18256,7 +18997,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18281,7 +19023,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18306,7 +19049,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18331,7 +19075,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18356,7 +19101,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18381,7 +19127,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18406,7 +19153,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18431,7 +19179,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18456,7 +19205,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18481,7 +19231,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18506,7 +19257,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18531,7 +19283,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18556,7 +19309,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18581,7 +19335,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18606,7 +19361,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18631,7 +19387,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18656,7 +19413,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18681,7 +19439,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18706,7 +19465,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18731,7 +19491,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18756,7 +19517,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18781,7 +19543,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18806,7 +19569,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18831,7 +19595,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18856,7 +19621,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18881,7 +19647,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18906,7 +19673,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18931,7 +19699,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18956,7 +19725,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -18981,7 +19751,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19006,7 +19777,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19031,7 +19803,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19056,7 +19829,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19081,7 +19855,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19106,7 +19881,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19131,7 +19907,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19156,7 +19933,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19181,7 +19959,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19206,7 +19985,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19231,7 +20011,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19256,7 +20037,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19281,7 +20063,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19306,7 +20089,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19331,7 +20115,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19356,7 +20141,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19381,7 +20167,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19406,7 +20193,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19431,7 +20219,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19456,7 +20245,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19481,7 +20271,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19506,7 +20297,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19531,7 +20323,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19556,7 +20349,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19581,7 +20375,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19606,7 +20401,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19631,7 +20427,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19656,7 +20453,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19681,7 +20479,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19706,7 +20505,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19731,7 +20531,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19756,7 +20557,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19781,7 +20583,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19806,7 +20609,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19831,7 +20635,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19856,7 +20661,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19881,7 +20687,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19906,7 +20713,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19931,7 +20739,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19956,7 +20765,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -19981,7 +20791,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -20006,7 +20817,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -20031,7 +20843,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -20056,7 +20869,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -20081,7 +20895,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -20106,7 +20921,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -20131,7 +20947,8 @@ lazy_static! {
                 heal: None,
                 crash: None,
                 drain: None,
-                recoil: None
+                recoil: None,
+                modify_priority: None
             }
         );
         
@@ -20142,17 +20959,18 @@ lazy_static! {
 }
 
 
-pub fn get_move(move_name: String) -> &'static Move {
-    return MOVES.get(&move_name).unwrap_or_else(
+pub fn get_move(move_name: &str) -> &'static Move {
+    return MOVES.get(move_name).unwrap_or_else(
         || panic!("Could not get move {}", move_name)
     )
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum MoveCategory {
     Physical,
     Special,
-    Status
+    Status,
+    Switch
 }
 
 #[derive(Debug)]
@@ -20307,7 +21125,6 @@ pub struct Secondary {
     pub status: Option<Status>,
 }
 
-#[derive(Debug)]
 pub struct Move {
     pub accuracy: f32,
     pub base_power: f32,
@@ -20328,4 +21145,5 @@ pub struct Move {
     pub crash: Option<f32>,
     pub drain: Option<f32>,
     pub recoil: Option<f32>,
+    pub modify_priority: Option<ModifyPriorityFn>
 }

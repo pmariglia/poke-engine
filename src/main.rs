@@ -1,9 +1,11 @@
+use std::collections::HashMap;
 extern crate lazy_static;
 
 mod moves;
 mod pokedex;
 mod state;
 mod abilities;
+mod items;
 mod find_instructions;
 
 fn main() {
@@ -31,14 +33,14 @@ fn main() {
     let my_side: state::Side = state::Side {
         active: pikachu,
         reserve: vec![charizard, blastoise, espeon, snorlax, venusaur],
-        side_conditions: Vec::<String>::new(),
+        side_conditions: HashMap::<String, i8>::new(),
         wish: (0, 0)
     };
 
     let your_side: state::Side = state::Side {
         active: landorustherian,
         reserve: vec![tapulele, rillaboom, rhyperior, gengar, melmetal],
-        side_conditions: Vec::<String>::new(),
+        side_conditions: HashMap::<String, i8>::new(),
         wish: (0, 0)
     };
 
@@ -49,26 +51,14 @@ fn main() {
         terrain: state::Terrain::None,
         trick_room: false
     };
-    
-    state.side_one.active.ability = "swiftswim".to_string();
-    state.side_one.active.speed_boost = -1;
-    
-    println!("Speed: {}", state.side_one.active.speed);
 
-    let effective_speed: i16 = find_instructions::get_effective_speed(
-        &state,
-        &state.side_one.active
-    );
+    state.side_one.active.speed = 5;
+    state.side_two.active.speed = 10;
+    // state.trick_room = true;
+    // state.side_two.active.ability = "prankster".to_string();
 
-    println!("Speed after boosts: {}", effective_speed);
+    let s1mf = find_instructions::side_one_moves_first(&state, "tackle", "thunderwave");
 
-    state.weather = state::Weather::Rain;
-
-    let effective_speed: i16 = find_instructions::get_effective_speed(
-        &state,
-        &state.side_one.active
-    );
-
-    println!("Speed after boosts and ability: {}", effective_speed);
+    println!("Side one moves first: {}", s1mf);
 
 }
