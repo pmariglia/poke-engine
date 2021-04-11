@@ -1,10 +1,10 @@
 use std::collections::HashSet;
 use std::collections::HashMap;
 
-use super::moves::VolatileStatus;
-use super::pokedex::get_pkmn;
-use super::pokedex::PokedexPokemon;
-use super::pokedex::BaseStats;
+use super::data::moves::VolatileStatus;
+use super::data::pokedex::get_pkmn;
+use super::data::pokedex::PokedexPokemon;
+use super::data::pokedex::BaseStats;
 
 #[derive(Debug, PartialEq)]
 pub enum Weather {
@@ -38,7 +38,7 @@ pub enum Status {
     Toxic
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum PokemonTypes {
     Normal,
     Fire,
@@ -156,10 +156,8 @@ fn update_stats_from_nature(old_stats: &PokemonStats, nature: &PokemonNatures) -
             stats.defense = (stats.defense as f32 * 0.9) as i16;
         },
         PokemonNatures::Adamant => {
-            // println!("attack before: {}", stats.attack);
             stats.attack = (stats.attack as f32 * 1.1) as i16;
             stats.special_attack = (stats.special_attack as f32 * 0.9) as i16;
-            // println!("attack after: {}", stats.attack);
         },
         PokemonNatures::Naughty => {
             stats.attack = (stats.attack as f32 * 1.1) as i16;
@@ -283,7 +281,9 @@ fn calculate_stats(
 pub fn create_basic_pokemon(pkmn_name: String, level: i8) -> Pokemon {
     // Creates a pokemon at the given level with
     // 31 IVs in all stats, evenly distributed EVs,
-    // a neutral nature, and their 'first'
+    // a neutral nature, no item, and their 'first' ability
+
+    // Mostly a tool for debugging
 
     let pokedex_pkmn: &PokedexPokemon = get_pkmn(&pkmn_name);
     let nature: PokemonNatures = PokemonNatures::Serious;

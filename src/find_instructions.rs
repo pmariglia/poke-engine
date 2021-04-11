@@ -1,12 +1,10 @@
 use super::state::State;
 use super::state::Side;
-use super::state::Pokemon;
-use super::state::Terrain;
 use super::state::Status;
-use super::moves::Move;
-use super::moves::get_move;
-use super::abilities::get_ability;
-use super::items::get_item;
+use crate::data::moves::Move;
+use crate::data::moves::get_move;
+use crate::data::abilities::get_ability;
+use crate::data::items::get_item;
 
 
 fn get_boost_multiplier(boost: i8) -> f32 {
@@ -48,7 +46,7 @@ pub fn get_effective_speed(state: &State, side: &Side) -> i16 {
         effective_speed = effective_speed * 2.0
     }
 
-    if side.active.status == Status::Paralyze {
+    if side.active.status == Status::Paralyze && side.active.ability != "quickfeet" {
         effective_speed = (effective_speed / 2.0).floor()
     }
     

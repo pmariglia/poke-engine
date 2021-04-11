@@ -1,11 +1,8 @@
 use std::collections::HashMap;
 extern crate lazy_static;
 
-mod moves;
-mod pokedex;
+mod data;
 mod state;
-mod abilities;
-mod items;
 mod find_instructions;
 
 fn main() {
@@ -53,7 +50,12 @@ fn main() {
     };
 
     state.side_one.active.speed = 5;
-    state.side_two.active.speed = 10;
+    state.side_one.active.item = "none".to_string();
+    state.side_one.active.status = state::Status::Paralyze;
+    state.side_one.active.ability = "quickfeet".to_string();
+    // state.terrain = state::Terrain::ElectricTerrain;
+
+    state.side_two.active.speed = 4;
     // state.trick_room = true;
     // state.side_two.active.ability = "prankster".to_string();
 

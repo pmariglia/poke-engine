@@ -2,10 +2,10 @@ use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
-use super::state::PokemonTypes;
-use super::state::Status;
-use super::state::State;
-use super::state::Terrain;
+use crate::state::PokemonTypes;
+use crate::state::Status;
+use crate::state::State;
+use crate::state::Terrain;
 
 
 type ModifyPriorityFn = fn(&State) -> i8;

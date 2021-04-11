@@ -2,12 +2,16 @@ use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
-use super::state::State;
-use super::state::Side;
-use super::state::Pokemon;
-use super::state::Weather;
 use super::moves::get_move;
 use super::moves::MoveCategory;
+
+use crate::state::State;
+use crate::state::Pokemon;
+use crate::state::Status;
+use crate::state::Weather;
+use crate::state::Terrain;
+use crate::state::PokemonTypes;
+
 
 type ModifySpeedFn = fn(&State, &Pokemon) -> f32;
 type ModifyPriorityFn = fn(&str) -> i8;
@@ -359,7 +363,6 @@ lazy_static! {
                         if state.weather == Weather::Rain || state.weather == Weather::HeavyRain {
                             return 2.0
                         };
-                    
                         return 1.0;
                     }
                 ),
@@ -570,7 +573,14 @@ lazy_static! {
         abilities.insert(
             "slushrush".to_string(),
             Ability {
-                modify_speed: None,
+                modify_speed: Some(
+                    |state, _pkmn| {
+                        if state.weather == Weather::Hail {
+                            return 2.0
+                        };
+                        return 1.0;
+                    }
+                ),
                 modify_priority: None
             }
         );
@@ -1114,7 +1124,14 @@ lazy_static! {
         abilities.insert(
             "surgesurfer".to_string(),
             Ability {
-                modify_speed: None,
+                modify_speed: Some(
+                    |state, _pkmn| {
+                        if state.terrain == Terrain::ElectricTerrain {
+                            return 2.0
+                        };
+                        return 1.0;
+                    }
+                ),
                 modify_priority: None
             }
         );
@@ -1610,7 +1627,14 @@ lazy_static! {
         abilities.insert(
             "sandrush".to_string(),
             Ability {
-                modify_speed: None,
+                modify_speed: Some(
+                    |state, _pkmn| {
+                        if state.weather == Weather::Sand {
+                            return 2.0
+                        };
+                        return 1.0;
+                    }
+                ),
                 modify_priority: None
             }
         );
@@ -1666,7 +1690,14 @@ lazy_static! {
         abilities.insert(
             "quickfeet".to_string(),
             Ability {
-                modify_speed: None,
+                modify_speed: Some(
+                    |_state, pkmn| {
+                        if pkmn.status != Status::None {
+                            return 1.5
+                        };
+                        return 1.0;
+                    }
+                ),
                 modify_priority: None
             }
         );
@@ -1842,7 +1873,14 @@ lazy_static! {
         abilities.insert(
             "unburden".to_string(),
             Ability {
-                modify_speed: None,
+                modify_speed: Some(
+                    |_state, pkmn| {
+                        if pkmn.item == "none" {
+                            return 2.0
+                        };
+                        return 1.0;
+                    }
+                ),
                 modify_priority: None
             }
         );
@@ -1947,7 +1985,14 @@ lazy_static! {
             "triage".to_string(),
             Ability {
                 modify_speed: None,
-                modify_priority: None
+                modify_priority: Some(
+                    |move_name| {
+                        if get_move(move_name).flags.heal {
+                            return 3;
+                        }
+                        return 0;
+                    }
+                )
             }
         );
 
@@ -1987,7 +2032,14 @@ lazy_static! {
             "galewings".to_string(),
             Ability {
                 modify_speed: None,
-                modify_priority: None
+                modify_priority: Some(
+                    |move_name| {
+                        if get_move(move_name).move_type == PokemonTypes::Flying {
+                            return 1;
+                        }
+                        return 0;
+                    }
+                )
             }
         );
 
@@ -2186,7 +2238,14 @@ lazy_static! {
         abilities.insert(
             "chlorophyll".to_string(),
             Ability {
-                modify_speed: None,
+                modify_speed: Some(
+                    |state, _pkmn| {
+                        if state.weather == Weather::Sun || state.weather == Weather::HarshSun {
+                            return 2.0
+                        };
+                        return 1.0;
+                    }
+                ),
                 modify_priority: None
             }
         );

@@ -2,10 +2,8 @@ use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
-use super::state::State;
-use super::state::Side;
-use super::state::Pokemon;
-use super::state::Weather;
+use crate::state::State;
+use crate::state::Pokemon;
 
 type ModifySpeedFn = fn(&State, &Pokemon) -> f32;
 

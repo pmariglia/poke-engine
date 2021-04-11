@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
-use super::state::PokemonTypes;
+use crate::state::PokemonTypes;
 
 lazy_static! {
     static ref POKEDEX: HashMap<String, PokedexPokemon> = {        
