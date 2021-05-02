@@ -3,7 +3,8 @@ use std::collections::HashMap;
 use lazy_static::lazy_static;
 
 use crate::state::PokemonTypes;
-use crate::state::Status;
+// use crate::state::Status;
+use crate::data::conditions::Status;
 use crate::state::State;
 use crate::state::Terrain;
 

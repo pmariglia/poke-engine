@@ -51,7 +51,7 @@ fn main() {
 
     state.side_one.active.speed = 5;
     state.side_one.active.item = "none".to_string();
-    state.side_one.active.status = state::Status::Paralyze;
+    state.side_one.active.status = data::conditions::Status::Paralyze;
     state.side_one.active.ability = "quickfeet".to_string();
     // state.terrain = state::Terrain::ElectricTerrain;
 
@@ -59,7 +59,16 @@ fn main() {
     // state.trick_room = true;
     // state.side_two.active.ability = "prankster".to_string();
 
-    let s1mf = find_instructions::side_one_moves_first(&state, "tackle", "thunderwave");
+    let s1_move = find_instructions::MoveChoice {
+        move_type: find_instructions::MoveType::Move,
+        choice: "tackle".to_string()
+    };
+    let s2_move = find_instructions::MoveChoice {
+        move_type: find_instructions::MoveType::Move,
+        choice: "tackle".to_string()
+    };
+
+    let s1mf = find_instructions::side_one_moves_first(&state, s1_move, s2_move);
 
     println!("Side one moves first: {}", s1mf);
 

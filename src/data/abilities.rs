@@ -7,14 +7,15 @@ use super::moves::MoveCategory;
 
 use crate::state::State;
 use crate::state::Pokemon;
-use crate::state::Status;
+// use crate::state::Status;
+use crate::data::conditions::Status;
 use crate::state::Weather;
 use crate::state::Terrain;
 use crate::state::PokemonTypes;
 
 
 type ModifySpeedFn = fn(&State, &Pokemon) -> f32;
-type ModifyPriorityFn = fn(&str) -> i8;
+type ModifyPriorityFn = fn(&str, &Pokemon) -> i8;
 
 lazy_static! {
     static ref ABILITIES: HashMap<String, Ability> = {
@@ -297,7 +298,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: Some(
-                    |move_name| {
+                    |move_name, _pkmn| {
                         if get_move(move_name).category == MoveCategory::Status {
                             return 1;
                         }
@@ -1986,7 +1987,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: Some(
-                    |move_name| {
+                    |move_name, _pkmn| {
                         if get_move(move_name).flags.heal {
                             return 3;
                         }
@@ -2033,8 +2034,8 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: Some(
-                    |move_name| {
-                        if get_move(move_name).move_type == PokemonTypes::Flying {
+                    |move_name, pkmn| {
+                        if pkmn.hp == pkmn.maxhp && get_move(move_name).move_type == PokemonTypes::Flying {
                             return 1;
                         }
                         return 0;

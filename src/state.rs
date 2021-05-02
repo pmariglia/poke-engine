@@ -5,6 +5,7 @@ use super::data::moves::VolatileStatus;
 use super::data::pokedex::get_pkmn;
 use super::data::pokedex::PokedexPokemon;
 use super::data::pokedex::BaseStats;
+use crate::data::conditions::Status;
 
 #[derive(Debug, PartialEq)]
 pub enum Weather {
@@ -24,18 +25,6 @@ pub enum Terrain {
     PsychicTerrain,
     MistyTerrain,
     GrassyTerrain
-}
-
-
-#[derive(Debug, PartialEq)]
-pub enum Status {
-    None,
-    Burn,
-    Sleep,
-    Freeze,
-    Paralyze,
-    Poison,
-    Toxic
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -283,7 +272,7 @@ pub fn create_basic_pokemon(pkmn_name: String, level: i8) -> Pokemon {
     // 31 IVs in all stats, evenly distributed EVs,
     // a neutral nature, no item, and their 'first' ability
 
-    // Mostly a tool for debugging
+    // A good tool for debugging
 
     let pokedex_pkmn: &PokedexPokemon = get_pkmn(&pkmn_name);
     let nature: PokemonNatures = PokemonNatures::Serious;
