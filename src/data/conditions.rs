@@ -6,5 +6,5 @@ pub enum Status {
     Freeze,
     Paralyze,
     Poison,
-    Toxic
+    Toxic,
 }

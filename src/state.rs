@@ -1,10 +1,10 @@
-use std::collections::HashSet;
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 use super::data::moves::VolatileStatus;
 use super::data::pokedex::get_pkmn;
-use super::data::pokedex::PokedexPokemon;
 use super::data::pokedex::BaseStats;
+use super::data::pokedex::PokedexPokemon;
 use crate::data::conditions::Status;
 
 #[derive(Debug, PartialEq)]
@@ -15,7 +15,7 @@ pub enum Weather {
     Sand,
     Hail,
     HarshSun,
-    HeavyRain
+    HeavyRain,
 }
 
 #[derive(Debug, PartialEq)]
@@ -24,7 +24,7 @@ pub enum Terrain {
     ElectricTerrain,
     PsychicTerrain,
     MistyTerrain,
-    GrassyTerrain
+    GrassyTerrain,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -78,7 +78,7 @@ pub enum PokemonNatures {
     Docile,
     Bashful,
     Quirky,
-    Serious
+    Serious,
 }
 
 #[derive(Debug)]
@@ -105,7 +105,7 @@ pub struct Pokemon {
     pub status: Status,
     pub nature: PokemonNatures,
     pub volatile_statuses: HashSet<VolatileStatus>,
-    pub moves: Vec<String>
+    pub moves: Vec<String>,
 }
 
 #[derive(Debug)]
@@ -113,7 +113,7 @@ pub struct Side {
     pub active: Pokemon,
     pub reserve: Vec<Pokemon>,
     pub side_conditions: HashMap<String, i8>,
-    pub wish: (i8, i16)
+    pub wish: (i8, i16),
 }
 
 #[derive(Debug)]
@@ -122,7 +122,7 @@ pub struct State {
     pub side_two: Side,
     pub weather: Weather,
     pub terrain: Terrain,
-    pub trick_room: bool
+    pub trick_room: bool,
 }
 
 #[derive(Clone)]
@@ -143,116 +143,110 @@ fn update_stats_from_nature(old_stats: &PokemonStats, nature: &PokemonNatures) -
         PokemonNatures::Lonely => {
             stats.attack = (stats.attack as f32 * 1.1) as i16;
             stats.defense = (stats.defense as f32 * 0.9) as i16;
-        },
+        }
         PokemonNatures::Adamant => {
             stats.attack = (stats.attack as f32 * 1.1) as i16;
             stats.special_attack = (stats.special_attack as f32 * 0.9) as i16;
-        },
+        }
         PokemonNatures::Naughty => {
             stats.attack = (stats.attack as f32 * 1.1) as i16;
             stats.special_defense = (stats.special_defense as f32 * 0.9) as i16;
-        },
+        }
         PokemonNatures::Brave => {
             stats.attack = (stats.attack as f32 * 1.1) as i16;
             stats.speed = (stats.speed as f32 * 0.9) as i16;
-        },
+        }
 
         // + Defense
         PokemonNatures::Bold => {
             stats.defense = (stats.defense as f32 * 1.1) as i16;
             stats.attack = (stats.attack as f32 * 0.9) as i16;
-        },
+        }
         PokemonNatures::Impish => {
             stats.defense = (stats.defense as f32 * 1.1) as i16;
             stats.special_attack = (stats.special_attack as f32 * 0.9) as i16;
-        },
+        }
         PokemonNatures::Lax => {
             stats.defense = (stats.defense as f32 * 1.1) as i16;
             stats.special_defense = (stats.special_defense as f32 * 0.9) as i16;
-        },
+        }
         PokemonNatures::Relaxed => {
             stats.defense = (stats.defense as f32 * 1.1) as i16;
             stats.speed = (stats.speed as f32 * 0.9) as i16;
-        },
+        }
 
         // + Special Attack
         PokemonNatures::Modest => {
             stats.special_attack = (stats.special_attack as f32 * 1.1) as i16;
             stats.attack = (stats.attack as f32 * 0.9) as i16;
-        },
+        }
         PokemonNatures::Mild => {
             stats.special_attack = (stats.special_attack as f32 * 1.1) as i16;
             stats.defense = (stats.defense as f32 * 0.9) as i16;
-        },
+        }
         PokemonNatures::Rash => {
             stats.special_attack = (stats.special_attack as f32 * 1.1) as i16;
             stats.special_defense = (stats.special_defense as f32 * 0.9) as i16;
-        },
+        }
         PokemonNatures::Quiet => {
             stats.special_attack = (stats.special_attack as f32 * 1.1) as i16;
             stats.speed = (stats.speed as f32 * 0.9) as i16;
-        },
+        }
 
         // + Special Defense
         PokemonNatures::Calm => {
             stats.special_defense = (stats.special_defense as f32 * 1.1) as i16;
             stats.attack = (stats.attack as f32 * 0.9) as i16;
-        },
+        }
         PokemonNatures::Gentle => {
             stats.special_defense = (stats.special_defense as f32 * 1.1) as i16;
             stats.defense = (stats.defense as f32 * 0.9) as i16;
-        },
+        }
         PokemonNatures::Careful => {
             stats.special_defense = (stats.special_defense as f32 * 1.1) as i16;
             stats.special_attack = (stats.special_attack as f32 * 0.9) as i16;
-        },
+        }
         PokemonNatures::Sassy => {
             stats.special_defense = (stats.special_defense as f32 * 1.1) as i16;
             stats.speed = (stats.speed as f32 * 0.9) as i16;
-        },
+        }
 
         // + Speed
         PokemonNatures::Timid => {
             stats.speed = (stats.speed as f32 * 1.1) as i16;
             stats.attack = (stats.attack as f32 * 0.9) as i16;
-        },
+        }
         PokemonNatures::Hasty => {
             stats.speed = (stats.speed as f32 * 1.1) as i16;
             stats.defense = (stats.defense as f32 * 0.9) as i16;
-        },
+        }
         PokemonNatures::Jolly => {
             stats.speed = (stats.speed as f32 * 1.1) as i16;
             stats.special_attack = (stats.special_attack as f32 * 0.9) as i16;
-        },
+        }
         PokemonNatures::Naive => {
             stats.speed = (stats.speed as f32 * 1.1) as i16;
             stats.special_defense = (stats.special_defense as f32 * 0.9) as i16;
-        },
+        }
 
         // Do nothing for the rest
-        _ => ()
+        _ => (),
     }
 
     return stats;
 }
 
-
-fn common_pkmn_stat_calc(
-    base_stat: i16,
-    iv: i8,
-    ev: i8,
-    level: i8
-) -> i16 {
-    return (((2 * base_stat as i32 + iv as i32 + (ev as i32 / 4) as i32) * level as i32) / 100) as i16;
+fn common_pkmn_stat_calc(base_stat: i16, iv: i8, ev: i8, level: i8) -> i16 {
+    return (((2 * base_stat as i32 + iv as i32 + (ev as i32 / 4) as i32) * level as i32) / 100)
+        as i16;
 }
-
 
 fn calculate_stats(
     base_stats: &BaseStats,
     level: i8,
     ivs: (i8, i8, i8, i8, i8, i8),
     evs: (i8, i8, i8, i8, i8, i8),
-    nature: &PokemonNatures
+    nature: &PokemonNatures,
 ) -> PokemonStats {
     let pkmn_stats = PokemonStats {
         hitpoints: common_pkmn_stat_calc(base_stats.hp, ivs.0, evs.0, level) + level as i16 + 10,
@@ -260,12 +254,11 @@ fn calculate_stats(
         defense: common_pkmn_stat_calc(base_stats.defense, ivs.2, evs.2, level) + 5,
         special_attack: common_pkmn_stat_calc(base_stats.special_attack, ivs.3, evs.3, level) + 5,
         special_defense: common_pkmn_stat_calc(base_stats.special_defense, ivs.4, evs.4, level) + 5,
-        speed: common_pkmn_stat_calc(base_stats.speed, ivs.5, evs.5, level) + 5
+        speed: common_pkmn_stat_calc(base_stats.speed, ivs.5, evs.5, level) + 5,
     };
     let new_stats: PokemonStats = update_stats_from_nature(&pkmn_stats, &nature);
     return new_stats;
 }
-
 
 pub fn create_basic_pokemon(pkmn_name: String, level: i8) -> Pokemon {
     // Creates a pokemon at the given level with
@@ -282,7 +275,7 @@ pub fn create_basic_pokemon(pkmn_name: String, level: i8) -> Pokemon {
         level,
         (31, 31, 31, 31, 31, 31),
         (85, 85, 85, 85, 85, 85),
-        &nature
+        &nature,
     );
 
     return Pokemon {
@@ -308,6 +301,6 @@ pub fn create_basic_pokemon(pkmn_name: String, level: i8) -> Pokemon {
         status: Status::None,
         nature: nature,
         volatile_statuses: HashSet::<VolatileStatus>::new(),
-        moves: vec![]
-    }
+        moves: vec![],
+    };
 }

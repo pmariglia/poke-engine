@@ -1,17 +1,16 @@
-use super::state::State;
 use super::state::Side;
+use super::state::State;
 // use super::state::Status;
-use crate::data::conditions::Status;
-use crate::data::moves::Move;
-use crate::data::moves::get_move;
 use crate::data::abilities::get_ability;
+use crate::data::conditions::Status;
 use crate::data::items::get_item;
-
+use crate::data::moves::get_move;
+use crate::data::moves::Move;
 
 #[derive(Debug, PartialEq)]
 pub enum MoveType {
     Move,
-    Switch
+    Switch,
 }
 
 #[derive(Debug)]
@@ -19,25 +18,23 @@ pub struct MoveChoice {
     // Specifies the move used on a turn
     // Names are hard
     pub move_type: MoveType,
-    pub choice: String
+    pub choice: String,
 }
-
 
 fn get_boost_multiplier(boost: i8) -> f32 {
     match boost {
         i if i < 0 => {
             return 2.0 / (i.abs() + 2) as f32;
-        },
+        }
         i if i == 0 => {
             return 1.0;
-        },
+        }
         i if i > 0 => {
             return ((i + 2) as f32) / 2.0;
-        },
-        _ => panic!("Got bad value for boost: {}", boost)
+        }
+        _ => panic!("Got bad value for boost: {}", boost),
     }
 }
-
 
 pub fn get_effective_speed(state: &State, side: &Side) -> i16 {
     let mut effective_speed = side.active.speed as f32;
@@ -47,14 +44,14 @@ pub fn get_effective_speed(state: &State, side: &Side) -> i16 {
     match get_ability(side.active.ability.as_str()).modify_speed {
         Some(ability_func) => {
             effective_speed = (effective_speed * ability_func(state, &side.active)).floor();
-        },
+        }
         None => {}
     }
 
     match get_item(side.active.item.as_str()).modify_speed {
         Some(item_func) => {
             effective_speed = (effective_speed * item_func(state, &side.active)).floor();
-        },
+        }
         None => {}
     }
 
@@ -65,63 +62,60 @@ pub fn get_effective_speed(state: &State, side: &Side) -> i16 {
     if side.active.status == Status::Paralyze && side.active.ability != "quickfeet" {
         effective_speed = (effective_speed / 2.0).floor()
     }
-    
+
     return effective_speed as i16;
 }
 
-
-pub fn get_effective_priority(state: &State, side: &Side, move_name: &str) -> i8{
+pub fn get_effective_priority(state: &State, side: &Side, move_name: &str) -> i8 {
     let move_obj: &Move = get_move(move_name);
     let mut priority = move_obj.priority;
-    
+
     match get_ability(side.active.ability.as_str()).modify_priority {
         Some(modify_priority_fn) => {
             priority += modify_priority_fn(move_name, &side.active);
-        },
+        }
         None => {}
     }
 
     match get_move(move_name).modify_priority {
         Some(modify_priority_fn) => {
             priority += modify_priority_fn(&state);
-        },
+        }
         None => {}
     }
 
     return priority;
 }
 
-
-pub fn side_one_moves_first(state: &State, side_one_move: MoveChoice, side_two_move: MoveChoice) -> bool {
+pub fn side_one_moves_first(
+    state: &State,
+    side_one_move: MoveChoice,
+    side_two_move: MoveChoice,
+) -> bool {
     let side_one_effective_speed: i16 = get_effective_speed(state, &state.side_one);
     let side_two_effective_speed: i16 = get_effective_speed(state, &state.side_two);
 
     if side_one_move.move_type == MoveType::Switch && side_two_move.move_type == MoveType::Switch {
         return side_one_effective_speed > side_two_effective_speed;
-    }
-
-    else if side_one_move.move_type == MoveType::Switch {
+    } else if side_one_move.move_type == MoveType::Switch {
         if side_two_move.choice == "pursuit" {
             return false;
         }
         return true;
-    }
-    
-    else if side_two_move.move_type == MoveType::Switch {
+    } else if side_two_move.move_type == MoveType::Switch {
         if side_one_move.choice == "pursuit" {
             return true;
         }
         return false;
     }
-    
+
     let side_one_priority = get_effective_priority(&state, &state.side_one, &side_one_move.choice);
     let side_two_priority = get_effective_priority(&state, &state.side_two, &side_two_move.choice);
 
     if side_one_priority == side_two_priority {
         if state.trick_room {
             return side_two_effective_speed >= side_one_effective_speed;
-        }
-        else {
+        } else {
             return side_one_effective_speed > side_two_effective_speed;
         }
     } else {
@@ -134,20 +128,20 @@ mod test {
 
     use std::collections::HashMap;
 
-    use super::super::state::Weather;
-    use super::super::state::Terrain;
-    use super::super::state::State;
-    use super::super::state::Side;
     use super::super::state::Pokemon;
+    use super::super::state::Side;
+    use super::super::state::State;
+    use super::super::state::Terrain;
+    use super::super::state::Weather;
     // use super::super::state::Status;
-    use crate::data::conditions::Status;
     use super::super::state::create_basic_pokemon;
-    
-    use super::MoveChoice;
-    use super::MoveType;
-    use super::side_one_moves_first;
+    use crate::data::conditions::Status;
+
     use super::get_effective_priority;
     use super::get_effective_speed;
+    use super::side_one_moves_first;
+    use super::MoveChoice;
+    use super::MoveType;
 
     fn create_dummy_state() -> State {
         let pikachu: Pokemon = create_basic_pokemon("pikachu".to_string(), 100);
@@ -156,26 +150,26 @@ mod test {
         let espeon: Pokemon = create_basic_pokemon("espeon".to_string(), 100);
         let snorlax: Pokemon = create_basic_pokemon("snorlax".to_string(), 100);
         let venusaur: Pokemon = create_basic_pokemon("venusaur".to_string(), 100);
-    
+
         let landorustherian: Pokemon = create_basic_pokemon("landorustherian".to_string(), 100);
         let tapulele: Pokemon = create_basic_pokemon("tapulele".to_string(), 100);
         let rillaboom: Pokemon = create_basic_pokemon("rillaboom".to_string(), 100);
         let rhyperior: Pokemon = create_basic_pokemon("rhyperior".to_string(), 100);
         let gengar: Pokemon = create_basic_pokemon("gengar".to_string(), 100);
         let melmetal: Pokemon = create_basic_pokemon("melmetal".to_string(), 100);
-    
+
         let my_side: Side = Side {
             active: pikachu,
             reserve: vec![charizard, blastoise, espeon, snorlax, venusaur],
             side_conditions: HashMap::<String, i8>::new(),
-            wish: (0, 0)
+            wish: (0, 0),
         };
-    
+
         let your_side: Side = Side {
             active: landorustherian,
             reserve: vec![tapulele, rillaboom, rhyperior, gengar, melmetal],
             side_conditions: HashMap::<String, i8>::new(),
-            wish: (0, 0)
+            wish: (0, 0),
         };
 
         let state: State = State {
@@ -183,23 +177,18 @@ mod test {
             side_two: your_side,
             weather: Weather::None,
             terrain: Terrain::None,
-            trick_room: false
+            trick_room: false,
         };
 
         return state;
-
     }
 
     #[test]
     fn test_get_effective_priority_returns_zero_for_typical_move() {
         let state: State = create_dummy_state();
 
-        let effective_priority = get_effective_priority(
-            &state,
-            &state.side_one,
-            "tackle"
-        );
-        
+        let effective_priority = get_effective_priority(&state, &state.side_one, "tackle");
+
         assert_eq!(effective_priority, 0);
     }
 
@@ -207,12 +196,8 @@ mod test {
     fn test_get_effective_priority_returns_one_for_quickattack() {
         let state: State = create_dummy_state();
 
-        let effective_priority = get_effective_priority(
-            &state,
-            &state.side_one,
-            "quickattack"
-        );
-        
+        let effective_priority = get_effective_priority(&state, &state.side_one, "quickattack");
+
         assert_eq!(effective_priority, 1);
     }
 
@@ -222,12 +207,8 @@ mod test {
 
         state.side_one.active.ability = "prankster".to_string();
 
-        let effective_priority = get_effective_priority(
-            &state,
-            &state.side_one,
-            "thunderwave"
-        );
-        
+        let effective_priority = get_effective_priority(&state, &state.side_one, "thunderwave");
+
         assert_eq!(effective_priority, 1);
     }
 
@@ -237,12 +218,8 @@ mod test {
 
         state.side_one.active.ability = "prankster".to_string();
 
-        let effective_priority = get_effective_priority(
-            &state,
-            &state.side_one,
-            "tackle"
-        );
-        
+        let effective_priority = get_effective_priority(&state, &state.side_one, "tackle");
+
         assert_eq!(effective_priority, 0);
     }
 
@@ -252,12 +229,8 @@ mod test {
 
         state.side_one.active.ability = "triage".to_string();
 
-        let effective_priority = get_effective_priority(
-            &state,
-            &state.side_one,
-            "drainingkiss"
-        );
-        
+        let effective_priority = get_effective_priority(&state, &state.side_one, "drainingkiss");
+
         assert_eq!(effective_priority, 3);
     }
 
@@ -267,12 +240,8 @@ mod test {
 
         state.side_one.active.ability = "prankster".to_string();
 
-        let effective_priority = get_effective_priority(
-            &state,
-            &state.side_one,
-            "babydolleyes"
-        );
-        
+        let effective_priority = get_effective_priority(&state, &state.side_one, "babydolleyes");
+
         assert_eq!(effective_priority, 2);
     }
 
@@ -283,12 +252,8 @@ mod test {
         state.side_one.active.ability = "galewings".to_string();
         state.side_one.active.hp -= 1;
 
-        let effective_priority = get_effective_priority(
-            &state,
-            &state.side_one,
-            "wingattack"
-        );
-        
+        let effective_priority = get_effective_priority(&state, &state.side_one, "wingattack");
+
         assert_eq!(effective_priority, 0);
     }
 
@@ -321,10 +286,10 @@ mod test {
         let mut state: State = create_dummy_state();
 
         let base_speed = state.side_one.active.speed;
-        state.side_one.side_conditions.insert(
-            "tailwind".to_string(),
-            1
-        );
+        state
+            .side_one
+            .side_conditions
+            .insert("tailwind".to_string(), 1);
 
         let actual_speed = get_effective_speed(&state, &state.side_one);
         let expected_speed = (2.0 * base_speed as f32) as i16;
@@ -338,14 +303,14 @@ mod test {
 
         let base_speed = state.side_one.active.speed;
         state.side_one.active.speed_boost = 1;
-        state.side_one.side_conditions.insert(
-            "tailwind".to_string(),
-            1
-        );
+        state
+            .side_one
+            .side_conditions
+            .insert("tailwind".to_string(), 1);
 
         let actual_speed = get_effective_speed(&state, &state.side_one);
-        let mut expected_speed = (1.5 * base_speed as f32) as i16;  // speed boost
-        expected_speed = (2.0 * expected_speed as f32) as i16;  // tailwind
+        let mut expected_speed = (1.5 * base_speed as f32) as i16; // speed boost
+        expected_speed = (2.0 * expected_speed as f32) as i16; // tailwind
 
         assert_eq!(expected_speed, actual_speed);
     }
@@ -372,8 +337,8 @@ mod test {
         state.side_one.active.status = Status::Paralyze;
 
         let actual_speed = get_effective_speed(&state, &state.side_one);
-        let mut expected_speed = (1.5 * base_speed as f32) as i16;  // Speed Boost
-        expected_speed = (0.5 * expected_speed as f32) as i16;  // Paralyzed
+        let mut expected_speed = (1.5 * base_speed as f32) as i16; // Speed Boost
+        expected_speed = (0.5 * expected_speed as f32) as i16; // Paralyzed
 
         assert_eq!(expected_speed, actual_speed);
     }
@@ -401,12 +366,12 @@ mod test {
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "tackle".to_string()
+            choice: "tackle".to_string(),
         };
 
         let s2_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "tackle".to_string()
+            choice: "tackle".to_string(),
         };
 
         let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
@@ -423,12 +388,12 @@ mod test {
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "tackle".to_string()
+            choice: "tackle".to_string(),
         };
 
         let s2_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "tackle".to_string()
+            choice: "tackle".to_string(),
         };
 
         let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
@@ -445,12 +410,12 @@ mod test {
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "quickattack".to_string()
+            choice: "quickattack".to_string(),
         };
 
         let s2_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "tackle".to_string()
+            choice: "tackle".to_string(),
         };
 
         let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
@@ -468,12 +433,12 @@ mod test {
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "grassyglide".to_string()
+            choice: "grassyglide".to_string(),
         };
 
         let s2_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "tackle".to_string()
+            choice: "tackle".to_string(),
         };
 
         let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
@@ -491,12 +456,12 @@ mod test {
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "grassyglide".to_string()
+            choice: "grassyglide".to_string(),
         };
 
         let s2_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "tackle".to_string()
+            choice: "tackle".to_string(),
         };
 
         let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
@@ -514,12 +479,12 @@ mod test {
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "quickattack".to_string()
+            choice: "quickattack".to_string(),
         };
 
         let s2_move = MoveChoice {
             move_type: MoveType::Switch,
-            choice: "switch_target".to_string()
+            choice: "switch_target".to_string(),
         };
 
         let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
@@ -536,12 +501,12 @@ mod test {
 
         let s1_move = MoveChoice {
             move_type: MoveType::Switch,
-            choice: "switcH_target".to_string()
+            choice: "switcH_target".to_string(),
         };
 
         let s2_move = MoveChoice {
             move_type: MoveType::Switch,
-            choice: "switch_target".to_string()
+            choice: "switch_target".to_string(),
         };
 
         let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
@@ -558,12 +523,12 @@ mod test {
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "pursuit".to_string()
+            choice: "pursuit".to_string(),
         };
 
         let s2_move = MoveChoice {
             move_type: MoveType::Switch,
-            choice: "switch_target".to_string()
+            choice: "switch_target".to_string(),
         };
 
         let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
@@ -580,12 +545,12 @@ mod test {
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "pursuit".to_string()
+            choice: "pursuit".to_string(),
         };
 
         let s2_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "tackle".to_string()
+            choice: "tackle".to_string(),
         };
 
         let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
@@ -603,12 +568,12 @@ mod test {
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "tackle".to_string()
+            choice: "tackle".to_string(),
         };
 
         let s2_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "tackle".to_string()
+            choice: "tackle".to_string(),
         };
 
         let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
@@ -626,17 +591,16 @@ mod test {
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "quickattack".to_string()
+            choice: "quickattack".to_string(),
         };
 
         let s2_move = MoveChoice {
             move_type: MoveType::Move,
-            choice: "tackle".to_string()
+            choice: "tackle".to_string(),
         };
 
         let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
 
         assert_eq!(true, s1_moves_first);
     }
-
 }
