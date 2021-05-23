@@ -1,5 +1,6 @@
 use super::state::Side;
 use super::state::State;
+use super::state::Pokemon;
 // use super::state::Status;
 use crate::data::abilities::get_ability;
 use crate::data::conditions::Status;
@@ -37,20 +38,22 @@ fn get_boost_multiplier(boost: i8) -> f32 {
 }
 
 pub fn get_effective_speed(state: &State, side: &Side) -> i16 {
-    let mut effective_speed = side.active.speed as f32;
+    let side_active: &Pokemon = side.get_active_immutable();
 
-    effective_speed = (effective_speed * get_boost_multiplier(side.active.speed_boost)).floor();
+    let mut effective_speed = side_active.speed as f32;
 
-    match get_ability(side.active.ability.as_str()).modify_speed {
+    effective_speed = (effective_speed * get_boost_multiplier(side_active.speed_boost)).floor();
+
+    match get_ability(side_active.ability.as_str()).modify_speed {
         Some(ability_func) => {
-            effective_speed = (effective_speed * ability_func(state, &side.active)).floor();
+            effective_speed = (effective_speed * ability_func(state, side_active)).floor();
         }
         None => {}
     }
 
-    match get_item(side.active.item.as_str()).modify_speed {
+    match get_item(side_active.item.as_str()).modify_speed {
         Some(item_func) => {
-            effective_speed = (effective_speed * item_func(state, &side.active)).floor();
+            effective_speed = (effective_speed * item_func(state, side_active)).floor();
         }
         None => {}
     }
@@ -59,7 +62,7 @@ pub fn get_effective_speed(state: &State, side: &Side) -> i16 {
         effective_speed = effective_speed * 2.0
     }
 
-    if side.active.status == Status::Paralyze && side.active.ability != "quickfeet" {
+    if side_active.status == Status::Paralyze && side_active.ability != "quickfeet" {
         effective_speed = (effective_speed / 2.0).floor()
     }
 
@@ -68,11 +71,12 @@ pub fn get_effective_speed(state: &State, side: &Side) -> i16 {
 
 pub fn get_effective_priority(state: &State, side: &Side, move_name: &str) -> i8 {
     let move_obj: &Move = get_move(move_name);
+    let side_active: &Pokemon = side.get_active_immutable();
     let mut priority = move_obj.priority;
 
-    match get_ability(side.active.ability.as_str()).modify_priority {
+    match get_ability(side_active.ability.as_str()).modify_priority {
         Some(modify_priority_fn) => {
-            priority += modify_priority_fn(move_name, &side.active);
+            priority += modify_priority_fn(move_name, side_active);
         }
         None => {}
     }
@@ -128,13 +132,14 @@ mod test {
 
     use std::collections::HashMap;
 
+    use super::super::helpers::create_basic_pokemon;
+
     use super::super::state::Pokemon;
     use super::super::state::Side;
     use super::super::state::State;
     use super::super::state::Terrain;
     use super::super::state::Weather;
-    // use super::super::state::Status;
-    use super::super::state::create_basic_pokemon;
+    
     use crate::data::conditions::Status;
 
     use super::get_effective_priority;
@@ -159,15 +164,15 @@ mod test {
         let melmetal: Pokemon = create_basic_pokemon("melmetal".to_string(), 100);
 
         let my_side: Side = Side {
-            active: pikachu,
-            reserve: vec![charizard, blastoise, espeon, snorlax, venusaur],
+            active_index: 0,
+            reserve: [pikachu, charizard, blastoise, espeon, snorlax, venusaur],
             side_conditions: HashMap::<String, i8>::new(),
             wish: (0, 0),
         };
 
         let your_side: Side = Side {
-            active: landorustherian,
-            reserve: vec![tapulele, rillaboom, rhyperior, gengar, melmetal],
+            active_index: 0,
+            reserve: [landorustherian, tapulele, rillaboom, rhyperior, gengar, melmetal],
             side_conditions: HashMap::<String, i8>::new(),
             wish: (0, 0),
         };
@@ -205,7 +210,7 @@ mod test {
     fn test_prankster_increases_priority_of_status_move_to_1() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.ability = "prankster".to_string();
+        state.side_one.reserve[state.side_one.active_index].ability = "prankster".to_string();
 
         let effective_priority = get_effective_priority(&state, &state.side_one, "thunderwave");
 
@@ -216,7 +221,7 @@ mod test {
     fn test_prankster_does_not_increase_priority_of_physical_move() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.ability = "prankster".to_string();
+        state.side_one.reserve[state.side_one.active_index].ability = "prankster".to_string();
 
         let effective_priority = get_effective_priority(&state, &state.side_one, "tackle");
 
@@ -227,7 +232,7 @@ mod test {
     fn test_triage_increase_priority_of_drain_move_by_3() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.ability = "triage".to_string();
+        state.side_one.reserve[state.side_one.active_index].ability = "triage".to_string();
 
         let effective_priority = get_effective_priority(&state, &state.side_one, "drainingkiss");
 
@@ -238,7 +243,7 @@ mod test {
     fn test_prankster_increases_priority_status_move_by_one() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.ability = "prankster".to_string();
+        state.side_one.reserve[state.side_one.active_index].ability = "prankster".to_string();
 
         let effective_priority = get_effective_priority(&state, &state.side_one, "babydolleyes");
 
@@ -249,8 +254,8 @@ mod test {
     fn test_galewings_does_not_incrase_priority_of_flying_move_when_user_is_damaged() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.ability = "galewings".to_string();
-        state.side_one.active.hp -= 1;
+        state.side_one.reserve[state.side_one.active_index].ability = "galewings".to_string();
+        state.side_one.reserve[state.side_one.active_index].hp -= 1;
 
         let effective_priority = get_effective_priority(&state, &state.side_one, "wingattack");
 
@@ -261,7 +266,7 @@ mod test {
     fn test_get_effective_speed_returns_actual_speed_when_there_are_no_modifiers() {
         let state: State = create_dummy_state();
 
-        let actual_speed = state.side_one.active.speed;
+        let actual_speed = state.side_one.reserve[state.side_one.active_index].speed;
 
         let effective_speed = get_effective_speed(&state, &state.side_one);
 
@@ -272,8 +277,8 @@ mod test {
     fn test_get_effective_speed_returns_increased_speed_when_pkmn_has_speed_boost() {
         let mut state: State = create_dummy_state();
 
-        let base_speed = state.side_one.active.speed;
-        state.side_one.active.speed_boost = 1;
+        let base_speed = state.side_one.reserve[state.side_one.active_index].speed;
+        state.side_one.reserve[state.side_one.active_index].speed_boost = 1;
 
         let actual_speed = get_effective_speed(&state, &state.side_one);
         let expected_speed = (1.5 * base_speed as f32) as i16;
@@ -285,7 +290,7 @@ mod test {
     fn test_get_effective_speed_increases_speed_when_tailwind_is_active() {
         let mut state: State = create_dummy_state();
 
-        let base_speed = state.side_one.active.speed;
+        let base_speed = state.side_one.reserve[state.side_one.active_index].speed;
         state
             .side_one
             .side_conditions
@@ -301,8 +306,8 @@ mod test {
     fn test_tailwind_and_speed_boost_together_when_checking_speed() {
         let mut state: State = create_dummy_state();
 
-        let base_speed = state.side_one.active.speed;
-        state.side_one.active.speed_boost = 1;
+        let base_speed = state.side_one.reserve[state.side_one.active_index].speed;
+        state.side_one.reserve[state.side_one.active_index].speed_boost = 1;
         state
             .side_one
             .side_conditions
@@ -319,8 +324,8 @@ mod test {
     fn test_paralysis_halves_speed() {
         let mut state: State = create_dummy_state();
 
-        let base_speed = state.side_one.active.speed;
-        state.side_one.active.status = Status::Paralyze;
+        let base_speed = state.side_one.reserve[state.side_one.active_index].speed;
+        state.side_one.reserve[state.side_one.active_index].status = Status::Paralyze;
 
         let actual_speed = get_effective_speed(&state, &state.side_one);
         let expected_speed = (0.5 * base_speed as f32) as i16;
@@ -332,9 +337,9 @@ mod test {
     fn test_paralysis_and_speedboost_together() {
         let mut state: State = create_dummy_state();
 
-        let base_speed = state.side_one.active.speed;
-        state.side_one.active.speed_boost = 1;
-        state.side_one.active.status = Status::Paralyze;
+        let base_speed = state.side_one.reserve[state.side_one.active_index].speed;
+        state.side_one.reserve[state.side_one.active_index].speed_boost = 1;
+        state.side_one.reserve[state.side_one.active_index].status = Status::Paralyze;
 
         let actual_speed = get_effective_speed(&state, &state.side_one);
         let mut expected_speed = (1.5 * base_speed as f32) as i16; // Speed Boost
@@ -347,9 +352,9 @@ mod test {
     fn test_quickfeet_and_paralyzed_does_not_halve_speed() {
         let mut state: State = create_dummy_state();
 
-        let base_speed = state.side_one.active.speed;
-        state.side_one.active.status = Status::Paralyze;
-        state.side_one.active.ability = "quickfeet".to_string();
+        let base_speed = state.side_one.reserve[state.side_one.active_index].speed;
+        state.side_one.reserve[state.side_one.active_index].status = Status::Paralyze;
+        state.side_one.reserve[state.side_one.active_index].ability = "quickfeet".to_string();
 
         let actual_speed = get_effective_speed(&state, &state.side_one);
         let expected_speed = (1.5 * base_speed as f32) as i16;
@@ -361,8 +366,8 @@ mod test {
     fn test_side_one_moves_first_when_it_is_faster() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.speed = 2;
-        state.side_two.active.speed = 1;
+        state.side_one.reserve[state.side_one.active_index].speed = 2;
+        state.side_two.reserve[state.side_two.active_index].speed = 1;
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
@@ -383,8 +388,8 @@ mod test {
     fn test_side_two_moves_first_when_it_is_faster() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.speed = 1;
-        state.side_two.active.speed = 2;
+        state.side_one.reserve[state.side_one.active_index].speed = 1;
+        state.side_two.reserve[state.side_two.active_index].speed = 2;
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
@@ -405,8 +410,8 @@ mod test {
     fn test_sideone_moves_first_using_priority_move_when_it_is_slower() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.speed = 1;
-        state.side_two.active.speed = 2;
+        state.side_one.reserve[state.side_one.active_index].speed = 1;
+        state.side_two.reserve[state.side_two.active_index].speed = 2;
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
@@ -427,8 +432,8 @@ mod test {
     fn test_sideone_moves_first_using_grassyglide_in_grassyterrain() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.speed = 1;
-        state.side_two.active.speed = 2;
+        state.side_one.reserve[state.side_one.active_index].speed = 1;
+        state.side_two.reserve[state.side_two.active_index].speed = 2;
         state.terrain = Terrain::GrassyTerrain;
 
         let s1_move = MoveChoice {
@@ -450,8 +455,8 @@ mod test {
     fn test_sideone_does_not_move_first_using_grassyglide_in_no_terrain() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.speed = 1;
-        state.side_two.active.speed = 2;
+        state.side_one.reserve[state.side_one.active_index].speed = 1;
+        state.side_two.reserve[state.side_two.active_index].speed = 2;
         state.terrain = Terrain::None;
 
         let s1_move = MoveChoice {
@@ -473,8 +478,8 @@ mod test {
     fn test_switch_goes_before_priority_move() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.speed = 1;
-        state.side_two.active.speed = 2;
+        state.side_one.reserve[state.side_one.active_index].speed = 1;
+        state.side_two.reserve[state.side_two.active_index].speed = 2;
         state.terrain = Terrain::None;
 
         let s1_move = MoveChoice {
@@ -496,8 +501,8 @@ mod test {
     fn test_faster_pkmn_switches_first() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.speed = 1;
-        state.side_two.active.speed = 2;
+        state.side_one.reserve[state.side_one.active_index].speed = 1;
+        state.side_two.reserve[state.side_two.active_index].speed = 2;
 
         let s1_move = MoveChoice {
             move_type: MoveType::Switch,
@@ -518,8 +523,8 @@ mod test {
     fn test_pursuit_moves_before_switch() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.speed = 1;
-        state.side_two.active.speed = 2;
+        state.side_one.reserve[state.side_one.active_index].speed = 1;
+        state.side_two.reserve[state.side_two.active_index].speed = 2;
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
@@ -540,8 +545,8 @@ mod test {
     fn test_pursuit_goes_second_when_slower_and_opponent_does_not_switch() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.speed = 1;
-        state.side_two.active.speed = 2;
+        state.side_one.reserve[state.side_one.active_index].speed = 1;
+        state.side_two.reserve[state.side_two.active_index].speed = 2;
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
@@ -562,8 +567,8 @@ mod test {
     fn test_slower_pkmn_goes_first_in_trickroom() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.speed = 1;
-        state.side_two.active.speed = 2;
+        state.side_one.reserve[state.side_one.active_index].speed = 1;
+        state.side_two.reserve[state.side_two.active_index].speed = 2;
         state.trick_room = true;
 
         let s1_move = MoveChoice {
@@ -585,8 +590,8 @@ mod test {
     fn test_priority_move_goes_first_in_trickroom() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.active.speed = 2;
-        state.side_two.active.speed = 1;
+        state.side_one.reserve[state.side_one.active_index].speed = 2;
+        state.side_one.reserve[state.side_one.active_index].speed = 1;
         state.trick_room = true;
 
         let s1_move = MoveChoice {
