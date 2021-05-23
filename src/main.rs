@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::collections::HashMap;
 extern crate lazy_static;
 
@@ -30,14 +32,14 @@ fn main() {
     let my_side: state::Side = state::Side {
         active_index: 0,
         reserve: [pikachu, charizard, blastoise, espeon, snorlax, venusaur],
-        side_conditions: HashMap::<String, i8>::new(),
+        side_conditions: HashMap::<data::moves::SideCondition, i8>::new(),
         wish: (0, 0),
     };
 
     let your_side: state::Side = state::Side {
         active_index: 0,
         reserve: [landorustherian, tapulele, rillaboom, rhyperior, gengar, melmetal],
-        side_conditions: HashMap::<String, i8>::new(),
+        side_conditions: HashMap::<data::moves::SideCondition, i8>::new(),
         wish: (0, 0),
     };
 

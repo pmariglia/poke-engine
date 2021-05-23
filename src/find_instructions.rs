@@ -1,12 +1,12 @@
 use super::state::Side;
 use super::state::State;
 use super::state::Pokemon;
-// use super::state::Status;
 use crate::data::abilities::get_ability;
 use crate::data::conditions::Status;
 use crate::data::items::get_item;
 use crate::data::moves::get_move;
 use crate::data::moves::Move;
+use crate::data::moves::SideCondition;
 
 #[derive(Debug, PartialEq)]
 pub enum MoveType {
@@ -58,7 +58,7 @@ pub fn get_effective_speed(state: &State, side: &Side) -> i16 {
         None => {}
     }
 
-    if side.side_conditions.get("tailwind").unwrap_or(&0) > &0 {
+    if side.side_conditions.get(&SideCondition::Tailwind).unwrap_or(&0) > &0 {
         effective_speed = effective_speed * 2.0
     }
 
@@ -129,64 +129,19 @@ pub fn side_one_moves_first(
 
 #[cfg(test)]
 mod test {
+    use super::super::helpers::create_dummy_state;
 
-    use std::collections::HashMap;
-
-    use super::super::helpers::create_basic_pokemon;
-
-    use super::super::state::Pokemon;
-    use super::super::state::Side;
     use super::super::state::State;
     use super::super::state::Terrain;
-    use super::super::state::Weather;
     
     use crate::data::conditions::Status;
+    use crate::data::moves::SideCondition;
 
     use super::get_effective_priority;
     use super::get_effective_speed;
     use super::side_one_moves_first;
     use super::MoveChoice;
     use super::MoveType;
-
-    fn create_dummy_state() -> State {
-        let pikachu: Pokemon = create_basic_pokemon("pikachu".to_string(), 100);
-        let charizard: Pokemon = create_basic_pokemon("charizard".to_string(), 100);
-        let blastoise: Pokemon = create_basic_pokemon("blastoise".to_string(), 100);
-        let espeon: Pokemon = create_basic_pokemon("espeon".to_string(), 100);
-        let snorlax: Pokemon = create_basic_pokemon("snorlax".to_string(), 100);
-        let venusaur: Pokemon = create_basic_pokemon("venusaur".to_string(), 100);
-
-        let landorustherian: Pokemon = create_basic_pokemon("landorustherian".to_string(), 100);
-        let tapulele: Pokemon = create_basic_pokemon("tapulele".to_string(), 100);
-        let rillaboom: Pokemon = create_basic_pokemon("rillaboom".to_string(), 100);
-        let rhyperior: Pokemon = create_basic_pokemon("rhyperior".to_string(), 100);
-        let gengar: Pokemon = create_basic_pokemon("gengar".to_string(), 100);
-        let melmetal: Pokemon = create_basic_pokemon("melmetal".to_string(), 100);
-
-        let my_side: Side = Side {
-            active_index: 0,
-            reserve: [pikachu, charizard, blastoise, espeon, snorlax, venusaur],
-            side_conditions: HashMap::<String, i8>::new(),
-            wish: (0, 0),
-        };
-
-        let your_side: Side = Side {
-            active_index: 0,
-            reserve: [landorustherian, tapulele, rillaboom, rhyperior, gengar, melmetal],
-            side_conditions: HashMap::<String, i8>::new(),
-            wish: (0, 0),
-        };
-
-        let state: State = State {
-            side_one: my_side,
-            side_two: your_side,
-            weather: Weather::None,
-            terrain: Terrain::None,
-            trick_room: false,
-        };
-
-        return state;
-    }
 
     #[test]
     fn test_get_effective_priority_returns_zero_for_typical_move() {
@@ -294,7 +249,7 @@ mod test {
         state
             .side_one
             .side_conditions
-            .insert("tailwind".to_string(), 1);
+            .insert(SideCondition::Tailwind, 1);
 
         let actual_speed = get_effective_speed(&state, &state.side_one);
         let expected_speed = (2.0 * base_speed as f32) as i16;
@@ -311,7 +266,7 @@ mod test {
         state
             .side_one
             .side_conditions
-            .insert("tailwind".to_string(), 1);
+            .insert(SideCondition::Tailwind, 1);
 
         let actual_speed = get_effective_speed(&state, &state.side_one);
         let mut expected_speed = (1.5 * base_speed as f32) as i16; // speed boost

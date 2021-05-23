@@ -1,12 +1,18 @@
+use std::collections::HashMap;
 use std::collections::HashSet;
 
 use super::data::moves::VolatileStatus;
+use super::data::moves::SideCondition;
 use super::data::conditions::Status;
 use super::data::pokedex::get_pkmn;
 use super::data::pokedex::BaseStats;
 use super::data::pokedex::PokedexPokemon;
 use super::state::PokemonNatures;
+use super::state::State;
+use super::state::Side;
 use super::state::Pokemon;
+use super::state::Terrain;
+use super::state::Weather;
 
 
 #[derive(Clone)]
@@ -188,4 +194,45 @@ pub fn create_basic_pokemon(pkmn_name: String, level: i8) -> Pokemon {
         volatile_statuses: HashSet::<VolatileStatus>::new(),
         moves: vec![],
     };
+}
+
+
+pub fn create_dummy_state() -> State {
+    let pikachu: Pokemon = create_basic_pokemon("pikachu".to_string(), 100);
+    let charizard: Pokemon = create_basic_pokemon("charizard".to_string(), 100);
+    let blastoise: Pokemon = create_basic_pokemon("blastoise".to_string(), 100);
+    let espeon: Pokemon = create_basic_pokemon("espeon".to_string(), 100);
+    let snorlax: Pokemon = create_basic_pokemon("snorlax".to_string(), 100);
+    let venusaur: Pokemon = create_basic_pokemon("venusaur".to_string(), 100);
+
+    let charmander: Pokemon = create_basic_pokemon("charmander".to_string(), 100);
+    let tapulele: Pokemon = create_basic_pokemon("tapulele".to_string(), 100);
+    let rillaboom: Pokemon = create_basic_pokemon("rillaboom".to_string(), 100);
+    let rhyperior: Pokemon = create_basic_pokemon("rhyperior".to_string(), 100);
+    let gengar: Pokemon = create_basic_pokemon("gengar".to_string(), 100);
+    let melmetal: Pokemon = create_basic_pokemon("melmetal".to_string(), 100);
+
+    let my_side: Side = Side {
+        active_index: 0,
+        reserve: [pikachu, charizard, blastoise, espeon, snorlax, venusaur],
+        side_conditions: HashMap::<SideCondition, i8>::new(),
+        wish: (0, 0),
+    };
+
+    let your_side: Side = Side {
+        active_index: 0,
+        reserve: [charmander, tapulele, rillaboom, rhyperior, gengar, melmetal],
+        side_conditions: HashMap::<SideCondition, i8>::new(),
+        wish: (0, 0),
+    };
+
+    let state: State = State {
+        side_one: my_side,
+        side_two: your_side,
+        weather: Weather::None,
+        terrain: Terrain::None,
+        trick_room: false,
+    };
+
+    return state;
 }
