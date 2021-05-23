@@ -5,8 +5,8 @@ extern crate lazy_static;
 
 mod data;
 mod find_instructions;
-mod state;
 mod helpers;
+mod state;
 
 fn main() {
     let mut pikachu: state::Pokemon = helpers::create_basic_pokemon("pikachu".to_string(), 100);
@@ -17,7 +17,7 @@ fn main() {
     let venusaur: state::Pokemon = helpers::create_basic_pokemon("venusaur".to_string(), 100);
 
     let landorustherian: state::Pokemon =
-    helpers::create_basic_pokemon("landorustherian".to_string(), 100);
+        helpers::create_basic_pokemon("landorustherian".to_string(), 100);
     let tapulele: state::Pokemon = helpers::create_basic_pokemon("tapulele".to_string(), 100);
     let rillaboom: state::Pokemon = helpers::create_basic_pokemon("rillaboom".to_string(), 100);
     let rhyperior: state::Pokemon = helpers::create_basic_pokemon("rhyperior".to_string(), 100);
@@ -38,7 +38,14 @@ fn main() {
 
     let your_side: state::Side = state::Side {
         active_index: 0,
-        reserve: [landorustherian, tapulele, rillaboom, rhyperior, gengar, melmetal],
+        reserve: [
+            landorustherian,
+            tapulele,
+            rillaboom,
+            rhyperior,
+            gengar,
+            melmetal,
+        ],
         side_conditions: HashMap::<data::moves::SideCondition, i8>::new(),
         wish: (0, 0),
     };

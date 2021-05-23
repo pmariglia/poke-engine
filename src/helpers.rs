@@ -1,19 +1,18 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-use super::data::moves::VolatileStatus;
-use super::data::moves::SideCondition;
 use super::data::conditions::Status;
+use super::data::moves::SideCondition;
+use super::data::moves::VolatileStatus;
 use super::data::pokedex::get_pkmn;
 use super::data::pokedex::BaseStats;
 use super::data::pokedex::PokedexPokemon;
-use super::state::PokemonNatures;
-use super::state::State;
-use super::state::Side;
 use super::state::Pokemon;
+use super::state::PokemonNatures;
+use super::state::Side;
+use super::state::State;
 use super::state::Terrain;
 use super::state::Weather;
-
 
 #[derive(Clone)]
 struct PokemonStats {
@@ -24,7 +23,6 @@ struct PokemonStats {
     special_defense: i16,
     speed: i16,
 }
-
 
 fn update_stats_from_nature(old_stats: &PokemonStats, nature: &PokemonNatures) -> PokemonStats {
     let mut stats: PokemonStats = old_stats.clone();
@@ -195,7 +193,6 @@ pub fn create_basic_pokemon(pkmn_name: String, level: i8) -> Pokemon {
         moves: vec![],
     };
 }
-
 
 pub fn create_dummy_state() -> State {
     let pikachu: Pokemon = create_basic_pokemon("pikachu".to_string(), 100);

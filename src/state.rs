@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-use super::data::moves::VolatileStatus;
 use super::data::moves::SideCondition;
+use super::data::moves::VolatileStatus;
 use crate::data::conditions::Status;
 
 #[derive(Debug, PartialEq)]
@@ -87,7 +87,7 @@ pub enum PokemonBoostableStat {
     SpecialDefense,
     Speed,
     Evasion,
-    Accuracy
+    Accuracy,
 }
 
 #[derive(Debug)]
@@ -135,11 +135,15 @@ impl Side {
     }
 
     pub fn apply_volatile_status(&mut self, volatile_status: VolatileStatus) {
-        self.reserve[self.active_index].volatile_statuses.insert(volatile_status);
+        self.reserve[self.active_index]
+            .volatile_statuses
+            .insert(volatile_status);
     }
 
     pub fn remove_volatile_status(&mut self, volatile_status: VolatileStatus) {
-        self.reserve[self.active_index].volatile_statuses.remove(&volatile_status);
+        self.reserve[self.active_index]
+            .volatile_statuses
+            .remove(&volatile_status);
     }
 
     pub fn damage(&mut self, damage_amount: i16) {
@@ -177,7 +181,7 @@ impl Side {
     }
 
     pub fn unboost(&mut self, stat: PokemonBoostableStat, amount: i8) {
-        Side::boost(self, stat, -1*amount);
+        Side::boost(self, stat, -1 * amount);
     }
 
     pub fn set_status(&mut self, status: Status) {
@@ -187,7 +191,6 @@ impl Side {
     pub fn increment_side_condition(&mut self, side_condition: SideCondition, amount: i8) {
         *self.side_conditions.entry(side_condition).or_insert(0) += amount;
     }
-
 }
 
 #[derive(Debug)]
@@ -205,14 +208,19 @@ mod test {
 
     use super::super::data::moves::SideCondition;
 
-
     #[test]
     fn test_increment_side_condition() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.increment_side_condition(SideCondition::Tailwind, 5);
-        
-        let tw: i8 = *state.side_one.side_conditions.get(&SideCondition::Tailwind).unwrap();
+        state
+            .side_one
+            .increment_side_condition(SideCondition::Tailwind, 5);
+
+        let tw: i8 = *state
+            .side_one
+            .side_conditions
+            .get(&SideCondition::Tailwind)
+            .unwrap();
 
         assert_eq!(tw, 5);
     }
@@ -221,10 +229,19 @@ mod test {
     fn test_increment_side_condition_when_value_already_exists() {
         let mut state: State = create_dummy_state();
 
-        state.side_one.side_conditions.insert(SideCondition::Tailwind, 1);
-        state.side_one.increment_side_condition(SideCondition::Tailwind, 3);
-        
-        let tw: i8 = *state.side_one.side_conditions.get(&SideCondition::Tailwind).unwrap();
+        state
+            .side_one
+            .side_conditions
+            .insert(SideCondition::Tailwind, 1);
+        state
+            .side_one
+            .increment_side_condition(SideCondition::Tailwind, 3);
+
+        let tw: i8 = *state
+            .side_one
+            .side_conditions
+            .get(&SideCondition::Tailwind)
+            .unwrap();
 
         assert_eq!(tw, 4);
     }

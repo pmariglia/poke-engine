@@ -1,6 +1,6 @@
+use super::state::Pokemon;
 use super::state::Side;
 use super::state::State;
-use super::state::Pokemon;
 use crate::data::abilities::get_ability;
 use crate::data::conditions::Status;
 use crate::data::items::get_item;
@@ -58,7 +58,12 @@ pub fn get_effective_speed(state: &State, side: &Side) -> i16 {
         None => {}
     }
 
-    if side.side_conditions.get(&SideCondition::Tailwind).unwrap_or(&0) > &0 {
+    if side
+        .side_conditions
+        .get(&SideCondition::Tailwind)
+        .unwrap_or(&0)
+        > &0
+    {
         effective_speed = effective_speed * 2.0
     }
 
@@ -133,7 +138,7 @@ mod test {
 
     use super::super::state::State;
     use super::super::state::Terrain;
-    
+
     use crate::data::conditions::Status;
     use crate::data::moves::SideCondition;
 
