@@ -191,6 +191,10 @@ impl Side {
     pub fn increment_side_condition(&mut self, side_condition: SideCondition, amount: i8) {
         *self.side_conditions.entry(side_condition).or_insert(0) += amount;
     }
+
+    pub fn decrement_side_condition(&mut self, side_condition: SideCondition, amount: i8) {
+        Side::increment_side_condition(self, side_condition, -1 * amount)
+    }
 }
 
 #[derive(Debug)]
