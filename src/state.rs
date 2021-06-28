@@ -195,6 +195,22 @@ impl Side {
     pub fn decrement_side_condition(&mut self, side_condition: SideCondition, amount: i8) {
         Side::increment_side_condition(self, side_condition, -1 * amount)
     }
+
+    pub fn start_wish(&mut self, health: i16) {
+        self.wish = (2, health);
+    }
+
+    pub fn decrement_wish(&mut self) {
+        self.wish = (self.wish.0 - 1, self.wish.1);
+    }
+
+    pub fn change_types(&mut self, new_types: (PokemonTypes, PokemonTypes)) {
+        self.reserve[self.active_index].types = new_types;
+    }
+
+    pub fn change_item(&mut self, new_item: String) {
+        self.reserve[self.active_index].item = new_item;
+    }
 }
 
 #[derive(Debug)]
@@ -204,6 +220,20 @@ pub struct State {
     pub weather: Weather,
     pub terrain: Terrain,
     pub trick_room: bool,
+}
+
+impl State {
+    pub fn change_weather(&mut self, weather_type: Weather) {
+        self.weather = weather_type;
+    }
+
+    pub fn change_terrain(&mut self, terrain_type: Terrain) {
+        self.terrain = terrain_type;
+    }
+
+    pub fn toggle_trickroom(&mut self) {
+        self.trick_room ^= true;
+    }
 }
 
 mod test {
