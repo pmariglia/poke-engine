@@ -394,7 +394,7 @@ mod test {
 
         state.side_one.reserve[state.side_one.active_index].speed = 1;
         state.side_two.reserve[state.side_two.active_index].speed = 2;
-        state.terrain = Terrain::GrassyTerrain;
+        state.terrain.terrain_type = Terrain::GrassyTerrain;
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
@@ -417,7 +417,7 @@ mod test {
 
         state.side_one.reserve[state.side_one.active_index].speed = 1;
         state.side_two.reserve[state.side_two.active_index].speed = 2;
-        state.terrain = Terrain::None;
+        state.terrain.terrain_type = Terrain::None;
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,
@@ -440,7 +440,7 @@ mod test {
 
         state.side_one.reserve[state.side_one.active_index].speed = 1;
         state.side_two.reserve[state.side_two.active_index].speed = 2;
-        state.terrain = Terrain::None;
+        state.terrain.terrain_type = Terrain::None;
 
         let s1_move = MoveChoice {
             move_type: MoveType::Move,

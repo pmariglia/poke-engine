@@ -17963,7 +17963,7 @@ lazy_static! {
                 drain: None,
                 recoil: None,
                 modify_priority: Some(|state| {
-                    if state.terrain == Terrain::GrassyTerrain {
+                    if state.terrain.terrain_type == Terrain::GrassyTerrain {
                         return 1;
                     }
                     return 0;

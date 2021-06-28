@@ -13,6 +13,8 @@ use super::state::Side;
 use super::state::State;
 use super::state::Terrain;
 use super::state::Weather;
+use super::state::StateTerrain;
+use super::state::StateWeather;
 
 #[derive(Clone)]
 struct PokemonStats {
@@ -223,11 +225,21 @@ pub fn create_dummy_state() -> State {
         wish: (0, 0),
     };
 
+    let state_weather = StateWeather {
+        weather_type: Weather::None,
+        turns_remaining: 0
+    };
+
+    let state_terrain = StateTerrain {
+        terrain_type: Terrain::None,
+        turns_remaining: 0
+    };
+
     let state: State = State {
         side_one: my_side,
         side_two: your_side,
-        weather: Weather::None,
-        terrain: Terrain::None,
+        weather: state_weather,
+        terrain: state_terrain,
         trick_room: false,
     };
 

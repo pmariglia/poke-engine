@@ -17,12 +17,24 @@ pub enum Weather {
 }
 
 #[derive(Debug, PartialEq)]
+pub struct StateWeather {
+    pub weather_type: Weather,
+    pub turns_remaining: i8
+}
+
+#[derive(Debug, PartialEq)]
 pub enum Terrain {
     None,
     ElectricTerrain,
     PsychicTerrain,
     MistyTerrain,
     GrassyTerrain,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct StateTerrain {
+    pub terrain_type: Terrain,
+    pub turns_remaining: i8
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -217,18 +229,20 @@ impl Side {
 pub struct State {
     pub side_one: Side,
     pub side_two: Side,
-    pub weather: Weather,
-    pub terrain: Terrain,
+    pub weather: StateWeather,
+    pub terrain: StateTerrain,
     pub trick_room: bool,
 }
 
 impl State {
-    pub fn change_weather(&mut self, weather_type: Weather) {
-        self.weather = weather_type;
+    pub fn change_weather(&mut self, weather_type: Weather, turns_active: i8) {
+        self.weather.weather_type = weather_type;
+        self.weather.turns_remaining = turns_active;
     }
 
-    pub fn change_terrain(&mut self, terrain_type: Terrain) {
-        self.terrain = terrain_type;
+    pub fn change_terrain(&mut self, terrain_type: Terrain, turns_active: i8) {
+        self.terrain.terrain_type = terrain_type;
+        self.terrain.turns_remaining = turns_active
     }
 
     pub fn toggle_trickroom(&mut self) {

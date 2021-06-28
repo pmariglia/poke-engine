@@ -50,11 +50,21 @@ fn main() {
         wish: (0, 0),
     };
 
+    let state_weather = state::StateWeather {
+        weather_type: state::Weather::None,
+        turns_remaining: 0
+    };
+
+    let state_terrain = state::StateTerrain {
+        terrain_type: state::Terrain::None,
+        turns_remaining: 0
+    };
+
     let mut state: state::State = state::State {
         side_one: my_side,
         side_two: your_side,
-        weather: state::Weather::None,
-        terrain: state::Terrain::None,
+        weather: state_weather,
+        terrain: state_terrain,
         trick_room: false,
     };
 
@@ -62,7 +72,6 @@ fn main() {
     state.side_one.reserve[state.side_one.active_index].item = "none".to_string();
     state.side_one.reserve[state.side_one.active_index].status = data::conditions::Status::Paralyze;
     state.side_one.reserve[state.side_one.active_index].ability = "quickfeet".to_string();
-    // state.terrain = state::Terrain::ElectricTerrain;
 
     state.side_one.reserve[state.side_one.active_index].speed = 4;
     // state.trick_room = true;
