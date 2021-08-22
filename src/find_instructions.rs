@@ -8,10 +8,21 @@ use crate::data::moves::get_move;
 use crate::data::moves::Move;
 use crate::data::moves::SideCondition;
 
+use nix::unistd::{
+    fork,
+    ForkResult
+};
+
 #[derive(Debug, PartialEq)]
 pub enum MoveType {
     Move,
     Switch,
+}
+
+#[derive(PartialEq)]
+pub enum SideReference {
+    SideOne,
+    SideTwo
 }
 
 #[derive(Debug)]
@@ -20,6 +31,45 @@ pub struct MoveChoice {
     // Names are hard
     pub move_type: MoveType,
     pub choice: String,
+}
+
+pub struct TransposeInstruction {
+    pub state: State,
+    pub percentage: f32,
+    pub instructions: Vec<String>
+}
+
+pub fn forking_random_chance(transpose_instruction: &mut TransposeInstruction, chance: f32) -> bool {
+    /*
+    Forks and returns both `true` and `false` in the parent and child respectively
+
+    Modifies the `percentage` attribute of the TransposeInstruction based on the `chance` parameter
+
+    This is used when a random event occurs in pokemon so that two processes can explore both options.
+    */
+
+    if chance >= 1.0 {
+        return true;
+    }
+    else if chance <= 0.0 {
+        return false;
+    }
+
+    unsafe{
+        match fork() {
+            Ok(ForkResult::Parent { .. }) => {
+                transpose_instruction.percentage *= chance;
+                return true;
+            }
+            Ok(ForkResult::Child) => {
+                transpose_instruction.percentage *= 1.0-chance;
+                return false;
+            },
+            Err(_) => {
+                panic!("Fork failed");
+            },
+         }
+    }
 }
 
 fn get_boost_multiplier(boost: i8) -> f32 {
@@ -98,8 +148,8 @@ pub fn get_effective_priority(state: &State, side: &Side, move_name: &str) -> i8
 
 pub fn side_one_moves_first(
     state: &State,
-    side_one_move: MoveChoice,
-    side_two_move: MoveChoice,
+    side_one_move: &MoveChoice,
+    side_two_move: &MoveChoice,
 ) -> bool {
     let side_one_effective_speed: i16 = get_effective_speed(state, &state.side_one);
     let side_two_effective_speed: i16 = get_effective_speed(state, &state.side_two);
@@ -131,6 +181,66 @@ pub fn side_one_moves_first(
         return side_one_priority > side_two_priority;
     }
 }
+
+
+pub fn run_switch() {
+    
+}
+
+
+pub fn run_move(state: State, side_ref: SideReference, move_choice: &MoveChoice) {
+    /*
+    run switch (if it is a switch)
+	run before_move (fully paralyzed, flinch, asleep, burned)
+	run modify_move (moves can change based on special-effects (weatherball basepower/type change) )
+	run move_hit_chance (stop in the "miss" scenario)
+	run get_damage
+		(the entire damage calc algorithm, ideally self-contained and is accurate on it's own)
+			run get_boosted_stats (change stats based on boosts, abilities (solarpower), etc)
+			run get_stab
+	run apply_damage
+	run heal
+	run status
+	run move_special_effect (requires some sort of module with code for moves' special effects)
+		hazard clear
+		weather setting
+		terrain setting
+		trickroom setting
+		trick/switcheroo
+		boost-clearing (haze)
+	run recoil
+	run drain
+	if (move_hit):
+		run apply_secondary
+    */
+
+
+    if move_choice.move_type == MoveType::Switch {
+        run_switch();
+    }
+    
+
+}
+
+// pub fn get_all_instructions(state: State, side_one_move: MoveChoice, side_two_move: MoveChoice) {
+//     let side_one_moves_first = side_one_moves_first(&state, &side_one_move, &side_two_move);
+    
+//     if side_one_moves_first {
+//         run_move(state, SideReference::SideOne, &side_one_move);
+//         run_move(state, SideReference::SideTwo, &side_two_move);
+//     }
+//     else {
+//         run_move(state, SideReference::SideTwo, &side_two_move);
+//         run_move(state, SideReference::SideOne, &side_one_move);
+//     }
+
+//     /*
+//     Do end-of-turn shenanigans
+//     */
+
+    
+
+// }
 
 #[cfg(test)]
 mod test {
@@ -339,7 +449,7 @@ mod test {
             choice: "tackle".to_string(),
         };
 
-        let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
+        let s1_moves_first = side_one_moves_first(&state, &s1_move, &s2_move);
 
         assert_eq!(true, s1_moves_first);
     }
@@ -361,7 +471,7 @@ mod test {
             choice: "tackle".to_string(),
         };
 
-        let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
+        let s1_moves_first = side_one_moves_first(&state, &s1_move, &s2_move);
 
         assert_eq!(false, s1_moves_first);
     }
@@ -383,7 +493,7 @@ mod test {
             choice: "tackle".to_string(),
         };
 
-        let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
+        let s1_moves_first = side_one_moves_first(&state, &s1_move, &s2_move);
 
         assert_eq!(true, s1_moves_first);
     }
@@ -406,7 +516,7 @@ mod test {
             choice: "tackle".to_string(),
         };
 
-        let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
+        let s1_moves_first = side_one_moves_first(&state, &s1_move, &s2_move);
 
         assert_eq!(true, s1_moves_first);
     }
@@ -429,7 +539,7 @@ mod test {
             choice: "tackle".to_string(),
         };
 
-        let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
+        let s1_moves_first = side_one_moves_first(&state, &s1_move, &s2_move);
 
         assert_eq!(false, s1_moves_first);
     }
@@ -452,7 +562,7 @@ mod test {
             choice: "switch_target".to_string(),
         };
 
-        let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
+        let s1_moves_first = side_one_moves_first(&state, &s1_move, &s2_move);
 
         assert_eq!(false, s1_moves_first);
     }
@@ -474,7 +584,7 @@ mod test {
             choice: "switch_target".to_string(),
         };
 
-        let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
+        let s1_moves_first = side_one_moves_first(&state, &s1_move, &s2_move);
 
         assert_eq!(false, s1_moves_first);
     }
@@ -496,7 +606,7 @@ mod test {
             choice: "switch_target".to_string(),
         };
 
-        let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
+        let s1_moves_first = side_one_moves_first(&state, &s1_move, &s2_move);
 
         assert_eq!(true, s1_moves_first);
     }
@@ -518,7 +628,7 @@ mod test {
             choice: "tackle".to_string(),
         };
 
-        let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
+        let s1_moves_first = side_one_moves_first(&state, &s1_move, &s2_move);
 
         assert_eq!(false, s1_moves_first);
     }
@@ -541,7 +651,7 @@ mod test {
             choice: "tackle".to_string(),
         };
 
-        let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
+        let s1_moves_first = side_one_moves_first(&state, &s1_move, &s2_move);
 
         assert_eq!(true, s1_moves_first);
     }
@@ -564,7 +674,7 @@ mod test {
             choice: "tackle".to_string(),
         };
 
-        let s1_moves_first = side_one_moves_first(&state, s1_move, s2_move);
+        let s1_moves_first = side_one_moves_first(&state, &s1_move, &s2_move);
 
         assert_eq!(true, s1_moves_first);
     }

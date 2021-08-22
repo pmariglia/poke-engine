@@ -86,7 +86,35 @@ fn main() {
         choice: "tackle".to_string(),
     };
 
-    let s1mf = find_instructions::side_one_moves_first(&state, s1_move, s2_move);
+    let s1mf = find_instructions::side_one_moves_first(&state, &s1_move, &s2_move);
 
     println!("Side one moves first: {}", s1mf);
+
+    let mut transpose_instruction: find_instructions::TransposeInstruction = find_instructions::TransposeInstruction {
+        state: state,
+        percentage: 1.0,
+        instructions: vec![
+            "1".to_string(),
+            "2".to_string(),
+            "3".to_string()
+        ]
+    };
+
+    let result1 = find_instructions::forking_random_chance(
+        &mut transpose_instruction,
+        0.75
+    );
+
+    let result_doesnt_matter = find_instructions::forking_random_chance(
+        &mut transpose_instruction,
+        1.0
+    );
+
+    let result2 = find_instructions::forking_random_chance(
+        &mut transpose_instruction,
+        0.75
+    );
+
+    println!("{}, {}: {}", result1, result2, transpose_instruction.percentage);
+
 }

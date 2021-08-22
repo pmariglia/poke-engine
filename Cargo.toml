@@ -9,3 +9,5 @@ edition = "2018"
 [dependencies]
 
 lazy_static = "1.4.0"
+rand = "0.8.4"
+nix = "0.22.1"

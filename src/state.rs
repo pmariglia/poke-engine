@@ -4,6 +4,7 @@ use std::collections::HashSet;
 use super::data::moves::SideCondition;
 use super::data::moves::VolatileStatus;
 use crate::data::conditions::Status;
+use crate::find_instructions::MoveChoice;
 
 #[derive(Debug, PartialEq)]
 pub enum Weather {
