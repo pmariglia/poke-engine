@@ -1,6 +1,17 @@
+use std::process;
+
+use serde::{Serialize, Deserialize};
+use ipc_channel::ipc::{self, IpcOneShotServer, IpcSender, IpcReceiver};
+use nix::unistd::{
+    fork,
+    ForkResult
+};
+
 use super::state::Pokemon;
 use super::state::Side;
 use super::state::State;
+use super::state::SideReference;
+use super::instruction;
 use crate::data::abilities::get_ability;
 use crate::data::conditions::Status;
 use crate::data::items::get_item;
@@ -8,21 +19,11 @@ use crate::data::moves::get_move;
 use crate::data::moves::Move;
 use crate::data::moves::SideCondition;
 
-use nix::unistd::{
-    fork,
-    ForkResult
-};
 
 #[derive(Debug, PartialEq)]
 pub enum MoveType {
     Move,
     Switch,
-}
-
-#[derive(PartialEq)]
-pub enum SideReference {
-    SideOne,
-    SideTwo
 }
 
 #[derive(Debug)]
@@ -33,6 +34,7 @@ pub struct MoveChoice {
     pub choice: String,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct TransposeInstruction {
     pub state: State,
     pub percentage: f32,
@@ -183,12 +185,20 @@ pub fn side_one_moves_first(
 }
 
 
-pub fn run_switch() {
-    
+pub fn run_switch(transpose_instruction: &mut TransposeInstruction, is_side_one: bool, switch_pokemon: &String) {
+    let side: &mut Side;
+    if is_side_one {
+        side = &mut transpose_instruction.state.side_one;
+    }
+    else {
+        side = &mut transpose_instruction.state.side_two;
+    }
+
+    side.switch_to_name(switch_pokemon);
 }
 
 
-pub fn run_move(state: State, side_ref: SideReference, move_choice: &MoveChoice) {
+pub fn run_move(transpose_instruction: &mut TransposeInstruction, is_side_one: bool, move_choice: &MoveChoice) {
     /*
     run switch (if it is a switch)
 	run before_move (fully paralyzed, flinch, asleep, burned)
@@ -216,31 +226,84 @@ pub fn run_move(state: State, side_ref: SideReference, move_choice: &MoveChoice)
 
 
     if move_choice.move_type == MoveType::Switch {
-        run_switch();
+        run_switch(transpose_instruction, is_side_one, &move_choice.choice);
+        return
     }
     
 
 }
 
-// pub fn get_all_instructions(state: State, side_one_move: MoveChoice, side_two_move: MoveChoice) {
-//     let side_one_moves_first = side_one_moves_first(&state, &side_one_move, &side_two_move);
+pub fn run_turn(transpose_instruction: &mut TransposeInstruction, side_one_move: MoveChoice, side_two_move: MoveChoice) {
+    let side_one_moves_first = side_one_moves_first(&transpose_instruction.state, &side_one_move, &side_two_move);
     
-//     if side_one_moves_first {
-//         run_move(state, SideReference::SideOne, &side_one_move);
-//         run_move(state, SideReference::SideTwo, &side_two_move);
-//     }
-//     else {
-//         run_move(state, SideReference::SideTwo, &side_two_move);
-//         run_move(state, SideReference::SideOne, &side_one_move);
-//     }
+    if side_one_moves_first {
+        run_move(transpose_instruction, true, &side_one_move);
+        run_move(transpose_instruction, false, &side_two_move);
+    }
+    else {
+        run_move(transpose_instruction, false, &side_two_move);
+        run_move(transpose_instruction, true, &side_one_move);
+    }
 
-//     /*
-//     Do end-of-turn shenanigans
-//     */
+    /*
+    Do end-of-turn shenanigans
+    */
+}
 
-    
+pub fn find_all_instructions(state: State, side_one_move: MoveChoice, side_two_move: MoveChoice) -> Vec::<TransposeInstruction> {
+    let mut transpose_instruction: TransposeInstruction = TransposeInstruction {
+        state: state,
+        percentage: 1.0,
+        instructions: vec![
 
-// }
+        ]
+    };
+
+    let (server, name) = IpcOneShotServer::new().unwrap();
+
+    unsafe{
+        match fork() {
+            Ok(ForkResult::Parent { .. }) => {
+                /*
+                Parent waits for all children to send their results via IPC
+                Parent knows the children are complete when the cumulative change reaches 1.0
+                */
+                let (tx1, rx1): (IpcSender<TransposeInstruction>, IpcReceiver<TransposeInstruction>) = ipc::channel().unwrap();
+                let tx0 = IpcSender::connect(name).unwrap();
+                tx0.send(tx1).unwrap();
+
+                let mut list_of_instructions: Vec<TransposeInstruction> = Vec::<TransposeInstruction>::new();
+                let mut cumulative_chance: f32 = 0.0;
+                while cumulative_chance < 1.0 {
+                    let result = rx1.recv().unwrap();
+                    cumulative_chance += result.percentage;
+                    list_of_instructions.push(result);
+                }
+
+                return list_of_instructions
+
+            }
+            Ok(ForkResult::Child) => {
+                /*
+                Child is responsible for running the turn.
+                The child may fork itself again if an event occurs with more than one path.
+                */
+                let (_, tx1): (_, IpcSender<TransposeInstruction>) = server.accept().unwrap();
+                run_turn(
+                    &mut transpose_instruction,
+                    side_one_move,
+                    side_two_move
+                );
+                tx1.send(transpose_instruction).unwrap();
+                process::exit(0);
+                
+            },
+            Err(_) => {
+                panic!("Fork failed");
+            },
+         }
+    }
+}
 
 #[cfg(test)]
 mod test {

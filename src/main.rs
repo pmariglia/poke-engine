@@ -6,23 +6,24 @@ extern crate lazy_static;
 mod data;
 mod find_instructions;
 mod helpers;
+mod instruction;
 mod state;
 
 fn main() {
     let mut pikachu: state::Pokemon = helpers::create_basic_pokemon("pikachu".to_string(), 100);
-    let charizard: state::Pokemon = helpers::create_basic_pokemon("charizard".to_string(), 100);
-    let blastoise: state::Pokemon = helpers::create_basic_pokemon("blastoise".to_string(), 100);
-    let espeon: state::Pokemon = helpers::create_basic_pokemon("espeon".to_string(), 100);
-    let snorlax: state::Pokemon = helpers::create_basic_pokemon("snorlax".to_string(), 100);
-    let venusaur: state::Pokemon = helpers::create_basic_pokemon("venusaur".to_string(), 100);
+    let mut charizard: state::Pokemon = helpers::create_basic_pokemon("charizard".to_string(), 100);
+    let mut blastoise: state::Pokemon = helpers::create_basic_pokemon("blastoise".to_string(), 100);
+    let mut espeon: state::Pokemon = helpers::create_basic_pokemon("espeon".to_string(), 100);
+    let mut snorlax: state::Pokemon = helpers::create_basic_pokemon("snorlax".to_string(), 100);
+    let mut venusaur: state::Pokemon = helpers::create_basic_pokemon("venusaur".to_string(), 100);
 
-    let landorustherian: state::Pokemon =
+    let mut landorustherian: state::Pokemon =
         helpers::create_basic_pokemon("landorustherian".to_string(), 100);
-    let tapulele: state::Pokemon = helpers::create_basic_pokemon("tapulele".to_string(), 100);
-    let rillaboom: state::Pokemon = helpers::create_basic_pokemon("rillaboom".to_string(), 100);
-    let rhyperior: state::Pokemon = helpers::create_basic_pokemon("rhyperior".to_string(), 100);
-    let gengar: state::Pokemon = helpers::create_basic_pokemon("gengar".to_string(), 100);
-    let melmetal: state::Pokemon = helpers::create_basic_pokemon("melmetal".to_string(), 100);
+    let mut tapulele: state::Pokemon = helpers::create_basic_pokemon("tapulele".to_string(), 100);
+    let mut rillaboom: state::Pokemon = helpers::create_basic_pokemon("rillaboom".to_string(), 100);
+    let mut rhyperior: state::Pokemon = helpers::create_basic_pokemon("rhyperior".to_string(), 100);
+    let mut gengar: state::Pokemon = helpers::create_basic_pokemon("gengar".to_string(), 100);
+    let mut melmetal: state::Pokemon = helpers::create_basic_pokemon("melmetal".to_string(), 100);
 
     pikachu.moves.push("volttackle".to_string());
     pikachu.moves.push("voltswitch".to_string());
@@ -68,18 +69,9 @@ fn main() {
         trick_room: false,
     };
 
-    state.side_one.reserve[state.side_one.active_index].speed = 5;
-    state.side_one.reserve[state.side_one.active_index].item = "none".to_string();
-    state.side_one.reserve[state.side_one.active_index].status = data::conditions::Status::Paralyze;
-    state.side_one.reserve[state.side_one.active_index].ability = "quickfeet".to_string();
-
-    state.side_one.reserve[state.side_one.active_index].speed = 4;
-    // state.trick_room = true;
-    // state.side_two.active.ability = "prankster".to_string();
-
     let s1_move = find_instructions::MoveChoice {
-        move_type: find_instructions::MoveType::Move,
-        choice: "tackle".to_string(),
+        move_type: find_instructions::MoveType::Switch,
+        choice: "charizard".to_string(),
     };
     let s2_move = find_instructions::MoveChoice {
         move_type: find_instructions::MoveType::Move,
@@ -90,31 +82,14 @@ fn main() {
 
     println!("Side one moves first: {}", s1mf);
 
-    let mut transpose_instruction: find_instructions::TransposeInstruction = find_instructions::TransposeInstruction {
-        state: state,
-        percentage: 1.0,
-        instructions: vec![
-            "1".to_string(),
-            "2".to_string(),
-            "3".to_string()
-        ]
-    };
-
-    let result1 = find_instructions::forking_random_chance(
-        &mut transpose_instruction,
-        0.75
+    let list_of_instructions = find_instructions::find_all_instructions(
+        state,
+        s1_move,
+        s2_move
     );
 
-    let result_doesnt_matter = find_instructions::forking_random_chance(
-        &mut transpose_instruction,
-        1.0
-    );
-
-    let result2 = find_instructions::forking_random_chance(
-        &mut transpose_instruction,
-        0.75
-    );
-
-    println!("{}, {}: {}", result1, result2, transpose_instruction.percentage);
+    for ins in list_of_instructions.into_iter() {
+        println!("{}: {}, {:?}", ins.percentage, ins.state.side_one.get_active_immutable().id, ins.instructions);
+    }
 
 }

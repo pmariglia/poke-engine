@@ -1,3 +1,4 @@
+use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 
 use lazy_static::lazy_static;
@@ -70896,7 +70897,7 @@ pub enum MoveTarget {
     Myself,
 }
 
-#[derive(PartialEq, Eq, Hash, Debug)]
+#[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize)]
 pub enum VolatileStatus {
     AquaRing,
     Attract,
@@ -70957,7 +70958,7 @@ pub enum VolatileStatus {
     Yawn,
 }
 
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum SideCondition {
     AuroraVeil,
     CraftyShield,

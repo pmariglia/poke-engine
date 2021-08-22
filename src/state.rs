@@ -1,12 +1,15 @@
+use serde::{Serialize, Deserialize};
+
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+use super::instruction::SwitchInstruction;
 use super::data::moves::SideCondition;
 use super::data::moves::VolatileStatus;
 use crate::data::conditions::Status;
 use crate::find_instructions::MoveChoice;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum Weather {
     None,
     Sun,
@@ -17,13 +20,13 @@ pub enum Weather {
     HeavyRain,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct StateWeather {
     pub weather_type: Weather,
     pub turns_remaining: i8
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum Terrain {
     None,
     ElectricTerrain,
@@ -32,13 +35,19 @@ pub enum Terrain {
     GrassyTerrain,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct StateTerrain {
     pub terrain_type: Terrain,
     pub turns_remaining: i8
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub enum SideReference {
+    SideOne,
+    SideTwo
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum PokemonTypes {
     Normal,
     Fire,
@@ -61,7 +70,7 @@ pub enum PokemonTypes {
     Typeless,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum PokemonNatures {
     Lonely,
     Adamant,
@@ -103,7 +112,7 @@ pub enum PokemonBoostableStat {
     Accuracy,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Pokemon {
     pub id: String,
     pub level: i8,
@@ -130,7 +139,7 @@ pub struct Pokemon {
     pub moves: Vec<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Side {
     pub active_index: usize,
     pub reserve: [Pokemon; 6],
@@ -143,8 +152,14 @@ impl Side {
         &self.reserve[self.active_index]
     }
 
-    pub fn switch(&mut self, new_active_index: usize) {
+    pub fn _switch(&mut self, new_active_index: usize) {
         self.active_index = new_active_index;
+    }
+
+    pub fn switch_to_name(&mut self, new_active_name: &String) {
+        let new_index = self.reserve.iter().position(|r| &r.id == new_active_name).unwrap();
+        let current_index = self.active_index;
+        self._switch(new_index);
     }
 
     pub fn apply_volatile_status(&mut self, volatile_status: VolatileStatus) {
@@ -226,7 +241,7 @@ impl Side {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct State {
     pub side_one: Side,
     pub side_two: Side,

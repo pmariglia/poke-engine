@@ -15,6 +15,8 @@ use super::state::Terrain;
 use super::state::Weather;
 use super::state::StateTerrain;
 use super::state::StateWeather;
+use super::state::SideReference;
+
 
 #[derive(Clone)]
 struct PokemonStats {
