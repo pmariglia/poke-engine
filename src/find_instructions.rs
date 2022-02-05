@@ -7,6 +7,8 @@ use nix::unistd::{
     ForkResult
 };
 
+use super::instruction::SwitchInstruction;
+use super::instruction::Instruction;
 use super::state::Pokemon;
 use super::state::Side;
 use super::state::State;
@@ -38,7 +40,7 @@ pub struct MoveChoice {
 pub struct TransposeInstruction {
     pub state: State,
     pub percentage: f32,
-    pub instructions: Vec<String>
+    pub instructions: Vec<Instruction>
 }
 
 pub fn forking_random_chance(transpose_instruction: &mut TransposeInstruction, chance: f32) -> bool {
@@ -186,6 +188,8 @@ pub fn side_one_moves_first(
 
 
 pub fn run_switch(transpose_instruction: &mut TransposeInstruction, is_side_one: bool, switch_pokemon: &String) {
+    let mut all_switch_instructions: Vec<Instruction> = Vec::new();
+
     let side: &mut Side;
     if is_side_one {
         side = &mut transpose_instruction.state.side_one;
@@ -194,11 +198,20 @@ pub fn run_switch(transpose_instruction: &mut TransposeInstruction, is_side_one:
         side = &mut transpose_instruction.state.side_two;
     }
 
+    let previous_index = side.active_index;
     side.switch_to_name(switch_pokemon);
+    let new_instructions = SwitchInstruction {
+        is_side_one: is_side_one,
+        previous_index: previous_index,
+        next_index: side.active_index
+    };
+    transpose_instruction.instructions.push(
+        Instruction::SwitchInstruction(new_instructions)
+    );
 }
 
 
-pub fn run_move(transpose_instruction: &mut TransposeInstruction, is_side_one: bool, move_choice: &MoveChoice) {
+pub fn run_move(transpose_instruction: &mut TransposeInstruction, is_side_one: bool, move_choice: &MoveChoice){
     /*
     run switch (if it is a switch)
 	run before_move (fully paralyzed, flinch, asleep, burned)
@@ -224,18 +237,16 @@ pub fn run_move(transpose_instruction: &mut TransposeInstruction, is_side_one: b
 		run apply_secondary
     */
 
-
     if move_choice.move_type == MoveType::Switch {
         run_switch(transpose_instruction, is_side_one, &move_choice.choice);
-        return
     }
-    
-
 }
 
 pub fn run_turn(transpose_instruction: &mut TransposeInstruction, side_one_move: MoveChoice, side_two_move: MoveChoice) {
     let side_one_moves_first = side_one_moves_first(&transpose_instruction.state, &side_one_move, &side_two_move);
     
+    let mut turn_instructions: Vec<Instruction> = Vec::new();
+
     if side_one_moves_first {
         run_move(transpose_instruction, true, &side_one_move);
         run_move(transpose_instruction, false, &side_two_move);
@@ -244,7 +255,6 @@ pub fn run_turn(transpose_instruction: &mut TransposeInstruction, side_one_move:
         run_move(transpose_instruction, false, &side_two_move);
         run_move(transpose_instruction, true, &side_one_move);
     }
-
     /*
     Do end-of-turn shenanigans
     */

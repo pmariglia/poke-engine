@@ -89,7 +89,16 @@ fn main() {
     );
 
     for ins in list_of_instructions.into_iter() {
-        println!("{}: {}, {:?}", ins.percentage, ins.state.side_one.get_active_immutable().id, ins.instructions);
+        println!("{}: {}", ins.percentage, ins.state.side_one.get_active_immutable().id);
+        
+        match &ins.instructions[0] {
+            instruction::Instruction::SwitchInstruction(a) => {
+                println!("{}", a.is_side_one);
+                println!("{}", a.previous_index);
+                println!("{}", a.next_index);
+            }
+        }
+        
     }
 
 }

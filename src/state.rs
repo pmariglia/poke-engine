@@ -3,7 +3,6 @@ use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-use super::instruction::SwitchInstruction;
 use super::data::moves::SideCondition;
 use super::data::moves::VolatileStatus;
 use crate::data::conditions::Status;
