@@ -70897,7 +70897,7 @@ pub enum MoveTarget {
     Myself,
 }
 
-#[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize, Copy, Clone)]
 pub enum VolatileStatus {
     AquaRing,
     Attract,

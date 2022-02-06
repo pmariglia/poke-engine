@@ -92,11 +92,17 @@ fn main() {
         );
 
         match &ins.instructions[0] {
-            instruction::Instruction::SwitchInstruction(a) => {
+            instruction::Instruction::Switch(a) => {
                 println!("{}", a.is_side_one);
                 println!("{}", a.previous_index);
                 println!("{}", a.next_index);
             }
+            instruction::Instruction::RemoveVolatileStatus(a) => {
+                println!("{}", a.is_side_one);
+                println!("{:?}", a.volatile_status);
+            } // _ => {
+              //     println!("Unhandled Instruction")
+              // }
         }
     }
 }

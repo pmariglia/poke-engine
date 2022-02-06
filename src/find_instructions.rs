@@ -5,6 +5,7 @@ use nix::unistd::{fork, ForkResult};
 use serde::{Deserialize, Serialize};
 
 use super::instruction::Instruction;
+use super::instruction::RemoveVolatileStatusInstruction;
 use super::instruction::SwitchInstruction;
 use super::state::Pokemon;
 use super::state::Side;
@@ -189,8 +190,20 @@ pub fn run_switch(
 ) {
     /*
     Events handlers for switching:
-        - before_switch
-        - after_switch
+        - before_switch (
+            clear volitilestatuses,
+            remove boosts,
+            regenerator,
+            naturalcure,
+            re-enable disabled moves,
+            etc
+        )
+        - after_switch (
+            intimidate,
+            stickyweb,
+            stealthrocks,
+            etc
+        )
 
     */
 
@@ -200,8 +213,21 @@ pub fn run_switch(
         &mut transpose_instruction.state.side_two
     };
 
+    for volatile_status in &side.get_active_immutable().volatile_statuses {
+        transpose_instruction
+            .instructions
+            .push(Instruction::RemoveVolatileStatus(
+                RemoveVolatileStatusInstruction {
+                    is_side_one: is_side_one,
+                    volatile_status: *volatile_status,
+                },
+            ))
+    }
+    side.remove_all_volatile_statuses();
+
     let previous_index = side.active_index;
     side.switch_to_name(switch_pokemon);
+
     let new_instructions = SwitchInstruction {
         is_side_one: is_side_one,
         previous_index: previous_index,
@@ -209,7 +235,7 @@ pub fn run_switch(
     };
     transpose_instruction
         .instructions
-        .push(Instruction::SwitchInstruction(new_instructions));
+        .push(Instruction::Switch(new_instructions));
 }
 
 pub fn run_move(
@@ -324,15 +350,19 @@ pub fn find_all_instructions(
 
 #[cfg(test)]
 mod test {
+    use std::collections::HashSet;
+
     use super::super::helpers::create_dummy_state;
 
     use super::super::find_instructions::Instruction;
+    use super::super::find_instructions::RemoveVolatileStatusInstruction;
     use super::super::find_instructions::SwitchInstruction;
     use super::super::state::State;
     use super::super::state::Terrain;
 
     use crate::data::conditions::Status;
     use crate::data::moves::SideCondition;
+    use crate::data::moves::VolatileStatus;
 
     use super::get_effective_priority;
     use super::get_effective_speed;
@@ -792,7 +822,7 @@ mod test {
 
         run_switch(&mut transpose_instruction, true, &"charizard".to_string());
 
-        let expected_instruction_enum = Instruction::SwitchInstruction(SwitchInstruction {
+        let expected_instruction_enum = Instruction::Switch(SwitchInstruction {
             is_side_one: true,
             previous_index: 0,
             next_index: 1,
@@ -801,6 +831,92 @@ mod test {
         assert_eq!(
             expected_instruction_enum,
             transpose_instruction.instructions[0]
+        );
+    }
+
+    #[test]
+    fn test_switching_out_removes_volatile_statuses() {
+        let state: State = create_dummy_state();
+
+        let mut transpose_instruction: TransposeInstruction = TransposeInstruction {
+            state: state,
+            percentage: 1.0,
+            instructions: Vec::<Instruction>::new(),
+        };
+
+        transpose_instruction.state.side_one.reserve[0]
+            .volatile_statuses
+            .insert(VolatileStatus::Yawn);
+
+        run_switch(&mut transpose_instruction, true, &"charizard".to_string());
+
+        assert_eq!(
+            transpose_instruction.state.side_one.reserve[0].volatile_statuses,
+            HashSet::<VolatileStatus>::new()
+        );
+    }
+
+    #[test]
+    fn test_switching_out_generates_switch_out_instruction() {
+        let state: State = create_dummy_state();
+
+        let mut transpose_instruction: TransposeInstruction = TransposeInstruction {
+            state: state,
+            percentage: 1.0,
+            instructions: Vec::<Instruction>::new(),
+        };
+
+        transpose_instruction.state.side_one.reserve[0]
+            .volatile_statuses
+            .insert(VolatileStatus::Yawn);
+
+        run_switch(&mut transpose_instruction, true, &"charizard".to_string());
+
+        let expected_instruction_enum =
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                is_side_one: true,
+                volatile_status: VolatileStatus::Yawn,
+            });
+
+        assert_eq!(
+            expected_instruction_enum,
+            transpose_instruction.instructions[0]
+        );
+    }
+
+    #[test]
+    fn test_switching_out_removes_multiple_volatile_statuses() {
+        let state: State = create_dummy_state();
+
+        let mut transpose_instruction: TransposeInstruction = TransposeInstruction {
+            state: state,
+            percentage: 1.0,
+            instructions: Vec::<Instruction>::new(),
+        };
+
+        transpose_instruction.state.side_one.reserve[0]
+            .volatile_statuses
+            .insert(VolatileStatus::Yawn);
+
+        transpose_instruction.state.side_one.reserve[0]
+            .volatile_statuses
+            .insert(VolatileStatus::Substitute);
+
+        run_switch(&mut transpose_instruction, true, &"charizard".to_string());
+
+        assert_eq!(
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                is_side_one: true,
+                volatile_status: VolatileStatus::Substitute,
+            }),
+            transpose_instruction.instructions[0]
+        );
+        assert_eq!(
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                is_side_one: true,
+                volatile_status: VolatileStatus::Yawn,
+            }),
+            transpose_instruction.instructions[1]
         );
     }
 }

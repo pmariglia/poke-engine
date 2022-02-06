@@ -137,6 +137,12 @@ pub struct Pokemon {
     pub moves: Vec<String>,
 }
 
+impl Pokemon {
+    pub fn clear_volatile_statuses(&mut self) {
+        self.volatile_statuses.clear();
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Side {
     pub active_index: usize,
@@ -169,10 +175,13 @@ impl Side {
             .insert(volatile_status);
     }
 
-    pub fn remove_volatile_status(&mut self, volatile_status: VolatileStatus) {
+    pub fn remove_volatile_status(&mut self, volatile_status: &VolatileStatus) {
         self.reserve[self.active_index]
             .volatile_statuses
-            .remove(&volatile_status);
+            .remove(volatile_status);
+    }
+    pub fn remove_all_volatile_statuses(&mut self) {
+        self.reserve[self.active_index].volatile_statuses.clear();
     }
 
     pub fn damage(&mut self, damage_amount: i16) {
