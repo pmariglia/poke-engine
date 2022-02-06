@@ -357,7 +357,9 @@ lazy_static! {
             "swiftswim".to_string(),
             Ability {
                 modify_speed: Some(|state, _pkmn| {
-                    if state.weather.weather_type == Weather::Rain || state.weather.weather_type == Weather::HeavyRain {
+                    if state.weather.weather_type == Weather::Rain
+                        || state.weather.weather_type == Weather::HeavyRain
+                    {
                         return 2.0;
                     };
                     return 1.0;
@@ -2223,7 +2225,9 @@ lazy_static! {
             "chlorophyll".to_string(),
             Ability {
                 modify_speed: Some(|state, _pkmn| {
-                    if state.weather.weather_type == Weather::Sun || state.weather.weather_type == Weather::HarshSun {
+                    if state.weather.weather_type == Weather::Sun
+                        || state.weather.weather_type == Weather::HarshSun
+                    {
                         return 2.0;
                     };
                     return 1.0;

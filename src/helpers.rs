@@ -11,12 +11,10 @@ use super::state::Pokemon;
 use super::state::PokemonNatures;
 use super::state::Side;
 use super::state::State;
-use super::state::Terrain;
-use super::state::Weather;
 use super::state::StateTerrain;
 use super::state::StateWeather;
-use super::state::SideReference;
-
+use super::state::Terrain;
+use super::state::Weather;
 
 #[derive(Clone)]
 struct PokemonStats {
@@ -229,12 +227,12 @@ pub fn create_dummy_state() -> State {
 
     let state_weather = StateWeather {
         weather_type: Weather::None,
-        turns_remaining: 0
+        turns_remaining: 0,
     };
 
     let state_terrain = StateTerrain {
         terrain_type: Terrain::None,
-        turns_remaining: 0
+        turns_remaining: 0,
     };
 
     let state: State = State {

@@ -11,19 +11,19 @@ mod state;
 
 fn main() {
     let mut pikachu: state::Pokemon = helpers::create_basic_pokemon("pikachu".to_string(), 100);
-    let mut charizard: state::Pokemon = helpers::create_basic_pokemon("charizard".to_string(), 100);
-    let mut blastoise: state::Pokemon = helpers::create_basic_pokemon("blastoise".to_string(), 100);
-    let mut espeon: state::Pokemon = helpers::create_basic_pokemon("espeon".to_string(), 100);
-    let mut snorlax: state::Pokemon = helpers::create_basic_pokemon("snorlax".to_string(), 100);
-    let mut venusaur: state::Pokemon = helpers::create_basic_pokemon("venusaur".to_string(), 100);
+    let charizard: state::Pokemon = helpers::create_basic_pokemon("charizard".to_string(), 100);
+    let blastoise: state::Pokemon = helpers::create_basic_pokemon("blastoise".to_string(), 100);
+    let espeon: state::Pokemon = helpers::create_basic_pokemon("espeon".to_string(), 100);
+    let snorlax: state::Pokemon = helpers::create_basic_pokemon("snorlax".to_string(), 100);
+    let venusaur: state::Pokemon = helpers::create_basic_pokemon("venusaur".to_string(), 100);
 
-    let mut landorustherian: state::Pokemon =
+    let landorustherian: state::Pokemon =
         helpers::create_basic_pokemon("landorustherian".to_string(), 100);
-    let mut tapulele: state::Pokemon = helpers::create_basic_pokemon("tapulele".to_string(), 100);
-    let mut rillaboom: state::Pokemon = helpers::create_basic_pokemon("rillaboom".to_string(), 100);
-    let mut rhyperior: state::Pokemon = helpers::create_basic_pokemon("rhyperior".to_string(), 100);
-    let mut gengar: state::Pokemon = helpers::create_basic_pokemon("gengar".to_string(), 100);
-    let mut melmetal: state::Pokemon = helpers::create_basic_pokemon("melmetal".to_string(), 100);
+    let tapulele: state::Pokemon = helpers::create_basic_pokemon("tapulele".to_string(), 100);
+    let rillaboom: state::Pokemon = helpers::create_basic_pokemon("rillaboom".to_string(), 100);
+    let rhyperior: state::Pokemon = helpers::create_basic_pokemon("rhyperior".to_string(), 100);
+    let gengar: state::Pokemon = helpers::create_basic_pokemon("gengar".to_string(), 100);
+    let melmetal: state::Pokemon = helpers::create_basic_pokemon("melmetal".to_string(), 100);
 
     pikachu.moves.push("volttackle".to_string());
     pikachu.moves.push("voltswitch".to_string());
@@ -53,15 +53,15 @@ fn main() {
 
     let state_weather = state::StateWeather {
         weather_type: state::Weather::None,
-        turns_remaining: 0
+        turns_remaining: 0,
     };
 
     let state_terrain = state::StateTerrain {
         terrain_type: state::Terrain::None,
-        turns_remaining: 0
+        turns_remaining: 0,
     };
 
-    let mut state: state::State = state::State {
+    let state: state::State = state::State {
         side_one: my_side,
         side_two: your_side,
         weather: state_weather,
@@ -82,15 +82,15 @@ fn main() {
 
     println!("Side one moves first: {}", s1mf);
 
-    let list_of_instructions = find_instructions::find_all_instructions(
-        state,
-        s1_move,
-        s2_move
-    );
+    let list_of_instructions = find_instructions::find_all_instructions(state, s1_move, s2_move);
 
     for ins in list_of_instructions.into_iter() {
-        println!("{}: {}", ins.percentage, ins.state.side_one.get_active_immutable().id);
-        
+        println!(
+            "{}: {}",
+            ins.percentage,
+            ins.state.side_one.get_active_immutable().id
+        );
+
         match &ins.instructions[0] {
             instruction::Instruction::SwitchInstruction(a) => {
                 println!("{}", a.is_side_one);
@@ -98,7 +98,5 @@ fn main() {
                 println!("{}", a.next_index);
             }
         }
-        
     }
-
 }

@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -6,7 +6,6 @@ use std::collections::HashSet;
 use super::data::moves::SideCondition;
 use super::data::moves::VolatileStatus;
 use crate::data::conditions::Status;
-use crate::find_instructions::MoveChoice;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum Weather {
@@ -22,7 +21,7 @@ pub enum Weather {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct StateWeather {
     pub weather_type: Weather,
-    pub turns_remaining: i8
+    pub turns_remaining: i8,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -37,13 +36,13 @@ pub enum Terrain {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct StateTerrain {
     pub terrain_type: Terrain,
-    pub turns_remaining: i8
+    pub turns_remaining: i8,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum SideReference {
     SideOne,
-    SideTwo
+    SideTwo,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -156,8 +155,11 @@ impl Side {
     }
 
     pub fn switch_to_name(&mut self, new_active_name: &String) {
-        let new_index = self.reserve.iter().position(|r| &r.id == new_active_name).unwrap();
-        let current_index = self.active_index;
+        let new_index = self
+            .reserve
+            .iter()
+            .position(|r| &r.id == new_active_name)
+            .unwrap();
         self._switch(new_index);
     }
 
@@ -265,6 +267,7 @@ impl State {
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::super::helpers::create_dummy_state;
     use super::State;

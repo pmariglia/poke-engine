@@ -1,26 +1,20 @@
 use std::process;
 
-use serde::{Serialize, Deserialize};
-use ipc_channel::ipc::{self, IpcOneShotServer, IpcSender, IpcReceiver};
-use nix::unistd::{
-    fork,
-    ForkResult
-};
+use ipc_channel::ipc::{self, IpcOneShotServer, IpcReceiver, IpcSender};
+use nix::unistd::{fork, ForkResult};
+use serde::{Deserialize, Serialize};
 
-use super::instruction::SwitchInstruction;
 use super::instruction::Instruction;
+use super::instruction::SwitchInstruction;
 use super::state::Pokemon;
 use super::state::Side;
 use super::state::State;
-use super::state::SideReference;
-use super::instruction;
 use crate::data::abilities::get_ability;
 use crate::data::conditions::Status;
 use crate::data::items::get_item;
 use crate::data::moves::get_move;
 use crate::data::moves::Move;
 use crate::data::moves::SideCondition;
-
 
 #[derive(Debug, PartialEq)]
 pub enum MoveType {
@@ -40,10 +34,13 @@ pub struct MoveChoice {
 pub struct TransposeInstruction {
     pub state: State,
     pub percentage: f32,
-    pub instructions: Vec<Instruction>
+    pub instructions: Vec<Instruction>,
 }
 
-pub fn forking_random_chance(transpose_instruction: &mut TransposeInstruction, chance: f32) -> bool {
+pub fn forking_random_chance(
+    transpose_instruction: &mut TransposeInstruction,
+    chance: f32,
+) -> bool {
     /*
     Forks and returns both `true` and `false` in the parent and child respectively
 
@@ -54,25 +51,24 @@ pub fn forking_random_chance(transpose_instruction: &mut TransposeInstruction, c
 
     if chance >= 1.0 {
         return true;
-    }
-    else if chance <= 0.0 {
+    } else if chance <= 0.0 {
         return false;
     }
 
-    unsafe{
+    unsafe {
         match fork() {
             Ok(ForkResult::Parent { .. }) => {
                 transpose_instruction.percentage *= chance;
                 return true;
             }
             Ok(ForkResult::Child) => {
-                transpose_instruction.percentage *= 1.0-chance;
+                transpose_instruction.percentage *= 1.0 - chance;
                 return false;
-            },
+            }
             Err(_) => {
                 panic!("Fork failed");
-            },
-         }
+            }
+        }
     }
 }
 
@@ -186,55 +182,64 @@ pub fn side_one_moves_first(
     }
 }
 
+pub fn run_switch(
+    transpose_instruction: &mut TransposeInstruction,
+    is_side_one: bool,
+    switch_pokemon: &String,
+) {
+    /*
+    Events handlers for switching:
+        - before_switch
+        - after_switch
 
-pub fn run_switch(transpose_instruction: &mut TransposeInstruction, is_side_one: bool, switch_pokemon: &String) {
-    let mut all_switch_instructions: Vec<Instruction> = Vec::new();
+    */
 
-    let side: &mut Side;
-    if is_side_one {
-        side = &mut transpose_instruction.state.side_one;
-    }
-    else {
-        side = &mut transpose_instruction.state.side_two;
-    }
+    let side = if is_side_one {
+        &mut transpose_instruction.state.side_one
+    } else {
+        &mut transpose_instruction.state.side_two
+    };
 
     let previous_index = side.active_index;
     side.switch_to_name(switch_pokemon);
     let new_instructions = SwitchInstruction {
         is_side_one: is_side_one,
         previous_index: previous_index,
-        next_index: side.active_index
+        next_index: side.active_index,
     };
-    transpose_instruction.instructions.push(
-        Instruction::SwitchInstruction(new_instructions)
-    );
+    transpose_instruction
+        .instructions
+        .push(Instruction::SwitchInstruction(new_instructions));
 }
 
-
-pub fn run_move(transpose_instruction: &mut TransposeInstruction, is_side_one: bool, move_choice: &MoveChoice){
+pub fn run_move(
+    transpose_instruction: &mut TransposeInstruction,
+    is_side_one: bool,
+    move_choice: &MoveChoice,
+) {
     /*
     run switch (if it is a switch)
-	run before_move (fully paralyzed, flinch, asleep, burned)
-	run modify_move (moves can change based on special-effects (weatherball basepower/type change) )
-	run move_hit_chance (stop in the "miss" scenario)
-	run get_damage
-		(the entire damage calc algorithm, ideally self-contained and is accurate on it's own)
-			run get_boosted_stats (change stats based on boosts, abilities (solarpower), etc)
-			run get_stab
-	run apply_damage
-	run heal
-	run status
-	run move_special_effect (requires some sort of module with code for moves' special effects)
-		hazard clear
-		weather setting
-		terrain setting
-		trickroom setting
-		trick/switcheroo
-		boost-clearing (haze)
-	run recoil
-	run drain
-	if (move_hit):
-		run apply_secondary
+    run before_move (fully paralyzed, flinch, asleep, burned)
+    run modify_move (moves can change based on special-effects (weatherball basepower/type change) )
+    run move_hit_chance (stop in the "miss" scenario)
+    run get_damage
+        (the entire damage calc algorithm, ideally self-contained and is accurate on it's own)
+            run get_boosted_stats (change stats based on boosts, abilities (solarpower), etc)
+            run get_stab
+    run apply_damage
+    run heal
+    run status
+    run move_special_effect (requires some sort of module with code for moves' special effects)
+        hazard clear
+        weather setting
+        terrain setting
+        trickroom setting
+        trick/switcheroo
+        boost-clearing (haze)
+    run recoil
+    run drain
+    if (move_hit):
+        run apply_secondary
     */
 
     if move_choice.move_type == MoveType::Switch {
@@ -242,16 +247,18 @@ pub fn run_move(transpose_instruction: &mut TransposeInstruction, is_side_one: b
     }
 }
 
-pub fn run_turn(transpose_instruction: &mut TransposeInstruction, side_one_move: MoveChoice, side_two_move: MoveChoice) {
-    let side_one_moves_first = side_one_moves_first(&transpose_instruction.state, &side_one_move, &side_two_move);
-    
-    let mut turn_instructions: Vec<Instruction> = Vec::new();
+pub fn run_turn(
+    transpose_instruction: &mut TransposeInstruction,
+    side_one_move: MoveChoice,
+    side_two_move: MoveChoice,
+) {
+    let side_one_moves_first =
+        side_one_moves_first(&transpose_instruction.state, &side_one_move, &side_two_move);
 
     if side_one_moves_first {
         run_move(transpose_instruction, true, &side_one_move);
         run_move(transpose_instruction, false, &side_two_move);
-    }
-    else {
+    } else {
         run_move(transpose_instruction, false, &side_two_move);
         run_move(transpose_instruction, true, &side_one_move);
     }
@@ -260,29 +267,35 @@ pub fn run_turn(transpose_instruction: &mut TransposeInstruction, side_one_move:
     */
 }
 
-pub fn find_all_instructions(state: State, side_one_move: MoveChoice, side_two_move: MoveChoice) -> Vec::<TransposeInstruction> {
+pub fn find_all_instructions(
+    state: State,
+    side_one_move: MoveChoice,
+    side_two_move: MoveChoice,
+) -> Vec<TransposeInstruction> {
     let mut transpose_instruction: TransposeInstruction = TransposeInstruction {
         state: state,
         percentage: 1.0,
-        instructions: vec![
-
-        ]
+        instructions: vec![],
     };
 
     let (server, name) = IpcOneShotServer::new().unwrap();
 
-    unsafe{
+    unsafe {
         match fork() {
             Ok(ForkResult::Parent { .. }) => {
                 /*
                 Parent waits for all children to send their results via IPC
                 Parent knows the children are complete when the cumulative change reaches 1.0
                 */
-                let (tx1, rx1): (IpcSender<TransposeInstruction>, IpcReceiver<TransposeInstruction>) = ipc::channel().unwrap();
+                let (tx1, rx1): (
+                    IpcSender<TransposeInstruction>,
+                    IpcReceiver<TransposeInstruction>,
+                ) = ipc::channel().unwrap();
                 let tx0 = IpcSender::connect(name).unwrap();
                 tx0.send(tx1).unwrap();
 
-                let mut list_of_instructions: Vec<TransposeInstruction> = Vec::<TransposeInstruction>::new();
+                let mut list_of_instructions: Vec<TransposeInstruction> =
+                    Vec::<TransposeInstruction>::new();
                 let mut cumulative_chance: f32 = 0.0;
                 while cumulative_chance < 1.0 {
                     let result = rx1.recv().unwrap();
@@ -290,8 +303,7 @@ pub fn find_all_instructions(state: State, side_one_move: MoveChoice, side_two_m
                     list_of_instructions.push(result);
                 }
 
-                return list_of_instructions
-
+                return list_of_instructions;
             }
             Ok(ForkResult::Child) => {
                 /*
@@ -299,19 +311,14 @@ pub fn find_all_instructions(state: State, side_one_move: MoveChoice, side_two_m
                 The child may fork itself again if an event occurs with more than one path.
                 */
                 let (_, tx1): (_, IpcSender<TransposeInstruction>) = server.accept().unwrap();
-                run_turn(
-                    &mut transpose_instruction,
-                    side_one_move,
-                    side_two_move
-                );
+                run_turn(&mut transpose_instruction, side_one_move, side_two_move);
                 tx1.send(transpose_instruction).unwrap();
                 process::exit(0);
-                
-            },
+            }
             Err(_) => {
                 panic!("Fork failed");
-            },
-         }
+            }
+        }
     }
 }
 
@@ -319,6 +326,8 @@ pub fn find_all_instructions(state: State, side_one_move: MoveChoice, side_two_m
 mod test {
     use super::super::helpers::create_dummy_state;
 
+    use super::super::find_instructions::Instruction;
+    use super::super::find_instructions::SwitchInstruction;
     use super::super::state::State;
     use super::super::state::Terrain;
 
@@ -327,9 +336,11 @@ mod test {
 
     use super::get_effective_priority;
     use super::get_effective_speed;
+    use super::run_switch;
     use super::side_one_moves_first;
     use super::MoveChoice;
     use super::MoveType;
+    use super::TransposeInstruction;
 
     #[test]
     fn test_get_effective_priority_returns_zero_for_typical_move() {
@@ -750,5 +761,46 @@ mod test {
         let s1_moves_first = side_one_moves_first(&state, &s1_move, &s2_move);
 
         assert_eq!(true, s1_moves_first);
+    }
+
+    #[test]
+    fn test_run_switch_properly_swaps_pokemon() {
+        let state: State = create_dummy_state();
+
+        let mut transpose_instruction: TransposeInstruction = TransposeInstruction {
+            state: state,
+            percentage: 1.0,
+            instructions: Vec::<Instruction>::new(),
+        };
+
+        assert_eq!(0, transpose_instruction.state.side_one.active_index);
+
+        run_switch(&mut transpose_instruction, true, &"charizard".to_string());
+
+        assert_eq!(1, transpose_instruction.state.side_one.active_index);
+    }
+
+    #[test]
+    fn test_run_switch_properly_sets_switchinstruction() {
+        let state: State = create_dummy_state();
+
+        let mut transpose_instruction: TransposeInstruction = TransposeInstruction {
+            state: state,
+            percentage: 1.0,
+            instructions: Vec::<Instruction>::new(),
+        };
+
+        run_switch(&mut transpose_instruction, true, &"charizard".to_string());
+
+        let expected_instruction_enum = Instruction::SwitchInstruction(SwitchInstruction {
+            is_side_one: true,
+            previous_index: 0,
+            next_index: 1,
+        });
+
+        assert_eq!(
+            expected_instruction_enum,
+            transpose_instruction.instructions[0]
+        );
     }
 }
