@@ -225,6 +225,25 @@ pub fn run_switch(
     }
     side.remove_all_volatile_statuses();
 
+    match get_ability(side.get_active_immutable().ability.as_str()).before_switch_out {
+        Some(on_switch_out_fn) => {
+            match on_switch_out_fn(
+                side,
+                is_side_one
+            ) {
+                Some(new_instructions) => {
+                    for new_ins in new_instructions {
+                        transpose_instruction.instructions.push(
+                            new_ins
+                        );
+                    }
+                }
+                None => {}
+            }
+        }
+        None => {}
+    }
+
     let previous_index = side.active_index;
     side.switch_to_name(switch_pokemon);
 
@@ -354,9 +373,10 @@ mod test {
 
     use super::super::helpers::create_dummy_state;
 
-    use super::super::find_instructions::Instruction;
-    use super::super::find_instructions::RemoveVolatileStatusInstruction;
-    use super::super::find_instructions::SwitchInstruction;
+    use super::super::instruction::Instruction;
+    use super::super::instruction::RemoveVolatileStatusInstruction;
+    use super::super::instruction::SwitchInstruction;
+    use super::super::instruction::ChangeStatusInstruction;
     use super::super::state::State;
     use super::super::state::Terrain;
 
@@ -885,8 +905,10 @@ mod test {
     }
 
     #[test]
-    fn test_switching_out_removes_multiple_volatile_statuses() {
-        let state: State = create_dummy_state();
+    fn test_switching_out_with_naturalcure_removes_status_effect() {
+        let mut state: State = create_dummy_state();
+        state.side_one.reserve[state.side_one.active_index].status = Status::Burn;
+        state.side_one.reserve[state.side_one.active_index].ability = "naturalcure".to_string();
 
         let mut transpose_instruction: TransposeInstruction = TransposeInstruction {
             state: state,
@@ -894,29 +916,49 @@ mod test {
             instructions: Vec::<Instruction>::new(),
         };
 
-        transpose_instruction.state.side_one.reserve[0]
-            .volatile_statuses
-            .insert(VolatileStatus::Yawn);
+        run_switch(&mut transpose_instruction, true, &"charizard".to_string());
 
-        transpose_instruction.state.side_one.reserve[0]
-            .volatile_statuses
-            .insert(VolatileStatus::Substitute);
+        assert_eq!(
+            vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    is_side_one: true,
+                    pokemon_index: 0,
+                    old_status: Status::Burn,
+                    new_status: Status::None,
+                }),
+                Instruction::Switch(SwitchInstruction {
+                    is_side_one: true,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+            ],            
+            transpose_instruction.instructions
+        );
+    }
+
+    #[test]
+    fn test_switching_out_with_naturalcure_does_nothing_if_there_is_no_status_effect() {
+        let mut state: State = create_dummy_state();
+        state.side_one.reserve[state.side_one.active_index].status = Status::None;
+        state.side_one.reserve[state.side_one.active_index].ability = "naturalcure".to_string();
+
+        let mut transpose_instruction: TransposeInstruction = TransposeInstruction {
+            state: state,
+            percentage: 1.0,
+            instructions: Vec::<Instruction>::new(),
+        };
 
         run_switch(&mut transpose_instruction, true, &"charizard".to_string());
 
         assert_eq!(
-            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
-                is_side_one: true,
-                volatile_status: VolatileStatus::Substitute,
-            }),
-            transpose_instruction.instructions[0]
-        );
-        assert_eq!(
-            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
-                is_side_one: true,
-                volatile_status: VolatileStatus::Yawn,
-            }),
-            transpose_instruction.instructions[1]
+            vec![
+                Instruction::Switch(SwitchInstruction {
+                    is_side_one: true,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+            ],            
+            transpose_instruction.instructions
         );
     }
 }

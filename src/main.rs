@@ -29,6 +29,8 @@ fn main() {
     pikachu.moves.push("voltswitch".to_string());
     pikachu.moves.push("irontail".to_string());
     pikachu.moves.push("surf".to_string());
+    pikachu.ability = "naturalcure".to_string();
+    pikachu.status = data::conditions::Status::Burn;
 
     let my_side: state::Side = state::Side {
         active_index: 0,
@@ -82,27 +84,48 @@ fn main() {
 
     println!("Side one moves first: {}", s1mf);
 
+    println!(
+        "{} Status: {:?}",
+        state.side_one.reserve[0].id,
+        state.side_one.reserve[0].status
+    );
+
     let list_of_instructions = find_instructions::find_all_instructions(state, s1_move, s2_move);
 
-    for ins in list_of_instructions.into_iter() {
+    for ins_set in list_of_instructions.into_iter() {
         println!(
-            "{}: {}",
-            ins.percentage,
-            ins.state.side_one.get_active_immutable().id
+            "{} Status: {:?}",
+            ins_set.state.side_one.reserve[0].id,
+            ins_set.state.side_one.reserve[0].status
         );
 
-        match &ins.instructions[0] {
-            instruction::Instruction::Switch(a) => {
-                println!("{}", a.is_side_one);
-                println!("{}", a.previous_index);
-                println!("{}", a.next_index);
+        for ins in ins_set.instructions {
+            match ins {
+                instruction::Instruction::Switch(a) => {
+                    println!("Switch");
+                    println!("\tis_side_one: {}", a.is_side_one);
+                    println!("\tprevious_index: {}", a.previous_index);
+                    println!("\tnext_index: {}", a.next_index);
+                    println!("\n");
+                }
+                instruction::Instruction::RemoveVolatileStatus(a) => {
+                    println!("Remove VolatileStatus");
+                    println!("\tis_side_one: {}", a.is_side_one);
+                    println!("\tvolatile_status: {:?}", a.volatile_status);
+                    println!("\n");
+                }
+                instruction::Instruction::ChangeStatus(a) => {
+                    println!("Change Status");
+                    println!("\tis_side_one: {}", a.is_side_one);
+                    println!("\tpkmn_index: {}", a.pokemon_index);
+                    println!("\told_status: {:?}", a.old_status);
+                    println!("\tnew_status: {:?}", a.new_status);
+                    println!("\n");
+                }
+                // _ => {
+                //     println!("Unhandled Instruction")
+                // }
             }
-            instruction::Instruction::RemoveVolatileStatus(a) => {
-                println!("{}", a.is_side_one);
-                println!("{:?}", a.volatile_status);
-            } // _ => {
-              //     println!("Unhandled Instruction")
-              // }
         }
     }
 }

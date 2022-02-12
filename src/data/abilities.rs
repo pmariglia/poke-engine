@@ -5,9 +5,11 @@ use lazy_static::lazy_static;
 use super::moves::get_move;
 use super::moves::MoveCategory;
 
+use crate::instruction::Instruction;
+use crate::instruction::ChangeStatusInstruction;
 use crate::state::Pokemon;
 use crate::state::State;
-// use crate::state::Status;
+use crate::state::Side;
 use crate::data::conditions::Status;
 use crate::state::PokemonTypes;
 use crate::state::Terrain;
@@ -15,7 +17,10 @@ use crate::state::Weather;
 
 type ModifySpeedFn = fn(&State, &Pokemon) -> f32;
 type ModifyPriorityFn = fn(&str, &Pokemon) -> i8;
-type OnSwitchOutFn = fn(&str, &Pokemon) -> i8;
+type BeforeSwitchOutFn = fn(
+    &mut Side,
+    is_side_one: bool
+) -> Option<Vec<Instruction>>;
 
 lazy_static! {
     static ref ABILITIES: HashMap<String, Ability> = {
@@ -26,7 +31,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -35,7 +40,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -44,7 +49,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -53,7 +58,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -62,7 +67,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -71,7 +76,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -80,7 +85,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -89,7 +94,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -98,7 +103,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -107,7 +112,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -116,7 +121,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -125,7 +130,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -134,7 +139,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -143,7 +148,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -152,7 +157,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -161,7 +166,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -170,7 +175,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -179,7 +184,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -188,7 +193,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -197,7 +202,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -206,7 +211,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -215,7 +220,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -224,7 +229,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -233,7 +238,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -242,7 +247,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -251,7 +256,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -260,7 +265,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -269,7 +274,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -278,7 +283,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -287,7 +292,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -296,7 +301,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -305,7 +310,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -314,7 +319,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -323,7 +328,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -337,7 +342,7 @@ lazy_static! {
                     }
                     return 0;
                 }),
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -346,7 +351,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -355,7 +360,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -364,7 +369,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -373,7 +378,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -382,7 +387,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -391,7 +396,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -407,7 +412,7 @@ lazy_static! {
                     return 1.0;
                 }),
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -416,7 +421,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -425,7 +430,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -434,7 +439,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -443,7 +448,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -452,7 +457,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -461,7 +466,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -470,7 +475,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -479,7 +484,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -488,7 +493,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -497,7 +502,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -506,7 +511,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -515,7 +520,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -524,7 +529,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -533,7 +538,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -542,7 +547,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -551,7 +556,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -560,7 +565,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -569,7 +574,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -578,7 +583,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -587,7 +592,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -596,7 +601,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -605,7 +610,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -614,7 +619,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -623,7 +628,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -632,7 +637,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -646,7 +651,7 @@ lazy_static! {
                     return 1.0;
                 }),
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -655,7 +660,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -664,7 +669,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -673,7 +678,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -682,7 +687,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -691,7 +696,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -700,7 +705,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -709,7 +714,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -718,7 +723,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -727,7 +732,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -736,7 +741,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -745,7 +750,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -754,7 +759,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -763,7 +768,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -772,7 +777,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -781,7 +786,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -790,7 +795,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -799,7 +804,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -808,7 +813,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -817,7 +822,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -826,7 +831,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -835,7 +840,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -844,7 +849,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -853,7 +858,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -862,7 +867,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -871,7 +876,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -880,7 +885,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -889,7 +894,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -898,7 +903,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -907,7 +912,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -916,7 +921,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -925,7 +930,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -934,7 +939,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -943,7 +948,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -952,7 +957,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -961,7 +966,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -970,7 +975,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -979,7 +984,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -988,7 +993,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -997,7 +1002,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1006,7 +1011,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1015,7 +1020,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1024,7 +1029,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1033,7 +1038,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1042,7 +1047,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1051,7 +1056,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1060,7 +1065,25 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: Some(|side, is_side_one| {
+                    if side.reserve[side.active_index].status != Status::None {
+                        let old_status = side.reserve[side.active_index].status;
+                        side.reserve[side.active_index].status = Status::None;
+                        return Some(
+                            vec![
+                                Instruction::ChangeStatus(
+                                    ChangeStatusInstruction {
+                                        is_side_one: is_side_one,
+                                        pokemon_index: side.active_index,
+                                        old_status: old_status,
+                                        new_status: Status::None,
+                                    }
+                                )
+                            ]
+                        );
+                    }
+                    return None;
+                }),
             },
         );
 
@@ -1069,7 +1092,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1078,7 +1101,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1087,7 +1110,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1096,7 +1119,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1105,7 +1128,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1114,7 +1137,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1123,7 +1146,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1132,7 +1155,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1141,7 +1164,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1150,7 +1173,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1159,7 +1182,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1168,7 +1191,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1177,7 +1200,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1186,7 +1209,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1195,7 +1218,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1204,7 +1227,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1213,7 +1236,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1222,7 +1245,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1231,7 +1254,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1240,7 +1263,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1249,7 +1272,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1263,7 +1286,7 @@ lazy_static! {
                     return 1.0;
                 }),
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1272,7 +1295,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1281,7 +1304,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1290,7 +1313,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1299,7 +1322,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1308,7 +1331,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1317,7 +1340,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1326,7 +1349,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1335,7 +1358,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1344,7 +1367,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1353,7 +1376,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1362,7 +1385,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1371,7 +1394,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1380,7 +1403,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1389,7 +1412,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1398,7 +1421,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1407,7 +1430,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1416,7 +1439,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1425,7 +1448,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1434,7 +1457,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1443,7 +1466,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1452,7 +1475,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1461,7 +1484,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1470,7 +1493,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1479,7 +1502,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1488,7 +1511,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1497,7 +1520,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1506,7 +1529,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1515,7 +1538,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1524,7 +1547,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1533,7 +1556,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1542,7 +1565,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1551,7 +1574,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1560,7 +1583,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1569,7 +1592,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1578,7 +1601,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1587,7 +1610,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1596,7 +1619,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1605,7 +1628,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1614,7 +1637,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1623,7 +1646,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1632,7 +1655,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1641,7 +1664,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1650,7 +1673,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1659,7 +1682,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1668,7 +1691,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1677,7 +1700,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1686,7 +1709,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1695,7 +1718,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1704,7 +1727,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1713,7 +1736,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1722,7 +1745,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1731,7 +1754,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1740,7 +1763,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1749,7 +1772,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1758,7 +1781,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1767,7 +1790,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1776,7 +1799,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1785,7 +1808,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1794,7 +1817,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1803,7 +1826,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1812,7 +1835,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1826,7 +1849,7 @@ lazy_static! {
                     return 1.0;
                 }),
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1835,7 +1858,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1844,7 +1867,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1853,7 +1876,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1862,7 +1885,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1871,7 +1894,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1880,7 +1903,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1894,7 +1917,7 @@ lazy_static! {
                     return 1.0;
                 }),
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1903,7 +1926,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1912,7 +1935,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1921,7 +1944,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1930,7 +1953,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1939,7 +1962,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1948,7 +1971,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1957,7 +1980,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1966,7 +1989,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1975,7 +1998,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1984,7 +2007,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -1993,7 +2016,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2002,7 +2025,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2011,7 +2034,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2020,7 +2043,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2029,7 +2052,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2038,7 +2061,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2047,7 +2070,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2056,7 +2079,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2065,7 +2088,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2074,7 +2097,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2083,7 +2106,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2097,7 +2120,7 @@ lazy_static! {
                     return 1.0;
                 }),
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2106,7 +2129,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2115,7 +2138,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2124,7 +2147,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2133,7 +2156,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2142,7 +2165,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2151,7 +2174,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2160,7 +2183,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2169,7 +2192,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2178,7 +2201,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2187,7 +2210,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2196,7 +2219,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2205,7 +2228,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2219,7 +2242,7 @@ lazy_static! {
                     }
                     return 0;
                 }),
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2228,7 +2251,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2237,7 +2260,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2246,7 +2269,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2255,7 +2278,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2271,7 +2294,7 @@ lazy_static! {
                     }
                     return 0;
                 }),
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2280,7 +2303,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2289,7 +2312,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2298,7 +2321,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2307,7 +2330,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2316,7 +2339,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2325,7 +2348,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2334,7 +2357,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2343,7 +2366,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2352,7 +2375,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2361,7 +2384,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2370,7 +2393,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2379,7 +2402,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2388,7 +2411,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2397,7 +2420,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2406,7 +2429,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2415,7 +2438,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2424,7 +2447,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2433,7 +2456,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2442,7 +2465,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2451,7 +2474,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2460,7 +2483,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2469,7 +2492,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2478,7 +2501,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2487,7 +2510,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2503,7 +2526,7 @@ lazy_static! {
                     return 1.0;
                 }),
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2512,7 +2535,7 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                on_switch_out: None,
+                before_switch_out: None,
             },
         );
 
@@ -2529,5 +2552,5 @@ pub fn get_ability(ability_name: &str) -> &'static Ability {
 pub struct Ability {
     pub modify_speed: Option<ModifySpeedFn>,
     pub modify_priority: Option<ModifyPriorityFn>,
-    pub on_switch_out: Option<OnSwitchOutFn>,
+    pub before_switch_out: Option<BeforeSwitchOutFn>,
 }
