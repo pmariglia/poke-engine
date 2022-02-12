@@ -226,21 +226,14 @@ pub fn run_switch(
     side.remove_all_volatile_statuses();
 
     match get_ability(side.get_active_immutable().ability.as_str()).before_switch_out {
-        Some(on_switch_out_fn) => {
-            match on_switch_out_fn(
-                side,
-                is_side_one
-            ) {
-                Some(new_instructions) => {
-                    for new_ins in new_instructions {
-                        transpose_instruction.instructions.push(
-                            new_ins
-                        );
-                    }
+        Some(on_switch_out_fn) => match on_switch_out_fn(side, is_side_one) {
+            Some(new_instructions) => {
+                for new_ins in new_instructions {
+                    transpose_instruction.instructions.push(new_ins);
                 }
-                None => {}
             }
-        }
+            None => {}
+        },
         None => {}
     }
 
@@ -373,11 +366,11 @@ mod test {
 
     use super::super::helpers::create_dummy_state;
 
+    use super::super::instruction::ChangeStatusInstruction;
+    use super::super::instruction::HealInstruction;
     use super::super::instruction::Instruction;
     use super::super::instruction::RemoveVolatileStatusInstruction;
     use super::super::instruction::SwitchInstruction;
-    use super::super::instruction::ChangeStatusInstruction;
-    use super::super::instruction::HealInstruction;
     use super::super::state::State;
     use super::super::state::Terrain;
 
@@ -932,7 +925,7 @@ mod test {
                     previous_index: 0,
                     next_index: 1,
                 }),
-            ],            
+            ],
             transpose_instruction.instructions
         );
     }
@@ -952,13 +945,11 @@ mod test {
         run_switch(&mut transpose_instruction, true, &"charizard".to_string());
 
         assert_eq!(
-            vec![
-                Instruction::Switch(SwitchInstruction {
-                    is_side_one: true,
-                    previous_index: 0,
-                    next_index: 1,
-                }),
-            ],            
+            vec![Instruction::Switch(SwitchInstruction {
+                is_side_one: true,
+                previous_index: 0,
+                next_index: 1,
+            }),],
             transpose_instruction.instructions
         );
     }
@@ -1012,11 +1003,11 @@ mod test {
                     previous_index: 0,
                     next_index: 1,
                 }),
-            ],            
+            ],
             transpose_instruction.instructions
         );
     }
-    
+
     #[test]
     fn test_does_not_heal_if_pokemon_is_at_maxhp() {
         let mut state: State = create_dummy_state();
@@ -1033,13 +1024,11 @@ mod test {
         run_switch(&mut transpose_instruction, true, &"charizard".to_string());
 
         assert_eq!(
-            vec![
-                Instruction::Switch(SwitchInstruction {
-                    is_side_one: true,
-                    previous_index: 0,
-                    next_index: 1,
-                }),
-            ],            
+            vec![Instruction::Switch(SwitchInstruction {
+                is_side_one: true,
+                previous_index: 0,
+                next_index: 1,
+            }),],
             transpose_instruction.instructions
         );
     }

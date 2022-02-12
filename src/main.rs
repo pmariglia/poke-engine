@@ -86,8 +86,7 @@ fn main() {
 
     println!(
         "{} Status: {:?}",
-        state.side_one.reserve[0].id,
-        state.side_one.reserve[0].status
+        state.side_one.reserve[0].id, state.side_one.reserve[0].status
     );
 
     let list_of_instructions = find_instructions::find_all_instructions(state, s1_move, s2_move);
@@ -95,8 +94,7 @@ fn main() {
     for ins_set in list_of_instructions.into_iter() {
         println!(
             "{} Status: {:?}",
-            ins_set.state.side_one.reserve[0].id,
-            ins_set.state.side_one.reserve[0].status
+            ins_set.state.side_one.reserve[0].id, ins_set.state.side_one.reserve[0].status
         );
 
         for ins in ins_set.instructions {
@@ -127,10 +125,9 @@ fn main() {
                     println!("\tis_side_one: {}", a.is_side_one);
                     println!("\teal_amount: {}", a.heal_amount);
                     println!("\n");
-                }
-                // _ => {
-                //     println!("Unhandled Instruction")
-                // }
+                } // _ => {
+                  //     println!("Unhandled Instruction")
+                  // }
             }
         }
     }

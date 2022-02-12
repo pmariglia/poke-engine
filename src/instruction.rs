@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use super::data::moves::VolatileStatus;
 use super::data::conditions::Status;
+use super::data::moves::VolatileStatus;
 
 // https://stackoverflow.com/questions/50686411/whats-the-usual-way-to-create-a-vector-of-different-structs
 #[derive(Debug, Serialize, Deserialize, PartialEq)]

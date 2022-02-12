@@ -5,23 +5,20 @@ use lazy_static::lazy_static;
 use super::moves::get_move;
 use super::moves::MoveCategory;
 
-use crate::instruction::Instruction;
+use crate::data::conditions::Status;
 use crate::instruction::ChangeStatusInstruction;
 use crate::instruction::HealInstruction;
+use crate::instruction::Instruction;
 use crate::state::Pokemon;
-use crate::state::State;
-use crate::state::Side;
-use crate::data::conditions::Status;
 use crate::state::PokemonTypes;
+use crate::state::Side;
+use crate::state::State;
 use crate::state::Terrain;
 use crate::state::Weather;
 
 type ModifySpeedFn = fn(&State, &Pokemon) -> f32;
 type ModifyPriorityFn = fn(&str, &Pokemon) -> i8;
-type BeforeSwitchOutFn = fn(
-    &mut Side,
-    is_side_one: bool
-) -> Option<Vec<Instruction>>;
+type BeforeSwitchOutFn = fn(&mut Side, is_side_one: bool) -> Option<Vec<Instruction>>;
 
 lazy_static! {
     static ref ABILITIES: HashMap<String, Ability> = {
@@ -1070,18 +1067,12 @@ lazy_static! {
                     if side.reserve[side.active_index].status != Status::None {
                         let old_status = side.reserve[side.active_index].status;
                         side.reserve[side.active_index].status = Status::None;
-                        return Some(
-                            vec![
-                                Instruction::ChangeStatus(
-                                    ChangeStatusInstruction {
-                                        is_side_one: is_side_one,
-                                        pokemon_index: side.active_index,
-                                        old_status: old_status,
-                                        new_status: Status::None,
-                                    }
-                                )
-                            ]
-                        );
+                        return Some(vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+                            is_side_one: is_side_one,
+                            pokemon_index: side.active_index,
+                            old_status: old_status,
+                            new_status: Status::None,
+                        })]);
                     }
                     return None;
                 }),
@@ -1810,24 +1801,17 @@ lazy_static! {
                 modify_speed: None,
                 modify_priority: None,
                 before_switch_out: Some(|side, is_side_one| {
-                    let amount_healed = side.reserve[side.active_index].heal(
-                        side.reserve[side.active_index].maxhp / 3
-                    );
+                    let amount_healed = side.reserve[side.active_index]
+                        .heal(side.reserve[side.active_index].maxhp / 3);
 
                     if amount_healed == 0 {
                         return None;
                     }
 
-                    return Some(
-                        vec![
-                            Instruction::Heal(
-                                HealInstruction {
-                                    is_side_one: is_side_one,
-                                    heal_amount: amount_healed,
-                                }
-                            )
-                        ]
-                    );
+                    return Some(vec![Instruction::Heal(HealInstruction {
+                        is_side_one: is_side_one,
+                        heal_amount: amount_healed,
+                    })]);
                 }),
             },
         );
