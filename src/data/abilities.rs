@@ -7,6 +7,7 @@ use super::moves::MoveCategory;
 
 use crate::instruction::Instruction;
 use crate::instruction::ChangeStatusInstruction;
+use crate::instruction::HealInstruction;
 use crate::state::Pokemon;
 use crate::state::State;
 use crate::state::Side;
@@ -1808,7 +1809,26 @@ lazy_static! {
             Ability {
                 modify_speed: None,
                 modify_priority: None,
-                before_switch_out: None,
+                before_switch_out: Some(|side, is_side_one| {
+                    let amount_healed = side.reserve[side.active_index].heal(
+                        side.reserve[side.active_index].maxhp / 3
+                    );
+
+                    if amount_healed == 0 {
+                        return None;
+                    }
+
+                    return Some(
+                        vec![
+                            Instruction::Heal(
+                                HealInstruction {
+                                    is_side_one: is_side_one,
+                                    heal_amount: amount_healed,
+                                }
+                            )
+                        ]
+                    );
+                }),
             },
         );
 

@@ -377,6 +377,7 @@ mod test {
     use super::super::instruction::RemoveVolatileStatusInstruction;
     use super::super::instruction::SwitchInstruction;
     use super::super::instruction::ChangeStatusInstruction;
+    use super::super::instruction::HealInstruction;
     use super::super::state::State;
     use super::super::state::Terrain;
 
@@ -959,6 +960,110 @@ mod test {
                 }),
             ],            
             transpose_instruction.instructions
+        );
+    }
+
+    #[test]
+    fn test_switching_out_with_regenerator_heals_the_pokemon() {
+        let mut state: State = create_dummy_state();
+        state.side_one.reserve[state.side_one.active_index].ability = "regenerator".to_string();
+        state.side_one.reserve[state.side_one.active_index].hp = 1;
+        state.side_one.reserve[state.side_one.active_index].maxhp = 10;
+
+        let previous_active_index = state.side_one.active_index;
+
+        let mut transpose_instruction: TransposeInstruction = TransposeInstruction {
+            state: state,
+            percentage: 1.0,
+            instructions: Vec::<Instruction>::new(),
+        };
+
+        run_switch(&mut transpose_instruction, true, &"charizard".to_string());
+
+        assert_eq!(
+            transpose_instruction.state.side_one.reserve[previous_active_index].hp,
+            4
+        );
+    }
+
+    #[test]
+    fn test_switching_out_with_regenerator_generates_switch_instruction() {
+        let mut state: State = create_dummy_state();
+        state.side_one.reserve[state.side_one.active_index].ability = "regenerator".to_string();
+        state.side_one.reserve[state.side_one.active_index].hp = 1;
+        state.side_one.reserve[state.side_one.active_index].maxhp = 10;
+
+        let mut transpose_instruction: TransposeInstruction = TransposeInstruction {
+            state: state,
+            percentage: 1.0,
+            instructions: Vec::<Instruction>::new(),
+        };
+
+        run_switch(&mut transpose_instruction, true, &"charizard".to_string());
+
+        assert_eq!(
+            vec![
+                Instruction::Heal(HealInstruction {
+                    is_side_one: true,
+                    heal_amount: 3,
+                }),
+                Instruction::Switch(SwitchInstruction {
+                    is_side_one: true,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+            ],            
+            transpose_instruction.instructions
+        );
+    }
+    
+    #[test]
+    fn test_does_not_heal_if_pokemon_is_at_maxhp() {
+        let mut state: State = create_dummy_state();
+        state.side_one.reserve[state.side_one.active_index].ability = "regenerator".to_string();
+        state.side_one.reserve[state.side_one.active_index].hp = 10;
+        state.side_one.reserve[state.side_one.active_index].maxhp = 10;
+
+        let mut transpose_instruction: TransposeInstruction = TransposeInstruction {
+            state: state,
+            percentage: 1.0,
+            instructions: Vec::<Instruction>::new(),
+        };
+
+        run_switch(&mut transpose_instruction, true, &"charizard".to_string());
+
+        assert_eq!(
+            vec![
+                Instruction::Switch(SwitchInstruction {
+                    is_side_one: true,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+            ],            
+            transpose_instruction.instructions
+        );
+    }
+
+    #[test]
+    fn test_health_stays_the_same_if_pokemon_is_not_healed_by_regenerator() {
+        let mut state: State = create_dummy_state();
+        state.side_one.reserve[state.side_one.active_index].ability = "regenerator".to_string();
+        state.side_one.reserve[state.side_one.active_index].hp = 10;
+        state.side_one.reserve[state.side_one.active_index].maxhp = 10;
+
+        let previous_active_index = state.side_one.active_index;
+
+        let mut transpose_instruction: TransposeInstruction = TransposeInstruction {
+            state: state,
+            percentage: 1.0,
+            instructions: Vec::<Instruction>::new(),
+        };
+
+        run_switch(&mut transpose_instruction, true, &"charizard".to_string());
+
+        assert_eq!(
+            transpose_instruction.state.side_one.reserve[previous_active_index].hp,
+            10
         );
     }
 }

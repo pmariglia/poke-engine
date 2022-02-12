@@ -9,6 +9,13 @@ pub enum Instruction {
     Switch(SwitchInstruction),
     RemoveVolatileStatus(RemoveVolatileStatusInstruction),
     ChangeStatus(ChangeStatusInstruction),
+    Heal(HealInstruction),
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub struct HealInstruction {
+    pub is_side_one: bool,
+    pub heal_amount: i16,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]

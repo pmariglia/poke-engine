@@ -141,6 +141,21 @@ impl Pokemon {
     pub fn clear_volatile_statuses(&mut self) {
         self.volatile_statuses.clear();
     }
+
+    // heals by amount, but doesn't overheal
+    // returns the amount healed
+    // a fainted pokemon (hp=0) cannot be healed
+    pub fn heal(&mut self, mut amount: i16) -> i16 {
+        if self.hp == 0 {
+            return 0;
+        }
+        self.hp += amount;
+        if self.hp > self.maxhp {
+            amount -= self.hp - self.maxhp;
+            self.hp = self.maxhp;
+        }
+        return amount;
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

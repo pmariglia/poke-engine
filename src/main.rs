@@ -122,6 +122,12 @@ fn main() {
                     println!("\tnew_status: {:?}", a.new_status);
                     println!("\n");
                 }
+                instruction::Instruction::Heal(a) => {
+                    println!("Heal");
+                    println!("\tis_side_one: {}", a.is_side_one);
+                    println!("\teal_amount: {}", a.heal_amount);
+                    println!("\n");
+                }
                 // _ => {
                 //     println!("Unhandled Instruction")
                 // }
