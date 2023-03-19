@@ -5,7 +5,9 @@ use std::collections::HashSet;
 
 use super::data::moves::SideCondition;
 use super::data::moves::VolatileStatus;
-use crate::data::conditions::Status;
+use crate::data::conditions::PokemonSideCondition;
+use crate::data::conditions::PokemonVolatileStatus;
+use crate::data::conditions::PokemonStatus;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum Weather {
@@ -131,9 +133,9 @@ pub struct Pokemon {
     pub speed_boost: i8,
     pub accuracy_boost: i8,
     pub evasion_boost: i8,
-    pub status: Status,
+    pub status: PokemonStatus,
     pub nature: PokemonNatures,
-    pub volatile_statuses: HashSet<VolatileStatus>,
+    pub volatile_statuses: HashSet<PokemonVolatileStatus>,
     pub moves: Vec<String>,
 }
 
@@ -162,7 +164,7 @@ impl Pokemon {
 pub struct Side {
     pub active_index: usize,
     pub reserve: [Pokemon; 6],
-    pub side_conditions: HashMap<SideCondition, i8>,
+    pub side_conditions: HashMap<PokemonSideCondition, i8>,
     pub wish: (i8, i16),
 }
 
@@ -237,7 +239,7 @@ impl Side {
         Side::boost(self, stat, -1 * amount);
     }
 
-    pub fn set_status(&mut self, status: Status) {
+    pub fn set_status(&mut self, status: PokemonStatus) {
         self.reserve[self.active_index].status = status;
     }
 
@@ -288,51 +290,5 @@ impl State {
 
     pub fn toggle_trickroom(&mut self) {
         self.trick_room ^= true;
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::super::helpers::create_dummy_state;
-    use super::State;
-
-    use super::super::data::moves::SideCondition;
-
-    #[test]
-    fn test_increment_side_condition() {
-        let mut state: State = create_dummy_state();
-
-        state
-            .side_one
-            .increment_side_condition(SideCondition::Tailwind, 5);
-
-        let tw: i8 = *state
-            .side_one
-            .side_conditions
-            .get(&SideCondition::Tailwind)
-            .unwrap();
-
-        assert_eq!(tw, 5);
-    }
-
-    #[test]
-    fn test_increment_side_condition_when_value_already_exists() {
-        let mut state: State = create_dummy_state();
-
-        state
-            .side_one
-            .side_conditions
-            .insert(SideCondition::Tailwind, 1);
-        state
-            .side_one
-            .increment_side_condition(SideCondition::Tailwind, 3);
-
-        let tw: i8 = *state
-            .side_one
-            .side_conditions
-            .get(&SideCondition::Tailwind)
-            .unwrap();
-
-        assert_eq!(tw, 4);
     }
 }

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use super::data::conditions::Status;
-use super::data::moves::VolatileStatus;
+use super::data::conditions::PokemonStatus;
+use super::data::conditions::PokemonVolatileStatus;
 
 // https://stackoverflow.com/questions/50686411/whats-the-usual-way-to-create-a-vector-of-different-structs
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -29,12 +29,12 @@ pub struct SwitchInstruction {
 pub struct ChangeStatusInstruction {
     pub is_side_one: bool,
     pub pokemon_index: usize,
-    pub old_status: Status,
-    pub new_status: Status,
+    pub old_status: PokemonStatus,
+    pub new_status: PokemonStatus,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct RemoveVolatileStatusInstruction {
     pub is_side_one: bool,
-    pub volatile_status: VolatileStatus,
+    pub volatile_status: PokemonVolatileStatus,
 }
