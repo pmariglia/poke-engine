@@ -1,8 +1,3 @@
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-
-use lazy_static::lazy_static;
-
 use crate::data::conditions::PokemonStatus;
 use crate::data::conditions::PokemonVolatileStatus;
 
@@ -220,7 +215,7 @@ pub struct Choice {
     pub side_condition: Option<SideCondition>,
     pub secondaries: Option<Vec<Secondary>>,
 
-    // Might not be needed
+    // Might not be needed since everything has it's own `target`
     pub target: MoveTarget
 
     // Things that
