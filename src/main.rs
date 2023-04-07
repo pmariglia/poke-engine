@@ -10,10 +10,10 @@ use crate::{
         moves::{Effect, MoveTarget, Secondary, SideCondition},
     },
     instruction::{
-        BoostInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction,
+        BoostInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeWeather,
         DamageInstruction, Instruction,
     },
-    state::{Pokemon, PokemonNatures, PokemonTypes, SideConditions, SideReference},
+    state::{Pokemon, PokemonNatures, PokemonTypes, SideConditions, SideReference, Weather},
 };
 extern crate lazy_static;
 
@@ -152,24 +152,25 @@ fn main() {
         trick_room: false,
     };
 
-    println!("{:?}", state.side_one.side_conditions.spikes);
+    println!("{:?}", state.weather);
 
     let _instruction = Instruction::Damage(DamageInstruction {
         side_ref: SideReference::SideOne,
         damage_amount: 1,
     });
 
-    let instruction = Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
-        side_ref: SideReference::SideOne,
-        side_condition: PokemonSideCondition::Spikes,
-        amount: 1,
+    let instruction = Instruction::ChangeWeather(ChangeWeather {
+        previous_weather: Weather::None,
+        previous_weather_turns_remaining: 0,
+        new_weather: Weather::Hail,
+        new_weather_turns_remaining: 2,
     });
 
     state.apply_instruction(&instruction);
 
-    println!("{:?}", state.side_one.side_conditions.spikes);
+    println!("{:?}", state.weather);
 
     state.reverse_instruction(&instruction);
 
-    println!("{:?}", state.side_one.side_conditions.spikes);
+    println!("{:?}", state.weather);
 }

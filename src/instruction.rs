@@ -1,6 +1,7 @@
 use crate::data::conditions::PokemonSideCondition;
 use crate::state::PokemonBoostableStat;
 use crate::state::SideReference;
+use crate::state::Weather;
 
 use super::data::conditions::PokemonStatus;
 use super::data::conditions::PokemonVolatileStatus;
@@ -15,6 +16,7 @@ pub enum Instruction {
     Damage(DamageInstruction),
     Boost(BoostInstruction),
     ChangeSideCondition(ChangeSideConditionInstruction),
+    ChangeWeather(ChangeWeather),
 }
 
 #[derive(Debug)]
@@ -64,4 +66,12 @@ pub struct ChangeSideConditionInstruction {
     pub side_ref: SideReference,
     pub side_condition: PokemonSideCondition,
     pub amount: i8,
+}
+
+#[derive(Debug)]
+pub struct ChangeWeather {
+    pub new_weather: Weather,
+    pub new_weather_turns_remaining: i8,
+    pub previous_weather: Weather,
+    pub previous_weather_turns_remaining: i8,
 }

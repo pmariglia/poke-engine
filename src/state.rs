@@ -13,7 +13,7 @@ pub enum SideReference {
     SideTwo,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum Weather {
     None,
     Sun,
@@ -218,41 +218,36 @@ pub struct State {
 }
 
 impl State {
-    pub fn get_side(&mut self, side_ref: &SideReference) -> &mut Side {
+    fn get_side(&mut self, side_ref: &SideReference) -> &mut Side {
         match side_ref {
             SideReference::SideOne => return &mut self.side_one,
             SideReference::SideTwo => return &mut self.side_two,
         }
     }
 
-    pub fn damage(&mut self, side_ref: &SideReference, amount: i16) {
+    fn damage(&mut self, side_ref: &SideReference, amount: i16) {
         let active = self.get_side(&side_ref).get_active();
 
         active.hp -= amount;
     }
 
-    pub fn heal(&mut self, side_ref: &SideReference, amount: i16) {
+    fn heal(&mut self, side_ref: &SideReference, amount: i16) {
         let active = self.get_side(&side_ref).get_active();
 
         active.hp += amount;
     }
 
-    pub fn switch(&mut self, side_ref: &SideReference, next_active_index: usize, _: usize) {
+    fn switch(&mut self, side_ref: &SideReference, next_active_index: usize, _: usize) {
         let side = self.get_side(&side_ref);
         side.active_index = next_active_index;
     }
 
-    pub fn reverse_switch(
-        &mut self,
-        side_ref: &SideReference,
-        _: usize,
-        previous_active_index: usize,
-    ) {
+    fn reverse_switch(&mut self, side_ref: &SideReference, _: usize, previous_active_index: usize) {
         let side = self.get_side(&side_ref);
         side.active_index = previous_active_index;
     }
 
-    pub fn apply_volatile_status(
+    fn apply_volatile_status(
         &mut self,
         side_ref: &SideReference,
         volatile_status: PokemonVolatileStatus,
@@ -261,7 +256,7 @@ impl State {
         active.volatile_statuses.insert(volatile_status);
     }
 
-    pub fn remove_volatile_status(
+    fn remove_volatile_status(
         &mut self,
         side_ref: &SideReference,
         volatile_status: PokemonVolatileStatus,
@@ -270,7 +265,7 @@ impl State {
         active.volatile_statuses.remove(&volatile_status);
     }
 
-    pub fn change_status(
+    fn change_status(
         &mut self,
         side_ref: &SideReference,
         pokemon_index: usize,
@@ -280,12 +275,7 @@ impl State {
         pkmn.status = new_status;
     }
 
-    pub fn apply_boost(
-        &mut self,
-        side_ref: &SideReference,
-        stat: &PokemonBoostableStat,
-        amount: i8,
-    ) {
+    fn apply_boost(&mut self, side_ref: &SideReference, stat: &PokemonBoostableStat, amount: i8) {
         let active = self.get_side(&side_ref).get_active();
         match stat {
             PokemonBoostableStat::Attack => active.attack_boost += amount,
@@ -298,7 +288,7 @@ impl State {
         }
     }
 
-    pub fn increment_side_condition(
+    fn increment_side_condition(
         &mut self,
         side_ref: &SideReference,
         side_condition: &PokemonSideCondition,
@@ -328,6 +318,11 @@ impl State {
         }
     }
 
+    fn change_weather(&mut self, weather_type: Weather, turns_remaining: i8) {
+        self.weather.weather_type = weather_type;
+        self.weather.turns_remaining = turns_remaining;
+    }
+
     pub fn apply_instruction(&mut self, instruction: &Instruction) {
         match instruction {
             Instruction::Damage(instruction) => {
@@ -353,6 +348,10 @@ impl State {
                 &instruction.side_ref,
                 &instruction.side_condition,
                 instruction.amount,
+            ),
+            Instruction::ChangeWeather(instruction) => self.change_weather(
+                instruction.new_weather,
+                instruction.new_weather_turns_remaining,
             ),
             _ => {
                 panic!("Not implemented yet")
@@ -387,6 +386,10 @@ impl State {
                 &instruction.side_ref,
                 &instruction.side_condition,
                 -1 * instruction.amount,
+            ),
+            Instruction::ChangeWeather(instruction) => self.change_weather(
+                instruction.previous_weather,
+                instruction.previous_weather_turns_remaining,
             ),
             _ => {
                 panic!("Not implemented yet")
