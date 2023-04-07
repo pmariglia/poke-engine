@@ -72,8 +72,7 @@ pub enum PokemonVolatileStatus {
     Yawn,
 }
 
-
-#[derive(Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Hash, Serialize, Deserialize, Copy, Clone)]
 pub enum PokemonSideCondition {
     AuroraVeil,
     CraftyShield,

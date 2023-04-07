@@ -111,13 +111,13 @@ pub enum MoveTarget {
 #[derive(Debug)]
 pub struct VolatileStatus {
     target: MoveTarget,
-    volatile_status: PokemonVolatileStatus
+    volatile_status: PokemonVolatileStatus,
 }
 
 #[derive(Debug)]
 pub struct SideCondition {
     target: MoveTarget,
-    condition: PokemonSideCondition
+    condition: PokemonSideCondition,
 }
 
 #[derive(Debug)]
@@ -184,9 +184,8 @@ pub struct Flags {
 pub struct Secondary {
     pub chance: i8,
     pub target: MoveTarget,
-    pub effect: Effect
+    pub effect: Effect,
 }
-
 
 #[derive(Debug)]
 pub enum Effect {
@@ -197,10 +196,8 @@ pub enum Effect {
     Status(PokemonStatus),
 }
 
-
 #[derive(Debug)]
 pub struct Choice {
-
     // Basic move information
     pub id: String,
     pub accuracy: f32,
@@ -216,16 +213,14 @@ pub struct Choice {
     pub secondaries: Option<Vec<Secondary>>,
 
     // Might not be needed since everything has it's own `target`
-    pub target: MoveTarget
+    pub target: MoveTarget, // Things that
 
-    // Things that
-
-    // pub myself: Myself,
-    // pub target: MoveTarget,
-    // pub move_type: PokemonTypes,
-    // pub pp: i8,
-    // pub crash: Option<f32>,
-    // pub drain: Option<f32>,
-    // pub recoil: Option<f32>,
-    // pub modify_priority: Option<ModifyPriorityFn>,
+                            // pub myself: Myself,
+                            // pub target: MoveTarget,
+                            // pub move_type: PokemonTypes,
+                            // pub pp: i8,
+                            // pub crash: Option<f32>,
+                            // pub drain: Option<f32>,
+                            // pub recoil: Option<f32>,
+                            // pub modify_priority: Option<ModifyPriorityFn>,
 }

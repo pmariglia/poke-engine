@@ -4,15 +4,25 @@ use std::collections::{HashMap, HashSet};
 
 use data::moves::{self, Choice, Flags, MoveCategory};
 
-use crate::{data::{moves::{Secondary, MoveTarget, Effect}, conditions::{PokemonSideCondition, PokemonStatus, PokemonVolatileStatus}}, state::{PokemonTypes, PokemonNatures, Pokemon, SideReference}, instruction::{DamageInstruction, Instruction}};
+use crate::{
+    data::{
+        conditions::{PokemonSideCondition, PokemonStatus, PokemonVolatileStatus},
+        moves::{Effect, MoveTarget, Secondary, SideCondition},
+    },
+    instruction::{
+        BoostInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction,
+        DamageInstruction, Instruction,
+    },
+    state::{Pokemon, PokemonNatures, PokemonTypes, SideConditions, SideReference},
+};
 extern crate lazy_static;
 
 mod data;
-mod state;
 mod instruction;
+mod state;
 
 fn main() {
-    let mut _sample_choice: moves::Choice = Choice{
+    let mut _sample_choice: moves::Choice = Choice {
         id: "tackle".to_string(),
         accuracy: 100 as f32,
         category: MoveCategory::Physical,
@@ -47,14 +57,12 @@ fn main() {
         status: None,
         volatile_status: None,
         side_condition: None,
-        secondaries: Some(vec![
-            Secondary {
-                chance: 50,
-                target: MoveTarget::Opponent,
-                effect: Effect::Status(PokemonStatus::Burn)
-            }
-        ]),
-        target: MoveTarget::Opponent
+        secondaries: Some(vec![Secondary {
+            chance: 50,
+            target: MoveTarget::Opponent,
+            effect: Effect::Status(PokemonStatus::Burn),
+        }]),
+        target: MoveTarget::Opponent,
     };
 
     let pikachu: state::Pokemon = Pokemon {
@@ -111,14 +119,18 @@ fn main() {
     let my_side: state::Side = state::Side {
         active_index: 0,
         reserve: [pikachu],
-        side_conditions: HashMap::<PokemonSideCondition, i8>::new(),
+        side_conditions: SideConditions {
+            ..Default::default()
+        },
         wish: (0, 0),
     };
 
     let your_side: state::Side = state::Side {
         active_index: 0,
         reserve: [landorustherian],
-        side_conditions: HashMap::<PokemonSideCondition, i8>::new(),
+        side_conditions: SideConditions {
+            ..Default::default()
+        },
         wish: (0, 0),
     };
 
@@ -140,14 +152,24 @@ fn main() {
         trick_room: false,
     };
 
-    println!("{:?}", state.side_one.get_active().hp);
+    println!("{:?}", state.side_one.side_conditions.spikes);
 
-    let instruction = Instruction::Damage(DamageInstruction{
+    let _instruction = Instruction::Damage(DamageInstruction {
         side_ref: SideReference::SideOne,
-        damage_amount: 1
+        damage_amount: 1,
     });
 
-    state.apply_instruction(instruction);
+    let instruction = Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+        side_ref: SideReference::SideOne,
+        side_condition: PokemonSideCondition::Spikes,
+        amount: 1,
+    });
 
-    println!("{:?}", state.side_one.get_active().hp);
+    state.apply_instruction(&instruction);
+
+    println!("{:?}", state.side_one.side_conditions.spikes);
+
+    state.reverse_instruction(&instruction);
+
+    println!("{:?}", state.side_one.side_conditions.spikes);
 }

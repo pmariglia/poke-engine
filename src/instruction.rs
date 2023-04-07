@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
-
+use crate::data::conditions::PokemonSideCondition;
+use crate::state::PokemonBoostableStat;
 use crate::state::SideReference;
 
 use super::data::conditions::PokemonStatus;
@@ -9,10 +9,12 @@ use super::data::conditions::PokemonVolatileStatus;
 #[derive(Debug)]
 pub enum Instruction {
     Switch(SwitchInstruction),
-    RemoveVolatileStatus(RemoveVolatileStatusInstruction),
+    VolatileStatus(VolatileStatusInstruction),
     ChangeStatus(ChangeStatusInstruction),
     Heal(HealInstruction),
     Damage(DamageInstruction),
+    Boost(BoostInstruction),
+    ChangeSideCondition(ChangeSideConditionInstruction),
 }
 
 #[derive(Debug)]
@@ -34,6 +36,8 @@ pub struct SwitchInstruction {
     pub next_index: usize,
 }
 
+// pokemon_index is present because even reserve pokemon can have their status
+// changed (i.e. healbell)
 #[derive(Debug)]
 pub struct ChangeStatusInstruction {
     pub side_ref: SideReference,
@@ -43,7 +47,21 @@ pub struct ChangeStatusInstruction {
 }
 
 #[derive(Debug)]
-pub struct RemoveVolatileStatusInstruction {
+pub struct VolatileStatusInstruction {
     pub side_ref: SideReference,
     pub volatile_status: PokemonVolatileStatus,
+}
+
+#[derive(Debug)]
+pub struct BoostInstruction {
+    pub side_ref: SideReference,
+    pub stat: PokemonBoostableStat,
+    pub amount: i8,
+}
+
+#[derive(Debug)]
+pub struct ChangeSideConditionInstruction {
+    pub side_ref: SideReference,
+    pub side_condition: PokemonSideCondition,
+    pub amount: i8,
 }
