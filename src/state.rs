@@ -1,9 +1,13 @@
+use serde::{Deserialize, Serialize};
+
+use core::panic;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
 use crate::data::conditions::PokemonSideCondition;
 use crate::data::conditions::PokemonVolatileStatus;
 use crate::data::conditions::PokemonStatus;
+use crate::instruction::Instruction;
 
 #[derive(Debug)]
 pub enum SideReference {
@@ -188,4 +192,14 @@ impl State {
         
         active.hp -= amount;
     }
+
+    pub fn apply_instruction(&mut self, instruction: Instruction) {
+        match instruction {
+            Instruction::Damage(instruction) => {
+                self.damage(instruction.side_ref, instruction.damage_amount)
+            }
+            _ => {panic!("Not implemented yet")}
+        }
+    }
+
 }

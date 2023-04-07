@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet};
 
 use data::moves::{self, Choice, Flags, MoveCategory};
 
-use crate::{data::{moves::{Secondary, MoveTarget, Effect}, conditions::{PokemonSideCondition, PokemonStatus, PokemonVolatileStatus}}, state::{PokemonTypes, PokemonNatures, Pokemon, SideReference}};
+use crate::{data::{moves::{Secondary, MoveTarget, Effect}, conditions::{PokemonSideCondition, PokemonStatus, PokemonVolatileStatus}}, state::{PokemonTypes, PokemonNatures, Pokemon, SideReference}, instruction::{DamageInstruction, Instruction}};
 extern crate lazy_static;
 
 mod data;
@@ -140,12 +140,14 @@ fn main() {
         trick_room: false,
     };
 
-
-    let pkmn = state.side_one.get_active();
-    pkmn.hp -= 1;
     println!("{:?}", state.side_one.get_active().hp);
 
-    state.damage(SideReference::SideOne, 1);
+    let instruction = Instruction::Damage(DamageInstruction{
+        side_ref: SideReference::SideOne,
+        damage_amount: 1
+    });
+
+    state.apply_instruction(instruction);
 
     println!("{:?}", state.side_one.get_active().hp);
 }
