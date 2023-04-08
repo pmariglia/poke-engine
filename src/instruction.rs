@@ -1,6 +1,7 @@
 use crate::data::conditions::PokemonSideCondition;
 use crate::state::PokemonBoostableStat;
 use crate::state::SideReference;
+use crate::state::Terrain;
 use crate::state::Weather;
 
 use super::data::conditions::PokemonStatus;
@@ -17,6 +18,7 @@ pub enum Instruction {
     Boost(BoostInstruction),
     ChangeSideCondition(ChangeSideConditionInstruction),
     ChangeWeather(ChangeWeather),
+    ChangeTerrain(ChangeTerrain),
 }
 
 #[derive(Debug)]
@@ -74,4 +76,12 @@ pub struct ChangeWeather {
     pub new_weather_turns_remaining: i8,
     pub previous_weather: Weather,
     pub previous_weather_turns_remaining: i8,
+}
+
+#[derive(Debug)]
+pub struct ChangeTerrain {
+    pub new_terrain: Terrain,
+    pub new_terrain_turns_remaining: i8,
+    pub previous_terrain: Terrain,
+    pub previous_terrain_turns_remaining: i8,
 }

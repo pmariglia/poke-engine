@@ -30,7 +30,7 @@ pub struct StateWeather {
     pub turns_remaining: i8,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum Terrain {
     None,
     ElectricTerrain,
@@ -323,6 +323,11 @@ impl State {
         self.weather.turns_remaining = turns_remaining;
     }
 
+    fn change_terrain(&mut self, terrain_type: Terrain, turns_remaining: i8) {
+        self.terrain.terrain_type = terrain_type;
+        self.terrain.turns_remaining = turns_remaining;
+    }
+
     pub fn apply_instruction(&mut self, instruction: &Instruction) {
         match instruction {
             Instruction::Damage(instruction) => {
@@ -352,6 +357,10 @@ impl State {
             Instruction::ChangeWeather(instruction) => self.change_weather(
                 instruction.new_weather,
                 instruction.new_weather_turns_remaining,
+            ),
+            Instruction::ChangeTerrain(instruction) => self.change_terrain(
+                instruction.new_terrain,
+                instruction.new_terrain_turns_remaining,
             ),
             _ => {
                 panic!("Not implemented yet")
@@ -390,6 +399,10 @@ impl State {
             Instruction::ChangeWeather(instruction) => self.change_weather(
                 instruction.previous_weather,
                 instruction.previous_weather_turns_remaining,
+            ),
+            Instruction::ChangeTerrain(instruction) => self.change_terrain(
+                instruction.previous_terrain,
+                instruction.previous_terrain_turns_remaining,
             ),
             _ => {
                 panic!("Not implemented yet")

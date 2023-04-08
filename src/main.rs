@@ -10,10 +10,12 @@ use crate::{
         moves::{Effect, MoveTarget, Secondary, SideCondition},
     },
     instruction::{
-        BoostInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeWeather,
-        DamageInstruction, Instruction,
+        BoostInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain,
+        ChangeWeather, DamageInstruction, Instruction,
     },
-    state::{Pokemon, PokemonNatures, PokemonTypes, SideConditions, SideReference, Weather},
+    state::{
+        Pokemon, PokemonNatures, PokemonTypes, SideConditions, SideReference, Terrain, Weather,
+    },
 };
 extern crate lazy_static;
 
@@ -152,25 +154,25 @@ fn main() {
         trick_room: false,
     };
 
-    println!("{:?}", state.weather);
+    println!("{:?}", state.terrain);
 
     let _instruction = Instruction::Damage(DamageInstruction {
         side_ref: SideReference::SideOne,
         damage_amount: 1,
     });
 
-    let instruction = Instruction::ChangeWeather(ChangeWeather {
-        previous_weather: Weather::None,
-        previous_weather_turns_remaining: 0,
-        new_weather: Weather::Hail,
-        new_weather_turns_remaining: 2,
+    let instruction = Instruction::ChangeTerrain(ChangeTerrain {
+        previous_terrain: Terrain::None,
+        previous_terrain_turns_remaining: 0,
+        new_terrain: Terrain::ElectricTerrain,
+        new_terrain_turns_remaining: 2,
     });
 
     state.apply_instruction(&instruction);
 
-    println!("{:?}", state.weather);
+    println!("{:?}", state.terrain);
 
     state.reverse_instruction(&instruction);
 
-    println!("{:?}", state.weather);
+    println!("{:?}", state.terrain);
 }
