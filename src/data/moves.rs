@@ -1,98 +1,67 @@
 use crate::data::conditions::PokemonStatus;
 use crate::data::conditions::PokemonVolatileStatus;
+use crate::state::PokemonTypes;
+use lazy_static::lazy_static;
+use std::collections::HashMap;
 
 use super::conditions::PokemonSideCondition;
 
 // type ModifyPriorityFn = fn(&State) -> i8;
 
-// lazy_static! {
-//     static ref MOVES: HashMap<String, Move> = {
-//         let mut moves: HashMap<String, Move> = HashMap::new();
+lazy_static! {
+    static ref MOVES: HashMap<String, Choice> = {
+        let mut moves: HashMap<String, Choice> = HashMap::new();
 
-//         moves.insert(
-//             "tackle".to_string(),
-//             Move {
-//                 id: "tackle".to_string(),
-//                 accuracy: 100 as f32,
-//                 base_power: 40 as f32,
-//                 category: MoveCategory::Status,
-//                 status: None,
-//                 priority: 0,
-//                 target: MoveTarget::Opponent,
-//                 move_type: PokemonTypes::Ground,
-//                 pp: 10,
-//                 flags: Flags {
-//                     authentic: false,
-//                     bite: false,
-//                     bullet: false,
-//                     charge: false,
-//                     contact: false,
-//                     dance: false,
-//                     defrost: false,
-//                     distance: true,
-//                     gravity: false,
-//                     heal: false,
-//                     mirror: false,
-//                     mystery: false,
-//                     nonsky: true,
-//                     powder: false,
-//                     protect: false,
-//                     pulse: false,
-//                     punch: false,
-//                     recharge: false,
-//                     reflectable: false,
-//                     snatch: false,
-//                     sound: false,
-//                 },
-//                 secondary: Secondary {
-//                     chance: 0,
-//                     volatile_status: None,
-//                     boosts: StatBoosts {
-//                         attack: 0,
-//                         defense: 0,
-//                         special_attack: 0,
-//                         special_defense: 0,
-//                         speed: 0,
-//                         accuracy: 0,
-//                     },
-//                     myself: Myself {
-//                         volatile_status: None,
-//                         boosts: StatBoosts {
-//                             attack: 0,
-//                             defense: 0,
-//                             special_attack: 0,
-//                             special_defense: 0,
-//                             speed: 0,
-//                             accuracy: 0,
-//                         },
-//                     },
-//                     status: None,
-//                 },
-//                 myself: Myself {
-//                     volatile_status: None,
-//                     boosts: StatBoosts {
-//                         attack: 0,
-//                         defense: 0,
-//                         special_attack: 0,
-//                         special_defense: 0,
-//                         speed: 0,
-//                         accuracy: 0,
-//                     },
-//                 },
-//                 boost: None,
-//                 volatile_status: None,
-//                 side_condition: None,
-//                 heal: None,
-//                 crash: None,
-//                 drain: None,
-//                 recoil: None,
-//                 modify_priority: None,
-//             },
-//         );
+        moves.insert(
+            "tackle".to_string(),
+            Choice {
+                id: "tackle".to_string(),
+                accuracy: 100 as f32,
+                base_power: 40 as f32,
+                category: MoveCategory::Status,
+                status: None,
+                priority: 0,
+                target: MoveTarget::Opponent,
+                move_type: PokemonTypes::Ground,
+                flags: Flags {
+                    authentic: false,
+                    bite: false,
+                    bullet: false,
+                    charge: false,
+                    contact: false,
+                    dance: false,
+                    defrost: false,
+                    distance: true,
+                    drag: false,
+                    gravity: false,
+                    heal: false,
+                    mirror: false,
+                    mystery: false,
+                    nonsky: true,
+                    powder: false,
+                    protect: false,
+                    pulse: false,
+                    punch: false,
+                    recharge: false,
+                    reflectable: false,
+                    snatch: false,
+                    sound: false,
+                },
+                secondaries: Some(vec![Secondary {
+                    chance: 0,
+                    target: MoveTarget::Opponent,
+                    effect: Effect::Status(PokemonStatus::Burn),
+                }]),
+                boost: None,
+                volatile_status: None,
+                side_condition: None,
+                heal: None,
+            },
+        );
 
-//         moves
-//     };
-// }
+        moves
+    };
+}
 
 #[derive(Debug, PartialEq)]
 pub enum MoveCategory {
@@ -199,7 +168,8 @@ pub enum Effect {
 #[derive(Debug)]
 pub struct Choice {
     // Basic move information
-    pub id: String,
+    pub id: String, // in the case of category::Switch, this is the name of the pokemon being switched into
+    pub move_type: PokemonTypes,
     pub accuracy: f32,
     pub category: MoveCategory,
     pub base_power: f32,

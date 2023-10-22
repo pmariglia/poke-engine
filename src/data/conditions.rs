@@ -1,6 +1,4 @@
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, PartialEq, Serialize, Deserialize, Copy, Clone)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum PokemonStatus {
     None,
     Burn,
@@ -11,7 +9,7 @@ pub enum PokemonStatus {
     Toxic,
 }
 
-#[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize, Copy, Clone)]
+#[derive(PartialEq, Eq, Hash, Debug, Copy, Clone)]
 pub enum PokemonVolatileStatus {
     AquaRing,
     Attract,
@@ -72,7 +70,7 @@ pub enum PokemonVolatileStatus {
     Yawn,
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, Serialize, Deserialize, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
 pub enum PokemonSideCondition {
     AuroraVeil,
     CraftyShield,

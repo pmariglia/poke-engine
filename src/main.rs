@@ -1,20 +1,17 @@
 #![allow(dead_code)]
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 use data::moves::{self, Choice, Flags, MoveCategory};
 
 use crate::{
     data::{
-        conditions::{PokemonSideCondition, PokemonStatus, PokemonVolatileStatus},
-        moves::{Effect, MoveTarget, Secondary, SideCondition},
+        conditions::{PokemonStatus, PokemonVolatileStatus},
+        moves::{Effect, MoveTarget, Secondary},
     },
-    instruction::{
-        BoostInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain,
-        ChangeWeather, DamageInstruction, Instruction,
-    },
+    instruction::{ChangeTerrain, DamageInstruction, Instruction},
     state::{
-        Pokemon, PokemonNatures, PokemonTypes, SideConditions, SideReference, Terrain, Weather,
+        Pokemon, PokemonNatures, PokemonTypes, SideConditions, SideReference, Terrain,
     },
 };
 extern crate lazy_static;
@@ -26,6 +23,7 @@ mod state;
 fn main() {
     let mut _sample_choice: moves::Choice = Choice {
         id: "tackle".to_string(),
+        move_type: PokemonTypes::Normal,
         accuracy: 100 as f32,
         category: MoveCategory::Physical,
         base_power: 40 as f32,
