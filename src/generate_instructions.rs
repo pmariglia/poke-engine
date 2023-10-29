@@ -1,6 +1,6 @@
 use crate::{
     data::moves::{Choice, MoveCategory},
-    instruction::{Instruction, SwitchInstruction},
+    instruction::{Instruction, StateInstruction, SwitchInstruction},
     state::{SideReference, State},
 };
 
@@ -8,56 +8,47 @@ fn generate_instructions_from_switch(
     state: &mut State,
     new_pokemon_index: usize,
     switching_side: SideReference,
-    incoming_instructions: &mut Vec<Instruction>,
+    incoming_instructions: &mut StateInstruction,
 ) {
-    state.apply_instructions(&incoming_instructions);
+    state.apply_instructions(&incoming_instructions.instruction_list);
 
-    println!("{:?}", state.side_one.get_active());
+    println!(
+        "Before switch side 1 active name: {:?}",
+        state.side_one.get_active().id
+    );
 
-    // How do I get side from sidereference?
     let switch_instruction = Instruction::Switch(SwitchInstruction {
         side_ref: switching_side,
         previous_index: state.get_side(&switching_side).active_index,
         next_index: new_pokemon_index,
     });
     state.apply_one_instruction(&switch_instruction);
-    incoming_instructions.push(switch_instruction);
+    incoming_instructions
+        .instruction_list
+        .push(switch_instruction);
 
-    state.reverse_instructions(&incoming_instructions);
+    println!(
+        "After switch side 1 active name: {:?}",
+        state.side_one.get_active().id
+    );
 
-    //return incoming_instructions;
+    state.reverse_instructions(&incoming_instructions.instruction_list);
 }
 
-// Vec<Instruction> is wrong.
-// There needs to be a struct that wraps the
-// Instruction and includes the percentage (likelihood)
-// of it happening. One of the elements of that struct would
-// be Vec<Instruction>
-//
-// Then.. This function needs to take in ThatNewStruct 
-// and return Vec<ThatNewStruct>
-//
-// generate_instructions_from_switch needs to change to
-pub fn generate_instructions_from_move(
+pub fn generate_instructions_from_move<'a>(
     state: &mut State,
     choice: Choice,
     attacking_side: SideReference,
-    incoming_instructions: &mut Vec<Instruction>,
-) {
+    incoming_instructions: &'a mut StateInstruction,
+) -> Vec<&'a mut StateInstruction> {
     if choice.category == MoveCategory::Switch {
-        let t = generate_instructions_from_switch(
-            state,
-            choice.switch_id,
-            attacking_side,
-            incoming_instructions,
-        );
         generate_instructions_from_switch(
             state,
             choice.switch_id,
             attacking_side,
             incoming_instructions,
         );
-        return; //incoming_instructions;
+        return vec![incoming_instructions];
     }
 
     panic!("Not implemented yet");
@@ -69,7 +60,7 @@ mod tests {
 
     use super::*;
     use crate::data::conditions::{PokemonStatus, PokemonVolatileStatus};
-    use crate::instruction::SwitchInstruction;
+    use crate::instruction::{DamageInstruction, SwitchInstruction};
     use crate::state::{
         Pokemon, PokemonNatures, PokemonTypes, Side, SideConditions, SideReference, State,
         StateTerrain, StateWeather, Terrain, Weather,
@@ -163,20 +154,72 @@ mod tests {
         };
     }
 
+    fn get_dummy_instruction() -> StateInstruction {
+        return StateInstruction {
+            percentage: 100.0,
+            instruction_list: vec![],
+        };
+    }
+
     #[test]
-    fn test_basic_switch_functionality() {
+    fn test_basic_switch_functionality_with_no_prior_instructions() {
         let mut state: State = get_dummy_state();
+        let mut incoming_instructions = get_dummy_instruction();
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
-        let mut incoming_instructions: Vec<Instruction> = vec![];
 
-        let expected_instructions = vec![Instruction::Switch(SwitchInstruction {
-            side_ref: SideReference::SideOne,
-            previous_index: 0,
-            next_index: 1,
-        })];
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstruction = StateInstruction {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: 0,
+                next_index: 1,
+            })],
+        };
+
+        generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            &mut incoming_instructions,
+        );
+
+        assert_eq!(expected_instructions, incoming_instructions);
+    }
+
+    #[test]
+    fn test_basic_switch_functionality_with_a_prior_instruction() {
+        let mut state: State = get_dummy_state();
+        let mut incoming_instructions = get_dummy_instruction();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+
+        choice.switch_id = 1;
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 1,
+            }));
+
+        let expected_instructions: StateInstruction = StateInstruction {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 1,
+                }),
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+            ],
+        };
 
         generate_instructions_from_switch(
             &mut state,

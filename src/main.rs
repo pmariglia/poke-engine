@@ -10,7 +10,7 @@ use crate::{
         moves::{Effect, MoveTarget, Secondary},
     },
     generate_instructions::generate_instructions_from_move,
-    instruction::{ChangeTerrain, DamageInstruction, Instruction},
+    instruction::{ChangeTerrain, DamageInstruction, Instruction, StateInstruction},
     state::{Pokemon, PokemonNatures, PokemonTypes, SideConditions, SideReference, Terrain},
 };
 extern crate lazy_static;
@@ -25,7 +25,7 @@ fn main() {
 
     _choice = Choice {
         move_id: "bulbasaur".to_string(),
-        switch_id: 0,
+        switch_id: 1,
         move_type: PokemonTypes::Typeless,
         accuracy: 100.0,
         category: MoveCategory::Switch,
@@ -245,21 +245,34 @@ fn main() {
         trick_room: false,
     };
 
-    println!("{:?}", state.side_one.get_active());
+    println!(
+        "Starting side 1 active name: {:?}",
+        state.side_one.get_active().id
+    );
 
     let _instruction = Instruction::Damage(DamageInstruction {
         side_ref: SideReference::SideOne,
         damage_amount: 1,
     });
 
+    let mut state_instruction: StateInstruction = StateInstruction {
+        percentage: 100.0,
+        instruction_list: Vec::<Instruction>::new(),
+    };
+
     let ins = generate_instructions_from_move(
         &mut state,
         _choice,
         SideReference::SideOne,
-        &mut vec![_instruction],
+        &mut state_instruction,
     );
 
-    println!("{:?}", state.side_one.get_active());
+    println!(
+        "After generate_instructions_from_move side 1 active name: {:?}",
+        state.side_one.get_active().id
+    );
+
+    println!("Instructions Generated: {:?}", ins);
 
     //let instruction = Instruction::ChangeTerrain(ChangeTerrain {
     //    previous_terrain: Terrain::None,

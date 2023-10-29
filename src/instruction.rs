@@ -7,6 +7,13 @@ use crate::state::Weather;
 use super::data::conditions::PokemonStatus;
 use super::data::conditions::PokemonVolatileStatus;
 
+#[derive(Debug, PartialEq)]
+pub struct StateInstruction {
+    pub percentage: f32,
+    pub instruction_list: Vec<Instruction>, // In the old engine there was a "frozen" attribute,
+                                            // I will leave that out until it is needed
+}
+
 // https://stackoverflow.com/questions/50686411/whats-the-usual-way-to-create-a-vector-of-different-structs
 #[derive(Debug, PartialEq)]
 pub enum Instruction {
