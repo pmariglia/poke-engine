@@ -35,6 +35,18 @@ fn generate_instructions_from_switch(
     state.reverse_instructions(&incoming_instructions.instruction_list);
 }
 
+//fn generate_instructions_from_damage(
+//    state: &mut State,
+//    choice: Choice,
+//    incoming_instructions: &mut StateInstruction
+//) {}
+
+// Interpreting the function arguments/return-value:
+//
+// This function takes in a mutable StateInstruction,
+// and returns a Vector of StateInstructions, which
+// represent all the possible branches that can be taken
+// given that move being used
 pub fn generate_instructions_from_move<'a>(
     state: &mut State,
     choice: Choice,

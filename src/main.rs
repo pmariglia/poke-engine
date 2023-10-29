@@ -15,6 +15,7 @@ use crate::{
 };
 extern crate lazy_static;
 
+mod damage_calc;
 mod data;
 mod generate_instructions;
 mod instruction;

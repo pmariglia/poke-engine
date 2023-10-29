@@ -1,10 +1,34 @@
 use core::panic;
+use lazy_static::lazy_static;
+use std::collections::HashMap;
 use std::collections::HashSet;
 
 use crate::data::conditions::PokemonSideCondition;
 use crate::data::conditions::PokemonStatus;
 use crate::data::conditions::PokemonVolatileStatus;
 use crate::instruction::Instruction;
+
+lazy_static! {
+    pub static ref BOOST_MULTIPLIER: HashMap<i8, f32> = {
+        let mut boost_multiplier: HashMap<i8, f32> = HashMap::new();
+
+        boost_multiplier.insert(-6, 2.0 / 8.0);
+        boost_multiplier.insert(-5, 2.0 / 7.0);
+        boost_multiplier.insert(-4, 2.0 / 6.0);
+        boost_multiplier.insert(-3, 2.0 / 5.0);
+        boost_multiplier.insert(-2, 2.0 / 4.0);
+        boost_multiplier.insert(-1, 2.0 / 3.0);
+        boost_multiplier.insert(0, 2.0 / 2.0);
+        boost_multiplier.insert(1, 3.0 / 2.0);
+        boost_multiplier.insert(2, 4.0 / 8.0);
+        boost_multiplier.insert(3, 5.0 / 8.0);
+        boost_multiplier.insert(4, 6.0 / 8.0);
+        boost_multiplier.insert(5, 7.0 / 8.0);
+        boost_multiplier.insert(6, 8.0 / 8.0);
+
+        boost_multiplier
+    };
+}
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum SideReference {
@@ -187,6 +211,42 @@ impl Pokemon {
     pub fn clear_volatile_statuses(&mut self) {
         self.volatile_statuses.clear();
     }
+
+    pub fn is_grounded(&self) -> bool {
+        if PokemonTypes::Flying == self.types.0
+            || PokemonTypes::Flying == self.types.0
+            || self.ability == "levitate"
+            || self.item == "airballoon"
+        {
+            return false;
+        }
+        return true;
+    }
+
+    pub fn calculate_boosted_stat(&self, stat: PokemonBoostableStat) -> i16 {
+        match stat {
+            PokemonBoostableStat::Attack => {
+                (BOOST_MULTIPLIER.get(&self.attack_boost).unwrap() * self.attack as f32) as i16
+            }
+            PokemonBoostableStat::Defense => {
+                (BOOST_MULTIPLIER.get(&self.defense_boost).unwrap() * self.defense as f32) as i16
+            }
+            PokemonBoostableStat::SpecialAttack => {
+                (BOOST_MULTIPLIER.get(&self.special_attack_boost).unwrap()
+                    * self.special_attack as f32) as i16
+            }
+            PokemonBoostableStat::SpecialDefense => {
+                (BOOST_MULTIPLIER.get(&self.special_defense_boost).unwrap()
+                    * self.special_defense as f32) as i16
+            }
+            PokemonBoostableStat::Speed => {
+                (BOOST_MULTIPLIER.get(&self.speed_boost).unwrap() * self.speed as f32) as i16
+            }
+            _ => {
+                panic!("Not implemented")
+            }
+        }
+    }
 }
 
 impl Default for Pokemon {
@@ -251,6 +311,27 @@ impl State {
         match side_ref {
             SideReference::SideOne => return &mut self.side_one,
             SideReference::SideTwo => return &mut self.side_two,
+        }
+    }
+
+    pub fn get_side_immutable(&self, side_ref: &SideReference) -> &Side {
+        match side_ref {
+            SideReference::SideOne => return &self.side_one,
+            SideReference::SideTwo => return &self.side_two,
+        }
+    }
+
+    pub fn get_both_sides(&mut self, side_ref: &SideReference) -> (&mut Side, &mut Side) {
+        match side_ref {
+            SideReference::SideOne => return (&mut self.side_one, &mut self.side_two),
+            SideReference::SideTwo => return (&mut self.side_two, &mut self.side_one),
+        }
+    }
+
+    pub fn get_both_sides_immutable(&self, side_ref: &SideReference) -> (&Side, &Side) {
+        match side_ref {
+            SideReference::SideOne => return (&self.side_one, &self.side_two),
+            SideReference::SideTwo => return (&self.side_two, &self.side_one),
         }
     }
 
