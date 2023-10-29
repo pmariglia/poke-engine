@@ -9,20 +9,21 @@ use super::conditions::PokemonSideCondition;
 // type ModifyPriorityFn = fn(&State) -> i8;
 
 lazy_static! {
-    static ref MOVES: HashMap<String, Choice> = {
+    pub static ref MOVES: HashMap<String, Choice> = {
         let mut moves: HashMap<String, Choice> = HashMap::new();
 
         moves.insert(
             "tackle".to_string(),
             Choice {
-                id: "tackle".to_string(),
+                move_id: "tackle".to_string(),
+                switch_id: 0,
                 accuracy: 100 as f32,
                 base_power: 40 as f32,
-                category: MoveCategory::Status,
+                category: MoveCategory::Physical,
                 status: None,
                 priority: 0,
                 target: MoveTarget::Opponent,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonTypes::Normal,
                 flags: Flags {
                     authentic: false,
                     bite: false,
@@ -63,7 +64,7 @@ lazy_static! {
     };
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum MoveCategory {
     Physical,
     Special,
@@ -71,43 +72,43 @@ pub enum MoveCategory {
     Switch,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MoveTarget {
     User,
     Opponent,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct VolatileStatus {
     target: MoveTarget,
     volatile_status: PokemonVolatileStatus,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SideCondition {
     target: MoveTarget,
     condition: PokemonSideCondition,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Boost {
     target: MoveTarget,
     boosts: StatBoosts,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Heal {
     target: MoveTarget,
     amount_percentage: f32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Status {
     target: MoveTarget,
     status: PokemonStatus,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct StatBoosts {
     attack: i8,
     defense: i8,
@@ -123,7 +124,7 @@ pub struct Myself {
     pub boosts: StatBoosts,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Flags {
     pub authentic: bool,
     pub bite: bool,
@@ -149,14 +150,43 @@ pub struct Flags {
     pub sound: bool,
 }
 
-#[derive(Debug)]
+impl Default for Flags {
+    fn default() -> Flags {
+        return Flags {
+            authentic: false,
+            bite: false,
+            bullet: false,
+            charge: false,
+            contact: false,
+            dance: false,
+            defrost: false,
+            distance: true,
+            drag: false,
+            gravity: false,
+            heal: false,
+            mirror: false,
+            mystery: false,
+            nonsky: true,
+            powder: false,
+            protect: false,
+            pulse: false,
+            punch: false,
+            recharge: false,
+            reflectable: false,
+            snatch: false,
+            sound: false,
+        };
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Secondary {
     pub chance: i8,
     pub target: MoveTarget,
     pub effect: Effect,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Effect {
     VolatileStatus(PokemonVolatileStatus),
     SideCondition(PokemonSideCondition),
@@ -165,10 +195,11 @@ pub enum Effect {
     Status(PokemonStatus),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Choice {
     // Basic move information
-    pub id: String, // in the case of category::Switch, this is the name of the pokemon being switched into
+    pub move_id: String, // in the case of category::Switch, this is not used
+    pub switch_id: usize,
     pub move_type: PokemonTypes,
     pub accuracy: f32,
     pub category: MoveCategory,
@@ -193,4 +224,28 @@ pub struct Choice {
                             // pub drain: Option<f32>,
                             // pub recoil: Option<f32>,
                             // pub modify_priority: Option<ModifyPriorityFn>,
+}
+
+impl Default for Choice {
+    fn default() -> Choice {
+        return Choice {
+            move_id: "splash".to_string(),
+            switch_id: 0,
+            move_type: PokemonTypes::Normal,
+            accuracy: 100.0,
+            category: MoveCategory::Status,
+            base_power: 0.0,
+            boost: None,
+            priority: 0,
+            flags: Flags {
+                ..Default::default()
+            },
+            heal: None,
+            status: None,
+            volatile_status: None,
+            side_condition: None,
+            secondaries: None,
+            target: MoveTarget::Opponent,
+        };
+    }
 }

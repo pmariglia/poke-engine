@@ -2,31 +2,34 @@
 
 use std::collections::HashSet;
 
-use data::moves::{self, Choice, Flags, MoveCategory};
+use data::moves::{self, Choice, Flags, MoveCategory, MOVES};
 
 use crate::{
     data::{
         conditions::{PokemonStatus, PokemonVolatileStatus},
         moves::{Effect, MoveTarget, Secondary},
     },
+    generate_instructions::generate_instructions_from_move,
     instruction::{ChangeTerrain, DamageInstruction, Instruction},
-    state::{
-        Pokemon, PokemonNatures, PokemonTypes, SideConditions, SideReference, Terrain,
-    },
+    state::{Pokemon, PokemonNatures, PokemonTypes, SideConditions, SideReference, Terrain},
 };
 extern crate lazy_static;
 
 mod data;
+mod generate_instructions;
 mod instruction;
 mod state;
 
 fn main() {
-    let mut _sample_choice: moves::Choice = Choice {
-        id: "tackle".to_string(),
-        move_type: PokemonTypes::Normal,
-        accuracy: 100 as f32,
-        category: MoveCategory::Physical,
-        base_power: 40 as f32,
+    let mut _choice = MOVES.get("tackle").unwrap().to_owned();
+
+    _choice = Choice {
+        move_id: "bulbasaur".to_string(),
+        switch_id: 0,
+        move_type: PokemonTypes::Typeless,
+        accuracy: 100.0,
+        category: MoveCategory::Switch,
+        base_power: 0.0,
         boost: None,
         priority: 0,
         flags: Flags {
@@ -57,11 +60,48 @@ fn main() {
         status: None,
         volatile_status: None,
         side_condition: None,
-        secondaries: Some(vec![Secondary {
-            chance: 50,
-            target: MoveTarget::Opponent,
-            effect: Effect::Status(PokemonStatus::Burn),
-        }]),
+        secondaries: None,
+        target: MoveTarget::Opponent,
+    };
+
+    let mut _sample_switch: moves::Choice = Choice {
+        move_id: "bulbasaur".to_string(),
+        switch_id: 0,
+        move_type: PokemonTypes::Typeless,
+        accuracy: 100.0,
+        category: MoveCategory::Switch,
+        base_power: 0.0,
+        boost: None,
+        priority: 0,
+        flags: Flags {
+            authentic: false,
+            bite: false,
+            bullet: false,
+            charge: false,
+            contact: false,
+            dance: false,
+            defrost: false,
+            distance: false,
+            drag: false,
+            gravity: false,
+            heal: false,
+            mirror: false,
+            mystery: false,
+            nonsky: false,
+            powder: false,
+            protect: false,
+            pulse: false,
+            punch: false,
+            recharge: false,
+            reflectable: false,
+            snatch: false,
+            sound: false,
+        },
+        heal: None,
+        status: None,
+        volatile_status: None,
+        side_condition: None,
+        secondaries: None,
         target: MoveTarget::Opponent,
     };
 
@@ -90,10 +130,63 @@ fn main() {
         volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
         moves: vec![],
     };
-    let landorustherian: state::Pokemon = Pokemon {
-        id: "landorustherian".to_string(),
+
+    let bulbasaur: state::Pokemon = Pokemon {
+        id: "bulbasaur".to_string(),
         level: 100,
-        types: (PokemonTypes::Flying, PokemonTypes::Ground),
+        types: (PokemonTypes::Grass, PokemonTypes::Poison),
+        hp: 100,
+        maxhp: 100,
+        ability: "overgrow".to_string(),
+        item: "none".to_string(),
+        attack: 100,
+        defense: 100,
+        special_attack: 100,
+        special_defense: 100,
+        speed: 100,
+        attack_boost: 0,
+        defense_boost: 0,
+        special_attack_boost: 0,
+        special_defense_boost: 0,
+        speed_boost: 0,
+        accuracy_boost: 0,
+        evasion_boost: 0,
+        status: PokemonStatus::None,
+        nature: PokemonNatures::Serious,
+        volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
+        moves: vec![],
+    };
+
+    let squirtle: state::Pokemon = Pokemon {
+        id: "squirtle".to_string(),
+        level: 100,
+        types: (PokemonTypes::Water, PokemonTypes::Typeless),
+        hp: 100,
+        maxhp: 100,
+        ability: "voltabsorb".to_string(),
+        item: "none".to_string(),
+        attack: 100,
+        defense: 100,
+        special_attack: 100,
+        special_defense: 100,
+        speed: 100,
+        attack_boost: 0,
+        defense_boost: 0,
+        special_attack_boost: 0,
+        special_defense_boost: 0,
+        speed_boost: 0,
+        accuracy_boost: 0,
+        evasion_boost: 0,
+        status: PokemonStatus::None,
+        nature: PokemonNatures::Serious,
+        volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
+        moves: vec![],
+    };
+
+    let charmander: state::Pokemon = Pokemon {
+        id: "charmander".to_string(),
+        level: 100,
+        types: (PokemonTypes::Fire, PokemonTypes::Typeless),
         hp: 100,
         maxhp: 100,
         ability: "voltabsorb".to_string(),
@@ -118,7 +211,7 @@ fn main() {
 
     let my_side: state::Side = state::Side {
         active_index: 0,
-        reserve: [pikachu],
+        pokemon: [pikachu, bulbasaur],
         side_conditions: SideConditions {
             ..Default::default()
         },
@@ -127,7 +220,7 @@ fn main() {
 
     let your_side: state::Side = state::Side {
         active_index: 0,
-        reserve: [landorustherian],
+        pokemon: [squirtle, charmander],
         side_conditions: SideConditions {
             ..Default::default()
         },
@@ -152,25 +245,38 @@ fn main() {
         trick_room: false,
     };
 
-    println!("{:?}", state.terrain);
+    println!("{:?}", state.side_one.get_active());
 
     let _instruction = Instruction::Damage(DamageInstruction {
         side_ref: SideReference::SideOne,
         damage_amount: 1,
     });
 
-    let instruction = Instruction::ChangeTerrain(ChangeTerrain {
-        previous_terrain: Terrain::None,
-        previous_terrain_turns_remaining: 0,
-        new_terrain: Terrain::ElectricTerrain,
-        new_terrain_turns_remaining: 2,
-    });
+    let ins = generate_instructions_from_move(
+        &mut state,
+        _choice,
+        SideReference::SideOne,
+        &mut vec![_instruction],
+    );
 
-    state.apply_instruction(&instruction);
+    println!("{:?}", state.side_one.get_active());
 
-    println!("{:?}", state.terrain);
+    //let instruction = Instruction::ChangeTerrain(ChangeTerrain {
+    //    previous_terrain: Terrain::None,
+    //    previous_terrain_turns_remaining: 0,
+    //    new_terrain: Terrain::ElectricTerrain,
+    //    new_terrain_turns_remaining: 2,
+    //});
 
-    state.reverse_instruction(&instruction);
+    //state.apply_one_instruction(&instruction);
+    //state.apply_one_instruction(&_instruction);
 
-    println!("{:?}", state.terrain);
+    //println!("{:?}", state.terrain);
+    //println!("{:?}", state.side_one.get_active().hp);
+
+    //state.reverse_instruction(&instruction);
+    //state.reverse_instruction(&_instruction);
+
+    //println!("{:?}", state.terrain);
+    //println!("{:?}", state.side_one.get_active().hp);
 }

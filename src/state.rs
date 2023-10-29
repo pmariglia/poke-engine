@@ -6,7 +6,7 @@ use crate::data::conditions::PokemonStatus;
 use crate::data::conditions::PokemonVolatileStatus;
 use crate::instruction::Instruction;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum SideReference {
     SideOne,
     SideTwo,
@@ -98,7 +98,7 @@ pub enum PokemonNatures {
     Serious,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum PokemonBoostableStat {
     Attack,
     Defense,
@@ -189,21 +189,51 @@ impl Pokemon {
     }
 }
 
+impl Default for Pokemon {
+    fn default() -> Pokemon {
+        return Pokemon {
+            id: "pikachu".to_string(),
+            level: 100,
+            types: (PokemonTypes::Electric, PokemonTypes::Typeless),
+            hp: 100,
+            maxhp: 100,
+            ability: "none".to_string(),
+            item: "none".to_string(),
+            attack: 100,
+            defense: 100,
+            special_attack: 100,
+            special_defense: 100,
+            speed: 100,
+            attack_boost: 0,
+            defense_boost: 0,
+            special_attack_boost: 0,
+            special_defense_boost: 0,
+            speed_boost: 0,
+            accuracy_boost: 0,
+            evasion_boost: 0,
+            status: PokemonStatus::None,
+            nature: PokemonNatures::Serious,
+            volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
+            moves: vec![],
+        };
+    }
+}
+
 #[derive(Debug)]
 pub struct Side {
     pub active_index: usize,
-    pub reserve: [Pokemon; 1],
+    pub pokemon: [Pokemon; 2],
     pub side_conditions: SideConditions,
     pub wish: (i8, i16),
 }
 
 impl Side {
     pub fn get_active(&mut self) -> &mut Pokemon {
-        &mut self.reserve[self.active_index]
+        &mut self.pokemon[self.active_index]
     }
 
     pub fn get_active_immutable(&self) -> &Pokemon {
-        &self.reserve[self.active_index]
+        &self.pokemon[self.active_index]
     }
 }
 
@@ -217,7 +247,7 @@ pub struct State {
 }
 
 impl State {
-    fn get_side(&mut self, side_ref: &SideReference) -> &mut Side {
+    pub fn get_side(&mut self, side_ref: &SideReference) -> &mut Side {
         match side_ref {
             SideReference::SideOne => return &mut self.side_one,
             SideReference::SideTwo => return &mut self.side_two,
@@ -270,7 +300,7 @@ impl State {
         pokemon_index: usize,
         new_status: PokemonStatus,
     ) {
-        let mut pkmn = &mut self.get_side(&side_ref).reserve[pokemon_index];
+        let mut pkmn = &mut self.get_side(&side_ref).pokemon[pokemon_index];
         pkmn.status = new_status;
     }
 
@@ -327,7 +357,13 @@ impl State {
         self.terrain.turns_remaining = turns_remaining;
     }
 
-    pub fn apply_instruction(&mut self, instruction: &Instruction) {
+    pub fn apply_instructions(&mut self, instructions: &Vec<Instruction>) {
+        for i in instructions {
+            self.apply_one_instruction(i)
+        }
+    }
+
+    pub fn apply_one_instruction(&mut self, instruction: &Instruction) {
         match instruction {
             Instruction::Damage(instruction) => {
                 self.damage(&instruction.side_ref, instruction.damage_amount)
@@ -367,7 +403,13 @@ impl State {
         }
     }
 
-    pub fn reverse_instruction(&mut self, instruction: &Instruction) {
+    pub fn reverse_instructions(&mut self, instructions: &Vec<Instruction>) {
+        for i in instructions {
+            self.reverse_one_instruction(i);
+        }
+    }
+
+    pub fn reverse_one_instruction(&mut self, instruction: &Instruction) {
         match instruction {
             Instruction::Damage(instruction) => {
                 self.heal(&instruction.side_ref, instruction.damage_amount)

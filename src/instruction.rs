@@ -8,7 +8,7 @@ use super::data::conditions::PokemonStatus;
 use super::data::conditions::PokemonVolatileStatus;
 
 // https://stackoverflow.com/questions/50686411/whats-the-usual-way-to-create-a-vector-of-different-structs
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Instruction {
     Switch(SwitchInstruction),
     VolatileStatus(VolatileStatusInstruction),
@@ -21,19 +21,19 @@ pub enum Instruction {
     ChangeTerrain(ChangeTerrain),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct HealInstruction {
     pub side_ref: SideReference,
     pub heal_amount: i16,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct DamageInstruction {
     pub side_ref: SideReference,
     pub damage_amount: i16,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct SwitchInstruction {
     pub side_ref: SideReference,
     pub previous_index: usize,
@@ -42,7 +42,7 @@ pub struct SwitchInstruction {
 
 // pokemon_index is present because even reserve pokemon can have their status
 // changed (i.e. healbell)
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ChangeStatusInstruction {
     pub side_ref: SideReference,
     pub pokemon_index: usize,
@@ -50,27 +50,27 @@ pub struct ChangeStatusInstruction {
     pub new_status: PokemonStatus,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct VolatileStatusInstruction {
     pub side_ref: SideReference,
     pub volatile_status: PokemonVolatileStatus,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct BoostInstruction {
     pub side_ref: SideReference,
     pub stat: PokemonBoostableStat,
     pub amount: i8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ChangeSideConditionInstruction {
     pub side_ref: SideReference,
     pub side_condition: PokemonSideCondition,
     pub amount: i8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ChangeWeather {
     pub new_weather: Weather,
     pub new_weather_turns_remaining: i8,
@@ -78,7 +78,7 @@ pub struct ChangeWeather {
     pub previous_weather_turns_remaining: i8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ChangeTerrain {
     pub new_terrain: Terrain,
     pub new_terrain_turns_remaining: i8,
