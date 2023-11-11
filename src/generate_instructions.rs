@@ -1,8 +1,9 @@
 use crate::{
     data::moves::{Choice, MoveCategory},
-    instruction::{Instruction, StateInstruction, SwitchInstruction},
+    instruction::{DamageInstruction, Instruction, StateInstruction, SwitchInstruction},
     state::{SideReference, State},
 };
+use std::cmp;
 
 fn generate_instructions_from_switch(
     state: &mut State,
@@ -35,11 +36,52 @@ fn generate_instructions_from_switch(
     state.reverse_instructions(&incoming_instructions.instruction_list);
 }
 
-//fn generate_instructions_from_damage(
-//    state: &mut State,
-//    choice: Choice,
-//    incoming_instructions: &mut StateInstruction
-//) {}
+fn generate_instructions_from_damage(
+    state: &mut State,
+    choice: Choice,
+    calculated_damage: i16,
+    attacking_side_ref: &SideReference,
+    incoming_instructions: StateInstruction,
+) -> Vec<StateInstruction> {
+    let mut return_instructions: Vec<StateInstruction> = vec![];
+
+    state.apply_instructions(&incoming_instructions.instruction_list);
+
+    let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
+    let attacking_pokemon = attacking_side.get_active_immutable();
+    let defending_pokemon = defending_side.get_active_immutable();
+
+    let percent_hit = choice.accuracy / 100.0;
+    // Move hits some of the time
+    if percent_hit > 0.0 {
+        let mut move_hit_instructions = incoming_instructions.clone();
+
+        let damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
+        move_hit_instructions
+            .instruction_list
+            .push(Instruction::Damage(DamageInstruction {
+                side_ref: attacking_side_ref.get_other_side(),
+                damage_amount: damage_dealt,
+            }));
+
+        move_hit_instructions.update_percengate(percent_hit);
+
+        return_instructions.push(move_hit_instructions);
+    }
+
+    // Move misses some of the time
+    if percent_hit < 1.0 {
+        let mut move_missed_instruction = incoming_instructions.clone();
+
+        move_missed_instruction.update_percengate(1.0 - percent_hit);
+
+        return_instructions.push(move_missed_instruction);
+    }
+
+    state.reverse_instructions(&incoming_instructions.instruction_list);
+
+    return return_instructions;
+}
 
 // Interpreting the function arguments/return-value:
 //
@@ -241,5 +283,80 @@ mod tests {
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
+    }
+
+    macro_rules! damage_instructions_tests {
+        ($($name:ident: $value:expr,)*) => {
+            $(
+                #[test]
+                fn $name() {
+                    let (
+                        move_id,
+                        move_category,
+                        move_base_power,
+                        move_accuracy,
+                        incoming_instructions,
+                        expected_instructions
+                    ) = $value;
+
+                    let mut state: State = get_dummy_state();
+                    let mut choice = Choice {
+                        ..Default::default()
+                    };
+
+                    choice.move_id = move_id;
+                    choice.category = move_category;
+                    choice.base_power = move_base_power;
+                    choice.accuracy = move_accuracy;
+
+                    let new_instructions = generate_instructions_from_damage(
+                        &mut state,
+                        choice,
+                        35,
+                        &SideReference::SideOne,
+                        incoming_instructions,
+                        );
+
+                    assert_eq!(expected_instructions, new_instructions);
+                }
+             )*
+        }
+    }
+
+    damage_instructions_tests! {
+        test_basic_move_with_100_accuracy: (
+            "tackle".to_string(),
+            MoveCategory::Physical,
+            40.0,
+            100.0,
+            get_dummy_instruction(),
+            vec![StateInstruction {
+                percentage: 100.0,
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 35,
+                })],
+            }]
+        ),
+        test_basic_move_with_90_accuracy: (
+            "tackle".to_string(),
+            MoveCategory::Physical,
+            40.0,
+            90.0,
+            get_dummy_instruction(),
+            vec![
+                StateInstruction {
+                    percentage: 90.0,
+                    instruction_list: vec![Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 35,
+                })],
+            },
+                StateInstruction {
+                    percentage: 10.000002,
+                    instruction_list: vec![],
+                },
+            ]
+        ),
     }
 }

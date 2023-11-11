@@ -7,15 +7,20 @@ use crate::state::Weather;
 use super::data::conditions::PokemonStatus;
 use super::data::conditions::PokemonVolatileStatus;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct StateInstruction {
     pub percentage: f32,
     pub instruction_list: Vec<Instruction>, // In the old engine there was a "frozen" attribute,
-                                            // I will leave that out until it is needed
+}
+
+impl StateInstruction {
+    pub fn update_percengate(&mut self, modifier: f32) {
+        self.percentage *= modifier;
+    }
 }
 
 // https://stackoverflow.com/questions/50686411/whats-the-usual-way-to-create-a-vector-of-different-structs
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Instruction {
     Switch(SwitchInstruction),
     VolatileStatus(VolatileStatusInstruction),
@@ -28,19 +33,19 @@ pub enum Instruction {
     ChangeTerrain(ChangeTerrain),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct HealInstruction {
     pub side_ref: SideReference,
     pub heal_amount: i16,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct DamageInstruction {
     pub side_ref: SideReference,
     pub damage_amount: i16,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct SwitchInstruction {
     pub side_ref: SideReference,
     pub previous_index: usize,
@@ -49,7 +54,7 @@ pub struct SwitchInstruction {
 
 // pokemon_index is present because even reserve pokemon can have their status
 // changed (i.e. healbell)
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ChangeStatusInstruction {
     pub side_ref: SideReference,
     pub pokemon_index: usize,
@@ -57,27 +62,27 @@ pub struct ChangeStatusInstruction {
     pub new_status: PokemonStatus,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct VolatileStatusInstruction {
     pub side_ref: SideReference,
     pub volatile_status: PokemonVolatileStatus,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct BoostInstruction {
     pub side_ref: SideReference,
     pub stat: PokemonBoostableStat,
     pub amount: i8,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ChangeSideConditionInstruction {
     pub side_ref: SideReference,
     pub side_condition: PokemonSideCondition,
     pub amount: i8,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ChangeWeather {
     pub new_weather: Weather,
     pub new_weather_turns_remaining: i8,
@@ -85,7 +90,7 @@ pub struct ChangeWeather {
     pub previous_weather_turns_remaining: i8,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ChangeTerrain {
     pub new_terrain: Terrain,
     pub new_terrain_turns_remaining: i8,

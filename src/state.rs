@@ -36,6 +36,15 @@ pub enum SideReference {
     SideTwo,
 }
 
+impl SideReference {
+    pub fn get_other_side(&self) -> SideReference {
+        match self {
+            SideReference::SideOne => SideReference::SideTwo,
+            SideReference::SideTwo => SideReference::SideOne,
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum Weather {
     None,
@@ -122,7 +131,7 @@ pub enum PokemonNatures {
     Serious,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum PokemonBoostableStat {
     Attack,
     Defense,
