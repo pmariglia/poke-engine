@@ -10,7 +10,9 @@ use crate::{
         moves::{Effect, MoveTarget, Secondary},
     },
     generate_instructions::generate_instructions_from_move,
-    instruction::{ChangeTerrain, DamageInstruction, Instruction, StateInstruction},
+    instruction::{
+        BoostInstruction, ChangeTerrain, DamageInstruction, Instruction, StateInstruction,
+    },
     state::{Pokemon, PokemonNatures, PokemonTypes, SideConditions, SideReference, Terrain},
 };
 extern crate lazy_static;
@@ -274,23 +276,4 @@ fn main() {
     );
 
     println!("Instructions Generated: {:?}", ins);
-
-    //let instruction = Instruction::ChangeTerrain(ChangeTerrain {
-    //    previous_terrain: Terrain::None,
-    //    previous_terrain_turns_remaining: 0,
-    //    new_terrain: Terrain::ElectricTerrain,
-    //    new_terrain_turns_remaining: 2,
-    //});
-
-    //state.apply_one_instruction(&instruction);
-    //state.apply_one_instruction(&_instruction);
-
-    //println!("{:?}", state.terrain);
-    //println!("{:?}", state.side_one.get_active().hp);
-
-    //state.reverse_instruction(&instruction);
-    //state.reverse_instruction(&_instruction);
-
-    //println!("{:?}", state.terrain);
-    //println!("{:?}", state.side_one.get_active().hp);
 }
