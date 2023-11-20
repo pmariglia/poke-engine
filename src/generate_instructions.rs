@@ -1,7 +1,7 @@
 use crate::{
     data::moves::{Choice, MoveCategory},
     instruction::{DamageInstruction, Instruction, StateInstruction, SwitchInstruction},
-    state::{SideReference, State},
+    state::{SideReference, State}, damage_calc::{calculate_damage, DamageRolls},
 };
 use std::cmp;
 
@@ -36,6 +36,8 @@ fn generate_instructions_from_switch(
     state.reverse_instructions(&incoming_instructions.instruction_list);
 }
 
+// TODO: This isn't ready to integrate yet, and it might not be complete
+// Come back to this
 fn generate_instructions_from_damage(
     state: &mut State,
     choice: Choice,
@@ -104,6 +106,11 @@ pub fn generate_instructions_from_move<'a>(
         );
         return vec![incoming_instructions];
     }
+
+    let damages_dealt = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
+
+    println!("{:?}", damages_dealt);
+    println!("{:?}", choice);
 
     panic!("Not implemented yet");
 }

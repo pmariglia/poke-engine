@@ -7,7 +7,7 @@ use data::moves::{self, Choice, Flags, MoveCategory, MOVES};
 use crate::{
     data::{
         conditions::{PokemonStatus, PokemonVolatileStatus},
-        moves::{Effect, MoveTarget, Secondary},
+        moves::{Effect, MoveTarget, Secondary, StatBoosts},
     },
     generate_instructions::generate_instructions_from_move,
     instruction::{
@@ -24,89 +24,49 @@ mod instruction;
 mod state;
 
 fn main() {
-    let mut _choice = MOVES.get("tackle").unwrap().to_owned();
+    let mut _choice = MOVES.get("absorb").unwrap().to_owned();
 
-    _choice = Choice {
-        move_id: "bulbasaur".to_string(),
-        switch_id: 1,
-        move_type: PokemonTypes::Typeless,
-        accuracy: 100.0,
-        category: MoveCategory::Switch,
-        base_power: 0.0,
-        boost: None,
-        priority: 0,
-        flags: Flags {
-            authentic: false,
-            bite: false,
-            bullet: false,
-            charge: false,
-            contact: false,
-            dance: false,
-            defrost: false,
-            distance: false,
-            drag: false,
-            gravity: false,
-            heal: false,
-            mirror: false,
-            mystery: false,
-            nonsky: false,
-            powder: false,
-            protect: false,
-            pulse: false,
-            punch: false,
-            recharge: false,
-            reflectable: false,
-            snatch: false,
-            sound: false,
-        },
-        heal: None,
-        status: None,
-        volatile_status: None,
-        side_condition: None,
-        secondaries: None,
-        target: MoveTarget::Opponent,
-    };
+    //_choice = Choice {
+    //    move_id: "bulbasaur".to_string(),
+    //    switch_id: 1,
+    //    move_type: PokemonTypes::Typeless,
+    //    accuracy: 100.0,
+    //    category: MoveCategory::Switch,
+    //    base_power: 0.0,
+    //    boost: None,
+    //    priority: 0,
+    //    flags: Flags {
+    //        authentic: false,
+    //        bite: false,
+    //        bullet: false,
+    //        charge: false,
+    //        contact: false,
+    //        dance: false,
+    //        defrost: false,
+    //        distance: false,
+    //        drag: false,
+    //        gravity: false,
+    //        heal: false,
+    //        mirror: false,
+    //        mystery: false,
+    //        nonsky: false,
+    //        powder: false,
+    //        protect: false,
+    //        pulse: false,
+    //        punch: false,
+    //        recharge: false,
+    //        reflectable: false,
+    //        snatch: false,
+    //        sound: false,
+    //    },
+    //    heal: None,
+    //    status: None,
+    //    volatile_status: None,
+    //    side_condition: None,
+    //    secondaries: None,
+    //    target: MoveTarget::Opponent,
+    //};
 
-    let mut _sample_switch: moves::Choice = Choice {
-        move_id: "bulbasaur".to_string(),
-        switch_id: 0,
-        move_type: PokemonTypes::Typeless,
-        accuracy: 100.0,
-        category: MoveCategory::Switch,
-        base_power: 0.0,
-        boost: None,
-        priority: 0,
-        flags: Flags {
-            authentic: false,
-            bite: false,
-            bullet: false,
-            charge: false,
-            contact: false,
-            dance: false,
-            defrost: false,
-            distance: false,
-            drag: false,
-            gravity: false,
-            heal: false,
-            mirror: false,
-            mystery: false,
-            nonsky: false,
-            powder: false,
-            protect: false,
-            pulse: false,
-            punch: false,
-            recharge: false,
-            reflectable: false,
-            snatch: false,
-            sound: false,
-        },
-        heal: None,
-        status: None,
-        volatile_status: None,
-        side_condition: None,
-        secondaries: None,
-        target: MoveTarget::Opponent,
-    };
 
     let pikachu: state::Pokemon = Pokemon {
         id: "pikachu".to_string(),
@@ -252,11 +212,6 @@ fn main() {
         "Starting side 1 active name: {:?}",
         state.side_one.get_active().id
     );
-
-    let _instruction = Instruction::Damage(DamageInstruction {
-        side_ref: SideReference::SideOne,
-        damage_amount: 1,
-    });
 
     let mut state_instruction: StateInstruction = StateInstruction {
         percentage: 100.0,
