@@ -101,6 +101,11 @@ pub fn generate_instructions_from_move(
     incoming_instructions: StateInstruction,
 ) -> Vec<StateInstruction> {
     /*
+    The functions that are called by this function will each take a StateInstruction struct that
+    signifies what has already happened. If the function can cause a branch, it will return a
+    vector of StateInstructions, otherwise it will return a StateInstruction. In both cases,
+    the functions will take ownership of the value, and return a new value.
+
     Note: end-of-turn instructions are not included here - this is only the instructions from a move
 
     Order of Operations:
@@ -173,6 +178,10 @@ pub fn generate_instructions_from_move(
         );
     }
 
+    if !choice.first_move && choice.flags.drag {
+        return vec![incoming_instructions];
+    }
+
 
     // This was just here to make sure it works - unsure where it will end up
     let damages_dealt = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
@@ -191,6 +200,7 @@ mod tests {
 
     use super::*;
     use crate::data::conditions::{PokemonStatus, PokemonVolatileStatus};
+    use crate::data::moves::Flags;
     use crate::instruction::{DamageInstruction, SwitchInstruction};
     use crate::state::{
         Pokemon, PokemonNatures, PokemonTypes, Side, SideConditions, SideReference, State,
@@ -360,6 +370,47 @@ mod tests {
         );
 
         assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    macro_rules! generate_instructions_from_move_tests {
+        ($($name:ident: $value:expr,)*) => {
+            $(
+                #[test]
+                fn $name() {
+                    let (
+                        state,
+                        choice,
+                        incoming_instructions,
+                        expected_instructions
+                    ) = $value;
+
+                    let new_instructions = generate_instructions_from_move(
+                        state,
+                        choice,
+                        SideReference::SideOne,
+                        incoming_instructions,
+                        );
+
+                    assert_eq!(expected_instructions, new_instructions);
+                }
+             )*
+        }
+    }
+
+    generate_instructions_from_move_tests! {
+        test_drag_move_as_second_exits_early: (
+            &mut get_dummy_state(),
+            Choice {
+                first_move: false,
+                flags: Flags{
+                        drag: true,
+                        ..Flags::default()
+                    },
+                ..Choice::default()
+            },
+            get_dummy_instruction(),
+            vec![get_dummy_instruction()],
+        ),
     }
 
     macro_rules! damage_instructions_tests {

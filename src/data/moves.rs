@@ -16939,6 +16939,8 @@ pub struct Choice {
 
     // Might not be needed since everything has it's own `target`
     pub target: MoveTarget,
+
+    pub first_move: bool,
 }
 
 impl Default for Choice {
@@ -16961,6 +16963,7 @@ impl Default for Choice {
             side_condition: None,
             secondaries: None,
             target: MoveTarget::Opponent,
+            first_move: true
         };
     }
 }
