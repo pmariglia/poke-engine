@@ -213,7 +213,7 @@ fn main() {
         state.side_one.get_active().id
     );
 
-    let mut state_instruction: StateInstruction = StateInstruction {
+    let state_instruction: StateInstruction = StateInstruction {
         percentage: 100.0,
         instruction_list: Vec::<Instruction>::new(),
     };
@@ -222,7 +222,7 @@ fn main() {
         &mut state,
         _choice,
         SideReference::SideOne,
-        &mut state_instruction,
+        state_instruction,
     );
 
     println!(

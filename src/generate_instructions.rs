@@ -9,8 +9,9 @@ fn generate_instructions_from_switch(
     state: &mut State,
     new_pokemon_index: usize,
     switching_side: SideReference,
-    incoming_instructions: &mut StateInstruction,
-) {
+    incoming_instructions: StateInstruction,
+) -> Vec<StateInstruction> {
+    let mut incoming_instructions = incoming_instructions;
     state.apply_instructions(&incoming_instructions.instruction_list);
 
     println!(
@@ -34,6 +35,8 @@ fn generate_instructions_from_switch(
     );
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
+
+    return vec![incoming_instructions];
 }
 
 // TODO: This isn't ready to integrate yet, and it might not be complete
@@ -91,22 +94,87 @@ fn generate_instructions_from_damage(
 // and returns a Vector of StateInstructions, which
 // represent all the possible branches that can be taken
 // given that move being used
-pub fn generate_instructions_from_move<'a>(
+pub fn generate_instructions_from_move(
     state: &mut State,
     choice: Choice,
     attacking_side: SideReference,
-    incoming_instructions: &'a mut StateInstruction,
-) -> Vec<&'a mut StateInstruction> {
+    incoming_instructions: StateInstruction,
+) -> Vec<StateInstruction> {
+    /*
+    Note: end-of-turn instructions are not included here - this is only the instructions from a move
+
+    Order of Operations:
+    (*) indicates it can branch, (-) indicates it does not
+
+    - check for if the user is switching - do so & exit early
+    - check for short-curcuit situations that would exit before doing anything
+        - using drag move but you moved 2nd (possible if say both users use dragontail)
+        - attacking pokemon is dead (possible if you got KO-ed this turn)
+        - attacking pokemon is taunted & chose a non-damaging move
+        - attacker was flinched
+            not a branching event because the previous turn would've decided whether a flinch happened or not
+        - protect (or it's variants) nullifying a move - this may generate a custom instruction 
+        - move has no effect
+            i.e. electric-type status move used against a ground type, powder move used against grass / overcoat
+            normally, the move doing 0 damage would trigger this, but for non-damaging moves there needs to be another
+            spot where this is checked. This may be better done elsewhere
+    - update choice struct based on special effects
+        - move special effect
+        - ability special effect (both sides)
+        - item special effect (both sides)
+
+    * attacker is fully-paralyzed, asleep, frozen (the first thing that can branch from the old engine)
+    - move special effects
+        hail, trick, futuresight, trickroom, etc. Anything that cannot be succinctly expressed in a Choice
+    * calculate damage amount(s) and do the damage
+    - after-move effects
+        * move special effect (both sides)
+            - static/flamebody means this needs to possibly branch
+        - ability (both sides)
+        - item (both sides)
+    - side_conditions: spikes, wish, veil. Anything using the `side_condition` section of the Choice
+        potentially could be an `after_move`
+    - hazard clearing: defog, rapidspin, courtchange, etc.
+        potentially could be an `after_move`
+    * volatile_statuses: Anything using the `volatile_status` section of the Choice
+    - status effects: Anything using the `status` section of the Choice
+    - boosts: Anything using the `boosts` section of the Choice
+    - boost reset (clearsmog & haze)
+        potentially could be an `after_move` for clearsmog, and a move special effect for haze
+    - heal Anything using the `heal` section of the Choice
+    * flinching move
+        potentially could be collapsed into secondaries?
+    - drag moves
+        potentially could be a move special effect, or even a short-circuit since nothing else could happen?
+    - secondaries, one of the following:
+        PokemonVolatileStatus
+        PokemonSideCondition
+        StatBoosts
+        Heal
+        PokemonStatus
+
+        These secondaries have their own separate chance & target,
+        whereas their equivalents above are assumed to be 100% if the
+        move hit
+        They only are attempted if the move did not miss , so some
+        flag will be needed to signify that the move hit/missed
+
+    - switch-out move
+        Will have to come back to this since it breaks a bunch of patterns and stops the turn mid-way through
+
+    */
+
     if choice.category == MoveCategory::Switch {
-        generate_instructions_from_switch(
+        return generate_instructions_from_switch(
             state,
             choice.switch_id,
             attacking_side,
             incoming_instructions,
         );
-        return vec![incoming_instructions];
     }
 
+
+    // This was just here to make sure it works - unsure where it will end up
     let damages_dealt = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
 
     println!("{:?}", damages_dealt);
@@ -114,6 +182,8 @@ pub fn generate_instructions_from_move<'a>(
 
     panic!("Not implemented yet");
 }
+
+//fn update_move
 
 #[cfg(test)]
 mod tests {
@@ -241,14 +311,14 @@ mod tests {
             })],
         };
 
-        generate_instructions_from_switch(
+        let incoming_instructions = generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            &mut incoming_instructions,
+            incoming_instructions,
         );
 
-        assert_eq!(expected_instructions, incoming_instructions);
+        assert_eq!(vec![expected_instructions], incoming_instructions);
     }
 
     #[test]
@@ -282,14 +352,14 @@ mod tests {
             ],
         };
 
-        generate_instructions_from_switch(
+        let incoming_instructions = generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            &mut incoming_instructions,
+            incoming_instructions,
         );
 
-        assert_eq!(expected_instructions, incoming_instructions);
+        assert_eq!(vec![expected_instructions], incoming_instructions);
     }
 
     macro_rules! damage_instructions_tests {
