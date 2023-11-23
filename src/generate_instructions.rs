@@ -200,7 +200,7 @@ mod tests {
 
     use super::*;
     use crate::data::conditions::{PokemonStatus, PokemonVolatileStatus};
-    use crate::data::moves::Flags;
+    use crate::data::moves::{Flags, MOVES};
     use crate::instruction::{DamageInstruction, SwitchInstruction};
     use crate::state::{
         Pokemon, PokemonNatures, PokemonTypes, Side, SideConditions, SideReference, State,
@@ -295,7 +295,7 @@ mod tests {
         };
     }
 
-    fn get_dummy_instruction() -> StateInstruction {
+    fn get_empty_state_instruction() -> StateInstruction {
         return StateInstruction {
             percentage: 100.0,
             instruction_list: vec![],
@@ -303,9 +303,27 @@ mod tests {
     }
 
     #[test]
+    fn test_drag_move_as_second_move_exits_early() {
+        let mut state: State = get_dummy_state();
+        let mut choice = MOVES.get("dragontail").unwrap().to_owned();
+        choice.first_move = false;
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            SideReference::SideOne,
+            get_empty_state_instruction()
+        );
+        assert_eq!(
+            instructions,
+            vec![get_empty_state_instruction()]
+        )
+    }
+
+    #[test]
     fn test_basic_switch_functionality_with_no_prior_instructions() {
         let mut state: State = get_dummy_state();
-        let mut incoming_instructions = get_dummy_instruction();
+        let mut incoming_instructions = get_empty_state_instruction();
         let mut choice = Choice {
             ..Default::default()
         };
@@ -334,7 +352,7 @@ mod tests {
     #[test]
     fn test_basic_switch_functionality_with_a_prior_instruction() {
         let mut state: State = get_dummy_state();
-        let mut incoming_instructions = get_dummy_instruction();
+        let mut incoming_instructions = get_empty_state_instruction();
         let mut choice = Choice {
             ..Default::default()
         };
@@ -370,47 +388,6 @@ mod tests {
         );
 
         assert_eq!(vec![expected_instructions], incoming_instructions);
-    }
-
-    macro_rules! generate_instructions_from_move_tests {
-        ($($name:ident: $value:expr,)*) => {
-            $(
-                #[test]
-                fn $name() {
-                    let (
-                        state,
-                        choice,
-                        incoming_instructions,
-                        expected_instructions
-                    ) = $value;
-
-                    let new_instructions = generate_instructions_from_move(
-                        state,
-                        choice,
-                        SideReference::SideOne,
-                        incoming_instructions,
-                        );
-
-                    assert_eq!(expected_instructions, new_instructions);
-                }
-             )*
-        }
-    }
-
-    generate_instructions_from_move_tests! {
-        test_drag_move_as_second_exits_early: (
-            &mut get_dummy_state(),
-            Choice {
-                first_move: false,
-                flags: Flags{
-                        drag: true,
-                        ..Flags::default()
-                    },
-                ..Choice::default()
-            },
-            get_dummy_instruction(),
-            vec![get_dummy_instruction()],
-        ),
     }
 
     macro_rules! damage_instructions_tests {
@@ -457,7 +434,7 @@ mod tests {
             MoveCategory::Physical,
             40.0,
             100.0,
-            get_dummy_instruction(),
+            get_empty_state_instruction(),
             vec![StateInstruction {
                 percentage: 100.0,
                 instruction_list: vec![Instruction::Damage(DamageInstruction {
@@ -471,7 +448,7 @@ mod tests {
             MoveCategory::Physical,
             40.0,
             90.0,
-            get_dummy_instruction(),
+            get_empty_state_instruction(),
             vec![
                 StateInstruction {
                     percentage: 90.0,
