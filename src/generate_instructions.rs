@@ -1,7 +1,11 @@
 use crate::{
-    data::moves::{Choice, MoveCategory},
+    damage_calc::{calculate_damage, DamageRolls},
+    data::{
+        conditions::PokemonVolatileStatus,
+        moves::{Choice, MoveCategory},
+    },
     instruction::{DamageInstruction, Instruction, StateInstruction, SwitchInstruction},
-    state::{SideReference, State}, damage_calc::{calculate_damage, DamageRolls},
+    state::{Pokemon, SideReference, State},
 };
 use std::cmp;
 
@@ -88,6 +92,36 @@ fn generate_instructions_from_damage(
     return return_instructions;
 }
 
+fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideReference) -> bool {
+    let attacking_pkmn: &Pokemon = state
+        .get_side_immutable(attacking_side_ref)
+        .get_active_immutable();
+
+    // If you were taunted, you can't use a Physical/Special move
+    if attacking_pkmn
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::Taunt)
+        && matches!(
+            choice.category,
+            MoveCategory::Physical | MoveCategory::Special
+        )
+    {
+        return true;
+    }
+    else if attacking_pkmn.hp == 0 {
+        return true;
+    }
+    else if attacking_pkmn.volatile_statuses.contains(&PokemonVolatileStatus::Flinch) {
+        return true;
+    }
+
+    return false;
+}
+
+fn move_special_effects(choice: &mut Choice) {
+
+}
+
 // Interpreting the function arguments/return-value:
 //
 // This function takes in a mutable StateInstruction,
@@ -113,21 +147,24 @@ pub fn generate_instructions_from_move(
 
     - check for if the user is switching - do so & exit early
     - check for short-curcuit situations that would exit before doing anything
-        - using drag move but you moved 2nd (possible if say both users use dragontail)
-        - attacking pokemon is dead (possible if you got KO-ed this turn)
-        - attacking pokemon is taunted & chose a non-damaging move
-        - attacker was flinched
-            not a branching event because the previous turn would've decided whether a flinch happened or not
-        - protect (or it's variants) nullifying a move - this may generate a custom instruction 
+        - DONE using drag move but you moved 2nd (possible if say both users use dragontail)
+        - DONE attacking pokemon is dead (possible if you got KO-ed this turn)
+        - DONE attacking pokemon is taunted & chose a non-damaging move
+        - DONE attacker was flinched
+            - not a branching event because the previous turn would've decided whether a flinch happened or not
+    - update choice struct based on special effects
+        - protect (or it's variants) nullifying a move
+            - this may generate a custom instruction because some protect variants do things (spikyshield, banefulbunker, etc)
+        - charging move that sets some charge flags and exits
         - move has no effect
             i.e. electric-type status move used against a ground type, powder move used against grass / overcoat
             normally, the move doing 0 damage would trigger this, but for non-damaging moves there needs to be another
             spot where this is checked. This may be better done elsewhere
-    - update choice struct based on special effects
         - move special effect
         - ability special effect (both sides)
         - item special effect (both sides)
 
+    BEGIN THINGS THAT HAPPEN AFTER FIRST POSSIBLE BRANCH
     * attacker is fully-paralyzed, asleep, frozen (the first thing that can branch from the old engine)
     - move special effects
         hail, trick, futuresight, trickroom, etc. Anything that cannot be succinctly expressed in a Choice
@@ -182,6 +219,20 @@ pub fn generate_instructions_from_move(
         return vec![incoming_instructions];
     }
 
+    state.apply_instructions(&incoming_instructions.instruction_list);
+
+    if cannot_use_move(state, &choice, &attacking_side) {
+        state.reverse_instructions(&incoming_instructions.instruction_list);
+        return vec![incoming_instructions];
+    }
+
+
+    // NEXT STEP:
+    //
+    // Then need to make 2 functions:
+    //  1st for updating the Choice {}
+    //  2nd for generating custom instructions before the rest of the move
+    //      This is where the callback will start: i.e. `ability_before_move`
 
     // This was just here to make sure it works - unsure where it will end up
     let damages_dealt = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
@@ -192,108 +243,34 @@ pub fn generate_instructions_from_move(
     panic!("Not implemented yet");
 }
 
+pub fn generate_instructions_from_move_pair(//state: &mut State,
+    //side_one_move: &String,
+    //side_two_move: &String,
+) -> Vec<Instruction> {
+    panic!("Not implemented yet");
+    /*
+    - get Choice structs from moves
+    - determine who moves first
+    - initialize empty instructions
+    - run move 1
+    - run move 2
+    - run end of turn instructions
+
+    NOTE: End of turn instructions will need to generate the removing of certain volatile statuses, like flinched.
+          This was done elsewhere in the other bot, but it should be here instead
+    */
+
+    // return vec![];
+}
+
 //fn update_move
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
-
     use super::*;
-    use crate::data::conditions::{PokemonStatus, PokemonVolatileStatus};
-    use crate::data::moves::{Flags, MOVES};
-    use crate::instruction::{DamageInstruction, SwitchInstruction};
-    use crate::state::{
-        Pokemon, PokemonNatures, PokemonTypes, Side, SideConditions, SideReference, State,
-        StateTerrain, StateWeather, Terrain, Weather,
-    };
-
-    fn get_dummy_state() -> State {
-        return State {
-            side_one: Side {
-                active_index: 0,
-                pokemon: [
-                    Pokemon {
-                        id: "squirtle".to_string(),
-                        level: 100,
-                        types: (PokemonTypes::Water, PokemonTypes::Typeless),
-                        hp: 100,
-                        maxhp: 100,
-                        ability: "torrent".to_string(),
-                        item: "none".to_string(),
-                        attack: 100,
-                        defense: 100,
-                        special_attack: 100,
-                        special_defense: 100,
-                        speed: 100,
-                        attack_boost: 0,
-                        defense_boost: 0,
-                        special_attack_boost: 0,
-                        special_defense_boost: 0,
-                        speed_boost: 0,
-                        accuracy_boost: 0,
-                        evasion_boost: 0,
-                        status: PokemonStatus::None,
-                        nature: PokemonNatures::Serious,
-                        volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
-                        moves: vec![],
-                    },
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                ],
-                side_conditions: SideConditions {
-                    ..Default::default()
-                },
-                wish: (0, 0),
-            },
-            side_two: Side {
-                active_index: 0,
-                pokemon: [
-                    Pokemon {
-                        id: "charmander".to_string(),
-                        level: 100,
-                        types: (PokemonTypes::Fire, PokemonTypes::Typeless),
-                        hp: 100,
-                        maxhp: 100,
-                        ability: "blaze".to_string(),
-                        item: "none".to_string(),
-                        attack: 100,
-                        defense: 100,
-                        special_attack: 100,
-                        special_defense: 100,
-                        speed: 100,
-                        attack_boost: 0,
-                        defense_boost: 0,
-                        special_attack_boost: 0,
-                        special_defense_boost: 0,
-                        speed_boost: 0,
-                        accuracy_boost: 0,
-                        evasion_boost: 0,
-                        status: PokemonStatus::None,
-                        nature: PokemonNatures::Serious,
-                        volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
-                        moves: vec![],
-                    },
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                ],
-                side_conditions: SideConditions {
-                    ..Default::default()
-                },
-                wish: (0, 0),
-            },
-            weather: StateWeather {
-                weather_type: Weather::None,
-                turns_remaining: 0,
-            },
-            terrain: StateTerrain {
-                terrain_type: Terrain::None,
-                turns_remaining: 0,
-            },
-            trick_room: false,
-        };
-    }
+    use crate::data::moves::MOVES;
+    use crate::instruction::{DamageInstruction, SwitchInstruction, VolatileStatusInstruction};
+    use crate::state::{SideReference, State};
 
     fn get_empty_state_instruction() -> StateInstruction {
         return StateInstruction {
@@ -304,7 +281,7 @@ mod tests {
 
     #[test]
     fn test_drag_move_as_second_move_exits_early() {
-        let mut state: State = get_dummy_state();
+        let mut state: State = State::default();
         let mut choice = MOVES.get("dragontail").unwrap().to_owned();
         choice.first_move = false;
 
@@ -312,18 +289,99 @@ mod tests {
             &mut state,
             choice,
             SideReference::SideOne,
-            get_empty_state_instruction()
+            get_empty_state_instruction(),
         );
-        assert_eq!(
-            instructions,
-            vec![get_empty_state_instruction()]
-        )
+        assert_eq!(instructions, vec![get_empty_state_instruction()])
+    }
+
+    #[test]
+    fn test_flinched_pokemon_cannot_move() {
+        let mut state: State = State::default();
+        let choice = MOVES.get("tackle").unwrap().to_owned();
+        state
+            .side_one
+            .get_active()
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::Flinch);
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            SideReference::SideOne,
+            get_empty_state_instruction(),
+        );
+        assert_eq!(instructions, vec![get_empty_state_instruction()])
+    }
+
+    #[test]
+    fn test_taunted_pokemon_cannot_use_status_move() {
+        let mut state: State = State::default();
+        let choice = MOVES.get("tackle").unwrap().to_owned();
+        state
+            .side_one
+            .get_active()
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::Taunt);
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            SideReference::SideOne,
+            get_empty_state_instruction(),
+        );
+        assert_eq!(instructions, vec![get_empty_state_instruction()])
+    }
+
+    #[test]
+    fn test_pokemon_taunted_on_first_turn_cannot_use_status_move() {
+        let mut state: State = State::default();
+        state
+            .side_one
+            .get_active()
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::Taunt);
+
+        let mut choice = MOVES.get("tackle").unwrap().to_owned();
+        choice.first_move = false;
+        
+        let mut incoming_instructions = get_empty_state_instruction();
+        incoming_instructions.instruction_list.push(
+            Instruction::VolatileStatus(VolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::Taunt,
+            })
+        );
+
+        let original_incoming_instructions = incoming_instructions.clone();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            SideReference::SideOne,
+            incoming_instructions
+        );
+        assert_eq!(instructions, vec![original_incoming_instructions])
+    }
+
+    #[test]
+    fn test_dead_pokemon_moving_second_does_nothing() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get("tackle").unwrap().to_owned();
+        choice.first_move = false;
+        state.side_one.get_active().hp = 0;
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            SideReference::SideOne,
+            get_empty_state_instruction(),
+        );
+        assert_eq!(instructions, vec![get_empty_state_instruction()])
     }
 
     #[test]
     fn test_basic_switch_functionality_with_no_prior_instructions() {
-        let mut state: State = get_dummy_state();
-        let mut incoming_instructions = get_empty_state_instruction();
+        let mut state: State = State::default();
         let mut choice = Choice {
             ..Default::default()
         };
@@ -343,7 +401,7 @@ mod tests {
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            get_empty_state_instruction(),
         );
 
         assert_eq!(vec![expected_instructions], incoming_instructions);
@@ -351,7 +409,7 @@ mod tests {
 
     #[test]
     fn test_basic_switch_functionality_with_a_prior_instruction() {
-        let mut state: State = get_dummy_state();
+        let mut state: State = State::default();
         let mut incoming_instructions = get_empty_state_instruction();
         let mut choice = Choice {
             ..Default::default()
@@ -404,7 +462,7 @@ mod tests {
                         expected_instructions
                     ) = $value;
 
-                    let mut state: State = get_dummy_state();
+                    let mut state: State = State::default();
                     let mut choice = Choice {
                         ..Default::default()
                     };

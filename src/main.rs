@@ -13,7 +13,7 @@ use crate::{
     instruction::{
         BoostInstruction, ChangeTerrain, DamageInstruction, Instruction, StateInstruction,
     },
-    state::{Pokemon, PokemonNatures, PokemonTypes, SideConditions, SideReference, Terrain},
+    state::{Pokemon, PokemonNatures, PokemonTypes, SideConditions, SideReference, State, Terrain},
 };
 extern crate lazy_static;
 
@@ -67,147 +67,7 @@ fn main() {
     //    target: MoveTarget::Opponent,
     //};
 
-
-    let pikachu: state::Pokemon = Pokemon {
-        id: "pikachu".to_string(),
-        level: 100,
-        types: (PokemonTypes::Electric, PokemonTypes::Typeless),
-        hp: 100,
-        maxhp: 100,
-        ability: "voltabsorb".to_string(),
-        item: "none".to_string(),
-        attack: 100,
-        defense: 100,
-        special_attack: 100,
-        special_defense: 100,
-        speed: 100,
-        attack_boost: 0,
-        defense_boost: 0,
-        special_attack_boost: 0,
-        special_defense_boost: 0,
-        speed_boost: 0,
-        accuracy_boost: 0,
-        evasion_boost: 0,
-        status: PokemonStatus::None,
-        nature: PokemonNatures::Serious,
-        volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
-        moves: vec![],
-    };
-
-    let bulbasaur: state::Pokemon = Pokemon {
-        id: "bulbasaur".to_string(),
-        level: 100,
-        types: (PokemonTypes::Grass, PokemonTypes::Poison),
-        hp: 100,
-        maxhp: 100,
-        ability: "overgrow".to_string(),
-        item: "none".to_string(),
-        attack: 100,
-        defense: 100,
-        special_attack: 100,
-        special_defense: 100,
-        speed: 100,
-        attack_boost: 0,
-        defense_boost: 0,
-        special_attack_boost: 0,
-        special_defense_boost: 0,
-        speed_boost: 0,
-        accuracy_boost: 0,
-        evasion_boost: 0,
-        status: PokemonStatus::None,
-        nature: PokemonNatures::Serious,
-        volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
-        moves: vec![],
-    };
-
-    let squirtle: state::Pokemon = Pokemon {
-        id: "squirtle".to_string(),
-        level: 100,
-        types: (PokemonTypes::Water, PokemonTypes::Typeless),
-        hp: 100,
-        maxhp: 100,
-        ability: "voltabsorb".to_string(),
-        item: "none".to_string(),
-        attack: 100,
-        defense: 100,
-        special_attack: 100,
-        special_defense: 100,
-        speed: 100,
-        attack_boost: 0,
-        defense_boost: 0,
-        special_attack_boost: 0,
-        special_defense_boost: 0,
-        speed_boost: 0,
-        accuracy_boost: 0,
-        evasion_boost: 0,
-        status: PokemonStatus::None,
-        nature: PokemonNatures::Serious,
-        volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
-        moves: vec![],
-    };
-
-    let charmander: state::Pokemon = Pokemon {
-        id: "charmander".to_string(),
-        level: 100,
-        types: (PokemonTypes::Fire, PokemonTypes::Typeless),
-        hp: 100,
-        maxhp: 100,
-        ability: "voltabsorb".to_string(),
-        item: "none".to_string(),
-        attack: 100,
-        defense: 100,
-        special_attack: 100,
-        special_defense: 100,
-        speed: 100,
-        attack_boost: 0,
-        defense_boost: 0,
-        special_attack_boost: 0,
-        special_defense_boost: 0,
-        speed_boost: 0,
-        accuracy_boost: 0,
-        evasion_boost: 0,
-        status: PokemonStatus::None,
-        nature: PokemonNatures::Serious,
-        volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
-        moves: vec![],
-    };
-
-    let my_side: state::Side = state::Side {
-        active_index: 0,
-        pokemon: [pikachu, bulbasaur],
-        side_conditions: SideConditions {
-            ..Default::default()
-        },
-        wish: (0, 0),
-    };
-
-    let your_side: state::Side = state::Side {
-        active_index: 0,
-        pokemon: [squirtle, charmander],
-        side_conditions: SideConditions {
-            ..Default::default()
-        },
-        wish: (0, 0),
-    };
-
-    let state_weather = state::StateWeather {
-        weather_type: state::Weather::None,
-        turns_remaining: 0,
-    };
-
-    let state_terrain = state::StateTerrain {
-        terrain_type: state::Terrain::None,
-        turns_remaining: 0,
-    };
-
-    let mut state: state::State = state::State {
-        side_one: my_side,
-        side_two: your_side,
-        weather: state_weather,
-        terrain: state_terrain,
-        trick_room: false,
-    };
-
+    let mut state: State = State::default();
     println!(
         "Starting side 1 active name: {:?}",
         state.side_one.get_active().id

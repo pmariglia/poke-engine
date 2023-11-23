@@ -261,9 +261,9 @@ impl Pokemon {
 impl Default for Pokemon {
     fn default() -> Pokemon {
         return Pokemon {
-            id: "pikachu".to_string(),
+            id: "rattata".to_string(),
             level: 100,
-            types: (PokemonTypes::Electric, PokemonTypes::Typeless),
+            types: (PokemonTypes::Normal, PokemonTypes::Typeless),
             hp: 100,
             maxhp: 100,
             ability: "none".to_string(),
@@ -291,7 +291,7 @@ impl Default for Pokemon {
 #[derive(Debug)]
 pub struct Side {
     pub active_index: usize,
-    pub pokemon: [Pokemon; 2],
+    pub pokemon: [Pokemon; 6],
     pub side_conditions: SideConditions,
     pub wish: (i8, i16),
 }
@@ -313,6 +313,76 @@ pub struct State {
     pub weather: StateWeather,
     pub terrain: StateTerrain,
     pub trick_room: bool,
+}
+
+impl Default for State {
+    fn default() -> State {
+        State {
+            side_one: Side {
+                active_index: 0,
+                pokemon: [
+                    Pokemon {
+                        ..Pokemon::default()
+                    },
+                    Pokemon {
+                        ..Pokemon::default()
+                    },
+                    Pokemon {
+                        ..Pokemon::default()
+                    },
+                    Pokemon {
+                        ..Pokemon::default()
+                    },
+                    Pokemon {
+                        ..Pokemon::default()
+                    },
+                    Pokemon {
+                        ..Pokemon::default()
+                    },
+                ],
+                side_conditions: SideConditions {
+                    ..Default::default()
+                },
+                wish: (0, 0),
+            },
+            side_two: Side {
+                active_index: 0,
+                pokemon: [
+                    Pokemon {
+                        ..Pokemon::default()
+                    },
+                    Pokemon {
+                        ..Pokemon::default()
+                    },
+                    Pokemon {
+                        ..Pokemon::default()
+                    },
+                    Pokemon {
+                        ..Pokemon::default()
+                    },
+                    Pokemon {
+                        ..Pokemon::default()
+                    },
+                    Pokemon {
+                        ..Pokemon::default()
+                    },
+                ],
+                side_conditions: SideConditions {
+                    ..Default::default()
+                },
+                wish: (0, 0),
+            },
+            weather: StateWeather {
+                weather_type: Weather::None,
+                turns_remaining: 0,
+            },
+            terrain: StateTerrain {
+                terrain_type: Terrain::None,
+                turns_remaining: 0,
+            },
+            trick_room: false,
+        }
+    }
 }
 
 impl State {

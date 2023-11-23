@@ -107,7 +107,9 @@ fn stab_modifier(
     attacking_move_type: &PokemonTypes,
     active_types: &(PokemonTypes, PokemonTypes),
 ) -> f32 {
-    if attacking_move_type == &active_types.0 || attacking_move_type == &active_types.1 {
+    if attacking_move_type != &PokemonTypes::Typeless
+        && (attacking_move_type == &active_types.0 || attacking_move_type == &active_types.1)
+    {
         return 1.5;
     }
     return 1.0;
@@ -327,101 +329,14 @@ mod tests {
         StateTerrain, StateWeather, Terrain, Weather,
     };
 
-    fn get_dummy_state() -> State {
-        return State {
-            side_one: Side {
-                active_index: 0,
-                pokemon: [
-                    Pokemon {
-                        id: "squirtle".to_string(),
-                        level: 100,
-                        types: (PokemonTypes::Typeless, PokemonTypes::Typeless),
-                        hp: 100,
-                        maxhp: 100,
-                        ability: "none".to_string(),
-                        item: "none".to_string(),
-                        attack: 100,
-                        defense: 100,
-                        special_attack: 100,
-                        special_defense: 100,
-                        speed: 100,
-                        attack_boost: 0,
-                        defense_boost: 0,
-                        special_attack_boost: 0,
-                        special_defense_boost: 0,
-                        speed_boost: 0,
-                        accuracy_boost: 0,
-                        evasion_boost: 0,
-                        status: PokemonStatus::None,
-                        nature: PokemonNatures::Serious,
-                        volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
-                        moves: vec![],
-                    },
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                ],
-                side_conditions: SideConditions {
-                    ..Default::default()
-                },
-                wish: (0, 0),
-            },
-            side_two: Side {
-                active_index: 0,
-                pokemon: [
-                    Pokemon {
-                        id: "charmander".to_string(),
-                        level: 100,
-                        types: (PokemonTypes::Typeless, PokemonTypes::Typeless),
-                        hp: 100,
-                        maxhp: 100,
-                        ability: "none".to_string(),
-                        item: "none".to_string(),
-                        attack: 100,
-                        defense: 100,
-                        special_attack: 100,
-                        special_defense: 100,
-                        speed: 100,
-                        attack_boost: 0,
-                        defense_boost: 0,
-                        special_attack_boost: 0,
-                        special_defense_boost: 0,
-                        speed_boost: 0,
-                        accuracy_boost: 0,
-                        evasion_boost: 0,
-                        status: PokemonStatus::None,
-                        nature: PokemonNatures::Serious,
-                        volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
-                        moves: vec![],
-                    },
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                ],
-                side_conditions: SideConditions {
-                    ..Default::default()
-                },
-                wish: (0, 0),
-            },
-            weather: StateWeather {
-                weather_type: Weather::None,
-                turns_remaining: 0,
-            },
-            terrain: StateTerrain {
-                terrain_type: Terrain::None,
-                turns_remaining: 0,
-            },
-            trick_room: false,
-        };
-    }
-
     #[test]
     fn test_basic_damaging_move() {
-        let state = get_dummy_state();
+        let state = State::default();
         let mut choice = Choice {
             ..Default::default()
         };
         choice.move_id = "tackle".to_string();
+        choice.move_type = PokemonTypes::Typeless;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Physical;
 
@@ -434,11 +349,12 @@ mod tests {
 
     #[test]
     fn test_move_with_zero_base_power() {
-        let state = get_dummy_state();
+        let state = State::default();
         let mut choice = Choice {
             ..Default::default()
         };
         choice.move_id = "tackle".to_string();
+        choice.move_type = PokemonTypes::Typeless;
         choice.base_power = 0.0;
         choice.category = MoveCategory::Physical;
 
@@ -449,12 +365,13 @@ mod tests {
 
     #[test]
     fn test_boosted_damaging_move() {
-        let mut state = get_dummy_state();
+        let mut state = State::default();
         let mut choice = Choice {
             ..Default::default()
         };
         state.side_one.get_active().attack_boost = 1;
         choice.move_id = "tackle".to_string();
+        choice.move_type = PokemonTypes::Typeless;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Physical;
 
@@ -466,13 +383,14 @@ mod tests {
 
     #[test]
     fn test_unaware_does_not_get_damaged_by_boosted_stats() {
-        let mut state = get_dummy_state();
+        let mut state = State::default();
         let mut choice = Choice {
             ..Default::default()
         };
         state.side_one.get_active().attack_boost = 1;
         state.side_two.get_active().ability = "unaware".to_string();
         choice.move_id = "tackle".to_string();
+        choice.move_type = PokemonTypes::Typeless;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Physical;
 
@@ -483,7 +401,7 @@ mod tests {
 
     #[test]
     fn test_basic_super_effective_move() {
-        let mut state = get_dummy_state();
+        let mut state = State::default();
         let mut choice = Choice {
             ..Default::default()
         };
@@ -501,7 +419,7 @@ mod tests {
 
     #[test]
     fn test_basic_not_very_effective_move() {
-        let mut state = get_dummy_state();
+        let mut state = State::default();
         let mut choice = Choice {
             ..Default::default()
         };
@@ -523,7 +441,7 @@ mod tests {
                 #[test]
                 fn $name() {
                     let (weather_type, move_type, expected_damage_amount) = $value;
-                    let mut state = get_dummy_state();
+                    let mut state = State::default();
                     let mut choice = Choice {
                         ..Default::default()
                     };
@@ -541,10 +459,10 @@ mod tests {
     }
     weather_tests! {
         test_rain_boosting_water: (Weather::Rain, PokemonTypes::Water, 52),
-        test_rain_not_boosting_normal: (Weather::Rain, PokemonTypes::Normal, 35),
+        test_rain_not_boosting_normal: (Weather::Rain, PokemonTypes::Normal, 52),
         test_sun_boosting_fire: (Weather::Sun, PokemonTypes::Fire, 52),
         test_sun_reducing_water: (Weather::Sun, PokemonTypes::Water, 17),
-        test_sun_not_boosting_normal: (Weather::Sun, PokemonTypes::Normal, 35),
+        test_sun_not_boosting_normal: (Weather::Sun, PokemonTypes::Normal, 52),
         test_heavy_rain_makes_fire_do_zero: (Weather::HeavyRain, PokemonTypes::Fire, 0),
         test_heavy_rain_boost_water: (Weather::HeavyRain, PokemonTypes::Water, 52),
         test_harsh_sun_makes_water_do_zero: (Weather::HarshSun, PokemonTypes::Water, 0),
@@ -557,7 +475,7 @@ mod tests {
                 #[test]
                 fn $name() {
                     let (attacker_types, attacking_move_type, expected_damage_amount) = $value;
-                    let mut state = get_dummy_state();
+                    let mut state = State::default();
                     let mut choice = Choice {
                         ..Default::default()
                     };
@@ -584,13 +502,14 @@ mod tests {
                 #[test]
                 fn $name() {
                     let (attacking_move_category, expected_damage_amount) = $value;
-                    let mut state = get_dummy_state();
+                    let mut state = State::default();
                     let mut choice = Choice {
                         ..Default::default()
                     };
                     state.side_one.get_active().status = PokemonStatus::Burn;
 
                     choice.category = attacking_move_category;
+                    choice.move_type = PokemonTypes::Typeless;
                     choice.base_power = 40.0;
                     let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
 
@@ -610,7 +529,7 @@ mod tests {
                 #[test]
                 fn $name() {
                     let (reflect_count, lightscreen_count, auroraveil_count, move_category, expected_damage_amount) = $value;
-                    let mut state = get_dummy_state();
+                    let mut state = State::default();
                     let mut choice = Choice {
                         ..Default::default()
                     };
@@ -620,6 +539,7 @@ mod tests {
 
                     choice.category = move_category;
                     choice.base_power = 40.0;
+                    choice.move_type = PokemonTypes::Typeless;
                     let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
 
                     assert_eq!(Some(vec![expected_damage_amount]), dmg);
@@ -644,7 +564,7 @@ mod tests {
                 #[test]
                 fn $name() {
                     let (attacking_volatile_status, defending_volatile_status, move_type, move_name, expected_damage_amount) = $value;
-                    let mut state = get_dummy_state();
+                    let mut state = State::default();
                     let mut choice = Choice {
                         ..Default::default()
                     };
@@ -673,7 +593,7 @@ mod tests {
         test_flashfire_does_not_boost_normal_move: (
             vec![PokemonVolatileStatus::FlashFire],
             vec![],
-            PokemonTypes::Normal,
+            PokemonTypes::Typeless,
             "",
             35
         ),
@@ -710,7 +630,7 @@ mod tests {
             vec![PokemonVolatileStatus::GlaiveRush],
             PokemonTypes::Normal,
             "",
-            70
+            105
         ),
         test_phantomforce_on_defender_causes_0_damage: (
             vec![],

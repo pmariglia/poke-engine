@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, PartialEq, Copy, Clone, Hash)]
 pub enum PokemonStatus {
     None,
     Burn,
