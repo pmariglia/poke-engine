@@ -24,7 +24,7 @@ mod instruction;
 mod state;
 
 fn main() {
-    let mut _choice = MOVES.get("absorb").unwrap().to_owned();
+    let mut _choice = MOVES.get("hex").unwrap().to_owned();
 
     //_choice = Choice {
     //    move_id: "bulbasaur".to_string(),
@@ -73,6 +73,8 @@ fn main() {
         state.side_one.get_active().id
     );
 
+    state.side_two.get_active().status = PokemonStatus::Paralyze;
+
     let state_instruction: StateInstruction = StateInstruction {
         percentage: 100.0,
         instruction_list: Vec::<Instruction>::new(),
@@ -81,6 +83,7 @@ fn main() {
     let ins = generate_instructions_from_move(
         &mut state,
         _choice,
+        MOVES.get("tackle").unwrap(),
         SideReference::SideOne,
         state_instruction,
     );

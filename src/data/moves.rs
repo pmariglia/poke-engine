@@ -1,12 +1,14 @@
 use crate::data::conditions::PokemonStatus;
 use crate::data::conditions::PokemonVolatileStatus;
 use crate::state::PokemonTypes;
+use crate::state::SideReference;
+use crate::state::State;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 
 use super::conditions::PokemonSideCondition;
 
-// type ModifyPriorityFn = fn(&State) -> i8;
+type ModifyChoiceFn = fn(&State, &mut Choice, &Choice, &SideReference);
 
 lazy_static! {
     pub static ref MOVES: HashMap<String, Choice> = {
@@ -6160,6 +6162,21 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _,
+                     attacking_side_ref: &SideReference| {
+                        if state
+                            .get_side_immutable(&attacking_side_ref.get_other_side())
+                            .get_active_immutable()
+                            .status
+                            != PokemonStatus::None
+                        {
+                            attacking_choice.base_power *= 2.0;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -16162,7 +16179,7 @@ pub enum Effect {
     Status(PokemonStatus),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Choice {
     // Basic move information
     pub move_id: String, // in the case of category::Switch, this is not used
@@ -16184,6 +16201,8 @@ pub struct Choice {
     pub target: MoveTarget,
 
     pub first_move: bool,
+
+    pub modify_move: Option<ModifyChoiceFn>,
 }
 
 impl Default for Choice {
@@ -16207,6 +16226,7 @@ impl Default for Choice {
             secondaries: None,
             target: MoveTarget::Opponent,
             first_move: true,
+            modify_move: None,
         };
     }
 }

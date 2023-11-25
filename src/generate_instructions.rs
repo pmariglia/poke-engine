@@ -107,20 +107,34 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
         )
     {
         return true;
-    }
-    else if attacking_pkmn.hp == 0 {
+    } else if attacking_pkmn.hp == 0 {
         return true;
-    }
-    else if attacking_pkmn.volatile_statuses.contains(&PokemonVolatileStatus::Flinch) {
+    } else if attacking_pkmn
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::Flinch)
+    {
         return true;
     }
 
     return false;
 }
 
-fn move_special_effects(choice: &mut Choice) {
-
+// Updates the attacker's Choice based on some special effects
+fn update_choice(
+    state: &State,
+    choice: &mut Choice,
+    defender_choice: &Choice,
+    attacking_side: &SideReference,
+) {
+    match choice.modify_move {
+        Some(modify_move_fn) => {
+            modify_move_fn(state, choice, defender_choice, attacking_side);
+        }
+        None => {}
+    }
 }
+
+fn move_special_effects(state: &State, choice: &mut Choice) {}
 
 // Interpreting the function arguments/return-value:
 //
@@ -130,7 +144,8 @@ fn move_special_effects(choice: &mut Choice) {
 // given that move being used
 pub fn generate_instructions_from_move(
     state: &mut State,
-    choice: Choice,
+    mut choice: Choice,
+    defender_choice: &Choice,
     attacking_side: SideReference,
     incoming_instructions: StateInstruction,
 ) -> Vec<StateInstruction> {
@@ -226,19 +241,19 @@ pub fn generate_instructions_from_move(
         return vec![incoming_instructions];
     }
 
-
     // NEXT STEP:
     //
-    // Then need to make 2 functions:
+    // Need to make 2 functions:
     //  1st for updating the Choice {}
     //  2nd for generating custom instructions before the rest of the move
     //      This is where the callback will start: i.e. `ability_before_move`
+
+    update_choice(state, &mut choice, defender_choice, &attacking_side);
 
     // This was just here to make sure it works - unsure where it will end up
     let damages_dealt = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
 
     println!("{:?}", damages_dealt);
-    println!("{:?}", choice);
 
     panic!("Not implemented yet");
 }
@@ -288,6 +303,7 @@ mod tests {
         let instructions = generate_instructions_from_move(
             &mut state,
             choice,
+            MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             get_empty_state_instruction(),
         );
@@ -307,6 +323,7 @@ mod tests {
         let instructions = generate_instructions_from_move(
             &mut state,
             choice,
+            MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             get_empty_state_instruction(),
         );
@@ -326,6 +343,7 @@ mod tests {
         let instructions = generate_instructions_from_move(
             &mut state,
             choice,
+            MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             get_empty_state_instruction(),
         );
@@ -343,22 +361,23 @@ mod tests {
 
         let mut choice = MOVES.get("tackle").unwrap().to_owned();
         choice.first_move = false;
-        
+
         let mut incoming_instructions = get_empty_state_instruction();
-        incoming_instructions.instruction_list.push(
-            Instruction::VolatileStatus(VolatileStatusInstruction {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::VolatileStatus(VolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::Taunt,
-            })
-        );
+            }));
 
         let original_incoming_instructions = incoming_instructions.clone();
 
         let instructions = generate_instructions_from_move(
             &mut state,
             choice,
+            MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
-            incoming_instructions
+            incoming_instructions,
         );
         assert_eq!(instructions, vec![original_incoming_instructions])
     }
@@ -373,6 +392,7 @@ mod tests {
         let instructions = generate_instructions_from_move(
             &mut state,
             choice,
+            MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             get_empty_state_instruction(),
         );
