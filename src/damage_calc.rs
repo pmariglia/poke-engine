@@ -1,9 +1,9 @@
 use crate::{
-    data::{
-        conditions::{PokemonStatus, PokemonVolatileStatus},
-        moves::{Choice, MoveCategory},
+    choices::{Choice, MoveCategory},
+    state::{
+        Pokemon, PokemonBoostableStat, PokemonStatus, PokemonTypes, PokemonVolatileStatus,
+        SideReference, State, Weather,
     },
-    state::{Pokemon, PokemonBoostableStat, PokemonTypes, SideReference, State, Weather},
 };
 
 #[rustfmt::skip]
@@ -323,10 +323,8 @@ mod tests {
     use std::iter::FromIterator;
 
     use super::*;
-    use crate::data::conditions::{PokemonStatus, PokemonVolatileStatus};
     use crate::state::{
-        Pokemon, PokemonNatures, PokemonTypes, Side, SideConditions, SideReference, State,
-        StateTerrain, StateWeather, Terrain, Weather,
+        PokemonStatus, PokemonTypes, PokemonVolatileStatus, SideReference, State, Weather,
     };
 
     #[test]

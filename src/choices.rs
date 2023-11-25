@@ -1,12 +1,11 @@
-use crate::data::conditions::PokemonStatus;
-use crate::data::conditions::PokemonVolatileStatus;
+use crate::state::PokemonSideCondition;
+use crate::state::PokemonStatus;
 use crate::state::PokemonTypes;
+use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
 use crate::state::State;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
-
-use super::conditions::PokemonSideCondition;
 
 type ModifyChoiceFn = fn(&State, &mut Choice, &Choice, &SideReference);
 
@@ -16056,7 +16055,7 @@ pub enum MoveCategory {
     Switch,
 }
 
-#[derive(Debug, Clone)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum MoveTarget {
     User,
     Opponent,

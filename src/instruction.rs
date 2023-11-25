@@ -1,16 +1,24 @@
-use crate::data::conditions::PokemonSideCondition;
 use crate::state::PokemonBoostableStat;
+use crate::state::PokemonSideCondition;
+use crate::state::PokemonStatus;
+use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
 use crate::state::Terrain;
 use crate::state::Weather;
-
-use super::data::conditions::PokemonStatus;
-use super::data::conditions::PokemonVolatileStatus;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct StateInstruction {
     pub percentage: f32,
     pub instruction_list: Vec<Instruction>, // In the old engine there was a "frozen" attribute,
+}
+
+impl Default for StateInstruction {
+    fn default() -> StateInstruction {
+        return StateInstruction {
+            percentage: 100.0,
+            instruction_list: vec![],
+        };
+    }
 }
 
 impl StateInstruction {

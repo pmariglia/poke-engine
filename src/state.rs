@@ -3,9 +3,6 @@ use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-use crate::data::conditions::PokemonSideCondition;
-use crate::data::conditions::PokemonStatus;
-use crate::data::conditions::PokemonVolatileStatus;
 use crate::instruction::Instruction;
 
 lazy_static! {
@@ -28,6 +25,114 @@ lazy_static! {
 
         boost_multiplier
     };
+}
+
+#[derive(Debug, PartialEq, Copy, Clone, Hash)]
+pub enum PokemonStatus {
+    None,
+    Burn,
+    Sleep,
+    Freeze,
+    Paralyze,
+    Poison,
+    Toxic,
+}
+
+#[derive(PartialEq, Eq, Hash, Debug, Copy, Clone)]
+pub enum PokemonVolatileStatus {
+    AquaRing,
+    Attract,
+    Autotomize,
+    BanefulBunker,
+    Bide,
+    Bounce,
+    Charge,
+    Confusion,
+    Curse,
+    DefenseCurl,
+    DestinyBond,
+    Dig,
+    Disable,
+    Dive,
+    Electrify,
+    Embargo,
+    Encore,
+    Endure,
+    FlashFire,
+    Flinch,
+    Fly,
+    Focusenergy,
+    FollowMe,
+    Foresight,
+    GastroAcid,
+    GlaiveRush,
+    Grudge,
+    HealBlock,
+    HelpingHand,
+    Imprison,
+    Ingrain,
+    KingsShield,
+    LaserFocus,
+    LeechSeed,
+    LockedMove,
+    MagicCoat,
+    MagnetRise,
+    MaxGuard,
+    Minimize,
+    MiracleEye,
+    MustRecharge,
+    Nightmare,
+    NoRetreat,
+    Octolock,
+    PartiallyTrapped,
+    PhantomForce,
+    Powder,
+    PowerShift,
+    PowerTrick,
+    Protect,
+    Rage,
+    RagePowder,
+    Roost,
+    SaltCure,
+    ShadowForce,
+    SilkTrap,
+    SmackDown,
+    Snatch,
+    SparklingAria,
+    SpikyShield,
+    Spotlight,
+    StockPile,
+    Substitute,
+    SyrupBomb,
+    TarShot,
+    Taunt,
+    Telekinesis,
+    ThroatChop,
+    Torment,
+    Uproar,
+    Yawn,
+}
+
+#[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
+pub enum PokemonSideCondition {
+    AuroraVeil,
+    CraftyShield,
+    HealingWish,
+    LightScreen,
+    LuckyChant,
+    LunarDance,
+    MatBlock,
+    Mist,
+    QuickGuard,
+    Reflect,
+    Safeguard,
+    Spikes,
+    Stealthrock,
+    StickyWeb,
+    Tailwind,
+    ToxicSpikes,
+    WideGuard,
+    Wish,
 }
 
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -223,7 +328,7 @@ impl Pokemon {
 
     pub fn is_grounded(&self) -> bool {
         if PokemonTypes::Flying == self.types.0
-            || PokemonTypes::Flying == self.types.0
+            || PokemonTypes::Flying == self.types.1
             || self.ability == "levitate"
             || self.item == "airballoon"
         {

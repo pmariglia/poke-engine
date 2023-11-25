@@ -1,11 +1,10 @@
 use crate::{
+    abilities::ABILITIES,
+    choices::{Choice, MoveCategory},
     damage_calc::{calculate_damage, DamageRolls},
-    data::{
-        conditions::PokemonVolatileStatus,
-        moves::{Choice, MoveCategory},
-    },
     instruction::{DamageInstruction, Instruction, StateInstruction, SwitchInstruction},
-    state::{Pokemon, SideReference, State},
+    items::ITEMS,
+    state::{Pokemon, PokemonVolatileStatus, SideReference, State},
 };
 use std::cmp;
 
@@ -57,7 +56,7 @@ fn generate_instructions_from_damage(
     state.apply_instructions(&incoming_instructions.instruction_list);
 
     let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
-    let attacking_pokemon = attacking_side.get_active_immutable();
+    let _attacking_pokemon = attacking_side.get_active_immutable();
     let defending_pokemon = defending_side.get_active_immutable();
 
     let percent_hit = choice.accuracy / 100.0;
@@ -122,19 +121,47 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
 // Updates the attacker's Choice based on some special effects
 fn update_choice(
     state: &State,
-    choice: &mut Choice,
+    attacker_choice: &mut Choice,
     defender_choice: &Choice,
     attacking_side: &SideReference,
 ) {
-    match choice.modify_move {
+    let (attacker_side, defender_side) = state.get_both_sides_immutable(attacking_side);
+    let attacking_pokemon = attacker_side.get_active_immutable();
+    let defending_pokemon = defender_side.get_active_immutable();
+
+    match attacker_choice.modify_move {
         Some(modify_move_fn) => {
-            modify_move_fn(state, choice, defender_choice, attacking_side);
+            modify_move_fn(state, attacker_choice, defender_choice, attacking_side);
         }
         None => {}
     }
+
+    if let Some(ability) = ABILITIES.get(&attacking_pokemon.ability) {
+        if let Some(modify_move_fn) = ability.modify_attack_being_used {
+            modify_move_fn(state, attacker_choice, defender_choice, attacking_side)
+        };
+    }
+
+    if let Some(ability) = ABILITIES.get(&defending_pokemon.ability) {
+        if let Some(modify_move_fn) = ability.modify_attack_against {
+            modify_move_fn(state, attacker_choice, defender_choice, attacking_side)
+        };
+    }
+
+    if let Some(ability) = ITEMS.get(&attacking_pokemon.item) {
+        if let Some(modify_move_fn) = ability.modify_attack_being_used {
+            modify_move_fn(state, attacker_choice, attacking_side)
+        };
+    }
+
+    if let Some(ability) = ITEMS.get(&defending_pokemon.item) {
+        if let Some(modify_move_fn) = ability.modify_attack_against {
+            modify_move_fn(state, attacker_choice, attacking_side)
+        };
+    }
 }
 
-fn move_special_effects(state: &State, choice: &mut Choice) {}
+// fn move_special_effects(state: &State, choice: &mut Choice) {}
 
 // Interpreting the function arguments/return-value:
 //
@@ -171,22 +198,25 @@ pub fn generate_instructions_from_move(
         - protect (or it's variants) nullifying a move
             - this may generate a custom instruction because some protect variants do things (spikyshield, banefulbunker, etc)
         - charging move that sets some charge flags and exits
-        - move has no effect
-            i.e. electric-type status move used against a ground type, powder move used against grass / overcoat
-            normally, the move doing 0 damage would trigger this, but for non-damaging moves there needs to be another
-            spot where this is checked. This may be better done elsewhere
-        - move special effect
-        - ability special effect (both sides)
-        - item special effect (both sides)
+        - DONE move special effect
+        - DONE ability special effect (both sides)
+        - DONE item special effect (both sides)
 
     BEGIN THINGS THAT HAPPEN AFTER FIRST POSSIBLE BRANCH
     * attacker is fully-paralyzed, asleep, frozen (the first thing that can branch from the old engine)
+    - move has no effect (maybe something like check_if_move_can_hit)
+        - i.e. electric-type status move used against a ground type, powder move used against grass / overcoat
+        - Normally, the move doing 0 damage would trigger this, but for non-damaging moves there needs to be another
+        spot where this is checked. This may be better done elsewhere
+        - This HAS to be done after the frozen/sleep/paralyzed check, which is the first possible branch
     - move special effects
         hail, trick, futuresight, trickroom, etc. Anything that cannot be succinctly expressed in a Choice
+        these will generate instructions (sometimes conditionally), but should not branch
     * calculate damage amount(s) and do the damage
     - after-move effects
         * move special effect (both sides)
             - static/flamebody means this needs to possibly branch
+            - protect and it's variants, which can generate some custom instructions
         - ability (both sides)
         - item (both sides)
     - side_conditions: spikes, wish, veil. Anything using the `side_condition` section of the Choice
@@ -248,7 +278,9 @@ pub fn generate_instructions_from_move(
     //  2nd for generating custom instructions before the rest of the move
     //      This is where the callback will start: i.e. `ability_before_move`
 
+    println!("{:?}", choice.base_power);
     update_choice(state, &mut choice, defender_choice, &attacking_side);
+    println!("{:?}", choice.base_power);
 
     // This was just here to make sure it works - unsure where it will end up
     let damages_dealt = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
@@ -283,16 +315,9 @@ pub fn generate_instructions_from_move_pair(//state: &mut State,
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::data::moves::MOVES;
+    use crate::choices::MOVES;
     use crate::instruction::{DamageInstruction, SwitchInstruction, VolatileStatusInstruction};
     use crate::state::{SideReference, State};
-
-    fn get_empty_state_instruction() -> StateInstruction {
-        return StateInstruction {
-            percentage: 100.0,
-            instruction_list: vec![],
-        };
-    }
 
     #[test]
     fn test_drag_move_as_second_move_exits_early() {
@@ -305,9 +330,9 @@ mod tests {
             choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
-            get_empty_state_instruction(),
+            StateInstruction::default(),
         );
-        assert_eq!(instructions, vec![get_empty_state_instruction()])
+        assert_eq!(instructions, vec![StateInstruction::default()])
     }
 
     #[test]
@@ -325,9 +350,9 @@ mod tests {
             choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
-            get_empty_state_instruction(),
+            StateInstruction::default(),
         );
-        assert_eq!(instructions, vec![get_empty_state_instruction()])
+        assert_eq!(instructions, vec![StateInstruction::default()])
     }
 
     #[test]
@@ -345,9 +370,9 @@ mod tests {
             choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
-            get_empty_state_instruction(),
+            StateInstruction::default(),
         );
-        assert_eq!(instructions, vec![get_empty_state_instruction()])
+        assert_eq!(instructions, vec![StateInstruction::default()])
     }
 
     #[test]
@@ -362,7 +387,7 @@ mod tests {
         let mut choice = MOVES.get("tackle").unwrap().to_owned();
         choice.first_move = false;
 
-        let mut incoming_instructions = get_empty_state_instruction();
+        let mut incoming_instructions = StateInstruction::default();
         incoming_instructions
             .instruction_list
             .push(Instruction::VolatileStatus(VolatileStatusInstruction {
@@ -394,9 +419,9 @@ mod tests {
             choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
-            get_empty_state_instruction(),
+            StateInstruction::default(),
         );
-        assert_eq!(instructions, vec![get_empty_state_instruction()])
+        assert_eq!(instructions, vec![StateInstruction::default()])
     }
 
     #[test]
@@ -421,7 +446,7 @@ mod tests {
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            get_empty_state_instruction(),
+            StateInstruction::default(),
         );
 
         assert_eq!(vec![expected_instructions], incoming_instructions);
@@ -430,7 +455,7 @@ mod tests {
     #[test]
     fn test_basic_switch_functionality_with_a_prior_instruction() {
         let mut state: State = State::default();
-        let mut incoming_instructions = get_empty_state_instruction();
+        let mut incoming_instructions = StateInstruction::default();
         let mut choice = Choice {
             ..Default::default()
         };
@@ -512,7 +537,7 @@ mod tests {
             MoveCategory::Physical,
             40.0,
             100.0,
-            get_empty_state_instruction(),
+            StateInstruction::default(),
             vec![StateInstruction {
                 percentage: 100.0,
                 instruction_list: vec![Instruction::Damage(DamageInstruction {
@@ -526,7 +551,7 @@ mod tests {
             MoveCategory::Physical,
             40.0,
             90.0,
-            get_empty_state_instruction(),
+            StateInstruction::default(),
             vec![
                 StateInstruction {
                     percentage: 90.0,

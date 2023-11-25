@@ -1,30 +1,23 @@
 #![allow(dead_code)]
 
-use std::collections::HashSet;
-
-use data::moves::{self, Choice, Flags, MoveCategory, MOVES};
-
 use crate::{
-    data::{
-        conditions::{PokemonStatus, PokemonVolatileStatus},
-        moves::{Effect, MoveTarget, Secondary, StatBoosts},
-    },
+    choices::MOVES,
     generate_instructions::generate_instructions_from_move,
-    instruction::{
-        BoostInstruction, ChangeTerrain, DamageInstruction, Instruction, StateInstruction,
-    },
-    state::{Pokemon, PokemonNatures, PokemonTypes, SideConditions, SideReference, State, Terrain},
+    instruction::{Instruction, StateInstruction},
+    state::{PokemonStatus, SideReference, State},
 };
 extern crate lazy_static;
 
+mod abilities;
+mod choices;
 mod damage_calc;
-mod data;
 mod generate_instructions;
 mod instruction;
+mod items;
 mod state;
 
 fn main() {
-    let mut _choice = MOVES.get("hex").unwrap().to_owned();
+    let mut _choice = MOVES.get("earthquake").unwrap().to_owned();
 
     //_choice = Choice {
     //    move_id: "bulbasaur".to_string(),
@@ -74,6 +67,7 @@ fn main() {
     );
 
     state.side_two.get_active().status = PokemonStatus::Paralyze;
+    state.side_two.get_active().ability = String::from("levitate");
 
     let state_instruction: StateInstruction = StateInstruction {
         percentage: 100.0,
