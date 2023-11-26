@@ -9,7 +9,8 @@ use crate::state::Weather;
 #[derive(Debug, PartialEq, Clone)]
 pub struct StateInstruction {
     pub percentage: f32,
-    pub instruction_list: Vec<Instruction>, // In the old engine there was a "frozen" attribute,
+    pub instruction_list: Vec<Instruction>,
+    pub frozen_half_turn: bool,
 }
 
 impl Default for StateInstruction {
@@ -17,12 +18,13 @@ impl Default for StateInstruction {
         return StateInstruction {
             percentage: 100.0,
             instruction_list: vec![],
+            frozen_half_turn: false,
         };
     }
 }
 
 impl StateInstruction {
-    pub fn update_percengate(&mut self, modifier: f32) {
+    pub fn update_percentage(&mut self, modifier: f32) {
         self.percentage *= modifier;
     }
 }

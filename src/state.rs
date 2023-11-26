@@ -411,6 +411,38 @@ impl Side {
     }
 }
 
+impl Default for Side {
+    fn default() -> Side {
+        Side {
+            active_index: 0,
+            pokemon: [
+                Pokemon {
+                    ..Pokemon::default()
+                },
+                Pokemon {
+                    ..Pokemon::default()
+                },
+                Pokemon {
+                    ..Pokemon::default()
+                },
+                Pokemon {
+                    ..Pokemon::default()
+                },
+                Pokemon {
+                    ..Pokemon::default()
+                },
+                Pokemon {
+                    ..Pokemon::default()
+                },
+            ],
+            side_conditions: SideConditions {
+                ..Default::default()
+            },
+            wish: (0, 0),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct State {
     pub side_one: Side,
@@ -423,60 +455,8 @@ pub struct State {
 impl Default for State {
     fn default() -> State {
         State {
-            side_one: Side {
-                active_index: 0,
-                pokemon: [
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                ],
-                side_conditions: SideConditions {
-                    ..Default::default()
-                },
-                wish: (0, 0),
-            },
-            side_two: Side {
-                active_index: 0,
-                pokemon: [
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                    Pokemon {
-                        ..Pokemon::default()
-                    },
-                ],
-                side_conditions: SideConditions {
-                    ..Default::default()
-                },
-                wish: (0, 0),
-            },
+            side_one: Side::default(),
+            side_two: Side::default(),
             weather: StateWeather {
                 weather_type: Weather::None,
                 turns_remaining: 0,

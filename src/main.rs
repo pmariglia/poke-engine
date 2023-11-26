@@ -72,6 +72,7 @@ fn main() {
     let state_instruction: StateInstruction = StateInstruction {
         percentage: 100.0,
         instruction_list: Vec::<Instruction>::new(),
+        ..Default::default()
     };
 
     let ins = generate_instructions_from_move(
