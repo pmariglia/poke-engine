@@ -181,6 +181,7 @@ fn generate_instructions_from_existing_status_conditions(
         PokemonStatus::Paralyze => {
             let mut fully_paralyzed_instruction = incoming_instructions.clone();
             fully_paralyzed_instruction.update_percentage(0.25);
+            fully_paralyzed_instruction.frozen_half_turn = true;
             incoming_instructions.update_percentage(0.75);
             ret.push(fully_paralyzed_instruction);
         }
@@ -200,9 +201,10 @@ fn generate_instructions_from_existing_status_conditions(
 
             // staying frozen
             incoming_instructions.update_percentage(0.80);
+            incoming_instructions.frozen_half_turn = true;
         }
         PokemonStatus::Sleep => {
-            // Waking up is a 33% event, and changes a pokemons status
+            // Waking up is a 33% event, and changes the status
             let mut awake_instruction = incoming_instructions.clone();
             awake_instruction.update_percentage(0.33);
             awake_instruction
@@ -217,6 +219,7 @@ fn generate_instructions_from_existing_status_conditions(
 
             // staying asleep
             incoming_instructions.update_percentage(0.67);
+            incoming_instructions.frozen_half_turn = true;
         }
         _ => {}
     }
@@ -240,7 +243,7 @@ pub fn generate_instructions_from_move(
     mut choice: Choice,
     defender_choice: &Choice,
     attacking_side: SideReference,
-    incoming_instructions: StateInstruction,
+    mut incoming_instructions: StateInstruction,
 ) -> Vec<StateInstruction> {
     /*
     The functions that are called by this function will each take a StateInstruction struct that
@@ -317,6 +320,11 @@ pub fn generate_instructions_from_move(
 
     */
 
+    // This is a flag used to determine if certain things in the half-turn shouldn't happen
+    // For example: if a pokemon becomes fully-paralyzed, it will not be able to use it's move
+    // At the beginning of the half-turn, this must be reset
+    incoming_instructions.frozen_half_turn = false;
+
     if choice.category == MoveCategory::Switch {
         return generate_instructions_from_switch(
             state,
@@ -348,6 +356,12 @@ pub fn generate_instructions_from_move(
     update_choice(state, &mut choice, defender_choice, &attacking_side);
     println!("{:?}", choice.base_power);
 
+    let list_of_instructions = generate_instructions_from_existing_status_conditions(
+        state,
+        &attacking_side,
+        incoming_instructions
+    );
+
     // This was just here to make sure it works - unsure where it will end up
     let damages_dealt = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
 
@@ -357,8 +371,8 @@ pub fn generate_instructions_from_move(
 }
 
 pub fn generate_instructions_from_move_pair(//state: &mut State,
-    //side_one_move: &String,
-    //side_two_move: &String,
+                                            //side_one_move: &String,
+                                            //side_two_move: &String,
 ) -> Vec<Instruction> {
     panic!("Not implemented yet");
     /*
@@ -589,12 +603,12 @@ mod tests {
             StateInstruction {
                 percentage: 25.0,
                 instruction_list: vec![],
-                ..Default::default()
+                frozen_half_turn: true,
             },
             StateInstruction {
                 percentage: 75.0,
                 instruction_list: vec![],
-                ..Default::default()
+                frozen_half_turn: false,
             },
         ];
 
@@ -622,12 +636,12 @@ mod tests {
                     old_status: PokemonStatus::Freeze,
                     new_status: PokemonStatus::None,
                 })],
-                ..Default::default()
+                frozen_half_turn: false
             },
             StateInstruction {
                 percentage: 80.0,
                 instruction_list: vec![],
-                ..Default::default()
+                frozen_half_turn: true
             },
         ];
 
@@ -655,12 +669,12 @@ mod tests {
                     old_status: PokemonStatus::Sleep,
                     new_status: PokemonStatus::None,
                 })],
-                ..Default::default()
+                frozen_half_turn: false
             },
             StateInstruction {
                 percentage: 67.0,
                 instruction_list: vec![],
-                ..Default::default()
+                frozen_half_turn: true
             },
         ];
 
@@ -690,7 +704,7 @@ mod tests {
                     side_ref: SideReference::SideOne,
                     damage_amount: 1,
                 })],
-                ..Default::default()
+                frozen_half_turn: true
             },
             StateInstruction {
                 percentage: 75.0,
@@ -698,7 +712,7 @@ mod tests {
                     side_ref: SideReference::SideOne,
                     damage_amount: 1,
                 })],
-                ..Default::default()
+                frozen_half_turn: false
             },
         ];
 
