@@ -3,12 +3,14 @@ use std::collections::HashMap;
 use lazy_static::lazy_static;
 
 use crate::choices::{Choice, MoveTarget};
-use crate::state::PokemonTypes;
+use crate::instruction::{ChangeType, Instruction};
+use crate::state::PokemonType;
 use crate::state::SideReference;
 use crate::state::State;
 
 type ModifyAttackBeingUsed = fn(&State, &mut Choice, &Choice, &SideReference);
 type ModifyAttackAgainst = fn(&State, &mut Choice, &Choice, &SideReference);
+type AbilityBeforeMove = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
 
 lazy_static! {
     pub static ref ABILITIES: HashMap<String, Ability> = {
@@ -262,6 +264,17 @@ lazy_static! {
         abilities.insert(
             "protean".to_string(),
             Ability {
+                before_move: Some(|state: &State, choice: &Choice, side_ref: &SideReference| {
+                    let active_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
+                    if !active_pkmn.has_type(&choice.move_type) {
+                        return vec![Instruction::ChangeType(ChangeType {
+                            side_ref: *side_ref,
+                            new_types: (choice.move_type, PokemonType::Typeless),
+                            old_types: active_pkmn.types,
+                        })];
+                    }
+                    return vec![];
+                }),
                 ..Default::default()
             },
         );
@@ -971,7 +984,7 @@ lazy_static! {
             Ability {
                 modify_attack_against: Some(
                     |_state, attacker_choice: &mut Choice, _defender_choice, _attacking_side| {
-                        if attacker_choice.move_type == PokemonTypes::Ground
+                        if attacker_choice.move_type == PokemonType::Ground
                             && attacker_choice.target == MoveTarget::Opponent
                             && attacker_choice.move_id != "thousandarrows"
                         {
@@ -1933,6 +1946,7 @@ lazy_static! {
 pub struct Ability {
     pub modify_attack_being_used: Option<ModifyAttackBeingUsed>,
     pub modify_attack_against: Option<ModifyAttackAgainst>,
+    pub before_move: Option<AbilityBeforeMove>,
 }
 
 impl Default for Ability {
@@ -1940,6 +1954,7 @@ impl Default for Ability {
         return Ability {
             modify_attack_being_used: None,
             modify_attack_against: None,
+            before_move: None,
         };
     }
 }

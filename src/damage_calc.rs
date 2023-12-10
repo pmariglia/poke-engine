@@ -1,7 +1,7 @@
 use crate::{
     choices::{Choice, MoveCategory},
     state::{
-        Pokemon, PokemonBoostableStat, PokemonStatus, PokemonTypes, PokemonVolatileStatus,
+        Pokemon, PokemonBoostableStat, PokemonStatus, PokemonType, PokemonVolatileStatus,
         SideReference, State, Weather,
     },
 };
@@ -38,33 +38,33 @@ pub enum DamageRolls {
     All,
 }
 
-fn type_enum_to_type_matchup_int(type_enum: &PokemonTypes) -> usize {
+fn type_enum_to_type_matchup_int(type_enum: &PokemonType) -> usize {
     match type_enum {
-        PokemonTypes::Normal => 0,
-        PokemonTypes::Fire => 1,
-        PokemonTypes::Water => 2,
-        PokemonTypes::Electric => 3,
-        PokemonTypes::Grass => 4,
-        PokemonTypes::Ice => 5,
-        PokemonTypes::Fighting => 6,
-        PokemonTypes::Poison => 7,
-        PokemonTypes::Ground => 8,
-        PokemonTypes::Flying => 9,
-        PokemonTypes::Psychic => 10,
-        PokemonTypes::Bug => 11,
-        PokemonTypes::Rock => 12,
-        PokemonTypes::Ghost => 13,
-        PokemonTypes::Dragon => 14,
-        PokemonTypes::Dark => 15,
-        PokemonTypes::Steel => 16,
-        PokemonTypes::Fairy => 17,
-        PokemonTypes::Typeless => 18,
+        PokemonType::Normal => 0,
+        PokemonType::Fire => 1,
+        PokemonType::Water => 2,
+        PokemonType::Electric => 3,
+        PokemonType::Grass => 4,
+        PokemonType::Ice => 5,
+        PokemonType::Fighting => 6,
+        PokemonType::Poison => 7,
+        PokemonType::Ground => 8,
+        PokemonType::Flying => 9,
+        PokemonType::Psychic => 10,
+        PokemonType::Bug => 11,
+        PokemonType::Rock => 12,
+        PokemonType::Ghost => 13,
+        PokemonType::Dragon => 14,
+        PokemonType::Dark => 15,
+        PokemonType::Steel => 16,
+        PokemonType::Fairy => 17,
+        PokemonType::Typeless => 18,
     }
 }
 
 fn type_effectiveness_modifier(
-    attacking_type: &PokemonTypes,
-    defending_types: &(PokemonTypes, PokemonTypes),
+    attacking_type: &PokemonType,
+    defending_types: &(PokemonType, PokemonType),
 ) -> f32 {
     let mut modifier = 1.0;
     let attacking_type_index = type_enum_to_type_matchup_int(attacking_type);
@@ -77,26 +77,26 @@ fn type_effectiveness_modifier(
     return modifier;
 }
 
-fn weather_modifier(attacking_move_type: &PokemonTypes, weather: &Weather) -> f32 {
+fn weather_modifier(attacking_move_type: &PokemonType, weather: &Weather) -> f32 {
     match weather {
         Weather::Sun => match attacking_move_type {
-            PokemonTypes::Fire => 1.5,
-            PokemonTypes::Water => 0.5,
+            PokemonType::Fire => 1.5,
+            PokemonType::Water => 0.5,
             _ => 1.0,
         },
         Weather::Rain => match attacking_move_type {
-            PokemonTypes::Water => 1.5,
-            PokemonTypes::Fire => 0.5,
+            PokemonType::Water => 1.5,
+            PokemonType::Fire => 0.5,
             _ => 1.0,
         },
         Weather::HarshSun => match attacking_move_type {
-            PokemonTypes::Fire => 1.5,
-            PokemonTypes::Water => 0.0,
+            PokemonType::Fire => 1.5,
+            PokemonType::Water => 0.0,
             _ => 1.0,
         },
         Weather::HeavyRain => match attacking_move_type {
-            PokemonTypes::Water => 1.5,
-            PokemonTypes::Fire => 0.0,
+            PokemonType::Water => 1.5,
+            PokemonType::Fire => 0.0,
             _ => 1.0,
         },
         _ => 1.0,
@@ -104,10 +104,10 @@ fn weather_modifier(attacking_move_type: &PokemonTypes, weather: &Weather) -> f3
 }
 
 fn stab_modifier(
-    attacking_move_type: &PokemonTypes,
-    active_types: &(PokemonTypes, PokemonTypes),
+    attacking_move_type: &PokemonType,
+    active_types: &(PokemonType, PokemonType),
 ) -> f32 {
-    if attacking_move_type != &PokemonTypes::Typeless
+    if attacking_move_type != &PokemonType::Typeless
         && (attacking_move_type == &active_types.0 || attacking_move_type == &active_types.1)
     {
         return 1.5;
@@ -136,7 +136,7 @@ fn volatile_status_modifier(
     let mut modifier = 1.0;
     for vs in attacking_pokemon.volatile_statuses.iter() {
         match vs {
-            PokemonVolatileStatus::FlashFire if choice.move_type == PokemonTypes::Fire => {
+            PokemonVolatileStatus::FlashFire if choice.move_type == PokemonType::Fire => {
                 modifier *= 1.5;
             }
             _ => {}
@@ -146,12 +146,12 @@ fn volatile_status_modifier(
     for vs in defending_pokemon.volatile_statuses.iter() {
         match vs {
             PokemonVolatileStatus::MagnetRise
-                if choice.move_type == PokemonTypes::Ground
+                if choice.move_type == PokemonType::Ground
                     && choice.move_id.as_str() != "thousandarrows" =>
             {
                 return 0.0;
             }
-            PokemonVolatileStatus::TarShot if choice.move_type == PokemonTypes::Fire => {
+            PokemonVolatileStatus::TarShot if choice.move_type == PokemonType::Fire => {
                 modifier *= 2.0;
             }
             PokemonVolatileStatus::PhantomForce
@@ -324,7 +324,7 @@ mod tests {
 
     use super::*;
     use crate::state::{
-        PokemonStatus, PokemonTypes, PokemonVolatileStatus, SideReference, State, Weather,
+        PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, Weather,
     };
 
     #[test]
@@ -334,7 +334,7 @@ mod tests {
             ..Default::default()
         };
         choice.move_id = "tackle".to_string();
-        choice.move_type = PokemonTypes::Typeless;
+        choice.move_type = PokemonType::Typeless;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Physical;
 
@@ -352,7 +352,7 @@ mod tests {
             ..Default::default()
         };
         choice.move_id = "tackle".to_string();
-        choice.move_type = PokemonTypes::Typeless;
+        choice.move_type = PokemonType::Typeless;
         choice.base_power = 0.0;
         choice.category = MoveCategory::Physical;
 
@@ -369,7 +369,7 @@ mod tests {
         };
         state.side_one.get_active().attack_boost = 1;
         choice.move_id = "tackle".to_string();
-        choice.move_type = PokemonTypes::Typeless;
+        choice.move_type = PokemonType::Typeless;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Physical;
 
@@ -388,7 +388,7 @@ mod tests {
         state.side_one.get_active().attack_boost = 1;
         state.side_two.get_active().ability = "unaware".to_string();
         choice.move_id = "tackle".to_string();
-        choice.move_type = PokemonTypes::Typeless;
+        choice.move_type = PokemonType::Typeless;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Physical;
 
@@ -404,9 +404,9 @@ mod tests {
             ..Default::default()
         };
 
-        state.side_two.get_active().types = (PokemonTypes::Fire, PokemonTypes::Typeless);
+        state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Typeless);
         choice.move_id = "watergun".to_string();
-        choice.move_type = PokemonTypes::Water;
+        choice.move_type = PokemonType::Water;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Special;
         let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
@@ -422,9 +422,9 @@ mod tests {
             ..Default::default()
         };
 
-        state.side_two.get_active().types = (PokemonTypes::Water, PokemonTypes::Typeless);
+        state.side_two.get_active().types = (PokemonType::Water, PokemonType::Typeless);
         choice.move_id = "watergun".to_string();
-        choice.move_type = PokemonTypes::Water;
+        choice.move_type = PokemonType::Water;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Special;
         let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
@@ -456,15 +456,15 @@ mod tests {
         }
     }
     weather_tests! {
-        test_rain_boosting_water: (Weather::Rain, PokemonTypes::Water, 52),
-        test_rain_not_boosting_normal: (Weather::Rain, PokemonTypes::Normal, 52),
-        test_sun_boosting_fire: (Weather::Sun, PokemonTypes::Fire, 52),
-        test_sun_reducing_water: (Weather::Sun, PokemonTypes::Water, 17),
-        test_sun_not_boosting_normal: (Weather::Sun, PokemonTypes::Normal, 52),
-        test_heavy_rain_makes_fire_do_zero: (Weather::HeavyRain, PokemonTypes::Fire, 0),
-        test_heavy_rain_boost_water: (Weather::HeavyRain, PokemonTypes::Water, 52),
-        test_harsh_sun_makes_water_do_zero: (Weather::HarshSun, PokemonTypes::Water, 0),
-        test_harsh_sun_boosting_fire: (Weather::HarshSun, PokemonTypes::Fire, 52),
+        test_rain_boosting_water: (Weather::Rain, PokemonType::Water, 52),
+        test_rain_not_boosting_normal: (Weather::Rain, PokemonType::Normal, 52),
+        test_sun_boosting_fire: (Weather::Sun, PokemonType::Fire, 52),
+        test_sun_reducing_water: (Weather::Sun, PokemonType::Water, 17),
+        test_sun_not_boosting_normal: (Weather::Sun, PokemonType::Normal, 52),
+        test_heavy_rain_makes_fire_do_zero: (Weather::HeavyRain, PokemonType::Fire, 0),
+        test_heavy_rain_boost_water: (Weather::HeavyRain, PokemonType::Water, 52),
+        test_harsh_sun_makes_water_do_zero: (Weather::HarshSun, PokemonType::Water, 0),
+        test_harsh_sun_boosting_fire: (Weather::HarshSun, PokemonType::Fire, 52),
     }
 
     macro_rules! stab_tests {
@@ -490,8 +490,8 @@ mod tests {
         }
     }
     stab_tests! {
-        test_basic_stab: ((PokemonTypes::Water, PokemonTypes::Fire), PokemonTypes::Water, 52),
-        test_basic_without_stab: ((PokemonTypes::Water, PokemonTypes::Fire), PokemonTypes::Normal, 35),
+        test_basic_stab: ((PokemonType::Water, PokemonType::Fire), PokemonType::Water, 52),
+        test_basic_without_stab: ((PokemonType::Water, PokemonType::Fire), PokemonType::Normal, 35),
     }
 
     macro_rules! burn_tests {
@@ -507,7 +507,7 @@ mod tests {
                     state.side_one.get_active().status = PokemonStatus::Burn;
 
                     choice.category = attacking_move_category;
-                    choice.move_type = PokemonTypes::Typeless;
+                    choice.move_type = PokemonType::Typeless;
                     choice.base_power = 40.0;
                     let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
 
@@ -537,7 +537,7 @@ mod tests {
 
                     choice.category = move_category;
                     choice.base_power = 40.0;
-                    choice.move_type = PokemonTypes::Typeless;
+                    choice.move_type = PokemonType::Typeless;
                     let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
 
                     assert_eq!(Some(vec![expected_damage_amount]), dmg);
@@ -584,56 +584,56 @@ mod tests {
         test_flashfire_boosts_fire_move: (
             vec![PokemonVolatileStatus::FlashFire],
             vec![],
-            PokemonTypes::Fire,
+            PokemonType::Fire,
             "",
             52
         ),
         test_flashfire_does_not_boost_normal_move: (
             vec![PokemonVolatileStatus::FlashFire],
             vec![],
-            PokemonTypes::Typeless,
+            PokemonType::Typeless,
             "",
             35
         ),
         test_magnetrise_makes_pkmn_immune_to_ground_move: (
             vec![],
             vec![PokemonVolatileStatus::MagnetRise],
-            PokemonTypes::Ground,
+            PokemonType::Ground,
             "",
             0
         ),
         test_thousandarrows_can_hit_magnetrise_pokemon: (
             vec![],
             vec![PokemonVolatileStatus::MagnetRise],
-            PokemonTypes::Ground,
+            PokemonType::Ground,
             "thousandarrows",
             35
         ),
         test_tarshot_boosts_fire_move: (
             vec![],
             vec![PokemonVolatileStatus::TarShot],
-            PokemonTypes::Fire,
+            PokemonType::Fire,
             "",
             70
         ),
         test_tarshot_and_flashfire_together: (
             vec![PokemonVolatileStatus::FlashFire],
             vec![PokemonVolatileStatus::TarShot],
-            PokemonTypes::Fire,
+            PokemonType::Fire,
             "",
             105
         ),
         test_glaiverush_doubles_damage_against: (
             vec![],
             vec![PokemonVolatileStatus::GlaiveRush],
-            PokemonTypes::Normal,
+            PokemonType::Normal,
             "",
             105
         ),
         test_phantomforce_on_defender_causes_0_damage: (
             vec![],
             vec![PokemonVolatileStatus::PhantomForce],
-            PokemonTypes::Normal,
+            PokemonType::Normal,
             "",
             0
         ),

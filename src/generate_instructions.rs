@@ -20,11 +20,6 @@ fn generate_instructions_from_switch(
     let mut incoming_instructions = incoming_instructions;
     state.apply_instructions(&incoming_instructions.instruction_list);
 
-    println!(
-        "Before switch side 1 active name: {:?}",
-        state.side_one.get_active().id
-    );
-
     let switch_instruction = Instruction::Switch(SwitchInstruction {
         side_ref: switching_side,
         previous_index: state.get_side(&switching_side).active_index,
@@ -34,11 +29,6 @@ fn generate_instructions_from_switch(
     incoming_instructions
         .instruction_list
         .push(switch_instruction);
-
-    println!(
-        "After switch side 1 active name: {:?}",
-        state.side_one.get_active().id
-    );
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
 
@@ -121,6 +111,21 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
     return false;
 }
 
+fn before_move(state: &State, choice: &Choice, attacking_side: &SideReference) -> Vec<Instruction> {
+    let mut new_instructions = vec![];
+    let attacking_pokemon = state
+        .get_side_immutable(attacking_side)
+        .get_active_immutable();
+
+    if let Some(ability) = ABILITIES.get(&attacking_pokemon.ability) {
+        if let Some(before_move_fn) = ability.before_move {
+            new_instructions.append(&mut before_move_fn(state, choice, attacking_side));
+        };
+    }
+
+    return new_instructions;
+}
+
 // Updates the attacker's Choice based on some special effects
 fn update_choice(
     state: &State,
@@ -151,14 +156,14 @@ fn update_choice(
         };
     }
 
-    if let Some(ability) = ITEMS.get(&attacking_pokemon.item) {
-        if let Some(modify_move_fn) = ability.modify_attack_being_used {
+    if let Some(item) = ITEMS.get(&attacking_pokemon.item) {
+        if let Some(modify_move_fn) = item.modify_attack_being_used {
             modify_move_fn(state, attacker_choice, attacking_side)
         };
     }
 
-    if let Some(ability) = ITEMS.get(&defending_pokemon.item) {
-        if let Some(modify_move_fn) = ability.modify_attack_against {
+    if let Some(item) = ITEMS.get(&defending_pokemon.item) {
+        if let Some(modify_move_fn) = item.modify_attack_against {
             modify_move_fn(state, attacker_choice, attacking_side)
         };
     }
@@ -345,27 +350,25 @@ pub fn generate_instructions_from_move(
         return vec![incoming_instructions];
     }
 
-    // NEXT STEP:
-    //
-    // Need to make 2 functions:
-    //  1st for updating the Choice {}
-    //  2nd for generating custom instructions before the rest of the move
-    //      This is where the callback will start: i.e. `ability_before_move`
-
-    println!("{:?}", choice.base_power);
+    // Before-Move callbacks to update the choice
     update_choice(state, &mut choice, defender_choice, &attacking_side);
-    println!("{:?}", choice.base_power);
+
+    // Before-Move callbacks to generate new instructions
+    let before_move_instructions = before_move(state, &choice, &attacking_side);
+    state.apply_instructions(&before_move_instructions);
+    incoming_instructions
+        .instruction_list
+        .extend(before_move_instructions);
+    state.reverse_instructions(&incoming_instructions.instruction_list);
 
     let list_of_instructions = generate_instructions_from_existing_status_conditions(
         state,
         &attacking_side,
-        incoming_instructions
+        incoming_instructions,
     );
 
     // This was just here to make sure it works - unsure where it will end up
     let damages_dealt = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
-
-    println!("{:?}", damages_dealt);
 
     panic!("Not implemented yet");
 }
@@ -636,12 +639,12 @@ mod tests {
                     old_status: PokemonStatus::Freeze,
                     new_status: PokemonStatus::None,
                 })],
-                frozen_half_turn: false
+                frozen_half_turn: false,
             },
             StateInstruction {
                 percentage: 80.0,
                 instruction_list: vec![],
-                frozen_half_turn: true
+                frozen_half_turn: true,
             },
         ];
 
@@ -669,12 +672,12 @@ mod tests {
                     old_status: PokemonStatus::Sleep,
                     new_status: PokemonStatus::None,
                 })],
-                frozen_half_turn: false
+                frozen_half_turn: false,
             },
             StateInstruction {
                 percentage: 67.0,
                 instruction_list: vec![],
-                frozen_half_turn: true
+                frozen_half_turn: true,
             },
         ];
 
@@ -704,7 +707,7 @@ mod tests {
                     side_ref: SideReference::SideOne,
                     damage_amount: 1,
                 })],
-                frozen_half_turn: true
+                frozen_half_turn: true,
             },
             StateInstruction {
                 percentage: 75.0,
@@ -712,7 +715,7 @@ mod tests {
                     side_ref: SideReference::SideOne,
                     damage_amount: 1,
                 })],
-                frozen_half_turn: false
+                frozen_half_turn: false,
             },
         ];
 

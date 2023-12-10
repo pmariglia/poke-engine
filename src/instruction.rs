@@ -1,10 +1,10 @@
-use crate::state::PokemonBoostableStat;
 use crate::state::PokemonSideCondition;
 use crate::state::PokemonStatus;
 use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
 use crate::state::Terrain;
 use crate::state::Weather;
+use crate::state::{PokemonBoostableStat, PokemonType};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct StateInstruction {
@@ -41,6 +41,7 @@ pub enum Instruction {
     ChangeSideCondition(ChangeSideConditionInstruction),
     ChangeWeather(ChangeWeather),
     ChangeTerrain(ChangeTerrain),
+    ChangeType(ChangeType),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -106,4 +107,11 @@ pub struct ChangeTerrain {
     pub new_terrain_turns_remaining: i8,
     pub previous_terrain: Terrain,
     pub previous_terrain_turns_remaining: i8,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ChangeType {
+    pub side_ref: SideReference,
+    pub new_types: (PokemonType, PokemonType),
+    pub old_types: (PokemonType, PokemonType),
 }

@@ -4,7 +4,7 @@ use crate::{
     choices::MOVES,
     generate_instructions::generate_instructions_from_move,
     instruction::{Instruction, StateInstruction},
-    state::{PokemonStatus, SideReference, State},
+    state::{SideReference, State},
 };
 extern crate lazy_static;
 
@@ -62,12 +62,12 @@ fn main() {
 
     let mut state: State = State::default();
     println!(
-        "Starting side 1 active name: {:?}",
-        state.side_one.get_active().id
+        "Starting side 1 active types: {:?}",
+        state.side_one.get_active().types
     );
 
-    state.side_two.get_active().status = PokemonStatus::Paralyze;
-    state.side_two.get_active().ability = String::from("levitate");
+    state.side_one.get_active().ability = String::from("protean");
+    // state.side_two.get_active().ability = String::from("levitate");
 
     let state_instruction: StateInstruction = StateInstruction {
         percentage: 100.0,

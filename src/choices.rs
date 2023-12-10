@@ -1,6 +1,6 @@
 use crate::state::PokemonSideCondition;
 use crate::state::PokemonStatus;
-use crate::state::PokemonTypes;
+use crate::state::PokemonType;
 use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
 use crate::state::State;
@@ -19,7 +19,7 @@ lazy_static! {
                 move_id: String::from("absorb"),
                 base_power: 20.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     heal: true,
                     mirror: true,
@@ -36,7 +36,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -52,7 +52,7 @@ lazy_static! {
                 move_id: String::from("acid"),
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -78,7 +78,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("acidarmor"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -103,7 +103,7 @@ lazy_static! {
                 move_id: String::from("acidspray"),
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -131,7 +131,7 @@ lazy_static! {
                 move_id: String::from("acrobatics"),
                 base_power: 110.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     contact: true,
                     distance: true,
@@ -147,7 +147,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("acupressure"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -160,7 +160,7 @@ lazy_static! {
                 move_id: String::from("aerialace"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     contact: true,
                     distance: true,
@@ -178,7 +178,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     distance: true,
                     mirror: true,
@@ -192,7 +192,7 @@ lazy_static! {
             String::from("afteryou"),
             Choice {
                 move_id: String::from("afteryou"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -204,7 +204,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("agility"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -230,7 +230,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -246,7 +246,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 75.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     distance: true,
                     mirror: true,
@@ -267,7 +267,7 @@ lazy_static! {
                 move_id: String::from("allyswitch"),
                 priority: 2,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -279,7 +279,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("amnesia"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -304,7 +304,7 @@ lazy_static! {
                 move_id: String::from("anchorshot"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -320,7 +320,7 @@ lazy_static! {
                 move_id: String::from("ancientpower"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -347,7 +347,7 @@ lazy_static! {
                 move_id: String::from("appleacid"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -374,7 +374,7 @@ lazy_static! {
                 move_id: String::from("aquacutter"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -390,7 +390,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -405,7 +405,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("aquaring"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -423,7 +423,7 @@ lazy_static! {
                 move_id: String::from("aquastep"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     contact: true,
                     dance: true,
@@ -453,7 +453,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -469,7 +469,7 @@ lazy_static! {
                 move_id: String::from("armorcannon"),
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -484,7 +484,7 @@ lazy_static! {
                 move_id: String::from("armthrust"),
                 base_power: 15.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -499,7 +499,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("aromatherapy"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     distance: true,
                     snatch: true,
@@ -513,7 +513,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("aromaticmist"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -536,7 +536,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("assist"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -549,7 +549,7 @@ lazy_static! {
                 move_id: String::from("assurance"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -565,7 +565,7 @@ lazy_static! {
                 move_id: String::from("astonish"),
                 base_power: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -586,7 +586,7 @@ lazy_static! {
                 move_id: String::from("astralbarrage"),
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -601,7 +601,7 @@ lazy_static! {
                 move_id: String::from("attackorder"),
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -614,7 +614,7 @@ lazy_static! {
             String::from("attract"),
             Choice {
                 move_id: String::from("attract"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -634,7 +634,7 @@ lazy_static! {
                 move_id: String::from("aurasphere"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     bullet: true,
                     distance: true,
@@ -652,7 +652,7 @@ lazy_static! {
                 move_id: String::from("aurawheel"),
                 base_power: 110.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -679,7 +679,7 @@ lazy_static! {
                 move_id: String::from("aurorabeam"),
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -705,7 +705,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("auroraveil"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -722,7 +722,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("autotomize"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -748,7 +748,7 @@ lazy_static! {
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 priority: -4,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -765,7 +765,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -785,7 +785,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("babydolleyes"),
                 priority: 1,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -813,7 +813,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -828,7 +828,7 @@ lazy_static! {
                 move_id: String::from("banefulbunker"),
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -845,7 +845,7 @@ lazy_static! {
                 move_id: String::from("barbbarrage"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -866,7 +866,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -881,7 +881,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("barrier"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -905,7 +905,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("batonpass"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -919,7 +919,7 @@ lazy_static! {
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 priority: -3,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -933,7 +933,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("beatup"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -948,7 +948,7 @@ lazy_static! {
                 move_id: String::from("behemothbash"),
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -964,7 +964,7 @@ lazy_static! {
                 move_id: String::from("behemothblade"),
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -981,7 +981,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -994,7 +994,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("bellydrum"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -1021,7 +1021,7 @@ lazy_static! {
             String::from("bestow"),
             Choice {
                 move_id: String::from("bestow"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     ..Default::default()
@@ -1036,7 +1036,7 @@ lazy_static! {
                 category: MoveCategory::Physical,
                 priority: 1,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1056,7 +1056,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -1076,7 +1076,7 @@ lazy_static! {
                 move_id: String::from("bite"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -1098,7 +1098,7 @@ lazy_static! {
                 move_id: String::from("bitterblade"),
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -1114,7 +1114,7 @@ lazy_static! {
                 move_id: String::from("bittermalice"),
                 base_power: 75.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1142,7 +1142,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1159,7 +1159,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -1180,7 +1180,7 @@ lazy_static! {
                 move_id: String::from("blazingtorque"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -1200,7 +1200,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1228,7 +1228,7 @@ lazy_static! {
                 accuracy: 70.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1246,7 +1246,7 @@ lazy_static! {
             String::from("block"),
             Choice {
                 move_id: String::from("block"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     reflectable: true,
@@ -1261,7 +1261,7 @@ lazy_static! {
                 move_id: String::from("bloodmoon"),
                 base_power: 140.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1277,7 +1277,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 130.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1297,7 +1297,7 @@ lazy_static! {
                 move_id: String::from("bodypress"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -1313,7 +1313,7 @@ lazy_static! {
                 move_id: String::from("bodyslam"),
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -1335,7 +1335,7 @@ lazy_static! {
                 move_id: String::from("boltbeak"),
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -1352,7 +1352,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 130.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -1374,7 +1374,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1395,7 +1395,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1411,7 +1411,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1426,7 +1426,7 @@ lazy_static! {
                 move_id: String::from("boomburst"),
                 base_power: 140.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1443,7 +1443,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     charge: true,
                     contact: true,
@@ -1467,7 +1467,7 @@ lazy_static! {
                 move_id: String::from("bouncybubble"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     heal: true,
                     mirror: true,
@@ -1483,7 +1483,7 @@ lazy_static! {
                 move_id: String::from("branchpoke"),
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -1499,7 +1499,7 @@ lazy_static! {
                 move_id: String::from("bravebird"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     contact: true,
                     distance: true,
@@ -1516,7 +1516,7 @@ lazy_static! {
                 move_id: String::from("breakingswipe"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -1544,7 +1544,7 @@ lazy_static! {
                 move_id: String::from("brickbreak"),
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -1560,7 +1560,7 @@ lazy_static! {
                 move_id: String::from("brine"),
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1575,7 +1575,7 @@ lazy_static! {
                 move_id: String::from("brutalswing"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -1591,7 +1591,7 @@ lazy_static! {
                 move_id: String::from("bubble"),
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1618,7 +1618,7 @@ lazy_static! {
                 move_id: String::from("bubblebeam"),
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1645,7 +1645,7 @@ lazy_static! {
                 move_id: String::from("bugbite"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -1661,7 +1661,7 @@ lazy_static! {
                 move_id: String::from("bugbuzz"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1688,7 +1688,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("bulkup"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -1713,7 +1713,7 @@ lazy_static! {
                 move_id: String::from("bulldoze"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -1742,7 +1742,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -1759,7 +1759,7 @@ lazy_static! {
                 move_id: String::from("bulletseed"),
                 base_power: 25.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -1775,7 +1775,7 @@ lazy_static! {
                 move_id: String::from("burningjealousy"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1790,7 +1790,7 @@ lazy_static! {
                 move_id: String::from("burnup"),
                 base_power: 130.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     defrost: true,
                     mirror: true,
@@ -1806,7 +1806,7 @@ lazy_static! {
                 move_id: String::from("buzzybuzz"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1825,7 +1825,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("calmmind"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -1849,7 +1849,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("camouflage"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -1861,7 +1861,7 @@ lazy_static! {
             String::from("captivate"),
             Choice {
                 move_id: String::from("captivate"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1889,7 +1889,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -1908,7 +1908,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("celebrate"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -1920,7 +1920,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("charge"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -1950,7 +1950,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -1975,7 +1975,7 @@ lazy_static! {
             String::from("charm"),
             Choice {
                 move_id: String::from("charm"),
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -2002,7 +2002,7 @@ lazy_static! {
                 move_id: String::from("chatter"),
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     distance: true,
                     mirror: true,
@@ -2024,7 +2024,7 @@ lazy_static! {
                 move_id: String::from("chillingwater"),
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -2049,7 +2049,7 @@ lazy_static! {
             String::from("chillyreception"),
             Choice {
                 move_id: String::from("chillyreception"),
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2062,7 +2062,7 @@ lazy_static! {
                 move_id: String::from("chipaway"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -2079,7 +2079,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -2100,7 +2100,7 @@ lazy_static! {
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 priority: -6,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     drag: true,
@@ -2118,7 +2118,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 35.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -2138,7 +2138,7 @@ lazy_static! {
                 move_id: String::from("clangingscales"),
                 base_power: 110.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -2153,7 +2153,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("clangoroussoul"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     dance: true,
                     snatch: true,
@@ -2169,7 +2169,7 @@ lazy_static! {
                 move_id: String::from("clearsmog"),
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -2184,7 +2184,7 @@ lazy_static! {
                 move_id: String::from("closecombat"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -2199,7 +2199,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("coaching"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2222,7 +2222,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("coil"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -2247,7 +2247,7 @@ lazy_static! {
                 move_id: String::from("collisioncourse"),
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -2263,7 +2263,7 @@ lazy_static! {
                 move_id: String::from("combattorque"),
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -2283,7 +2283,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 18.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -2299,7 +2299,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("comeuppance"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -2313,7 +2313,7 @@ lazy_static! {
             String::from("confide"),
             Choice {
                 move_id: String::from("confide"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     reflectable: true,
@@ -2338,7 +2338,7 @@ lazy_static! {
             String::from("confuseray"),
             Choice {
                 move_id: String::from("confuseray"),
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -2358,7 +2358,7 @@ lazy_static! {
                 move_id: String::from("confusion"),
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -2378,7 +2378,7 @@ lazy_static! {
                 move_id: String::from("constrict"),
                 base_power: 10.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -2405,7 +2405,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("conversion"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -2417,7 +2417,7 @@ lazy_static! {
             String::from("conversion2"),
             Choice {
                 move_id: String::from("conversion2"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2429,7 +2429,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("copycat"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2442,7 +2442,7 @@ lazy_static! {
                 move_id: String::from("coreenforcer"),
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -2455,7 +2455,7 @@ lazy_static! {
             String::from("corrosivegas"),
             Choice {
                 move_id: String::from("corrosivegas"),
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -2470,7 +2470,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("cosmicpower"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -2494,7 +2494,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("cottonguard"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -2517,7 +2517,7 @@ lazy_static! {
             String::from("cottonspore"),
             Choice {
                 move_id: String::from("cottonspore"),
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     powder: true,
@@ -2545,7 +2545,7 @@ lazy_static! {
                 move_id: String::from("counter"),
                 category: MoveCategory::Physical,
                 priority: -5,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -2558,7 +2558,7 @@ lazy_static! {
             String::from("courtchange"),
             Choice {
                 move_id: String::from("courtchange"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     ..Default::default()
@@ -2572,7 +2572,7 @@ lazy_static! {
                 move_id: String::from("covet"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -2589,7 +2589,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -2605,7 +2605,7 @@ lazy_static! {
                 move_id: String::from("craftyshield"),
                 priority: 3,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2623,7 +2623,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -2639,7 +2639,7 @@ lazy_static! {
                 move_id: String::from("crosspoison"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -2660,7 +2660,7 @@ lazy_static! {
                 move_id: String::from("crunch"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -2690,7 +2690,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -2717,7 +2717,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("crushgrip"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -2731,7 +2731,7 @@ lazy_static! {
             String::from("curse"),
             Choice {
                 move_id: String::from("curse"),
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2760,7 +2760,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -2776,7 +2776,7 @@ lazy_static! {
                 move_id: String::from("darkestlariat"),
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -2792,7 +2792,7 @@ lazy_static! {
                 move_id: String::from("darkpulse"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     distance: true,
                     mirror: true,
@@ -2817,7 +2817,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Sleep,
                 }),
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -2833,7 +2833,7 @@ lazy_static! {
                 move_id: String::from("dazzlinggleam"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -2846,7 +2846,7 @@ lazy_static! {
             String::from("decorate"),
             Choice {
                 move_id: String::from("decorate"),
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2869,7 +2869,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("defendorder"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -2893,7 +2893,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("defensecurl"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -2920,7 +2920,7 @@ lazy_static! {
             String::from("defog"),
             Choice {
                 move_id: String::from("defog"),
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -2946,7 +2946,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("destinybond"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2963,7 +2963,7 @@ lazy_static! {
                 move_id: String::from("detect"),
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2981,7 +2981,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3008,7 +3008,7 @@ lazy_static! {
                 move_id: String::from("dig"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     charge: true,
                     contact: true,
@@ -3026,7 +3026,7 @@ lazy_static! {
                 move_id: String::from("direclaw"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3040,7 +3040,7 @@ lazy_static! {
             String::from("disable"),
             Choice {
                 move_id: String::from("disable"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3060,7 +3060,7 @@ lazy_static! {
                 move_id: String::from("disarmingvoice"),
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3076,7 +3076,7 @@ lazy_static! {
                 move_id: String::from("discharge"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3096,7 +3096,7 @@ lazy_static! {
                 move_id: String::from("dive"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     charge: true,
                     contact: true,
@@ -3114,7 +3114,7 @@ lazy_static! {
                 move_id: String::from("dizzypunch"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3134,7 +3134,7 @@ lazy_static! {
             String::from("doodle"),
             Choice {
                 move_id: String::from("doodle"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -3147,7 +3147,7 @@ lazy_static! {
                 move_id: String::from("doomdesire"),
                 base_power: 140.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -3160,7 +3160,7 @@ lazy_static! {
                 move_id: String::from("doubleedge"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3177,7 +3177,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 35.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3193,7 +3193,7 @@ lazy_static! {
                 move_id: String::from("doubleironbash"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3215,7 +3215,7 @@ lazy_static! {
                 move_id: String::from("doublekick"),
                 base_power: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3231,7 +3231,7 @@ lazy_static! {
                 move_id: String::from("doubleshock"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3248,7 +3248,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3263,7 +3263,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("doubleteam"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -3289,7 +3289,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 130.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3304,7 +3304,7 @@ lazy_static! {
                 move_id: String::from("dragonascent"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     contact: true,
                     distance: true,
@@ -3321,7 +3321,7 @@ lazy_static! {
                 move_id: String::from("dragonbreath"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3341,7 +3341,7 @@ lazy_static! {
                 move_id: String::from("dragonclaw"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3356,7 +3356,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("dragondance"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     dance: true,
                     snatch: true,
@@ -3382,7 +3382,7 @@ lazy_static! {
                 move_id: String::from("dragondarts"),
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3397,7 +3397,7 @@ lazy_static! {
                 move_id: String::from("dragonenergy"),
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3412,7 +3412,7 @@ lazy_static! {
                 move_id: String::from("dragonhammer"),
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3428,7 +3428,7 @@ lazy_static! {
                 move_id: String::from("dragonpulse"),
                 base_power: 85.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     distance: true,
                     mirror: true,
@@ -3444,7 +3444,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("dragonrage"),
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3460,7 +3460,7 @@ lazy_static! {
                 accuracy: 75.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3483,7 +3483,7 @@ lazy_static! {
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 priority: -6,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     contact: true,
                     drag: true,
@@ -3500,7 +3500,7 @@ lazy_static! {
                 move_id: String::from("drainingkiss"),
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     contact: true,
                     heal: true,
@@ -3517,7 +3517,7 @@ lazy_static! {
                 move_id: String::from("drainpunch"),
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     heal: true,
@@ -3535,7 +3535,7 @@ lazy_static! {
                 move_id: String::from("dreameater"),
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     heal: true,
                     mirror: true,
@@ -3551,7 +3551,7 @@ lazy_static! {
                 move_id: String::from("drillpeck"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     contact: true,
                     distance: true,
@@ -3569,7 +3569,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3585,7 +3585,7 @@ lazy_static! {
                 move_id: String::from("drumbeating"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3613,7 +3613,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3630,7 +3630,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3646,7 +3646,7 @@ lazy_static! {
                 move_id: String::from("dynamaxcannon"),
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -3661,7 +3661,7 @@ lazy_static! {
                 accuracy: 50.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3683,7 +3683,7 @@ lazy_static! {
                 move_id: String::from("earthpower"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -3711,7 +3711,7 @@ lazy_static! {
                 move_id: String::from("earthquake"),
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -3727,7 +3727,7 @@ lazy_static! {
                 move_id: String::from("echoedvoice"),
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3741,7 +3741,7 @@ lazy_static! {
             String::from("eerieimpulse"),
             Choice {
                 move_id: String::from("eerieimpulse"),
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3768,7 +3768,7 @@ lazy_static! {
                 move_id: String::from("eeriespell"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3785,7 +3785,7 @@ lazy_static! {
                 accuracy: 75.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -3799,7 +3799,7 @@ lazy_static! {
             String::from("electricterrain"),
             Choice {
                 move_id: String::from("electricterrain"),
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     nonsky: true,
                     ..Default::default()
@@ -3811,7 +3811,7 @@ lazy_static! {
             String::from("electrify"),
             Choice {
                 move_id: String::from("electrify"),
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3829,7 +3829,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("electroball"),
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -3845,7 +3845,7 @@ lazy_static! {
                 move_id: String::from("electrodrift"),
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3862,7 +3862,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 55.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3887,7 +3887,7 @@ lazy_static! {
             String::from("embargo"),
             Choice {
                 move_id: String::from("embargo"),
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3907,7 +3907,7 @@ lazy_static! {
                 move_id: String::from("ember"),
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3925,7 +3925,7 @@ lazy_static! {
             String::from("encore"),
             Choice {
                 move_id: String::from("encore"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -3944,7 +3944,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("endeavor"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -3960,7 +3960,7 @@ lazy_static! {
                 move_id: String::from("endure"),
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -3977,7 +3977,7 @@ lazy_static! {
                 move_id: String::from("energyball"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -4003,7 +4003,7 @@ lazy_static! {
             String::from("entrainment"),
             Choice {
                 move_id: String::from("entrainment"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4019,7 +4019,7 @@ lazy_static! {
                 move_id: String::from("eruption"),
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4034,7 +4034,7 @@ lazy_static! {
                 move_id: String::from("esperwing"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4062,7 +4062,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 160.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4078,7 +4078,7 @@ lazy_static! {
                 move_id: String::from("expandingforce"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4093,7 +4093,7 @@ lazy_static! {
                 move_id: String::from("explosion"),
                 base_power: 250.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4112,7 +4112,7 @@ lazy_static! {
                 move_id: String::from("extrasensory"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4133,7 +4133,7 @@ lazy_static! {
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 priority: 2,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -4149,7 +4149,7 @@ lazy_static! {
                 move_id: String::from("facade"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -4163,7 +4163,7 @@ lazy_static! {
             String::from("fairylock"),
             Choice {
                 move_id: String::from("fairylock"),
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
                     ..Default::default()
@@ -4177,7 +4177,7 @@ lazy_static! {
                 move_id: String::from("fairywind"),
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4193,7 +4193,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 3,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -4212,7 +4212,7 @@ lazy_static! {
             String::from("faketears"),
             Choice {
                 move_id: String::from("faketears"),
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4239,7 +4239,7 @@ lazy_static! {
                 move_id: String::from("falsesurrender"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -4255,7 +4255,7 @@ lazy_static! {
                 move_id: String::from("falseswipe"),
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -4269,7 +4269,7 @@ lazy_static! {
             String::from("featherdance"),
             Choice {
                 move_id: String::from("featherdance"),
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     dance: true,
                     mirror: true,
@@ -4298,7 +4298,7 @@ lazy_static! {
                 base_power: 30.0,
                 category: MoveCategory::Physical,
                 priority: 2,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     ..Default::default()
@@ -4312,7 +4312,7 @@ lazy_static! {
                 move_id: String::from("feintattack"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -4328,7 +4328,7 @@ lazy_static! {
                 move_id: String::from("fellstinger"),
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -4344,7 +4344,7 @@ lazy_static! {
                 move_id: String::from("fierydance"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     dance: true,
                     mirror: true,
@@ -4372,7 +4372,7 @@ lazy_static! {
                 move_id: String::from("fierywrath"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4391,7 +4391,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("filletaway"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -4404,7 +4404,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("finalgambit"),
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4423,7 +4423,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4444,7 +4444,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -4461,7 +4461,7 @@ lazy_static! {
                 move_id: String::from("firelash"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -4489,7 +4489,7 @@ lazy_static! {
                 move_id: String::from("firepledge"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -4505,7 +4505,7 @@ lazy_static! {
                 move_id: String::from("firepunch"),
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -4528,7 +4528,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 35.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4548,7 +4548,7 @@ lazy_static! {
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 priority: 2,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -4564,7 +4564,7 @@ lazy_static! {
                 move_id: String::from("fishiousrend"),
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -4581,7 +4581,7 @@ lazy_static! {
                 move_id: String::from("fissure"),
                 accuracy: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -4596,7 +4596,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("flail"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -4612,7 +4612,7 @@ lazy_static! {
                 move_id: String::from("flameburst"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4627,7 +4627,7 @@ lazy_static! {
                 move_id: String::from("flamecharge"),
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -4655,7 +4655,7 @@ lazy_static! {
                 move_id: String::from("flamethrower"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4675,7 +4675,7 @@ lazy_static! {
                 move_id: String::from("flamewheel"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     contact: true,
                     defrost: true,
@@ -4697,7 +4697,7 @@ lazy_static! {
                 move_id: String::from("flareblitz"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     contact: true,
                     defrost: true,
@@ -4717,7 +4717,7 @@ lazy_static! {
             String::from("flash"),
             Choice {
                 move_id: String::from("flash"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4744,7 +4744,7 @@ lazy_static! {
                 move_id: String::from("flashcannon"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4769,7 +4769,7 @@ lazy_static! {
             String::from("flatter"),
             Choice {
                 move_id: String::from("flatter"),
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4801,7 +4801,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 130.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4815,7 +4815,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("fling"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4830,7 +4830,7 @@ lazy_static! {
                 move_id: String::from("flipturn"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -4847,7 +4847,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     contact: true,
                     gravity: true,
@@ -4867,7 +4867,7 @@ lazy_static! {
             String::from("floralhealing"),
             Choice {
                 move_id: String::from("floralhealing"),
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     heal: true,
                     protect: true,
@@ -4881,7 +4881,7 @@ lazy_static! {
             String::from("flowershield"),
             Choice {
                 move_id: String::from("flowershield"),
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     distance: true,
                     ..Default::default()
@@ -4895,7 +4895,7 @@ lazy_static! {
                 move_id: String::from("flowertrick"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -4911,7 +4911,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     charge: true,
                     contact: true,
@@ -4931,7 +4931,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     distance: true,
@@ -4951,7 +4951,7 @@ lazy_static! {
                 accuracy: 70.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -4978,7 +4978,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("focusenergy"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -4997,7 +4997,7 @@ lazy_static! {
                 base_power: 150.0,
                 category: MoveCategory::Physical,
                 priority: -3,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5013,7 +5013,7 @@ lazy_static! {
                 move_id: String::from("followme"),
                 priority: 2,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -5030,7 +5030,7 @@ lazy_static! {
                 move_id: String::from("forcepalm"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5049,7 +5049,7 @@ lazy_static! {
             String::from("foresight"),
             Choice {
                 move_id: String::from("foresight"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5067,7 +5067,7 @@ lazy_static! {
             String::from("forestscurse"),
             Choice {
                 move_id: String::from("forestscurse"),
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5083,7 +5083,7 @@ lazy_static! {
                 move_id: String::from("foulplay"),
                 base_power: 95.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5099,7 +5099,7 @@ lazy_static! {
                 move_id: String::from("freezedry"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5120,7 +5120,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 140.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     charge: true,
                     mirror: true,
@@ -5141,7 +5141,7 @@ lazy_static! {
                 move_id: String::from("freezingglare"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5162,7 +5162,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5178,7 +5178,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -5196,7 +5196,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5210,7 +5210,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("frustration"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5227,7 +5227,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5244,7 +5244,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5261,7 +5261,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 18.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5277,7 +5277,7 @@ lazy_static! {
                 move_id: String::from("fusionbolt"),
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5292,7 +5292,7 @@ lazy_static! {
                 move_id: String::from("fusionflare"),
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     defrost: true,
                     mirror: true,
@@ -5308,7 +5308,7 @@ lazy_static! {
                 move_id: String::from("futuresight"),
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -5319,7 +5319,7 @@ lazy_static! {
             String::from("gastroacid"),
             Choice {
                 move_id: String::from("gastroacid"),
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5340,7 +5340,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5355,7 +5355,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("gearup"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -5368,7 +5368,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("geomancy"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     charge: true,
                     nonsky: true,
@@ -5394,7 +5394,7 @@ lazy_static! {
                 move_id: String::from("gigadrain"),
                 base_power: 75.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     heal: true,
                     mirror: true,
@@ -5411,7 +5411,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5428,7 +5428,7 @@ lazy_static! {
                 move_id: String::from("gigatonhammer"),
                 base_power: 160.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5443,7 +5443,7 @@ lazy_static! {
                 move_id: String::from("glaciallance"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5459,7 +5459,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5486,7 +5486,7 @@ lazy_static! {
                 move_id: String::from("glaiverush"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5504,7 +5504,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Paralyze,
                 }),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5521,7 +5521,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5535,7 +5535,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("grassknot"),
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5552,7 +5552,7 @@ lazy_static! {
                 move_id: String::from("grasspledge"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -5571,7 +5571,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Sleep,
                 }),
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5588,7 +5588,7 @@ lazy_static! {
                 move_id: String::from("grassyglide"),
                 base_power: 55.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5602,7 +5602,7 @@ lazy_static! {
             String::from("grassyterrain"),
             Choice {
                 move_id: String::from("grassyterrain"),
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     nonsky: true,
                     ..Default::default()
@@ -5616,7 +5616,7 @@ lazy_static! {
                 move_id: String::from("gravapple"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5641,7 +5641,7 @@ lazy_static! {
             String::from("gravity"),
             Choice {
                 move_id: String::from("gravity"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     nonsky: true,
                     ..Default::default()
@@ -5653,7 +5653,7 @@ lazy_static! {
             String::from("growl"),
             Choice {
                 move_id: String::from("growl"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5680,7 +5680,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("growth"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -5704,7 +5704,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("grudge"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -5719,7 +5719,7 @@ lazy_static! {
             String::from("guardsplit"),
             Choice {
                 move_id: String::from("guardsplit"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -5731,7 +5731,7 @@ lazy_static! {
             String::from("guardswap"),
             Choice {
                 move_id: String::from("guardswap"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5746,7 +5746,7 @@ lazy_static! {
                 move_id: String::from("guillotine"),
                 accuracy: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5763,7 +5763,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5783,7 +5783,7 @@ lazy_static! {
                 move_id: String::from("gust"),
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     distance: true,
                     mirror: true,
@@ -5798,7 +5798,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("gyroball"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     bullet: true,
                     contact: true,
@@ -5813,7 +5813,7 @@ lazy_static! {
             String::from("hail"),
             Choice {
                 move_id: String::from("hail"),
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -5827,7 +5827,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5843,7 +5843,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("happyhour"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -5855,7 +5855,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("harden"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -5878,7 +5878,7 @@ lazy_static! {
             String::from("haze"),
             Choice {
                 move_id: String::from("haze"),
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -5891,7 +5891,7 @@ lazy_static! {
                 move_id: String::from("headbutt"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5912,7 +5912,7 @@ lazy_static! {
                 move_id: String::from("headcharge"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5928,7 +5928,7 @@ lazy_static! {
                 move_id: String::from("headlongrush"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5946,7 +5946,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 150.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -5961,7 +5961,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("healbell"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     distance: true,
                     snatch: true,
@@ -5975,7 +5975,7 @@ lazy_static! {
             String::from("healblock"),
             Choice {
                 move_id: String::from("healblock"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -5994,7 +5994,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("healingwish"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -6016,7 +6016,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("healorder"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -6033,7 +6033,7 @@ lazy_static! {
             String::from("healpulse"),
             Choice {
                 move_id: String::from("healpulse"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     distance: true,
                     heal: true,
@@ -6051,7 +6051,7 @@ lazy_static! {
                 move_id: String::from("heartstamp"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -6070,7 +6070,7 @@ lazy_static! {
             String::from("heartswap"),
             Choice {
                 move_id: String::from("heartswap"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6084,7 +6084,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("heatcrash"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -6102,7 +6102,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 95.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6121,7 +6121,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("heavyslam"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -6138,7 +6138,7 @@ lazy_static! {
                 move_id: String::from("helpinghand"),
                 priority: 5,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -6155,7 +6155,7 @@ lazy_static! {
                 move_id: String::from("hex"),
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6185,7 +6185,7 @@ lazy_static! {
                 move_id: String::from("hiddenpower"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6200,7 +6200,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerbug60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6215,7 +6215,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerbug70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6230,7 +6230,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerdark60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6245,7 +6245,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerdark70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6260,7 +6260,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerdragon60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6275,7 +6275,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerdragon70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6290,7 +6290,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerelectric60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6305,7 +6305,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerelectric70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6320,7 +6320,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerfighting60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6335,7 +6335,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerfighting70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6350,7 +6350,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerfire60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6365,7 +6365,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerfire70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6380,7 +6380,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerflying60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6395,7 +6395,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerflying70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6410,7 +6410,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerghost60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6425,7 +6425,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerghost70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6440,7 +6440,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowergrass60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6455,7 +6455,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowergrass70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6470,7 +6470,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerground60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6485,7 +6485,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerground70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6500,7 +6500,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerice60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6515,7 +6515,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerice70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6530,7 +6530,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerpoison60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6545,7 +6545,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerpoison70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6560,7 +6560,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerpsychic60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6575,7 +6575,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerpsychic70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6590,7 +6590,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerrock60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6605,7 +6605,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerrock70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6620,7 +6620,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowersteel60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6635,7 +6635,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowersteel70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6650,7 +6650,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerwater60"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6665,7 +6665,7 @@ lazy_static! {
                 move_id: String::from("hiddenpowerwater70"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6681,7 +6681,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 95.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -6698,7 +6698,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 130.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     gravity: true,
@@ -6715,7 +6715,7 @@ lazy_static! {
                 move_id: String::from("holdback"),
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -6730,7 +6730,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("holdhands"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -6742,7 +6742,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("honeclaws"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -6767,7 +6767,7 @@ lazy_static! {
                 move_id: String::from("hornattack"),
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -6783,7 +6783,7 @@ lazy_static! {
                 move_id: String::from("horndrill"),
                 accuracy: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -6799,7 +6799,7 @@ lazy_static! {
                 move_id: String::from("hornleech"),
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     contact: true,
                     heal: true,
@@ -6815,7 +6815,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("howl"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     sound: true,
@@ -6842,7 +6842,7 @@ lazy_static! {
                 accuracy: 70.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     distance: true,
                     mirror: true,
@@ -6864,7 +6864,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6881,7 +6881,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6896,7 +6896,7 @@ lazy_static! {
                 move_id: String::from("hydrosteam"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     defrost: true,
                     mirror: true,
@@ -6913,7 +6913,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -6929,7 +6929,7 @@ lazy_static! {
                 move_id: String::from("hyperdrill"),
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -6945,7 +6945,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -6967,7 +6967,7 @@ lazy_static! {
                 move_id: String::from("hyperspacefury"),
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     ..Default::default()
@@ -6981,7 +6981,7 @@ lazy_static! {
                 move_id: String::from("hyperspacehole"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     ..Default::default()
@@ -6995,7 +6995,7 @@ lazy_static! {
                 move_id: String::from("hypervoice"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7014,7 +7014,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Sleep,
                 }),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7031,7 +7031,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     bullet: true,
                     contact: true,
@@ -7048,7 +7048,7 @@ lazy_static! {
                 move_id: String::from("icebeam"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7069,7 +7069,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 140.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     charge: true,
                     mirror: true,
@@ -7091,7 +7091,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -7109,7 +7109,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -7126,7 +7126,7 @@ lazy_static! {
                 move_id: String::from("icepunch"),
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -7149,7 +7149,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7164,7 +7164,7 @@ lazy_static! {
                 move_id: String::from("icespinner"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -7181,7 +7181,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7201,7 +7201,7 @@ lazy_static! {
                 move_id: String::from("iciclespear"),
                 base_power: 25.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7217,7 +7217,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 55.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7243,7 +7243,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("imprison"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -7261,7 +7261,7 @@ lazy_static! {
                 move_id: String::from("incinerate"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7276,7 +7276,7 @@ lazy_static! {
                 move_id: String::from("infernalparade"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7297,7 +7297,7 @@ lazy_static! {
                 accuracy: 50.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7317,7 +7317,7 @@ lazy_static! {
                 move_id: String::from("infestation"),
                 base_power: 20.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -7336,7 +7336,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("ingrain"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     nonsky: true,
                     snatch: true,
@@ -7353,7 +7353,7 @@ lazy_static! {
             String::from("instruct"),
             Choice {
                 move_id: String::from("instruct"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7366,7 +7366,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("iondeluge"),
                 priority: 1,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -7378,7 +7378,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("irondefense"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -7403,7 +7403,7 @@ lazy_static! {
                 move_id: String::from("ironhead"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -7425,7 +7425,7 @@ lazy_static! {
                 accuracy: 75.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -7453,7 +7453,7 @@ lazy_static! {
                 move_id: String::from("ivycudgel"),
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7468,7 +7468,7 @@ lazy_static! {
                 move_id: String::from("jawlock"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -7486,7 +7486,7 @@ lazy_static! {
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -7503,7 +7503,7 @@ lazy_static! {
                 move_id: String::from("judgment"),
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7519,7 +7519,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     gravity: true,
@@ -7535,7 +7535,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("junglehealing"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -7553,7 +7553,7 @@ lazy_static! {
                 move_id: String::from("karatechop"),
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -7568,7 +7568,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("kinesis"),
                 accuracy: 80.0,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7595,7 +7595,7 @@ lazy_static! {
                 move_id: String::from("kingsshield"),
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -7612,7 +7612,7 @@ lazy_static! {
                 move_id: String::from("knockoff"),
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -7628,7 +7628,7 @@ lazy_static! {
                 move_id: String::from("kowtowcleave"),
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -7644,7 +7644,7 @@ lazy_static! {
                 move_id: String::from("landswrath"),
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -7659,7 +7659,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("laserfocus"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -7677,7 +7677,7 @@ lazy_static! {
                 move_id: String::from("lashout"),
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -7693,7 +7693,7 @@ lazy_static! {
                 move_id: String::from("lastresort"),
                 base_power: 140.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -7709,7 +7709,7 @@ lazy_static! {
                 move_id: String::from("lastrespects"),
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7724,7 +7724,7 @@ lazy_static! {
                 move_id: String::from("lavaplume"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7744,7 +7744,7 @@ lazy_static! {
                 move_id: String::from("leafage"),
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7759,7 +7759,7 @@ lazy_static! {
                 move_id: String::from("leafblade"),
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -7776,7 +7776,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 130.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7792,7 +7792,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7819,7 +7819,7 @@ lazy_static! {
                 move_id: String::from("leechlife"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     contact: true,
                     heal: true,
@@ -7835,7 +7835,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("leechseed"),
                 accuracy: 90.0,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     powder: true,
@@ -7854,7 +7854,7 @@ lazy_static! {
             String::from("leer"),
             Choice {
                 move_id: String::from("leer"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7881,7 +7881,7 @@ lazy_static! {
                 move_id: String::from("lick"),
                 base_power: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -7901,7 +7901,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("lifedew"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -7921,7 +7921,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 140.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7935,7 +7935,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("lightscreen"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -7953,7 +7953,7 @@ lazy_static! {
                 move_id: String::from("liquidation"),
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -7979,7 +7979,7 @@ lazy_static! {
             String::from("lockon"),
             Choice {
                 move_id: String::from("lockon"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -7997,7 +7997,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Sleep,
                 }),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8012,7 +8012,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("lowkick"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -8028,7 +8028,7 @@ lazy_static! {
                 move_id: String::from("lowsweep"),
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -8055,7 +8055,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("luckychant"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -8073,7 +8073,7 @@ lazy_static! {
                 move_id: String::from("luminacrash"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8099,7 +8099,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("lunarblessing"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -8117,7 +8117,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("lunardance"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     dance: true,
                     heal: true,
@@ -8133,7 +8133,7 @@ lazy_static! {
                 move_id: String::from("lunge"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -8161,7 +8161,7 @@ lazy_static! {
                 move_id: String::from("lusterpurge"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8189,7 +8189,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -8206,7 +8206,7 @@ lazy_static! {
                 move_id: String::from("magicalleaf"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8221,7 +8221,7 @@ lazy_static! {
                 move_id: String::from("magicaltorque"),
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8240,7 +8240,7 @@ lazy_static! {
                 move_id: String::from("magiccoat"),
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -8255,7 +8255,7 @@ lazy_static! {
             String::from("magicpowder"),
             Choice {
                 move_id: String::from("magicpowder"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     powder: true,
@@ -8270,7 +8270,7 @@ lazy_static! {
             String::from("magicroom"),
             Choice {
                 move_id: String::from("magicroom"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     ..Default::default()
@@ -8285,7 +8285,7 @@ lazy_static! {
                 accuracy: 75.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8304,7 +8304,7 @@ lazy_static! {
                 move_id: String::from("magnetbomb"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -8319,7 +8319,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("magneticflux"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     distance: true,
                     snatch: true,
@@ -8333,7 +8333,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("magnetrise"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     gravity: true,
                     snatch: true,
@@ -8351,7 +8351,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("magnitude"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -8367,7 +8367,7 @@ lazy_static! {
                 move_id: String::from("makeitrain"),
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8381,7 +8381,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("matblock"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     nonsky: true,
                     snatch: true,
@@ -8401,7 +8401,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     defrost: true,
                     mirror: true,
@@ -8420,7 +8420,7 @@ lazy_static! {
             String::from("meanlook"),
             Choice {
                 move_id: String::from("meanlook"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     reflectable: true,
@@ -8434,7 +8434,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("meditate"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -8457,7 +8457,7 @@ lazy_static! {
             String::from("mefirst"),
             Choice {
                 move_id: String::from("mefirst"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8471,7 +8471,7 @@ lazy_static! {
                 move_id: String::from("megadrain"),
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     heal: true,
                     mirror: true,
@@ -8488,7 +8488,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -8505,7 +8505,7 @@ lazy_static! {
                 accuracy: 75.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -8522,7 +8522,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -8537,7 +8537,7 @@ lazy_static! {
             String::from("memento"),
             Choice {
                 move_id: String::from("memento"),
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8566,7 +8566,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("metalburst"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8582,7 +8582,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -8609,7 +8609,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("metalsound"),
                 accuracy: 85.0,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8637,7 +8637,7 @@ lazy_static! {
                 move_id: String::from("meteorassault"),
                 base_power: 150.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8654,7 +8654,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     charge: true,
                     mirror: true,
@@ -8671,7 +8671,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -8699,7 +8699,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("metronome"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -8711,7 +8711,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("milkdrink"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -8728,7 +8728,7 @@ lazy_static! {
             String::from("mimic"),
             Choice {
                 move_id: String::from("mimic"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8742,7 +8742,7 @@ lazy_static! {
                 move_id: String::from("mindblown"),
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8759,7 +8759,7 @@ lazy_static! {
             String::from("mindreader"),
             Choice {
                 move_id: String::from("mindreader"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8773,7 +8773,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("minimize"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -8800,7 +8800,7 @@ lazy_static! {
             String::from("miracleeye"),
             Choice {
                 move_id: String::from("miracleeye"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8820,7 +8820,7 @@ lazy_static! {
                 move_id: String::from("mirrorcoat"),
                 category: MoveCategory::Special,
                 priority: -5,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8832,7 +8832,7 @@ lazy_static! {
             String::from("mirrormove"),
             Choice {
                 move_id: String::from("mirrormove"),
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -8846,7 +8846,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8872,7 +8872,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("mist"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -8890,7 +8890,7 @@ lazy_static! {
                 move_id: String::from("mistball"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -8918,7 +8918,7 @@ lazy_static! {
                 move_id: String::from("mistyexplosion"),
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8935,7 +8935,7 @@ lazy_static! {
             String::from("mistyterrain"),
             Choice {
                 move_id: String::from("mistyterrain"),
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     nonsky: true,
                     ..Default::default()
@@ -8949,7 +8949,7 @@ lazy_static! {
                 move_id: String::from("moonblast"),
                 base_power: 95.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8976,7 +8976,7 @@ lazy_static! {
                 move_id: String::from("moongeistbeam"),
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -8990,7 +8990,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("moonlight"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -9008,7 +9008,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("morningsun"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -9027,7 +9027,7 @@ lazy_static! {
                 move_id: String::from("mortalspin"),
                 base_power: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -9049,7 +9049,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9070,7 +9070,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -9099,7 +9099,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -9128,7 +9128,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 55.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9155,7 +9155,7 @@ lazy_static! {
                 move_id: String::from("mudslap"),
                 base_power: 20.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9180,7 +9180,7 @@ lazy_static! {
             String::from("mudsport"),
             Choice {
                 move_id: String::from("mudsport"),
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     nonsky: true,
                     ..Default::default()
@@ -9194,7 +9194,7 @@ lazy_static! {
                 move_id: String::from("multiattack"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -9210,7 +9210,7 @@ lazy_static! {
                 move_id: String::from("mysticalfire"),
                 base_power: 75.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9238,7 +9238,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9264,7 +9264,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("nastyplot"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -9288,7 +9288,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("naturalgift"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9301,7 +9301,7 @@ lazy_static! {
             String::from("naturepower"),
             Choice {
                 move_id: String::from("naturepower"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -9314,7 +9314,7 @@ lazy_static! {
                 move_id: String::from("naturesmadness"),
                 accuracy: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9329,7 +9329,7 @@ lazy_static! {
                 move_id: String::from("needlearm"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -9351,7 +9351,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 85.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9376,7 +9376,7 @@ lazy_static! {
             String::from("nightmare"),
             Choice {
                 move_id: String::from("nightmare"),
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9394,7 +9394,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("nightshade"),
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9409,7 +9409,7 @@ lazy_static! {
                 move_id: String::from("nightslash"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -9423,7 +9423,7 @@ lazy_static! {
             String::from("nobleroar"),
             Choice {
                 move_id: String::from("nobleroar"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9450,7 +9450,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("noretreat"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -9478,7 +9478,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("nothing"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     gravity: true,
                     ..Default::default()
@@ -9492,7 +9492,7 @@ lazy_static! {
                 move_id: String::from("noxioustorque"),
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9511,7 +9511,7 @@ lazy_static! {
                 move_id: String::from("nuzzle"),
                 base_power: 20.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -9532,7 +9532,7 @@ lazy_static! {
                 move_id: String::from("oblivionwing"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     distance: true,
                     heal: true,
@@ -9549,7 +9549,7 @@ lazy_static! {
                 move_id: String::from("obstruct"),
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -9567,7 +9567,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -9593,7 +9593,7 @@ lazy_static! {
             String::from("octolock"),
             Choice {
                 move_id: String::from("octolock"),
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9610,7 +9610,7 @@ lazy_static! {
             String::from("odorsleuth"),
             Choice {
                 move_id: String::from("odorsleuth"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9630,7 +9630,7 @@ lazy_static! {
                 move_id: String::from("ominouswind"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9657,7 +9657,7 @@ lazy_static! {
                 move_id: String::from("orderup"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9672,7 +9672,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9688,7 +9688,7 @@ lazy_static! {
                 move_id: String::from("outrage"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -9704,7 +9704,7 @@ lazy_static! {
                 move_id: String::from("overdrive"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9721,7 +9721,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 130.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9734,7 +9734,7 @@ lazy_static! {
             String::from("painsplit"),
             Choice {
                 move_id: String::from("painsplit"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9749,7 +9749,7 @@ lazy_static! {
                 move_id: String::from("paleowave"),
                 base_power: 85.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9776,7 +9776,7 @@ lazy_static! {
                 move_id: String::from("paraboliccharge"),
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     heal: true,
                     mirror: true,
@@ -9790,7 +9790,7 @@ lazy_static! {
             String::from("partingshot"),
             Choice {
                 move_id: String::from("partingshot"),
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9818,7 +9818,7 @@ lazy_static! {
                 move_id: String::from("payback"),
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -9834,7 +9834,7 @@ lazy_static! {
                 move_id: String::from("payday"),
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9849,7 +9849,7 @@ lazy_static! {
                 move_id: String::from("peck"),
                 base_power: 35.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     contact: true,
                     distance: true,
@@ -9864,7 +9864,7 @@ lazy_static! {
             String::from("perishsong"),
             Choice {
                 move_id: String::from("perishsong"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     distance: true,
                     sound: true,
@@ -9879,7 +9879,7 @@ lazy_static! {
                 move_id: String::from("petalblizzard"),
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9894,7 +9894,7 @@ lazy_static! {
                 move_id: String::from("petaldance"),
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     contact: true,
                     dance: true,
@@ -9911,7 +9911,7 @@ lazy_static! {
                 move_id: String::from("phantomforce"),
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     charge: true,
                     contact: true,
@@ -9927,7 +9927,7 @@ lazy_static! {
                 move_id: String::from("photongeyser"),
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9941,7 +9941,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("pikapapow"),
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9957,7 +9957,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -9972,7 +9972,7 @@ lazy_static! {
                 move_id: String::from("plasmafists"),
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -9987,7 +9987,7 @@ lazy_static! {
             String::from("playnice"),
             Choice {
                 move_id: String::from("playnice"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     reflectable: true,
@@ -10014,7 +10014,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10042,7 +10042,7 @@ lazy_static! {
                 move_id: String::from("pluck"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     contact: true,
                     distance: true,
@@ -10059,7 +10059,7 @@ lazy_static! {
                 move_id: String::from("poisonfang"),
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -10084,7 +10084,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Poison,
                 }),
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10100,7 +10100,7 @@ lazy_static! {
                 move_id: String::from("poisonjab"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10124,7 +10124,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Poison,
                 }),
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     powder: true,
@@ -10141,7 +10141,7 @@ lazy_static! {
                 move_id: String::from("poisonsting"),
                 base_power: 15.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10161,7 +10161,7 @@ lazy_static! {
                 move_id: String::from("poisontail"),
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10182,7 +10182,7 @@ lazy_static! {
                 move_id: String::from("pollenpuff"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -10199,7 +10199,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 110.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10215,7 +10215,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 20.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10231,7 +10231,7 @@ lazy_static! {
                 move_id: String::from("pounce"),
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10259,7 +10259,7 @@ lazy_static! {
                 move_id: String::from("pound"),
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10274,7 +10274,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("powder"),
                 priority: 1,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     mirror: true,
                     powder: true,
@@ -10295,7 +10295,7 @@ lazy_static! {
                 move_id: String::from("powdersnow"),
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10315,7 +10315,7 @@ lazy_static! {
                 move_id: String::from("powergem"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10329,7 +10329,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("powershift"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -10345,7 +10345,7 @@ lazy_static! {
             String::from("powersplit"),
             Choice {
                 move_id: String::from("powersplit"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10357,7 +10357,7 @@ lazy_static! {
             String::from("powerswap"),
             Choice {
                 move_id: String::from("powerswap"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10371,7 +10371,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("powertrick"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -10389,7 +10389,7 @@ lazy_static! {
                 move_id: String::from("powertrip"),
                 base_power: 20.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10405,7 +10405,7 @@ lazy_static! {
                 move_id: String::from("poweruppunch"),
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10435,7 +10435,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10452,7 +10452,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -10468,7 +10468,7 @@ lazy_static! {
                 move_id: String::from("present"),
                 accuracy: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10483,7 +10483,7 @@ lazy_static! {
                 move_id: String::from("prismaticlaser"),
                 base_power: 160.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10499,7 +10499,7 @@ lazy_static! {
                 move_id: String::from("protect"),
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -10516,7 +10516,7 @@ lazy_static! {
                 move_id: String::from("psybeam"),
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10536,7 +10536,7 @@ lazy_static! {
                 move_id: String::from("psyblade"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10552,7 +10552,7 @@ lazy_static! {
                 move_id: String::from("psychic"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10579,7 +10579,7 @@ lazy_static! {
                 move_id: String::from("psychicfangs"),
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -10594,7 +10594,7 @@ lazy_static! {
             String::from("psychicterrain"),
             Choice {
                 move_id: String::from("psychicterrain"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     nonsky: true,
                     ..Default::default()
@@ -10609,7 +10609,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 140.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10624,7 +10624,7 @@ lazy_static! {
                 move_id: String::from("psychocut"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10637,7 +10637,7 @@ lazy_static! {
             String::from("psychoshift"),
             Choice {
                 move_id: String::from("psychoshift"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10650,7 +10650,7 @@ lazy_static! {
             String::from("psychup"),
             Choice {
                 move_id: String::from("psychup"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -10664,7 +10664,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10692,7 +10692,7 @@ lazy_static! {
                 move_id: String::from("psyshock"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10707,7 +10707,7 @@ lazy_static! {
                 move_id: String::from("psystrike"),
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10721,7 +10721,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("psywave"),
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10735,7 +10735,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("punishment"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10749,7 +10749,7 @@ lazy_static! {
             String::from("purify"),
             Choice {
                 move_id: String::from("purify"),
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     heal: true,
                     protect: true,
@@ -10765,7 +10765,7 @@ lazy_static! {
                 move_id: String::from("pursuit"),
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10782,7 +10782,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     bullet: true,
                     defrost: true,
@@ -10802,7 +10802,7 @@ lazy_static! {
             String::from("quash"),
             Choice {
                 move_id: String::from("quash"),
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10818,7 +10818,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10834,7 +10834,7 @@ lazy_static! {
                 move_id: String::from("quickguard"),
                 priority: 3,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -10851,7 +10851,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("quiverdance"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     dance: true,
                     snatch: true,
@@ -10877,7 +10877,7 @@ lazy_static! {
                 move_id: String::from("rage"),
                 base_power: 20.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10893,7 +10893,7 @@ lazy_static! {
                 move_id: String::from("ragefist"),
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10910,7 +10910,7 @@ lazy_static! {
                 move_id: String::from("ragepowder"),
                 priority: 2,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     powder: true,
                     ..Default::default()
@@ -10928,7 +10928,7 @@ lazy_static! {
                 move_id: String::from("ragingbull"),
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10944,7 +10944,7 @@ lazy_static! {
                 move_id: String::from("ragingfury"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -10957,7 +10957,7 @@ lazy_static! {
             String::from("raindance"),
             Choice {
                 move_id: String::from("raindance"),
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -10970,7 +10970,7 @@ lazy_static! {
                 move_id: String::from("rapidspin"),
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -10999,7 +10999,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 55.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11015,7 +11015,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -11043,7 +11043,7 @@ lazy_static! {
                 move_id: String::from("razorwind"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     charge: true,
                     mirror: true,
@@ -11058,7 +11058,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("recharge"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -11070,7 +11070,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("recover"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -11088,7 +11088,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("recycle"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -11101,7 +11101,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("reflect"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -11117,7 +11117,7 @@ lazy_static! {
             String::from("reflecttype"),
             Choice {
                 move_id: String::from("reflecttype"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -11130,7 +11130,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("refresh"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -11144,7 +11144,7 @@ lazy_static! {
                 move_id: String::from("relicsong"),
                 base_power: 75.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11168,7 +11168,7 @@ lazy_static! {
                     status: PokemonStatus::Sleep,
                 }),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -11187,7 +11187,7 @@ lazy_static! {
                 move_id: String::from("retaliate"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -11203,7 +11203,7 @@ lazy_static! {
                 move_id: String::from("return"),
                 base_power: 102.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -11219,7 +11219,7 @@ lazy_static! {
                 move_id: String::from("return102"),
                 base_power: 102.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -11235,7 +11235,7 @@ lazy_static! {
                 move_id: String::from("revelationdance"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     dance: true,
                     mirror: true,
@@ -11252,7 +11252,7 @@ lazy_static! {
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 priority: -4,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -11267,7 +11267,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("reversal"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -11282,7 +11282,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("revivalblessing"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -11295,7 +11295,7 @@ lazy_static! {
                 move_id: String::from("risingvoltage"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11309,7 +11309,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("roar"),
                 priority: -6,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     drag: true,
                     mirror: true,
@@ -11327,7 +11327,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11344,7 +11344,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -11361,7 +11361,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -11381,7 +11381,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("rockpolish"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -11407,7 +11407,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11427,7 +11427,7 @@ lazy_static! {
                 move_id: String::from("rocksmash"),
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -11456,7 +11456,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11472,7 +11472,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11500,7 +11500,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -11515,7 +11515,7 @@ lazy_static! {
             String::from("roleplay"),
             Choice {
                 move_id: String::from("roleplay"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -11529,7 +11529,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -11551,7 +11551,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -11566,7 +11566,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("roost"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -11587,7 +11587,7 @@ lazy_static! {
             String::from("rototiller"),
             Choice {
                 move_id: String::from("rototiller"),
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     distance: true,
                     nonsky: true,
@@ -11602,7 +11602,7 @@ lazy_static! {
                 move_id: String::from("round"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11618,7 +11618,7 @@ lazy_static! {
                 move_id: String::from("ruination"),
                 accuracy: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11634,7 +11634,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     defrost: true,
                     mirror: true,
@@ -11655,7 +11655,7 @@ lazy_static! {
                 move_id: String::from("sacredsword"),
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -11670,7 +11670,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("safeguard"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -11688,7 +11688,7 @@ lazy_static! {
                 move_id: String::from("saltcure"),
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11705,7 +11705,7 @@ lazy_static! {
             String::from("sandattack"),
             Choice {
                 move_id: String::from("sandattack"),
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11733,7 +11733,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11751,7 +11751,7 @@ lazy_static! {
             String::from("sandstorm"),
             Choice {
                 move_id: String::from("sandstorm"),
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -11765,7 +11765,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 35.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11785,7 +11785,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11801,7 +11801,7 @@ lazy_static! {
                 move_id: String::from("scald"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     defrost: true,
                     mirror: true,
@@ -11823,7 +11823,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11836,7 +11836,7 @@ lazy_static! {
             String::from("scaryface"),
             Choice {
                 move_id: String::from("scaryface"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11863,7 +11863,7 @@ lazy_static! {
                 move_id: String::from("scorchingsands"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     defrost: true,
                     mirror: true,
@@ -11884,7 +11884,7 @@ lazy_static! {
                 move_id: String::from("scratch"),
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -11899,7 +11899,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("screech"),
                 accuracy: 85.0,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11927,7 +11927,7 @@ lazy_static! {
                 move_id: String::from("searingshot"),
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -11948,7 +11948,7 @@ lazy_static! {
                 move_id: String::from("secretpower"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11968,7 +11968,7 @@ lazy_static! {
                 move_id: String::from("secretsword"),
                 base_power: 85.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -11983,7 +11983,7 @@ lazy_static! {
                 move_id: String::from("seedbomb"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -12000,7 +12000,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12026,7 +12026,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("seismictoss"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -12043,7 +12043,7 @@ lazy_static! {
                 move_id: String::from("selfdestruct"),
                 base_power: 200.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12062,7 +12062,7 @@ lazy_static! {
                 move_id: String::from("shadowball"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -12090,7 +12090,7 @@ lazy_static! {
                 move_id: String::from("shadowbone"),
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12117,7 +12117,7 @@ lazy_static! {
                 move_id: String::from("shadowclaw"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -12133,7 +12133,7 @@ lazy_static! {
                 move_id: String::from("shadowforce"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     charge: true,
                     contact: true,
@@ -12149,7 +12149,7 @@ lazy_static! {
                 move_id: String::from("shadowpunch"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -12167,7 +12167,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -12184,7 +12184,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -12211,7 +12211,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("sharpen"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -12235,7 +12235,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("shedtail"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12252,7 +12252,7 @@ lazy_static! {
                 move_id: String::from("sheercold"),
                 accuracy: 30.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12267,7 +12267,7 @@ lazy_static! {
                 move_id: String::from("shellsidearm"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12286,7 +12286,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("shellsmash"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -12312,7 +12312,7 @@ lazy_static! {
                 base_power: 150.0,
                 category: MoveCategory::Special,
                 priority: -3,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -12325,7 +12325,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("shelter"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -12349,7 +12349,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("shiftgear"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -12374,7 +12374,7 @@ lazy_static! {
                 move_id: String::from("shockwave"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12388,7 +12388,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("shoreup"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -12403,7 +12403,7 @@ lazy_static! {
                 move_id: String::from("signalbeam"),
                 base_power: 75.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12423,7 +12423,7 @@ lazy_static! {
                 move_id: String::from("silktrap"),
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12440,7 +12440,7 @@ lazy_static! {
                 move_id: String::from("silverwind"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12465,7 +12465,7 @@ lazy_static! {
             String::from("simplebeam"),
             Choice {
                 move_id: String::from("simplebeam"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12484,7 +12484,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Sleep,
                 }),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12501,7 +12501,7 @@ lazy_static! {
                 move_id: String::from("sizzlyslide"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     contact: true,
                     defrost: true,
@@ -12521,7 +12521,7 @@ lazy_static! {
             String::from("sketch"),
             Choice {
                 move_id: String::from("sketch"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12532,7 +12532,7 @@ lazy_static! {
             String::from("skillswap"),
             Choice {
                 move_id: String::from("skillswap"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12548,7 +12548,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -12576,7 +12576,7 @@ lazy_static! {
                 move_id: String::from("skullbash"),
                 base_power: 130.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     charge: true,
                     contact: true,
@@ -12594,7 +12594,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 140.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     charge: true,
                     distance: true,
@@ -12616,7 +12616,7 @@ lazy_static! {
                 move_id: String::from("skydrop"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     charge: true,
                     contact: true,
@@ -12636,7 +12636,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -12652,7 +12652,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("slackoff"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -12672,7 +12672,7 @@ lazy_static! {
                 accuracy: 75.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -12689,7 +12689,7 @@ lazy_static! {
                 move_id: String::from("slash"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -12708,7 +12708,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Sleep,
                 }),
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     powder: true,
@@ -12724,7 +12724,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("sleeptalk"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12737,7 +12737,7 @@ lazy_static! {
                 move_id: String::from("sludge"),
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12757,7 +12757,7 @@ lazy_static! {
                 move_id: String::from("sludgebomb"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -12778,7 +12778,7 @@ lazy_static! {
                 move_id: String::from("sludgewave"),
                 base_power: 95.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12798,7 +12798,7 @@ lazy_static! {
                 move_id: String::from("smackdown"),
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -12818,7 +12818,7 @@ lazy_static! {
                 move_id: String::from("smartstrike"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -12834,7 +12834,7 @@ lazy_static! {
                 move_id: String::from("smellingsalts"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -12851,7 +12851,7 @@ lazy_static! {
                 accuracy: 70.0,
                 base_power: 30.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12869,7 +12869,7 @@ lazy_static! {
             String::from("smokescreen"),
             Choice {
                 move_id: String::from("smokescreen"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12896,7 +12896,7 @@ lazy_static! {
                 move_id: String::from("snaptrap"),
                 base_power: 35.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -12917,7 +12917,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 55.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12945,7 +12945,7 @@ lazy_static! {
                 move_id: String::from("snatch"),
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12962,7 +12962,7 @@ lazy_static! {
                 move_id: String::from("snipeshot"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12977,7 +12977,7 @@ lazy_static! {
                 move_id: String::from("snore"),
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -12996,7 +12996,7 @@ lazy_static! {
             String::from("snowscape"),
             Choice {
                 move_id: String::from("snowscape"),
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -13007,7 +13007,7 @@ lazy_static! {
             String::from("soak"),
             Choice {
                 move_id: String::from("soak"),
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13022,7 +13022,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("softboiled"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -13041,7 +13041,7 @@ lazy_static! {
                 move_id: String::from("solarbeam"),
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     charge: true,
                     mirror: true,
@@ -13057,7 +13057,7 @@ lazy_static! {
                 move_id: String::from("solarblade"),
                 base_power: 125.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     charge: true,
                     contact: true,
@@ -13074,7 +13074,7 @@ lazy_static! {
                 move_id: String::from("sonicboom"),
                 accuracy: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13090,7 +13090,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13105,7 +13105,7 @@ lazy_static! {
                 move_id: String::from("spark"),
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13126,7 +13126,7 @@ lazy_static! {
                 move_id: String::from("sparklingaria"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13148,7 +13148,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13163,7 +13163,7 @@ lazy_static! {
                 move_id: String::from("spectralthief"),
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13177,7 +13177,7 @@ lazy_static! {
             String::from("speedswap"),
             Choice {
                 move_id: String::from("speedswap"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13190,7 +13190,7 @@ lazy_static! {
             String::from("spicyextract"),
             Choice {
                 move_id: String::from("spicyextract"),
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13215,7 +13215,7 @@ lazy_static! {
             String::from("spiderweb"),
             Choice {
                 move_id: String::from("spiderweb"),
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13231,7 +13231,7 @@ lazy_static! {
                 move_id: String::from("spikecannon"),
                 base_power: 20.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13244,7 +13244,7 @@ lazy_static! {
             String::from("spikes"),
             Choice {
                 move_id: String::from("spikes"),
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     nonsky: true,
                     reflectable: true,
@@ -13263,7 +13263,7 @@ lazy_static! {
                 move_id: String::from("spikyshield"),
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -13280,7 +13280,7 @@ lazy_static! {
                 move_id: String::from("spinout"),
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13296,7 +13296,7 @@ lazy_static! {
                 move_id: String::from("spiritbreak"),
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13324,7 +13324,7 @@ lazy_static! {
                 move_id: String::from("spiritshackle"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13337,7 +13337,7 @@ lazy_static! {
             String::from("spite"),
             Choice {
                 move_id: String::from("spite"),
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13352,7 +13352,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("spitup"),
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -13365,7 +13365,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("splash"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     gravity: true,
                     ..Default::default()
@@ -13379,7 +13379,7 @@ lazy_static! {
                 move_id: String::from("splishysplash"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13401,7 +13401,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Sleep,
                 }),
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     powder: true,
@@ -13417,7 +13417,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("spotlight"),
                 priority: 3,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -13437,7 +13437,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13462,7 +13462,7 @@ lazy_static! {
             String::from("stealthrock"),
             Choice {
                 move_id: String::from("stealthrock"),
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     reflectable: true,
                     ..Default::default()
@@ -13481,7 +13481,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     defrost: true,
                     mirror: true,
@@ -13502,7 +13502,7 @@ lazy_static! {
                 move_id: String::from("steamroller"),
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13524,7 +13524,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 140.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13539,7 +13539,7 @@ lazy_static! {
                 move_id: String::from("steelroller"),
                 base_power: 130.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13556,7 +13556,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13582,7 +13582,7 @@ lazy_static! {
             String::from("stickyweb"),
             Choice {
                 move_id: String::from("stickyweb"),
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     reflectable: true,
                     ..Default::default()
@@ -13599,7 +13599,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("stockpile"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -13617,7 +13617,7 @@ lazy_static! {
                 move_id: String::from("stomp"),
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13639,7 +13639,7 @@ lazy_static! {
                 move_id: String::from("stompingtantrum"),
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13656,7 +13656,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13677,7 +13677,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13692,7 +13692,7 @@ lazy_static! {
                 move_id: String::from("storedpower"),
                 base_power: 20.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13707,7 +13707,7 @@ lazy_static! {
                 move_id: String::from("stormthrow"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13724,7 +13724,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13744,7 +13744,7 @@ lazy_static! {
                 move_id: String::from("strength"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13758,7 +13758,7 @@ lazy_static! {
             String::from("strengthsap"),
             Choice {
                 move_id: String::from("strengthsap"),
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     heal: true,
                     mirror: true,
@@ -13774,7 +13774,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("stringshot"),
                 accuracy: 95.0,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13801,7 +13801,7 @@ lazy_static! {
                 move_id: String::from("struggle"),
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -13816,7 +13816,7 @@ lazy_static! {
                 move_id: String::from("strugglebug"),
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -13842,7 +13842,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("stuffcheeks"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -13859,7 +13859,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Paralyze,
                 }),
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     powder: true,
@@ -13877,7 +13877,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13892,7 +13892,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("substitute"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     nonsky: true,
                     snatch: true,
@@ -13912,7 +13912,7 @@ lazy_static! {
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13926,7 +13926,7 @@ lazy_static! {
             String::from("sunnyday"),
             Choice {
                 move_id: String::from("sunnyday"),
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -13939,7 +13939,7 @@ lazy_static! {
                 move_id: String::from("sunsteelstrike"),
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Steel,
+                move_type: PokemonType::Steel,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13955,7 +13955,7 @@ lazy_static! {
                 move_id: String::from("superfang"),
                 accuracy: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13971,7 +13971,7 @@ lazy_static! {
                 move_id: String::from("superpower"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -13986,7 +13986,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("supersonic"),
                 accuracy: 55.0,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14007,7 +14007,7 @@ lazy_static! {
                 move_id: String::from("surf"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -14023,7 +14023,7 @@ lazy_static! {
                 move_id: String::from("surgingstrikes"),
                 base_power: 25.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -14039,7 +14039,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("swagger"),
                 accuracy: 85.0,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14069,7 +14069,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("swallow"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -14083,7 +14083,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("sweetkiss"),
                 accuracy: 75.0,
-                move_type: PokemonTypes::Fairy,
+                move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14101,7 +14101,7 @@ lazy_static! {
             String::from("sweetscent"),
             Choice {
                 move_id: String::from("sweetscent"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14128,7 +14128,7 @@ lazy_static! {
                 move_id: String::from("swift"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14141,7 +14141,7 @@ lazy_static! {
             String::from("switcheroo"),
             Choice {
                 move_id: String::from("switcheroo"),
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14155,7 +14155,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("swordsdance"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     dance: true,
                     snatch: true,
@@ -14181,7 +14181,7 @@ lazy_static! {
                 move_id: String::from("synchronoise"),
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14195,7 +14195,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("synthesis"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -14215,7 +14215,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -14236,7 +14236,7 @@ lazy_static! {
                 move_id: String::from("tackle"),
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -14251,7 +14251,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("tailglow"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -14277,7 +14277,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -14291,7 +14291,7 @@ lazy_static! {
             String::from("tailwhip"),
             Choice {
                 move_id: String::from("tailwhip"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14317,7 +14317,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("tailwind"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -14336,7 +14336,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -14351,7 +14351,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("takeheart"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -14363,7 +14363,7 @@ lazy_static! {
             String::from("tarshot"),
             Choice {
                 move_id: String::from("tarshot"),
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14392,7 +14392,7 @@ lazy_static! {
             String::from("taunt"),
             Choice {
                 move_id: String::from("taunt"),
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14410,7 +14410,7 @@ lazy_static! {
             String::from("tearfullook"),
             Choice {
                 move_id: String::from("tearfullook"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     reflectable: true,
@@ -14434,7 +14434,7 @@ lazy_static! {
             String::from("teatime"),
             Choice {
                 move_id: String::from("teatime"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -14447,7 +14447,7 @@ lazy_static! {
                 move_id: String::from("technoblast"),
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14460,7 +14460,7 @@ lazy_static! {
             String::from("teeterdance"),
             Choice {
                 move_id: String::from("teeterdance"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     dance: true,
                     mirror: true,
@@ -14478,7 +14478,7 @@ lazy_static! {
             String::from("telekinesis"),
             Choice {
                 move_id: String::from("telekinesis"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     gravity: true,
                     mirror: true,
@@ -14499,7 +14499,7 @@ lazy_static! {
                 move_id: String::from("teleport"),
                 priority: -6,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -14512,7 +14512,7 @@ lazy_static! {
                 move_id: String::from("terablast"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14527,7 +14527,7 @@ lazy_static! {
                 move_id: String::from("terrainpulse"),
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14543,7 +14543,7 @@ lazy_static! {
                 move_id: String::from("thief"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -14559,7 +14559,7 @@ lazy_static! {
                 move_id: String::from("thousandarrows"),
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -14579,7 +14579,7 @@ lazy_static! {
                 move_id: String::from("thousandwaves"),
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ground,
+                move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -14595,7 +14595,7 @@ lazy_static! {
                 move_id: String::from("thrash"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -14611,7 +14611,7 @@ lazy_static! {
                 move_id: String::from("throatchop"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -14632,7 +14632,7 @@ lazy_static! {
                 accuracy: 70.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14652,7 +14652,7 @@ lazy_static! {
                 move_id: String::from("thunderbolt"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14673,7 +14673,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14693,7 +14693,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -14710,7 +14710,7 @@ lazy_static! {
                 move_id: String::from("thunderouskick"),
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -14738,7 +14738,7 @@ lazy_static! {
                 move_id: String::from("thunderpunch"),
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -14760,7 +14760,7 @@ lazy_static! {
                 move_id: String::from("thundershock"),
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14783,7 +14783,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Paralyze,
                 }),
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14797,7 +14797,7 @@ lazy_static! {
             String::from("tickle"),
             Choice {
                 move_id: String::from("tickle"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14823,7 +14823,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("tidyup"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -14845,7 +14845,7 @@ lazy_static! {
             String::from("topsyturvy"),
             Choice {
                 move_id: String::from("topsyturvy"),
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14861,7 +14861,7 @@ lazy_static! {
                 move_id: String::from("torchsong"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14887,7 +14887,7 @@ lazy_static! {
             String::from("torment"),
             Choice {
                 move_id: String::from("torment"),
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14910,7 +14910,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Toxic,
                 }),
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14924,7 +14924,7 @@ lazy_static! {
             String::from("toxicspikes"),
             Choice {
                 move_id: String::from("toxicspikes"),
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     nonsky: true,
                     reflectable: true,
@@ -14945,7 +14945,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Poison,
                 }),
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -14972,7 +14972,7 @@ lazy_static! {
                 move_id: String::from("trailblaze"),
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -14998,7 +14998,7 @@ lazy_static! {
             String::from("transform"),
             Choice {
                 move_id: String::from("transform"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -15011,7 +15011,7 @@ lazy_static! {
                 move_id: String::from("triattack"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15024,7 +15024,7 @@ lazy_static! {
             String::from("trick"),
             Choice {
                 move_id: String::from("trick"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15037,7 +15037,7 @@ lazy_static! {
             String::from("trickortreat"),
             Choice {
                 move_id: String::from("trickortreat"),
-                move_type: PokemonTypes::Ghost,
+                move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15052,7 +15052,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("trickroom"),
                 priority: -7,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     ..Default::default()
@@ -15066,7 +15066,7 @@ lazy_static! {
                 move_id: String::from("triplearrows"),
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15082,7 +15082,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 20.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Ice,
+                move_type: PokemonType::Ice,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15099,7 +15099,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15116,7 +15116,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 10.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15132,7 +15132,7 @@ lazy_static! {
                 move_id: String::from("tropkick"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15159,7 +15159,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("trumpcard"),
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15175,7 +15175,7 @@ lazy_static! {
                 move_id: String::from("twinbeam"),
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15190,7 +15190,7 @@ lazy_static! {
                 move_id: String::from("twineedle"),
                 base_power: 25.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15210,7 +15210,7 @@ lazy_static! {
                 move_id: String::from("twister"),
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Dragon,
+                move_type: PokemonType::Dragon,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15230,7 +15230,7 @@ lazy_static! {
                 move_id: String::from("uproar"),
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15246,7 +15246,7 @@ lazy_static! {
                 move_id: String::from("uturn"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15263,7 +15263,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 priority: 1,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15279,7 +15279,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 180.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15294,7 +15294,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("veeveevolley"),
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15308,7 +15308,7 @@ lazy_static! {
             String::from("venomdrench"),
             Choice {
                 move_id: String::from("venomdrench"),
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15324,7 +15324,7 @@ lazy_static! {
                 move_id: String::from("venoshock"),
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Poison,
+                move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15338,7 +15338,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("victorydance"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     dance: true,
                     snatch: true,
@@ -15364,7 +15364,7 @@ lazy_static! {
                 move_id: String::from("vinewhip"),
                 base_power: 45.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15380,7 +15380,7 @@ lazy_static! {
                 move_id: String::from("visegrip"),
                 base_power: 55.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15397,7 +15397,7 @@ lazy_static! {
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 priority: -1,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15413,7 +15413,7 @@ lazy_static! {
                 move_id: String::from("voltswitch"),
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15428,7 +15428,7 @@ lazy_static! {
                 move_id: String::from("volttackle"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15449,7 +15449,7 @@ lazy_static! {
                 move_id: String::from("wakeupslap"),
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Fighting,
+                move_type: PokemonType::Fighting,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15465,7 +15465,7 @@ lazy_static! {
                 move_id: String::from("waterfall"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15486,7 +15486,7 @@ lazy_static! {
                 move_id: String::from("watergun"),
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15501,7 +15501,7 @@ lazy_static! {
                 move_id: String::from("waterpledge"),
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     nonsky: true,
@@ -15517,7 +15517,7 @@ lazy_static! {
                 move_id: String::from("waterpulse"),
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     distance: true,
                     mirror: true,
@@ -15540,7 +15540,7 @@ lazy_static! {
                 base_power: 15.0,
                 category: MoveCategory::Special,
                 priority: 1,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15553,7 +15553,7 @@ lazy_static! {
             String::from("watersport"),
             Choice {
                 move_id: String::from("watersport"),
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     nonsky: true,
                     ..Default::default()
@@ -15567,7 +15567,7 @@ lazy_static! {
                 move_id: String::from("waterspout"),
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15582,7 +15582,7 @@ lazy_static! {
                 move_id: String::from("wavecrash"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15598,7 +15598,7 @@ lazy_static! {
                 move_id: String::from("weatherball"),
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -15615,7 +15615,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 35.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15633,7 +15633,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("whirlwind"),
                 priority: -6,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     drag: true,
                     mirror: true,
@@ -15649,7 +15649,7 @@ lazy_static! {
                 move_id: String::from("wickedblow"),
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15666,7 +15666,7 @@ lazy_static! {
                 move_id: String::from("wickedtorque"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Dark,
+                move_type: PokemonType::Dark,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -15685,7 +15685,7 @@ lazy_static! {
                 move_id: String::from("wideguard"),
                 priority: 3,
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Rock,
+                move_type: PokemonType::Rock,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -15704,7 +15704,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15724,7 +15724,7 @@ lazy_static! {
                 move_id: String::from("wildcharge"),
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15743,7 +15743,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Burn,
                 }),
-                move_type: PokemonTypes::Fire,
+                move_type: PokemonType::Fire,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15759,7 +15759,7 @@ lazy_static! {
                 move_id: String::from("wingattack"),
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Flying,
+                move_type: PokemonType::Flying,
                 flags: Flags {
                     contact: true,
                     distance: true,
@@ -15775,7 +15775,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("wish"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     heal: true,
                     snatch: true,
@@ -15793,7 +15793,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("withdraw"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Water,
+                move_type: PokemonType::Water,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -15816,7 +15816,7 @@ lazy_static! {
             String::from("wonderroom"),
             Choice {
                 move_id: String::from("wonderroom"),
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
                     ..Default::default()
@@ -15830,7 +15830,7 @@ lazy_static! {
                 move_id: String::from("woodhammer"),
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15845,7 +15845,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("workup"),
                 target: MoveTarget::User,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
@@ -15868,7 +15868,7 @@ lazy_static! {
             String::from("worryseed"),
             Choice {
                 move_id: String::from("worryseed"),
-                move_type: PokemonTypes::Grass,
+                move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15885,7 +15885,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15904,7 +15904,7 @@ lazy_static! {
             Choice {
                 move_id: String::from("wringout"),
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15920,7 +15920,7 @@ lazy_static! {
                 move_id: String::from("xscissor"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Bug,
+                move_type: PokemonType::Bug,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15934,7 +15934,7 @@ lazy_static! {
             String::from("yawn"),
             Choice {
                 move_id: String::from("yawn"),
-                move_type: PokemonTypes::Normal,
+                move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
@@ -15955,7 +15955,7 @@ lazy_static! {
                 accuracy: 50.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     bullet: true,
                     mirror: true,
@@ -15977,7 +15977,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Psychic,
+                move_type: PokemonType::Psychic,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -15998,7 +15998,7 @@ lazy_static! {
                 move_id: String::from("zingzap"),
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -16020,7 +16020,7 @@ lazy_static! {
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 priority: 2,
-                move_type: PokemonTypes::Electric,
+                move_type: PokemonType::Electric,
                 flags: Flags {
                     contact: true,
                     mirror: true,
@@ -16183,7 +16183,7 @@ pub struct Choice {
     // Basic move information
     pub move_id: String, // in the case of category::Switch, this is not used
     pub switch_id: usize,
-    pub move_type: PokemonTypes,
+    pub move_type: PokemonType,
     pub accuracy: f32,
     pub category: MoveCategory,
     pub base_power: f32,
@@ -16209,7 +16209,7 @@ impl Default for Choice {
         return Choice {
             move_id: "splash".to_string(),
             switch_id: 0,
-            move_type: PokemonTypes::Normal,
+            move_type: PokemonType::Normal,
             accuracy: 100.0,
             category: MoveCategory::Status,
             base_power: 0.0,

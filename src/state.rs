@@ -182,8 +182,8 @@ pub struct StateTerrain {
     pub turns_remaining: i8,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum PokemonTypes {
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum PokemonType {
     Normal,
     Fire,
     Water,
@@ -298,7 +298,7 @@ impl Default for SideConditions {
 pub struct Pokemon {
     pub id: String,
     pub level: i8,
-    pub types: (PokemonTypes, PokemonTypes),
+    pub types: (PokemonType, PokemonType),
     pub hp: i16,
     pub maxhp: i16,
     pub ability: String,
@@ -322,13 +322,16 @@ pub struct Pokemon {
 }
 
 impl Pokemon {
+    pub fn has_type(&self, pkmn_type: &PokemonType) -> bool {
+        return pkmn_type == &self.types.0 || pkmn_type == &self.types.1;
+    }
+
     pub fn clear_volatile_statuses(&mut self) {
         self.volatile_statuses.clear();
     }
 
     pub fn is_grounded(&self) -> bool {
-        if PokemonTypes::Flying == self.types.0
-            || PokemonTypes::Flying == self.types.1
+        if self.has_type(&PokemonType::Flying)
             || self.ability == "levitate"
             || self.item == "airballoon"
         {
@@ -368,7 +371,7 @@ impl Default for Pokemon {
         return Pokemon {
             id: "rattata".to_string(),
             level: 100,
-            types: (PokemonTypes::Normal, PokemonTypes::Typeless),
+            types: (PokemonType::Normal, PokemonType::Typeless),
             hp: 100,
             maxhp: 100,
             ability: "none".to_string(),
@@ -592,6 +595,14 @@ impl State {
         }
     }
 
+    fn change_types(
+        &mut self,
+        side_reference: &SideReference,
+        new_types: (PokemonType, PokemonType),
+    ) {
+        self.get_side(side_reference).get_active().types = new_types;
+    }
+
     fn change_weather(&mut self, weather_type: Weather, turns_remaining: i8) {
         self.weather.weather_type = weather_type;
         self.weather.turns_remaining = turns_remaining;
@@ -642,6 +653,9 @@ impl State {
                 instruction.new_terrain,
                 instruction.new_terrain_turns_remaining,
             ),
+            Instruction::ChangeType(instruction) => {
+                self.change_types(&instruction.side_ref, instruction.new_types)
+            }
             _ => {
                 panic!("Not implemented yet")
             }
@@ -690,6 +704,9 @@ impl State {
                 instruction.previous_terrain,
                 instruction.previous_terrain_turns_remaining,
             ),
+            Instruction::ChangeType(instruction) => {
+                self.change_types(&instruction.side_ref, instruction.old_types)
+            }
             _ => {
                 panic!("Not implemented yet")
             }

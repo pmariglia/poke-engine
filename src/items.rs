@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use lazy_static::lazy_static;
 
 use crate::choices::{Choice, MoveCategory};
-use crate::state::PokemonTypes;
+use crate::state::PokemonType;
 use crate::state::SideReference;
 use crate::state::State;
 
@@ -31,7 +31,7 @@ lazy_static! {
             "airballoon".to_string(),
             Item {
                 modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
-                    if attacking_choice.move_type == PokemonTypes::Ground
+                    if attacking_choice.move_type == PokemonType::Ground
                         && attacking_choice.move_id != "thousandarrows"
                     {
                         attacking_choice.base_power = 0.0;
