@@ -359,6 +359,9 @@ pub fn generate_instructions_from_move(
     incoming_instructions
         .instruction_list
         .extend(before_move_instructions);
+
+    let damages_dealt = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
+
     state.reverse_instructions(&incoming_instructions.instruction_list);
 
     let list_of_instructions = generate_instructions_from_existing_status_conditions(
@@ -367,8 +370,16 @@ pub fn generate_instructions_from_move(
         incoming_instructions,
     );
 
-    // This was just here to make sure it works - unsure where it will end up
-    let damages_dealt = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
+    for i in list_of_instructions {
+        if !i.frozen_half_turn {
+            for dmg in &damages_dealt {
+                println!("Instruction: {:?}, Run dmg: {:?}", i, dmg);
+            }
+        }
+        else {
+            println!("Instruction: {:?}, Frozen!", i);
+        }
+    }
 
     panic!("Not implemented yet");
 }

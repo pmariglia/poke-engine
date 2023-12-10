@@ -6,6 +6,8 @@ use crate::{
     instruction::{Instruction, StateInstruction},
     state::{SideReference, State},
 };
+use crate::state::PokemonStatus;
+
 extern crate lazy_static;
 
 mod abilities;
@@ -66,6 +68,7 @@ fn main() {
         state.side_one.get_active().types
     );
 
+    state.side_one.get_active().status = PokemonStatus::Paralyze;
     state.side_one.get_active().ability = String::from("protean");
     // state.side_two.get_active().ability = String::from("levitate");
 
