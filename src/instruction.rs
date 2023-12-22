@@ -7,23 +7,21 @@ use crate::state::Weather;
 use crate::state::{PokemonBoostableStat, PokemonType};
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct StateInstruction {
+pub struct StateInstructions {
     pub percentage: f32,
     pub instruction_list: Vec<Instruction>,
-    pub frozen_half_turn: bool,
 }
 
-impl Default for StateInstruction {
-    fn default() -> StateInstruction {
-        return StateInstruction {
+impl Default for StateInstructions {
+    fn default() -> StateInstructions {
+        return StateInstructions {
             percentage: 100.0,
             instruction_list: vec![],
-            frozen_half_turn: false,
         };
     }
 }
 
-impl StateInstruction {
+impl StateInstructions {
     pub fn update_percentage(&mut self, modifier: f32) {
         self.percentage *= modifier;
     }

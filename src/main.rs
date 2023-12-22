@@ -1,12 +1,12 @@
 #![allow(dead_code)]
 
+use crate::state::PokemonStatus;
 use crate::{
     choices::MOVES,
     generate_instructions::generate_instructions_from_move,
-    instruction::{Instruction, StateInstruction},
+    instruction::{Instruction, StateInstructions},
     state::{SideReference, State},
 };
-use crate::state::PokemonStatus;
 
 extern crate lazy_static;
 
@@ -72,7 +72,7 @@ fn main() {
     state.side_one.get_active().ability = String::from("protean");
     // state.side_two.get_active().ability = String::from("levitate");
 
-    let state_instruction: StateInstruction = StateInstruction {
+    let state_instruction: StateInstructions = StateInstructions {
         percentage: 100.0,
         instruction_list: Vec::<Instruction>::new(),
         ..Default::default()
@@ -91,5 +91,7 @@ fn main() {
         state.side_one.get_active().id
     );
 
-    println!("Instructions Generated: {:?}", ins);
+    for i in ins {
+        println!("Generated Instruction: {:?}", i);
+    }
 }

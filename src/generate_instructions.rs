@@ -1,9 +1,10 @@
+use crate::state::PokemonType;
 use crate::{
     abilities::ABILITIES,
     choices::{Choice, MoveCategory},
     damage_calc::{calculate_damage, DamageRolls},
     instruction::{
-        ChangeStatusInstruction, DamageInstruction, Instruction, StateInstruction,
+        ChangeStatusInstruction, DamageInstruction, Instruction, StateInstructions,
         SwitchInstruction,
     },
     items::ITEMS,
@@ -11,12 +12,20 @@ use crate::{
 };
 use std::cmp;
 
+type InstructionGenerationFn = fn(
+    &mut State,
+    &Choice,
+    &SideReference,
+    StateInstructions,
+    &mut Vec<StateInstructions>,
+) -> Vec<StateInstructions>;
+
 fn generate_instructions_from_switch(
     state: &mut State,
     new_pokemon_index: usize,
     switching_side: SideReference,
-    incoming_instructions: StateInstruction,
-) -> Vec<StateInstruction> {
+    incoming_instructions: StateInstructions,
+) -> Vec<StateInstructions> {
     let mut incoming_instructions = incoming_instructions;
     state.apply_instructions(&incoming_instructions.instruction_list);
 
@@ -35,16 +44,58 @@ fn generate_instructions_from_switch(
     return vec![incoming_instructions];
 }
 
+fn generate_instructions_from_side_conditions(
+    state: &mut State,
+    choice: &Choice,
+    side_reference: &SideReference,
+    incoming_instructions: StateInstructions,
+    frozen_instructions: &mut Vec<StateInstructions>,
+) -> Vec<StateInstructions> {
+    return vec![incoming_instructions];
+}
+
+fn generate_instructions_from_move_special_effect(
+    state: &mut State,
+    choice: &Choice,
+    side_reference: &SideReference,
+    incoming_instructions: StateInstructions,
+    frozen_instructions: &mut Vec<StateInstructions>,
+) -> Vec<StateInstructions> {
+    return vec![incoming_instructions];
+}
+
+fn run_instruction_generation_fn(
+    instruction_generation_fn: InstructionGenerationFn,
+    state: &mut State,
+    choice: &Choice,
+    side_reference: &SideReference,
+    incoming_instructions: Vec<StateInstructions>,
+    frozen_instructions: &mut Vec<StateInstructions>,
+) -> Vec<StateInstructions> {
+    let mut continuing_instructions: Vec<StateInstructions> = vec![];
+    for instruction in incoming_instructions {
+        continuing_instructions.extend(instruction_generation_fn(
+            state,
+            choice,
+            side_reference,
+            instruction,
+            frozen_instructions,
+        ));
+    }
+    return continuing_instructions;
+}
+
 // TODO: This isn't ready to integrate yet, and it might not be complete
 // Come back to this
 fn generate_instructions_from_damage(
     state: &mut State,
-    choice: Choice,
+    choice: &Choice,
     calculated_damage: i16,
     attacking_side_ref: &SideReference,
-    incoming_instructions: StateInstruction,
-) -> Vec<StateInstruction> {
-    let mut return_instructions: Vec<StateInstruction> = vec![];
+    incoming_instructions: StateInstructions,
+    frozen_instructions: &mut Vec<StateInstructions>,
+) -> Vec<StateInstructions> {
+    let mut return_instructions: Vec<StateInstructions> = vec![];
 
     state.apply_instructions(&incoming_instructions.instruction_list);
 
@@ -76,7 +127,7 @@ fn generate_instructions_from_damage(
 
         move_missed_instruction.update_percentage(1.0 - percent_hit);
 
-        return_instructions.push(move_missed_instruction);
+        frozen_instructions.push(move_missed_instruction);
     }
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
@@ -85,6 +136,14 @@ fn generate_instructions_from_damage(
 }
 
 fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideReference) -> bool {
+    /*
+        Checks for any situation where a move cannot be used.
+        Some examples:
+            - electric type move versus a ground type
+            - you are taunted and are trying to use a non-damaging move
+            - you were flinched
+            - etc.
+    */
     let attacking_pkmn: &Pokemon = state
         .get_side_immutable(attacking_side_ref)
         .get_active_immutable();
@@ -99,11 +158,23 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
         )
     {
         return true;
-    } else if attacking_pkmn.hp == 0 {
-        return true;
     } else if attacking_pkmn
         .volatile_statuses
         .contains(&PokemonVolatileStatus::Flinch)
+    {
+        return true;
+    } else if choice.move_type == PokemonType::Electric
+        && state
+            .get_side_immutable(&attacking_side_ref.get_other_side())
+            .get_active_immutable()
+            .has_type(&PokemonType::Ground)
+    {
+        return true;
+    } else if choice.flags.powder
+        && state
+            .get_side_immutable(&attacking_side_ref.get_other_side())
+            .get_active_immutable()
+            .has_type(&PokemonType::Grass)
     {
         return true;
     }
@@ -172,23 +243,28 @@ fn update_choice(
 fn generate_instructions_from_existing_status_conditions(
     state: &mut State,
     attacking_side_ref: &SideReference,
-    mut incoming_instructions: StateInstruction,
-) -> Vec<StateInstruction> {
+    mut incoming_instructions: StateInstructions,
+    mut frozen_instructions: &mut Vec<StateInstructions>,
+) -> Vec<StateInstructions> {
     // Frozen, Sleep, and Paralysis may cause a Pokemon to not move
 
-    state.apply_instructions(&incoming_instructions.instruction_list);
+    let apply_reverse_instruction_list = incoming_instructions.instruction_list.clone();
+    state.apply_instructions(&apply_reverse_instruction_list);
 
     let (attacking_side, _defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     let attacker_active = attacking_side.get_active_immutable();
 
-    let mut ret = Vec::<StateInstruction>::new();
+    let mut instructions_that_will_proceed = Vec::<StateInstructions>::new();
     match attacker_active.status {
         PokemonStatus::Paralyze => {
+            // Fully-Paralyzed Branch
             let mut fully_paralyzed_instruction = incoming_instructions.clone();
             fully_paralyzed_instruction.update_percentage(0.25);
-            fully_paralyzed_instruction.frozen_half_turn = true;
+            frozen_instructions.push(fully_paralyzed_instruction);
+
+            // Non-Paralyzed Branch
             incoming_instructions.update_percentage(0.75);
-            ret.push(fully_paralyzed_instruction);
+            instructions_that_will_proceed.push(incoming_instructions);
         }
         PokemonStatus::Freeze => {
             // Thawing is a 20% event, and changes a pokemons status
@@ -202,11 +278,11 @@ fn generate_instructions_from_existing_status_conditions(
                     old_status: attacker_active.status,
                     new_status: PokemonStatus::None,
                 }));
-            ret.push(thaw_instruction);
+            instructions_that_will_proceed.push(thaw_instruction);
 
             // staying frozen
             incoming_instructions.update_percentage(0.80);
-            incoming_instructions.frozen_half_turn = true;
+            frozen_instructions.push(incoming_instructions);
         }
         PokemonStatus::Sleep => {
             // Waking up is a 33% event, and changes the status
@@ -220,19 +296,19 @@ fn generate_instructions_from_existing_status_conditions(
                     old_status: attacker_active.status,
                     new_status: PokemonStatus::None,
                 }));
-            ret.push(awake_instruction);
+            instructions_that_will_proceed.push(awake_instruction);
 
             // staying asleep
             incoming_instructions.update_percentage(0.67);
-            incoming_instructions.frozen_half_turn = true;
+            frozen_instructions.push(incoming_instructions);
         }
-        _ => {}
+        _ => {
+            instructions_that_will_proceed.push(incoming_instructions);
+        }
     }
 
-    state.reverse_instructions(&incoming_instructions.instruction_list);
-    ret.push(incoming_instructions);
-
-    return ret;
+    state.reverse_instructions(&apply_reverse_instruction_list);
+    return instructions_that_will_proceed;
 }
 
 // fn move_special_effects(state: &State, choice: &mut Choice) {}
@@ -248,8 +324,8 @@ pub fn generate_instructions_from_move(
     mut choice: Choice,
     defender_choice: &Choice,
     attacking_side: SideReference,
-    mut incoming_instructions: StateInstruction,
-) -> Vec<StateInstruction> {
+    mut incoming_instructions: StateInstructions,
+) -> Vec<StateInstructions> {
     /*
     The functions that are called by this function will each take a StateInstruction struct that
     signifies what has already happened. If the function can cause a branch, it will return a
@@ -262,7 +338,7 @@ pub fn generate_instructions_from_move(
     (*) indicates it can branch, (-) indicates it does not
 
     - check for if the user is switching - do so & exit early
-    - check for short-curcuit situations that would exit before doing anything
+    - check for short-circuit situations that would exit before doing anything
         - DONE using drag move but you moved 2nd (possible if say both users use dragontail)
         - DONE attacking pokemon is dead (possible if you got KO-ed this turn)
         - DONE attacking pokemon is taunted & chose a non-damaging move
@@ -277,8 +353,8 @@ pub fn generate_instructions_from_move(
         - DONE item special effect (both sides)
 
     BEGIN THINGS THAT HAPPEN AFTER FIRST POSSIBLE BRANCH
-    * attacker is fully-paralyzed, asleep, frozen (the first thing that can branch from the old engine)
-    - move has no effect (maybe something like check_if_move_can_hit)
+    * DONE attacker is fully-paralyzed, asleep, frozen (the first thing that can branch from the old engine)
+    - DONE move has no effect (maybe something like check_if_move_can_hit)
         - i.e. electric-type status move used against a ground type, powder move used against grass / overcoat
         - Normally, the move doing 0 damage would trigger this, but for non-damaging moves there needs to be another
         spot where this is checked. This may be better done elsewhere
@@ -325,11 +401,6 @@ pub fn generate_instructions_from_move(
 
     */
 
-    // This is a flag used to determine if certain things in the half-turn shouldn't happen
-    // For example: if a pokemon becomes fully-paralyzed, it will not be able to use it's move
-    // At the beginning of the half-turn, this must be reset
-    incoming_instructions.frozen_half_turn = false;
-
     if choice.category == MoveCategory::Switch {
         return generate_instructions_from_switch(
             state,
@@ -345,10 +416,20 @@ pub fn generate_instructions_from_move(
 
     state.apply_instructions(&incoming_instructions.instruction_list);
 
-    if cannot_use_move(state, &choice, &attacking_side) {
+    if state
+        .get_side_immutable(&attacking_side)
+        .get_active_immutable()
+        .hp
+        == 0
+    {
         state.reverse_instructions(&incoming_instructions.instruction_list);
         return vec![incoming_instructions];
     }
+
+    // if cannot_use_move(state, &choice, &attacking_side) {
+    //     state.reverse_instructions(&incoming_instructions.instruction_list);
+    //     return vec![incoming_instructions];
+    // }
 
     // Before-Move callbacks to update the choice
     update_choice(state, &mut choice, defender_choice, &attacking_side);
@@ -364,24 +445,87 @@ pub fn generate_instructions_from_move(
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
 
-    let list_of_instructions = generate_instructions_from_existing_status_conditions(
+    // The final return-value of this function
+    let mut final_instructions: Vec<StateInstructions> = vec![];
+    let mut list_of_instructions = generate_instructions_from_existing_status_conditions(
         state,
         &attacking_side,
         incoming_instructions,
+        &mut final_instructions,
     );
 
-    for i in list_of_instructions {
-        if !i.frozen_half_turn {
-            for dmg in &damages_dealt {
-                println!("Instruction: {:?}, Run dmg: {:?}", i, dmg);
-            }
-        }
-        else {
-            println!("Instruction: {:?}, Frozen!", i);
+    let mut next_instructions = vec![];
+    for instruction in list_of_instructions {
+        state.apply_instructions(&instruction.instruction_list);
+        if cannot_use_move(state, &choice, &attacking_side) {
+            state.reverse_instructions(&instruction.instruction_list);
+            final_instructions.push(instruction);
+        } else {
+            state.reverse_instructions(&instruction.instruction_list);
+            next_instructions.push(instruction);
         }
     }
+    next_instructions = run_instruction_generation_fn(
+        generate_instructions_from_move_special_effect,
+        state,
+        &choice,
+        &attacking_side,
+        next_instructions,
+        &mut final_instructions,
+    );
 
-    panic!("Not implemented yet");
+    // Damage generation gets its own block because it has some special logic
+    let mut temp_instructions: Vec<StateInstructions> = vec![];
+    for instruction in next_instructions {
+        let num_damage_amounts = damages_dealt.len() as f32;
+        for dmg in &damages_dealt {
+            let mut this_instruction = instruction.clone();
+            this_instruction.update_percentage(1.0 / num_damage_amounts);
+            println!("Instruction: {:?}, Run dmg: {:?}", this_instruction, dmg);
+            temp_instructions.extend(generate_instructions_from_damage(
+                state,
+                &choice,
+                *dmg,
+                &attacking_side,
+                this_instruction,
+                &mut final_instructions,
+            ));
+        }
+    }
+    next_instructions = temp_instructions;
+
+    // Ability-After-Move (flamebody, static) should be done IN `generate_instructions_from_damage`
+    // ... or not ... come back to that
+    let instruction_generation_functions = [
+        generate_instructions_from_side_conditions,
+        // get_instructions_from_hazard_clearing_moves,
+        // get_instructions_from_volatile_statuses,
+        // get_instructions_from_status_effects,
+        // get_instructions_from_boosts,
+        // get_instructions_from_boost_reset_moves,
+        // get_instructions_from_attacker_recovery,
+        // get_instructions_from_flinching_moves,
+        // get_instructions_from_drag,
+
+        // get_instructions_from_switch, // (u-turn and friends... probably omit this for now)
+    ];
+
+    for function in instruction_generation_functions {
+        next_instructions = run_instruction_generation_fn(
+            function,
+            state,
+            &choice,
+            &attacking_side,
+            next_instructions,
+            &mut final_instructions,
+        )
+    }
+
+    for instruction in next_instructions {
+        final_instructions.push(instruction);
+    }
+
+    return final_instructions;
 }
 
 pub fn generate_instructions_from_move_pair(//state: &mut State,
@@ -426,9 +570,43 @@ mod tests {
             choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
-            StateInstruction::default(),
+            StateInstructions::default(),
         );
-        assert_eq!(instructions, vec![StateInstruction::default()])
+        assert_eq!(instructions, vec![StateInstructions::default()])
+    }
+
+    #[test]
+    fn test_electric_move_does_nothing_versus_ground_type() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get("thunderbolt").unwrap().to_owned();
+        state.side_two.get_active().types = (PokemonType::Ground, PokemonType::Typeless);
+        choice.first_move = false;
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+        assert_eq!(instructions, vec![StateInstructions::default()])
+    }
+
+    #[test]
+    fn test_grass_type_cannot_have_powder_move_used_against_it() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get("spore").unwrap().to_owned(); // Spore is a powder move
+        state.side_two.get_active().types = (PokemonType::Grass, PokemonType::Typeless);
+        choice.first_move = false;
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+        assert_eq!(instructions, vec![StateInstructions::default()])
     }
 
     #[test]
@@ -446,9 +624,9 @@ mod tests {
             choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
-            StateInstruction::default(),
+            StateInstructions::default(),
         );
-        assert_eq!(instructions, vec![StateInstruction::default()])
+        assert_eq!(instructions, vec![StateInstructions::default()])
     }
 
     #[test]
@@ -466,9 +644,9 @@ mod tests {
             choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
-            StateInstruction::default(),
+            StateInstructions::default(),
         );
-        assert_eq!(instructions, vec![StateInstruction::default()])
+        assert_eq!(instructions, vec![StateInstructions::default()])
     }
 
     #[test]
@@ -483,7 +661,7 @@ mod tests {
         let mut choice = MOVES.get("tackle").unwrap().to_owned();
         choice.first_move = false;
 
-        let mut incoming_instructions = StateInstruction::default();
+        let mut incoming_instructions = StateInstructions::default();
         incoming_instructions
             .instruction_list
             .push(Instruction::VolatileStatus(VolatileStatusInstruction {
@@ -515,9 +693,9 @@ mod tests {
             choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
-            StateInstruction::default(),
+            StateInstructions::default(),
         );
-        assert_eq!(instructions, vec![StateInstruction::default()])
+        assert_eq!(instructions, vec![StateInstructions::default()])
     }
 
     #[test]
@@ -529,7 +707,7 @@ mod tests {
 
         choice.switch_id = 1;
 
-        let expected_instructions: StateInstruction = StateInstruction {
+        let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
@@ -543,7 +721,7 @@ mod tests {
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            StateInstruction::default(),
+            StateInstructions::default(),
         );
 
         assert_eq!(vec![expected_instructions], incoming_instructions);
@@ -552,7 +730,7 @@ mod tests {
     #[test]
     fn test_basic_switch_functionality_with_a_prior_instruction() {
         let mut state: State = State::default();
-        let mut incoming_instructions = StateInstruction::default();
+        let mut incoming_instructions = StateInstructions::default();
         let mut choice = Choice {
             ..Default::default()
         };
@@ -565,7 +743,7 @@ mod tests {
                 damage_amount: 1,
             }));
 
-        let expected_instructions: StateInstruction = StateInstruction {
+        let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
@@ -594,14 +772,15 @@ mod tests {
     #[test]
     fn test_healthy_pokemon_with_no_prior_instructions() {
         let mut state = State::default();
-        let incoming_instructions = StateInstruction::default();
+        let incoming_instructions = StateInstructions::default();
 
-        let expected_instructions = vec![StateInstruction::default()];
+        let expected_instructions = vec![StateInstructions::default()];
 
         let actual_instructions = generate_instructions_from_existing_status_conditions(
             &mut state,
             &SideReference::SideOne,
             incoming_instructions,
+            &mut vec![],
         );
 
         assert_eq!(expected_instructions, actual_instructions);
@@ -611,132 +790,136 @@ mod tests {
     fn test_paralyzed_pokemon_with_no_prior_instructions() {
         let mut state = State::default();
         state.side_one.get_active().status = PokemonStatus::Paralyze;
-        let incoming_instructions = StateInstruction::default();
+        let incoming_instructions = StateInstructions::default();
 
-        let expected_instructions = vec![
-            StateInstruction {
-                percentage: 25.0,
-                instruction_list: vec![],
-                frozen_half_turn: true,
-            },
-            StateInstruction {
-                percentage: 75.0,
-                instruction_list: vec![],
-                frozen_half_turn: false,
-            },
-        ];
+        let expected_instructions = vec![StateInstructions {
+            percentage: 75.0,
+            instruction_list: vec![],
+        }];
+
+        let expected_frozen_instructions = &mut vec![StateInstructions {
+            percentage: 25.0,
+            instruction_list: vec![],
+        }];
+
+        let frozen_instructions = &mut vec![];
 
         let actual_instructions = generate_instructions_from_existing_status_conditions(
             &mut state,
             &SideReference::SideOne,
             incoming_instructions,
+            frozen_instructions,
         );
 
         assert_eq!(expected_instructions, actual_instructions);
+        assert_eq!(expected_frozen_instructions, frozen_instructions);
     }
 
     #[test]
     fn test_frozen_pokemon_with_no_prior_instructions() {
         let mut state = State::default();
         state.side_one.get_active().status = PokemonStatus::Freeze;
-        let incoming_instructions = StateInstruction::default();
+        let incoming_instructions = StateInstructions::default();
 
-        let expected_instructions = vec![
-            StateInstruction {
-                percentage: 20.0,
-                instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
-                    side_ref: SideReference::SideOne,
-                    pokemon_index: state.side_one.active_index,
-                    old_status: PokemonStatus::Freeze,
-                    new_status: PokemonStatus::None,
-                })],
-                frozen_half_turn: false,
-            },
-            StateInstruction {
-                percentage: 80.0,
-                instruction_list: vec![],
-                frozen_half_turn: true,
-            },
-        ];
+        let expected_instructions = vec![StateInstructions {
+            percentage: 20.0,
+            instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: state.side_one.active_index,
+                old_status: PokemonStatus::Freeze,
+                new_status: PokemonStatus::None,
+            })],
+        }];
+
+        let expected_frozen_instructions = &mut vec![StateInstructions {
+            percentage: 80.0,
+            instruction_list: vec![],
+        }];
+
+        let frozen_instructions = &mut vec![];
 
         let actual_instructions = generate_instructions_from_existing_status_conditions(
             &mut state,
             &SideReference::SideOne,
             incoming_instructions,
+            frozen_instructions,
         );
 
         assert_eq!(expected_instructions, actual_instructions);
+        assert_eq!(expected_frozen_instructions, frozen_instructions);
     }
 
     #[test]
     fn test_asleep_pokemon_with_no_prior_instructions() {
         let mut state = State::default();
         state.side_one.get_active().status = PokemonStatus::Sleep;
-        let incoming_instructions = StateInstruction::default();
+        let incoming_instructions = StateInstructions::default();
 
-        let expected_instructions = vec![
-            StateInstruction {
-                percentage: 33.0,
-                instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
-                    side_ref: SideReference::SideOne,
-                    pokemon_index: state.side_one.active_index,
-                    old_status: PokemonStatus::Sleep,
-                    new_status: PokemonStatus::None,
-                })],
-                frozen_half_turn: false,
-            },
-            StateInstruction {
-                percentage: 67.0,
-                instruction_list: vec![],
-                frozen_half_turn: true,
-            },
-        ];
+        let expected_instructions = vec![StateInstructions {
+            percentage: 33.0,
+            instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: state.side_one.active_index,
+                old_status: PokemonStatus::Sleep,
+                new_status: PokemonStatus::None,
+            })],
+        }];
+
+        let expected_frozen_instructions = &mut vec![StateInstructions {
+            percentage: 67.0,
+            instruction_list: vec![],
+        }];
+
+        let frozen_instructions = &mut vec![];
 
         let actual_instructions = generate_instructions_from_existing_status_conditions(
             &mut state,
             &SideReference::SideOne,
             incoming_instructions,
+            frozen_instructions,
         );
 
         assert_eq!(expected_instructions, actual_instructions);
+        assert_eq!(expected_frozen_instructions, frozen_instructions);
     }
 
     #[test]
     fn test_paralyzed_pokemon_preserves_prior_instructions() {
         let mut state = State::default();
         state.side_one.get_active().status = PokemonStatus::Paralyze;
-        let mut incoming_instructions = StateInstruction::default();
+        let mut incoming_instructions = StateInstructions::default();
         incoming_instructions.instruction_list = vec![Instruction::Damage(DamageInstruction {
             side_ref: SideReference::SideOne,
             damage_amount: 1,
         })];
 
-        let expected_instructions = vec![
-            StateInstruction {
-                percentage: 25.0,
-                instruction_list: vec![Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 1,
-                })],
-                frozen_half_turn: true,
-            },
-            StateInstruction {
-                percentage: 75.0,
-                instruction_list: vec![Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 1,
-                })],
-                frozen_half_turn: false,
-            },
-        ];
+        let expected_instructions = vec![StateInstructions {
+            percentage: 75.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 1,
+            })],
+        }];
+
+        let expected_frozen_instructions = &mut vec![StateInstructions {
+            percentage: 25.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 1,
+            })],
+        }];
+
+        let frozen_instructions = &mut vec![];
 
         let actual_instructions = generate_instructions_from_existing_status_conditions(
             &mut state,
             &SideReference::SideOne,
             incoming_instructions,
+            frozen_instructions,
         );
 
         assert_eq!(expected_instructions, actual_instructions);
+        assert_eq!(expected_frozen_instructions, frozen_instructions);
     }
 
     #[test]
@@ -744,7 +927,7 @@ mod tests {
         let mut state = State::default();
         state.side_one.get_active().status = PokemonStatus::Paralyze; // pokemon is paralyzed
 
-        let mut incoming_instructions = StateInstruction::default();
+        let mut incoming_instructions = StateInstructions::default();
         // there is an incoming instruction to remove the paralysis
         incoming_instructions.instruction_list =
             vec![Instruction::ChangeStatus(ChangeStatusInstruction {
@@ -756,7 +939,7 @@ mod tests {
 
         // expected instructions are the incoming instructions, since the paralysis check should
         // fail
-        let expected_instructions = vec![StateInstruction {
+        let expected_instructions = vec![StateInstructions {
             percentage: 100.0,
             instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
@@ -771,6 +954,7 @@ mod tests {
             &mut state,
             &SideReference::SideOne,
             incoming_instructions,
+            &mut vec![],
         );
 
         assert_eq!(expected_instructions, actual_instructions);
@@ -787,7 +971,9 @@ mod tests {
                         move_base_power,
                         move_accuracy,
                         incoming_instructions,
-                        expected_instructions
+                        expected_instructions,
+                        mut frozen_instructions_start,
+                        expected_frozen_instructions_end
                     ) = $value;
 
                     let mut state: State = State::default();
@@ -802,13 +988,15 @@ mod tests {
 
                     let new_instructions = generate_instructions_from_damage(
                         &mut state,
-                        choice,
+                        &choice,
                         35,
                         &SideReference::SideOne,
                         incoming_instructions,
-                        );
+                        &mut frozen_instructions_start
+                    );
 
                     assert_eq!(expected_instructions, new_instructions);
+                    assert_eq!(frozen_instructions_start, expected_frozen_instructions_end);
                 }
              )*
         }
@@ -820,32 +1008,37 @@ mod tests {
             MoveCategory::Physical,
             40.0,
             100.0,
-            StateInstruction::default(),
-            vec![StateInstruction {
+            StateInstructions::default(),
+            vec![StateInstructions {
                 percentage: 100.0,
                 instruction_list: vec![Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
                     damage_amount: 35,
                 })],
             ..Default::default()
-            }]
+            }],
+            vec![],
+            vec![]
         ),
         test_basic_move_with_90_accuracy: (
             "tackle".to_string(),
             MoveCategory::Physical,
             40.0,
             90.0,
-            StateInstruction::default(),
+            StateInstructions::default(),
             vec![
-                StateInstruction {
+                StateInstructions {
                     percentage: 90.0,
                     instruction_list: vec![Instruction::Damage(DamageInstruction {
                         side_ref: SideReference::SideTwo,
                         damage_amount: 35,
-                })],
-                ..Default::default()
-            },
-                StateInstruction {
+                    })],
+                    ..Default::default()
+                },
+            ],
+            vec![],
+            vec![
+                StateInstructions {
                     percentage: 10.000002,
                     instruction_list: vec![],
                     ..Default::default()
