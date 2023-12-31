@@ -19,48 +19,7 @@ mod items;
 mod state;
 
 fn main() {
-    let mut _choice = MOVES.get("earthquake").unwrap().to_owned();
-
-    //_choice = Choice {
-    //    move_id: "bulbasaur".to_string(),
-    //    switch_id: 1,
-    //    move_type: PokemonTypes::Typeless,
-    //    accuracy: 100.0,
-    //    category: MoveCategory::Switch,
-    //    base_power: 0.0,
-    //    boost: None,
-    //    priority: 0,
-    //    flags: Flags {
-    //        authentic: false,
-    //        bite: false,
-    //        bullet: false,
-    //        charge: false,
-    //        contact: false,
-    //        dance: false,
-    //        defrost: false,
-    //        distance: false,
-    //        drag: false,
-    //        gravity: false,
-    //        heal: false,
-    //        mirror: false,
-    //        mystery: false,
-    //        nonsky: false,
-    //        powder: false,
-    //        protect: false,
-    //        pulse: false,
-    //        punch: false,
-    //        recharge: false,
-    //        reflectable: false,
-    //        snatch: false,
-    //        sound: false,
-    //    },
-    //    heal: None,
-    //    status: None,
-    //    volatile_status: None,
-    //    side_condition: None,
-    //    secondaries: None,
-    //    target: MoveTarget::Opponent,
-    //};
+    let mut _choice = MOVES.get("tackle").unwrap().to_owned();
 
     let mut state: State = State::default();
     println!(

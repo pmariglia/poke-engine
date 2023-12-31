@@ -95,6 +95,37 @@ fn generate_instructions_from_damage(
     incoming_instructions: StateInstructions,
     frozen_instructions: &mut Vec<StateInstructions>,
 ) -> Vec<StateInstructions> {
+    /*
+    - Something for crash moves??
+        - after_move_miss
+        - after move miss??? <-- probably this
+
+    - substitute consideration
+        - requires a state change. VolatileStatus for sub & value for sub-health
+        - do last tbh
+
+    - DONE in-line because sturdy is a one-off. If it has more I can come back to it
+    - before apply damage callback
+        - for sturdy to reduce damage by 1 if necessary
+        - tricky because this is not an instruction technically
+            I guess you could add a heal instruction but that is kinda dumb
+
+    - after apply damage callback (AFTER MOVE HIT)
+        - for beastboost to generate an instruction if KO
+        - for drain moves???
+        - for recoil moves???
+        - knockoff removing an item
+
+    - after move miss callback (AFTER MOVE MISS)
+        - here is where crash would be
+        - blunderpolicy
+
+    - arbitrary other after_move as well from the old engine (triggers on hit OR miss)
+        - dig/dive/bounce/fly volatilestatus
+
+
+    */
+
     let mut return_instructions: Vec<StateInstructions> = vec![];
 
     state.apply_instructions(&incoming_instructions.instruction_list);
@@ -104,11 +135,16 @@ fn generate_instructions_from_damage(
     let defending_pokemon = defending_side.get_active_immutable();
 
     let percent_hit = choice.accuracy / 100.0;
-    // Move hits some of the time
+    // Move hit
     if percent_hit > 0.0 {
         let mut move_hit_instructions = incoming_instructions.clone();
 
-        let damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
+        let mut damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
+
+        if defending_pokemon.ability.as_str() == "sturdy" && defending_pokemon.maxhp == defending_pokemon.hp {
+           damage_dealt -= 1;
+        }
+
         move_hit_instructions
             .instruction_list
             .push(Instruction::Damage(DamageInstruction {
@@ -121,7 +157,7 @@ fn generate_instructions_from_damage(
         return_instructions.push(move_hit_instructions);
     }
 
-    // Move misses some of the time
+    // Move miss
     if percent_hit < 1.0 {
         let mut move_missed_instruction = incoming_instructions.clone();
 
@@ -696,6 +732,60 @@ mod tests {
             StateInstructions::default(),
         );
         assert_eq!(instructions, vec![StateInstructions::default()])
+    }
+
+    #[test]
+    fn test_cannot_ohko_versus_study() {
+        let mut state: State = State::default();
+        let choice = MOVES.get("earthquake").unwrap().to_owned();
+        state.side_two.get_active().ability = String::from("sturdy");
+        state.side_two.get_active().hp = 50;
+        state.side_two.get_active().maxhp = 50;
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 49,
+            })],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_sturdy_does_not_affect_non_ohko_move() {
+        let mut state: State = State::default();
+        let choice = MOVES.get("earthquake").unwrap().to_owned();
+        state.side_two.get_active().ability = String::from("sturdy");
+        state.side_two.get_active().hp = 45;
+        state.side_two.get_active().maxhp = 50;
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 45,
+            })],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
     }
 
     #[test]
