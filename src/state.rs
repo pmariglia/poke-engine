@@ -364,6 +364,10 @@ impl Pokemon {
             }
         }
     }
+
+    pub fn calculate_highest_stat(&self) -> PokemonBoostableStat {
+        return PokemonBoostableStat::Attack;
+    }
 }
 
 impl Default for Pokemon {

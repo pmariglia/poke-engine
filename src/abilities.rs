@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use lazy_static::lazy_static;
 
 use crate::choices::{Choice, MoveTarget};
-use crate::instruction::{ChangeType, Instruction};
+use crate::instruction::{BoostInstruction, ChangeType, Instruction};
 use crate::state::PokemonType;
 use crate::state::SideReference;
 use crate::state::State;
@@ -11,6 +11,7 @@ use crate::state::State;
 type ModifyAttackBeingUsed = fn(&State, &mut Choice, &Choice, &SideReference);
 type ModifyAttackAgainst = fn(&State, &mut Choice, &Choice, &SideReference);
 type AbilityBeforeMove = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
+type AbilityAfterDamageHit = fn(&State, &Choice, &SideReference, i16) -> Vec<Instruction>;
 
 lazy_static! {
     pub static ref ABILITIES: HashMap<String, Ability> = {
@@ -1328,6 +1329,20 @@ lazy_static! {
         abilities.insert(
             "beastboost".to_string(),
             Ability {
+                after_damage_hit: Some(|state, _, attacking_side, damage_dealt| {
+                    let (attacker_side, defender_side) =
+                        state.get_both_sides_immutable(attacking_side);
+                    if defender_side.get_active_immutable().hp == damage_dealt {
+                        return vec![Instruction::Boost(BoostInstruction {
+                            side_ref: *attacking_side,
+                            stat: attacker_side
+                                .get_active_immutable()
+                                .calculate_highest_stat(),
+                            amount: 1,
+                        })];
+                    }
+                    return vec![];
+                }),
                 ..Default::default()
             },
         );
@@ -1947,6 +1962,7 @@ pub struct Ability {
     pub modify_attack_being_used: Option<ModifyAttackBeingUsed>,
     pub modify_attack_against: Option<ModifyAttackAgainst>,
     pub before_move: Option<AbilityBeforeMove>,
+    pub after_damage_hit: Option<AbilityAfterDamageHit>,
 }
 
 impl Default for Ability {
@@ -1955,6 +1971,7 @@ impl Default for Ability {
             modify_attack_being_used: None,
             modify_attack_against: None,
             before_move: None,
+            after_damage_hit: None,
         };
     }
 }

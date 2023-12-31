@@ -131,7 +131,7 @@ fn generate_instructions_from_damage(
     state.apply_instructions(&incoming_instructions.instruction_list);
 
     let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
-    let _attacking_pokemon = attacking_side.get_active_immutable();
+    let attacking_pokemon = attacking_side.get_active_immutable();
     let defending_pokemon = defending_side.get_active_immutable();
 
     let percent_hit = choice.accuracy / 100.0;
@@ -141,8 +141,10 @@ fn generate_instructions_from_damage(
 
         let mut damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
 
-        if defending_pokemon.ability.as_str() == "sturdy" && defending_pokemon.maxhp == defending_pokemon.hp {
-           damage_dealt -= 1;
+        if defending_pokemon.ability.as_str() == "sturdy"
+            && defending_pokemon.maxhp == defending_pokemon.hp
+        {
+            damage_dealt -= 1;
         }
 
         move_hit_instructions
@@ -153,6 +155,19 @@ fn generate_instructions_from_damage(
             }));
 
         move_hit_instructions.update_percentage(percent_hit);
+
+        if let Some(ability) = ABILITIES.get(&attacking_pokemon.ability) {
+            if let Some(after_damage_hit_fn) = ability.after_damage_hit {
+                move_hit_instructions
+                    .instruction_list
+                    .extend(after_damage_hit_fn(
+                        state,
+                        choice,
+                        attacking_side_ref,
+                        damage_dealt,
+                    ));
+            };
+        }
 
         return_instructions.push(move_hit_instructions);
     }
@@ -590,10 +605,8 @@ pub fn generate_instructions_from_move_pair(//state: &mut State,
 mod tests {
     use super::*;
     use crate::choices::MOVES;
-    use crate::instruction::{
-        ChangeStatusInstruction, DamageInstruction, SwitchInstruction, VolatileStatusInstruction,
-    };
-    use crate::state::{SideReference, State};
+    use crate::instruction::{BoostInstruction, ChangeStatusInstruction, DamageInstruction, SwitchInstruction, VolatileStatusInstruction};
+    use crate::state::{PokemonBoostableStat, SideReference, State};
 
     #[test]
     fn test_drag_move_as_second_move_exits_early() {
@@ -783,6 +796,69 @@ mod tests {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 45,
             })],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_beastboost_boosts_on_kill() {
+        let mut state: State = State::default();
+        let choice = MOVES.get("tackle").unwrap().to_owned();
+        state.side_one.get_active().ability = String::from("beastboost");
+        state.side_one.get_active().attack = 500; // highest stat
+        state.side_two.get_active().hp = 1;
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Attack,
+                    amount: 1,
+                })
+            ],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_beastboost_does_not_boost_without_kill() {
+        let mut state: State = State::default();
+        let choice = MOVES.get("tackle").unwrap().to_owned();
+        state.side_one.get_active().ability = String::from("beastboost");
+        state.side_one.get_active().attack = 150; // highest stat
+        state.side_two.get_active().hp = 100;
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 72,
+                }),
+            ],
         };
 
         assert_eq!(instructions, vec![expected_instructions])

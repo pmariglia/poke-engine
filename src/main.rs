@@ -28,8 +28,8 @@ fn main() {
     );
 
     state.side_one.get_active().status = PokemonStatus::Paralyze;
-    state.side_one.get_active().ability = String::from("protean");
-    // state.side_two.get_active().ability = String::from("levitate");
+    state.side_one.get_active().ability = String::from("beastboost");
+    state.side_two.get_active().hp = 100;
 
     let state_instruction: StateInstructions = StateInstructions {
         percentage: 100.0,
