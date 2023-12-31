@@ -26,6 +26,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                drain: Some(0.5),
                 ..Default::default()
             },
         );
@@ -1105,6 +1106,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                drain: Some(0.5),
                 ..Default::default()
             },
         );
@@ -1474,6 +1476,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                drain: Some(0.5),
                 ..Default::default()
             },
         );
@@ -3508,6 +3511,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                drain: Some(0.75),
                 ..Default::default()
             },
         );
@@ -3526,6 +3530,7 @@ lazy_static! {
                     punch: true,
                     ..Default::default()
                 },
+                drain: Some(0.5),
                 ..Default::default()
             },
         );
@@ -3542,6 +3547,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                drain: Some(0.5),
                 ..Default::default()
             },
         );
@@ -5401,6 +5407,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                drain: Some(0.5),
                 ..Default::default()
             },
         );
@@ -6807,6 +6814,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                drain: Some(0.5),
                 ..Default::default()
             },
         );
@@ -7827,6 +7835,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                drain: Some(0.5),
                 ..Default::default()
             },
         );
@@ -8413,6 +8422,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
+                drain: Some(0.5),
                 ..Default::default()
             },
         );
@@ -8478,6 +8488,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                drain: Some(0.5),
                 ..Default::default()
             },
         );
@@ -9540,6 +9551,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                drain: Some(0.75),
                 ..Default::default()
             },
         );
@@ -9783,6 +9795,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                drain: Some(0.5),
                 ..Default::default()
             },
         );
@@ -16190,6 +16203,7 @@ pub struct Choice {
     pub boost: Option<Boost>,
     pub priority: i8,
     pub flags: Flags,
+    pub drain: Option<f32>,
     pub heal: Option<Heal>,
     pub status: Option<Status>,
     pub volatile_status: Option<VolatileStatus>,
@@ -16218,6 +16232,7 @@ impl Default for Choice {
             flags: Flags {
                 ..Default::default()
             },
+            drain: None,
             heal: None,
             status: None,
             volatile_status: None,

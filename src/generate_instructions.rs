@@ -105,13 +105,13 @@ fn generate_instructions_from_damage(
         - do last tbh
 
     - DONE in-line because sturdy is a one-off. If it has more I can come back to it
-    - before apply damage callback
-        - for sturdy to reduce damage by 1 if necessary
-        - tricky because this is not an instruction technically
-            I guess you could add a heal instruction but that is kinda dumb
+        - before apply damage callback
+            - for sturdy to reduce damage by 1 if necessary
+            - tricky because this is not an instruction technically
+                I guess you could add a heal instruction but that is kinda dumb
 
-    - after apply damage callback (AFTER MOVE HIT)
-        - for beastboost to generate an instruction if KO
+    - after apply damage callback (AFTER MOVE HIT) DONE FRAMEWORK
+        - DONE for beastboost to generate an instruction if KO
         - for drain moves???
         - for recoil moves???
         - knockoff removing an item
