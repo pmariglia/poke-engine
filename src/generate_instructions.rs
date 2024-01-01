@@ -1,5 +1,5 @@
-use crate::instruction::HealInstruction;
-use crate::state::PokemonType;
+use crate::instruction::{BoostInstruction, ChangeItemInstruction, HealInstruction};
+use crate::state::{PokemonBoostableStat, PokemonType};
 use crate::{
     abilities::ABILITIES,
     choices::{Choice, MoveCategory},
@@ -120,7 +120,7 @@ fn generate_instructions_from_damage(
 
     - after move miss callback (AFTER MOVE MISS)
         - DONE here is where crash would be ???
-        - blunderpolicy
+        - DONE blunderpolicy (in-line because blunderpolicy is a one-off. Cam come back if more fit the pattern)
 
     - arbitrary other after_move as well from the old engine (triggers on hit OR miss)
         - dig/dive/bounce/fly volatilestatus
@@ -223,7 +223,26 @@ fn generate_instructions_from_damage(
                 damage_amount: cmp::min(crash_amount, attacking_pokemon.hp),
             });
 
-            move_missed_instruction.instruction_list.push(crash_instruction);
+            move_missed_instruction
+                .instruction_list
+                .push(crash_instruction);
+        }
+
+        if attacking_pokemon.item.as_str() == "blunderpolicy"
+            && attacking_pokemon.item_can_be_removed()
+        {
+            move_missed_instruction.instruction_list.extend(vec![
+                Instruction::ChangeItem(ChangeItemInstruction {
+                    side_ref: *attacking_side_ref,
+                    current_item: String::from("blunderpolicy"),
+                    new_item: "".to_string(),
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: *attacking_side_ref,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: 2,
+                }),
+            ]);
         }
 
         frozen_instructions.push(move_missed_instruction);
@@ -1091,24 +1110,20 @@ mod tests {
             StateInstructions::default(),
         );
 
-        let expected_instructions: Vec::<StateInstructions> = vec![
+        let expected_instructions: Vec<StateInstructions> = vec![
             StateInstructions {
                 percentage: 5.000001,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideOne,
-                        damage_amount: 50,
-                    }),
-                ],
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 50,
+                })],
             },
             StateInstructions {
                 percentage: 95.0,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideTwo,
-                        damage_amount: 100,
-                    }),
-                ],
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 100,
+                })],
             },
         ];
 
@@ -1129,24 +1144,20 @@ mod tests {
             StateInstructions::default(),
         );
 
-        let expected_instructions: Vec::<StateInstructions> = vec![
+        let expected_instructions: Vec<StateInstructions> = vec![
             StateInstructions {
                 percentage: 5.000001,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideOne,
-                        damage_amount: 5,
-                    }),
-                ],
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 5,
+                })],
             },
             StateInstructions {
                 percentage: 95.0,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideTwo,
-                        damage_amount: 100,
-                    }),
-                ],
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 100,
+                })],
             },
         ];
 
@@ -1183,6 +1194,48 @@ mod tests {
         };
 
         assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_blunderpolicy_boost() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get("crosschop").unwrap().to_owned();
+        state.get_side(&SideReference::SideOne).get_active().item = String::from("blunderpolicy");
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: Vec<StateInstructions> = vec![
+            StateInstructions {
+                percentage: 19.999998,
+                instruction_list: vec![
+                    Instruction::ChangeItem(ChangeItemInstruction {
+                        side_ref: SideReference::SideOne,
+                        current_item: "blunderpolicy".to_string(),
+                        new_item: "".to_string(),
+                    }),
+                    Instruction::Boost(BoostInstruction {
+                        side_ref: SideReference::SideOne,
+                        stat: PokemonBoostableStat::Speed,
+                        amount: 2,
+                    }),
+                ],
+            },
+            StateInstructions {
+                percentage: 80.0,
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 100,
+                })],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions);
     }
 
     #[test]
