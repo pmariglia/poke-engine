@@ -1,3 +1,4 @@
+use crate::instruction::HealInstruction;
 use crate::state::PokemonType;
 use crate::{
     abilities::ABILITIES,
@@ -112,8 +113,8 @@ fn generate_instructions_from_damage(
 
     - after apply damage callback (AFTER MOVE HIT) DONE FRAMEWORK
         - DONE for beastboost to generate an instruction if KO
-        - for drain moves???
-        - for recoil moves???
+        - DONE for drain moves???
+        - DONE for recoil moves???
         - knockoff removing an item
 
     - after move miss callback (AFTER MOVE MISS)
@@ -130,7 +131,7 @@ fn generate_instructions_from_damage(
 
     state.apply_instructions(&incoming_instructions.instruction_list);
 
-    let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
+    let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     let attacking_pokemon = attacking_side.get_active_immutable();
     let defending_pokemon = defending_side.get_active_immutable();
 
@@ -168,6 +169,42 @@ fn generate_instructions_from_damage(
                     ));
             };
         }
+
+        /*
+        Generating these instructions does not need to mutate the state, so use
+        `attacking_pokemon_health` to keep track of the attacking pokemon's health separately
+        */
+        let mut attacking_pokemon_health = attacking_pokemon.hp;
+        if let Some(drain_fraction) = choice.drain {
+            let drain_amount = (damage_dealt as f32 * drain_fraction) as i16;
+            let heal_amount = cmp::min(
+                drain_amount,
+                attacking_pokemon.maxhp - attacking_pokemon_health,
+            );
+            let drain_instruction = Instruction::Heal(HealInstruction {
+                side_ref: *attacking_side_ref,
+                heal_amount: heal_amount,
+            });
+            move_hit_instructions
+                .instruction_list
+                .push(drain_instruction);
+            attacking_pokemon_health += heal_amount;
+        }
+
+        if let Some(recoil_fraction) = choice.recoil {
+            let recoil_amount = (damage_dealt as f32 * recoil_fraction) as i16;
+            let recoil_instruction = Instruction::Damage(DamageInstruction {
+                side_ref: *attacking_side_ref,
+                damage_amount: cmp::min(recoil_amount, attacking_pokemon_health),
+            });
+            move_hit_instructions
+                .instruction_list
+                .push(recoil_instruction);
+        }
+
+        // if let Some(after_damage_hit_fn) = choice.after_damage_hit {
+        //     let
+        // }
 
         return_instructions.push(move_hit_instructions);
     }
@@ -605,7 +642,10 @@ pub fn generate_instructions_from_move_pair(//state: &mut State,
 mod tests {
     use super::*;
     use crate::choices::MOVES;
-    use crate::instruction::{BoostInstruction, ChangeStatusInstruction, DamageInstruction, SwitchInstruction, VolatileStatusInstruction};
+    use crate::instruction::{
+        BoostInstruction, ChangeStatusInstruction, DamageInstruction, SwitchInstruction,
+        VolatileStatusInstruction,
+    };
     use crate::state::{PokemonBoostableStat, SideReference, State};
 
     #[test]
@@ -828,7 +868,7 @@ mod tests {
                     side_ref: SideReference::SideOne,
                     stat: PokemonBoostableStat::Attack,
                     amount: 1,
-                })
+                }),
             ],
         };
 
@@ -853,10 +893,173 @@ mod tests {
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 72,
+            })],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_drain_move_heals() {
+        let mut state: State = State::default();
+        let choice = MOVES.get("absorb").unwrap().to_owned();
+        state.side_one.get_active().hp = 100;
+        state.side_one.get_active().maxhp = 200;
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
-                    damage_amount: 72,
+                    damage_amount: 16,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 8,
+                }),
+            ],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_drain_move_does_not_overheal() {
+        let mut state: State = State::default();
+        let choice = MOVES.get("absorb").unwrap().to_owned();
+        state.side_one.get_active().hp = 100;
+        state.side_one.get_active().maxhp = 105;
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 16,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 5,
+                }),
+            ],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_recoil_damage() {
+        let mut state: State = State::default();
+        let choice = MOVES.get("bravebird").unwrap().to_owned();
+        state.side_one.get_active().hp = 105;
+        state.side_one.get_active().maxhp = 105;
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 94,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 31,
+                }),
+            ],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_recoil_cannot_overkill() {
+        let mut state: State = State::default();
+        let choice = MOVES.get("bravebird").unwrap().to_owned();
+        state.side_one.get_active().hp = 5;
+        state.side_one.get_active().maxhp = 105;
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 94,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 5,
+                }),
+            ],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_drain_and_recoil_together() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get("absorb").unwrap().to_owned();
+        choice.recoil = Some(0.33);
+        state.side_one.get_active().hp = 1;
+        state.side_one.get_active().maxhp = 105;
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 16,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 8,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 5,
                 }),
             ],
         };

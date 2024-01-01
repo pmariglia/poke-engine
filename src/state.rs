@@ -326,6 +326,10 @@ impl Pokemon {
         return pkmn_type == &self.types.0 || pkmn_type == &self.types.1;
     }
 
+    pub fn item_can_be_removed(&self) -> bool {
+        return true;
+    }
+
     pub fn clear_volatile_statuses(&mut self) {
         self.volatile_statuses.clear();
     }

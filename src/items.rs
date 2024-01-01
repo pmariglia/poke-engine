@@ -27,6 +27,21 @@ lazy_static! {
                 ..Default::default()
             },
         );
+        // items.insert(
+        //     "rockyhelmet".to_string(),
+        //     Item {
+        //         modify_attack_against: Some(
+        //             |_state, attacking_choice: &mut Choice, _side_ref| {
+        //                 if attacking_choice.flags.contact {
+        //                     if let Some(secondaries) = attacking_choice.secondaries {
+        //
+        //                     }
+        //                 }
+        //             },
+        //         ),
+        //         ..Default::default()
+        //     },
+        // );
         items.insert(
             "airballoon".to_string(),
             Item {

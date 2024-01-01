@@ -40,6 +40,14 @@ pub enum Instruction {
     ChangeWeather(ChangeWeather),
     ChangeTerrain(ChangeTerrain),
     ChangeType(ChangeType),
+    ChangeItem(ChangeItemInstruction),
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ChangeItemInstruction {
+    pub side_ref: SideReference,
+    pub current_item: String,
+    pub new_item: String,
 }
 
 #[derive(Debug, PartialEq, Clone)]

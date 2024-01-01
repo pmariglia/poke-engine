@@ -1,3 +1,5 @@
+use crate::instruction::ChangeItemInstruction;
+use crate::instruction::Instruction;
 use crate::state::PokemonSideCondition;
 use crate::state::PokemonStatus;
 use crate::state::PokemonType;
@@ -8,6 +10,7 @@ use lazy_static::lazy_static;
 use std::collections::HashMap;
 
 type ModifyChoiceFn = fn(&State, &mut Choice, &Choice, &SideReference);
+type AfterDamageHitFn = fn(&State, &mut Choice, &SideReference) -> Vec<Instruction>;
 
 lazy_static! {
     pub static ref MOVES: HashMap<String, Choice> = {
@@ -1013,7 +1016,7 @@ lazy_static! {
                 }),
                 heal: Some(Heal {
                     target: MoveTarget::User,
-                    amount_percentage: -0.5,
+                    amount: -0.5,
                 }),
                 ..Default::default()
             },
@@ -1510,6 +1513,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                recoil: Some(0.33),
                 ..Default::default()
             },
         );
@@ -2090,7 +2094,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::Opponent,
-                    amount_percentage: -0.5,
+                    amount: -0.5,
                 }),
                 ..Default::default()
             },
@@ -3170,6 +3174,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                recoil: Some(0.33),
                 ..Default::default()
             },
         );
@@ -4107,7 +4112,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::Opponent,
-                    amount_percentage: -1.0,
+                    amount: -1.0,
                 }),
                 ..Default::default()
             },
@@ -4417,7 +4422,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::Opponent,
-                    amount_percentage: -1.0,
+                    amount: -1.0,
                 }),
                 ..Default::default()
             },
@@ -4716,6 +4721,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
+                recoil: Some(0.33),
                 ..Default::default()
             },
         );
@@ -5926,6 +5932,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                recoil: Some(0.25),
                 ..Default::default()
             },
         );
@@ -5960,6 +5967,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                recoil: Some(0.5),
                 ..Default::default()
             },
         );
@@ -6013,7 +6021,7 @@ lazy_static! {
                 }),
                 heal: Some(Heal {
                     target: MoveTarget::User,
-                    amount_percentage: -1.0,
+                    amount: -1.0,
                 }),
                 ..Default::default()
             },
@@ -6031,7 +6039,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::User,
-                    amount_percentage: 0.5,
+                    amount: 0.5,
                 }),
                 ..Default::default()
             },
@@ -7550,7 +7558,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::User,
-                    amount_percentage: 0.25,
+                    amount: 0.25,
                 }),
                 ..Default::default()
             },
@@ -7627,6 +7635,23 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                after_damage_hit: Some(
+                    |state: &State,
+                     choice: &mut Choice,
+                     attacking_side_reference: &SideReference| {
+                        let defending_side =
+                            state.get_side_immutable(&attacking_side_reference.get_other_side());
+                        let defender_active = defending_side.get_active_immutable();
+                        if defender_active.item_can_be_removed() {
+                            return vec![Instruction::ChangeItem(ChangeItemInstruction {
+                                side_ref: attacking_side_reference.get_other_side(),
+                                current_item: defender_active.item.clone(),
+                                new_item: String::from(""),
+                            })];
+                        }
+                        return vec![];
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -7918,7 +7943,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::User,
-                    amount_percentage: 0.25,
+                    amount: 0.25,
                 }),
                 ..Default::default()
             },
@@ -7936,6 +7961,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                recoil: Some(0.5),
                 ..Default::default()
             },
         );
@@ -8116,7 +8142,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::User,
-                    amount_percentage: 0.25,
+                    amount: 0.25,
                 }),
                 ..Default::default()
             },
@@ -8567,7 +8593,7 @@ lazy_static! {
                 }),
                 heal: Some(Heal {
                     target: MoveTarget::Opponent,
-                    amount_percentage: -1.0,
+                    amount: -1.0,
                 }),
                 ..Default::default()
             },
@@ -8730,7 +8756,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::User,
-                    amount_percentage: 0.5,
+                    amount: 0.5,
                 }),
                 ..Default::default()
             },
@@ -8761,7 +8787,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::Opponent,
-                    amount_percentage: -0.5,
+                    amount: -0.5,
                 }),
                 ..Default::default()
             },
@@ -8937,7 +8963,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::Opponent,
-                    amount_percentage: -1.0,
+                    amount: -1.0,
                 }),
                 ..Default::default()
             },
@@ -9009,7 +9035,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::User,
-                    amount_percentage: 0.5,
+                    amount: 0.5,
                 }),
                 ..Default::default()
             },
@@ -9027,7 +9053,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::User,
-                    amount_percentage: 0.5,
+                    amount: 0.5,
                 }),
                 ..Default::default()
             },
@@ -11091,7 +11117,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::User,
-                    amount_percentage: 0.5,
+                    amount: 0.5,
                 }),
                 ..Default::default()
             },
@@ -11189,7 +11215,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::User,
-                    amount_percentage: 1.0,
+                    amount: 1.0,
                 }),
                 ..Default::default()
             },
@@ -11591,7 +11617,7 @@ lazy_static! {
                 }),
                 heal: Some(Heal {
                     target: MoveTarget::User,
-                    amount_percentage: 0.5,
+                    amount: 0.5,
                 }),
                 ..Default::default()
             },
@@ -12064,7 +12090,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::Opponent,
-                    amount_percentage: -1.0,
+                    amount: -1.0,
                 }),
                 ..Default::default()
             },
@@ -12673,7 +12699,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::User,
-                    amount_percentage: 0.5,
+                    amount: 0.5,
                 }),
                 ..Default::default()
             },
@@ -13043,7 +13069,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::User,
-                    amount_percentage: 0.5,
+                    amount: 0.5,
                 }),
                 ..Default::default()
             },
@@ -13897,6 +13923,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                recoil: Some(0.25),
                 ..Default::default()
             },
         );
@@ -14216,7 +14243,7 @@ lazy_static! {
                 },
                 heal: Some(Heal {
                     target: MoveTarget::User,
-                    amount_percentage: 0.5,
+                    amount: 0.5,
                 }),
                 ..Default::default()
             },
@@ -14356,6 +14383,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                recoil: Some(0.33),
                 ..Default::default()
             },
         );
@@ -15453,6 +15481,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
+                recoil: Some(0.33),
                 ..Default::default()
             },
         );
@@ -15602,6 +15631,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                recoil: Some(0.33),
                 ..Default::default()
             },
         );
@@ -15744,6 +15774,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                recoil: Some(0.25),
                 ..Default::default()
             },
         );
@@ -15850,6 +15881,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                recoil: Some(0.33),
                 ..Default::default()
             },
         );
@@ -16095,7 +16127,7 @@ pub struct Boost {
 #[derive(Debug, Clone)]
 pub struct Heal {
     target: MoveTarget,
-    amount_percentage: f32,
+    amount: f32,
 }
 
 #[derive(Debug, Clone)]
@@ -16204,6 +16236,7 @@ pub struct Choice {
     pub priority: i8,
     pub flags: Flags,
     pub drain: Option<f32>,
+    pub recoil: Option<f32>,
     pub heal: Option<Heal>,
     pub status: Option<Status>,
     pub volatile_status: Option<VolatileStatus>,
@@ -16216,6 +16249,7 @@ pub struct Choice {
     pub first_move: bool,
 
     pub modify_move: Option<ModifyChoiceFn>,
+    pub after_damage_hit: Option<AfterDamageHitFn>,
 }
 
 impl Default for Choice {
@@ -16233,6 +16267,7 @@ impl Default for Choice {
                 ..Default::default()
             },
             drain: None,
+            recoil: None,
             heal: None,
             status: None,
             volatile_status: None,
@@ -16241,6 +16276,7 @@ impl Default for Choice {
             target: MoveTarget::Opponent,
             first_move: true,
             modify_move: None,
+            after_damage_hit: None,
         };
     }
 }
