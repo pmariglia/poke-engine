@@ -781,6 +781,7 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
                 }]),
+                crash: Some(0.5),
                 ..Default::default()
             },
         );
@@ -6721,6 +6722,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                crash: Some(0.5),
                 ..Default::default()
             },
         );
@@ -7543,6 +7545,7 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                crash: Some(0.5),
                 ..Default::default()
             },
         );
@@ -16235,6 +16238,7 @@ pub struct Choice {
     pub flags: Flags,
     pub drain: Option<f32>,
     pub recoil: Option<f32>,
+    pub crash: Option<f32>,
     pub heal: Option<Heal>,
     pub status: Option<Status>,
     pub volatile_status: Option<VolatileStatus>,
@@ -16266,6 +16270,7 @@ impl Default for Choice {
             },
             drain: None,
             recoil: None,
+            crash: None,
             heal: None,
             status: None,
             volatile_status: None,

@@ -115,10 +115,11 @@ fn generate_instructions_from_damage(
         - DONE for beastboost to generate an instruction if KO
         - DONE for drain moves???
         - DONE for recoil moves???
-        - knockoff removing an item
+        - DONE after_damage_hit instructions
+            - eg. for knockoff removing an item
 
     - after move miss callback (AFTER MOVE MISS)
-        - here is where crash would be
+        - DONE here is where crash would be ???
         - blunderpolicy
 
     - arbitrary other after_move as well from the old engine (triggers on hit OR miss)
@@ -214,8 +215,16 @@ fn generate_instructions_from_damage(
     // Move miss
     if percent_hit < 1.0 {
         let mut move_missed_instruction = incoming_instructions.clone();
-
         move_missed_instruction.update_percentage(1.0 - percent_hit);
+        if let Some(crash_fraction) = choice.crash {
+            let crash_amount = (attacking_pokemon.maxhp as f32 * crash_fraction) as i16;
+            let crash_instruction = Instruction::Damage(DamageInstruction {
+                side_ref: *attacking_side_ref,
+                damage_amount: cmp::min(crash_amount, attacking_pokemon.hp),
+            });
+
+            move_missed_instruction.instruction_list.push(crash_instruction);
+        }
 
         frozen_instructions.push(move_missed_instruction);
     }
@@ -1067,6 +1076,81 @@ mod tests {
         };
 
         assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_crash_move_missing() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get("jumpkick").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: Vec::<StateInstructions> = vec![
+            StateInstructions {
+                percentage: 5.000001,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideOne,
+                        damage_amount: 50,
+                    }),
+                ],
+            },
+            StateInstructions {
+                percentage: 95.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 100,
+                    }),
+                ],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_crash_move_missing_cannot_overkill() {
+        let mut state: State = State::default();
+        state.get_side(&SideReference::SideOne).get_active().hp = 5;
+        let mut choice = MOVES.get("jumpkick").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: Vec::<StateInstructions> = vec![
+            StateInstructions {
+                percentage: 5.000001,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideOne,
+                        damage_amount: 5,
+                    }),
+                ],
+            },
+            StateInstructions {
+                percentage: 95.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 100,
+                    }),
+                ],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
     }
 
     #[test]
