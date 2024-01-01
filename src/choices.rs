@@ -10,7 +10,7 @@ use lazy_static::lazy_static;
 use std::collections::HashMap;
 
 type ModifyChoiceFn = fn(&State, &mut Choice, &Choice, &SideReference);
-type AfterDamageHitFn = fn(&State, &mut Choice, &SideReference) -> Vec<Instruction>;
+type AfterDamageHitFn = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
 
 lazy_static! {
     pub static ref MOVES: HashMap<String, Choice> = {
@@ -7636,9 +7636,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 after_damage_hit: Some(
-                    |state: &State,
-                     choice: &mut Choice,
-                     attacking_side_reference: &SideReference| {
+                    |state: &State, choice: &Choice, attacking_side_reference: &SideReference| {
                         let defending_side =
                             state.get_side_immutable(&attacking_side_reference.get_other_side());
                         let defender_active = defending_side.get_active_immutable();

@@ -202,9 +202,11 @@ fn generate_instructions_from_damage(
                 .push(recoil_instruction);
         }
 
-        // if let Some(after_damage_hit_fn) = choice.after_damage_hit {
-        //     let
-        // }
+        if let Some(after_damage_hit_fn) = choice.after_damage_hit {
+            move_hit_instructions
+                .instruction_list
+                .extend(after_damage_hit_fn(&state, &choice, attacking_side_ref));
+        }
 
         return_instructions.push(move_hit_instructions);
     }
@@ -643,8 +645,8 @@ mod tests {
     use super::*;
     use crate::choices::MOVES;
     use crate::instruction::{
-        BoostInstruction, ChangeStatusInstruction, DamageInstruction, SwitchInstruction,
-        VolatileStatusInstruction,
+        BoostInstruction, ChangeItemInstruction, ChangeStatusInstruction, DamageInstruction,
+        SwitchInstruction, VolatileStatusInstruction,
     };
     use crate::state::{PokemonBoostableStat, SideReference, State};
 
@@ -1060,6 +1062,38 @@ mod tests {
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideOne,
                     damage_amount: 5,
+                }),
+            ],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_knockoff_removing_item() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get("knockoff").unwrap().to_owned();
+        state.get_side(&SideReference::SideTwo).get_active().item = String::from("item");
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 51,
+                }),
+                Instruction::ChangeItem(ChangeItemInstruction {
+                    side_ref: SideReference::SideTwo,
+                    current_item: "item".to_string(),
+                    new_item: "".to_string(),
                 }),
             ],
         };
