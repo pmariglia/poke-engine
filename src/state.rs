@@ -421,6 +421,29 @@ impl Side {
     pub fn get_active_immutable(&self) -> &Pokemon {
         &self.pokemon[self.active_index]
     }
+
+    pub fn get_side_condition(&self, side_condition: PokemonSideCondition) -> i8 {
+        match side_condition {
+            PokemonSideCondition::AuroraVeil => self.side_conditions.aurora_veil,
+            PokemonSideCondition::CraftyShield => self.side_conditions.crafty_shield,
+            PokemonSideCondition::HealingWish => self.side_conditions.healing_wish,
+            PokemonSideCondition::LightScreen => self.side_conditions.light_screen,
+            PokemonSideCondition::LuckyChant => self.side_conditions.lucky_chant,
+            PokemonSideCondition::LunarDance => self.side_conditions.lunar_dance,
+            PokemonSideCondition::MatBlock => self.side_conditions.mat_block,
+            PokemonSideCondition::Mist => self.side_conditions.mist,
+            PokemonSideCondition::QuickGuard => self.side_conditions.quick_guard,
+            PokemonSideCondition::Reflect => self.side_conditions.reflect,
+            PokemonSideCondition::Safeguard => self.side_conditions.safeguard,
+            PokemonSideCondition::Spikes => self.side_conditions.spikes,
+            PokemonSideCondition::Stealthrock => self.side_conditions.stealth_rock,
+            PokemonSideCondition::StickyWeb => self.side_conditions.sticky_web,
+            PokemonSideCondition::Tailwind => self.side_conditions.tailwind,
+            PokemonSideCondition::ToxicSpikes => self.side_conditions.toxic_spikes,
+            PokemonSideCondition::WideGuard => self.side_conditions.wide_guard,
+            PokemonSideCondition::Wish => self.side_conditions.wish,
+        }
+    }
 }
 
 impl Default for Side {

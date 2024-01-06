@@ -16115,8 +16115,8 @@ pub struct VolatileStatus {
 
 #[derive(Debug, Clone)]
 pub struct SideCondition {
-    target: MoveTarget,
-    condition: PokemonSideCondition,
+    pub target: MoveTarget,
+    pub condition: PokemonSideCondition,
 }
 
 #[derive(Debug, Clone)]

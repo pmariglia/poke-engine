@@ -1,5 +1,8 @@
-use crate::instruction::{BoostInstruction, ChangeItemInstruction, HealInstruction};
-use crate::state::{PokemonBoostableStat, PokemonType};
+use crate::choices::MoveTarget;
+use crate::instruction::{
+    BoostInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, HealInstruction,
+};
+use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType};
 use crate::{
     abilities::ABILITIES,
     choices::{Choice, MoveCategory},
@@ -9,7 +12,7 @@ use crate::{
         SwitchInstruction,
     },
     items::ITEMS,
-    state::{Pokemon, PokemonStatus, PokemonVolatileStatus, SideReference, State},
+    state::{Pokemon, PokemonStatus, PokemonVolatileStatus, SideReference, State, Weather},
 };
 use std::cmp;
 
@@ -48,13 +51,52 @@ fn generate_instructions_from_switch(
 fn generate_instructions_from_side_conditions(
     state: &mut State,
     choice: &Choice,
-    side_reference: &SideReference,
-    incoming_instructions: StateInstructions,
+    attacking_side_reference: &SideReference,
+    mut incoming_instructions: StateInstructions,
     _: &mut Vec<StateInstructions>,
 ) -> Vec<StateInstructions> {
     if let Some(side_condition) = &choice.side_condition {
         state.apply_instructions(&incoming_instructions.instruction_list);
+
+        let affected_side_ref;
+        match side_condition.target {
+            MoveTarget::Opponent => affected_side_ref = attacking_side_reference.get_other_side(),
+            MoveTarget::User => affected_side_ref = *attacking_side_reference,
+        }
+
+        let affected_side = state.get_side_immutable(&affected_side_ref);
+
+        let max_layers;
+        match side_condition.condition {
+            PokemonSideCondition::Spikes => max_layers = 3,
+            PokemonSideCondition::ToxicSpikes => max_layers = 3,
+            PokemonSideCondition::AuroraVeil => {
+                max_layers = if state.weather.weather_type == Weather::Hail {
+                    1
+                } else {
+                    0
+                }
+            }
+            _ => max_layers = 1,
+        }
+
+        let mut additional_instructions = vec![];
+        if affected_side.get_side_condition(side_condition.condition) < max_layers {
+            additional_instructions.push(Instruction::ChangeSideCondition(
+                ChangeSideConditionInstruction {
+                    side_ref: affected_side_ref,
+                    side_condition: side_condition.condition,
+                    amount: 1,
+                },
+            ));
+        }
+
         state.reverse_instructions(&incoming_instructions.instruction_list);
+
+        for i in additional_instructions {
+            incoming_instructions.instruction_list.push(i)
+        }
+
         return vec![incoming_instructions];
     }
 
@@ -747,6 +789,195 @@ mod tests {
             StateInstructions::default(),
         );
         assert_eq!(instructions, vec![StateInstructions::default()])
+    }
+
+    #[test]
+    fn test_spikes_sets_first_layer() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get("spikes").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::ChangeSideCondition(
+                ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideTwo,
+                    side_condition: PokemonSideCondition::Spikes,
+                    amount: 1,
+                },
+            )],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_spikes_layers_cannot_exceed_3() {
+        let mut state: State = State::default();
+        state.side_two.side_conditions.spikes = 3;
+        let mut choice = MOVES.get("spikes").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_auroa_veil_works_in_hail() {
+        let mut state: State = State::default();
+        state.weather.weather_type = Weather::Hail;
+        let mut choice = MOVES.get("auroraveil").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::ChangeSideCondition(
+                ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::AuroraVeil,
+                    amount: 1,
+                },
+            )],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_auroa_veil_fails_outside_of_hail() {
+        let mut state: State = State::default();
+        state.weather.weather_type = Weather::None;
+        let mut choice = MOVES.get("auroraveil").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_stealthrock_cannot_exceed_1_layer() {
+        let mut state: State = State::default();
+        state.side_two.side_conditions.stealth_rock = 1;
+        let mut choice = MOVES.get("stealthrock").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_stoneaxe_damage_and_stealthrock_setting() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get("stoneaxe").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 10.000002,
+                instruction_list: vec![],
+            },
+            StateInstructions {
+                percentage: 90.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 51,
+                    }),
+                    Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                        side_ref: SideReference::SideTwo,
+                        side_condition: PokemonSideCondition::Stealthrock,
+                        amount: 1,
+                    }),
+                ],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_stoneaxe_does_not_set_stealthrock_if_already_set() {
+        let mut state: State = State::default();
+        state.side_two.side_conditions.stealth_rock = 1;
+        let mut choice = MOVES.get("stoneaxe").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 10.000002,
+                instruction_list: vec![],
+            },
+            StateInstructions {
+                percentage: 90.0,
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 51,
+                })],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
     }
 
     #[test]
