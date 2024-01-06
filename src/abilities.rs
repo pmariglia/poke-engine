@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use lazy_static::lazy_static;
 
 use crate::choices::{Choice, MoveTarget};
-use crate::instruction::{BoostInstruction, ChangeType, Instruction};
+use crate::instruction::{BoostInstruction, ChangeType, Instruction, StateInstructions};
 use crate::state::PokemonType;
 use crate::state::SideReference;
 use crate::state::State;
@@ -12,6 +12,7 @@ type ModifyAttackBeingUsed = fn(&State, &mut Choice, &Choice, &SideReference);
 type ModifyAttackAgainst = fn(&State, &mut Choice, &Choice, &SideReference);
 type AbilityBeforeMove = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
 type AbilityAfterDamageHit = fn(&State, &Choice, &SideReference, i16) -> Vec<Instruction>;
+type AbilityAfterBeingHitBranching = fn(&State, &Choice, &SideReference) -> Vec<StateInstructions>;
 
 lazy_static! {
     pub static ref ABILITIES: HashMap<String, Ability> = {
@@ -731,6 +732,27 @@ lazy_static! {
         abilities.insert(
             "flamebody".to_string(),
             Ability {
+                after_being_hit_branching: Some(|state: &State, choice: &Choice, attacking_side_reference: &SideReference| {
+                    // TODO: Come back to this after the general status move logic is implemented
+                    // TODO: it may be possible to re-use some of that logic
+                    // if state.move_makes_contact(choice, attacking_side_reference)
+                    // &&
+                    // {
+                    //     return vec![
+                    //         StateInstructions {
+                    //             percentage: 30,
+                    //             instruction_list: vec![
+                    //
+                    //             ]
+                    //         },
+                    //         StateInstructions{
+                    //             percentage: 70,
+                    //
+                    //         },
+                    //     ]
+                    // }
+                    return vec![];
+                }),
                 ..Default::default()
             },
         );
@@ -1963,6 +1985,7 @@ pub struct Ability {
     pub modify_attack_against: Option<ModifyAttackAgainst>,
     pub before_move: Option<AbilityBeforeMove>,
     pub after_damage_hit: Option<AbilityAfterDamageHit>,
+    pub after_being_hit_branching: Option<AbilityAfterBeingHitBranching>,
 }
 
 impl Default for Ability {
@@ -1972,6 +1995,7 @@ impl Default for Ability {
             modify_attack_against: None,
             before_move: None,
             after_damage_hit: None,
+            after_being_hit_branching: None,
         };
     }
 }

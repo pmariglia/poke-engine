@@ -19,7 +19,7 @@ mod items;
 mod state;
 
 fn main() {
-    let mut _choice = MOVES.get("tackle").unwrap().to_owned();
+    let _choice = MOVES.get("spikes").unwrap().to_owned();
 
     let mut state: State = State::default();
     println!(

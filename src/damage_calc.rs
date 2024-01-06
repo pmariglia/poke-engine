@@ -226,11 +226,7 @@ pub fn calculate_damage(
     attacking_side: SideReference,
     choice: &Choice,
     damage_rolls: DamageRolls,
-) -> Vec<i16> {
-    if choice.base_power <= 0.0 {
-        return vec![];
-    }
-
+) -> Option<Vec<i16>> {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(&attacking_side);
 
     let attacking_stat;
@@ -268,7 +264,11 @@ pub fn calculate_damage(
                     .calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
             }
         }
-        _ => return vec![],
+        _ => return None,
+    }
+
+    if choice.base_power <= 0.0 {
+        return Some(vec![0]);
     }
 
     let mut damage: f32;
@@ -314,7 +314,7 @@ pub fn calculate_damage(
 
     damage = damage * damage_modifier;
 
-    return get_damage_rolls(damage.floor(), damage_rolls);
+    return Some(get_damage_rolls(damage.floor(), damage_rolls));
 }
 
 #[cfg(test)]
@@ -342,7 +342,21 @@ mod tests {
 
         // level 100 tackle with 100 base stats across the board (attacker & defender)
         // should do 35 damage max
-        assert_eq!(vec![35], dmg);
+        assert_eq!(vec![35], dmg.unwrap());
+    }
+
+    #[test]
+    fn test_basic_non_damaging_move() {
+        let state = State::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.move_id = "protect".to_string();
+        choice.category = MoveCategory::Status;
+
+        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
+
+        assert_eq!(None, dmg);
     }
 
     #[test]
@@ -358,7 +372,7 @@ mod tests {
 
         let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
 
-        assert_eq!(Vec::<i16>::new(), dmg);
+        assert_eq!(vec![0], dmg.unwrap());
     }
 
     #[test]
@@ -376,7 +390,7 @@ mod tests {
         let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
 
         // 35 * 1.5x attack boost is 52.5 => 52
-        assert_eq!(vec![52], dmg);
+        assert_eq!(vec![52], dmg.unwrap());
     }
 
     #[test]
@@ -394,7 +408,7 @@ mod tests {
 
         let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
 
-        assert_eq!(vec![35], dmg);
+        assert_eq!(vec![35], dmg.unwrap());
     }
 
     #[test]
@@ -412,7 +426,7 @@ mod tests {
         let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
 
         // 2x damage should be 35 * 2 = 70
-        assert_eq!(vec![70], dmg);
+        assert_eq!(vec![70], dmg.unwrap());
     }
 
     #[test]
@@ -430,7 +444,7 @@ mod tests {
         let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
 
         // 0.5x damage should be 35 / 2 = 17.5 => 17
-        assert_eq!(vec![17], dmg);
+        assert_eq!(vec![17], dmg.unwrap());
     }
 
     macro_rules! weather_tests {
@@ -450,7 +464,7 @@ mod tests {
                     choice.category = MoveCategory::Special;
                     let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
 
-                    assert_eq!(vec![expected_damage_amount], dmg);
+                    assert_eq!(vec![expected_damage_amount], dmg.unwrap());
                 }
              )*
         }
@@ -484,7 +498,7 @@ mod tests {
                     choice.category = MoveCategory::Special;
                     let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
 
-                    assert_eq!(vec![expected_damage_amount], dmg);
+                    assert_eq!(vec![expected_damage_amount], dmg.unwrap());
                 }
              )*
         }
@@ -511,7 +525,7 @@ mod tests {
                     choice.base_power = 40.0;
                     let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
 
-                    assert_eq!(vec![expected_damage_amount], dmg);
+                    assert_eq!(vec![expected_damage_amount], dmg.unwrap());
                 }
              )*
         }
@@ -540,7 +554,7 @@ mod tests {
                     choice.move_type = PokemonType::Typeless;
                     let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
 
-                    assert_eq!(vec![expected_damage_amount], dmg);
+                    assert_eq!(vec![expected_damage_amount], dmg.unwrap());
                 }
              )*
         }
@@ -575,7 +589,7 @@ mod tests {
                     choice.base_power = 40.0;
                     let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
 
-                    assert_eq!(vec![expected_damage_amount], dmg);
+                    assert_eq!(vec![expected_damage_amount], dmg.unwrap());
                 }
              )*
         }

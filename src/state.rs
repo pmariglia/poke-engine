@@ -1,3 +1,4 @@
+use crate::choices::Choice;
 use core::panic;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
@@ -508,6 +509,22 @@ impl State {
             SideReference::SideOne => return (&self.side_one, &self.side_two),
             SideReference::SideTwo => return (&self.side_two, &self.side_one),
         }
+    }
+
+    pub fn move_makes_contact(&self, choice: &Choice, attacking_side_ref: &SideReference) -> bool {
+        if choice.flags.contact {
+            if self
+                .get_side_immutable(attacking_side_ref)
+                .get_active_immutable()
+                .item
+                .as_str()
+                == "protectivepads"
+            {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     fn damage(&mut self, side_ref: &SideReference, amount: i16) {

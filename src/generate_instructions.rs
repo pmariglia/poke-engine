@@ -50,6 +50,22 @@ fn generate_instructions_from_side_conditions(
     choice: &Choice,
     side_reference: &SideReference,
     incoming_instructions: StateInstructions,
+    _: &mut Vec<StateInstructions>,
+) -> Vec<StateInstructions> {
+    if let Some(side_condition) = &choice.side_condition {
+        state.apply_instructions(&incoming_instructions.instruction_list);
+        state.reverse_instructions(&incoming_instructions.instruction_list);
+        return vec![incoming_instructions];
+    }
+
+    return vec![incoming_instructions];
+}
+
+fn generate_instructions_from_ability_after_move(
+    state: &mut State,
+    choice: &Choice,
+    side_reference: &SideReference,
+    incoming_instructions: StateInstructions,
     frozen_instructions: &mut Vec<StateInstructions>,
 ) -> Vec<StateInstructions> {
     return vec![incoming_instructions];
@@ -86,8 +102,6 @@ fn run_instruction_generation_fn(
     return continuing_instructions;
 }
 
-// TODO: This isn't ready to integrate yet, and it might not be complete
-// Come back to this
 fn generate_instructions_from_damage(
     state: &mut State,
     choice: &Choice,
@@ -465,7 +479,10 @@ pub fn generate_instructions_from_move(
     - update choice struct based on special effects
         - protect (or it's variants) nullifying a move
             - this may generate a custom instruction because some protect variants do things (spikyshield, banefulbunker, etc)
+            - rather than updating the choice struct, this should be a check that immediately adds the instruction list
+              to `final_instructions` after applying the custom instructions from something like spikyshield ofc.
         - charging move that sets some charge flags and exits
+            - again.. rather than exit, add the instructions to final instructions
         - DONE move special effect
         - DONE ability special effect (both sides)
         - DONE item special effect (both sides)
@@ -480,7 +497,8 @@ pub fn generate_instructions_from_move(
     - move special effects
         hail, trick, futuresight, trickroom, etc. Anything that cannot be succinctly expressed in a Choice
         these will generate instructions (sometimes conditionally), but should not branch
-    * calculate damage amount(s) and do the damage
+    - MULTI HIT MOVES?!
+    * DONE GOOD ENOUGH - WILL COME BACK TO AFTER ENGINE COMPLETE calculate damage amount(s) and do the damage
     - after-move effects
         * move special effect (both sides)
             - static/flamebody means this needs to possibly branch
@@ -559,7 +577,7 @@ pub fn generate_instructions_from_move(
         .instruction_list
         .extend(before_move_instructions);
 
-    let damages_dealt = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
+    let damage = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
 
@@ -593,28 +611,31 @@ pub fn generate_instructions_from_move(
     );
 
     // Damage generation gets its own block because it has some special logic
-    let mut temp_instructions: Vec<StateInstructions> = vec![];
-    for instruction in next_instructions {
-        let num_damage_amounts = damages_dealt.len() as f32;
-        for dmg in &damages_dealt {
-            let mut this_instruction = instruction.clone();
-            this_instruction.update_percentage(1.0 / num_damage_amounts);
-            println!("Instruction: {:?}, Run dmg: {:?}", this_instruction, dmg);
-            temp_instructions.extend(generate_instructions_from_damage(
-                state,
-                &choice,
-                *dmg,
-                &attacking_side,
-                this_instruction,
-                &mut final_instructions,
-            ));
+    if let Some(damages_dealt) = damage {
+        let mut temp_instructions: Vec<StateInstructions> = vec![];
+        for instruction in next_instructions {
+            let num_damage_amounts = damages_dealt.len() as f32;
+            for dmg in &damages_dealt {
+                let mut this_instruction = instruction.clone();
+                this_instruction.update_percentage(1.0 / num_damage_amounts);
+                println!("Instruction: {:?}, Run dmg: {:?}", this_instruction, dmg);
+                temp_instructions.extend(generate_instructions_from_damage(
+                    state,
+                    &choice,
+                    *dmg,
+                    &attacking_side,
+                    this_instruction,
+                    &mut final_instructions,
+                ));
+            }
         }
+        next_instructions = temp_instructions;
     }
-    next_instructions = temp_instructions;
 
     // Ability-After-Move (flamebody, static) should be done IN `generate_instructions_from_damage`
     // ... or not ... come back to that
     let instruction_generation_functions = [
+        // generate_instructions_from_ability_after_move,
         generate_instructions_from_side_conditions,
         // get_instructions_from_hazard_clearing_moves,
         // get_instructions_from_volatile_statuses,
