@@ -19,7 +19,7 @@ mod items;
 mod state;
 
 fn main() {
-    let _choice = MOVES.get("spikes").unwrap().to_owned();
+    let mut _choice = MOVES.get("highjumpkick").unwrap().to_owned();
 
     let mut state: State = State::default();
     println!(
@@ -27,7 +27,7 @@ fn main() {
         state.side_one.get_active().types
     );
 
-    state.side_one.get_active().status = PokemonStatus::Paralyze;
+    // state.side_one.get_active().status = PokemonStatus::Paralyze;
     state.side_one.get_active().ability = String::from("beastboost");
     state.side_two.get_active().hp = 100;
 

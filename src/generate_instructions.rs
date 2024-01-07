@@ -16,13 +16,8 @@ use crate::{
 };
 use std::cmp;
 
-type InstructionGenerationFn = fn(
-    &mut State,
-    &Choice,
-    &SideReference,
-    StateInstructions,
-    &mut Vec<StateInstructions>,
-) -> Vec<StateInstructions>;
+type InstructionGenerationFn =
+    fn(&mut State, &Choice, &SideReference, StateInstructions) -> Vec<StateInstructions>;
 
 fn generate_instructions_from_switch(
     state: &mut State,
@@ -53,7 +48,6 @@ fn generate_instructions_from_side_conditions(
     choice: &Choice,
     attacking_side_reference: &SideReference,
     mut incoming_instructions: StateInstructions,
-    _: &mut Vec<StateInstructions>,
 ) -> Vec<StateInstructions> {
     if let Some(side_condition) = &choice.side_condition {
         state.apply_instructions(&incoming_instructions.instruction_list);
@@ -118,18 +112,78 @@ fn generate_instructions_from_move_special_effect(
     choice: &Choice,
     side_reference: &SideReference,
     incoming_instructions: StateInstructions,
-    frozen_instructions: &mut Vec<StateInstructions>,
 ) -> Vec<StateInstructions> {
     return vec![incoming_instructions];
 }
 
-fn run_instruction_generation_fn(
+fn check_move_hit_or_miss(
+    state: &mut State,
+    choice: &Choice,
+    attacking_side_ref: &SideReference,
+    incoming_instructions: StateInstructions,
+    frozen_instructions: &mut Vec<StateInstructions>,
+) -> StateInstructions {
+    /*
+    Checks whether or not a move can miss
+
+    If the move can miss - adds it to `frozen_instructions`, signifying that the rest of the
+    half-turn will not run.
+
+    Otherwise, return the instructions that the half-turn will continue to iterate on
+    */
+
+    state.apply_instructions(&incoming_instructions.instruction_list);
+
+    let attacking_side = state.get_side_immutable(attacking_side_ref);
+    let attacking_pokemon = attacking_side.get_active_immutable();
+
+    let percent_hit = choice.accuracy / 100.0;
+    if percent_hit < 1.0 {
+        let mut move_missed_instruction = incoming_instructions.clone();
+        move_missed_instruction.update_percentage(1.0 - percent_hit);
+        if let Some(crash_fraction) = choice.crash {
+            let crash_amount = (attacking_pokemon.maxhp as f32 * crash_fraction) as i16;
+            let crash_instruction = Instruction::Damage(DamageInstruction {
+                side_ref: *attacking_side_ref,
+                damage_amount: cmp::min(crash_amount, attacking_pokemon.hp),
+            });
+
+            move_missed_instruction
+                .instruction_list
+                .push(crash_instruction);
+        }
+
+        if attacking_pokemon.item.as_str() == "blunderpolicy"
+            && attacking_pokemon.item_can_be_removed()
+        {
+            move_missed_instruction.instruction_list.extend(vec![
+                Instruction::ChangeItem(ChangeItemInstruction {
+                    side_ref: *attacking_side_ref,
+                    current_item: String::from("blunderpolicy"),
+                    new_item: "".to_string(),
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: *attacking_side_ref,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: 2,
+                }),
+            ]);
+        }
+
+        frozen_instructions.push(move_missed_instruction);
+    }
+
+    state.reverse_instructions(&incoming_instructions.instruction_list);
+
+    return incoming_instructions;
+}
+
+fn run_instruction_generation_fn_for_move_hit(
     instruction_generation_fn: InstructionGenerationFn,
     state: &mut State,
     choice: &Choice,
     side_reference: &SideReference,
     incoming_instructions: Vec<StateInstructions>,
-    frozen_instructions: &mut Vec<StateInstructions>,
 ) -> Vec<StateInstructions> {
     let mut continuing_instructions: Vec<StateInstructions> = vec![];
     for instruction in incoming_instructions {
@@ -138,7 +192,6 @@ fn run_instruction_generation_fn(
             choice,
             side_reference,
             instruction,
-            frozen_instructions,
         ));
     }
     return continuing_instructions;
@@ -150,7 +203,6 @@ fn generate_instructions_from_damage(
     calculated_damage: i16,
     attacking_side_ref: &SideReference,
     incoming_instructions: StateInstructions,
-    frozen_instructions: &mut Vec<StateInstructions>,
 ) -> Vec<StateInstructions> {
     /*
     - Something for crash moves??
@@ -266,42 +318,6 @@ fn generate_instructions_from_damage(
         }
 
         return_instructions.push(move_hit_instructions);
-    }
-
-    // Move miss
-    if percent_hit < 1.0 {
-        let mut move_missed_instruction = incoming_instructions.clone();
-        move_missed_instruction.update_percentage(1.0 - percent_hit);
-        if let Some(crash_fraction) = choice.crash {
-            let crash_amount = (attacking_pokemon.maxhp as f32 * crash_fraction) as i16;
-            let crash_instruction = Instruction::Damage(DamageInstruction {
-                side_ref: *attacking_side_ref,
-                damage_amount: cmp::min(crash_amount, attacking_pokemon.hp),
-            });
-
-            move_missed_instruction
-                .instruction_list
-                .push(crash_instruction);
-        }
-
-        if attacking_pokemon.item.as_str() == "blunderpolicy"
-            && attacking_pokemon.item_can_be_removed()
-        {
-            move_missed_instruction.instruction_list.extend(vec![
-                Instruction::ChangeItem(ChangeItemInstruction {
-                    side_ref: *attacking_side_ref,
-                    current_item: String::from("blunderpolicy"),
-                    new_item: "".to_string(),
-                }),
-                Instruction::Boost(BoostInstruction {
-                    side_ref: *attacking_side_ref,
-                    stat: PokemonBoostableStat::Speed,
-                    amount: 2,
-                }),
-            ]);
-        }
-
-        frozen_instructions.push(move_missed_instruction);
     }
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
@@ -547,7 +563,7 @@ pub fn generate_instructions_from_move(
             - protect and it's variants, which can generate some custom instructions
         - ability (both sides)
         - item (both sides)
-    - side_conditions: spikes, wish, veil. Anything using the `side_condition` section of the Choice
+    - DONE side_conditions: spikes, wish, veil. Anything using the `side_condition` section of the Choice
         potentially could be an `after_move`
     - hazard clearing: defog, rapidspin, courtchange, etc.
         potentially could be an `after_move`
@@ -558,10 +574,10 @@ pub fn generate_instructions_from_move(
         potentially could be an `after_move` for clearsmog, and a move special effect for haze
     - heal Anything using the `heal` section of the Choice
     * flinching move
-        potentially could be collapsed into secondaries?
-    - drag moves
+        collapse into secondaries
+    * drag moves
         potentially could be a move special effect, or even a short-circuit since nothing else could happen?
-    - secondaries, one of the following:
+    * secondaries, which will be one of the following:
         PokemonVolatileStatus
         PokemonSideCondition
         StatBoosts
@@ -573,6 +589,8 @@ pub fn generate_instructions_from_move(
         move hit
         They only are attempted if the move did not miss , so some
         flag will be needed to signify that the move hit/missed
+            or will the fact that the instructions are a non-end-of-turn be enough to know that
+            a secondary should be attempted?
 
     - switch-out move
         Will have to come back to this since it breaks a bunch of patterns and stops the turn mid-way through
@@ -643,14 +661,26 @@ pub fn generate_instructions_from_move(
             next_instructions.push(instruction);
         }
     }
-    next_instructions = run_instruction_generation_fn(
+    next_instructions = run_instruction_generation_fn_for_move_hit(
         generate_instructions_from_move_special_effect,
         state,
         &choice,
         &attacking_side,
         next_instructions,
-        &mut final_instructions,
     );
+
+    let mut move_hit_instructions: Vec<StateInstructions> = vec![];
+    for instruction in next_instructions {
+        move_hit_instructions.push(check_move_hit_or_miss(
+            state,
+            &choice,
+            &attacking_side,
+            instruction,
+            &mut final_instructions,
+        ))
+    }
+
+    next_instructions = move_hit_instructions;
 
     // Damage generation gets its own block because it has some special logic
     if let Some(damages_dealt) = damage {
@@ -667,7 +697,6 @@ pub fn generate_instructions_from_move(
                     *dmg,
                     &attacking_side,
                     this_instruction,
-                    &mut final_instructions,
                 ));
             }
         }
@@ -676,7 +705,7 @@ pub fn generate_instructions_from_move(
 
     // Ability-After-Move (flamebody, static) should be done IN `generate_instructions_from_damage`
     // ... or not ... come back to that
-    let instruction_generation_functions = [
+    let move_hit_instruction_generation_functions = [
         // generate_instructions_from_ability_after_move,
         generate_instructions_from_side_conditions,
         // get_instructions_from_hazard_clearing_moves,
@@ -691,14 +720,13 @@ pub fn generate_instructions_from_move(
         // get_instructions_from_switch, // (u-turn and friends... probably omit this for now)
     ];
 
-    for function in instruction_generation_functions {
-        next_instructions = run_instruction_generation_fn(
+    for function in move_hit_instruction_generation_functions {
+        next_instructions = run_instruction_generation_fn_for_move_hit(
             function,
             state,
             &choice,
             &attacking_side,
             next_instructions,
-            &mut final_instructions,
         )
     }
 
@@ -1750,92 +1778,5 @@ mod tests {
         );
 
         assert_eq!(expected_instructions, actual_instructions);
-    }
-
-    macro_rules! damage_instructions_tests {
-        ($($name:ident: $value:expr,)*) => {
-            $(
-                #[test]
-                fn $name() {
-                    let (
-                        move_id,
-                        move_category,
-                        move_base_power,
-                        move_accuracy,
-                        incoming_instructions,
-                        expected_instructions,
-                        mut frozen_instructions_start,
-                        expected_frozen_instructions_end
-                    ) = $value;
-
-                    let mut state: State = State::default();
-                    let mut choice = Choice {
-                        ..Default::default()
-                    };
-
-                    choice.move_id = move_id;
-                    choice.category = move_category;
-                    choice.base_power = move_base_power;
-                    choice.accuracy = move_accuracy;
-
-                    let new_instructions = generate_instructions_from_damage(
-                        &mut state,
-                        &choice,
-                        35,
-                        &SideReference::SideOne,
-                        incoming_instructions,
-                        &mut frozen_instructions_start
-                    );
-
-                    assert_eq!(expected_instructions, new_instructions);
-                    assert_eq!(frozen_instructions_start, expected_frozen_instructions_end);
-                }
-             )*
-        }
-    }
-
-    damage_instructions_tests! {
-        test_basic_move_with_100_accuracy: (
-            "tackle".to_string(),
-            MoveCategory::Physical,
-            40.0,
-            100.0,
-            StateInstructions::default(),
-            vec![StateInstructions {
-                percentage: 100.0,
-                instruction_list: vec![Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 35,
-                })],
-            ..Default::default()
-            }],
-            vec![],
-            vec![]
-        ),
-        test_basic_move_with_90_accuracy: (
-            "tackle".to_string(),
-            MoveCategory::Physical,
-            40.0,
-            90.0,
-            StateInstructions::default(),
-            vec![
-                StateInstructions {
-                    percentage: 90.0,
-                    instruction_list: vec![Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideTwo,
-                        damage_amount: 35,
-                    })],
-                    ..Default::default()
-                },
-            ],
-            vec![],
-            vec![
-                StateInstructions {
-                    percentage: 10.000002,
-                    instruction_list: vec![],
-                    ..Default::default()
-                },
-            ]
-        ),
     }
 }

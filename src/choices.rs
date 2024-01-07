@@ -2094,7 +2094,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 heal: Some(Heal {
-                    target: MoveTarget::Opponent,
+                    target: MoveTarget::User,
                     amount: -0.5,
                 }),
                 ..Default::default()
@@ -4112,7 +4112,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 heal: Some(Heal {
-                    target: MoveTarget::Opponent,
+                    target: MoveTarget::User,
                     amount: -1.0,
                 }),
                 ..Default::default()
@@ -4422,7 +4422,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 heal: Some(Heal {
-                    target: MoveTarget::Opponent,
+                    target: MoveTarget::User,
                     amount: -1.0,
                 }),
                 ..Default::default()
@@ -8593,7 +8593,7 @@ lazy_static! {
                     },
                 }),
                 heal: Some(Heal {
-                    target: MoveTarget::Opponent,
+                    target: MoveTarget::User,
                     amount: -1.0,
                 }),
                 ..Default::default()
@@ -8787,7 +8787,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 heal: Some(Heal {
-                    target: MoveTarget::Opponent,
+                    target: MoveTarget::User,
                     amount: -0.5,
                 }),
                 ..Default::default()
@@ -8963,7 +8963,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 heal: Some(Heal {
-                    target: MoveTarget::Opponent,
+                    target: MoveTarget::User,
                     amount: -1.0,
                 }),
                 ..Default::default()
@@ -12090,7 +12090,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 heal: Some(Heal {
-                    target: MoveTarget::Opponent,
+                    target: MoveTarget::User,
                     amount: -1.0,
                 }),
                 ..Default::default()
