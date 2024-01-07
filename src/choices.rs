@@ -1,4 +1,6 @@
 use crate::instruction::ChangeItemInstruction;
+use crate::instruction::ChangeSideConditionInstruction;
+use crate::instruction::ChangeTerrain;
 use crate::instruction::Instruction;
 use crate::state::PokemonSideCondition;
 use crate::state::PokemonStatus;
@@ -6,11 +8,13 @@ use crate::state::PokemonType;
 use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
 use crate::state::State;
+use crate::state::Terrain;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 
 type ModifyChoiceFn = fn(&State, &mut Choice, &Choice, &SideReference);
 type AfterDamageHitFn = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
+type HazardClearFn = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
 
 lazy_static! {
     pub static ref MOVES: HashMap<String, Choice> = {
@@ -2571,6 +2575,44 @@ lazy_static! {
                     mirror: true,
                     ..Default::default()
                 },
+                hazard_clear: Some(|state: &State, choice: &Choice, _: &SideReference| {
+                    let mut instructions = vec![];
+                    let courtchange_swaps = [
+                        PokemonSideCondition::Stealthrock,
+                        PokemonSideCondition::Spikes,
+                        PokemonSideCondition::ToxicSpikes,
+                        PokemonSideCondition::StickyWeb,
+                        PokemonSideCondition::Reflect,
+                        PokemonSideCondition::LightScreen,
+                        PokemonSideCondition::AuroraVeil,
+                        PokemonSideCondition::Tailwind,
+                    ];
+
+                    for side in [SideReference::SideOne, SideReference::SideTwo] {
+                        for side_condition in courtchange_swaps {
+                            let side_condition_num = state
+                                .get_side_immutable(&side)
+                                .get_side_condition(side_condition);
+                            if side_condition_num > 0 {
+                                instructions.push(Instruction::ChangeSideCondition(
+                                    ChangeSideConditionInstruction {
+                                        side_ref: side,
+                                        side_condition: side_condition,
+                                        amount: -1 * side_condition_num,
+                                    },
+                                ));
+                                instructions.push(Instruction::ChangeSideCondition(
+                                    ChangeSideConditionInstruction {
+                                        side_ref: side.get_other_side(),
+                                        side_condition: side_condition,
+                                        amount: side_condition_num,
+                                    },
+                                ));
+                            }
+                        }
+                    }
+                    return instructions;
+                }),
                 ..Default::default()
             },
         );
@@ -2945,6 +2987,44 @@ lazy_static! {
                         speed: 0,
                         accuracy: 0,
                     },
+                }),
+                hazard_clear: Some(|state: &State, choice: &Choice, _: &SideReference| {
+                    let mut instructions = vec![];
+                    if state.terrain.terrain_type != Terrain::None {
+                        instructions.push(Instruction::ChangeTerrain(ChangeTerrain {
+                            new_terrain: Terrain::None,
+                            new_terrain_turns_remaining: 0,
+                            previous_terrain: state.terrain.terrain_type,
+                            previous_terrain_turns_remaining: state.terrain.turns_remaining,
+                        }));
+                    }
+                    let side_condition_clears = [
+                        PokemonSideCondition::Stealthrock,
+                        PokemonSideCondition::Spikes,
+                        PokemonSideCondition::ToxicSpikes,
+                        PokemonSideCondition::StickyWeb,
+                        PokemonSideCondition::Reflect,
+                        PokemonSideCondition::LightScreen,
+                        PokemonSideCondition::AuroraVeil,
+                    ];
+
+                    for side in [SideReference::SideOne, SideReference::SideTwo] {
+                        for side_condition in side_condition_clears {
+                            let side_condition_num = state
+                                .get_side_immutable(&side)
+                                .get_side_condition(side_condition);
+                            if side_condition_num > 0 {
+                                instructions.push(Instruction::ChangeSideCondition(
+                                    ChangeSideConditionInstruction {
+                                        side_ref: side,
+                                        side_condition: side_condition,
+                                        amount: -1 * side_condition_num,
+                                    },
+                                ))
+                            }
+                        }
+                    }
+                    return instructions;
                 }),
                 ..Default::default()
             },
@@ -11029,6 +11109,47 @@ lazy_static! {
                         accuracy: 0,
                     }),
                 }]),
+                hazard_clear: Some(|state: &State, choice: &Choice, side_ref: &SideReference| {
+                    let attacking_side = state.get_side_immutable(side_ref);
+                    let mut instructions = vec![];
+                    if attacking_side.side_conditions.stealth_rock > 0 {
+                        instructions.push(Instruction::ChangeSideCondition(
+                            ChangeSideConditionInstruction {
+                                side_ref: *side_ref,
+                                side_condition: PokemonSideCondition::Stealthrock,
+                                amount: -1 * attacking_side.side_conditions.stealth_rock,
+                            },
+                        ))
+                    }
+                    if attacking_side.side_conditions.spikes > 0 {
+                        instructions.push(Instruction::ChangeSideCondition(
+                            ChangeSideConditionInstruction {
+                                side_ref: *side_ref,
+                                side_condition: PokemonSideCondition::Spikes,
+                                amount: -1 * attacking_side.side_conditions.spikes,
+                            },
+                        ))
+                    }
+                    if attacking_side.side_conditions.toxic_spikes > 0 {
+                        instructions.push(Instruction::ChangeSideCondition(
+                            ChangeSideConditionInstruction {
+                                side_ref: *side_ref,
+                                side_condition: PokemonSideCondition::ToxicSpikes,
+                                amount: -1 * attacking_side.side_conditions.toxic_spikes,
+                            },
+                        ))
+                    }
+                    if attacking_side.side_conditions.sticky_web > 0 {
+                        instructions.push(Instruction::ChangeSideCondition(
+                            ChangeSideConditionInstruction {
+                                side_ref: *side_ref,
+                                side_condition: PokemonSideCondition::StickyWeb,
+                                amount: -1 * attacking_side.side_conditions.sticky_web,
+                            },
+                        ))
+                    }
+                    return instructions;
+                }),
                 ..Default::default()
             },
         );
@@ -16252,6 +16373,7 @@ pub struct Choice {
 
     pub modify_move: Option<ModifyChoiceFn>,
     pub after_damage_hit: Option<AfterDamageHitFn>,
+    pub hazard_clear: Option<HazardClearFn>,
 }
 
 impl Default for Choice {
@@ -16280,6 +16402,7 @@ impl Default for Choice {
             first_move: true,
             modify_move: None,
             after_damage_hit: None,
+            hazard_clear: None,
         };
     }
 }

@@ -17,7 +17,7 @@ use crate::{
 use std::cmp;
 
 type InstructionGenerationFn =
-    fn(&mut State, &Choice, &SideReference, StateInstructions) -> Vec<StateInstructions>;
+    fn(&mut State, &Choice, &SideReference, StateInstructions) -> StateInstructions;
 
 fn generate_instructions_from_switch(
     state: &mut State,
@@ -48,7 +48,7 @@ fn generate_instructions_from_side_conditions(
     choice: &Choice,
     attacking_side_reference: &SideReference,
     mut incoming_instructions: StateInstructions,
-) -> Vec<StateInstructions> {
+) -> StateInstructions {
     if let Some(side_condition) = &choice.side_condition {
         state.apply_instructions(&incoming_instructions.instruction_list);
 
@@ -91,10 +91,28 @@ fn generate_instructions_from_side_conditions(
             incoming_instructions.instruction_list.push(i)
         }
 
-        return vec![incoming_instructions];
+        return incoming_instructions;
     }
 
-    return vec![incoming_instructions];
+    return incoming_instructions;
+}
+
+fn get_instructions_from_hazard_clearing_moves(
+    state: &mut State,
+    choice: &Choice,
+    attacking_side_reference: &SideReference,
+    mut incoming_instructions: StateInstructions,
+) -> StateInstructions {
+    if let Some(hazard_clear_fn) = &choice.hazard_clear {
+        state.apply_instructions(&incoming_instructions.instruction_list);
+        let additional_instructions = hazard_clear_fn(state, choice, attacking_side_reference);
+        state.reverse_instructions(&incoming_instructions.instruction_list);
+        for i in additional_instructions {
+            incoming_instructions.instruction_list.push(i)
+        }
+    }
+
+    return incoming_instructions;
 }
 
 fn generate_instructions_from_ability_after_move(
@@ -112,8 +130,8 @@ fn generate_instructions_from_move_special_effect(
     choice: &Choice,
     side_reference: &SideReference,
     incoming_instructions: StateInstructions,
-) -> Vec<StateInstructions> {
-    return vec![incoming_instructions];
+) -> StateInstructions {
+    return incoming_instructions;
 }
 
 fn check_move_hit_or_miss(
@@ -187,7 +205,7 @@ fn run_instruction_generation_fn_for_move_hit(
 ) -> Vec<StateInstructions> {
     let mut continuing_instructions: Vec<StateInstructions> = vec![];
     for instruction in incoming_instructions {
-        continuing_instructions.extend(instruction_generation_fn(
+        continuing_instructions.push(instruction_generation_fn(
             state,
             choice,
             side_reference,
@@ -708,7 +726,7 @@ pub fn generate_instructions_from_move(
     let move_hit_instruction_generation_functions = [
         // generate_instructions_from_ability_after_move,
         generate_instructions_from_side_conditions,
-        // get_instructions_from_hazard_clearing_moves,
+        get_instructions_from_hazard_clearing_moves,
         // get_instructions_from_volatile_statuses,
         // get_instructions_from_status_effects,
         // get_instructions_from_boosts,
@@ -764,10 +782,10 @@ mod tests {
     use super::*;
     use crate::choices::MOVES;
     use crate::instruction::{
-        BoostInstruction, ChangeItemInstruction, ChangeStatusInstruction, DamageInstruction,
-        SwitchInstruction, VolatileStatusInstruction,
+        BoostInstruction, ChangeItemInstruction, ChangeStatusInstruction, ChangeTerrain,
+        DamageInstruction, SwitchInstruction, VolatileStatusInstruction,
     };
-    use crate::state::{PokemonBoostableStat, SideReference, State};
+    use crate::state::{PokemonBoostableStat, SideReference, State, Terrain};
 
     #[test]
     fn test_drag_move_as_second_move_exits_early() {
@@ -973,6 +991,314 @@ mod tests {
                 ],
             },
         ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_defog_does_not_change_terrain_if_terrain_is_none() {
+        let mut state: State = State::default();
+
+        let mut choice = MOVES.get("defog").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_defog_clears_terrain() {
+        let mut state: State = State::default();
+        state.terrain.terrain_type = Terrain::ElectricTerrain;
+        state.terrain.turns_remaining = 1;
+
+        let mut choice = MOVES.get("defog").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::ChangeTerrain(ChangeTerrain {
+                new_terrain: Terrain::None,
+                new_terrain_turns_remaining: 0,
+                previous_terrain: Terrain::ElectricTerrain,
+                previous_terrain_turns_remaining: 1,
+            })],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_defog_clears_terrain_and_side_conditions() {
+        let mut state: State = State::default();
+        state.terrain.terrain_type = Terrain::ElectricTerrain;
+        state.terrain.turns_remaining = 1;
+        state.side_one.side_conditions.reflect = 1;
+        state.side_two.side_conditions.reflect = 1;
+
+        let mut choice = MOVES.get("defog").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::ChangeTerrain(ChangeTerrain {
+                    new_terrain: Terrain::None,
+                    new_terrain_turns_remaining: 0,
+                    previous_terrain: Terrain::ElectricTerrain,
+                    previous_terrain_turns_remaining: 1,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Reflect,
+                    amount: -1,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideTwo,
+                    side_condition: PokemonSideCondition::Reflect,
+                    amount: -1,
+                }),
+            ],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_rapidspin_clears_hazards() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.stealth_rock = 1;
+
+        let mut choice = MOVES.get("rapidspin").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 61,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Stealthrock,
+                    amount: -1,
+                }),
+            ],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_rapidspin_clears_multiple_hazards() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.stealth_rock = 1;
+        state.side_one.side_conditions.toxic_spikes = 2;
+        state.side_one.side_conditions.spikes = 3;
+        state.side_one.side_conditions.sticky_web = 1;
+
+        let mut choice = MOVES.get("rapidspin").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 61,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Stealthrock,
+                    amount: -1,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Spikes,
+                    amount: -3,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::ToxicSpikes,
+                    amount: -2,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::StickyWeb,
+                    amount: -1,
+                }),
+            ],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_rapidspin_does_not_clear_opponent_hazards() {
+        let mut state: State = State::default();
+        state.side_two.side_conditions.stealth_rock = 1;
+        state.side_two.side_conditions.toxic_spikes = 2;
+        state.side_two.side_conditions.spikes = 3;
+        state.side_two.side_conditions.sticky_web = 1;
+
+        let mut choice = MOVES.get("rapidspin").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 61,
+            })],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_courtchange_basic_swap() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.stealth_rock = 1;
+
+        let mut choice = MOVES.get("courtchange").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Stealthrock,
+                    amount: -1,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideTwo,
+                    side_condition: PokemonSideCondition::Stealthrock,
+                    amount: 1,
+                }),
+            ],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_courtchange_complicated_swap() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.stealth_rock = 1;
+        state.side_two.side_conditions.toxic_spikes = 2;
+        state.side_two.side_conditions.spikes = 3;
+        state.side_two.side_conditions.sticky_web = 1;
+
+        let mut choice = MOVES.get("courtchange").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Stealthrock,
+                    amount: -1,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideTwo,
+                    side_condition: PokemonSideCondition::Stealthrock,
+                    amount: 1,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideTwo,
+                    side_condition: PokemonSideCondition::Spikes,
+                    amount: -3,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Spikes,
+                    amount: 3,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideTwo,
+                    side_condition: PokemonSideCondition::ToxicSpikes,
+                    amount: -2,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::ToxicSpikes,
+                    amount: 2,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideTwo,
+                    side_condition: PokemonSideCondition::StickyWeb,
+                    amount: -1,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::StickyWeb,
+                    amount: 1,
+                }),
+            ],
+        }];
 
         assert_eq!(instructions, expected_instructions)
     }

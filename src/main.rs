@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::state::PokemonStatus;
+use crate::state::{PokemonStatus, Terrain};
 use crate::{
     choices::MOVES,
     generate_instructions::generate_instructions_from_move,
@@ -19,7 +19,7 @@ mod items;
 mod state;
 
 fn main() {
-    let mut _choice = MOVES.get("highjumpkick").unwrap().to_owned();
+    let mut _choice = MOVES.get("defog").unwrap().to_owned();
 
     let mut state: State = State::default();
     println!(
@@ -28,6 +28,8 @@ fn main() {
     );
 
     // state.side_one.get_active().status = PokemonStatus::Paralyze;
+    state.terrain.terrain_type = Terrain::ElectricTerrain;
+    state.terrain.turns_remaining = 1;
     state.side_one.get_active().ability = String::from("beastboost");
     state.side_two.get_active().hp = 100;
 
