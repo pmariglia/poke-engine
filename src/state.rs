@@ -1,4 +1,4 @@
-use crate::choices::Choice;
+use crate::choices::{Choice, VolatileStatus};
 use core::panic;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
@@ -372,6 +372,16 @@ impl Pokemon {
 
     pub fn calculate_highest_stat(&self) -> PokemonBoostableStat {
         return PokemonBoostableStat::Attack;
+    }
+
+    pub fn volitile_status_can_be_applied(&self, volatile_status: &PokemonVolatileStatus) -> bool {
+        if self.volatile_statuses.contains(volatile_status) {
+            return false
+        }
+        match volatile_status {
+            PokemonVolatileStatus::Substitute => {return self.hp > self.maxhp / 4}
+            _ => return true
+        }
     }
 }
 

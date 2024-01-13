@@ -16230,8 +16230,8 @@ pub enum MoveTarget {
 
 #[derive(Debug, Clone)]
 pub struct VolatileStatus {
-    target: MoveTarget,
-    volatile_status: PokemonVolatileStatus,
+    pub target: MoveTarget,
+    pub volatile_status: PokemonVolatileStatus,
 }
 
 #[derive(Debug, Clone)]

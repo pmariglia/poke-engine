@@ -1,6 +1,7 @@
 use crate::choices::MoveTarget;
 use crate::instruction::{
     BoostInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, HealInstruction,
+    VolatileStatusInstruction,
 };
 use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType};
 use crate::{
@@ -15,6 +16,7 @@ use crate::{
     state::{Pokemon, PokemonStatus, PokemonVolatileStatus, SideReference, State, Weather},
 };
 use std::cmp;
+use crate::choices::Effect::VolatileStatus;
 
 type InstructionGenerationFn =
     fn(&mut State, &Choice, &SideReference, StateInstructions) -> StateInstructions;
@@ -112,6 +114,44 @@ fn get_instructions_from_hazard_clearing_moves(
         }
     }
 
+    return incoming_instructions;
+}
+
+fn get_instructions_from_volatile_statuses(
+    state: &mut State,
+    choice: &Choice,
+    attacking_side_reference: &SideReference,
+    mut incoming_instructions: StateInstructions,
+) -> StateInstructions {
+    if let Some(volatile_status) = &choice.volatile_status {
+        state.apply_instructions(&incoming_instructions.instruction_list);
+
+        let mut target_side: SideReference;
+        match volatile_status.target {
+            MoveTarget::Opponent => target_side = attacking_side_reference.get_other_side(),
+            MoveTarget::User => target_side = *attacking_side_reference,
+        }
+
+        let mut additional_instructions = vec![];
+        let affected_pkmn = state.get_side_immutable(&target_side).get_active_immutable();
+        if affected_pkmn.volitile_status_can_be_applied(&volatile_status.volatile_status) {
+            additional_instructions.push(Instruction::VolatileStatus(VolatileStatusInstruction {
+                side_ref: target_side,
+                volatile_status: volatile_status.volatile_status,
+            }));
+            if volatile_status.volatile_status == PokemonVolatileStatus::Substitute {
+                additional_instructions.push(Instruction::Damage(DamageInstruction {
+                    side_ref: target_side,
+                    damage_amount: affected_pkmn.maxhp / 4,
+                }));
+            }
+        }
+
+        state.reverse_instructions(&incoming_instructions.instruction_list);
+        for i in additional_instructions {
+            incoming_instructions.instruction_list.push(i)
+        }
+    }
     return incoming_instructions;
 }
 
@@ -223,35 +263,12 @@ fn generate_instructions_from_damage(
     incoming_instructions: StateInstructions,
 ) -> Vec<StateInstructions> {
     /*
-    - Something for crash moves??
-        - after_move_miss
-        - after move miss??? <-- probably this
-
     - substitute consideration
         - requires a state change. VolatileStatus for sub & value for sub-health
         - do last tbh
 
-    - DONE in-line because sturdy is a one-off. If it has more I can come back to it
-        - before apply damage callback
-            - for sturdy to reduce damage by 1 if necessary
-            - tricky because this is not an instruction technically
-                I guess you could add a heal instruction but that is kinda dumb
-
-    - after apply damage callback (AFTER MOVE HIT) DONE FRAMEWORK
-        - DONE for beastboost to generate an instruction if KO
-        - DONE for drain moves???
-        - DONE for recoil moves???
-        - DONE after_damage_hit instructions
-            - eg. for knockoff removing an item
-
-    - after move miss callback (AFTER MOVE MISS)
-        - DONE here is where crash would be ???
-        - DONE blunderpolicy (in-line because blunderpolicy is a one-off. Cam come back if more fit the pattern)
-
     - arbitrary other after_move as well from the old engine (triggers on hit OR miss)
         - dig/dive/bounce/fly volatilestatus
-
-
     */
 
     let mut return_instructions: Vec<StateInstructions> = vec![];
@@ -557,6 +574,7 @@ pub fn generate_instructions_from_move(
             - this may generate a custom instruction because some protect variants do things (spikyshield, banefulbunker, etc)
             - rather than updating the choice struct, this should be a check that immediately adds the instruction list
               to `final_instructions` after applying the custom instructions from something like spikyshield ofc.
+            - this can be done in the move_hit_or_miss function called before other moves
         - charging move that sets some charge flags and exits
             - again.. rather than exit, add the instructions to final instructions
         - DONE move special effect
@@ -582,10 +600,8 @@ pub fn generate_instructions_from_move(
         - ability (both sides)
         - item (both sides)
     - DONE side_conditions: spikes, wish, veil. Anything using the `side_condition` section of the Choice
-        potentially could be an `after_move`
-    - hazard clearing: defog, rapidspin, courtchange, etc.
-        potentially could be an `after_move`
-    * volatile_statuses: Anything using the `volatile_status` section of the Choice
+    - DONE hazard clearing: defog, rapidspin, courtchange, etc.
+    - volatile_statuses: Anything using the `volatile_status` section of the Choice
     - status effects: Anything using the `status` section of the Choice
     - boosts: Anything using the `boosts` section of the Choice
     - boost reset (clearsmog & haze)
@@ -727,7 +743,7 @@ pub fn generate_instructions_from_move(
         // generate_instructions_from_ability_after_move,
         generate_instructions_from_side_conditions,
         get_instructions_from_hazard_clearing_moves,
-        // get_instructions_from_volatile_statuses,
+        get_instructions_from_volatile_statuses,
         // get_instructions_from_status_effects,
         // get_instructions_from_boosts,
         // get_instructions_from_boost_reset_moves,
@@ -991,6 +1007,135 @@ mod tests {
                 ],
             },
         ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_basic_volatile_status_applied_to_self() {
+        let mut state: State = State::default();
+
+        let mut choice = MOVES.get("aquaring").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::VolatileStatus(VolatileStatusInstruction{
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::AquaRing,
+                })
+            ],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_basic_volatile_status_applied_to_opponent() {
+        let mut state: State = State::default();
+
+        let mut choice = MOVES.get("attract").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::VolatileStatus(VolatileStatusInstruction{
+                    side_ref: SideReference::SideTwo,
+                    volatile_status: PokemonVolatileStatus::Attract,
+                })
+            ],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_cannot_apply_volatile_status_twice() {
+        let mut state: State = State::default();
+        state.side_two.get_active().volatile_statuses.insert(PokemonVolatileStatus::Attract);
+        let mut choice = MOVES.get("attract").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![]
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_substitute_doing_damage_to_user() {
+        let mut state: State = State::default();
+        state.side_one.get_active().hp = 26;
+        let mut choice = MOVES.get("substitute").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::VolatileStatus(VolatileStatusInstruction{
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::Substitute,
+                }),
+                Instruction::Damage(DamageInstruction{
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 25,
+                })
+            ],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_substitute_failing_if_user_has_less_than_25_percent_hp() {
+        let mut state: State = State::default();
+        state.side_one.get_active().hp = 25;
+        let mut choice = MOVES.get("substitute").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![]
+        }];
 
         assert_eq!(instructions, expected_instructions)
     }
