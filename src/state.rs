@@ -376,11 +376,11 @@ impl Pokemon {
 
     pub fn volitile_status_can_be_applied(&self, volatile_status: &PokemonVolatileStatus) -> bool {
         if self.volatile_statuses.contains(volatile_status) {
-            return false
+            return false;
         }
         match volatile_status {
-            PokemonVolatileStatus::Substitute => {return self.hp > self.maxhp / 4}
-            _ => return true
+            PokemonVolatileStatus::Substitute => return self.hp > self.maxhp / 4,
+            _ => return true,
         }
     }
 }

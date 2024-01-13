@@ -16254,8 +16254,8 @@ pub struct Heal {
 
 #[derive(Debug, Clone)]
 pub struct Status {
-    target: MoveTarget,
-    status: PokemonStatus,
+    pub target: MoveTarget,
+    pub status: PokemonStatus,
 }
 
 #[derive(Debug, Clone)]
