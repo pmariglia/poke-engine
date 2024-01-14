@@ -237,7 +237,7 @@ pub enum PokemonNatures {
     Serious,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum PokemonBoostableStat {
     Attack,
     Defense,
@@ -323,6 +323,17 @@ pub struct Pokemon {
 }
 
 impl Pokemon {
+    pub fn get_boost_from_boost_enum(&self, boost_enum: &PokemonBoostableStat) -> i8 {
+        return match boost_enum {
+            PokemonBoostableStat::Attack => self.attack_boost,
+            PokemonBoostableStat::Defense => self.defense_boost,
+            PokemonBoostableStat::SpecialAttack => self.special_attack_boost,
+            PokemonBoostableStat::SpecialDefense => self.special_defense_boost,
+            PokemonBoostableStat::Speed => self.speed_boost,
+            PokemonBoostableStat::Evasion => self.evasion_boost,
+            PokemonBoostableStat::Accuracy => self.accuracy_boost,
+        };
+    }
     pub fn has_type(&self, pkmn_type: &PokemonType) -> bool {
         return pkmn_type == &self.types.0 || pkmn_type == &self.types.1;
     }
@@ -382,6 +393,11 @@ impl Pokemon {
             PokemonVolatileStatus::Substitute => return self.hp > self.maxhp / 4,
             _ => return true,
         }
+    }
+
+    pub fn immune_to_stats_lowered_by_opponent(&self) -> bool {
+        return ["clearbody", "whitesmoke", "fullmetalbody"].contains(&self.ability.as_str())
+            || (["clearamulet"].contains(&self.item.as_str()));
     }
 }
 

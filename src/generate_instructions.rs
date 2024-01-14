@@ -1,4 +1,4 @@
-use crate::choices::Effect::VolatileStatus;
+use crate::choices::Effect::{Boost, VolatileStatus};
 use crate::choices::{MoveTarget, Status};
 use crate::instruction::{
     BoostInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, HealInstruction,
@@ -265,6 +265,64 @@ fn get_instructions_from_status_effects(
         }
     }
 
+    return incoming_instructions;
+}
+
+fn get_instructions_from_boosts(
+    state: &mut State,
+    choice: &Choice,
+    attacking_side_reference: &SideReference,
+    mut incoming_instructions: StateInstructions,
+) -> StateInstructions {
+    if let Some(boosts) = &choice.boost {
+        state.apply_instructions(&incoming_instructions.instruction_list);
+        let mut additional_instructions = vec![];
+
+        let mut target_side_ref: SideReference;
+        match boosts.target {
+            MoveTarget::Opponent => target_side_ref = attacking_side_reference.get_other_side(),
+            MoveTarget::User => target_side_ref = *attacking_side_reference,
+        }
+        let percent_hit = choice.accuracy / 100.0;
+        if percent_hit > 0.0 {
+            let target_pkmn = state
+                .get_side_immutable(&target_side_ref)
+                .get_active_immutable();
+            let boostable_stats = boosts.boosts.get_as_pokemon_boostable();
+            for (pkmn_boostable_stat, boost) in boostable_stats.iter().filter(|(s, b)| b != &0) {
+                let pkmn_current_boost = target_pkmn.get_boost_from_boost_enum(pkmn_boostable_stat);
+                if boost > &0 {
+                    if pkmn_current_boost == 6 {
+                        continue;
+                    }
+                    let new_boost = cmp::min(6, pkmn_current_boost + boost);
+                    additional_instructions.push(Instruction::Boost(BoostInstruction {
+                        side_ref: target_side_ref,
+                        stat: *pkmn_boostable_stat,
+                        amount: new_boost - pkmn_current_boost,
+                    }))
+                } else {
+                    if pkmn_current_boost == -6
+                        || (&target_side_ref != attacking_side_reference
+                            && target_pkmn.immune_to_stats_lowered_by_opponent())
+                    {
+                        continue;
+                    }
+                    let new_boost = cmp::max(-6, pkmn_current_boost + boost);
+                    additional_instructions.push(Instruction::Boost(BoostInstruction {
+                        side_ref: target_side_ref,
+                        stat: *pkmn_boostable_stat,
+                        amount: new_boost - pkmn_current_boost,
+                    }))
+                }
+            }
+        }
+
+        state.reverse_instructions(&incoming_instructions.instruction_list);
+        for i in additional_instructions {
+            incoming_instructions.instruction_list.push(i)
+        }
+    }
     return incoming_instructions;
 }
 
@@ -852,7 +910,7 @@ pub fn generate_instructions_from_move(
         get_instructions_from_hazard_clearing_moves,
         get_instructions_from_volatile_statuses,
         get_instructions_from_status_effects,
-        // get_instructions_from_boosts,
+        get_instructions_from_boosts,
         // get_instructions_from_boost_reset_moves,
         // get_instructions_from_attacker_recovery,
         // get_instructions_from_flinching_moves,
@@ -925,7 +983,7 @@ pub fn generate_instructions_from_move_pair(//state: &mut State,
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::choices::{Heal, MOVES};
+    use crate::choices::{Boost, Heal, MOVES};
     use crate::instruction::{
         BoostInstruction, ChangeItemInstruction, ChangeStatusInstruction, ChangeTerrain,
         DamageInstruction, SwitchInstruction, VolatileStatusInstruction,
@@ -1381,6 +1439,253 @@ mod tests {
                     pokemon_index: 0,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Sleep,
+                }),
+            ],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_basic_boosting_move() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get("swordsdance").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 2,
+            })],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_does_not_overboost() {
+        let mut state: State = State::default();
+        state.side_one.get_active().attack_boost = 5;
+        let mut choice = MOVES.get("swordsdance").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 1,
+            })],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_no_instruction_when_boosting_at_max() {
+        let mut state: State = State::default();
+        state.side_one.get_active().attack_boost = 6;
+        let mut choice = MOVES.get("swordsdance").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_boost_lowering_that_can_miss() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get("kinesis").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 19.999998,
+                instruction_list: vec![],
+            },
+            StateInstructions {
+                percentage: 80.0,
+                instruction_list: vec![Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideTwo,
+                    stat: PokemonBoostableStat::Accuracy,
+                    amount: -1,
+                })],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_basic_boost_lowering() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get("charm").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Attack,
+                amount: -2,
+            })],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_cannot_boost_lower_than_negative_6() {
+        let mut state: State = State::default();
+        state.side_two.get_active().attack_boost = -5;
+        let mut choice = MOVES.get("charm").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Attack,
+                amount: -1,
+            })],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_no_boost_when_already_at_minimum() {
+        let mut state: State = State::default();
+        state.side_two.get_active().attack_boost = -6;
+        let mut choice = MOVES.get("charm").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_clearbody_blocks_stat_lowering() {
+        let mut state: State = State::default();
+        state.side_two.get_active().ability = String::from("clearbody");
+        let mut choice = MOVES.get("charm").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_clearbody_does_not_block_self_stat_lowering() {
+        let mut state: State = State::default();
+        state.side_one.get_active().ability = String::from("clearbody");
+        let mut choice = MOVES.get("shellsmash").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Attack,
+                    amount: 2,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Defense,
+                    amount: -1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::SpecialAttack,
+                    amount: 2,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::SpecialDefense,
+                    amount: -1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: 2,
                 }),
             ],
         }];

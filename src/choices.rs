@@ -2,13 +2,13 @@ use crate::instruction::ChangeItemInstruction;
 use crate::instruction::ChangeSideConditionInstruction;
 use crate::instruction::ChangeTerrain;
 use crate::instruction::Instruction;
-use crate::state::PokemonSideCondition;
 use crate::state::PokemonStatus;
 use crate::state::PokemonType;
 use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
 use crate::state::State;
 use crate::state::Terrain;
+use crate::state::{PokemonBoostableStat, PokemonSideCondition};
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 
@@ -16242,8 +16242,8 @@ pub struct SideCondition {
 
 #[derive(Debug, Clone)]
 pub struct Boost {
-    target: MoveTarget,
-    boosts: StatBoosts,
+    pub target: MoveTarget,
+    pub boosts: StatBoosts,
 }
 
 #[derive(Debug, Clone)]
@@ -16260,12 +16260,25 @@ pub struct Status {
 
 #[derive(Debug, Clone)]
 pub struct StatBoosts {
-    attack: i8,
-    defense: i8,
-    special_attack: i8,
-    special_defense: i8,
-    speed: i8,
-    accuracy: i8,
+    pub attack: i8,
+    pub defense: i8,
+    pub special_attack: i8,
+    pub special_defense: i8,
+    pub speed: i8,
+    pub accuracy: i8,
+}
+
+impl StatBoosts {
+    pub fn get_as_pokemon_boostable(&self) -> [(PokemonBoostableStat, i8); 6] {
+        return [
+            (PokemonBoostableStat::Attack, self.attack),
+            (PokemonBoostableStat::Defense, self.defense),
+            (PokemonBoostableStat::SpecialAttack, self.special_attack),
+            (PokemonBoostableStat::SpecialDefense, self.special_defense),
+            (PokemonBoostableStat::Speed, self.speed),
+            (PokemonBoostableStat::Accuracy, self.accuracy),
+        ];
+    }
 }
 
 #[derive(Debug)]
