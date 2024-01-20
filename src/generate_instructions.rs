@@ -1,4 +1,4 @@
-use crate::choices::Effect::{Boost, VolatileStatus};
+use crate::choices::Effect::{Boost, Heal, VolatileStatus};
 use crate::choices::{MoveTarget, Status};
 use crate::instruction::{
     BoostInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, HealInstruction,
@@ -332,6 +332,53 @@ fn generate_instructions_from_move_special_effect(
     side_reference: &SideReference,
     incoming_instructions: StateInstructions,
 ) -> StateInstructions {
+    return match choice.move_id.as_str() {
+        // "haze" => {},
+        _ => incoming_instructions,
+    };
+}
+
+fn get_instructions_from_heal(
+    state: &mut State,
+    choice: &Choice,
+    attacking_side_reference: &SideReference,
+    mut incoming_instructions: StateInstructions,
+) -> StateInstructions {
+    if let Some(heal) = &choice.heal {
+        state.apply_instructions(&incoming_instructions.instruction_list);
+
+        let mut target_side_ref: SideReference;
+        match heal.target {
+            MoveTarget::Opponent => target_side_ref = attacking_side_reference.get_other_side(),
+            MoveTarget::User => target_side_ref = *attacking_side_reference,
+        }
+
+        let target_pkmn = state
+            .get_side_immutable(&target_side_ref)
+            .get_active_immutable();
+
+        let mut health_recovered = (heal.amount * target_pkmn.maxhp as f32) as i16;
+        let final_health = target_pkmn.hp + health_recovered;
+        if final_health > target_pkmn.maxhp {
+            health_recovered -= final_health - target_pkmn.maxhp;
+        } else if final_health < 0 {
+            health_recovered -= final_health;
+        }
+
+        let mut additional_instructions = vec![];
+        if health_recovered != 0 {
+            additional_instructions.push(Instruction::Heal(HealInstruction {
+                side_ref: target_side_ref,
+                heal_amount: health_recovered,
+            }))
+        }
+
+        state.reverse_instructions(&incoming_instructions.instruction_list);
+        for i in additional_instructions {
+            incoming_instructions.instruction_list.push(i)
+        }
+    }
+
     return incoming_instructions;
 }
 
@@ -821,11 +868,6 @@ pub fn generate_instructions_from_move(
         return vec![incoming_instructions];
     }
 
-    // if cannot_use_move(state, &choice, &attacking_side) {
-    //     state.reverse_instructions(&incoming_instructions.instruction_list);
-    //     return vec![incoming_instructions];
-    // }
-
     // Before-Move callbacks to update the choice
     update_choice(state, &mut choice, defender_choice, &attacking_side);
 
@@ -911,8 +953,7 @@ pub fn generate_instructions_from_move(
         get_instructions_from_volatile_statuses,
         get_instructions_from_status_effects,
         get_instructions_from_boosts,
-        // get_instructions_from_boost_reset_moves,
-        // get_instructions_from_attacker_recovery,
+        get_instructions_from_heal,
         // get_instructions_from_flinching_moves,
         // get_instructions_from_drag,
 
@@ -1429,18 +1470,149 @@ mod tests {
         let expected_instructions = vec![StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
-                // TODO: Un-Comment when healing is implemented
-                // Instruction::Heal(HealInstruction {
-                //     side_ref: SideReference::SideOne,
-                //     heal_amount: 1,
-                // }),
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
                     pokemon_index: 0,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Sleep,
                 }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 1,
+                }),
             ],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_basic_heal_move() {
+        let mut state: State = State::default();
+        state.side_one.get_active().hp = 1;
+        let mut choice = MOVES.get("recover").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 50,
+            })],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_heal_move_generates_no_instruction_at_maxhp() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get("recover").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_basic_negative_heal_move() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get("explosion").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 100,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: -100,
+                }),
+            ],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_negative_heal_move_does_not_overkill() {
+        let mut state: State = State::default();
+        state.side_one.get_active().hp = 1;
+        let mut choice = MOVES.get("explosion").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 100,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: -1,
+                }),
+            ],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_heal_move_does_not_overheal() {
+        let mut state: State = State::default();
+        state.side_one.get_active().hp = 55;
+        let mut choice = MOVES.get("recover").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 45,
+            })],
         }];
 
         assert_eq!(instructions, expected_instructions)

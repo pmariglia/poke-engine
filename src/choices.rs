@@ -16248,8 +16248,8 @@ pub struct Boost {
 
 #[derive(Debug, Clone)]
 pub struct Heal {
-    target: MoveTarget,
-    amount: f32,
+    pub target: MoveTarget,
+    pub amount: f32,
 }
 
 #[derive(Debug, Clone)]
