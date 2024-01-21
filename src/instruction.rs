@@ -41,6 +41,20 @@ pub enum Instruction {
     ChangeTerrain(ChangeTerrain),
     ChangeType(ChangeType),
     ChangeItem(ChangeItemInstruction),
+    DisableMove(DisableMoveInstruction),
+    EnableMove(EnableMoveInstruction),
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct EnableMoveInstruction {
+    pub side_ref: SideReference,
+    pub move_index: usize,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct DisableMoveInstruction {
+    pub side_ref: SideReference,
+    pub move_index: usize,
 }
 
 #[derive(Debug, PartialEq, Clone)]

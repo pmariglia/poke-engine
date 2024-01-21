@@ -296,6 +296,13 @@ impl Default for SideConditions {
 }
 
 #[derive(Debug)]
+pub struct Move {
+    pub id: String,
+    pub disabled: bool,
+    pub pp: i8,
+}
+
+#[derive(Debug)]
 pub struct Pokemon {
     pub id: String,
     pub level: i8,
@@ -319,7 +326,7 @@ pub struct Pokemon {
     pub status: PokemonStatus,
     pub nature: PokemonNatures,
     pub volatile_statuses: HashSet<PokemonVolatileStatus>,
-    pub moves: Vec<String>,
+    pub moves: Vec<Move>,
 }
 
 impl Pokemon {
@@ -677,6 +684,14 @@ impl State {
         self.get_side(side_reference).get_active().types = new_types;
     }
 
+    fn change_item(
+        &mut self,
+        side_reference: &SideReference,
+        new_item: String,
+    ) {
+        self.get_side(side_reference).get_active().item = new_item;
+    }
+
     fn change_weather(&mut self, weather_type: Weather, turns_remaining: i8) {
         self.weather.weather_type = weather_type;
         self.weather.turns_remaining = turns_remaining;
@@ -685,6 +700,14 @@ impl State {
     fn change_terrain(&mut self, terrain_type: Terrain, turns_remaining: i8) {
         self.terrain.terrain_type = terrain_type;
         self.terrain.turns_remaining = turns_remaining;
+    }
+
+    fn enable_move(&mut self, side_reference: &SideReference, move_index: usize) {
+        self.get_side(side_reference).get_active().moves[move_index].disabled = false;
+    }
+
+    fn disable_move(&mut self, side_reference: &SideReference, move_index: usize) {
+        self.get_side(side_reference).get_active().moves[move_index].disabled = false;
     }
 
     pub fn apply_instructions(&mut self, instructions: &Vec<Instruction>) {
@@ -730,14 +753,23 @@ impl State {
             Instruction::ChangeType(instruction) => {
                 self.change_types(&instruction.side_ref, instruction.new_types)
             }
-            _ => {
-                panic!("Not implemented yet")
+            Instruction::Heal(instruction) => {
+                self.heal(&instruction.side_ref, instruction.heal_amount)
+            }
+            Instruction::ChangeItem(instruction) => {
+                self.change_item(&instruction.side_ref, instruction.new_item.clone())
+            }
+            Instruction::EnableMove(instruction) => {
+                self.enable_move(&instruction.side_ref, instruction.move_index)
+            }
+            Instruction::DisableMove(instruction) => {
+                self.disable_move(&instruction.side_ref, instruction.move_index)
             }
         }
     }
 
     pub fn reverse_instructions(&mut self, instructions: &Vec<Instruction>) {
-        for i in instructions {
+        for i in instructions.iter().rev() {
             self.reverse_one_instruction(i);
         }
     }
@@ -781,8 +813,17 @@ impl State {
             Instruction::ChangeType(instruction) => {
                 self.change_types(&instruction.side_ref, instruction.old_types)
             }
-            _ => {
-                panic!("Not implemented yet")
+            Instruction::EnableMove(instruction) => {
+                self.disable_move(&instruction.side_ref, instruction.move_index)
+            }
+            Instruction::DisableMove(instruction) => {
+                self.enable_move(&instruction.side_ref, instruction.move_index)
+            }
+            Instruction::Heal(instruction) => {
+                self.damage(&instruction.side_ref, instruction.heal_amount)
+            }
+            Instruction::ChangeItem(instruction) => {
+                self.change_item(&instruction.side_ref, instruction.current_item.clone())
             }
         }
     }
