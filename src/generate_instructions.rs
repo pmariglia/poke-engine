@@ -23,47 +23,50 @@ type InstructionGenerationFn =
 fn generate_instructions_from_switch(
     state: &mut State,
     new_pokemon_index: usize,
-    switching_side: SideReference,
+    switching_side_ref: SideReference,
     incoming_instructions: StateInstructions,
 ) -> Vec<StateInstructions> {
     let mut incoming_instructions = incoming_instructions;
     state.apply_instructions(&incoming_instructions.instruction_list);
 
-    let mut remove_disabled_instructions = vec![];
-    for (pkmn_move_index, _) in state
-        .get_side_immutable(&switching_side)
+    let switching_side = state.get_side_immutable(&switching_side_ref);
+    let mut additional_instructions = vec![];
+    for (pkmn_move_index, _) in switching_side
         .get_active_immutable()
         .moves
         .iter()
         .enumerate()
         .filter(|(_, m)| m.disabled)
     {
-        remove_disabled_instructions.push(
-            Instruction::EnableMove(EnableMoveInstruction {
-                side_ref: switching_side,
-                move_index: pkmn_move_index,
-            })
-        );
+        additional_instructions.push(Instruction::EnableMove(EnableMoveInstruction {
+            side_ref: switching_side_ref,
+            move_index: pkmn_move_index,
+        }));
     }
 
-    for i in remove_disabled_instructions {
+    if let Some(ability) = ABILITIES.get(&switching_side.get_active_immutable().ability) {
+        if let Some(on_switch_out_fn) = ability.on_switch_out {
+            additional_instructions.extend(on_switch_out_fn(&state, &switching_side_ref));
+        }
+    }
+
+    for i in additional_instructions {
         state.apply_one_instruction(&i);
         incoming_instructions.instruction_list.push(i);
     }
 
     let switch_instruction = Instruction::Switch(SwitchInstruction {
-        side_ref: switching_side,
-        previous_index: state.get_side(&switching_side).active_index,
+        side_ref: switching_side_ref,
+        previous_index: state.get_side(&switching_side_ref).active_index,
         next_index: new_pokemon_index,
     });
+
     state.apply_one_instruction(&switch_instruction);
     incoming_instructions
         .instruction_list
         .push(switch_instruction);
 
     /* TODO: add things like:
-        - DONE un-disable moves
-        - ability_on_switch_out (regenerator, naturalcure, etc)
         - hazard dmg
         - ability_on_switch_in (drizzle, intimidate, grassysurge, etc)
         - item_on_switch_in (grassyseed, boosterenergy, etc)
@@ -2956,6 +2959,288 @@ mod tests {
                     side_ref: SideReference::SideOne,
                     damage_amount: 1,
                 }),
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switch_with_regenerator() {
+        let mut state: State = State::default();
+        state.side_one.get_active().hp -= 10;
+        state.side_one.get_active().ability = String::from("regenerator");
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 10,
+                }),
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switch_with_regenerator_plus_move_enabling() {
+        let mut state: State = State::default();
+        state.side_one.get_active().moves = vec![
+            Move {
+                id: "disabled move".to_string(),
+                disabled: true,
+                pp: 32,
+            },
+            Move {
+                id: "also disabled move".to_string(),
+                disabled: true,
+                pp: 32,
+            },
+            Move {
+                id: "not disabled move".to_string(),
+                disabled: false,
+                pp: 32,
+            },
+            Move {
+                id: "also also disabled move".to_string(),
+                disabled: true,
+                pp: 32,
+            },
+        ];
+        state.side_one.get_active().hp -= 10;
+        state.side_one.get_active().ability = String::from("regenerator");
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::EnableMove(EnableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: 0,
+                }),
+                Instruction::EnableMove(EnableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: 1,
+                }),
+                Instruction::EnableMove(EnableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: 3,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 10,
+                }),
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switch_with_regenerator_but_no_damage_taken() {
+        let mut state: State = State::default();
+        state.side_one.get_active().ability = String::from("regenerator");
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_fainted_pokemon_with_regenerator_does_not_heal() {
+        let mut state: State = State::default();
+        state.side_one.get_active().ability = String::from("regenerator");
+        state.side_one.get_active().hp = 0;
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_regenerator_only_heals_one_third() {
+        let mut state: State = State::default();
+        state.side_one.get_active().ability = String::from("regenerator");
+        state.side_one.get_active().hp = 3;
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 33,
+                }),
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_naturalcure() {
+        let mut state: State = State::default();
+        state.side_one.get_active().ability = String::from("naturalcure");
+        state.side_one.get_active().status = PokemonStatus::Paralyze;
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: 0,
+                    old_status: PokemonStatus::Paralyze,
+                    new_status: PokemonStatus::None,
+                }),
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_naturalcure_with_no_status() {
+        let mut state: State = State::default();
+        state.side_one.get_active().ability = String::from("naturalcure");
+        state.side_one.get_active().status = PokemonStatus::None;
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
                     previous_index: 0,

@@ -1,18 +1,23 @@
+use std::cmp;
 use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
 use crate::choices::{Choice, MoveTarget};
-use crate::instruction::{BoostInstruction, ChangeType, Instruction, StateInstructions};
+use crate::instruction::{
+    BoostInstruction, ChangeStatusInstruction, ChangeType, HealInstruction, Instruction,
+    StateInstructions,
+};
 use crate::state::PokemonType;
 use crate::state::SideReference;
-use crate::state::State;
+use crate::state::{PokemonStatus, State};
 
 type ModifyAttackBeingUsed = fn(&State, &mut Choice, &Choice, &SideReference);
 type ModifyAttackAgainst = fn(&State, &mut Choice, &Choice, &SideReference);
 type AbilityBeforeMove = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
 type AbilityAfterDamageHit = fn(&State, &Choice, &SideReference, i16) -> Vec<Instruction>;
 type AbilityAfterBeingHitBranching = fn(&State, &Choice, &SideReference) -> Vec<StateInstructions>;
+type AbilityOnSwitchOut = fn(&State, &SideReference) -> Vec<Instruction>;
 
 lazy_static! {
     pub static ref ABILITIES: HashMap<String, Ability> = {
@@ -844,6 +849,20 @@ lazy_static! {
         abilities.insert(
             "naturalcure".to_string(),
             Ability {
+                on_switch_out: Some(|state: &State, side_reference: &SideReference| {
+                    let side = state.get_side_immutable(side_reference);
+                    if side.get_active_immutable().status != PokemonStatus::None {
+                        return vec![
+                            Instruction::ChangeStatus(ChangeStatusInstruction{
+                                side_ref: *side_reference,
+                                pokemon_index: side.active_index,
+                                old_status: side.get_active_immutable().status,
+                                new_status: PokemonStatus::None,
+                            })
+                        ]
+                    }
+                    return vec![]
+                }),
                 ..Default::default()
             },
         );
@@ -1428,6 +1447,21 @@ lazy_static! {
         abilities.insert(
             "regenerator".to_string(),
             Ability {
+                on_switch_out: Some(|state: &State, side_ref: &SideReference,| {
+                    let switching_out_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
+                    let hp_recovered = cmp::min(switching_out_pkmn.maxhp / 3, switching_out_pkmn.maxhp - switching_out_pkmn.hp);
+
+                    if hp_recovered > 0 && switching_out_pkmn.hp > 0 {
+                        return vec![
+                            Instruction::Heal(HealInstruction{
+                                side_ref: *side_ref,
+                                heal_amount: hp_recovered,
+                            })
+                        ]
+                    }
+
+                    return vec![];
+                }),
                 ..Default::default()
             },
         );
@@ -1986,6 +2020,7 @@ pub struct Ability {
     pub before_move: Option<AbilityBeforeMove>,
     pub after_damage_hit: Option<AbilityAfterDamageHit>,
     pub after_being_hit_branching: Option<AbilityAfterBeingHitBranching>,
+    pub on_switch_out: Option<AbilityOnSwitchOut>,
 }
 
 impl Default for Ability {
@@ -1996,6 +2031,7 @@ impl Default for Ability {
             before_move: None,
             after_damage_hit: None,
             after_being_hit_branching: None,
+            on_switch_out: None,
         };
     }
 }

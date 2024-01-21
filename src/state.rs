@@ -684,11 +684,7 @@ impl State {
         self.get_side(side_reference).get_active().types = new_types;
     }
 
-    fn change_item(
-        &mut self,
-        side_reference: &SideReference,
-        new_item: String,
-    ) {
+    fn change_item(&mut self, side_reference: &SideReference, new_item: String) {
         self.get_side(side_reference).get_active().item = new_item;
     }
 
