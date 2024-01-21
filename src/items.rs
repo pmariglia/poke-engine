@@ -3,12 +3,14 @@ use std::collections::HashMap;
 use lazy_static::lazy_static;
 
 use crate::choices::{Choice, MoveCategory};
+use crate::instruction::Instruction;
 use crate::state::PokemonType;
 use crate::state::SideReference;
 use crate::state::State;
 
 type ModifyAttackBeingUsed = fn(&State, &mut Choice, &SideReference);
 type ModifyAttackAgainst = fn(&State, &mut Choice, &SideReference);
+type ItemOnSwitchInFn = fn(&State, &SideReference) -> Vec<Instruction>;
 
 lazy_static! {
     pub static ref ITEMS: HashMap<String, Item> = {
@@ -63,6 +65,7 @@ lazy_static! {
 pub struct Item {
     pub modify_attack_being_used: Option<ModifyAttackBeingUsed>,
     pub modify_attack_against: Option<ModifyAttackAgainst>,
+    pub on_switch_in: Option<ItemOnSwitchInFn>,
 }
 
 impl Default for Item {
@@ -70,6 +73,7 @@ impl Default for Item {
         return Item {
             modify_attack_being_used: None,
             modify_attack_against: None,
+            on_switch_in: None,
         };
     }
 }

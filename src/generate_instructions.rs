@@ -134,26 +134,30 @@ fn generate_instructions_from_switch(
                 &PokemonStatus::Poison,
             ) {
                 if switch_in_side.side_conditions.toxic_spikes == 1 {
-                    toxic_spike_instruction = Some(Instruction::ChangeStatus(ChangeStatusInstruction{
-                        side_ref: switching_side_ref,
-                        pokemon_index: switch_in_side.active_index,
-                        old_status: switched_in_pkmn.status,
-                        new_status: PokemonStatus::Poison,
-                    }))
+                    toxic_spike_instruction =
+                        Some(Instruction::ChangeStatus(ChangeStatusInstruction {
+                            side_ref: switching_side_ref,
+                            pokemon_index: switch_in_side.active_index,
+                            old_status: switched_in_pkmn.status,
+                            new_status: PokemonStatus::Poison,
+                        }))
                 } else if switch_in_side.side_conditions.toxic_spikes == 2 {
-                    toxic_spike_instruction = Some(Instruction::ChangeStatus(ChangeStatusInstruction{
-                        side_ref: switching_side_ref,
-                        pokemon_index: switch_in_side.active_index,
-                        old_status: switched_in_pkmn.status,
-                        new_status: PokemonStatus::Toxic,
-                    }))
+                    toxic_spike_instruction =
+                        Some(Instruction::ChangeStatus(ChangeStatusInstruction {
+                            side_ref: switching_side_ref,
+                            pokemon_index: switch_in_side.active_index,
+                            old_status: switched_in_pkmn.status,
+                            new_status: PokemonStatus::Toxic,
+                        }))
                 }
             } else if switched_in_pkmn.has_type(&PokemonType::Poison) {
-                toxic_spike_instruction = Some(Instruction::ChangeSideCondition(ChangeSideConditionInstruction{
-                    side_ref: switching_side_ref,
-                    side_condition: PokemonSideCondition::ToxicSpikes,
-                    amount: -1 * switch_in_side.side_conditions.toxic_spikes,
-                }))
+                toxic_spike_instruction = Some(Instruction::ChangeSideCondition(
+                    ChangeSideConditionInstruction {
+                        side_ref: switching_side_ref,
+                        side_condition: PokemonSideCondition::ToxicSpikes,
+                        amount: -1 * switch_in_side.side_conditions.toxic_spikes,
+                    },
+                ))
             }
 
             if let Some(i) = toxic_spike_instruction {
@@ -167,11 +171,25 @@ fn generate_instructions_from_switch(
         incoming_instructions.instruction_list.push(i)
     }
 
+    let mut additional_instructions = vec![];
+    let switching_side = state.get_side_immutable(&switching_side_ref);
+    if let Some(ability) = ABILITIES.get(&switching_side.get_active_immutable().ability) {
+        if let Some(on_switch_in_fn) = ability.on_switch_in {
+            additional_instructions.extend(on_switch_in_fn(&state, &switching_side_ref));
+        }
+    }
+    if let Some(item) = ITEMS.get(&switching_side.get_active_immutable().item) {
+        if let Some(on_switch_in_fn) = item.on_switch_in {
+            additional_instructions.extend(on_switch_in_fn(&state, &switching_side_ref));
+        }
+    }
+
+    for i in additional_instructions {
+        incoming_instructions.instruction_list.push(i)
+    }
 
     /* TODO: add things like:
         - remove volatilestatus and boosts (needs its own fn to get those instructions)
-        - ability_on_switch_in (drizzle, intimidate, grassysurge, etc)
-        - item_on_switch_in (grassyseed, boosterenergy, etc)
     */
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
@@ -401,6 +419,21 @@ fn get_instructions_from_status_effects(
     return incoming_instructions;
 }
 
+pub fn get_boost_amount(pkmn: &Pokemon, boost: &PokemonBoostableStat, amount: &i8) -> i8 {
+    /*
+    returns that amount that can actually be applied from the attempted boost amount
+        e.g. using swordsdance at +5 attack would result in a +1 boost instead of +2
+    */
+    let current_boost = pkmn.get_boost_from_boost_enum(boost);
+
+    if amount > &0 {
+        return cmp::min(6 - current_boost, *amount);
+    } else if amount < &0 {
+        return cmp::max(-6 - current_boost, *amount);
+    }
+    return 0;
+}
+
 fn get_instructions_from_boosts(
     state: &mut State,
     choice: &Choice,
@@ -423,29 +456,15 @@ fn get_instructions_from_boosts(
                 .get_active_immutable();
             let boostable_stats = boosts.boosts.get_as_pokemon_boostable();
             for (pkmn_boostable_stat, boost) in boostable_stats.iter().filter(|(s, b)| b != &0) {
-                let pkmn_current_boost = target_pkmn.get_boost_from_boost_enum(pkmn_boostable_stat);
-                if boost > &0 {
-                    if pkmn_current_boost == 6 {
-                        continue;
-                    }
-                    let new_boost = cmp::min(6, pkmn_current_boost + boost);
+                let boost_amount = get_boost_amount(&target_pkmn, pkmn_boostable_stat, boost);
+                if boost_amount != 0
+                    && !(&target_side_ref != attacking_side_reference
+                        && target_pkmn.immune_to_stats_lowered_by_opponent())
+                {
                     additional_instructions.push(Instruction::Boost(BoostInstruction {
                         side_ref: target_side_ref,
                         stat: *pkmn_boostable_stat,
-                        amount: new_boost - pkmn_current_boost,
-                    }))
-                } else {
-                    if pkmn_current_boost == -6
-                        || (&target_side_ref != attacking_side_reference
-                            && target_pkmn.immune_to_stats_lowered_by_opponent())
-                    {
-                        continue;
-                    }
-                    let new_boost = cmp::max(-6, pkmn_current_boost + boost);
-                    additional_instructions.push(Instruction::Boost(BoostInstruction {
-                        side_ref: target_side_ref,
-                        stat: *pkmn_boostable_stat,
-                        amount: new_boost - pkmn_current_boost,
+                        amount: boost_amount,
                     }))
                 }
             }
@@ -1187,7 +1206,7 @@ pub fn generate_instructions_from_move_pair(//state: &mut State,
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::choices::{Boost, Heal, MOVES, Status};
+    use crate::choices::MOVES;
     use crate::instruction::{
         BoostInstruction, ChangeItemInstruction, ChangeStatusInstruction, ChangeTerrain,
         DamageInstruction, EnableMoveInstruction, SwitchInstruction, VolatileStatusInstruction,
@@ -3520,7 +3539,7 @@ mod tests {
                     pokemon_index: 1,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Poison,
-                })
+                }),
             ],
             ..Default::default()
         };
@@ -3558,7 +3577,7 @@ mod tests {
                     pokemon_index: 1,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Toxic,
-                })
+                }),
             ],
             ..Default::default()
         };
@@ -3586,13 +3605,11 @@ mod tests {
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Switch(SwitchInstruction {
-                    side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
-                }),
-            ],
+            instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: 0,
+                next_index: 1,
+            })],
             ..Default::default()
         };
 
@@ -3620,13 +3637,110 @@ mod tests {
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
+            instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: 0,
+                next_index: 1,
+            })],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_in_with_intimidate() {
+        let mut state: State = State::default();
+        state.side_one.pokemon[1].ability = String::from("intimidate");
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
             instruction_list: vec![
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
                     previous_index: 0,
                     next_index: 1,
                 }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideTwo,
+                    stat: PokemonBoostableStat::Attack,
+                    amount: -1,
+                }),
             ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_in_with_intimidate_when_opponent_is_already_lowest_atk_boost() {
+        let mut state: State = State::default();
+        state.side_one.pokemon[1].ability = String::from("intimidate");
+        state.side_two.get_active().attack_boost = -6;
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: 0,
+                next_index: 1,
+            })],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_in_with_intimidate_versus_clearbody() {
+        let mut state: State = State::default();
+        state.side_one.pokemon[1].ability = String::from("intimidate");
+        state.side_two.get_active().ability = String::from("clearbody");
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: 0,
+                next_index: 1,
+            })],
             ..Default::default()
         };
 
@@ -3663,7 +3777,7 @@ mod tests {
                     side_ref: SideReference::SideOne,
                     side_condition: PokemonSideCondition::ToxicSpikes,
                     amount: -2,
-                })
+                }),
             ],
             ..Default::default()
         };
