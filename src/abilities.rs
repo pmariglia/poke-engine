@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use lazy_static::lazy_static;
 
 use crate::choices::{Choice, MoveTarget};
-use crate::generate_instructions::get_boost_amount;
+use crate::generate_instructions::get_boost_instruction;
 use crate::instruction::{
     BoostInstruction, ChangeStatusInstruction, ChangeType, HealInstruction, Instruction,
     StateInstructions,
@@ -929,17 +929,14 @@ lazy_static! {
             "intimidate".to_string(),
             Ability {
                 on_switch_in: Some(|state: &State, side_ref: &SideReference| {
-                    let target_side = side_ref.get_other_side();
-                    let target_pkmn = state.get_side_immutable(&target_side).get_active_immutable();
-                    let boost_amount = get_boost_amount(target_pkmn, &PokemonBoostableStat::Attack, &-1);
-                    if !target_pkmn.immune_to_stats_lowered_by_opponent() && boost_amount != 0 {
-                        return vec![
-                            Instruction::Boost(BoostInstruction{
-                                side_ref: target_side,
-                                stat: PokemonBoostableStat::Attack,
-                                amount: boost_amount,
-                            })
-                        ];
+                    if let Some(boost_instruction) = get_boost_instruction(
+                        state,
+                        &PokemonBoostableStat::Attack,
+                        &-1,
+                        side_ref,
+                        &side_ref.get_other_side()
+                    ) {
+                        return vec![boost_instruction];
                     }
                     return vec![];
                 }),

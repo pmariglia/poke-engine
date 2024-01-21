@@ -434,6 +434,35 @@ pub fn get_boost_amount(pkmn: &Pokemon, boost: &PokemonBoostableStat, amount: &i
     return 0;
 }
 
+pub fn get_boost_instruction(
+    state: &State,
+    stat: &PokemonBoostableStat,
+    boost: &i8,
+    attacking_side_ref: &SideReference,
+    target_side_ref: &SideReference,
+) -> Option<Instruction> {
+    /*
+    Single point for checking whether or not a boost can be applied to a pokemon
+    Returns that boost instruction, if applicable
+    */
+
+    let target_pkmn = state
+        .get_side_immutable(target_side_ref)
+        .get_active_immutable();
+    let boost_amount = get_boost_amount(target_pkmn, &stat, boost);
+    if boost_amount != 0
+        && !(target_side_ref != attacking_side_ref
+            && target_pkmn.immune_to_stats_lowered_by_opponent())
+    {
+        return Some(Instruction::Boost(BoostInstruction {
+            side_ref: *target_side_ref,
+            stat: *stat,
+            amount: boost_amount,
+        }));
+    }
+    return None;
+}
+
 fn get_instructions_from_boosts(
     state: &mut State,
     choice: &Choice,
@@ -451,21 +480,16 @@ fn get_instructions_from_boosts(
         }
         let percent_hit = choice.accuracy / 100.0;
         if percent_hit > 0.0 {
-            let target_pkmn = state
-                .get_side_immutable(&target_side_ref)
-                .get_active_immutable();
             let boostable_stats = boosts.boosts.get_as_pokemon_boostable();
             for (pkmn_boostable_stat, boost) in boostable_stats.iter().filter(|(s, b)| b != &0) {
-                let boost_amount = get_boost_amount(&target_pkmn, pkmn_boostable_stat, boost);
-                if boost_amount != 0
-                    && !(&target_side_ref != attacking_side_reference
-                        && target_pkmn.immune_to_stats_lowered_by_opponent())
-                {
-                    additional_instructions.push(Instruction::Boost(BoostInstruction {
-                        side_ref: target_side_ref,
-                        stat: *pkmn_boostable_stat,
-                        amount: boost_amount,
-                    }))
+                if let Some(boost_instruction) = get_boost_instruction(
+                    &state,
+                    pkmn_boostable_stat,
+                    boost,
+                    attacking_side_reference,
+                    &target_side_ref,
+                ) {
+                    additional_instructions.push(boost_instruction)
                 }
             }
         }
