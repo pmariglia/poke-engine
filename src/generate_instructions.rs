@@ -1,4 +1,4 @@
-use crate::choices::{MoveTarget, Status};
+use crate::choices::MoveTarget;
 use crate::instruction::{
     BoostInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, EnableMoveInstruction,
     HealInstruction, VolatileStatusInstruction,
@@ -7,7 +7,7 @@ use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Terr
 use crate::{
     abilities::ABILITIES,
     choices::{Choice, MoveCategory},
-    damage_calc::{calculate_damage, DamageRolls},
+    damage_calc::{calculate_damage, type_effectiveness_modifier, DamageRolls},
     instruction::{
         ChangeStatusInstruction, DamageInstruction, Instruction, StateInstructions,
         SwitchInstruction,
@@ -66,8 +66,110 @@ fn generate_instructions_from_switch(
         .instruction_list
         .push(switch_instruction);
 
+    let mut switch_in_hazards_instructions = vec![];
+    let switch_in_side = state.get_side_immutable(&switching_side_ref);
+    let switched_in_pkmn = state
+        .get_side_immutable(&switching_side_ref)
+        .get_active_immutable();
+    if switched_in_pkmn.item != "heavydutyboots" {
+        if switch_in_side.side_conditions.stealth_rock == 1 {
+            let multiplier =
+                type_effectiveness_modifier(&PokemonType::Rock, &switched_in_pkmn.types) as i16;
+
+            let stealth_rock_dmg_instruction = Instruction::Damage(DamageInstruction {
+                side_ref: switching_side_ref,
+                damage_amount: cmp::min(
+                    switched_in_pkmn.maxhp * multiplier / 8,
+                    switched_in_pkmn.hp,
+                ),
+            });
+            state.apply_one_instruction(&stealth_rock_dmg_instruction);
+            switch_in_hazards_instructions.push(stealth_rock_dmg_instruction);
+        }
+
+        let switch_in_side = state.get_side_immutable(&switching_side_ref);
+        let switched_in_pkmn = state
+            .get_side_immutable(&switching_side_ref)
+            .get_active_immutable();
+        if switch_in_side.side_conditions.spikes > 0 && switched_in_pkmn.is_grounded() {
+            let spikes_dmg_instruction = Instruction::Damage(DamageInstruction {
+                side_ref: switching_side_ref,
+                damage_amount: cmp::min(
+                    switched_in_pkmn.maxhp * switch_in_side.side_conditions.spikes as i16 / 8,
+                    switched_in_pkmn.hp,
+                ),
+            });
+            state.apply_one_instruction(&spikes_dmg_instruction);
+            switch_in_hazards_instructions.push(spikes_dmg_instruction);
+        }
+
+        let switch_in_side = state.get_side_immutable(&switching_side_ref);
+        let switched_in_pkmn = state
+            .get_side_immutable(&switching_side_ref)
+            .get_active_immutable();
+        if switch_in_side.side_conditions.sticky_web == 1 && switched_in_pkmn.is_grounded() {
+            // a pkmn switching in don't have any other speed drops,
+            // so no need to check for going below -6
+
+            let sticky_web_instruction = Instruction::Boost(BoostInstruction {
+                side_ref: switching_side_ref,
+                stat: PokemonBoostableStat::Speed,
+                amount: -1,
+            });
+
+            state.apply_one_instruction(&sticky_web_instruction);
+            switch_in_hazards_instructions.push(sticky_web_instruction);
+        }
+
+        let switch_in_side = state.get_side_immutable(&switching_side_ref);
+        let switched_in_pkmn = state
+            .get_side_immutable(&switching_side_ref)
+            .get_active_immutable();
+        let mut toxic_spike_instruction: Option<Instruction> = None;
+        if switch_in_side.side_conditions.toxic_spikes > 0 && switched_in_pkmn.is_grounded() {
+            if !immune_to_status(
+                &state,
+                &MoveTarget::User,
+                &switching_side_ref,
+                &PokemonStatus::Poison,
+            ) {
+                if switch_in_side.side_conditions.toxic_spikes == 1 {
+                    toxic_spike_instruction = Some(Instruction::ChangeStatus(ChangeStatusInstruction{
+                        side_ref: switching_side_ref,
+                        pokemon_index: switch_in_side.active_index,
+                        old_status: switched_in_pkmn.status,
+                        new_status: PokemonStatus::Poison,
+                    }))
+                } else if switch_in_side.side_conditions.toxic_spikes == 2 {
+                    toxic_spike_instruction = Some(Instruction::ChangeStatus(ChangeStatusInstruction{
+                        side_ref: switching_side_ref,
+                        pokemon_index: switch_in_side.active_index,
+                        old_status: switched_in_pkmn.status,
+                        new_status: PokemonStatus::Toxic,
+                    }))
+                }
+            } else if switched_in_pkmn.has_type(&PokemonType::Poison) {
+                toxic_spike_instruction = Some(Instruction::ChangeSideCondition(ChangeSideConditionInstruction{
+                    side_ref: switching_side_ref,
+                    side_condition: PokemonSideCondition::ToxicSpikes,
+                    amount: -1 * switch_in_side.side_conditions.toxic_spikes,
+                }))
+            }
+
+            if let Some(i) = toxic_spike_instruction {
+                state.apply_one_instruction(&i);
+                switch_in_hazards_instructions.push(i);
+            }
+        }
+    }
+
+    for i in switch_in_hazards_instructions {
+        incoming_instructions.instruction_list.push(i)
+    }
+
+
     /* TODO: add things like:
-        - hazard dmg
+        - remove volatilestatus and boosts (needs its own fn to get those instructions)
         - ability_on_switch_in (drizzle, intimidate, grassysurge, etc)
         - item_on_switch_in (grassyseed, boosterenergy, etc)
     */
@@ -358,9 +460,9 @@ fn get_instructions_from_boosts(
 }
 
 fn generate_instructions_from_move_special_effect(
-    state: &mut State,
+    _state: &mut State,
     choice: &Choice,
-    side_reference: &SideReference,
+    _side_reference: &SideReference,
     incoming_instructions: StateInstructions,
 ) -> StateInstructions {
     return match choice.move_id.as_str() {
@@ -1085,7 +1187,7 @@ pub fn generate_instructions_from_move_pair(//state: &mut State,
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::choices::{Boost, Heal, MOVES};
+    use crate::choices::{Boost, Heal, MOVES, Status};
     use crate::instruction::{
         BoostInstruction, ChangeItemInstruction, ChangeStatusInstruction, ChangeTerrain,
         DamageInstruction, EnableMoveInstruction, SwitchInstruction, VolatileStatusInstruction,
@@ -3098,13 +3200,11 @@ mod tests {
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Switch(SwitchInstruction {
-                    side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
-                }),
-            ],
+            instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: 0,
+                next_index: 1,
+            })],
             ..Default::default()
         };
 
@@ -3131,13 +3231,11 @@ mod tests {
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Switch(SwitchInstruction {
-                    side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
-                }),
-            ],
+            instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: 0,
+                next_index: 1,
+            })],
             ..Default::default()
         };
 
@@ -3240,11 +3338,415 @@ mod tests {
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
+            instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: 0,
+                next_index: 1,
+            })],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_into_stealthrock() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.stealth_rock = 1;
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
             instruction_list: vec![
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
                     previous_index: 0,
                     next_index: 1,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: state.side_one.get_active().hp / 8,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_into_stealthrock_does_not_overkill() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.stealth_rock = 1;
+        state.side_one.pokemon[1].hp = 5;
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 5,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_into_stickyweb() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.sticky_web = 1;
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: -1,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_into_stickyweb_with_heavydutyboots() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.sticky_web = 1;
+        state.side_one.pokemon[1].item = String::from("heavydutyboots");
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: 0,
+                next_index: 1,
+            })],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_into_single_layer_toxicspikes() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.toxic_spikes = 1;
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: 1,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Poison,
+                })
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_into_double_layer_toxicspikes() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.toxic_spikes = 2;
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: 1,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Toxic,
+                })
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_into_double_layer_toxicspikes_as_flying_type() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.toxic_spikes = 2;
+        state.side_one.pokemon[1].types.0 = PokemonType::Flying;
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_into_double_layer_toxicspikes_as_poison_and_flying_type() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.toxic_spikes = 2;
+        state.side_one.pokemon[1].types.0 = PokemonType::Flying;
+        state.side_one.pokemon[1].types.1 = PokemonType::Poison;
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_into_double_layer_toxicspikes_as_poison_type() {
+        let mut state: State = State::default();
+        state.side_one.pokemon[1].types.0 = PokemonType::Poison;
+        state.side_one.side_conditions.toxic_spikes = 2;
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::ToxicSpikes,
+                    amount: -2,
+                })
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_into_stealthrock_and_spikes_does_not_overkill() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.stealth_rock = 1;
+        state.side_one.side_conditions.spikes = 1;
+        state.side_one.pokemon[1].hp = 15;
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 12,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 3,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(vec![expected_instructions], incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_into_stealthrock_and_multiple_layers_of_spikes_does_not_overkill() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.stealth_rock = 1;
+        state.side_one.side_conditions.spikes = 3;
+        state.side_one.pokemon[1].hp = 25;
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 12,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 13,
                 }),
             ],
             ..Default::default()

@@ -62,7 +62,7 @@ fn type_enum_to_type_matchup_int(type_enum: &PokemonType) -> usize {
     }
 }
 
-fn type_effectiveness_modifier(
+pub fn type_effectiveness_modifier(
     attacking_type: &PokemonType,
     defending_types: &(PokemonType, PokemonType),
 ) -> f32 {

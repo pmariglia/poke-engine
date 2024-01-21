@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::state::{PokemonStatus, Terrain};
+use crate::state::Terrain;
 use crate::{
     choices::MOVES,
     generate_instructions::generate_instructions_from_move,
@@ -19,7 +19,7 @@ mod items;
 mod state;
 
 fn main() {
-    let mut _choice = MOVES.get("defog").unwrap().to_owned();
+    let _choice = MOVES.get("defog").unwrap().to_owned();
 
     let mut state: State = State::default();
     println!(
