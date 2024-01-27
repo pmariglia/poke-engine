@@ -25,7 +25,7 @@ fn generate_instructions_from_switch(
     new_pokemon_index: usize,
     switching_side_ref: SideReference,
     incoming_instructions: StateInstructions,
-) -> Vec<StateInstructions> {
+) -> StateInstructions {
     let mut incoming_instructions = incoming_instructions;
     state.apply_instructions(&incoming_instructions.instruction_list);
 
@@ -194,7 +194,7 @@ fn generate_instructions_from_switch(
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
 
-    return vec![incoming_instructions];
+    return incoming_instructions;
 }
 
 fn generate_instructions_from_side_conditions(
@@ -442,7 +442,7 @@ pub fn get_boost_instruction(
     target_side_ref: &SideReference,
 ) -> Option<Instruction> {
     /*
-    Single point for checking whether or not a boost can be applied to a pokemon
+    Single point for checking whether a boost can be applied to a pokemon
     Returns that boost instruction, if applicable
     */
 
@@ -649,14 +649,41 @@ fn get_instructions_from_drag(
     state: &mut State,
     choice: &Choice,
     attacking_side_reference: &SideReference,
-    incoming_instructions: &StateInstructions,
-    final_instructions: &mut Vec<StateInstructions>,
+    incoming_instructions: StateInstructions,
+    frozen_instructions: &mut Vec<StateInstructions>,
 ) {
     state.apply_instructions(&incoming_instructions.instruction_list);
 
     let defending_side = state.get_side(&attacking_side_reference.get_other_side());
+    if defending_side.get_active_immutable().hp == 0 {
+        state.reverse_instructions(&incoming_instructions.instruction_list);
+        frozen_instructions.push(incoming_instructions);
+        return
+    }
+
+    let defending_side_alive_reserve_indices = defending_side.pokemon.iter()
+        .enumerate()
+        .filter(|(a, b)| b.hp > 0 && a != &defending_side.active_index)
+        .map(|(index, _)| index)
+        .collect::<Vec<_>>();
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
+
+    let num_alive_reserve = defending_side_alive_reserve_indices.len();
+    if num_alive_reserve == 0 {
+        frozen_instructions.push(incoming_instructions);
+        return
+    }
+    for pkmn_id in defending_side_alive_reserve_indices {
+        let mut switch_instructions = generate_instructions_from_switch(
+            state,
+            pkmn_id,
+            attacking_side_reference.get_other_side(),
+            incoming_instructions.clone()
+        );
+        switch_instructions.update_percentage(1.0 / num_alive_reserve as f32);
+        frozen_instructions.push(switch_instructions);
+    }
 }
 
 fn generate_instructions_from_damage(
@@ -1035,12 +1062,12 @@ pub fn generate_instructions_from_move(
     */
 
     if choice.category == MoveCategory::Switch {
-        return generate_instructions_from_switch(
+        return vec![generate_instructions_from_switch(
             state,
             choice.switch_id,
             attacking_side,
             incoming_instructions,
-        );
+        )];
     }
 
     if !choice.first_move && choice.flags.drag {
@@ -1137,19 +1164,19 @@ pub fn generate_instructions_from_move(
 
     // TODO: First, finish from_switch, then do this
     //  - Consider exiting early after from_drag because after a drag move hitting,
-    //    the half-turn ends
-
-    // if choice.flags.drag {
-    //     for ins in &next_instructions {
-    //         get_instructions_from_drag(
-    //             state,
-    //             &choice,
-    //             &attacking_side,
-    //             &ins,
-    //             &mut final_instructions,
-    //         );
-    //     }
-    // }
+    //    the half-turn ends. And if it misses, the half-turn ends as well
+    if choice.flags.drag {
+        for ins in next_instructions {
+            get_instructions_from_drag(
+                state,
+                &choice,
+                &attacking_side,
+                ins,
+                &mut final_instructions,
+            );
+        }
+        return combine_duplicate_instructions(final_instructions);
+    }
 
     // Ability-After-Move (flamebody, static) should be done IN `generate_instructions_from_damage`
     // ... or not ... come back to that
@@ -1573,29 +1600,329 @@ mod tests {
     }
 
     #[test]
-    // fn test_basic_drag_move() {
-    //     let mut state: State = State::default();
-    //     let choice = MOVES.get("whirlwind").unwrap().to_owned();
-    //
-    //     let instructions = generate_instructions_from_move(
-    //         &mut state,
-    //         choice,
-    //         MOVES.get("tackle").unwrap(),
-    //         SideReference::SideOne,
-    //         StateInstructions::default(),
-    //     );
-    //
-    //     let expected_instructions = vec![StateInstructions {
-    //         percentage: 100.0,
-    //         instruction_list: vec![Instruction::Switch(SwitchInstruction {
-    //             side_ref: SideReference::SideTwo,
-    //             previous_index: 0,
-    //             next_index: 0,
-    //         })],
-    //     }];
-    //
-    //     assert_eq!(instructions, expected_instructions)
-    // }
+    fn test_basic_drag_move() {
+        let mut state: State = State::default();
+        let choice = MOVES.get("whirlwind").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 20.0,
+                instruction_list: vec![
+                    Instruction::Switch(SwitchInstruction {
+                        side_ref: SideReference::SideTwo,
+                        previous_index: 0,
+                        next_index: 1,
+                    })
+                ],
+            },
+            StateInstructions {
+                percentage: 20.0,
+                instruction_list: vec![
+                    Instruction::Switch(SwitchInstruction {
+                        side_ref: SideReference::SideTwo,
+                        previous_index: 0,
+                        next_index: 2,
+                    })
+                ],
+            },
+            StateInstructions {
+                percentage: 20.0,
+                instruction_list: vec![
+                    Instruction::Switch(SwitchInstruction {
+                        side_ref: SideReference::SideTwo,
+                        previous_index: 0,
+                        next_index: 3,
+                    })
+                ],
+            },
+            StateInstructions {
+                percentage: 20.0,
+                instruction_list: vec![
+                    Instruction::Switch(SwitchInstruction {
+                        side_ref: SideReference::SideTwo,
+                        previous_index: 0,
+                        next_index: 4,
+                    })
+                ],
+            },
+            StateInstructions {
+                percentage: 20.0,
+                instruction_list: vec![
+                    Instruction::Switch(SwitchInstruction {
+                        side_ref: SideReference::SideTwo,
+                        previous_index: 0,
+                        next_index: 5,
+                    })
+                ],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_basic_drag_move_with_fainted_reserve() {
+        let mut state: State = State::default();
+        state.side_two.pokemon[1].hp = 0;
+        state.side_two.pokemon[3].hp = 0;
+        let choice = MOVES.get("whirlwind").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 33.333336,
+                instruction_list: vec![
+                    Instruction::Switch(SwitchInstruction {
+                        side_ref: SideReference::SideTwo,
+                        previous_index: 0,
+                        next_index: 2,
+                    })
+                ],
+            },
+            StateInstructions {
+                percentage: 33.333336,
+                instruction_list: vec![
+                    Instruction::Switch(SwitchInstruction {
+                        side_ref: SideReference::SideTwo,
+                        previous_index: 0,
+                        next_index: 4,
+                    })
+                ],
+            },
+            StateInstructions {
+                percentage: 33.333336,
+                instruction_list: vec![
+                    Instruction::Switch(SwitchInstruction {
+                        side_ref: SideReference::SideTwo,
+                        previous_index: 0,
+                        next_index: 5,
+                    })
+                ],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_basic_damaging_drag_move_with_fainted_reserve() {
+        let mut state: State = State::default();
+        state.side_two.pokemon[1].hp = 0;
+        state.side_two.pokemon[3].hp = 0;
+        let choice = MOVES.get("dragontail").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 10.0000019,
+                instruction_list: vec![],  // The move missed
+            },
+            StateInstructions {
+                percentage: 30.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 48,
+                    }),
+                    Instruction::Switch(SwitchInstruction {
+                        side_ref: SideReference::SideTwo,
+                        previous_index: 0,
+                        next_index: 2,
+                    })
+                ],
+            },
+            StateInstructions {
+                percentage: 30.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 48,
+                    }),
+                    Instruction::Switch(SwitchInstruction {
+                        side_ref: SideReference::SideTwo,
+                        previous_index: 0,
+                        next_index: 4,
+                    })
+                ],
+            },
+            StateInstructions {
+                percentage: 30.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 48,
+                    }),
+                    Instruction::Switch(SwitchInstruction {
+                        side_ref: SideReference::SideTwo,
+                        previous_index: 0,
+                        next_index: 5,
+                    })
+                ],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_basic_damaging_drag_that_knocks_out_defender() {
+        let mut state: State = State::default();
+        state.side_two.pokemon[1].hp = 0;
+        state.side_two.pokemon[3].hp = 0;
+        state.side_two.get_active().hp = 5;
+        let choice = MOVES.get("dragontail").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 10.0000019,
+                instruction_list: vec![],  // The move missed
+            },
+            StateInstructions {
+                percentage: 90.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 5,
+                    }),
+                ],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_drag_versus_no_alive_reserved() {
+        let mut state: State = State::default();
+        state.side_two.pokemon[1].hp = 0;
+        state.side_two.pokemon[2].hp = 0;
+        state.side_two.pokemon[3].hp = 0;
+        state.side_two.pokemon[4].hp = 0;
+        state.side_two.pokemon[5].hp = 0;
+        let choice = MOVES.get("whirlwind").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 100.0,
+                instruction_list: vec![],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_basic_drag_move_with_fainted_reserve_and_prior_instruction() {
+        let mut state: State = State::default();
+        state.side_two.pokemon[1].hp = 0;
+        state.side_two.pokemon[3].hp = 0;
+        let choice = MOVES.get("whirlwind").unwrap().to_owned();
+
+        let previous_instruction = StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction{
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 5,
+                })
+            ],
+        };
+
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            previous_instruction,
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 16.666668,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction{
+                        side_ref: SideReference::SideOne,
+                        damage_amount: 5,
+                    }),
+                    Instruction::Switch(SwitchInstruction {
+                        side_ref: SideReference::SideTwo,
+                        previous_index: 0,
+                        next_index: 2,
+                    })
+                ],
+            },
+            StateInstructions {
+                percentage: 16.666668,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction{
+                        side_ref: SideReference::SideOne,
+                        damage_amount: 5,
+                    }),
+                    Instruction::Switch(SwitchInstruction {
+                        side_ref: SideReference::SideTwo,
+                        previous_index: 0,
+                        next_index: 4,
+                    })
+                ],
+            },
+            StateInstructions {
+                percentage: 16.666668,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction{
+                        side_ref: SideReference::SideOne,
+                        damage_amount: 5,
+                    }),
+                    Instruction::Switch(SwitchInstruction {
+                        side_ref: SideReference::SideTwo,
+                        previous_index: 0,
+                        next_index: 5,
+                    })
+                ],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
     #[test]
     fn test_basic_status_move() {
         let mut state: State = State::default();
@@ -2968,7 +3295,7 @@ mod tests {
             StateInstructions::default(),
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3014,7 +3341,7 @@ mod tests {
             StateInstructions::default(),
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3078,7 +3405,7 @@ mod tests {
             StateInstructions::default(),
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3120,7 +3447,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3157,7 +3484,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3228,7 +3555,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3258,7 +3585,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3289,7 +3616,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3326,7 +3653,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3365,7 +3692,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3396,7 +3723,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3432,7 +3759,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3469,7 +3796,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3506,7 +3833,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3537,7 +3864,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3575,7 +3902,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3613,7 +3940,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3644,7 +3971,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3676,7 +4003,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3713,7 +4040,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3744,7 +4071,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3775,7 +4102,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3813,7 +4140,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3855,7 +4182,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
@@ -3897,7 +4224,7 @@ mod tests {
             incoming_instructions,
         );
 
-        assert_eq!(vec![expected_instructions], incoming_instructions);
+        assert_eq!(expected_instructions, incoming_instructions);
     }
 
     #[test]
