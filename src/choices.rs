@@ -67,7 +67,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -119,7 +119,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -262,7 +262,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -335,7 +335,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 1,
@@ -362,7 +362,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -440,7 +440,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -581,7 +581,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -667,7 +667,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -694,7 +694,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: -1,
@@ -781,7 +781,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
                 }]),
@@ -861,7 +861,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 50,
+                    chance: 50.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Poison),
                 }]),
@@ -1094,7 +1094,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -1131,7 +1131,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: -1,
@@ -1177,7 +1177,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -1196,7 +1196,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -1217,7 +1217,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -1245,7 +1245,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Freeze),
                 }]),
@@ -1294,7 +1294,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -1332,7 +1332,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -1370,7 +1370,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -1391,7 +1391,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -1464,7 +1464,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -1536,7 +1536,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: -1,
@@ -1610,7 +1610,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -1637,7 +1637,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -1681,7 +1681,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -1733,7 +1733,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -1825,7 +1825,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -1969,7 +1969,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 70,
+                    chance: 70.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -2023,7 +2023,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
                 }]),
@@ -2043,7 +2043,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: -1,
@@ -2281,7 +2281,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -2377,7 +2377,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
                 }]),
@@ -2398,7 +2398,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -2697,7 +2697,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Poison),
                 }]),
@@ -2719,7 +2719,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -2748,7 +2748,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 50,
+                    chance: 50.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -2851,7 +2851,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -3076,7 +3076,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 50,
+                    chance: 50.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -3171,7 +3171,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -3211,7 +3211,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
                 }]),
@@ -3291,7 +3291,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -3417,7 +3417,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -3557,7 +3557,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -3684,7 +3684,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -3762,7 +3762,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
                 }]),
@@ -3783,7 +3783,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -3961,7 +3961,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -4006,7 +4006,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -4077,7 +4077,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -4133,7 +4133,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -4211,7 +4211,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -4293,7 +4293,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 0,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -4444,7 +4444,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 50,
+                    chance: 50.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -4471,7 +4471,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -4522,7 +4522,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -4561,7 +4561,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -4606,7 +4606,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -4727,7 +4727,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -4754,7 +4754,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -4776,7 +4776,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -4798,7 +4798,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -4844,7 +4844,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -4949,7 +4949,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -5052,7 +5052,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -5131,7 +5131,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -5199,7 +5199,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Freeze),
                 }]),
@@ -5221,7 +5221,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -5241,7 +5241,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Freeze),
                 }]),
@@ -5560,7 +5560,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -5717,7 +5717,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -5864,7 +5864,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Poison),
                 }]),
@@ -5993,7 +5993,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -6155,7 +6155,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -6205,7 +6205,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -6948,7 +6948,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
                 }]),
@@ -7052,7 +7052,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -7153,7 +7153,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Freeze),
                 }]),
@@ -7175,7 +7175,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -7233,7 +7233,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Freeze),
                 }]),
@@ -7286,7 +7286,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -7322,7 +7322,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -7381,7 +7381,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -7402,7 +7402,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -7509,7 +7509,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -7531,7 +7531,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -7845,7 +7845,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -7913,7 +7913,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 50,
+                    chance: 50.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -8004,7 +8004,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -8077,7 +8077,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -8152,7 +8152,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -8196,7 +8196,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -8257,7 +8257,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: -1,
@@ -8284,7 +8284,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 50,
+                    chance: 50.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -8343,7 +8343,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
                 }]),
@@ -8525,7 +8525,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -8708,7 +8708,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 1,
@@ -8798,7 +8798,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 1,
@@ -8971,7 +8971,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -9016,7 +9016,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 50,
+                    chance: 50.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -9074,7 +9074,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -9153,7 +9153,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Poison),
                 }]),
@@ -9174,7 +9174,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -9196,7 +9196,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -9225,7 +9225,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -9253,7 +9253,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -9280,7 +9280,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -9335,7 +9335,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -9363,7 +9363,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -9455,7 +9455,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -9476,7 +9476,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 40,
+                    chance: 40.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -9616,7 +9616,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Poison),
                 }]),
@@ -9637,7 +9637,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -9694,7 +9694,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 50,
+                    chance: 50.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -9756,7 +9756,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 1,
@@ -9875,7 +9875,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: -1,
@@ -10142,7 +10142,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: -1,
@@ -10188,7 +10188,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 50,
+                    chance: 50.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Toxic),
                 }]),
@@ -10228,7 +10228,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Poison),
                 }]),
@@ -10268,7 +10268,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Poison),
                 }]),
@@ -10289,7 +10289,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Poison),
                 }]),
@@ -10359,7 +10359,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -10422,7 +10422,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Freeze),
                 }]),
@@ -10534,7 +10534,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 1,
@@ -10643,7 +10643,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
                 }]),
@@ -10679,7 +10679,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -10792,7 +10792,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -10911,7 +10911,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -11098,7 +11098,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -11184,7 +11184,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 50,
+                    chance: 50.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -11313,7 +11313,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Sleep),
                 }]),
@@ -11530,7 +11530,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
                 }]),
@@ -11575,7 +11575,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -11596,7 +11596,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 50,
+                    chance: 50.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -11640,7 +11640,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -11698,7 +11698,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -11803,7 +11803,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 50,
+                    chance: 50.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -11901,7 +11901,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -11970,7 +11970,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -12032,7 +12032,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -12096,7 +12096,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -12116,7 +12116,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -12168,7 +12168,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 40,
+                    chance: 40.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -12231,7 +12231,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -12258,7 +12258,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -12353,7 +12353,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 50,
+                    chance: 50.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -12435,7 +12435,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Poison),
                 }]),
@@ -12571,7 +12571,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
                 }]),
@@ -12608,7 +12608,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 1,
@@ -12671,7 +12671,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -12717,7 +12717,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -12764,7 +12764,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -12905,7 +12905,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Poison),
                 }]),
@@ -12926,7 +12926,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Poison),
                 }]),
@@ -12946,7 +12946,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Poison),
                 }]),
@@ -13019,7 +13019,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 40,
+                    chance: 40.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Poison),
                 }]),
@@ -13086,7 +13086,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -13146,7 +13146,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -13274,7 +13274,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -13295,7 +13295,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::SparklingAria),
                 }]),
@@ -13465,7 +13465,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -13547,7 +13547,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -13605,7 +13605,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: -1,
@@ -13650,7 +13650,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Burn),
                 }]),
@@ -13671,7 +13671,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -13725,7 +13725,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -13787,7 +13787,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -13892,7 +13892,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
                 }]),
@@ -13984,7 +13984,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -14385,7 +14385,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::SyrupBomb),
                 }]),
@@ -14802,7 +14802,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -14822,7 +14822,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -14881,7 +14881,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -14910,7 +14910,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -14930,7 +14930,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -15032,7 +15032,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -15143,7 +15143,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -15303,7 +15303,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Boost(StatBoosts {
                         attack: -1,
@@ -15360,7 +15360,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Poison),
                 }]),
@@ -15380,7 +15380,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -15599,7 +15599,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -15637,7 +15637,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -15690,7 +15690,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
                 }]),
@@ -15837,7 +15837,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 10,
+                    chance: 10.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Sleep),
                 }]),
@@ -15876,7 +15876,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -16130,7 +16130,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::Status(PokemonStatus::Paralyze),
                 }]),
@@ -16152,7 +16152,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 20,
+                    chance: 20.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -16173,7 +16173,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 30,
+                    chance: 30.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -16195,7 +16195,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100,
+                    chance: 100.0,
                     target: MoveTarget::User,
                     effect: Effect::Boost(StatBoosts {
                         attack: 0,
@@ -16344,7 +16344,7 @@ impl Default for Flags {
 
 #[derive(Debug, Clone)]
 pub struct Secondary {
-    pub chance: i8,
+    pub chance: f32,
     pub target: MoveTarget,
     pub effect: Effect,
 }

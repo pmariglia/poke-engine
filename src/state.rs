@@ -131,6 +131,7 @@ pub enum PokemonSideCondition {
     Stealthrock,
     StickyWeb,
     Tailwind,
+    ToxicCount,
     ToxicSpikes,
     WideGuard,
     Wish,
@@ -265,6 +266,7 @@ pub struct SideConditions {
     pub stealth_rock: i8,
     pub sticky_web: i8,
     pub tailwind: i8,
+    pub toxic_count: i8,
     pub toxic_spikes: i8,
     pub wide_guard: i8,
     pub wish: i8,
@@ -288,6 +290,7 @@ impl Default for SideConditions {
             stealth_rock: 0,
             sticky_web: 0,
             tailwind: 0,
+            toxic_count: 0,
             toxic_spikes: 0,
             wide_guard: 0,
             wish: 0,
@@ -330,6 +333,18 @@ pub struct Pokemon {
 }
 
 impl Pokemon {
+    pub fn get_pkmn_boost_enum_pairs(&self) -> [(PokemonBoostableStat, i8); 7] {
+        return [
+            (PokemonBoostableStat::Attack, self.attack_boost),
+            (PokemonBoostableStat::Defense, self.defense_boost),
+            (PokemonBoostableStat::SpecialAttack, self.special_attack_boost),
+            (PokemonBoostableStat::SpecialDefense, self.special_defense_boost),
+            (PokemonBoostableStat::Speed, self.speed_boost),
+            (PokemonBoostableStat::Evasion, self.evasion_boost),
+            (PokemonBoostableStat::Accuracy, self.accuracy_boost),
+        ];
+    }
+
     pub fn get_boost_from_boost_enum(&self, boost_enum: &PokemonBoostableStat) -> i8 {
         return match boost_enum {
             PokemonBoostableStat::Attack => self.attack_boost,
@@ -472,6 +487,7 @@ impl Side {
             PokemonSideCondition::Stealthrock => self.side_conditions.stealth_rock,
             PokemonSideCondition::StickyWeb => self.side_conditions.sticky_web,
             PokemonSideCondition::Tailwind => self.side_conditions.tailwind,
+            PokemonSideCondition::ToxicCount => self.side_conditions.toxic_count,
             PokemonSideCondition::ToxicSpikes => self.side_conditions.toxic_spikes,
             PokemonSideCondition::WideGuard => self.side_conditions.wide_guard,
             PokemonSideCondition::Wish => self.side_conditions.wish,
@@ -670,6 +686,7 @@ impl State {
             PokemonSideCondition::Stealthrock => side.side_conditions.stealth_rock += amount,
             PokemonSideCondition::StickyWeb => side.side_conditions.sticky_web += amount,
             PokemonSideCondition::Tailwind => side.side_conditions.tailwind += amount,
+            PokemonSideCondition::ToxicCount => side.side_conditions.toxic_count += amount,
             PokemonSideCondition::ToxicSpikes => side.side_conditions.toxic_spikes += amount,
             PokemonSideCondition::WideGuard => side.side_conditions.wide_guard += amount,
             PokemonSideCondition::Wish => side.side_conditions.wish += amount,
@@ -722,8 +739,11 @@ impl State {
                 instruction.next_index,
                 instruction.previous_index,
             ),
-            Instruction::VolatileStatus(instruction) => {
+            Instruction::ApplyVolatileStatus(instruction) => {
                 self.apply_volatile_status(&instruction.side_ref, instruction.volatile_status)
+            }
+            Instruction::RemoveVolatileStatus(instruction) => {
+                self.remove_volatile_status(&instruction.side_ref, instruction.volatile_status)
             }
             Instruction::ChangeStatus(instruction) => self.change_status(
                 &instruction.side_ref,
@@ -780,8 +800,11 @@ impl State {
                 instruction.next_index,
                 instruction.previous_index,
             ),
-            Instruction::VolatileStatus(instruction) => {
+            Instruction::ApplyVolatileStatus(instruction) => {
                 self.remove_volatile_status(&instruction.side_ref, instruction.volatile_status)
+            }
+            Instruction::RemoveVolatileStatus(instruction) => {
+                self.apply_volatile_status(&instruction.side_ref, instruction.volatile_status)
             }
             Instruction::ChangeStatus(instruction) => self.change_status(
                 &instruction.side_ref,

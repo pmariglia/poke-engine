@@ -31,7 +31,8 @@ impl StateInstructions {
 #[derive(Debug, PartialEq, Clone)]
 pub enum Instruction {
     Switch(SwitchInstruction),
-    VolatileStatus(VolatileStatusInstruction),
+    ApplyVolatileStatus(ApplyVolatileStatusInstruction),
+    RemoveVolatileStatus(RemoveVolatileStatusInstruction),
     ChangeStatus(ChangeStatusInstruction),
     Heal(HealInstruction),
     Damage(DamageInstruction),
@@ -94,7 +95,13 @@ pub struct ChangeStatusInstruction {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct VolatileStatusInstruction {
+pub struct ApplyVolatileStatusInstruction {
+    pub side_ref: SideReference,
+    pub volatile_status: PokemonVolatileStatus,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct RemoveVolatileStatusInstruction {
     pub side_ref: SideReference,
     pub volatile_status: PokemonVolatileStatus,
 }

@@ -1,9 +1,6 @@
 use crate::choices::MoveTarget;
-use crate::instruction::{
-    BoostInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, EnableMoveInstruction,
-    HealInstruction, VolatileStatusInstruction,
-};
-use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Terrain};
+use crate::instruction::{BoostInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, EnableMoveInstruction, HealInstruction, ApplyVolatileStatusInstruction, RemoveVolatileStatusInstruction};
+use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Terrain, Side};
 use crate::{
     abilities::ABILITIES,
     choices::{Choice, MoveCategory},
@@ -42,6 +39,10 @@ fn generate_instructions_from_switch(
             side_ref: switching_side_ref,
             move_index: pkmn_move_index,
         }));
+    }
+
+    for i in get_remove_volatile_status_and_boosts_instructions(switching_side, &switching_side_ref) {
+        additional_instructions.push(i);
     }
 
     if let Some(ability) = ABILITIES.get(&switching_side.get_active_immutable().ability) {
@@ -188,13 +189,45 @@ fn generate_instructions_from_switch(
         incoming_instructions.instruction_list.push(i)
     }
 
-    /* TODO: add things like:
-        - remove volatilestatus and boosts (needs its own fn to get those instructions)
-    */
-
     state.reverse_instructions(&incoming_instructions.instruction_list);
 
     return incoming_instructions;
+}
+
+fn get_remove_volatile_status_and_boosts_instructions(side: &Side, side_ref: &SideReference) -> Vec<Instruction> {
+    let mut instructions = vec![];
+    let pkmn = side.get_active_immutable();
+    for pkmn_volatile_status in &pkmn.volatile_statuses {
+        instructions.push(
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: *side_ref,
+                volatile_status: *pkmn_volatile_status,
+            })
+        );
+    }
+
+    if side.side_conditions.toxic_count > 0 {
+        instructions.push(
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: *side_ref,
+                side_condition: PokemonSideCondition::ToxicCount,
+                amount: -1 * side.side_conditions.toxic_count,
+            })
+        )
+    }
+
+    for (boostable_stat, boost_val) in pkmn.get_pkmn_boost_enum_pairs() {
+        if boost_val > 0 {
+            instructions.push(
+                Instruction::Boost(BoostInstruction {
+                    side_ref: *side_ref,
+                    stat: boostable_stat,
+                    amount: -1 * boost_val,
+                })
+            )
+        }
+    }
+    return instructions;
 }
 
 fn generate_instructions_from_side_conditions(
@@ -289,7 +322,7 @@ fn get_instructions_from_volatile_statuses(
             .get_side_immutable(&target_side)
             .get_active_immutable();
         if affected_pkmn.volitile_status_can_be_applied(&volatile_status.volatile_status) {
-            additional_instructions.push(Instruction::VolatileStatus(VolatileStatusInstruction {
+            additional_instructions.push(Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: target_side,
                 volatile_status: volatile_status.volatile_status,
             }));
@@ -514,6 +547,35 @@ fn generate_instructions_from_move_special_effect(
     };
 }
 
+fn get_instructions_from_secondary(
+    state: &mut State,
+    choice: &Choice,
+    side_reference: &SideReference,
+    incoming_instructions: StateInstructions,
+) -> Vec<StateInstructions> {
+    if let Some(secondaries) = &choice.secondaries {
+        for secondary in secondaries {
+            state.apply_instructions(&incoming_instructions.instruction_list);
+
+            let secondary_percent_hit = secondary.chance / 100.0;
+            if secondary_percent_hit > 0.0 {
+                let mut secondary_hit_instructions = incoming_instructions.clone();
+                secondary_hit_instructions.update_percentage(secondary_percent_hit);
+            }
+
+            if secondary_percent_hit < 1.0 {
+                let mut secondary_miss_instructions = incoming_instructions.clone();
+                secondary_miss_instructions.update_percentage(1.0 - secondary_percent_hit);
+            }
+
+
+            state.reverse_instructions(&incoming_instructions.instruction_list);
+        }
+    }
+
+    return todo!();
+}
+
 fn get_instructions_from_heal(
     state: &mut State,
     choice: &Choice,
@@ -566,7 +628,7 @@ fn check_move_hit_or_miss(
     frozen_instructions: &mut Vec<StateInstructions>,
 ) -> StateInstructions {
     /*
-    Checks whether or not a move can miss
+    Checks whether a move can miss
 
     If the move can miss - adds it to `frozen_instructions`, signifying that the rest of the
     half-turn will not run.
@@ -1162,9 +1224,6 @@ pub fn generate_instructions_from_move(
         next_instructions = temp_instructions;
     }
 
-    // TODO: First, finish from_switch, then do this
-    //  - Consider exiting early after from_drag because after a drag move hitting,
-    //    the half-turn ends. And if it misses, the half-turn ends as well
     if choice.flags.drag {
         for ins in next_instructions {
             get_instructions_from_drag(
@@ -1260,7 +1319,7 @@ mod tests {
     use crate::choices::MOVES;
     use crate::instruction::{
         BoostInstruction, ChangeItemInstruction, ChangeStatusInstruction, ChangeTerrain,
-        DamageInstruction, EnableMoveInstruction, SwitchInstruction, VolatileStatusInstruction,
+        DamageInstruction, EnableMoveInstruction, SwitchInstruction, ApplyVolatileStatusInstruction,
     };
     use crate::state::{Move, PokemonBoostableStat, SideReference, State, Terrain};
 
@@ -1487,7 +1546,7 @@ mod tests {
 
         let expected_instructions = vec![StateInstructions {
             percentage: 100.0,
-            instruction_list: vec![Instruction::VolatileStatus(VolatileStatusInstruction {
+            instruction_list: vec![Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::AquaRing,
             })],
@@ -1511,7 +1570,7 @@ mod tests {
 
         let expected_instructions = vec![StateInstructions {
             percentage: 100.0,
-            instruction_list: vec![Instruction::VolatileStatus(VolatileStatusInstruction {
+            instruction_list: vec![Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
                 volatile_status: PokemonVolatileStatus::Attract,
             })],
@@ -1563,7 +1622,7 @@ mod tests {
         let expected_instructions = vec![StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
-                Instruction::VolatileStatus(VolatileStatusInstruction {
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
                     volatile_status: PokemonVolatileStatus::Substitute,
                 }),
@@ -2814,7 +2873,7 @@ mod tests {
         let mut incoming_instructions = StateInstructions::default();
         incoming_instructions
             .instruction_list
-            .push(Instruction::VolatileStatus(VolatileStatusInstruction {
+            .push(Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::Taunt,
             }));
@@ -3285,6 +3344,119 @@ mod tests {
                 previous_index: 0,
                 next_index: 1,
             })],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        assert_eq!(expected_instructions, incoming_instructions);
+    }
+
+    #[test]
+    fn test_basic_switch_with_volatile_statuses() {
+        let mut state: State = State::default();
+        state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::LeechSeed);
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::LeechSeed,
+                }),
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                })
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        assert_eq!(expected_instructions, incoming_instructions);
+    }
+
+    #[test]
+    fn test_basic_switch_with_toxic_count() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.toxic_count = 2;
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::ToxicCount,
+                    amount: -2,
+                }),
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                })
+            ],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        assert_eq!(expected_instructions, incoming_instructions);
+    }
+
+    #[test]
+    fn test_basic_switch_with_boost() {
+        let mut state: State = State::default();
+        state.side_one.get_active().attack_boost = 2;
+        state.side_one.get_active().speed_boost = 5;
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Attack,
+                    amount: -2,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: -5,
+                }),
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                })
+            ],
             ..Default::default()
         };
 
