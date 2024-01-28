@@ -12,9 +12,9 @@ use crate::state::{PokemonBoostableStat, PokemonSideCondition};
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 
-type ModifyChoiceFn = fn(&State, &mut Choice, &Choice, &SideReference);
-type AfterDamageHitFn = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
-type HazardClearFn = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
+pub type ModifyChoiceFn = fn(&State, &mut Choice, &Choice, &SideReference);
+pub type AfterDamageHitFn = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
+pub type HazardClearFn = fn(&State, &SideReference) -> Vec<Instruction>;
 
 lazy_static! {
     pub static ref MOVES: HashMap<String, Choice> = {
@@ -2575,7 +2575,7 @@ lazy_static! {
                     mirror: true,
                     ..Default::default()
                 },
-                hazard_clear: Some(|state: &State, choice: &Choice, _: &SideReference| {
+                hazard_clear: Some(|state: &State, _: &SideReference| {
                     let mut instructions = vec![];
                     let courtchange_swaps = [
                         PokemonSideCondition::Stealthrock,
@@ -2988,7 +2988,7 @@ lazy_static! {
                         accuracy: 0,
                     },
                 }),
-                hazard_clear: Some(|state: &State, choice: &Choice, _: &SideReference| {
+                hazard_clear: Some(|state: &State, _: &SideReference| {
                     let mut instructions = vec![];
                     if state.terrain.terrain_type != Terrain::None {
                         instructions.push(Instruction::ChangeTerrain(ChangeTerrain {
@@ -11109,7 +11109,7 @@ lazy_static! {
                         accuracy: 0,
                     }),
                 }]),
-                hazard_clear: Some(|state: &State, choice: &Choice, side_ref: &SideReference| {
+                hazard_clear: Some(|state: &State, side_ref: &SideReference| {
                     let attacking_side = state.get_side_immutable(side_ref);
                     let mut instructions = vec![];
                     if attacking_side.side_conditions.stealth_rock > 0 {
