@@ -1,4 +1,4 @@
-use crate::choices::{Boost, HazardClearFn, Heal, MoveTarget, SideCondition, Status, VolatileStatus};
+use crate::choices::{Boost, Effect, HazardClearFn, Heal, MoveTarget, Secondary, SideCondition, Status, VolatileStatus};
 use crate::instruction::{BoostInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, EnableMoveInstruction, HealInstruction, ApplyVolatileStatusInstruction, RemoveVolatileStatusInstruction};
 use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Terrain, Side};
 use crate::{
@@ -529,33 +529,69 @@ fn generate_instructions_from_move_special_effect(
     };
 }
 
-fn get_instructions_from_secondary(
+fn get_instructions_from_secondaries(
     state: &mut State,
-    choice: &Choice,
+    secondaries: &Vec<Secondary>,
     side_reference: &SideReference,
     incoming_instructions: StateInstructions,
 ) -> Vec<StateInstructions> {
-    if let Some(secondaries) = &choice.secondaries {
-        for secondary in secondaries {
-            state.apply_instructions(&incoming_instructions.instruction_list);
+    let mut return_instructions = vec![];
+    for secondary in secondaries {
+        state.apply_instructions(&incoming_instructions.instruction_list);
 
-            let secondary_percent_hit = secondary.chance / 100.0;
-            if secondary_percent_hit > 0.0 {
-                let mut secondary_hit_instructions = incoming_instructions.clone();
-                secondary_hit_instructions.update_percentage(secondary_percent_hit);
+        let secondary_percent_hit = secondary.chance / 100.0;
+        if secondary_percent_hit > 0.0 {
+            let mut secondary_hit_instructions = incoming_instructions.clone();
+            secondary_hit_instructions.update_percentage(secondary_percent_hit);
+            match &secondary.effect {
+                Effect::VolatileStatus(volatile_status) => {
+                    secondary_hit_instructions = get_instructions_from_volatile_statuses(
+                        state,
+                        &VolatileStatus {
+                            target: secondary.target.clone(),
+                            volatile_status: volatile_status.clone(),
+                        },
+                        side_reference,
+                        secondary_hit_instructions
+                    );
+                }
+                Effect::Boost(boost) => {
+                    secondary_hit_instructions = get_instructions_from_boosts(
+                        state,
+                        &Boost {
+                            target: secondary.target.clone(),
+                            boosts: boost.clone()
+                        },
+                        side_reference,
+                        secondary_hit_instructions
+                    );
+                }
+                Effect::Status(status) => {
+                    secondary_hit_instructions = get_instructions_from_status_effects(
+                        state,
+                        &Status {
+                            target: secondary.target.clone(),
+                            status: status.clone(),
+                        },
+                        side_reference,
+                        secondary_hit_instructions
+                    );
+                }
             }
-
-            if secondary_percent_hit < 1.0 {
-                let mut secondary_miss_instructions = incoming_instructions.clone();
-                secondary_miss_instructions.update_percentage(1.0 - secondary_percent_hit);
-            }
-
-
-            state.reverse_instructions(&incoming_instructions.instruction_list);
+            return_instructions.push(secondary_hit_instructions);
         }
+
+        if secondary_percent_hit < 1.0 {
+            let mut secondary_miss_instructions = incoming_instructions.clone();
+            secondary_miss_instructions.update_percentage(1.0 - secondary_percent_hit);
+            return_instructions.push(secondary_miss_instructions);
+        }
+
+
+        state.reverse_instructions(&incoming_instructions.instruction_list);
     }
 
-    return todo!();
+    return return_instructions;
 }
 
 fn get_instructions_from_heal(
@@ -1293,6 +1329,18 @@ pub fn generate_instructions_from_move(
         }
         next_instructions = continuing_instructions;
     }
+    if let Some(secondaries_vec) = &choice.secondaries {
+        let mut continuing_instructions: Vec<StateInstructions> = vec![];
+        for instruction in next_instructions {
+            continuing_instructions.extend(get_instructions_from_secondaries(
+                state,
+                secondaries_vec,
+                &attacking_side,
+                instruction,
+            ));
+        }
+        next_instructions = continuing_instructions;
+    }
 
     for instruction in next_instructions {
         final_instructions.push(instruction);
@@ -1555,6 +1603,127 @@ mod tests {
                         side_ref: SideReference::SideTwo,
                         side_condition: PokemonSideCondition::Stealthrock,
                         amount: 1,
+                    }),
+                ],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_100_percent_secondary_volatilestatus() {
+        let mut state: State = State::default();
+        let choice = MOVES.get("chatter").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 51,
+                }),
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    volatile_status: PokemonVolatileStatus::Confusion,
+                })
+            ],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_possible_secondary_volatilestatus() {
+        let mut state: State = State::default();
+        let choice = MOVES.get("confusion").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 10.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 40,
+                    }),
+                    Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                        side_ref: SideReference::SideTwo,
+                        volatile_status: PokemonVolatileStatus::Confusion,
+                    })
+                ],
+            },
+            StateInstructions {
+                percentage: 90.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 40,
+                    }),
+                ],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_possible_secondary_volatilestatus_with_possible_accuracy() {
+        let mut state: State = State::default();
+        let choice = MOVES.get("axekick").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 10.000002,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideOne,
+                        damage_amount: 50,  // This move has recoil lol
+                    }),
+                ],
+            },
+            StateInstructions {
+                percentage: 27.0000019,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 100,
+                    }),
+                    Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                        side_ref: SideReference::SideTwo,
+                        volatile_status: PokemonVolatileStatus::Confusion,
+                    })
+                ],
+            },
+            StateInstructions {
+                percentage: 63.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 100,
                     }),
                 ],
             },
@@ -2632,6 +2801,11 @@ mod tests {
                     side_condition: PokemonSideCondition::Stealthrock,
                     amount: -1,
                 }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    amount: 1,
+                    stat: PokemonBoostableStat::Speed,
+                }),
             ],
         }];
 
@@ -2683,6 +2857,11 @@ mod tests {
                     side_condition: PokemonSideCondition::StickyWeb,
                     amount: -1,
                 }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    amount: 1,
+                    stat: PokemonBoostableStat::Speed,
+                }),
             ],
         }];
 
@@ -2709,10 +2888,17 @@ mod tests {
 
         let expected_instructions = vec![StateInstructions {
             percentage: 100.0,
-            instruction_list: vec![Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 61,
-            })],
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 61,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    amount: 1,
+                    stat: PokemonBoostableStat::Speed,
+                }),
+            ],
         }];
 
         assert_eq!(instructions, expected_instructions)

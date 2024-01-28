@@ -16352,9 +16352,7 @@ pub struct Secondary {
 #[derive(Debug, Clone)]
 pub enum Effect {
     VolatileStatus(PokemonVolatileStatus),
-    SideCondition(PokemonSideCondition),
     Boost(StatBoosts),
-    Heal(Heal),
     Status(PokemonStatus),
 }
 
