@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
-use crate::choices::{Choice, MoveTarget};
+use crate::choices::{Choice, Effect, MoveTarget, Secondary};
 use crate::generate_instructions::get_boost_instruction;
 use crate::instruction::{
     BoostInstruction, ChangeStatusInstruction, ChangeType, HealInstruction, Instruction,
@@ -20,6 +20,15 @@ type AbilityAfterDamageHit = fn(&State, &Choice, &SideReference, i16) -> Vec<Ins
 type AbilityAfterBeingHitBranching = fn(&State, &Choice, &SideReference) -> Vec<StateInstructions>;
 type AbilityOnSwitchOut = fn(&State, &SideReference) -> Vec<Instruction>;
 type AbilityOnSwitchIn = fn(&State, &SideReference) -> Vec<Instruction>;
+
+pub struct Ability {
+    pub modify_attack_being_used: Option<ModifyAttackBeingUsed>,
+    pub modify_attack_against: Option<ModifyAttackAgainst>,
+    pub before_move: Option<AbilityBeforeMove>,
+    pub after_damage_hit: Option<AbilityAfterDamageHit>,
+    pub on_switch_out: Option<AbilityOnSwitchOut>,
+    pub on_switch_in: Option<AbilityOnSwitchIn>,
+}
 
 lazy_static! {
     pub static ref ABILITIES: HashMap<String, Ability> = {
@@ -739,26 +748,20 @@ lazy_static! {
         abilities.insert(
             "flamebody".to_string(),
             Ability {
-                after_being_hit_branching: Some(|state: &State, choice: &Choice, attacking_side_reference: &SideReference| {
-                    // TODO: Come back to this after the general status move logic is implemented
-                    // TODO: it may be possible to re-use some of that logic
-                    // if state.move_makes_contact(choice, attacking_side_reference)
-                    // &&
-                    // {
-                    //     return vec![
-                    //         StateInstructions {
-                    //             percentage: 30,
-                    //             instruction_list: vec![
-                    //
-                    //             ]
-                    //         },
-                    //         StateInstructions{
-                    //             percentage: 70,
-                    //
-                    //         },
-                    //     ]
-                    // }
-                    return vec![];
+                modify_attack_against: Some(|state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if state.move_makes_contact(&attacker_choice, attacking_side) {
+                        let burn_secondary = Secondary {
+                            chance: 30.0,
+                            target: MoveTarget::User,
+                            effect: Effect::Status(PokemonStatus::Burn),
+                        };
+
+                        if attacker_choice.secondaries.is_none() {
+                            attacker_choice.secondaries = Some(vec![burn_secondary]);
+                        } else {
+                            attacker_choice.secondaries.as_mut().unwrap().push(burn_secondary);
+                        }
+                    }
                 }),
                 ..Default::default()
             },
@@ -2028,16 +2031,6 @@ lazy_static! {
     };
 }
 
-pub struct Ability {
-    pub modify_attack_being_used: Option<ModifyAttackBeingUsed>,
-    pub modify_attack_against: Option<ModifyAttackAgainst>,
-    pub before_move: Option<AbilityBeforeMove>,
-    pub after_damage_hit: Option<AbilityAfterDamageHit>,
-    pub after_being_hit_branching: Option<AbilityAfterBeingHitBranching>,
-    pub on_switch_out: Option<AbilityOnSwitchOut>,
-    pub on_switch_in: Option<AbilityOnSwitchIn>,
-}
-
 impl Default for Ability {
     fn default() -> Ability {
         return Ability {
@@ -2045,7 +2038,6 @@ impl Default for Ability {
             modify_attack_against: None,
             before_move: None,
             after_damage_hit: None,
-            after_being_hit_branching: None,
             on_switch_out: None,
             on_switch_in: None,
         };

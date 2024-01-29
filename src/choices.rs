@@ -4544,6 +4544,20 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                secondaries: Some(
+                    vec![
+                        Secondary {
+                            chance: 10.0,
+                            target: MoveTarget::Opponent,
+                            effect: Effect::Status(PokemonStatus::Burn),
+                        },
+                        Secondary {
+                            chance: 10.0,
+                            target: MoveTarget::Opponent,
+                            effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                        },
+                    ]
+                ),
                 ..Default::default()
             },
         );
@@ -16258,7 +16272,7 @@ pub struct Status {
     pub status: PokemonStatus,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct StatBoosts {
     pub attack: i8,
     pub defense: i8,
@@ -16349,7 +16363,7 @@ pub struct Secondary {
     pub effect: Effect,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Effect {
     VolatileStatus(PokemonVolatileStatus),
     Boost(StatBoosts),

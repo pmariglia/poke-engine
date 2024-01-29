@@ -529,6 +529,47 @@ fn generate_instructions_from_move_special_effect(
     };
 }
 
+#[derive(PartialEq, Debug)]
+struct CustomStruct {
+    effects: Vec<Effect>,
+    chance: f32
+}
+
+fn split_secondaries(mut secondaries: Vec<Secondary>, mut return_value: Vec<CustomStruct>) -> Vec<CustomStruct>{
+    if secondaries.is_empty() {
+        return return_value
+    }
+    let first_item = secondaries.remove(0);
+    for item in &secondaries {
+        return_value.push(
+            CustomStruct {
+                effects: vec![first_item.effect.clone(), item.effect.clone()],
+                chance: (first_item.chance / 100.0) * (item.chance / 100.0)
+            }
+        );
+        return_value.push(
+            CustomStruct {
+                effects: vec![first_item.effect.clone()],
+                chance: (first_item.chance / 100.0) * (1.0 - (item.chance / 100.0))
+            }
+        );
+        return_value.push(
+            CustomStruct {
+                effects: vec![item.effect.clone()],
+                chance: (1.0 - (first_item.chance / 100.0)) * (item.chance / 100.0)
+            }
+        );
+        return_value.push(
+            CustomStruct {
+                effects: vec![],
+                chance: (1.0 - (first_item.chance / 100.0)) * (1.0 - (item.chance / 100.0))
+            }
+        );
+    }
+
+    return split_secondaries(secondaries, return_value);
+}
+
 fn get_instructions_from_secondaries(
     state: &mut State,
     secondaries: &Vec<Secondary>,
@@ -537,7 +578,6 @@ fn get_instructions_from_secondaries(
 ) -> Vec<StateInstructions> {
     let mut return_instructions = vec![];
     for secondary in secondaries {
-        state.apply_instructions(&incoming_instructions.instruction_list);
 
         let secondary_percent_hit = secondary.chance / 100.0;
         if secondary_percent_hit > 0.0 {
@@ -586,11 +626,7 @@ fn get_instructions_from_secondaries(
             secondary_miss_instructions.update_percentage(1.0 - secondary_percent_hit);
             return_instructions.push(secondary_miss_instructions);
         }
-
-
-        state.reverse_instructions(&incoming_instructions.instruction_list);
     }
-
     return return_instructions;
 }
 
@@ -2259,6 +2295,227 @@ mod tests {
             percentage: 100.0,
             instruction_list: vec![],
         }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_flamebody_conditional_burn_on_contact() {
+        let mut state: State = State::default();
+        state.side_two.get_active().ability = String::from("flamebody");
+        let choice = MOVES.get("tackle").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 30.0000019,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 48,
+                    }),
+                    Instruction::ChangeStatus(ChangeStatusInstruction {
+                        side_ref: SideReference::SideOne,
+                        pokemon_index: 0,
+                        old_status: PokemonStatus::None,
+                        new_status: PokemonStatus::Burn,
+                    }),
+                ],
+            },
+            StateInstructions {
+                percentage: 70.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 48,
+                    })
+                ],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_protectivepads_stops_flamebody() {
+        let mut state: State = State::default();
+        state.side_two.get_active().ability = String::from("flamebody");
+        state.side_one.get_active().item = String::from("protectivepads");
+        let choice = MOVES.get("tackle").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 100.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 48,
+                    }),
+                ],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_flamebody_versus_noncontact_move() {
+        let mut state: State = State::default();
+        state.side_two.get_active().ability = String::from("flamebody");
+        let choice = MOVES.get("watergun").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 100.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 32,
+                    }),
+                ],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_flamebody_versus_fire_type() {
+        let mut state: State = State::default();
+        state.side_one.get_active().types.0 = PokemonType::Fire;
+        state.side_two.get_active().ability = String::from("flamebody");
+        let choice = MOVES.get("watergun").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 100.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 32,
+                    }),
+                ],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_split_secondaries() {
+        let first_secondary = Secondary {
+            chance: 10.0,
+            target: MoveTarget::User,
+            effect: Effect::VolatileStatus(PokemonVolatileStatus::Attract),
+        };
+        let second_secondary = Secondary {
+            chance: 10.0,
+            target: MoveTarget::User,
+            effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+        };
+
+        let result = split_secondaries(vec![first_secondary, second_secondary], vec![]);
+        let expected_result = vec![
+            CustomStruct {
+                effects: vec![
+                    Effect::VolatileStatus(PokemonVolatileStatus::Attract),
+                    Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                ],
+                chance: 0.0100000007
+            },
+            CustomStruct {
+                effects: vec![
+                    Effect::VolatileStatus(PokemonVolatileStatus::Attract),
+                ],
+                chance: 0.0899999961
+            },
+            CustomStruct {
+                effects: vec![
+                    Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                ],
+                chance: 0.0899999961
+            },
+            CustomStruct {
+                effects: vec![],
+                chance: 0.809999942
+            }
+        ];
+        assert_eq!(expected_result, result)
+    }
+
+    #[test]
+    fn test_move_with_multiple_secondaries() {
+        let mut state: State = State::default();
+        let choice = MOVES.get("firefang").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 100.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 32,
+                    }),
+                ],
+            },
+            StateInstructions {
+                percentage: 100.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 32,
+                    }),
+                ],
+            },
+            StateInstructions {
+                percentage: 100.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 32,
+                    }),
+                ],
+            },
+        ];
 
         assert_eq!(instructions, expected_instructions)
     }
