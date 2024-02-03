@@ -1065,7 +1065,7 @@ fn generate_instructions_from_existing_status_conditions(
 // given that move being used
 pub fn generate_instructions_from_move(
     state: &mut State,
-    mut choice: Choice,
+    choice: &mut Choice,
     defender_choice: &Choice,
     attacking_side: SideReference,
     mut incoming_instructions: StateInstructions,
@@ -1177,7 +1177,7 @@ pub fn generate_instructions_from_move(
     }
 
     // Before-Move callbacks to update the choice
-    update_choice(state, &mut choice, defender_choice, &attacking_side);
+    update_choice(state, choice, defender_choice, &attacking_side);
 
     // Before-Move callbacks to generate new instructions
     let before_move_instructions = before_move(state, &choice, &attacking_side);
@@ -1491,15 +1491,51 @@ pub fn generate_instructions_from_move_pair(
           This was done elsewhere in the other bot, but it should be here instead
     */
 
-    let side_one_choice = MOVES.get(side_one_move).unwrap().to_owned();
-    let side_two_choice = MOVES.get(side_two_move).unwrap().to_owned();
+    let mut side_one_choice = MOVES.get(side_one_move).unwrap().to_owned();
+    let mut side_two_choice = MOVES.get(side_two_move).unwrap().to_owned();
 
-    if side_one_moves_first(&state, &side_one_choice, &side_two_choice) {}
+    let mut state_instruction_vec: Vec<StateInstructions> = vec![];
+    let incoming_instructions: StateInstructions = StateInstructions::default();
+    if side_one_moves_first(&state, &side_one_choice, &side_two_choice) {
+        let first_move_instructions = generate_instructions_from_move(
+            state,
+            &mut side_one_choice,
+            &side_two_choice,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+        for state_instruction in first_move_instructions {
+            state_instruction_vec.extend(generate_instructions_from_move(
+                state,
+                &mut side_two_choice,
+                &side_one_choice,
+                SideReference::SideTwo,
+                state_instruction,
+            ));
+        }
+    } else {
+        let first_move_instructions = generate_instructions_from_move(
+            state,
+            &mut side_two_choice,
+            &side_one_choice,
+            SideReference::SideTwo,
+            incoming_instructions,
+        );
+        for state_instruction in first_move_instructions {
+            state_instruction_vec.extend(generate_instructions_from_move(
+                state,
+                &mut side_one_choice,
+                &side_two_choice,
+                SideReference::SideOne,
+                state_instruction,
+            ));
+        }
+    }
 
-    return vec![];
+    // TODO: End-Of-Turn Instructions
+
+    return state_instruction_vec;
 }
-
-//fn update_move
 
 #[cfg(test)]
 mod tests {
@@ -1520,7 +1556,7 @@ mod tests {
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1537,7 +1573,7 @@ mod tests {
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1554,7 +1590,7 @@ mod tests {
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1565,11 +1601,11 @@ mod tests {
     #[test]
     fn test_spikes_sets_first_layer() {
         let mut state: State = State::default();
-        let choice = MOVES.get("spikes").unwrap().to_owned();
+        let mut choice = MOVES.get("spikes").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1593,11 +1629,11 @@ mod tests {
     fn test_spikes_layers_cannot_exceed_3() {
         let mut state: State = State::default();
         state.side_two.side_conditions.spikes = 3;
-        let choice = MOVES.get("spikes").unwrap().to_owned();
+        let mut choice = MOVES.get("spikes").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1615,11 +1651,11 @@ mod tests {
     fn test_auroa_veil_works_in_hail() {
         let mut state: State = State::default();
         state.weather.weather_type = Weather::Hail;
-        let choice = MOVES.get("auroraveil").unwrap().to_owned();
+        let mut choice = MOVES.get("auroraveil").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1643,11 +1679,11 @@ mod tests {
     fn test_auroa_veil_fails_outside_of_hail() {
         let mut state: State = State::default();
         state.weather.weather_type = Weather::None;
-        let choice = MOVES.get("auroraveil").unwrap().to_owned();
+        let mut choice = MOVES.get("auroraveil").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1665,11 +1701,11 @@ mod tests {
     fn test_stealthrock_cannot_exceed_1_layer() {
         let mut state: State = State::default();
         state.side_two.side_conditions.stealth_rock = 1;
-        let choice = MOVES.get("stealthrock").unwrap().to_owned();
+        let mut choice = MOVES.get("stealthrock").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1686,11 +1722,11 @@ mod tests {
     #[test]
     fn test_stoneaxe_damage_and_stealthrock_setting() {
         let mut state: State = State::default();
-        let choice = MOVES.get("stoneaxe").unwrap().to_owned();
+        let mut choice = MOVES.get("stoneaxe").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1723,11 +1759,11 @@ mod tests {
     #[test]
     fn test_100_percent_secondary_volatilestatus() {
         let mut state: State = State::default();
-        let choice = MOVES.get("chatter").unwrap().to_owned();
+        let mut choice = MOVES.get("chatter").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1753,11 +1789,11 @@ mod tests {
     #[test]
     fn test_possible_secondary_volatilestatus() {
         let mut state: State = State::default();
-        let choice = MOVES.get("confusion").unwrap().to_owned();
+        let mut choice = MOVES.get("confusion").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1792,11 +1828,11 @@ mod tests {
     #[test]
     fn test_possible_secondary_volatilestatus_with_possible_accuracy() {
         let mut state: State = State::default();
-        let choice = MOVES.get("axekick").unwrap().to_owned();
+        let mut choice = MOVES.get("axekick").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1838,11 +1874,11 @@ mod tests {
     #[test]
     fn test_basic_volatile_status_applied_to_self() {
         let mut state: State = State::default();
-        let choice = MOVES.get("aquaring").unwrap().to_owned();
+        let mut choice = MOVES.get("aquaring").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1864,11 +1900,11 @@ mod tests {
     #[test]
     fn test_basic_volatile_status_applied_to_opponent() {
         let mut state: State = State::default();
-        let choice = MOVES.get("attract").unwrap().to_owned();
+        let mut choice = MOVES.get("attract").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1895,11 +1931,11 @@ mod tests {
             .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::Attract);
-        let choice = MOVES.get("attract").unwrap().to_owned();
+        let mut choice = MOVES.get("attract").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1917,11 +1953,11 @@ mod tests {
     fn test_substitute_doing_damage_to_user() {
         let mut state: State = State::default();
         state.side_one.get_active().hp = 26;
-        let choice = MOVES.get("substitute").unwrap().to_owned();
+        let mut choice = MOVES.get("substitute").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1948,11 +1984,11 @@ mod tests {
     fn test_substitute_failing_if_user_has_less_than_25_percent_hp() {
         let mut state: State = State::default();
         state.side_one.get_active().hp = 25;
-        let choice = MOVES.get("substitute").unwrap().to_owned();
+        let mut choice = MOVES.get("substitute").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -1969,11 +2005,11 @@ mod tests {
     #[test]
     fn test_basic_drag_move() {
         let mut state: State = State::default();
-        let choice = MOVES.get("whirlwind").unwrap().to_owned();
+        let mut choice = MOVES.get("whirlwind").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2030,11 +2066,11 @@ mod tests {
         let mut state: State = State::default();
         state.side_two.pokemon[1].hp = 0;
         state.side_two.pokemon[3].hp = 0;
-        let choice = MOVES.get("whirlwind").unwrap().to_owned();
+        let mut choice = MOVES.get("whirlwind").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2075,11 +2111,11 @@ mod tests {
         let mut state: State = State::default();
         state.side_two.pokemon[1].hp = 0;
         state.side_two.pokemon[3].hp = 0;
-        let choice = MOVES.get("dragontail").unwrap().to_owned();
+        let mut choice = MOVES.get("dragontail").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2143,11 +2179,11 @@ mod tests {
         state.side_two.pokemon[1].hp = 0;
         state.side_two.pokemon[3].hp = 0;
         state.side_two.get_active().hp = 5;
-        let choice = MOVES.get("dragontail").unwrap().to_owned();
+        let mut choice = MOVES.get("dragontail").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2178,11 +2214,11 @@ mod tests {
         state.side_two.pokemon[3].hp = 0;
         state.side_two.pokemon[4].hp = 0;
         state.side_two.pokemon[5].hp = 0;
-        let choice = MOVES.get("whirlwind").unwrap().to_owned();
+        let mut choice = MOVES.get("whirlwind").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2201,7 +2237,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_two.pokemon[1].hp = 0;
         state.side_two.pokemon[3].hp = 0;
-        let choice = MOVES.get("whirlwind").unwrap().to_owned();
+        let mut choice = MOVES.get("whirlwind").unwrap().to_owned();
 
         let previous_instruction = StateInstructions {
             percentage: 50.0,
@@ -2213,7 +2249,7 @@ mod tests {
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             previous_instruction,
@@ -2270,11 +2306,11 @@ mod tests {
     #[test]
     fn test_basic_status_move() {
         let mut state: State = State::default();
-        let choice = MOVES.get("glare").unwrap().to_owned();
+        let mut choice = MOVES.get("glare").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2296,11 +2332,11 @@ mod tests {
     #[test]
     fn test_status_move_that_can_miss() {
         let mut state: State = State::default();
-        let choice = MOVES.get("thunderwave").unwrap().to_owned();
+        let mut choice = MOVES.get("thunderwave").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2329,11 +2365,11 @@ mod tests {
     fn test_status_move_that_can_miss_but_is_blocked_by_ability() {
         let mut state: State = State::default();
         state.side_two.get_active().ability = String::from("limber");
-        let choice = MOVES.get("thunderwave").unwrap().to_owned();
+        let mut choice = MOVES.get("thunderwave").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2351,11 +2387,11 @@ mod tests {
     fn test_flamebody_conditional_burn_on_contact() {
         let mut state: State = State::default();
         state.side_two.get_active().ability = String::from("flamebody");
-        let choice = MOVES.get("tackle").unwrap().to_owned();
+        let mut choice = MOVES.get("tackle").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2394,11 +2430,11 @@ mod tests {
         let mut state: State = State::default();
         state.side_two.get_active().ability = String::from("flamebody");
         state.side_one.get_active().item = String::from("protectivepads");
-        let choice = MOVES.get("tackle").unwrap().to_owned();
+        let mut choice = MOVES.get("tackle").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2419,11 +2455,11 @@ mod tests {
     fn test_flamebody_versus_noncontact_move() {
         let mut state: State = State::default();
         state.side_two.get_active().ability = String::from("flamebody");
-        let choice = MOVES.get("watergun").unwrap().to_owned();
+        let mut choice = MOVES.get("watergun").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2445,11 +2481,11 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.get_active().types.0 = PokemonType::Fire;
         state.side_two.get_active().ability = String::from("flamebody");
-        let choice = MOVES.get("watergun").unwrap().to_owned();
+        let mut choice = MOVES.get("watergun").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2469,11 +2505,11 @@ mod tests {
     #[test]
     fn test_move_with_multiple_secondaries() {
         let mut state: State = State::default();
-        let choice = MOVES.get("firefang").unwrap().to_owned();
+        let mut choice = MOVES.get("firefang").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2547,11 +2583,11 @@ mod tests {
     fn test_flamebody() {
         let mut state: State = State::default();
         state.side_two.get_active().ability = String::from("flamebody");
-        let choice = MOVES.get("tackle").unwrap().to_owned();
+        let mut choice = MOVES.get("tackle").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2589,11 +2625,11 @@ mod tests {
     fn test_flamebody_creating_a_move_with_multiple_secondaries() {
         let mut state: State = State::default();
         state.side_two.get_active().ability = String::from("flamebody");
-        let choice = MOVES.get("firepunch").unwrap().to_owned();
+        let mut choice = MOVES.get("firepunch").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2671,11 +2707,11 @@ mod tests {
             .volatile_statuses
             .insert(PokemonVolatileStatus::Substitute);
         state.side_one.get_active().hp = state.side_one.get_active().maxhp - 1;
-        let choice = MOVES.get("rest").unwrap().to_owned();
+        let mut choice = MOVES.get("rest").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2704,11 +2740,11 @@ mod tests {
     fn test_basic_heal_move() {
         let mut state: State = State::default();
         state.side_one.get_active().hp = 1;
-        let choice = MOVES.get("recover").unwrap().to_owned();
+        let mut choice = MOVES.get("recover").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2728,11 +2764,11 @@ mod tests {
     #[test]
     fn test_heal_move_generates_no_instruction_at_maxhp() {
         let mut state: State = State::default();
-        let choice = MOVES.get("recover").unwrap().to_owned();
+        let mut choice = MOVES.get("recover").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2749,11 +2785,11 @@ mod tests {
     #[test]
     fn test_basic_negative_heal_move() {
         let mut state: State = State::default();
-        let choice = MOVES.get("explosion").unwrap().to_owned();
+        let mut choice = MOVES.get("explosion").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2780,11 +2816,11 @@ mod tests {
     fn test_negative_heal_move_does_not_overkill() {
         let mut state: State = State::default();
         state.side_one.get_active().hp = 1;
-        let choice = MOVES.get("explosion").unwrap().to_owned();
+        let mut choice = MOVES.get("explosion").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2811,11 +2847,11 @@ mod tests {
     fn test_heal_move_does_not_overheal() {
         let mut state: State = State::default();
         state.side_one.get_active().hp = 55;
-        let choice = MOVES.get("recover").unwrap().to_owned();
+        let mut choice = MOVES.get("recover").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2835,11 +2871,11 @@ mod tests {
     #[test]
     fn test_basic_boosting_move() {
         let mut state: State = State::default();
-        let choice = MOVES.get("swordsdance").unwrap().to_owned();
+        let mut choice = MOVES.get("swordsdance").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2861,11 +2897,11 @@ mod tests {
     fn test_does_not_overboost() {
         let mut state: State = State::default();
         state.side_one.get_active().attack_boost = 5;
-        let choice = MOVES.get("swordsdance").unwrap().to_owned();
+        let mut choice = MOVES.get("swordsdance").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2887,11 +2923,11 @@ mod tests {
     fn test_no_instruction_when_boosting_at_max() {
         let mut state: State = State::default();
         state.side_one.get_active().attack_boost = 6;
-        let choice = MOVES.get("swordsdance").unwrap().to_owned();
+        let mut choice = MOVES.get("swordsdance").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2908,11 +2944,11 @@ mod tests {
     #[test]
     fn test_boost_lowering_that_can_miss() {
         let mut state: State = State::default();
-        let choice = MOVES.get("kinesis").unwrap().to_owned();
+        let mut choice = MOVES.get("kinesis").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2939,11 +2975,11 @@ mod tests {
     #[test]
     fn test_basic_boost_lowering() {
         let mut state: State = State::default();
-        let choice = MOVES.get("charm").unwrap().to_owned();
+        let mut choice = MOVES.get("charm").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2965,11 +3001,11 @@ mod tests {
     fn test_cannot_boost_lower_than_negative_6() {
         let mut state: State = State::default();
         state.side_two.get_active().attack_boost = -5;
-        let choice = MOVES.get("charm").unwrap().to_owned();
+        let mut choice = MOVES.get("charm").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -2991,11 +3027,11 @@ mod tests {
     fn test_no_boost_when_already_at_minimum() {
         let mut state: State = State::default();
         state.side_two.get_active().attack_boost = -6;
-        let choice = MOVES.get("charm").unwrap().to_owned();
+        let mut choice = MOVES.get("charm").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3013,11 +3049,11 @@ mod tests {
     fn test_clearbody_blocks_stat_lowering() {
         let mut state: State = State::default();
         state.side_two.get_active().ability = String::from("clearbody");
-        let choice = MOVES.get("charm").unwrap().to_owned();
+        let mut choice = MOVES.get("charm").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3035,11 +3071,11 @@ mod tests {
     fn test_clearbody_does_not_block_self_stat_lowering() {
         let mut state: State = State::default();
         state.side_one.get_active().ability = String::from("clearbody");
-        let choice = MOVES.get("shellsmash").unwrap().to_owned();
+        let mut choice = MOVES.get("shellsmash").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3083,11 +3119,11 @@ mod tests {
     fn test_defog_does_not_change_terrain_if_terrain_is_none() {
         let mut state: State = State::default();
 
-        let choice = MOVES.get("defog").unwrap().to_owned();
+        let mut choice = MOVES.get("defog").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3107,11 +3143,11 @@ mod tests {
         state.terrain.terrain_type = Terrain::ElectricTerrain;
         state.terrain.turns_remaining = 1;
 
-        let choice = MOVES.get("defog").unwrap().to_owned();
+        let mut choice = MOVES.get("defog").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3138,11 +3174,11 @@ mod tests {
         state.side_one.side_conditions.reflect = 1;
         state.side_two.side_conditions.reflect = 1;
 
-        let choice = MOVES.get("defog").unwrap().to_owned();
+        let mut choice = MOVES.get("defog").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3178,11 +3214,11 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.side_conditions.stealth_rock = 1;
 
-        let choice = MOVES.get("rapidspin").unwrap().to_owned();
+        let mut choice = MOVES.get("rapidspin").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3219,11 +3255,11 @@ mod tests {
         state.side_one.side_conditions.spikes = 3;
         state.side_one.side_conditions.sticky_web = 1;
 
-        let choice = MOVES.get("rapidspin").unwrap().to_owned();
+        let mut choice = MOVES.get("rapidspin").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3275,11 +3311,11 @@ mod tests {
         state.side_two.side_conditions.spikes = 3;
         state.side_two.side_conditions.sticky_web = 1;
 
-        let choice = MOVES.get("rapidspin").unwrap().to_owned();
+        let mut choice = MOVES.get("rapidspin").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3308,11 +3344,11 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.side_conditions.stealth_rock = 1;
 
-        let choice = MOVES.get("courtchange").unwrap().to_owned();
+        let mut choice = MOVES.get("courtchange").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3345,11 +3381,11 @@ mod tests {
         state.side_two.side_conditions.spikes = 3;
         state.side_two.side_conditions.sticky_web = 1;
 
-        let choice = MOVES.get("courtchange").unwrap().to_owned();
+        let mut choice = MOVES.get("courtchange").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3408,11 +3444,11 @@ mod tests {
     fn test_stoneaxe_does_not_set_stealthrock_if_already_set() {
         let mut state: State = State::default();
         state.side_two.side_conditions.stealth_rock = 1;
-        let choice = MOVES.get("stoneaxe").unwrap().to_owned();
+        let mut choice = MOVES.get("stoneaxe").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3438,7 +3474,7 @@ mod tests {
     #[test]
     fn test_flinched_pokemon_cannot_move() {
         let mut state: State = State::default();
-        let choice = MOVES.get("tackle").unwrap().to_owned();
+        let mut choice = MOVES.get("tackle").unwrap().to_owned();
         state
             .side_one
             .get_active()
@@ -3447,7 +3483,7 @@ mod tests {
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3458,7 +3494,7 @@ mod tests {
     #[test]
     fn test_taunted_pokemon_cannot_use_status_move() {
         let mut state: State = State::default();
-        let choice = MOVES.get("tackle").unwrap().to_owned();
+        let mut choice = MOVES.get("tackle").unwrap().to_owned();
         state
             .side_one
             .get_active()
@@ -3467,7 +3503,7 @@ mod tests {
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3501,7 +3537,7 @@ mod tests {
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             incoming_instructions,
@@ -3518,7 +3554,7 @@ mod tests {
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3529,14 +3565,14 @@ mod tests {
     #[test]
     fn test_cannot_ohko_versus_study() {
         let mut state: State = State::default();
-        let choice = MOVES.get("earthquake").unwrap().to_owned();
+        let mut choice = MOVES.get("earthquake").unwrap().to_owned();
         state.side_two.get_active().ability = String::from("sturdy");
         state.side_two.get_active().hp = 50;
         state.side_two.get_active().maxhp = 50;
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3556,14 +3592,14 @@ mod tests {
     #[test]
     fn test_sturdy_does_not_affect_non_ohko_move() {
         let mut state: State = State::default();
-        let choice = MOVES.get("earthquake").unwrap().to_owned();
+        let mut choice = MOVES.get("earthquake").unwrap().to_owned();
         state.side_two.get_active().ability = String::from("sturdy");
         state.side_two.get_active().hp = 45;
         state.side_two.get_active().maxhp = 50;
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3583,14 +3619,14 @@ mod tests {
     #[test]
     fn test_beastboost_boosts_on_kill() {
         let mut state: State = State::default();
-        let choice = MOVES.get("tackle").unwrap().to_owned();
+        let mut choice = MOVES.get("tackle").unwrap().to_owned();
         state.side_one.get_active().ability = String::from("beastboost");
         state.side_one.get_active().attack = 500; // highest stat
         state.side_two.get_active().hp = 1;
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3617,14 +3653,14 @@ mod tests {
     #[test]
     fn test_beastboost_does_not_boost_without_kill() {
         let mut state: State = State::default();
-        let choice = MOVES.get("tackle").unwrap().to_owned();
+        let mut choice = MOVES.get("tackle").unwrap().to_owned();
         state.side_one.get_active().ability = String::from("beastboost");
         state.side_one.get_active().attack = 150; // highest stat
         state.side_two.get_active().hp = 100;
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3644,13 +3680,13 @@ mod tests {
     #[test]
     fn test_drain_move_heals() {
         let mut state: State = State::default();
-        let choice = MOVES.get("absorb").unwrap().to_owned();
+        let mut choice = MOVES.get("absorb").unwrap().to_owned();
         state.side_one.get_active().hp = 100;
         state.side_one.get_active().maxhp = 200;
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3676,13 +3712,13 @@ mod tests {
     #[test]
     fn test_drain_move_does_not_overheal() {
         let mut state: State = State::default();
-        let choice = MOVES.get("absorb").unwrap().to_owned();
+        let mut choice = MOVES.get("absorb").unwrap().to_owned();
         state.side_one.get_active().hp = 100;
         state.side_one.get_active().maxhp = 105;
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3708,13 +3744,13 @@ mod tests {
     #[test]
     fn test_recoil_damage() {
         let mut state: State = State::default();
-        let choice = MOVES.get("bravebird").unwrap().to_owned();
+        let mut choice = MOVES.get("bravebird").unwrap().to_owned();
         state.side_one.get_active().hp = 105;
         state.side_one.get_active().maxhp = 105;
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3740,13 +3776,13 @@ mod tests {
     #[test]
     fn test_recoil_cannot_overkill() {
         let mut state: State = State::default();
-        let choice = MOVES.get("bravebird").unwrap().to_owned();
+        let mut choice = MOVES.get("bravebird").unwrap().to_owned();
         state.side_one.get_active().hp = 5;
         state.side_one.get_active().maxhp = 105;
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3779,7 +3815,7 @@ mod tests {
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3809,11 +3845,11 @@ mod tests {
     #[test]
     fn test_crash_move_missing() {
         let mut state: State = State::default();
-        let choice = MOVES.get("jumpkick").unwrap().to_owned();
+        let mut choice = MOVES.get("jumpkick").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3843,11 +3879,11 @@ mod tests {
     fn test_crash_move_missing_cannot_overkill() {
         let mut state: State = State::default();
         state.get_side(&SideReference::SideOne).get_active().hp = 5;
-        let choice = MOVES.get("jumpkick").unwrap().to_owned();
+        let mut choice = MOVES.get("jumpkick").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3876,12 +3912,12 @@ mod tests {
     #[test]
     fn test_knockoff_removing_item() {
         let mut state: State = State::default();
-        let choice = MOVES.get("knockoff").unwrap().to_owned();
+        let mut choice = MOVES.get("knockoff").unwrap().to_owned();
         state.get_side(&SideReference::SideTwo).get_active().item = String::from("item");
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -3908,12 +3944,12 @@ mod tests {
     #[test]
     fn test_blunderpolicy_boost() {
         let mut state: State = State::default();
-        let choice = MOVES.get("crosschop").unwrap().to_owned();
+        let mut choice = MOVES.get("crosschop").unwrap().to_owned();
         state.get_side(&SideReference::SideOne).get_active().item = String::from("blunderpolicy");
 
         let instructions = generate_instructions_from_move(
             &mut state,
-            choice,
+            &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
@@ -5343,5 +5379,143 @@ mod tests {
             true,
             side_one_moves_first(&state, &side_one_choice, &side_two_choice)
         )
+    }
+
+    #[test]
+    fn test_basic_move_pair_instruction_generation() {
+        let mut state = State::default();
+        state.side_one.get_active().speed = 100;
+        state.side_two.get_active().speed = 50;
+        let side_one_move = String::from("tackle");
+        let side_two_move = String::from("tackle");
+
+        let vec_of_instructions =
+            generate_instructions_from_move_pair(&mut state, &side_one_move, &side_two_move);
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 48,
+                }),
+            ],
+        }];
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_move_pair_instruction_generation_where_first_move_branches() {
+        let mut state = State::default();
+        state.side_one.get_active().speed = 100;
+        state.side_two.get_active().speed = 50;
+        let side_one_move = String::from("playrough");
+        let side_two_move = String::from("tackle");
+
+        let vec_of_instructions =
+            generate_instructions_from_move_pair(&mut state, &side_one_move, &side_two_move);
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 10.000002,
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 48,
+                })],
+            },
+            StateInstructions {
+                percentage: 9.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 71,
+                    }),
+                    Instruction::Boost(BoostInstruction {
+                        side_ref: SideReference::SideTwo,
+                        stat: PokemonBoostableStat::Attack,
+                        amount: -1,
+                    }),
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideOne,
+                        // playrough lowered attack means this does less dmg than other branches
+                        damage_amount: 33,
+                    }),
+                ],
+            },
+            StateInstructions {
+                percentage: 81.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 71,
+                    }),
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideOne,
+                        damage_amount: 48,
+                    }),
+                ],
+            },
+        ];
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+    #[test]
+    fn test_move_pair_instruction_generation_where_second_move_branches() {
+        let mut state = State::default();
+        state.side_one.get_active().speed = 50;
+        state.side_two.get_active().speed = 100;
+        let side_one_move = String::from("playrough");
+        let side_two_move = String::from("tackle");
+
+        let vec_of_instructions =
+            generate_instructions_from_move_pair(&mut state, &side_one_move, &side_two_move);
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 10.000002,
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 48,
+                })],
+            },
+            StateInstructions {
+                percentage: 9.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideOne,
+                        damage_amount: 48,
+                    }),
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 71,
+                    }),
+                    Instruction::Boost(BoostInstruction {
+                        side_ref: SideReference::SideTwo,
+                        stat: PokemonBoostableStat::Attack,
+                        amount: -1,
+                    }),
+                ],
+            },
+            StateInstructions {
+                percentage: 81.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideOne,
+                        damage_amount: 48,
+                    }),
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 71,
+                    }),
+                ],
+            },
+        ];
+
+        assert_eq!(expected_instructions, vec_of_instructions)
     }
 }

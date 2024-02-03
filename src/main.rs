@@ -19,7 +19,7 @@ mod items;
 mod state;
 
 fn main() {
-    let _choice = MOVES.get("defog").unwrap().to_owned();
+    let mut _choice = MOVES.get("defog").unwrap().to_owned();
 
     let mut state: State = State::default();
     println!(
@@ -41,7 +41,7 @@ fn main() {
 
     let ins = generate_instructions_from_move(
         &mut state,
-        _choice,
+        &mut _choice,
         MOVES.get("tackle").unwrap(),
         SideReference::SideOne,
         state_instruction,
