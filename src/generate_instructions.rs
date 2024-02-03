@@ -1,6 +1,13 @@
-use crate::choices::{Boost, Effect, HazardClearFn, Heal, MoveTarget, Secondary, SideCondition, Status, VolatileStatus};
-use crate::instruction::{BoostInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, EnableMoveInstruction, HealInstruction, ApplyVolatileStatusInstruction, RemoveVolatileStatusInstruction};
-use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Terrain, Side};
+use crate::choices::{
+    Boost, Effect, HazardClearFn, Heal, MoveTarget, Secondary, SideCondition, Status,
+    VolatileStatus,
+};
+use crate::instruction::{
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
+    ChangeSideConditionInstruction, EnableMoveInstruction, HealInstruction,
+    RemoveVolatileStatusInstruction,
+};
+use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Side, Terrain};
 use crate::{
     abilities::ABILITIES,
     choices::{Choice, MoveCategory},
@@ -41,7 +48,8 @@ fn generate_instructions_from_switch(
         }));
     }
 
-    for i in get_remove_volatile_status_and_boosts_instructions(switching_side, &switching_side_ref) {
+    for i in get_remove_volatile_status_and_boosts_instructions(switching_side, &switching_side_ref)
+    {
         additional_instructions.push(i);
     }
 
@@ -194,37 +202,38 @@ fn generate_instructions_from_switch(
     return incoming_instructions;
 }
 
-fn get_remove_volatile_status_and_boosts_instructions(side: &Side, side_ref: &SideReference) -> Vec<Instruction> {
+fn get_remove_volatile_status_and_boosts_instructions(
+    side: &Side,
+    side_ref: &SideReference,
+) -> Vec<Instruction> {
     let mut instructions = vec![];
     let pkmn = side.get_active_immutable();
     for pkmn_volatile_status in &pkmn.volatile_statuses {
-        instructions.push(
-            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+        instructions.push(Instruction::RemoveVolatileStatus(
+            RemoveVolatileStatusInstruction {
                 side_ref: *side_ref,
                 volatile_status: *pkmn_volatile_status,
-            })
-        );
+            },
+        ));
     }
 
     if side.side_conditions.toxic_count > 0 {
-        instructions.push(
-            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+        instructions.push(Instruction::ChangeSideCondition(
+            ChangeSideConditionInstruction {
                 side_ref: *side_ref,
                 side_condition: PokemonSideCondition::ToxicCount,
                 amount: -1 * side.side_conditions.toxic_count,
-            })
-        )
+            },
+        ))
     }
 
     for (boostable_stat, boost_val) in pkmn.get_pkmn_boost_enum_pairs() {
         if boost_val > 0 {
-            instructions.push(
-                Instruction::Boost(BoostInstruction {
-                    side_ref: *side_ref,
-                    stat: boostable_stat,
-                    amount: -1 * boost_val,
-                })
-            )
+            instructions.push(Instruction::Boost(BoostInstruction {
+                side_ref: *side_ref,
+                stat: boostable_stat,
+                amount: -1 * boost_val,
+            }))
         }
     }
     return instructions;
@@ -315,10 +324,12 @@ fn get_instructions_from_volatile_statuses(
         .get_side_immutable(&target_side)
         .get_active_immutable();
     if affected_pkmn.volitile_status_can_be_applied(&volatile_status.volatile_status) {
-        additional_instructions.push(Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-            side_ref: target_side,
-            volatile_status: volatile_status.volatile_status,
-        }));
+        additional_instructions.push(Instruction::ApplyVolatileStatus(
+            ApplyVolatileStatusInstruction {
+                side_ref: target_side,
+                volatile_status: volatile_status.volatile_status,
+            },
+        ));
         if volatile_status.volatile_status == PokemonVolatileStatus::Substitute {
             additional_instructions.push(Instruction::Damage(DamageInstruction {
                 side_ref: target_side,
@@ -529,105 +540,69 @@ fn generate_instructions_from_move_special_effect(
     };
 }
 
-#[derive(PartialEq, Debug)]
-struct CustomStruct {
-    effects: Vec<Effect>,
-    chance: f32
-}
-
-fn split_secondaries(mut secondaries: Vec<Secondary>, mut return_value: Vec<CustomStruct>) -> Vec<CustomStruct>{
-    if secondaries.is_empty() {
-        return return_value
-    }
-    let first_item = secondaries.remove(0);
-    for item in &secondaries {
-        return_value.push(
-            CustomStruct {
-                effects: vec![first_item.effect.clone(), item.effect.clone()],
-                chance: (first_item.chance / 100.0) * (item.chance / 100.0)
-            }
-        );
-        return_value.push(
-            CustomStruct {
-                effects: vec![first_item.effect.clone()],
-                chance: (first_item.chance / 100.0) * (1.0 - (item.chance / 100.0))
-            }
-        );
-        return_value.push(
-            CustomStruct {
-                effects: vec![item.effect.clone()],
-                chance: (1.0 - (first_item.chance / 100.0)) * (item.chance / 100.0)
-            }
-        );
-        return_value.push(
-            CustomStruct {
-                effects: vec![],
-                chance: (1.0 - (first_item.chance / 100.0)) * (1.0 - (item.chance / 100.0))
-            }
-        );
-    }
-
-    return split_secondaries(secondaries, return_value);
-}
-
 fn get_instructions_from_secondaries(
     state: &mut State,
     secondaries: &Vec<Secondary>,
     side_reference: &SideReference,
     incoming_instructions: StateInstructions,
 ) -> Vec<StateInstructions> {
-    let mut return_instructions = vec![];
+    let mut incoming_instructions = vec![incoming_instructions];
+
     for secondary in secondaries {
-
+        let mut loop_vec = vec![];
         let secondary_percent_hit = secondary.chance / 100.0;
-        if secondary_percent_hit > 0.0 {
-            let mut secondary_hit_instructions = incoming_instructions.clone();
-            secondary_hit_instructions.update_percentage(secondary_percent_hit);
-            match &secondary.effect {
-                Effect::VolatileStatus(volatile_status) => {
-                    secondary_hit_instructions = get_instructions_from_volatile_statuses(
-                        state,
-                        &VolatileStatus {
-                            target: secondary.target.clone(),
-                            volatile_status: volatile_status.clone(),
-                        },
-                        side_reference,
-                        secondary_hit_instructions
-                    );
-                }
-                Effect::Boost(boost) => {
-                    secondary_hit_instructions = get_instructions_from_boosts(
-                        state,
-                        &Boost {
-                            target: secondary.target.clone(),
-                            boosts: boost.clone()
-                        },
-                        side_reference,
-                        secondary_hit_instructions
-                    );
-                }
-                Effect::Status(status) => {
-                    secondary_hit_instructions = get_instructions_from_status_effects(
-                        state,
-                        &Status {
-                            target: secondary.target.clone(),
-                            status: status.clone(),
-                        },
-                        side_reference,
-                        secondary_hit_instructions
-                    );
-                }
-            }
-            return_instructions.push(secondary_hit_instructions);
-        }
 
-        if secondary_percent_hit < 1.0 {
-            let mut secondary_miss_instructions = incoming_instructions.clone();
-            secondary_miss_instructions.update_percentage(1.0 - secondary_percent_hit);
-            return_instructions.push(secondary_miss_instructions);
+        for mut ins in incoming_instructions {
+            if secondary_percent_hit > 0.0 {
+                let mut secondary_hit_instructions = ins.clone();
+                secondary_hit_instructions.update_percentage(secondary_percent_hit);
+                match &secondary.effect {
+                    Effect::VolatileStatus(volatile_status) => {
+                        secondary_hit_instructions = get_instructions_from_volatile_statuses(
+                            state,
+                            &VolatileStatus {
+                                target: secondary.target.clone(),
+                                volatile_status: volatile_status.clone(),
+                            },
+                            side_reference,
+                            secondary_hit_instructions,
+                        );
+                    }
+                    Effect::Boost(boost) => {
+                        secondary_hit_instructions = get_instructions_from_boosts(
+                            state,
+                            &Boost {
+                                target: secondary.target.clone(),
+                                boosts: boost.clone(),
+                            },
+                            side_reference,
+                            secondary_hit_instructions,
+                        );
+                    }
+                    Effect::Status(status) => {
+                        secondary_hit_instructions = get_instructions_from_status_effects(
+                            state,
+                            &Status {
+                                target: secondary.target.clone(),
+                                status: status.clone(),
+                            },
+                            side_reference,
+                            secondary_hit_instructions,
+                        );
+                    }
+                }
+                loop_vec.push(secondary_hit_instructions);
+            }
+
+            if secondary_percent_hit < 1.0 {
+                ins.update_percentage(1.0 - secondary_percent_hit);
+                loop_vec.push(ins);
+            }
         }
+        incoming_instructions = loop_vec
     }
-    return return_instructions;
+
+    return incoming_instructions;
 }
 
 fn get_instructions_from_heal(
@@ -761,7 +736,6 @@ fn run_instruction_generation_fn_for_move_hit(
 
 fn get_instructions_from_drag(
     state: &mut State,
-    choice: &Choice,
     attacking_side_reference: &SideReference,
     incoming_instructions: StateInstructions,
     frozen_instructions: &mut Vec<StateInstructions>,
@@ -772,10 +746,12 @@ fn get_instructions_from_drag(
     if defending_side.get_active_immutable().hp == 0 {
         state.reverse_instructions(&incoming_instructions.instruction_list);
         frozen_instructions.push(incoming_instructions);
-        return
+        return;
     }
 
-    let defending_side_alive_reserve_indices = defending_side.pokemon.iter()
+    let defending_side_alive_reserve_indices = defending_side
+        .pokemon
+        .iter()
         .enumerate()
         .filter(|(a, b)| b.hp > 0 && a != &defending_side.active_index)
         .map(|(index, _)| index)
@@ -786,14 +762,14 @@ fn get_instructions_from_drag(
     let num_alive_reserve = defending_side_alive_reserve_indices.len();
     if num_alive_reserve == 0 {
         frozen_instructions.push(incoming_instructions);
-        return
+        return;
     }
     for pkmn_id in defending_side_alive_reserve_indices {
         let mut switch_instructions = generate_instructions_from_switch(
             state,
             pkmn_id,
             attacking_side_reference.get_other_side(),
-            incoming_instructions.clone()
+            incoming_instructions.clone(),
         );
         switch_instructions.update_percentage(1.0 / num_alive_reserve as f32);
         frozen_instructions.push(switch_instructions);
@@ -1282,13 +1258,7 @@ pub fn generate_instructions_from_move(
 
     if choice.flags.drag {
         for ins in next_instructions {
-            get_instructions_from_drag(
-                state,
-                &choice,
-                &attacking_side,
-                ins,
-                &mut final_instructions,
-            );
+            get_instructions_from_drag(state, &attacking_side, ins, &mut final_instructions);
         }
         return combine_duplicate_instructions(final_instructions);
     }
@@ -1434,8 +1404,9 @@ mod tests {
     use super::*;
     use crate::choices::MOVES;
     use crate::instruction::{
-        BoostInstruction, ChangeItemInstruction, ChangeStatusInstruction, ChangeTerrain,
-        DamageInstruction, EnableMoveInstruction, SwitchInstruction, ApplyVolatileStatusInstruction,
+        ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
+        ChangeStatusInstruction, ChangeTerrain, DamageInstruction, EnableMoveInstruction,
+        SwitchInstruction,
     };
     use crate::state::{Move, PokemonBoostableStat, SideReference, State, Terrain};
 
@@ -1670,7 +1641,7 @@ mod tests {
                 Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     volatile_status: PokemonVolatileStatus::Confusion,
-                })
+                }),
             ],
         }];
 
@@ -1701,17 +1672,15 @@ mod tests {
                     Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                         side_ref: SideReference::SideTwo,
                         volatile_status: PokemonVolatileStatus::Confusion,
-                    })
+                    }),
                 ],
             },
             StateInstructions {
                 percentage: 90.0,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideTwo,
-                        damage_amount: 40,
-                    }),
-                ],
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 40,
+                })],
             },
         ];
 
@@ -1734,12 +1703,10 @@ mod tests {
         let expected_instructions = vec![
             StateInstructions {
                 percentage: 10.000002,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideOne,
-                        damage_amount: 50,  // This move has recoil lol
-                    }),
-                ],
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 50, // This move has recoil lol
+                })],
             },
             StateInstructions {
                 percentage: 27.0000019,
@@ -1751,17 +1718,15 @@ mod tests {
                     Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                         side_ref: SideReference::SideTwo,
                         volatile_status: PokemonVolatileStatus::Confusion,
-                    })
+                    }),
                 ],
             },
             StateInstructions {
                 percentage: 63.0,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideTwo,
-                        damage_amount: 100,
-                    }),
-                ],
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 100,
+                })],
             },
         ];
 
@@ -1783,10 +1748,12 @@ mod tests {
 
         let expected_instructions = vec![StateInstructions {
             percentage: 100.0,
-            instruction_list: vec![Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::AquaRing,
-            })],
+            instruction_list: vec![Instruction::ApplyVolatileStatus(
+                ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::AquaRing,
+                },
+            )],
         }];
 
         assert_eq!(instructions, expected_instructions)
@@ -1807,10 +1774,12 @@ mod tests {
 
         let expected_instructions = vec![StateInstructions {
             percentage: 100.0,
-            instruction_list: vec![Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Attract,
-            })],
+            instruction_list: vec![Instruction::ApplyVolatileStatus(
+                ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    volatile_status: PokemonVolatileStatus::Attract,
+                },
+            )],
         }];
 
         assert_eq!(instructions, expected_instructions)
@@ -1911,53 +1880,43 @@ mod tests {
         let expected_instructions = vec![
             StateInstructions {
                 percentage: 20.0,
-                instruction_list: vec![
-                    Instruction::Switch(SwitchInstruction {
-                        side_ref: SideReference::SideTwo,
-                        previous_index: 0,
-                        next_index: 1,
-                    })
-                ],
+                instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideTwo,
+                    previous_index: 0,
+                    next_index: 1,
+                })],
             },
             StateInstructions {
                 percentage: 20.0,
-                instruction_list: vec![
-                    Instruction::Switch(SwitchInstruction {
-                        side_ref: SideReference::SideTwo,
-                        previous_index: 0,
-                        next_index: 2,
-                    })
-                ],
+                instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideTwo,
+                    previous_index: 0,
+                    next_index: 2,
+                })],
             },
             StateInstructions {
                 percentage: 20.0,
-                instruction_list: vec![
-                    Instruction::Switch(SwitchInstruction {
-                        side_ref: SideReference::SideTwo,
-                        previous_index: 0,
-                        next_index: 3,
-                    })
-                ],
+                instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideTwo,
+                    previous_index: 0,
+                    next_index: 3,
+                })],
             },
             StateInstructions {
                 percentage: 20.0,
-                instruction_list: vec![
-                    Instruction::Switch(SwitchInstruction {
-                        side_ref: SideReference::SideTwo,
-                        previous_index: 0,
-                        next_index: 4,
-                    })
-                ],
+                instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideTwo,
+                    previous_index: 0,
+                    next_index: 4,
+                })],
             },
             StateInstructions {
                 percentage: 20.0,
-                instruction_list: vec![
-                    Instruction::Switch(SwitchInstruction {
-                        side_ref: SideReference::SideTwo,
-                        previous_index: 0,
-                        next_index: 5,
-                    })
-                ],
+                instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideTwo,
+                    previous_index: 0,
+                    next_index: 5,
+                })],
             },
         ];
 
@@ -1982,33 +1941,27 @@ mod tests {
         let expected_instructions = vec![
             StateInstructions {
                 percentage: 33.333336,
-                instruction_list: vec![
-                    Instruction::Switch(SwitchInstruction {
-                        side_ref: SideReference::SideTwo,
-                        previous_index: 0,
-                        next_index: 2,
-                    })
-                ],
+                instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideTwo,
+                    previous_index: 0,
+                    next_index: 2,
+                })],
             },
             StateInstructions {
                 percentage: 33.333336,
-                instruction_list: vec![
-                    Instruction::Switch(SwitchInstruction {
-                        side_ref: SideReference::SideTwo,
-                        previous_index: 0,
-                        next_index: 4,
-                    })
-                ],
+                instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideTwo,
+                    previous_index: 0,
+                    next_index: 4,
+                })],
             },
             StateInstructions {
                 percentage: 33.333336,
-                instruction_list: vec![
-                    Instruction::Switch(SwitchInstruction {
-                        side_ref: SideReference::SideTwo,
-                        previous_index: 0,
-                        next_index: 5,
-                    })
-                ],
+                instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideTwo,
+                    previous_index: 0,
+                    next_index: 5,
+                })],
             },
         ];
 
@@ -2033,7 +1986,7 @@ mod tests {
         let expected_instructions = vec![
             StateInstructions {
                 percentage: 10.0000019,
-                instruction_list: vec![],  // The move missed
+                instruction_list: vec![], // The move missed
             },
             StateInstructions {
                 percentage: 30.0,
@@ -2046,7 +1999,7 @@ mod tests {
                         side_ref: SideReference::SideTwo,
                         previous_index: 0,
                         next_index: 2,
-                    })
+                    }),
                 ],
             },
             StateInstructions {
@@ -2060,7 +2013,7 @@ mod tests {
                         side_ref: SideReference::SideTwo,
                         previous_index: 0,
                         next_index: 4,
-                    })
+                    }),
                 ],
             },
             StateInstructions {
@@ -2074,7 +2027,7 @@ mod tests {
                         side_ref: SideReference::SideTwo,
                         previous_index: 0,
                         next_index: 5,
-                    })
+                    }),
                 ],
             },
         ];
@@ -2101,16 +2054,14 @@ mod tests {
         let expected_instructions = vec![
             StateInstructions {
                 percentage: 10.0000019,
-                instruction_list: vec![],  // The move missed
+                instruction_list: vec![], // The move missed
             },
             StateInstructions {
                 percentage: 90.0,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideTwo,
-                        damage_amount: 5,
-                    }),
-                ],
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 5,
+                })],
             },
         ];
 
@@ -2135,12 +2086,10 @@ mod tests {
             StateInstructions::default(),
         );
 
-        let expected_instructions = vec![
-            StateInstructions {
-                percentage: 100.0,
-                instruction_list: vec![],
-            },
-        ];
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        }];
 
         assert_eq!(instructions, expected_instructions)
     }
@@ -2154,14 +2103,11 @@ mod tests {
 
         let previous_instruction = StateInstructions {
             percentage: 50.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction{
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 5,
-                })
-            ],
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 5,
+            })],
         };
-
 
         let instructions = generate_instructions_from_move(
             &mut state,
@@ -2175,7 +2121,7 @@ mod tests {
             StateInstructions {
                 percentage: 16.666668,
                 instruction_list: vec![
-                    Instruction::Damage(DamageInstruction{
+                    Instruction::Damage(DamageInstruction {
                         side_ref: SideReference::SideOne,
                         damage_amount: 5,
                     }),
@@ -2183,13 +2129,13 @@ mod tests {
                         side_ref: SideReference::SideTwo,
                         previous_index: 0,
                         next_index: 2,
-                    })
+                    }),
                 ],
             },
             StateInstructions {
                 percentage: 16.666668,
                 instruction_list: vec![
-                    Instruction::Damage(DamageInstruction{
+                    Instruction::Damage(DamageInstruction {
                         side_ref: SideReference::SideOne,
                         damage_amount: 5,
                     }),
@@ -2197,13 +2143,13 @@ mod tests {
                         side_ref: SideReference::SideTwo,
                         previous_index: 0,
                         next_index: 4,
-                    })
+                    }),
                 ],
             },
             StateInstructions {
                 percentage: 16.666668,
                 instruction_list: vec![
-                    Instruction::Damage(DamageInstruction{
+                    Instruction::Damage(DamageInstruction {
                         side_ref: SideReference::SideOne,
                         damage_amount: 5,
                     }),
@@ -2211,7 +2157,7 @@ mod tests {
                         side_ref: SideReference::SideTwo,
                         previous_index: 0,
                         next_index: 5,
-                    })
+                    }),
                 ],
             },
         ];
@@ -2331,12 +2277,10 @@ mod tests {
             },
             StateInstructions {
                 percentage: 70.0,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideTwo,
-                        damage_amount: 48,
-                    })
-                ],
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                })],
             },
         ];
 
@@ -2358,17 +2302,13 @@ mod tests {
             StateInstructions::default(),
         );
 
-        let expected_instructions = vec![
-            StateInstructions {
-                percentage: 100.0,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideTwo,
-                        damage_amount: 48,
-                    }),
-                ],
-            },
-        ];
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            })],
+        }];
 
         assert_eq!(instructions, expected_instructions)
     }
@@ -2387,17 +2327,13 @@ mod tests {
             StateInstructions::default(),
         );
 
-        let expected_instructions = vec![
-            StateInstructions {
-                percentage: 100.0,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideTwo,
-                        damage_amount: 32,
-                    }),
-                ],
-            },
-        ];
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 32,
+            })],
+        }];
 
         assert_eq!(instructions, expected_instructions)
     }
@@ -2417,61 +2353,15 @@ mod tests {
             StateInstructions::default(),
         );
 
-        let expected_instructions = vec![
-            StateInstructions {
-                percentage: 100.0,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideTwo,
-                        damage_amount: 32,
-                    }),
-                ],
-            },
-        ];
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 32,
+            })],
+        }];
 
         assert_eq!(instructions, expected_instructions)
-    }
-
-    #[test]
-    fn test_split_secondaries() {
-        let first_secondary = Secondary {
-            chance: 10.0,
-            target: MoveTarget::User,
-            effect: Effect::VolatileStatus(PokemonVolatileStatus::Attract),
-        };
-        let second_secondary = Secondary {
-            chance: 10.0,
-            target: MoveTarget::User,
-            effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
-        };
-
-        let result = split_secondaries(vec![first_secondary, second_secondary], vec![]);
-        let expected_result = vec![
-            CustomStruct {
-                effects: vec![
-                    Effect::VolatileStatus(PokemonVolatileStatus::Attract),
-                    Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
-                ],
-                chance: 0.0100000007
-            },
-            CustomStruct {
-                effects: vec![
-                    Effect::VolatileStatus(PokemonVolatileStatus::Attract),
-                ],
-                chance: 0.0899999961
-            },
-            CustomStruct {
-                effects: vec![
-                    Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
-                ],
-                chance: 0.0899999961
-            },
-            CustomStruct {
-                effects: vec![],
-                chance: 0.809999942
-            }
-        ];
-        assert_eq!(expected_result, result)
     }
 
     #[test]
@@ -2489,34 +2379,184 @@ mod tests {
 
         let expected_instructions = vec![
             StateInstructions {
-                percentage: 100.0,
+                percentage: 5.00000095,
+                instruction_list: vec![],
+            },
+            StateInstructions {
+                percentage: 0.949999988,
                 instruction_list: vec![
                     Instruction::Damage(DamageInstruction {
                         side_ref: SideReference::SideTwo,
-                        damage_amount: 32,
+                        damage_amount: 51,
+                    }),
+                    Instruction::ChangeStatus(ChangeStatusInstruction {
+                        side_ref: SideReference::SideTwo,
+                        pokemon_index: 0,
+                        old_status: PokemonStatus::None,
+                        new_status: PokemonStatus::Burn,
+                    }),
+                    Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                        side_ref: SideReference::SideTwo,
+                        volatile_status: PokemonVolatileStatus::Flinch,
                     }),
                 ],
             },
             StateInstructions {
-                percentage: 100.0,
+                percentage: 8.55000019,
                 instruction_list: vec![
                     Instruction::Damage(DamageInstruction {
                         side_ref: SideReference::SideTwo,
-                        damage_amount: 32,
+                        damage_amount: 51,
+                    }),
+                    Instruction::ChangeStatus(ChangeStatusInstruction {
+                        side_ref: SideReference::SideTwo,
+                        pokemon_index: 0,
+                        old_status: PokemonStatus::None,
+                        new_status: PokemonStatus::Burn,
                     }),
                 ],
             },
             StateInstructions {
-                percentage: 100.0,
+                percentage: 8.55000019,
                 instruction_list: vec![
                     Instruction::Damage(DamageInstruction {
                         side_ref: SideReference::SideTwo,
-                        damage_amount: 32,
+                        damage_amount: 51,
+                    }),
+                    Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                        side_ref: SideReference::SideTwo,
+                        volatile_status: PokemonVolatileStatus::Flinch,
                     }),
                 ],
+            },
+            StateInstructions {
+                percentage: 76.9499969,
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 51,
+                })],
             },
         ];
 
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_flamebody() {
+        let mut state: State = State::default();
+        state.side_two.get_active().ability = String::from("flamebody");
+        let choice = MOVES.get("tackle").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 30.000002,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 48,
+                    }),
+                    Instruction::ChangeStatus(ChangeStatusInstruction {
+                        side_ref: SideReference::SideOne,
+                        pokemon_index: 0,
+                        old_status: PokemonStatus::None,
+                        new_status: PokemonStatus::Burn,
+                    }),
+                ],
+            },
+            StateInstructions {
+                percentage: 70.0,
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                })],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_flamebody_creating_a_move_with_multiple_secondaries() {
+        let mut state: State = State::default();
+        state.side_two.get_active().ability = String::from("flamebody");
+        let choice = MOVES.get("firepunch").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 3.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 60,
+                    }),
+                    Instruction::ChangeStatus(ChangeStatusInstruction {
+                        side_ref: SideReference::SideTwo,
+                        pokemon_index: 0,
+                        old_status: PokemonStatus::None,
+                        new_status: PokemonStatus::Burn,
+                    }),
+                    Instruction::ChangeStatus(ChangeStatusInstruction {
+                        side_ref: SideReference::SideOne,
+                        pokemon_index: 0,
+                        old_status: PokemonStatus::None,
+                        new_status: PokemonStatus::Burn,
+                    }),
+                ],
+            },
+            StateInstructions {
+                percentage: 7.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 60,
+                    }),
+                    Instruction::ChangeStatus(ChangeStatusInstruction {
+                        side_ref: SideReference::SideTwo,
+                        pokemon_index: 0,
+                        old_status: PokemonStatus::None,
+                        new_status: PokemonStatus::Burn,
+                    }),
+                ],
+            },
+            StateInstructions {
+                percentage: 27.0000019,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 60,
+                    }),
+                    Instruction::ChangeStatus(ChangeStatusInstruction {
+                        side_ref: SideReference::SideOne,
+                        pokemon_index: 0,
+                        old_status: PokemonStatus::None,
+                        new_status: PokemonStatus::Burn,
+                    }),
+                ],
+            },
+            StateInstructions {
+                percentage: 63.0,
+                instruction_list: vec![Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 60,
+                })],
+            },
+        ];
         assert_eq!(instructions, expected_instructions)
     }
 
@@ -3348,10 +3388,12 @@ mod tests {
         let mut incoming_instructions = StateInstructions::default();
         incoming_instructions
             .instruction_list
-            .push(Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Taunt,
-            }));
+            .push(Instruction::ApplyVolatileStatus(
+                ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::Taunt,
+                },
+            ));
 
         let original_incoming_instructions = incoming_instructions.clone();
 
@@ -3835,7 +3877,11 @@ mod tests {
     #[test]
     fn test_basic_switch_with_volatile_statuses() {
         let mut state: State = State::default();
-        state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::LeechSeed);
+        state
+            .side_one
+            .get_active()
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::LeechSeed);
         let mut choice = Choice {
             ..Default::default()
         };
@@ -3852,7 +3898,7 @@ mod tests {
                     side_ref: SideReference::SideOne,
                     previous_index: 0,
                     next_index: 1,
-                })
+                }),
             ],
             ..Default::default()
         };
@@ -3888,7 +3934,7 @@ mod tests {
                     side_ref: SideReference::SideOne,
                     previous_index: 0,
                     next_index: 1,
-                })
+                }),
             ],
             ..Default::default()
         };
@@ -3930,7 +3976,7 @@ mod tests {
                     side_ref: SideReference::SideOne,
                     previous_index: 0,
                     next_index: 1,
-                })
+                }),
             ],
             ..Default::default()
         };

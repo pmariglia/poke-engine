@@ -337,8 +337,14 @@ impl Pokemon {
         return [
             (PokemonBoostableStat::Attack, self.attack_boost),
             (PokemonBoostableStat::Defense, self.defense_boost),
-            (PokemonBoostableStat::SpecialAttack, self.special_attack_boost),
-            (PokemonBoostableStat::SpecialDefense, self.special_defense_boost),
+            (
+                PokemonBoostableStat::SpecialAttack,
+                self.special_attack_boost,
+            ),
+            (
+                PokemonBoostableStat::SpecialDefense,
+                self.special_defense_boost,
+            ),
             (PokemonBoostableStat::Speed, self.speed_boost),
             (PokemonBoostableStat::Evasion, self.evasion_boost),
             (PokemonBoostableStat::Accuracy, self.accuracy_boost),

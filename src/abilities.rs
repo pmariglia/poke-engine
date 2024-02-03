@@ -748,21 +748,27 @@ lazy_static! {
         abilities.insert(
             "flamebody".to_string(),
             Ability {
-                modify_attack_against: Some(|state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                    if state.move_makes_contact(&attacker_choice, attacking_side) {
-                        let burn_secondary = Secondary {
-                            chance: 30.0,
-                            target: MoveTarget::User,
-                            effect: Effect::Status(PokemonStatus::Burn),
-                        };
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if state.move_makes_contact(&attacker_choice, attacking_side) {
+                            let burn_secondary = Secondary {
+                                chance: 30.0,
+                                target: MoveTarget::User,
+                                effect: Effect::Status(PokemonStatus::Burn),
+                            };
 
-                        if attacker_choice.secondaries.is_none() {
-                            attacker_choice.secondaries = Some(vec![burn_secondary]);
-                        } else {
-                            attacker_choice.secondaries.as_mut().unwrap().push(burn_secondary);
+                            if attacker_choice.secondaries.is_none() {
+                                attacker_choice.secondaries = Some(vec![burn_secondary]);
+                            } else {
+                                attacker_choice
+                                    .secondaries
+                                    .as_mut()
+                                    .unwrap()
+                                    .push(burn_secondary);
+                            }
                         }
-                    }
-                }),
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -857,16 +863,14 @@ lazy_static! {
                 on_switch_out: Some(|state: &State, side_reference: &SideReference| {
                     let side = state.get_side_immutable(side_reference);
                     if side.get_active_immutable().status != PokemonStatus::None {
-                        return vec![
-                            Instruction::ChangeStatus(ChangeStatusInstruction{
-                                side_ref: *side_reference,
-                                pokemon_index: side.active_index,
-                                old_status: side.get_active_immutable().status,
-                                new_status: PokemonStatus::None,
-                            })
-                        ]
+                        return vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+                            side_ref: *side_reference,
+                            pokemon_index: side.active_index,
+                            old_status: side.get_active_immutable().status,
+                            new_status: PokemonStatus::None,
+                        })];
                     }
-                    return vec![]
+                    return vec![];
                 }),
                 ..Default::default()
             },
@@ -937,7 +941,7 @@ lazy_static! {
                         &PokemonBoostableStat::Attack,
                         &-1,
                         side_ref,
-                        &side_ref.get_other_side()
+                        &side_ref.get_other_side(),
                     ) {
                         return vec![boost_instruction];
                     }
@@ -1464,17 +1468,19 @@ lazy_static! {
         abilities.insert(
             "regenerator".to_string(),
             Ability {
-                on_switch_out: Some(|state: &State, side_ref: &SideReference,| {
-                    let switching_out_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
-                    let hp_recovered = cmp::min(switching_out_pkmn.maxhp / 3, switching_out_pkmn.maxhp - switching_out_pkmn.hp);
+                on_switch_out: Some(|state: &State, side_ref: &SideReference| {
+                    let switching_out_pkmn =
+                        state.get_side_immutable(side_ref).get_active_immutable();
+                    let hp_recovered = cmp::min(
+                        switching_out_pkmn.maxhp / 3,
+                        switching_out_pkmn.maxhp - switching_out_pkmn.hp,
+                    );
 
                     if hp_recovered > 0 && switching_out_pkmn.hp > 0 {
-                        return vec![
-                            Instruction::Heal(HealInstruction{
-                                side_ref: *side_ref,
-                                heal_amount: hp_recovered,
-                            })
-                        ]
+                        return vec![Instruction::Heal(HealInstruction {
+                            side_ref: *side_ref,
+                            heal_amount: hp_recovered,
+                        })];
                     }
 
                     return vec![];
