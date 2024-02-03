@@ -1,4 +1,4 @@
-use crate::choices::{Choice, VolatileStatus};
+use crate::choices::Choice;
 use core::panic;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
@@ -110,6 +110,7 @@ pub enum PokemonVolatileStatus {
     Telekinesis,
     ThroatChop,
     Torment,
+    Unburden,
     Uproar,
     Yawn,
 }
@@ -651,7 +652,7 @@ impl State {
         pokemon_index: usize,
         new_status: PokemonStatus,
     ) {
-        let mut pkmn = &mut self.get_side(&side_ref).pokemon[pokemon_index];
+        let pkmn = &mut self.get_side(&side_ref).pokemon[pokemon_index];
         pkmn.status = new_status;
     }
 

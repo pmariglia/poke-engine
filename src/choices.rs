@@ -7209,6 +7209,18 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                secondaries: Some(vec![
+                    Secondary {
+                        chance: 10.0,
+                        target: MoveTarget::Opponent,
+                        effect: Effect::Status(PokemonStatus::Freeze),
+                    },
+                    Secondary {
+                        chance: 10.0,
+                        target: MoveTarget::Opponent,
+                        effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    },
+                ]),
                 ..Default::default()
             },
         );
@@ -7731,7 +7743,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 after_damage_hit: Some(
-                    |state: &State, choice: &Choice, attacking_side_reference: &SideReference| {
+                    |state: &State, _: &Choice, attacking_side_reference: &SideReference| {
                         let defending_side =
                             state.get_side_immutable(&attacking_side_reference.get_other_side());
                         let defender_active = defending_side.get_active_immutable();
@@ -14876,6 +14888,18 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                secondaries: Some(vec![
+                    Secondary {
+                        chance: 10.0,
+                        target: MoveTarget::Opponent,
+                        effect: Effect::Status(PokemonStatus::Paralyze),
+                    },
+                    Secondary {
+                        chance: 10.0,
+                        target: MoveTarget::Opponent,
+                        effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    },
+                ]),
                 ..Default::default()
             },
         );

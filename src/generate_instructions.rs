@@ -10,14 +10,14 @@ use crate::instruction::{
 use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Side, Terrain};
 use crate::{
     abilities::ABILITIES,
-    choices::{Choice, MoveCategory},
+    choices::{Choice, MoveCategory, MOVES},
     damage_calc::{calculate_damage, type_effectiveness_modifier, DamageRolls},
     instruction::{
         ChangeStatusInstruction, DamageInstruction, Instruction, StateInstructions,
         SwitchInstruction,
     },
     items::ITEMS,
-    state::{Move, Pokemon, PokemonStatus, PokemonVolatileStatus, SideReference, State, Weather},
+    state::{Pokemon, PokemonStatus, PokemonVolatileStatus, SideReference, State, Weather},
 };
 use std::cmp;
 
@@ -313,7 +313,7 @@ fn get_instructions_from_volatile_statuses(
 ) -> StateInstructions {
     state.apply_instructions(&incoming_instructions.instruction_list);
 
-    let mut target_side: SideReference;
+    let target_side: SideReference;
     match volatile_status.target {
         MoveTarget::Opponent => target_side = attacking_side_reference.get_other_side(),
         MoveTarget::User => target_side = *attacking_side_reference,
@@ -418,7 +418,7 @@ fn get_instructions_from_status_effects(
 ) -> StateInstructions {
     state.apply_instructions(&incoming_instructions.instruction_list);
 
-    let mut target_side_ref: SideReference;
+    let target_side_ref: SideReference;
     match status.target {
         MoveTarget::Opponent => target_side_ref = attacking_side_reference.get_other_side(),
         MoveTarget::User => target_side_ref = *attacking_side_reference,
@@ -503,13 +503,13 @@ fn get_instructions_from_boosts(
     state.apply_instructions(&incoming_instructions.instruction_list);
     let mut additional_instructions = vec![];
 
-    let mut target_side_ref: SideReference;
+    let target_side_ref: SideReference;
     match boosts.target {
         MoveTarget::Opponent => target_side_ref = attacking_side_reference.get_other_side(),
         MoveTarget::User => target_side_ref = *attacking_side_reference,
     }
     let boostable_stats = boosts.boosts.get_as_pokemon_boostable();
-    for (pkmn_boostable_stat, boost) in boostable_stats.iter().filter(|(s, b)| b != &0) {
+    for (pkmn_boostable_stat, boost) in boostable_stats.iter().filter(|(_, b)| b != &0) {
         if let Some(boost_instruction) = get_boost_instruction(
             &state,
             pkmn_boostable_stat,
@@ -613,7 +613,7 @@ fn get_instructions_from_heal(
 ) -> StateInstructions {
     state.apply_instructions(&incoming_instructions.instruction_list);
 
-    let mut target_side_ref: SideReference;
+    let target_side_ref: SideReference;
     match heal.target {
         MoveTarget::Opponent => target_side_ref = attacking_side_reference.get_other_side(),
         MoveTarget::User => target_side_ref = *attacking_side_reference,
@@ -988,7 +988,7 @@ fn generate_instructions_from_existing_status_conditions(
     state: &mut State,
     attacking_side_ref: &SideReference,
     mut incoming_instructions: StateInstructions,
-    mut frozen_instructions: &mut Vec<StateInstructions>,
+    frozen_instructions: &mut Vec<StateInstructions>,
 ) -> Vec<StateInstructions> {
     // Frozen, Sleep, and Paralysis may cause a Pokemon to not move
 
@@ -1081,7 +1081,7 @@ pub fn generate_instructions_from_move(
     Order of Operations:
     (*) indicates it can branch, (-) indicates it does not
 
-    - check for if the user is switching - do so & exit early
+    - DONE check for if the user is switching - do so & exit early
     - check for short-circuit situations that would exit before doing anything
         - DONE using drag move but you moved 2nd (possible if say both users use dragontail)
         - DONE attacking pokemon is dead (possible if you got KO-ed this turn)
@@ -1129,9 +1129,9 @@ pub fn generate_instructions_from_move(
     - DONE heal Anything using the `heal` section of the Choice
     * WONT DO flinching move
         collapse into secondaries
-    * drag moves
+    * DONE drag moves
         potentially could be a move special effect, or even a short-circuit since nothing else could happen?
-    * secondaries, which will be one of the following:
+    * DONE secondaries, which will be one of the following:
         PokemonVolatileStatus
         PokemonSideCondition
         StatBoosts
@@ -1192,7 +1192,7 @@ pub fn generate_instructions_from_move(
 
     // The final return-value of this function
     let mut final_instructions: Vec<StateInstructions> = vec![];
-    let mut list_of_instructions = generate_instructions_from_existing_status_conditions(
+    let list_of_instructions = generate_instructions_from_existing_status_conditions(
         state,
         &attacking_side,
         incoming_instructions,
@@ -1377,11 +1377,108 @@ fn combine_duplicate_instructions(
     return result;
 }
 
-pub fn generate_instructions_from_move_pair(//state: &mut State,
-                                            //side_one_move: &String,
-                                            //side_two_move: &String,
-) -> Vec<Instruction> {
-    panic!("Not implemented yet");
+fn get_effective_speed(state: &State, side_reference: &SideReference) -> i16 {
+    let side = state.get_side_immutable(side_reference);
+    let active_pkmn = side.get_active_immutable();
+
+    let mut boosted_speed = active_pkmn.calculate_boosted_stat(PokemonBoostableStat::Speed) as f32;
+
+    match state.weather.weather_type {
+        Weather::Sun | Weather::HarshSun if active_pkmn.ability.as_str() == "chlorophyll" => {
+            boosted_speed *= 2.0
+        }
+        Weather::Rain | Weather::HeavyRain if active_pkmn.ability.as_str() == "swiftswim" => {
+            boosted_speed *= 2.0
+        }
+        Weather::Sand if active_pkmn.ability.as_str() == "sandrush" => boosted_speed *= 2.0,
+        Weather::Hail if active_pkmn.ability.as_str() == "slushrush" => boosted_speed *= 2.0,
+        _ => {}
+    }
+
+    match active_pkmn.ability.as_str() {
+        "surgesurfer" if state.terrain.terrain_type == Terrain::ElectricTerrain => {
+            boosted_speed *= 2.0
+        }
+        "unburden"
+            if active_pkmn
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::Unburden) =>
+        {
+            boosted_speed *= 2.0
+        }
+        "quickfeet" if active_pkmn.status != PokemonStatus::None => boosted_speed *= 1.5,
+        _ => {}
+    }
+
+    if side.side_conditions.tailwind > 0 {
+        boosted_speed *= 2.0
+    }
+
+    if active_pkmn.item.as_str() == "choicescarf" {
+        boosted_speed *= 1.5
+    }
+
+    if active_pkmn.status == PokemonStatus::Paralyze && active_pkmn.ability.as_str() != "quickfeet"
+    {
+        boosted_speed *= 1.5
+    }
+
+    return boosted_speed as i16;
+}
+
+fn get_effective_priority(state: &State, side_reference: &SideReference, choice: &Choice) -> i8 {
+    let mut priority = choice.priority;
+    let side = state.get_side_immutable(side_reference);
+    let active_pkmn = side.get_active_immutable();
+
+    match active_pkmn.ability.as_str() {
+        "prankster" if choice.category == MoveCategory::Status => priority += 1,
+        "galewings"
+            if choice.move_type == PokemonType::Flying && active_pkmn.hp == active_pkmn.maxhp =>
+        {
+            priority += 1
+        }
+        "triage" if choice.flags.heal => priority += 3,
+        _ => {}
+    }
+
+    return priority;
+}
+
+fn side_one_moves_first(state: &State, side_one_choice: &Choice, side_two_choice: &Choice) -> bool {
+    let side_one_effective_speed = get_effective_speed(&state, &SideReference::SideOne);
+    let side_two_effective_speed = get_effective_speed(&state, &SideReference::SideTwo);
+
+    if side_one_choice.category == MoveCategory::Switch
+        && side_two_choice.category == MoveCategory::Switch
+    {
+        return side_one_effective_speed > side_two_effective_speed;
+    } else if side_one_choice.category == MoveCategory::Switch {
+        return side_two_choice.move_id != String::from("pursuit");
+    } else if side_two_choice.category == MoveCategory::Switch {
+        return side_one_choice.move_id == String::from("pursuit");
+    }
+
+    let side_one_effective_priority =
+        get_effective_priority(&state, &SideReference::SideOne, &side_one_choice);
+    let side_two_effective_priority =
+        get_effective_priority(&state, &SideReference::SideTwo, &side_two_choice);
+
+    return if side_one_effective_priority == side_two_effective_priority {
+        match state.trick_room {
+            true => side_one_effective_speed < side_two_effective_speed,
+            false => side_one_effective_speed > side_two_effective_speed,
+        }
+    } else {
+        side_one_effective_priority > side_two_effective_priority
+    };
+}
+
+pub fn generate_instructions_from_move_pair(
+    state: &mut State,
+    side_one_move: &String,
+    side_two_move: &String,
+) -> Vec<StateInstructions> {
     /*
     - get Choice structs from moves
     - determine who moves first
@@ -1394,7 +1491,12 @@ pub fn generate_instructions_from_move_pair(//state: &mut State,
           This was done elsewhere in the other bot, but it should be here instead
     */
 
-    // return vec![];
+    let side_one_choice = MOVES.get(side_one_move).unwrap().to_owned();
+    let side_two_choice = MOVES.get(side_two_move).unwrap().to_owned();
+
+    if side_one_moves_first(&state, &side_one_choice, &side_two_choice) {}
+
+    return vec![];
 }
 
 //fn update_move
@@ -5109,5 +5211,137 @@ mod tests {
         );
 
         assert_eq!(expected_instructions, actual_instructions);
+    }
+
+    #[test]
+    fn test_basic_side_two_moves_first() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get("tackle").unwrap().to_owned();
+        let side_two_choice = MOVES.get("tackle").unwrap().to_owned();
+        state.side_one.get_active().speed = 100;
+        state.side_two.get_active().speed = 101;
+
+        assert_eq!(
+            false,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
+    }
+
+    #[test]
+    fn test_basic_side_one_moves_first() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get("tackle").unwrap().to_owned();
+        let side_two_choice = MOVES.get("tackle").unwrap().to_owned();
+        state.side_one.get_active().speed = 101;
+        state.side_two.get_active().speed = 100;
+
+        assert_eq!(
+            true,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
+    }
+
+    #[test]
+    fn test_speed_tie_goes_to_side_two() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get("tackle").unwrap().to_owned();
+        let side_two_choice = MOVES.get("tackle").unwrap().to_owned();
+        state.side_one.get_active().speed = 100;
+        state.side_two.get_active().speed = 100;
+
+        assert_eq!(
+            false,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
+    }
+
+    #[test]
+    fn test_higher_priority_ignores_speed_diff() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get("quickattack").unwrap().to_owned();
+        let side_two_choice = MOVES.get("tackle").unwrap().to_owned();
+        state.side_one.get_active().speed = 100;
+        state.side_two.get_active().speed = 101;
+
+        assert_eq!(
+            true,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
+    }
+
+    #[test]
+    fn test_side_two_higher_priority_ignores_speed_diff() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get("tackle").unwrap().to_owned();
+        let side_two_choice = MOVES.get("quickattack").unwrap().to_owned();
+        state.side_one.get_active().speed = 101;
+        state.side_two.get_active().speed = 100;
+
+        assert_eq!(
+            false,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
+    }
+
+    #[test]
+    fn test_both_higher_priority_defaults_back_to_speed() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get("quickattack").unwrap().to_owned();
+        let side_two_choice = MOVES.get("quickattack").unwrap().to_owned();
+        state.side_one.get_active().speed = 101;
+        state.side_two.get_active().speed = 100;
+
+        assert_eq!(
+            true,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
+    }
+
+    #[test]
+    fn test_switch_always_goes_first() {
+        let mut state = State::default();
+        let mut side_one_choice = MOVES.get("splash").unwrap().to_owned();
+        side_one_choice.category = MoveCategory::Switch;
+        let side_two_choice = MOVES.get("quickattack").unwrap().to_owned();
+        state.side_one.get_active().speed = 99;
+        state.side_two.get_active().speed = 100;
+
+        assert_eq!(
+            true,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
+    }
+
+    #[test]
+    fn test_double_switch_checks_higher_speed() {
+        let mut state = State::default();
+        let mut side_one_choice = MOVES.get("splash").unwrap().to_owned();
+        side_one_choice.category = MoveCategory::Switch;
+        let mut side_two_choice = MOVES.get("splash").unwrap().to_owned();
+        side_two_choice.category = MoveCategory::Switch;
+
+        state.side_one.get_active().speed = 99;
+        state.side_two.get_active().speed = 100;
+
+        assert_eq!(
+            false,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
+    }
+
+    #[test]
+    fn test_pursuit_goes_before_switch() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get("pursuit").unwrap().to_owned();
+        let mut side_two_choice = MOVES.get("splash").unwrap().to_owned();
+        side_two_choice.category = MoveCategory::Switch;
+
+        state.side_one.get_active().speed = 50;
+        state.side_two.get_active().speed = 100;
+
+        assert_eq!(
+            true,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
     }
 }
