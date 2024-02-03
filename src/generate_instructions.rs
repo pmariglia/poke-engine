@@ -784,12 +784,13 @@ fn generate_instructions_from_damage(
     incoming_instructions: StateInstructions,
 ) -> Vec<StateInstructions> {
     /*
-    - substitute consideration
-        - requires a state change. VolatileStatus for sub & value for sub-health
-        - do last tbh
-
-    - arbitrary other after_move as well from the old engine (triggers on hit OR miss)
-        - dig/dive/bounce/fly volatilestatus
+    TODO:
+        - substitute consideration
+            - requires a state change. VolatileStatus for sub & value for sub-health
+            - do last tbh
+        - arbitrary other after_move as well from the old engine (triggers on hit OR miss)
+            - dig/dive/bounce/fly volatilestatus
+        - item after damage hit: should generate instructions (rockyhelmet, for example)
     */
 
     let mut return_instructions: Vec<StateInstructions> = vec![];
@@ -1472,6 +1473,83 @@ fn side_one_moves_first(state: &State, side_one_choice: &Choice, side_two_choice
     } else {
         side_one_effective_priority > side_two_effective_priority
     };
+}
+
+fn get_end_of_turn_instructions(
+    state: &mut State,
+    mut incoming_instructions: StateInstructions,
+    _side_one_choice: &Choice,
+    _side_two_choice: &Choice,
+    first_move_side: &SideReference,
+) -> StateInstructions {
+    /*
+
+    Methodology:
+        This function is deterministic and will not branch.
+        It will apply instructions to the state as it goes, and then reverse them at the end.
+
+     TODO:
+        - weather damage: sand & hail
+        - futuresight damage
+        - wish healing
+        - items (item callback fn)
+        - abilities (ability callback fn)
+        - statuses: poison, toxic, burn damage
+        - leechseed sap
+        - volatile statuses that cause instructions:
+            - flinch (removing it)
+            - roost (removing it)
+            - protect & variants (removing it & incrementing the protect side-condition)
+            - partiallytrapped (% damage)
+            - saltcure
+    */
+
+    state.apply_instructions(&incoming_instructions.instruction_list);
+
+    let sides = [first_move_side, &first_move_side.get_other_side()];
+
+    // Weather Damage
+    for side_ref in sides {
+        let side = state.get_side_immutable(side_ref);
+        let active_pkmn = side.get_active_immutable();
+
+        if active_pkmn.hp == 0 || active_pkmn.ability.as_str() == "magicguard" {
+            continue;
+        }
+
+        match state.weather.weather_type {
+            Weather::Hail => {
+                let hail_damage = cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
+                let hail_damage_instruction = Instruction::Damage(DamageInstruction {
+                    side_ref: *side_ref,
+                    damage_amount: hail_damage,
+                });
+                state.apply_one_instruction(&hail_damage_instruction);
+                incoming_instructions
+                    .instruction_list
+                    .push(hail_damage_instruction);
+            }
+            Weather::Sand => {
+                let sand_damage = cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
+                let sand_damage_instruction = Instruction::Damage(DamageInstruction {
+                    side_ref: *side_ref,
+                    damage_amount: sand_damage,
+                });
+                state.apply_one_instruction(&sand_damage_instruction);
+                incoming_instructions
+                    .instruction_list
+                    .push(sand_damage_instruction);
+            }
+            _ => {}
+        }
+    }
+
+    // futuresight damage
+    // for side_ref in sides {}
+
+    state.reverse_instructions(&incoming_instructions.instruction_list);
+
+    return incoming_instructions;
 }
 
 pub fn generate_instructions_from_move_pair(
@@ -5464,6 +5542,7 @@ mod tests {
 
         assert_eq!(expected_instructions, vec_of_instructions)
     }
+
     #[test]
     fn test_move_pair_instruction_generation_where_second_move_branches() {
         let mut state = State::default();
@@ -5515,6 +5594,100 @@ mod tests {
                 ],
             },
         ];
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_end_of_turn_hail_damage() {
+        let mut state = State::default();
+        state.weather.weather_type = Weather::Hail;
+        let side_one_move = MOVES.get("tackle").unwrap().to_owned();
+        let side_two_move = MOVES.get("tackle").unwrap().to_owned();
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &side_one_move,
+            &side_two_move,
+            &SideReference::SideOne
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 6,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 6,
+                })
+            ],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_hail_does_not_overkill() {
+        let mut state = State::default();
+        state.weather.weather_type = Weather::Hail;
+        state.side_one.get_active().hp = 3;
+        let side_one_move = MOVES.get("tackle").unwrap().to_owned();
+        let side_two_move = MOVES.get("tackle").unwrap().to_owned();
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &side_one_move,
+            &side_two_move,
+            &SideReference::SideOne
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 3,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 6,
+                })
+            ],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_fainted_pkmn_does_not_take_hail_dmg() {
+        let mut state = State::default();
+        state.weather.weather_type = Weather::Hail;
+        state.side_one.get_active().hp = 0;
+        let side_one_move = MOVES.get("tackle").unwrap().to_owned();
+        let side_two_move = MOVES.get("tackle").unwrap().to_owned();
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &side_one_move,
+            &side_two_move,
+            &SideReference::SideOne
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 6,
+                })
+            ],
+        };
 
         assert_eq!(expected_instructions, vec_of_instructions)
     }
