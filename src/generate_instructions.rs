@@ -349,7 +349,7 @@ fn sleep_clause_activated() -> bool {
     return false;
 }
 
-fn immune_to_status(
+pub fn immune_to_status(
     state: &State,
     status_target: &MoveTarget,
     target_side_ref: &SideReference,
@@ -1491,7 +1491,7 @@ fn get_end_of_turn_instructions(
      TODO:
         - DONE weather damage: sand & hail
         - futuresight damage
-        - wish healing
+        - DONE wish healing
         - items (item callback fn)
         - abilities (ability callback fn)
         - statuses: poison, toxic, burn damage
@@ -1569,6 +1569,35 @@ fn get_end_of_turn_instructions(
                 .instruction_list
                 .extend(wish_instructions);
         }
+    }
+
+    // item end-of-turn effects
+    for side_ref in sides {
+        let side = state.get_side_immutable(side_ref);
+        let active_pkmn = side.get_active_immutable();
+
+        if active_pkmn.hp == 0 {
+            continue;
+        }
+
+        let mut additional_instructions = vec![];
+        if let Some(item) = ITEMS.get(&active_pkmn.item) {
+            if let Some(end_of_turn_fn) = item.end_of_turn {
+                let item_instructions = end_of_turn_fn(state, side_ref);
+                additional_instructions.extend(item_instructions);
+            }
+        }
+
+        if let Some(ability) = ABILITIES.get(&active_pkmn.ability) {
+            if let Some(end_of_turn_fn) = ability.end_of_turn {
+                let ability_instructions = end_of_turn_fn(state, side_ref);
+                additional_instructions.extend(ability_instructions);
+            }
+        }
+        state.apply_instructions(&additional_instructions);
+        incoming_instructions
+            .instruction_list
+            .extend(additional_instructions);
     }
 
     //
@@ -5628,14 +5657,12 @@ mod tests {
     fn test_end_of_turn_hail_damage() {
         let mut state = State::default();
         state.weather.weather_type = Weather::Hail;
-        let side_one_move = MOVES.get("tackle").unwrap().to_owned();
-        let side_two_move = MOVES.get("tackle").unwrap().to_owned();
 
         let vec_of_instructions = get_end_of_turn_instructions(
             &mut state,
             StateInstructions::default(),
-            &side_one_move,
-            &side_two_move,
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
         );
 
@@ -5661,14 +5688,12 @@ mod tests {
         let mut state = State::default();
         state.weather.weather_type = Weather::Hail;
         state.side_one.get_active().hp = 3;
-        let side_one_move = MOVES.get("tackle").unwrap().to_owned();
-        let side_two_move = MOVES.get("tackle").unwrap().to_owned();
 
         let vec_of_instructions = get_end_of_turn_instructions(
             &mut state,
             StateInstructions::default(),
-            &side_one_move,
-            &side_two_move,
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
         );
 
@@ -5694,14 +5719,12 @@ mod tests {
         let mut state = State::default();
         state.weather.weather_type = Weather::Hail;
         state.side_one.get_active().hp = 0;
-        let side_one_move = MOVES.get("tackle").unwrap().to_owned();
-        let side_two_move = MOVES.get("tackle").unwrap().to_owned();
 
         let vec_of_instructions = get_end_of_turn_instructions(
             &mut state,
             StateInstructions::default(),
-            &side_one_move,
-            &side_two_move,
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
         );
 
@@ -5721,14 +5744,12 @@ mod tests {
         let mut state = State::default();
         state.side_one.wish = (1, 5);
         state.side_one.get_active().hp = 50;
-        let side_one_move = MOVES.get("tackle").unwrap().to_owned();
-        let side_two_move = MOVES.get("tackle").unwrap().to_owned();
 
         let vec_of_instructions = get_end_of_turn_instructions(
             &mut state,
             StateInstructions::default(),
-            &side_one_move,
-            &side_two_move,
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
         );
 
@@ -5753,14 +5774,12 @@ mod tests {
         let mut state = State::default();
         state.side_one.wish = (1, 50);
         state.side_one.get_active().hp = 95;
-        let side_one_move = MOVES.get("tackle").unwrap().to_owned();
-        let side_two_move = MOVES.get("tackle").unwrap().to_owned();
 
         let vec_of_instructions = get_end_of_turn_instructions(
             &mut state,
             StateInstructions::default(),
-            &side_one_move,
-            &side_two_move,
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
         );
 
@@ -5785,14 +5804,12 @@ mod tests {
         let mut state = State::default();
         state.side_one.wish = (2, 50);
         state.side_one.get_active().hp = 95;
-        let side_one_move = MOVES.get("tackle").unwrap().to_owned();
-        let side_two_move = MOVES.get("tackle").unwrap().to_owned();
 
         let vec_of_instructions = get_end_of_turn_instructions(
             &mut state,
             StateInstructions::default(),
-            &side_one_move,
-            &side_two_move,
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
         );
 
@@ -5801,6 +5818,393 @@ mod tests {
             instruction_list: vec![Instruction::DecrementWish(DecrementWishInstruction {
                 side_ref: SideReference::SideOne,
             })],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_leftovers_heals_at_end_of_turn() {
+        let mut state = State::default();
+        state.side_one.get_active().hp = 50;
+        state.side_one.get_active().item = String::from("leftovers");
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 6,
+            })],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_leftovers_does_not_overheal() {
+        let mut state = State::default();
+        state.side_one.get_active().hp = 99;
+        state.side_one.get_active().item = String::from("leftovers");
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 1,
+            })],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_leftovers_generates_no_instruction_at_maxhp() {
+        let mut state = State::default();
+        state.side_one.get_active().hp = 100;
+        state.side_one.get_active().item = String::from("leftovers");
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_leftovers_generates_no_instruction_when_fainted() {
+        let mut state = State::default();
+        state.side_one.get_active().hp = 0;
+        state.side_one.get_active().item = String::from("leftovers");
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_blacksludge_heal_as_poison_type() {
+        let mut state = State::default();
+        state.side_one.get_active().hp = 50;
+        state.side_one.get_active().item = String::from("blacksludge");
+        state.side_one.get_active().types.0 = PokemonType::Poison;
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 6,
+            })],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_blacksludge_damage_as_non_poison_type() {
+        let mut state = State::default();
+        state.side_one.get_active().hp = 50;
+        state.side_one.get_active().item = String::from("blacksludge");
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            })],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_blacksludge_does_not_overheal() {
+        let mut state = State::default();
+        state.side_one.get_active().hp = 99;
+        state.side_one.get_active().item = String::from("blacksludge");
+        state.side_one.get_active().types.0 = PokemonType::Poison;
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 1,
+            })],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_flameorb_end_of_turn_burn() {
+        let mut state = State::default();
+        state.side_one.get_active().item = String::from("flameorb");
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: 0,
+                old_status: PokemonStatus::None,
+                new_status: PokemonStatus::Burn,
+            })],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_fire_type_cannot_be_burned_by_flameorb() {
+        let mut state = State::default();
+        state.side_one.get_active().item = String::from("flameorb");
+        state.side_one.get_active().types.0 = PokemonType::Fire;
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_toxicorb_applies_status() {
+        let mut state = State::default();
+        state.side_one.get_active().item = String::from("toxicorb");
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: 0,
+                old_status: PokemonStatus::None,
+                new_status: PokemonStatus::Toxic,
+            })],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_toxicorb_does_not_apply_to_poison_type() {
+        let mut state = State::default();
+        state.side_one.get_active().item = String::from("toxicorb");
+        state.side_one.get_active().types.0 = PokemonType::Poison;
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_poisonheal_heals_at_end_of_turn() {
+        let mut state = State::default();
+        state.side_one.get_active().ability = String::from("poisonheal");
+        state.side_one.get_active().status = PokemonStatus::Poison;
+        state.side_one.get_active().hp = 50;
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 12,
+            })],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_poisonheal_does_not_overheal() {
+        let mut state = State::default();
+        state.side_one.get_active().ability = String::from("poisonheal");
+        state.side_one.get_active().status = PokemonStatus::Poison;
+        state.side_one.get_active().hp = 99;
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 1,
+            })],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_poisonheal_does_nothign_at_maxhp() {
+        let mut state = State::default();
+        state.side_one.get_active().ability = String::from("poisonheal");
+        state.side_one.get_active().status = PokemonStatus::Poison;
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_speedboost() {
+        let mut state = State::default();
+        state.side_one.get_active().ability = String::from("speedboost");
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Speed,
+                amount: 1,
+            })],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_speedboost_does_not_boost_beyond_6() {
+        let mut state = State::default();
+        state.side_one.get_active().ability = String::from("speedboost");
+        state.side_one.get_active().speed_boost = 6;
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
         };
 
         assert_eq!(expected_instructions, vec_of_instructions)

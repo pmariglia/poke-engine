@@ -20,6 +20,7 @@ type AbilityAfterDamageHit = fn(&State, &Choice, &SideReference, i16) -> Vec<Ins
 type AbilityAfterBeingHitBranching = fn(&State, &Choice, &SideReference) -> Vec<StateInstructions>;
 type AbilityOnSwitchOut = fn(&State, &SideReference) -> Vec<Instruction>;
 type AbilityOnSwitchIn = fn(&State, &SideReference) -> Vec<Instruction>;
+type AbilityEndOfTurn = fn(&State, &SideReference) -> Vec<Instruction>;
 
 pub struct Ability {
     pub modify_attack_being_used: Option<ModifyAttackBeingUsed>,
@@ -28,6 +29,7 @@ pub struct Ability {
     pub after_damage_hit: Option<AbilityAfterDamageHit>,
     pub on_switch_out: Option<AbilityOnSwitchOut>,
     pub on_switch_in: Option<AbilityOnSwitchIn>,
+    pub end_of_turn: Option<AbilityEndOfTurn>,
 }
 
 lazy_static! {
@@ -1223,6 +1225,19 @@ lazy_static! {
         abilities.insert(
             "poisonheal".to_string(),
             Ability {
+                end_of_turn: Some(|state: &State, side_ref: &SideReference| {
+                    let attacker = state.get_side_immutable(side_ref).get_active_immutable();
+                    if attacker.hp < attacker.maxhp
+                        && (attacker.status == PokemonStatus::Poison
+                            || attacker.status == PokemonStatus::Toxic)
+                    {
+                        return vec![Instruction::Heal(HealInstruction {
+                            side_ref: side_ref.clone(),
+                            heal_amount: cmp::min(attacker.maxhp / 8, attacker.maxhp - attacker.hp),
+                        })];
+                    }
+                    return vec![];
+                }),
                 ..Default::default()
             },
         );
@@ -1293,6 +1308,17 @@ lazy_static! {
         abilities.insert(
             "speedboost".to_string(),
             Ability {
+                end_of_turn: Some(|state: &State, side_ref: &SideReference| {
+                    let attacker = state.get_side_immutable(side_ref).get_active_immutable();
+                    if attacker.speed_boost < 6 {
+                        return vec![Instruction::Boost(BoostInstruction {
+                            side_ref: side_ref.clone(),
+                            stat: PokemonBoostableStat::Speed,
+                            amount: 1,
+                        })];
+                    }
+                    return vec![];
+                }),
                 ..Default::default()
             },
         );
@@ -2046,6 +2072,7 @@ impl Default for Ability {
             after_damage_hit: None,
             on_switch_out: None,
             on_switch_in: None,
+            end_of_turn: None,
         };
     }
 }
