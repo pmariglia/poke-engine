@@ -1,12 +1,7 @@
 #![allow(dead_code)]
 
-use crate::state::Terrain;
-use crate::{
-    choices::MOVES,
-    generate_instructions::generate_instructions_from_move,
-    instruction::{Instruction, StateInstructions},
-    state::{SideReference, State},
-};
+use crate::generate_instructions::generate_instructions_from_move_pair;
+use crate::state::State;
 
 extern crate lazy_static;
 
@@ -19,40 +14,21 @@ mod items;
 mod state;
 
 fn main() {
-    let mut _choice = MOVES.get("defog").unwrap().to_owned();
-
     let mut state: State = State::default();
-    println!(
-        "Starting side 1 active types: {:?}",
-        state.side_one.get_active().types
-    );
+    state.side_one.get_active().speed = 100;
+    state.side_one.get_active().hp = 99;
+    state.side_two.get_active().speed = 50;
 
-    // state.side_one.get_active().status = PokemonStatus::Paralyze;
-    state.terrain.terrain_type = Terrain::ElectricTerrain;
-    state.terrain.turns_remaining = 1;
-    state.side_one.get_active().ability = String::from("beastboost");
-    state.side_two.get_active().hp = 100;
-
-    let state_instruction: StateInstructions = StateInstructions {
-        percentage: 100.0,
-        instruction_list: Vec::<Instruction>::new(),
-        ..Default::default()
-    };
-
-    let ins = generate_instructions_from_move(
+    let ins = generate_instructions_from_move_pair(
         &mut state,
-        &mut _choice,
-        MOVES.get("tackle").unwrap(),
-        SideReference::SideOne,
-        state_instruction,
-    );
-
-    println!(
-        "After generate_instructions_from_move side 1 active name: {:?}",
-        state.side_one.get_active().id
+        String::from("leechseed"),
+        String::from("splash"),
     );
 
     for i in ins {
-        println!("Generated Instruction: {:?}", i);
+        println!(
+            "Generated Instruction: {:?}: {:?}",
+            i.percentage, i.instruction_list
+        );
     }
 }

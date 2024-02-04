@@ -1244,7 +1244,6 @@ pub fn generate_instructions_from_move(
             for dmg in &damages_dealt {
                 let mut this_instruction = instruction.clone();
                 this_instruction.update_percentage(1.0 / num_damage_amounts);
-                println!("Instruction: {:?}, Run dmg: {:?}", this_instruction, dmg);
                 temp_instructions.extend(generate_instructions_from_damage(
                     state,
                     &choice,
@@ -1662,19 +1661,19 @@ fn get_end_of_turn_instructions(
             .contains(&PokemonVolatileStatus::LeechSeed)
         {
             let health_sapped = cmp::min((active_pkmn.maxhp as f32 * 0.125) as i16, active_pkmn.hp);
-            let leechseed_instructions = vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: *side_ref,
-                    damage_amount: health_sapped,
-                }),
-                Instruction::Heal(HealInstruction {
+            let mut leechseed_instructions = vec![Instruction::Damage(DamageInstruction {
+                side_ref: *side_ref,
+                damage_amount: health_sapped,
+            })];
+            if other_side_active.maxhp != other_side_active.hp {
+                leechseed_instructions.push(Instruction::Heal(HealInstruction {
                     side_ref: side_ref.get_other_side(),
                     heal_amount: cmp::min(
                         health_sapped,
                         other_side_active.maxhp - other_side_active.hp,
                     ),
-                }),
-            ];
+                }))
+            }
             state.apply_instructions(&leechseed_instructions);
             incoming_instructions
                 .instruction_list
@@ -1794,8 +1793,8 @@ fn get_end_of_turn_instructions(
 
 pub fn generate_instructions_from_move_pair(
     state: &mut State,
-    side_one_move: &String,
-    side_two_move: &String,
+    side_one_move: String,
+    side_two_move: String,
 ) -> Vec<StateInstructions> {
     /*
     - get Choice structs from moves
@@ -1809,12 +1808,14 @@ pub fn generate_instructions_from_move_pair(
           This was done elsewhere in the other bot, but it should be here instead
     */
 
-    let mut side_one_choice = MOVES.get(side_one_move).unwrap().to_owned();
-    let mut side_two_choice = MOVES.get(side_two_move).unwrap().to_owned();
+    let mut side_one_choice = MOVES.get(&side_one_move).unwrap().to_owned();
+    let mut side_two_choice = MOVES.get(&side_two_move).unwrap().to_owned();
 
     let mut state_instruction_vec: Vec<StateInstructions> = vec![];
     let incoming_instructions: StateInstructions = StateInstructions::default();
+    let first_move_side;
     if side_one_moves_first(&state, &side_one_choice, &side_two_choice) {
+        first_move_side = SideReference::SideOne;
         let first_move_instructions = generate_instructions_from_move(
             state,
             &mut side_one_choice,
@@ -1832,6 +1833,7 @@ pub fn generate_instructions_from_move_pair(
             ));
         }
     } else {
+        first_move_side = SideReference::SideTwo;
         let first_move_instructions = generate_instructions_from_move(
             state,
             &mut side_two_choice,
@@ -1850,9 +1852,19 @@ pub fn generate_instructions_from_move_pair(
         }
     }
 
-    // TODO: End-Of-Turn Instructions
+    // TODO: Check if end-of-turn instructions are triggered - they are not always run
+    let mut final_instructions = vec![];
+    for state_instruction in state_instruction_vec {
+        final_instructions.push(get_end_of_turn_instructions(
+            state,
+            state_instruction,
+            &side_one_choice,
+            &side_two_choice,
+            &first_move_side,
+        ));
+    }
 
-    return state_instruction_vec;
+    return final_instructions;
 }
 
 #[cfg(test)]
@@ -5708,7 +5720,7 @@ mod tests {
         let side_two_move = String::from("tackle");
 
         let vec_of_instructions =
-            generate_instructions_from_move_pair(&mut state, &side_one_move, &side_two_move);
+            generate_instructions_from_move_pair(&mut state, side_one_move, side_two_move);
 
         let expected_instructions = vec![StateInstructions {
             percentage: 100.0,
@@ -5736,7 +5748,7 @@ mod tests {
         let side_two_move = String::from("tackle");
 
         let vec_of_instructions =
-            generate_instructions_from_move_pair(&mut state, &side_one_move, &side_two_move);
+            generate_instructions_from_move_pair(&mut state, side_one_move, side_two_move);
 
         let expected_instructions = vec![
             StateInstructions {
@@ -5792,7 +5804,7 @@ mod tests {
         let side_two_move = String::from("tackle");
 
         let vec_of_instructions =
-            generate_instructions_from_move_pair(&mut state, &side_one_move, &side_two_move);
+            generate_instructions_from_move_pair(&mut state, side_one_move, side_two_move);
 
         let expected_instructions = vec![
             StateInstructions {
@@ -6584,6 +6596,36 @@ mod tests {
     }
 
     #[test]
+    fn test_leechseed_sap_does_not_heal_if_receiving_side_is_maxhp() {
+        let mut state = State::default();
+        state
+            .side_one
+            .get_active()
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::LeechSeed);
+        state.side_one.get_active().hp = 50;
+        state.side_two.get_active().hp = 100;
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 12,
+            })],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
     fn test_leechseed_sap_does_not_overkill() {
         let mut state = State::default();
         state
@@ -6720,7 +6762,11 @@ mod tests {
     #[test]
     fn test_roost_vs_removal() {
         let mut state = State::default();
-        state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::Roost);
+        state
+            .side_one
+            .get_active()
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::Roost);
 
         let vec_of_instructions = get_end_of_turn_instructions(
             &mut state,
@@ -6746,7 +6792,11 @@ mod tests {
     #[test]
     fn test_partiallytrapped_damage() {
         let mut state = State::default();
-        state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::PartiallyTrapped);
+        state
+            .side_one
+            .get_active()
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::PartiallyTrapped);
 
         let vec_of_instructions = get_end_of_turn_instructions(
             &mut state,
@@ -6758,12 +6808,10 @@ mod tests {
 
         let expected_instructions = StateInstructions {
             percentage: 100.0,
-            instruction_list: vec![Instruction::Damage(
-                DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 12,
-                },
-            )],
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 12,
+            })],
         };
 
         assert_eq!(expected_instructions, vec_of_instructions)
@@ -6773,7 +6821,11 @@ mod tests {
     fn test_saltcure_on_water_type_damage() {
         let mut state = State::default();
         state.side_one.get_active().types.0 = PokemonType::Water;
-        state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::SaltCure);
+        state
+            .side_one
+            .get_active()
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::SaltCure);
 
         let vec_of_instructions = get_end_of_turn_instructions(
             &mut state,
@@ -6785,12 +6837,10 @@ mod tests {
 
         let expected_instructions = StateInstructions {
             percentage: 100.0,
-            instruction_list: vec![Instruction::Damage(
-                DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 25,
-                },
-            )],
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 25,
+            })],
         };
 
         assert_eq!(expected_instructions, vec_of_instructions)
