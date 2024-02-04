@@ -1483,25 +1483,9 @@ fn get_end_of_turn_instructions(
     first_move_side: &SideReference,
 ) -> StateInstructions {
     /*
-
     Methodology:
         This function is deterministic and will not branch.
         It will apply instructions to the state as it goes, and then reverse them at the end.
-
-     TODO:
-        - DONE weather damage: sand & hail
-        - futuresight damage
-        - DONE wish healing
-        - items (item callback fn)
-        - abilities (ability callback fn)
-        - statuses: poison, toxic, burn damage
-        - leechseed sap
-        - volatile statuses that cause instructions:
-            - flinch (removing it)
-            - roost (removing it)
-            - protect & variants (removing it & incrementing the protect side-condition)
-            - partiallytrapped (% damage)
-            - saltcure
     */
 
     state.apply_instructions(&incoming_instructions.instruction_list);
@@ -1608,8 +1592,12 @@ fn get_end_of_turn_instructions(
                     .push(poison_damage_instruction);
             }
             PokemonStatus::Toxic if active_pkmn.ability.as_str() != "poisonheal" => {
-                let toxic_multiplier = (1.0 / 16.0) * side.side_conditions.toxic_count as f32 + (1.0 / 16.0);
-                let toxic_damage = cmp::min((active_pkmn.maxhp as f32 * toxic_multiplier) as i16, active_pkmn.hp);
+                let toxic_multiplier =
+                    (1.0 / 16.0) * side.side_conditions.toxic_count as f32 + (1.0 / 16.0);
+                let toxic_damage = cmp::min(
+                    (active_pkmn.maxhp as f32 * toxic_multiplier) as i16,
+                    active_pkmn.hp,
+                );
                 let toxic_instructions = vec![
                     Instruction::Damage(DamageInstruction {
                         side_ref: *side_ref,
@@ -1628,7 +1616,6 @@ fn get_end_of_turn_instructions(
             }
             _ => {}
         }
-
     }
 
     // item end-of-turn effects
@@ -1661,26 +1648,31 @@ fn get_end_of_turn_instructions(
     }
 
     // leechseed sap
-    for side in sides {
-        let other_side_active = state.get_side_immutable(&side.get_other_side()).get_active_immutable();
-        let active_pkmn = state.get_side_immutable(side).get_active_immutable();
-        if active_pkmn.hp == 0  || active_pkmn.ability.as_str() == "magicguard" {
+    for side_ref in sides {
+        let other_side_active = state
+            .get_side_immutable(&side_ref.get_other_side())
+            .get_active_immutable();
+        let active_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
+        if active_pkmn.hp == 0 || active_pkmn.ability.as_str() == "magicguard" {
             continue;
         }
 
-        if active_pkmn.volatile_statuses.contains(&PokemonVolatileStatus::LeechSeed) {
-            let health_sapped = cmp::min(
-                (active_pkmn.maxhp as f32 * 0.125) as i16,
-                active_pkmn.hp,
-            );
+        if active_pkmn
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::LeechSeed)
+        {
+            let health_sapped = cmp::min((active_pkmn.maxhp as f32 * 0.125) as i16, active_pkmn.hp);
             let leechseed_instructions = vec![
                 Instruction::Damage(DamageInstruction {
-                    side_ref: *side,
+                    side_ref: *side_ref,
                     damage_amount: health_sapped,
                 }),
                 Instruction::Heal(HealInstruction {
-                    side_ref: side.get_other_side(),
-                    heal_amount: cmp::min(health_sapped, other_side_active.maxhp - other_side_active.hp)
+                    side_ref: side_ref.get_other_side(),
+                    heal_amount: cmp::min(
+                        health_sapped,
+                        other_side_active.maxhp - other_side_active.hp,
+                    ),
                 }),
             ];
             state.apply_instructions(&leechseed_instructions);
@@ -1688,6 +1680,111 @@ fn get_end_of_turn_instructions(
                 .instruction_list
                 .extend(leechseed_instructions);
         }
+    }
+
+    // volatile statuses
+    for side_ref in sides {
+        let side = state.get_side_immutable(side_ref);
+        let active_pkmn = side.get_active_immutable();
+        if active_pkmn.hp == 0 {
+            continue;
+        }
+
+        let mut additional_instructions = vec![];
+        if active_pkmn
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::Flinch)
+        {
+            additional_instructions.push(Instruction::RemoveVolatileStatus(
+                RemoveVolatileStatusInstruction {
+                    side_ref: *side_ref,
+                    volatile_status: PokemonVolatileStatus::Flinch,
+                },
+            ));
+        }
+        if active_pkmn
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::Roost)
+        {
+            additional_instructions.push(Instruction::RemoveVolatileStatus(
+                RemoveVolatileStatusInstruction {
+                    side_ref: *side_ref,
+                    volatile_status: PokemonVolatileStatus::Roost,
+                },
+            ));
+        }
+
+        if active_pkmn
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::PartiallyTrapped)
+        {
+            additional_instructions.push(Instruction::Damage(DamageInstruction {
+                side_ref: *side_ref,
+                damage_amount: cmp::min((active_pkmn.maxhp as f32 / 8.0) as i16, active_pkmn.hp),
+            }));
+        }
+        if active_pkmn
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::SaltCure)
+        {
+            let mut divisor = 8.0;
+            if active_pkmn.has_type(&PokemonType::Water)
+                || active_pkmn.has_type(&PokemonType::Steel)
+            {
+                divisor = 4.0;
+            }
+            additional_instructions.push(Instruction::Damage(DamageInstruction {
+                side_ref: *side_ref,
+                damage_amount: cmp::min(
+                    (active_pkmn.maxhp as f32 / divisor) as i16,
+                    active_pkmn.hp,
+                ),
+            }));
+        }
+
+        let possible_statuses = [
+            PokemonVolatileStatus::Protect,
+            PokemonVolatileStatus::BanefulBunker,
+            PokemonVolatileStatus::SpikyShield,
+            PokemonVolatileStatus::SilkTrap,
+        ];
+
+        let mut protect_vs = None;
+        for status in &possible_statuses {
+            if active_pkmn.volatile_statuses.contains(status) {
+                protect_vs = Some(*status);
+                break;
+            }
+        }
+
+        if let Some(protect_vs) = protect_vs {
+            additional_instructions.push(Instruction::RemoveVolatileStatus(
+                RemoveVolatileStatusInstruction {
+                    side_ref: *side_ref,
+                    volatile_status: protect_vs,
+                },
+            ));
+            additional_instructions.push(Instruction::ChangeSideCondition(
+                ChangeSideConditionInstruction {
+                    side_ref: *side_ref,
+                    side_condition: PokemonSideCondition::Protect,
+                    amount: 1,
+                },
+            ));
+        } else if side.side_conditions.protect > 0 {
+            additional_instructions.push(Instruction::ChangeSideCondition(
+                ChangeSideConditionInstruction {
+                    side_ref: *side_ref,
+                    side_condition: PokemonSideCondition::Protect,
+                    amount: -1 * side.side_conditions.protect,
+                },
+            ));
+        }
+
+        state.apply_instructions(&additional_instructions);
+        incoming_instructions
+            .instruction_list
+            .extend(additional_instructions);
     }
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
@@ -6313,12 +6410,10 @@ mod tests {
 
         let expected_instructions = StateInstructions {
             percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 12,
-                })
-            ],
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 12,
+            })],
         };
 
         assert_eq!(expected_instructions, vec_of_instructions)
@@ -6340,12 +6435,10 @@ mod tests {
 
         let expected_instructions = StateInstructions {
             percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 5,
-                })
-            ],
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 5,
+            })],
         };
 
         assert_eq!(expected_instructions, vec_of_instructions)
@@ -6366,12 +6459,10 @@ mod tests {
 
         let expected_instructions = StateInstructions {
             percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 6,
-                })
-            ],
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            })],
         };
 
         assert_eq!(expected_instructions, vec_of_instructions)
@@ -6393,12 +6484,10 @@ mod tests {
 
         let expected_instructions = StateInstructions {
             percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 5,
-                })
-            ],
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 5,
+            })],
         };
 
         assert_eq!(expected_instructions, vec_of_instructions)
@@ -6461,7 +6550,11 @@ mod tests {
     #[test]
     fn test_leechseed_sap() {
         let mut state = State::default();
-        state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::LeechSeed);
+        state
+            .side_one
+            .get_active()
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::LeechSeed);
         state.side_one.get_active().hp = 50;
         state.side_two.get_active().hp = 50;
 
@@ -6493,7 +6586,11 @@ mod tests {
     #[test]
     fn test_leechseed_sap_does_not_overkill() {
         let mut state = State::default();
-        state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::LeechSeed);
+        state
+            .side_one
+            .get_active()
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::LeechSeed);
         state.side_one.get_active().hp = 5;
         state.side_two.get_active().hp = 50;
 
@@ -6525,7 +6622,11 @@ mod tests {
     #[test]
     fn test_leechseed_sap_does_not_overheal() {
         let mut state = State::default();
-        state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::LeechSeed);
+        state
+            .side_one
+            .get_active()
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::LeechSeed);
         state.side_one.get_active().hp = 50;
         state.side_two.get_active().hp = 95;
 
@@ -6549,6 +6650,147 @@ mod tests {
                     heal_amount: 5,
                 }),
             ],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_protect_volatile_being_removed() {
+        let mut state = State::default();
+        state
+            .side_one
+            .get_active()
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::Protect);
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::Protect,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Protect,
+                    amount: 1,
+                }),
+            ],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_protect_side_condition_being_removed() {
+        let mut state = State::default();
+        state.side_one.side_conditions.protect = 2;
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::ChangeSideCondition(
+                ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Protect,
+                    amount: -2,
+                },
+            )],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_roost_vs_removal() {
+        let mut state = State::default();
+        state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::Roost);
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::RemoveVolatileStatus(
+                RemoveVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::Roost,
+                },
+            )],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_partiallytrapped_damage() {
+        let mut state = State::default();
+        state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::PartiallyTrapped);
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(
+                DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 12,
+                },
+            )],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_saltcure_on_water_type_damage() {
+        let mut state = State::default();
+        state.side_one.get_active().types.0 = PokemonType::Water;
+        state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::SaltCure);
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(
+                DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 25,
+                },
+            )],
         };
 
         assert_eq!(expected_instructions, vec_of_instructions)
