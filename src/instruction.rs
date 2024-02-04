@@ -44,6 +44,18 @@ pub enum Instruction {
     ChangeItem(ChangeItemInstruction),
     DisableMove(DisableMoveInstruction),
     EnableMove(EnableMoveInstruction),
+    IncrementWish(IncrementWishInstruction),
+    DecrementWish(DecrementWishInstruction),
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct IncrementWishInstruction {
+    pub side_ref: SideReference,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct DecrementWishInstruction {
+    pub side_ref: SideReference,
 }
 
 #[derive(Debug, PartialEq, Clone)]

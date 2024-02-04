@@ -4,8 +4,8 @@ use crate::choices::{
 };
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-    ChangeSideConditionInstruction, EnableMoveInstruction, HealInstruction,
-    RemoveVolatileStatusInstruction,
+    ChangeSideConditionInstruction, DecrementWishInstruction, EnableMoveInstruction,
+    HealInstruction, RemoveVolatileStatusInstruction,
 };
 use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Side, Terrain};
 use crate::{
@@ -1489,7 +1489,7 @@ fn get_end_of_turn_instructions(
         It will apply instructions to the state as it goes, and then reverse them at the end.
 
      TODO:
-        - weather damage: sand & hail
+        - DONE weather damage: sand & hail
         - futuresight damage
         - wish healing
         - items (item callback fn)
@@ -1519,10 +1519,12 @@ fn get_end_of_turn_instructions(
 
         match state.weather.weather_type {
             Weather::Hail => {
-                let hail_damage = cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
                 let hail_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
-                    damage_amount: hail_damage,
+                    damage_amount: cmp::min(
+                        (active_pkmn.maxhp as f32 * 0.0625) as i16,
+                        active_pkmn.hp,
+                    ),
                 });
                 state.apply_one_instruction(&hail_damage_instruction);
                 incoming_instructions
@@ -1530,10 +1532,12 @@ fn get_end_of_turn_instructions(
                     .push(hail_damage_instruction);
             }
             Weather::Sand => {
-                let sand_damage = cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
                 let sand_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
-                    damage_amount: sand_damage,
+                    damage_amount: cmp::min(
+                        (active_pkmn.maxhp as f32 * 0.0625) as i16,
+                        active_pkmn.hp,
+                    ),
                 });
                 state.apply_one_instruction(&sand_damage_instruction);
                 incoming_instructions
@@ -1544,8 +1548,30 @@ fn get_end_of_turn_instructions(
         }
     }
 
-    // futuresight damage
-    // for side_ref in sides {}
+    // wish
+    for side_ref in sides {
+        let side = state.get_side_immutable(side_ref);
+        let active_pkmn = side.get_active_immutable();
+
+        if side.wish.0 > 0 {
+            let mut wish_instructions =
+                vec![Instruction::DecrementWish(DecrementWishInstruction {
+                    side_ref: *side_ref,
+                })];
+            if side.wish.0 == 1 && 0 < active_pkmn.hp && active_pkmn.hp < active_pkmn.maxhp {
+                wish_instructions.push(Instruction::Heal(HealInstruction {
+                    side_ref: *side_ref,
+                    heal_amount: cmp::min(active_pkmn.maxhp - active_pkmn.hp, side.wish.1),
+                }));
+            }
+            state.apply_instructions(&wish_instructions);
+            incoming_instructions
+                .instruction_list
+                .extend(wish_instructions);
+        }
+    }
+
+    //
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
 
@@ -5610,7 +5636,7 @@ mod tests {
             StateInstructions::default(),
             &side_one_move,
             &side_two_move,
-            &SideReference::SideOne
+            &SideReference::SideOne,
         );
 
         let expected_instructions = StateInstructions {
@@ -5623,7 +5649,7 @@ mod tests {
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
                     damage_amount: 6,
-                })
+                }),
             ],
         };
 
@@ -5643,7 +5669,7 @@ mod tests {
             StateInstructions::default(),
             &side_one_move,
             &side_two_move,
-            &SideReference::SideOne
+            &SideReference::SideOne,
         );
 
         let expected_instructions = StateInstructions {
@@ -5656,7 +5682,7 @@ mod tests {
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
                     damage_amount: 6,
-                })
+                }),
             ],
         };
 
@@ -5676,17 +5702,105 @@ mod tests {
             StateInstructions::default(),
             &side_one_move,
             &side_two_move,
-            &SideReference::SideOne
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 6,
+            })],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_wished_pokemon_gets_healed() {
+        let mut state = State::default();
+        state.side_one.wish = (1, 5);
+        state.side_one.get_active().hp = 50;
+        let side_one_move = MOVES.get("tackle").unwrap().to_owned();
+        let side_two_move = MOVES.get("tackle").unwrap().to_owned();
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &side_one_move,
+            &side_two_move,
+            &SideReference::SideOne,
         );
 
         let expected_instructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 6,
-                })
+                Instruction::DecrementWish(DecrementWishInstruction {
+                    side_ref: SideReference::SideOne,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 5,
+                }),
             ],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_wish_does_not_overheal() {
+        let mut state = State::default();
+        state.side_one.wish = (1, 50);
+        state.side_one.get_active().hp = 95;
+        let side_one_move = MOVES.get("tackle").unwrap().to_owned();
+        let side_two_move = MOVES.get("tackle").unwrap().to_owned();
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &side_one_move,
+            &side_two_move,
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::DecrementWish(DecrementWishInstruction {
+                    side_ref: SideReference::SideOne,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 5,
+                }),
+            ],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_wish_at_2_does_not_heal() {
+        let mut state = State::default();
+        state.side_one.wish = (2, 50);
+        state.side_one.get_active().hp = 95;
+        let side_one_move = MOVES.get("tackle").unwrap().to_owned();
+        let side_two_move = MOVES.get("tackle").unwrap().to_owned();
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &side_one_move,
+            &side_two_move,
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::DecrementWish(DecrementWishInstruction {
+                side_ref: SideReference::SideOne,
+            })],
         };
 
         assert_eq!(expected_instructions, vec_of_instructions)

@@ -15983,10 +15983,6 @@ lazy_static! {
                     snatch: true,
                     ..Default::default()
                 },
-                side_condition: Some(SideCondition {
-                    target: MoveTarget::User,
-                    condition: PokemonSideCondition::Wish,
-                }),
                 ..Default::default()
             },
         );

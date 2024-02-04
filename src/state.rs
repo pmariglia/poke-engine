@@ -135,7 +135,6 @@ pub enum PokemonSideCondition {
     ToxicCount,
     ToxicSpikes,
     WideGuard,
-    Wish,
 }
 
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -270,7 +269,6 @@ pub struct SideConditions {
     pub toxic_count: i8,
     pub toxic_spikes: i8,
     pub wide_guard: i8,
-    pub wish: i8,
 }
 
 impl Default for SideConditions {
@@ -294,7 +292,6 @@ impl Default for SideConditions {
             toxic_count: 0,
             toxic_spikes: 0,
             wide_guard: 0,
-            wish: 0,
         }
     }
 }
@@ -497,7 +494,6 @@ impl Side {
             PokemonSideCondition::ToxicCount => self.side_conditions.toxic_count,
             PokemonSideCondition::ToxicSpikes => self.side_conditions.toxic_spikes,
             PokemonSideCondition::WideGuard => self.side_conditions.wide_guard,
-            PokemonSideCondition::Wish => self.side_conditions.wish,
         }
     }
 }
@@ -696,7 +692,6 @@ impl State {
             PokemonSideCondition::ToxicCount => side.side_conditions.toxic_count += amount,
             PokemonSideCondition::ToxicSpikes => side.side_conditions.toxic_spikes += amount,
             PokemonSideCondition::WideGuard => side.side_conditions.wide_guard += amount,
-            PokemonSideCondition::Wish => side.side_conditions.wish += amount,
         }
     }
 
@@ -728,6 +723,14 @@ impl State {
 
     fn disable_move(&mut self, side_reference: &SideReference, move_index: usize) {
         self.get_side(side_reference).get_active().moves[move_index].disabled = false;
+    }
+
+    fn increment_wish(&mut self, side_reference: &SideReference) {
+        self.get_side(side_reference).wish.0 += 1;
+    }
+
+    fn decrement_wish(&mut self, side_reference: &SideReference) {
+        self.get_side(side_reference).wish.0 -= 1;
     }
 
     pub fn apply_instructions(&mut self, instructions: &Vec<Instruction>) {
@@ -787,6 +790,12 @@ impl State {
             }
             Instruction::DisableMove(instruction) => {
                 self.disable_move(&instruction.side_ref, instruction.move_index)
+            }
+            Instruction::IncrementWish(instruction) => {
+                self.increment_wish(&instruction.side_ref);
+            }
+            Instruction::DecrementWish(instruction) => {
+                self.decrement_wish(&instruction.side_ref);
             }
         }
     }
@@ -851,6 +860,8 @@ impl State {
             Instruction::ChangeItem(instruction) => {
                 self.change_item(&instruction.side_ref, instruction.current_item.clone())
             }
+            Instruction::IncrementWish(instruction) => self.decrement_wish(&instruction.side_ref),
+            Instruction::DecrementWish(instruction) => self.increment_wish(&instruction.side_ref),
         }
     }
 }
