@@ -1571,6 +1571,66 @@ fn get_end_of_turn_instructions(
         }
     }
 
+    // status damage
+    for side_ref in sides {
+        let side = state.get_side_immutable(side_ref);
+        let active_pkmn = side.get_active_immutable();
+
+        if active_pkmn.hp == 0 || active_pkmn.ability.as_str() == "magicguard" {
+            continue;
+        }
+
+        match active_pkmn.status {
+            PokemonStatus::Burn => {
+                let burn_damage_instruction = Instruction::Damage(DamageInstruction {
+                    side_ref: *side_ref,
+                    damage_amount: cmp::min(
+                        (active_pkmn.maxhp as f32 * 0.0625) as i16,
+                        active_pkmn.hp,
+                    ),
+                });
+                state.apply_one_instruction(&burn_damage_instruction);
+                incoming_instructions
+                    .instruction_list
+                    .push(burn_damage_instruction);
+            }
+            PokemonStatus::Poison if active_pkmn.ability.as_str() != "poisonheal" => {
+                let poison_damage_instruction = Instruction::Damage(DamageInstruction {
+                    side_ref: *side_ref,
+                    damage_amount: cmp::min(
+                        (active_pkmn.maxhp as f32 * 0.125) as i16,
+                        active_pkmn.hp,
+                    ),
+                });
+                state.apply_one_instruction(&poison_damage_instruction);
+                incoming_instructions
+                    .instruction_list
+                    .push(poison_damage_instruction);
+            }
+            PokemonStatus::Toxic if active_pkmn.ability.as_str() != "poisonheal" => {
+                let toxic_multiplier = (1.0 / 16.0) * side.side_conditions.toxic_count as f32 + (1.0 / 16.0);
+                let toxic_damage = cmp::min((active_pkmn.maxhp as f32 * toxic_multiplier) as i16, active_pkmn.hp);
+                let toxic_instructions = vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: *side_ref,
+                        damage_amount: toxic_damage,
+                    }),
+                    Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                        side_ref: *side_ref,
+                        side_condition: PokemonSideCondition::ToxicCount,
+                        amount: 1,
+                    }),
+                ];
+                state.apply_instructions(&toxic_instructions);
+                incoming_instructions
+                    .instruction_list
+                    .extend(toxic_instructions);
+            }
+            _ => {}
+        }
+
+    }
+
     // item end-of-turn effects
     for side_ref in sides {
         let side = state.get_side_immutable(side_ref);
@@ -6205,6 +6265,166 @@ mod tests {
         let expected_instructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_end_of_turn_poison_damage() {
+        let mut state = State::default();
+        state.side_one.get_active().status = PokemonStatus::Poison;
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 12,
+                })
+            ],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_poison_damage_does_not_overkill() {
+        let mut state = State::default();
+        state.side_one.get_active().status = PokemonStatus::Poison;
+        state.side_one.get_active().hp = 5;
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 5,
+                })
+            ],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_end_of_turn_burn_damage() {
+        let mut state = State::default();
+        state.side_one.get_active().status = PokemonStatus::Burn;
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 6,
+                })
+            ],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_burn_damage_does_not_overkill() {
+        let mut state = State::default();
+        state.side_one.get_active().status = PokemonStatus::Burn;
+        state.side_one.get_active().hp = 5;
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 5,
+                })
+            ],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_burn_damage_ignored_if_has_magicguard() {
+        let mut state = State::default();
+        state.side_one.get_active().status = PokemonStatus::Burn;
+        state.side_one.get_active().ability = String::from("magicguard");
+        state.side_one.get_active().hp = 5;
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        };
+
+        assert_eq!(expected_instructions, vec_of_instructions)
+    }
+
+    #[test]
+    fn test_first_toxic_damage() {
+        let mut state = State::default();
+        state.side_one.get_active().status = PokemonStatus::Toxic;
+
+        let vec_of_instructions = get_end_of_turn_instructions(
+            &mut state,
+            StateInstructions::default(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 6,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::ToxicCount,
+                    amount: 1,
+                }),
+            ],
         };
 
         assert_eq!(expected_instructions, vec_of_instructions)
