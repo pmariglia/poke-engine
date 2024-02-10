@@ -10651,6 +10651,23 @@ lazy_static! {
                     target: MoveTarget::User,
                     volatile_status: PokemonVolatileStatus::Protect,
                 }),
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _,
+                     attacking_side_ref: &SideReference| {
+                        if state
+                            .get_side_immutable(&attacking_side_ref)
+                            .side_conditions
+                            .protect
+                            > 0
+                        {
+                            // for now, the engine doesn't support consecutive protects
+                            // 2nd protect will always fail
+                            attacking_choice.volatile_status = None;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -16417,6 +16434,23 @@ pub struct Choice {
     pub modify_move: Option<ModifyChoiceFn>,
     pub after_damage_hit: Option<AfterDamageHitFn>,
     pub hazard_clear: Option<HazardClearFn>,
+}
+
+impl Choice {
+    pub fn remove_effects_for_protect(&mut self) {
+        // Crash is not removed
+
+        self.base_power = 0.0;
+        self.accuracy = 100.0;
+        self.heal = None;
+        self.drain = None;
+        self.recoil = None;
+        self.boost = None;
+        self.status = None;
+        self.volatile_status = None;
+        self.side_condition = None;
+        self.secondaries = None;
+    }
 }
 
 impl Default for Choice {

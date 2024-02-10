@@ -1,5 +1,5 @@
 use crate::choices::{
-    Boost, Effect, HazardClearFn, Heal, MoveTarget, Secondary, SideCondition, Status,
+    Boost, Effect, HazardClearFn, Heal, MoveTarget, Secondary, SideCondition, StatBoosts, Status,
     VolatileStatus,
 };
 use crate::instruction::{
@@ -760,7 +760,7 @@ fn generate_instructions_from_damage(
     choice: &Choice,
     calculated_damage: i16,
     attacking_side_ref: &SideReference,
-    incoming_instructions: StateInstructions,
+    mut incoming_instructions: StateInstructions,
 ) -> Vec<StateInstructions> {
     /*
     TODO:
@@ -779,6 +779,24 @@ fn generate_instructions_from_damage(
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     let attacking_pokemon = attacking_side.get_active_immutable();
     let defending_pokemon = defending_side.get_active_immutable();
+
+    if calculated_damage <= 0 {
+        if let Some(crash_fraction) = choice.crash {
+            let crash_amount = (attacking_pokemon.maxhp as f32 * crash_fraction) as i16;
+            let crash_instruction = Instruction::Damage(DamageInstruction {
+                side_ref: *attacking_side_ref,
+                damage_amount: cmp::min(crash_amount, attacking_pokemon.hp),
+            });
+            state.reverse_instructions(&incoming_instructions.instruction_list);
+            incoming_instructions
+                .instruction_list
+                .push(crash_instruction);
+        } else {
+            state.reverse_instructions(&incoming_instructions.instruction_list);
+        }
+
+        return vec![incoming_instructions];
+    }
 
     let percent_hit = choice.accuracy / 100.0;
     // Move hit
@@ -924,7 +942,7 @@ fn before_move(state: &State, choice: &Choice, attacking_side: &SideReference) -
 // Updates the attacker's Choice based on some special effects
 fn update_choice(
     state: &State,
-    attacker_choice: &mut Choice,
+    mut attacker_choice: &mut Choice,
     defender_choice: &Choice,
     attacking_side: &SideReference,
 ) {
@@ -961,6 +979,59 @@ fn update_choice(
         if let Some(modify_move_fn) = item.modify_attack_against {
             modify_move_fn(state, attacker_choice, attacking_side)
         };
+    }
+
+    if (defending_pokemon
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::Protect)
+        || defending_pokemon
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::SpikyShield)
+        || defending_pokemon
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::BanefulBunker)
+        || defending_pokemon
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::SilkTrap))
+        && attacker_choice.flags.protect
+    {
+        attacker_choice.remove_effects_for_protect();
+
+        if defending_pokemon
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::SpikyShield)
+            && attacker_choice.flags.contact
+        {
+            attacker_choice.heal = Some(Heal {
+                target: MoveTarget::User,
+                amount: -0.125,
+            })
+        } else if defending_pokemon
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::BanefulBunker)
+            && attacker_choice.flags.contact
+        {
+            attacker_choice.status = Some(Status {
+                target: MoveTarget::User,
+                status: PokemonStatus::Poison,
+            })
+        } else if defending_pokemon
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::SilkTrap)
+            && attacker_choice.flags.contact
+        {
+            attacker_choice.boost = Some(Boost {
+                target: MoveTarget::User,
+                boosts: StatBoosts {
+                    attack: 0,
+                    defense: 0,
+                    special_attack: 0,
+                    special_defense: 0,
+                    speed: -1,
+                    accuracy: 0,
+                },
+            })
+        }
     }
 }
 
@@ -4179,6 +4250,31 @@ mod tests {
                 })],
             },
         ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_crash_move_missing_versus_ghost_type() {
+        let mut state: State = State::default();
+        state.side_two.get_active().types.0 = PokemonType::Ghost;
+        let mut choice = MOVES.get("jumpkick").unwrap().to_owned();
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            &mut choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: Vec<StateInstructions> = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 50,
+            })],
+        }];
 
         assert_eq!(instructions, expected_instructions)
     }
