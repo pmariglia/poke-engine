@@ -21,9 +21,6 @@ use crate::{
 };
 use std::cmp;
 
-type InstructionGenerationFn =
-    fn(&mut State, &Choice, &SideReference, StateInstructions) -> StateInstructions;
-
 fn generate_instructions_from_switch(
     state: &mut State,
     new_pokemon_index: usize,
@@ -395,6 +392,7 @@ pub fn immune_to_status(
                     && target_pkmn.is_grounded())
                     || ["insomnia", "sweetveil", "vitalspirit"]
                         .contains(&target_pkmn.ability.as_str())
+                    || sleep_clause_activated()
             }
             PokemonStatus::Paralyze => {
                 target_pkmn.has_type(&PokemonType::Electric)
@@ -713,25 +711,6 @@ fn check_move_hit_or_miss(
     state.reverse_instructions(&incoming_instructions.instruction_list);
 
     return move_hit_instructions;
-}
-
-fn run_instruction_generation_fn_for_move_hit(
-    instruction_generation_fn: InstructionGenerationFn,
-    state: &mut State,
-    choice: &Choice,
-    side_reference: &SideReference,
-    incoming_instructions: Vec<StateInstructions>,
-) -> Vec<StateInstructions> {
-    let mut continuing_instructions: Vec<StateInstructions> = vec![];
-    for instruction in incoming_instructions {
-        continuing_instructions.push(instruction_generation_fn(
-            state,
-            choice,
-            side_reference,
-            instruction,
-        ));
-    }
-    return continuing_instructions;
 }
 
 fn get_instructions_from_drag(
@@ -5708,145 +5687,6 @@ mod tests {
             true,
             side_one_moves_first(&state, &side_one_choice, &side_two_choice)
         )
-    }
-
-    #[test]
-    fn test_basic_move_pair_instruction_generation() {
-        let mut state = State::default();
-        state.side_one.get_active().speed = 100;
-        state.side_two.get_active().speed = 50;
-        let side_one_move = String::from("tackle");
-        let side_two_move = String::from("tackle");
-
-        let vec_of_instructions =
-            generate_instructions_from_move_pair(&mut state, side_one_move, side_two_move);
-
-        let expected_instructions = vec![StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 48,
-                }),
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 48,
-                }),
-            ],
-        }];
-
-        assert_eq!(expected_instructions, vec_of_instructions)
-    }
-
-    #[test]
-    fn test_move_pair_instruction_generation_where_first_move_branches() {
-        let mut state = State::default();
-        state.side_one.get_active().speed = 100;
-        state.side_two.get_active().speed = 50;
-        let side_one_move = String::from("playrough");
-        let side_two_move = String::from("tackle");
-
-        let vec_of_instructions =
-            generate_instructions_from_move_pair(&mut state, side_one_move, side_two_move);
-
-        let expected_instructions = vec![
-            StateInstructions {
-                percentage: 10.000002,
-                instruction_list: vec![Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 48,
-                })],
-            },
-            StateInstructions {
-                percentage: 9.0,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideTwo,
-                        damage_amount: 71,
-                    }),
-                    Instruction::Boost(BoostInstruction {
-                        side_ref: SideReference::SideTwo,
-                        stat: PokemonBoostableStat::Attack,
-                        amount: -1,
-                    }),
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideOne,
-                        // playrough lowered attack means this does less dmg than other branches
-                        damage_amount: 33,
-                    }),
-                ],
-            },
-            StateInstructions {
-                percentage: 81.0,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideTwo,
-                        damage_amount: 71,
-                    }),
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideOne,
-                        damage_amount: 48,
-                    }),
-                ],
-            },
-        ];
-
-        assert_eq!(expected_instructions, vec_of_instructions)
-    }
-
-    #[test]
-    fn test_move_pair_instruction_generation_where_second_move_branches() {
-        let mut state = State::default();
-        state.side_one.get_active().speed = 50;
-        state.side_two.get_active().speed = 100;
-        let side_one_move = String::from("playrough");
-        let side_two_move = String::from("tackle");
-
-        let vec_of_instructions =
-            generate_instructions_from_move_pair(&mut state, side_one_move, side_two_move);
-
-        let expected_instructions = vec![
-            StateInstructions {
-                percentage: 10.000002,
-                instruction_list: vec![Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 48,
-                })],
-            },
-            StateInstructions {
-                percentage: 9.0,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideOne,
-                        damage_amount: 48,
-                    }),
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideTwo,
-                        damage_amount: 71,
-                    }),
-                    Instruction::Boost(BoostInstruction {
-                        side_ref: SideReference::SideTwo,
-                        stat: PokemonBoostableStat::Attack,
-                        amount: -1,
-                    }),
-                ],
-            },
-            StateInstructions {
-                percentage: 81.0,
-                instruction_list: vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideOne,
-                        damage_amount: 48,
-                    }),
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideTwo,
-                        damage_amount: 71,
-                    }),
-                ],
-            },
-        ];
-
-        assert_eq!(expected_instructions, vec_of_instructions)
     }
 
     #[test]

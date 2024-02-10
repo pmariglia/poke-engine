@@ -1,17 +1,9 @@
 #![allow(dead_code)]
 
-use crate::generate_instructions::generate_instructions_from_move_pair;
-use crate::state::State;
+use poke_engine::generate_instructions::generate_instructions_from_move_pair;
+use poke_engine::state::State;
 
 extern crate lazy_static;
-
-mod abilities;
-mod choices;
-mod damage_calc;
-mod generate_instructions;
-mod instruction;
-mod items;
-mod state;
 
 fn main() {
     let mut state: State = State::default();

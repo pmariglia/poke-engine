@@ -7,7 +7,6 @@ use crate::choices::{Choice, Effect, MoveTarget, Secondary};
 use crate::generate_instructions::get_boost_instruction;
 use crate::instruction::{
     BoostInstruction, ChangeStatusInstruction, ChangeType, HealInstruction, Instruction,
-    StateInstructions,
 };
 use crate::state::SideReference;
 use crate::state::{PokemonBoostableStat, PokemonType};
@@ -17,7 +16,6 @@ type ModifyAttackBeingUsed = fn(&State, &mut Choice, &Choice, &SideReference);
 type ModifyAttackAgainst = fn(&State, &mut Choice, &Choice, &SideReference);
 type AbilityBeforeMove = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
 type AbilityAfterDamageHit = fn(&State, &Choice, &SideReference, i16) -> Vec<Instruction>;
-type AbilityAfterBeingHitBranching = fn(&State, &Choice, &SideReference) -> Vec<StateInstructions>;
 type AbilityOnSwitchOut = fn(&State, &SideReference) -> Vec<Instruction>;
 type AbilityOnSwitchIn = fn(&State, &SideReference) -> Vec<Instruction>;
 type AbilityEndOfTurn = fn(&State, &SideReference) -> Vec<Instruction>;
