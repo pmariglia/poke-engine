@@ -1115,7 +1115,6 @@ pub fn generate_instructions_from_move(
     * DONE GOOD ENOUGH - WILL COME BACK TO AFTER ENGINE COMPLETE calculate damage amount(s) and do the damage
     - after-move effects
         * move special effect (both sides)
-            - static/flamebody means this needs to possibly branch
             - protect and it's variants, which can generate some custom instructions
         - ability (both sides)
         - item (both sides)
