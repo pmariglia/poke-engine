@@ -1001,6 +1001,14 @@ fn update_choice(
         };
     }
 
+    if defending_pokemon
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::Substitute)
+        && attacker_choice.category != MoveCategory::Status
+    {
+        attacker_choice.flags.drag = false;
+    }
+
     // modify choice if defender has protect active
     if (defending_pokemon
         .volatile_statuses
@@ -1229,7 +1237,7 @@ pub fn generate_instructions_from_move(
         )];
     }
 
-    if !choice.first_move && choice.flags.drag {
+    if !choice.first_move && defender_choice.flags.drag {
         return vec![incoming_instructions];
     }
 
@@ -1915,6 +1923,7 @@ pub fn generate_instructions_from_move_pair(
             SideReference::SideOne,
             incoming_instructions,
         );
+        side_two_choice.first_move = false;
         for state_instruction in first_move_instructions {
             state_instruction_vec.extend(generate_instructions_from_move(
                 state,
@@ -1933,6 +1942,7 @@ pub fn generate_instructions_from_move_pair(
             SideReference::SideTwo,
             incoming_instructions,
         );
+        side_one_choice.first_move = false;
         for state_instruction in first_move_instructions {
             state_instruction_vec.extend(generate_instructions_from_move(
                 state,
@@ -1971,7 +1981,7 @@ mod tests {
     use crate::state::{Move, PokemonBoostableStat, SideReference, State, Terrain};
 
     #[test]
-    fn test_drag_move_as_second_move_exits_early() {
+    fn test_drag_move_as_second_move_exits_early_if_opponent_used_drag_move() {
         let mut state: State = State::default();
         let mut choice = MOVES.get("dragontail").unwrap().to_owned();
         choice.first_move = false;
@@ -1979,7 +1989,7 @@ mod tests {
         let instructions = generate_instructions_from_move(
             &mut state,
             &mut choice,
-            MOVES.get("tackle").unwrap(),
+            MOVES.get("dragontail").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
         );

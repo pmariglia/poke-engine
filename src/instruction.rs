@@ -24,11 +24,11 @@ impl Default for StateInstructions {
 
 impl fmt::Debug for StateInstructions {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut final_string = format!("\n\tPercentage: {}\n", self.percentage);
+        let mut final_string = format!("\n\tPercentage: {}", self.percentage);
         for i in self.instruction_list.iter() {
-            final_string.push_str(format!("\t\t{:?}\n", i).as_str());
+            final_string.push_str(format!("\n\t\t{:?}", i).as_str());
         }
-        write!(f, "{}", final_string)
+        write!(f, "{}\n", final_string)
     }
 }
 

@@ -10665,6 +10665,7 @@ lazy_static! {
                             .side_conditions
                             .protect
                             > 0
+                        || attacking_choice.first_move == false
                         {
                             // for now, the engine doesn't support consecutive protects
                             // 2nd protect will always fail
@@ -16470,6 +16471,7 @@ impl Choice {
 
         self.base_power = 0.0;
         self.accuracy = 100.0;
+        self.flags.drag = false;
         self.heal = None;
         self.drain = None;
         self.recoil = None;
