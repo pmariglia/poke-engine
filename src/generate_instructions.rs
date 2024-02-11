@@ -527,15 +527,21 @@ fn get_instructions_from_boosts(
 }
 
 fn generate_instructions_from_move_special_effect(
-    _state: &mut State,
+    state: &mut State,
     choice: &Choice,
-    _side_reference: &SideReference,
-    incoming_instructions: StateInstructions,
+    side_reference: &SideReference,
+    mut incoming_instructions: StateInstructions,
 ) -> StateInstructions {
-    return match choice.move_id.as_str() {
-        // "haze" => {},
-        _ => incoming_instructions,
-    };
+    if let Some(move_special_effect_fn) = choice.move_special_effect {
+        state.apply_instructions(&incoming_instructions.instruction_list);
+        let additional_instructions = move_special_effect_fn(state, side_reference);
+        state.reverse_instructions(&incoming_instructions.instruction_list);
+        incoming_instructions
+            .instruction_list
+            .extend(additional_instructions);
+        return incoming_instructions;
+    }
+    return incoming_instructions;
 }
 
 fn get_instructions_from_secondaries(
@@ -801,34 +807,56 @@ fn generate_instructions_from_damage(
     let percent_hit = choice.accuracy / 100.0;
     // Move hit
     if percent_hit > 0.0 {
+        let mut damage_dealt;
         let mut move_hit_instructions = incoming_instructions.clone();
-
-        let mut damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
-
-        if defending_pokemon.ability.as_str() == "sturdy"
-            && defending_pokemon.maxhp == defending_pokemon.hp
+        if defending_pokemon
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::Substitute)
         {
-            damage_dealt -= 1;
-        }
-
-        move_hit_instructions
-            .instruction_list
-            .push(Instruction::Damage(DamageInstruction {
+            damage_dealt = cmp::min(calculated_damage, defending_pokemon.substitute_health);
+            let substitute_instruction = Instruction::DamageSubstitute(DamageInstruction {
                 side_ref: attacking_side_ref.get_other_side(),
-                damage_amount: damage_dealt,
-            }));
-
-        if let Some(ability) = ABILITIES.get(&attacking_pokemon.ability) {
-            if let Some(after_damage_hit_fn) = ability.after_damage_hit {
+                damage_amount: cmp::min(calculated_damage, damage_dealt),
+            });
+            move_hit_instructions
+                .instruction_list
+                .push(substitute_instruction);
+            if damage_dealt == defending_pokemon.substitute_health {
                 move_hit_instructions
                     .instruction_list
-                    .extend(after_damage_hit_fn(
-                        state,
-                        choice,
-                        attacking_side_ref,
-                        damage_dealt,
+                    .push(Instruction::RemoveVolatileStatus(
+                        RemoveVolatileStatusInstruction {
+                            side_ref: attacking_side_ref.get_other_side(),
+                            volatile_status: PokemonVolatileStatus::Substitute,
+                        },
                     ));
-            };
+            }
+        } else {
+            damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
+            if defending_pokemon.ability.as_str() == "sturdy"
+                && defending_pokemon.maxhp == defending_pokemon.hp
+            {
+                damage_dealt -= 1;
+            }
+
+            move_hit_instructions
+                .instruction_list
+                .push(Instruction::Damage(DamageInstruction {
+                    side_ref: attacking_side_ref.get_other_side(),
+                    damage_amount: damage_dealt,
+                }));
+            if let Some(ability) = ABILITIES.get(&attacking_pokemon.ability) {
+                if let Some(after_damage_hit_fn) = ability.after_damage_hit {
+                    move_hit_instructions
+                        .instruction_list
+                        .extend(after_damage_hit_fn(
+                            state,
+                            choice,
+                            attacking_side_ref,
+                            damage_dealt,
+                        ));
+                };
+            }
         }
 
         /*
@@ -981,6 +1009,7 @@ fn update_choice(
         };
     }
 
+    // modify choice if defender has protect active
     if (defending_pokemon
         .volatile_statuses
         .contains(&PokemonVolatileStatus::Protect)
@@ -1105,8 +1134,6 @@ fn generate_instructions_from_existing_status_conditions(
     state.reverse_instructions(&apply_reverse_instruction_list);
     return instructions_that_will_proceed;
 }
-
-// fn move_special_effects(state: &State, choice: &mut Choice) {}
 
 // Interpreting the function arguments/return-value:
 //
@@ -2323,37 +2350,6 @@ mod tests {
         let expected_instructions = vec![StateInstructions {
             percentage: 100.0,
             instruction_list: vec![],
-        }];
-
-        assert_eq!(instructions, expected_instructions)
-    }
-
-    #[test]
-    fn test_substitute_doing_damage_to_user() {
-        let mut state: State = State::default();
-        state.side_one.get_active().hp = 26;
-        let mut choice = MOVES.get("substitute").unwrap().to_owned();
-
-        let instructions = generate_instructions_from_move(
-            &mut state,
-            &mut choice,
-            MOVES.get("tackle").unwrap(),
-            SideReference::SideOne,
-            StateInstructions::default(),
-        );
-
-        let expected_instructions = vec![StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                    side_ref: SideReference::SideOne,
-                    volatile_status: PokemonVolatileStatus::Substitute,
-                }),
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 25,
-                }),
-            ],
         }];
 
         assert_eq!(instructions, expected_instructions)

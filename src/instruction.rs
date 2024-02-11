@@ -5,8 +5,9 @@ use crate::state::SideReference;
 use crate::state::Terrain;
 use crate::state::Weather;
 use crate::state::{PokemonBoostableStat, PokemonType};
+use std::fmt;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(PartialEq, Clone)]
 pub struct StateInstructions {
     pub percentage: f32,
     pub instruction_list: Vec<Instruction>,
@@ -18,6 +19,16 @@ impl Default for StateInstructions {
             percentage: 100.0,
             instruction_list: vec![],
         };
+    }
+}
+
+impl fmt::Debug for StateInstructions {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut final_string = format!("\n\tPercentage: {}\n", self.percentage);
+        for i in self.instruction_list.iter() {
+            final_string.push_str(format!("\t\t{:?}\n", i).as_str());
+        }
+        write!(f, "{}", final_string)
     }
 }
 
@@ -46,6 +57,8 @@ pub enum Instruction {
     EnableMove(EnableMoveInstruction),
     IncrementWish(IncrementWishInstruction),
     DecrementWish(DecrementWishInstruction),
+    DamageSubstitute(DamageInstruction),
+    SetSubstituteHealth(SetSubstituteHealthInstruction),
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -87,6 +100,13 @@ pub struct HealInstruction {
 pub struct DamageInstruction {
     pub side_ref: SideReference,
     pub damage_amount: i16,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct SetSubstituteHealthInstruction {
+    pub side_ref: SideReference,
+    pub new_health: i16,
+    pub old_health: i16,
 }
 
 #[derive(Debug, PartialEq, Clone)]

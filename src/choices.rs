@@ -1,7 +1,10 @@
+use crate::instruction::ApplyVolatileStatusInstruction;
 use crate::instruction::ChangeItemInstruction;
 use crate::instruction::ChangeSideConditionInstruction;
 use crate::instruction::ChangeTerrain;
+use crate::instruction::DamageInstruction;
 use crate::instruction::Instruction;
+use crate::instruction::SetSubstituteHealthInstruction;
 use crate::state::PokemonStatus;
 use crate::state::PokemonType;
 use crate::state::PokemonVolatileStatus;
@@ -15,6 +18,7 @@ use std::collections::HashMap;
 pub type ModifyChoiceFn = fn(&State, &mut Choice, &Choice, &SideReference);
 pub type AfterDamageHitFn = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
 pub type HazardClearFn = fn(&State, &SideReference) -> Vec<Instruction>;
+pub type MoveSpecialEffectFn = fn(&State, &SideReference) -> Vec<Instruction>;
 
 lazy_static! {
     pub static ref MOVES: HashMap<String, Choice> = {
@@ -14105,6 +14109,29 @@ lazy_static! {
                     target: MoveTarget::User,
                     volatile_status: PokemonVolatileStatus::Substitute,
                 }),
+                move_special_effect: Some(|state: &State, side_ref: &SideReference| {
+                    let active_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
+                    let sub_target_health = active_pkmn.maxhp / 4;
+                    if active_pkmn.hp > sub_target_health {
+                        return vec![
+                            Instruction::Damage(DamageInstruction {
+                                side_ref: side_ref.clone(),
+                                damage_amount: sub_target_health,
+                            }),
+                            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                                side_ref: side_ref.clone(),
+                                new_health: sub_target_health,
+                                old_health: active_pkmn.substitute_health,
+                            }),
+                            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                                side_ref: side_ref.clone(),
+                                volatile_status: PokemonVolatileStatus::Substitute
+                            })
+                        ];
+                    }
+
+                    return vec![];
+                }),
                 ..Default::default()
             },
         );
@@ -16434,6 +16461,7 @@ pub struct Choice {
     pub modify_move: Option<ModifyChoiceFn>,
     pub after_damage_hit: Option<AfterDamageHitFn>,
     pub hazard_clear: Option<HazardClearFn>,
+    pub move_special_effect: Option<MoveSpecialEffectFn>,
 }
 
 impl Choice {
@@ -16480,6 +16508,7 @@ impl Default for Choice {
             modify_move: None,
             after_damage_hit: None,
             hazard_clear: None,
+            move_special_effect: None,
         };
     }
 }
