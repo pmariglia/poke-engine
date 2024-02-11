@@ -421,7 +421,7 @@ impl Pokemon {
         }
         match volatile_status {
             PokemonVolatileStatus::Substitute => return self.hp > self.maxhp / 4,
-            PokemonVolatileStatus::Flinch => return first_move,
+            PokemonVolatileStatus::Flinch | PokemonVolatileStatus::Protect => return first_move,
             _ => return true,
         }
     }

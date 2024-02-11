@@ -10665,7 +10665,6 @@ lazy_static! {
                             .side_conditions
                             .protect
                             > 0
-                        || attacking_choice.first_move == false
                         {
                             // for now, the engine doesn't support consecutive protects
                             // 2nd protect will always fail
