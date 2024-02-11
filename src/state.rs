@@ -415,12 +415,13 @@ impl Pokemon {
         return PokemonBoostableStat::Attack;
     }
 
-    pub fn volitile_status_can_be_applied(&self, volatile_status: &PokemonVolatileStatus) -> bool {
+    pub fn volatile_status_can_be_applied(&self, volatile_status: &PokemonVolatileStatus, first_move: bool) -> bool {
         if self.volatile_statuses.contains(volatile_status) {
             return false;
         }
         match volatile_status {
             PokemonVolatileStatus::Substitute => return self.hp > self.maxhp / 4,
+            PokemonVolatileStatus::Flinch => return first_move,
             _ => return true,
         }
     }

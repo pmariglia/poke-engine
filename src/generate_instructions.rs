@@ -304,6 +304,7 @@ fn get_instructions_from_hazard_clearing_moves(
 
 fn get_instructions_from_volatile_statuses(
     state: &mut State,
+    attacker_choice: &Choice,
     volatile_status: &VolatileStatus,
     attacking_side_reference: &SideReference,
     mut incoming_instructions: StateInstructions,
@@ -320,7 +321,7 @@ fn get_instructions_from_volatile_statuses(
     let affected_pkmn = state
         .get_side_immutable(&target_side)
         .get_active_immutable();
-    if affected_pkmn.volitile_status_can_be_applied(&volatile_status.volatile_status) {
+    if affected_pkmn.volatile_status_can_be_applied(&volatile_status.volatile_status, attacker_choice.first_move) {
         additional_instructions.push(Instruction::ApplyVolatileStatus(
             ApplyVolatileStatusInstruction {
                 side_ref: target_side,
@@ -546,6 +547,7 @@ fn generate_instructions_from_move_special_effect(
 
 fn get_instructions_from_secondaries(
     state: &mut State,
+    attacker_choice: &Choice,
     secondaries: &Vec<Secondary>,
     side_reference: &SideReference,
     incoming_instructions: StateInstructions,
@@ -564,6 +566,7 @@ fn get_instructions_from_secondaries(
                     Effect::VolatileStatus(volatile_status) => {
                         secondary_hit_instructions = get_instructions_from_volatile_statuses(
                             state,
+                            attacker_choice,
                             &VolatileStatus {
                                 target: secondary.target.clone(),
                                 volatile_status: volatile_status.clone(),
@@ -1368,6 +1371,7 @@ pub fn generate_instructions_from_move(
         for instruction in next_instructions {
             continuing_instructions.push(get_instructions_from_volatile_statuses(
                 state,
+                &choice,
                 volatile_status,
                 &attacking_side,
                 instruction,
@@ -1416,6 +1420,7 @@ pub fn generate_instructions_from_move(
         for instruction in next_instructions {
             continuing_instructions.extend(get_instructions_from_secondaries(
                 state,
+                &choice,
                 secondaries_vec,
                 &attacking_side,
                 instruction,
