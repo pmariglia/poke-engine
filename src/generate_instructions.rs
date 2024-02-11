@@ -812,6 +812,8 @@ fn generate_instructions_from_damage(
         if defending_pokemon
             .volatile_statuses
             .contains(&PokemonVolatileStatus::Substitute)
+            && !choice.flags.sound
+            && attacking_pokemon.ability != "infiltrator"
         {
             damage_dealt = cmp::min(calculated_damage, defending_pokemon.substitute_health);
             let substitute_instruction = Instruction::DamageSubstitute(DamageInstruction {
@@ -821,16 +823,6 @@ fn generate_instructions_from_damage(
             move_hit_instructions
                 .instruction_list
                 .push(substitute_instruction);
-            if damage_dealt == defending_pokemon.substitute_health {
-                move_hit_instructions
-                    .instruction_list
-                    .push(Instruction::RemoveVolatileStatus(
-                        RemoveVolatileStatusInstruction {
-                            side_ref: attacking_side_ref.get_other_side(),
-                            volatile_status: PokemonVolatileStatus::Substitute,
-                        },
-                    ));
-            }
         } else {
             damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
             if defending_pokemon.ability.as_str() == "sturdy"
@@ -1422,6 +1414,30 @@ pub fn generate_instructions_from_move(
             ));
         }
         next_instructions = continuing_instructions;
+    }
+
+    for mut instruction in next_instructions.iter_mut() {
+        state.apply_instructions(&instruction.instruction_list);
+
+        let defending_pokemon = state
+            .get_side_immutable(&attacking_side.get_other_side())
+            .get_active_immutable();
+        if defending_pokemon
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::Substitute)
+            && defending_pokemon.substitute_health == 0
+        {
+            instruction
+                .instruction_list
+                .push(Instruction::RemoveVolatileStatus(
+                    RemoveVolatileStatusInstruction {
+                        side_ref: attacking_side.get_other_side(),
+                        volatile_status: PokemonVolatileStatus::Substitute,
+                    },
+                ))
+        }
+
+        state.reverse_instructions(&instruction.instruction_list);
     }
 
     for instruction in next_instructions {

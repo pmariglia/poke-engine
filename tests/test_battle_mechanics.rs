@@ -711,6 +711,50 @@ fn test_protect_for_second_turn_in_a_row() {
 }
 
 #[test]
+fn test_double_protect() {
+    let mut state = State::default();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("protect"),
+        String::from("protect"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Protect,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::Protect,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Protect,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideTwo,
+                side_condition: PokemonSideCondition::Protect,
+                amount: 1,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::Protect,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideOne,
+                side_condition: PokemonSideCondition::Protect,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
 fn test_basic_substitute_usage() {
     let mut state = State::default();
     state.side_one.get_active().speed = 150;
@@ -744,6 +788,164 @@ fn test_basic_substitute_usage() {
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::Substitute,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_substitute_does_not_let_secondary_status_effect_happen() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("substitute"),
+        String::from("firepunch"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 25,
+            }),
+            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                side_ref: SideReference::SideOne,
+                new_health: 25,
+                old_health: 0,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::Substitute,
+            }),
+            Instruction::DamageSubstitute(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 25,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::Substitute,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_secondary_on_self_works_against_substitute() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("substitute"),
+        String::from("poweruppunch"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 25,
+            }),
+            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                side_ref: SideReference::SideOne,
+                new_health: 25,
+                old_health: 0,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::Substitute,
+            }),
+            Instruction::DamageSubstitute(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 25,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Attack,
+                amount: 1,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::Substitute,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_move_goes_through_substitute() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("substitute"),
+        String::from("boomburst"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 25,
+            }),
+            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                side_ref: SideReference::SideOne,
+                new_health: 25,
+                old_health: 0,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::Substitute,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 75,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_infiltrator_goes_through_substitute() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state.side_two.get_active().ability = String::from("infiltrator");
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("substitute"),
+        String::from("tackle"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 25,
+            }),
+            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                side_ref: SideReference::SideOne,
+                new_health: 25,
+                old_health: 0,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::Substitute,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
             }),
         ],
     }];
