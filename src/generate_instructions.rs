@@ -597,6 +597,18 @@ fn get_instructions_from_secondaries(
                             secondary_hit_instructions,
                         );
                     }
+                    Effect::Heal(heal_amount) => {
+                        secondary_hit_instructions = get_instructions_from_heal(
+                            state,
+                            &Heal {
+                                target: secondary.target.clone(),
+                                amount: *heal_amount,
+                            },
+                            side_reference,
+                            secondary_hit_instructions,
+                        );
+
+                    }
                 }
                 loop_vec.push(secondary_hit_instructions);
             }
@@ -773,9 +785,6 @@ fn generate_instructions_from_damage(
 ) -> Vec<StateInstructions> {
     /*
     TODO:
-        - substitute consideration
-            - requires a state change. VolatileStatus for sub & value for sub-health
-            - do last tbh
         - arbitrary other after_move as well from the old engine (triggers on hit OR miss)
             - dig/dive/bounce/fly volatilestatus
         - item after damage hit: should generate instructions (rockyhelmet, for example)

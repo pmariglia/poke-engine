@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
-use crate::choices::{Choice, MoveCategory, MoveTarget};
+use crate::choices::{Choice, Effect, Heal, MoveCategory, MoveTarget, Secondary};
 use crate::generate_instructions::immune_to_status;
 use crate::instruction::{
     ChangeStatusInstruction, DamageInstruction, HealInstruction, Instruction,
@@ -117,21 +117,23 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        // items.insert(
-        //     "rockyhelmet".to_string(),
-        //     Item {
-        //         modify_attack_against: Some(
-        //             |_state, attacking_choice: &mut Choice, _side_ref| {
-        //                 if attacking_choice.flags.contact {
-        //                     if let Some(secondaries) = attacking_choice.secondaries {
-        //
-        //                     }
-        //                 }
-        //             },
-        //         ),
-        //         ..Default::default()
-        //     },
-        // );
+        items.insert(
+            "rockyhelmet".to_string(),
+            Item {
+                modify_attack_against: Some(
+                    |_state, attacking_choice: &mut Choice, _side_ref| {
+                        if attacking_choice.flags.contact {
+                            attacking_choice.add_or_create_secondaries(Secondary {
+                                chance: 100.0,
+                                effect: Effect::Heal(-0.125),
+                                target: MoveTarget::User
+                            })
+                        }
+                    },
+                ),
+                ..Default::default()
+            },
+        );
         items.insert(
             "airballoon".to_string(),
             Item {

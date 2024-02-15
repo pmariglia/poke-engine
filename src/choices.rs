@@ -16430,6 +16430,7 @@ pub enum Effect {
     VolatileStatus(PokemonVolatileStatus),
     Boost(StatBoosts),
     Status(PokemonStatus),
+    Heal(f32),
 }
 
 #[derive(Clone)]
@@ -16465,6 +16466,13 @@ pub struct Choice {
 }
 
 impl Choice {
+    pub fn add_or_create_secondaries(&mut self, secondary: Secondary) {
+        if let Some(secondaries) = &mut self.secondaries {
+            secondaries.push(secondary);
+        } else {
+            self.secondaries = Some(vec![secondary]);
+        }
+    }
     pub fn remove_effects_for_protect(&mut self) {
         // Crash is not removed
 
