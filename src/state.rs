@@ -415,7 +415,11 @@ impl Pokemon {
         return PokemonBoostableStat::Attack;
     }
 
-    pub fn volatile_status_can_be_applied(&self, volatile_status: &PokemonVolatileStatus, first_move: bool) -> bool {
+    pub fn volatile_status_can_be_applied(
+        &self,
+        volatile_status: &PokemonVolatileStatus,
+        first_move: bool,
+    ) -> bool {
         if self.volatile_statuses.contains(volatile_status) {
             return false;
         }
@@ -458,7 +462,28 @@ impl Default for Pokemon {
             substitute_health: 0,
             nature: PokemonNatures::Serious,
             volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
-            moves: vec![],
+            moves: vec![
+                Move {
+                    id: "tackle".to_string(),
+                    disabled: false,
+                    pp: 35,
+                },
+                Move {
+                    id: "growl".to_string(),
+                    disabled: false,
+                    pp: 40,
+                },
+                Move {
+                    id: "quickattack".to_string(),
+                    disabled: false,
+                    pp: 30,
+                },
+                Move {
+                    id: "tailwhip".to_string(),
+                    disabled: false,
+                    pp: 30,
+                },
+            ],
         };
     }
 }

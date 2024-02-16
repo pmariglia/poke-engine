@@ -1,12 +1,12 @@
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeSideConditionInstruction,
-    ChangeStatusInstruction, DamageInstruction, HealInstruction, Instruction,
-    RemoveVolatileStatusInstruction, SetSubstituteHealthInstruction, StateInstructions,
-    SwitchInstruction,
+    ChangeStatusInstruction, DamageInstruction, DisableMoveInstruction, EnableMoveInstruction,
+    HealInstruction, Instruction, RemoveVolatileStatusInstruction, SetSubstituteHealthInstruction,
+    StateInstructions, SwitchInstruction,
 };
 use poke_engine::state::{
-    PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonVolatileStatus,
+    Move, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonVolatileStatus,
     SideReference, State,
 };
 
@@ -1056,9 +1056,9 @@ fn test_drag_move_against_substitute() {
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
                     volatile_status: PokemonVolatileStatus::Substitute,
-                })
+                }),
             ],
-        }
+        },
     ];
     assert_eq!(expected_instructions, vec_of_instructions)
 }
@@ -1208,11 +1208,11 @@ fn test_rockyhelmet_damage_taken() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::Damage(DamageInstruction{
+            Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 48,
             }),
-            Instruction::Heal(HealInstruction{
+            Instruction::Heal(HealInstruction {
                 side_ref: SideReference::SideOne,
                 heal_amount: -12,
             }),
@@ -1237,13 +1237,116 @@ fn test_rockyhelmet_does_not_overkill() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::Damage(DamageInstruction{
+            Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 48,
             }),
-            Instruction::Heal(HealInstruction{
+            Instruction::Heal(HealInstruction {
                 side_ref: SideReference::SideOne,
                 heal_amount: -1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_choiceband_locking() {
+    let mut state = State::default();
+    state.side_one.get_active().item = String::from("choiceband");
+    state.side_one.get_active().moves[0] = Move {
+        id: "willowisp".to_string(),
+        disabled: false,
+        pp: 35,
+    };
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("willowisp"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 14.999998,
+            instruction_list: vec![
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: 1,
+                }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: 2,
+                }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: 3,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 85.0,
+            instruction_list: vec![
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: 1,
+                }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: 2,
+                }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: 3,
+                }),
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    pokemon_index: 0,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Burn,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 6,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_locked_moves_unlock_on_switchout() {
+    let mut state = State::default();
+    state.side_one.get_active().moves[1].disabled = true;
+    state.side_one.get_active().moves[2].disabled = true;
+    state.side_one.get_active().moves[3].disabled = true;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("Switch 1"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: SideReference::SideOne,
+                move_index: 1,
+            }),
+            Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: SideReference::SideOne,
+                move_index: 2,
+            }),
+            Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: SideReference::SideOne,
+                move_index: 3,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: 0,
+                next_index: 1,
             }),
         ],
     }];

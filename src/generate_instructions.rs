@@ -321,7 +321,10 @@ fn get_instructions_from_volatile_statuses(
     let affected_pkmn = state
         .get_side_immutable(&target_side)
         .get_active_immutable();
-    if affected_pkmn.volatile_status_can_be_applied(&volatile_status.volatile_status, attacker_choice.first_move) {
+    if affected_pkmn.volatile_status_can_be_applied(
+        &volatile_status.volatile_status,
+        attacker_choice.first_move,
+    ) {
         additional_instructions.push(Instruction::ApplyVolatileStatus(
             ApplyVolatileStatusInstruction {
                 side_ref: target_side,
@@ -607,7 +610,6 @@ fn get_instructions_from_secondaries(
                             side_reference,
                             secondary_hit_instructions,
                         );
-
                     }
                 }
                 loop_vec.push(secondary_hit_instructions);
@@ -787,7 +789,6 @@ fn generate_instructions_from_damage(
     TODO:
         - arbitrary other after_move as well from the old engine (triggers on hit OR miss)
             - dig/dive/bounce/fly volatilestatus
-        - item after damage hit: should generate instructions (rockyhelmet, for example)
     */
 
     let mut return_instructions: Vec<StateInstructions> = vec![];
@@ -964,6 +965,12 @@ fn before_move(state: &State, choice: &Choice, attacking_side: &SideReference) -
 
     if let Some(ability) = ABILITIES.get(&attacking_pokemon.ability) {
         if let Some(before_move_fn) = ability.before_move {
+            new_instructions.append(&mut before_move_fn(state, choice, attacking_side));
+        };
+    }
+
+    if let Some(item) = ITEMS.get(&attacking_pokemon.item) {
+        if let Some(before_move_fn) = item.before_move {
             new_instructions.append(&mut before_move_fn(state, choice, attacking_side));
         };
     }
@@ -1922,8 +1929,35 @@ pub fn generate_instructions_from_move_pair(
           This was done elsewhere in the other bot, but it should be here instead
     */
 
-    let mut side_one_choice = MOVES.get(&side_one_move).unwrap().to_owned();
-    let mut side_two_choice = MOVES.get(&side_two_move).unwrap().to_owned();
+    let mut side_one_choice;
+    if side_one_move.starts_with("Switch") {
+        side_one_choice = Choice::default();
+        side_one_choice.switch_id = side_one_move
+            .chars()
+            .last()
+            .unwrap()
+            .to_owned()
+            .to_digit(10)
+            .unwrap() as usize;
+        side_one_choice.category = MoveCategory::Switch;
+    } else {
+        side_one_choice = MOVES.get(&side_one_move).unwrap().to_owned();
+    }
+
+    let mut side_two_choice;
+    if side_two_move.starts_with("Switch") {
+        side_two_choice = Choice::default();
+        side_two_choice.switch_id = side_two_move
+            .chars()
+            .last()
+            .unwrap()
+            .to_owned()
+            .to_digit(10)
+            .unwrap() as usize;
+        side_two_choice.category = MoveCategory::Switch;
+    } else {
+        side_two_choice = MOVES.get(&side_two_move).unwrap().to_owned();
+    }
 
     let mut state_instruction_vec: Vec<StateInstructions> = vec![];
     let incoming_instructions: StateInstructions = StateInstructions::default();
