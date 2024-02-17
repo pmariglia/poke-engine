@@ -40,6 +40,19 @@ lazy_static! {
     pub static ref ITEMS: HashMap<String, Item> = {
         let mut items: HashMap<String, Item> = HashMap::new();
         items.insert(
+            "blackbelt".to_string(),
+            Item {
+                modify_attack_being_used: Some(
+                    |_state, attacking_choice: &mut Choice, _side_ref| {
+                        if attacking_choice.move_type == PokemonType::Fighting {
+                            attacking_choice.base_power *= 1.2;
+                        }
+                    },
+                ),
+                ..Default::default()
+            },
+        );
+        items.insert(
             "choiceband".to_string(),
             Item {
                 modify_attack_being_used: Some(

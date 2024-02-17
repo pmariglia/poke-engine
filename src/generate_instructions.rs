@@ -875,14 +875,16 @@ fn generate_instructions_from_damage(
                 drain_amount,
                 attacking_pokemon.maxhp - attacking_pokemon_health,
             );
-            let drain_instruction = Instruction::Heal(HealInstruction {
-                side_ref: *attacking_side_ref,
-                heal_amount: heal_amount,
-            });
-            move_hit_instructions
-                .instruction_list
-                .push(drain_instruction);
-            attacking_pokemon_health += heal_amount;
+            if heal_amount > 0 {
+                let drain_instruction = Instruction::Heal(HealInstruction {
+                    side_ref: *attacking_side_ref,
+                    heal_amount: heal_amount,
+                });
+                move_hit_instructions
+                    .instruction_list
+                    .push(drain_instruction);
+                attacking_pokemon_health += heal_amount;
+            }
         }
 
         if let Some(recoil_fraction) = choice.recoil {

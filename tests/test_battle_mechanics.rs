@@ -1352,3 +1352,28 @@ fn test_locked_moves_unlock_on_switchout() {
     }];
     assert_eq!(expected_instructions, vec_of_instructions)
 }
+
+#[test]
+fn test_fightint_move_with_blackbelt() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 300;
+    state.side_two.get_active().maxhp = 300;
+    state.side_one.get_active().item = "blackbelt".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("drainpunch"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 142,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
