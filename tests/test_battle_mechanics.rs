@@ -1,11 +1,15 @@
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::{
-    ApplyVolatileStatusInstruction, BoostInstruction, ChangeSideConditionInstruction,
-    ChangeStatusInstruction, DamageInstruction, DisableMoveInstruction, EnableMoveInstruction,
-    HealInstruction, Instruction, RemoveVolatileStatusInstruction, SetSubstituteHealthInstruction,
-    StateInstructions, SwitchInstruction,
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
+    ChangeSideConditionInstruction, ChangeStatusInstruction, DamageInstruction,
+    DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction,
+    RemoveVolatileStatusInstruction, SetSubstituteHealthInstruction, StateInstructions,
+    SwitchInstruction,
 };
-use poke_engine::state::{Move, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State};
+use poke_engine::state::{
+    Move, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType,
+    PokemonVolatileStatus, SideReference, State,
+};
 
 #[test]
 fn test_basic_move_pair_instruction_generation() {
@@ -1365,12 +1369,10 @@ fn test_fighting_move_with_blackbelt() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 142,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 142,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions)
 }
@@ -1390,12 +1392,10 @@ fn test_expert_belt_boost() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 142,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 142,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions)
 }
@@ -1416,12 +1416,10 @@ fn test_expert_belt_does_not_boost() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 60,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 60,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions)
 }
@@ -1475,6 +1473,34 @@ fn test_shellbell_drain() {
             Instruction::Heal(HealInstruction {
                 side_ref: SideReference::SideOne,
                 heal_amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_absorbbulb() {
+    let mut state = State::default();
+    state.side_two.get_active().item = "absorbbulb".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("watergun"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 32,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: 1,
             }),
         ],
     }];

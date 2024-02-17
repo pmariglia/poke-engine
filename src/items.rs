@@ -3,16 +3,16 @@ use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
-use crate::choices::{Choice, Effect, Heal, MoveCategory, MoveTarget, Secondary};
+use crate::choices::{Choice, Effect, Heal, MoveCategory, MoveTarget, Secondary, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::immune_to_status;
 use crate::instruction::{
-    ChangeStatusInstruction, DamageInstruction, DisableMoveInstruction, HealInstruction,
-    Instruction,
+    ChangeItemInstruction, ChangeStatusInstruction, DamageInstruction, DisableMoveInstruction,
+    HealInstruction, Instruction,
 };
-use crate::state::{Side, State};
 use crate::state::{Pokemon, PokemonType};
 use crate::state::{PokemonStatus, SideReference};
+use crate::state::{Side, State};
 
 type ItemBeforeMoveFn = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
 type ModifyAttackBeingUsed = fn(&State, &mut Choice, &SideReference);
@@ -24,7 +24,44 @@ lazy_static! {
     pub static ref ITEMS: HashMap<String, Item> = {
         let mut items: HashMap<String, Item> = HashMap::new();
         items.insert(
+            "absorbbulb".to_string(),
+            Item {
+                modify_attack_against: Some(
+                    |_state, attacking_choice: &mut Choice, attacking_side_ref| {
+                        if attacking_choice.move_type == PokemonType::Water {
+                            attacking_choice.add_or_create_secondaries(Secondary {
+                                chance: 100.0,
+                                effect: Effect::Boost(StatBoosts {
+                                    attack: 0,
+                                    defense: 0,
+                                    special_attack: 1,
+                                    special_defense: 0,
+                                    speed: 0,
+                                    accuracy: 0,
+                                }),
+                                target: MoveTarget::Opponent,
+                            });
+                        }
+                    },
+                ),
+                ..Default::default()
+            },
+        );
+        items.insert(
             "airballoon".to_string(),
+            Item {
+                modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                    if attacking_choice.move_type == PokemonType::Ground
+                        && attacking_choice.move_id != "thousandarrows"
+                    {
+                        attacking_choice.base_power = 0.0;
+                    }
+                }),
+                ..Default::default()
+            },
+        );
+        items.insert(
+            "assaultvest".to_string(),
             Item {
                 modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
                     if attacking_choice.move_type == PokemonType::Ground
@@ -185,7 +222,10 @@ lazy_static! {
                     |state: &State, attacking_choice: &mut Choice, side_ref: &SideReference| {
                         if type_effectiveness_modifier(
                             &attacking_choice.move_type,
-                            &state.get_side_immutable(&side_ref.get_other_side()).get_active_immutable().types,
+                            &state
+                                .get_side_immutable(&side_ref.get_other_side())
+                                .get_active_immutable()
+                                .types,
                         ) > 1.0
                         {
                             attacking_choice.base_power *= 1.2;
