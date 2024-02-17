@@ -5,10 +5,7 @@ use poke_engine::instruction::{
     HealInstruction, Instruction, RemoveVolatileStatusInstruction, SetSubstituteHealthInstruction,
     StateInstructions, SwitchInstruction,
 };
-use poke_engine::state::{
-    Move, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonVolatileStatus,
-    SideReference, State,
-};
+use poke_engine::state::{Move, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State};
 
 #[test]
 fn test_basic_move_pair_instruction_generation() {
@@ -1354,7 +1351,7 @@ fn test_locked_moves_unlock_on_switchout() {
 }
 
 #[test]
-fn test_fightint_move_with_blackbelt() {
+fn test_fighting_move_with_blackbelt() {
     let mut state = State::default();
     state.side_two.get_active().hp = 300;
     state.side_two.get_active().maxhp = 300;
@@ -1372,6 +1369,112 @@ fn test_fightint_move_with_blackbelt() {
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 142,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_expert_belt_boost() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 300;
+    state.side_two.get_active().maxhp = 300;
+    state.side_one.get_active().item = "expertbelt".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("drainpunch"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 142,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_expert_belt_does_not_boost() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 300;
+    state.side_two.get_active().maxhp = 300;
+    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Dragon);
+    state.side_one.get_active().item = "expertbelt".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("drainpunch"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 60,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_lifeorb_boost_and_recoil() {
+    let mut state = State::default();
+    state.side_one.get_active().item = "lifeorb".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("tackle"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 61,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: -10,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_shellbell_drain() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 50;
+    state.side_one.get_active().item = "shellbell".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("tackle"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 6,
             }),
         ],
     }];
