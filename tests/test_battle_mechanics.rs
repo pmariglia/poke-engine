@@ -1,4 +1,5 @@
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
+use poke_engine::instruction::Instruction::Heal;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeStatusInstruction, DamageInstruction,
@@ -8,7 +9,7 @@ use poke_engine::instruction::{
 };
 use poke_engine::state::{
     Move, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType,
-    PokemonVolatileStatus, SideReference, State, Terrain,
+    PokemonVolatileStatus, SideReference, State, Terrain, Weather,
 };
 
 #[test]
@@ -1875,7 +1876,7 @@ fn test_poisonpoint_with_poisonjab() {
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
                     damage_amount: 12,
-                })
+                }),
             ],
         },
         StateInstructions {
@@ -1884,7 +1885,7 @@ fn test_poisonpoint_with_poisonjab() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 63,
             })],
-        }
+        },
     ];
     assert_eq!(expected_instructions, vec_of_instructions)
 }
@@ -1917,7 +1918,7 @@ fn test_serenegrace_with_secondary() {
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
                     damage_amount: 12,
-                })
+                }),
             ],
         },
         StateInstructions {
@@ -1926,7 +1927,7 @@ fn test_serenegrace_with_secondary() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 63,
             })],
-        }
+        },
     ];
     assert_eq!(expected_instructions, vec_of_instructions)
 }
@@ -1984,6 +1985,326 @@ fn test_unseenfist() {
                 amount: 1,
             }),
         ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_ironbarbs() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = "ironbarbs".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("tackle"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: -12,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_rattled() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = "rattled".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("feintattack"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Speed,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_taunt_into_aromaveil() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = "aromaveil".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("taunt"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_explosion_into_damp() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = "damp".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("explosion"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_waterabsorb() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = "waterabsorb".to_string();
+    state.side_two.get_active().hp = 50;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("watergun"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Heal(HealInstruction {
+            side_ref: SideReference::SideTwo,
+            heal_amount: 25,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_dryskin_does_not_overheal() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = "dryskin".to_string();
+    state.side_two.get_active().hp = 90;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("watergun"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Heal(HealInstruction {
+            side_ref: SideReference::SideTwo,
+            heal_amount: 10,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_dryskin_in_rain() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = "dryskin".to_string();
+    state.side_two.get_active().hp = 90;
+    state.weather.weather_type = Weather::Rain;
+    state.weather.turns_remaining = 5;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("splash"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Heal(HealInstruction {
+            side_ref: SideReference::SideTwo,
+            heal_amount: 10,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_filter() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = "filter".to_string();
+    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Normal);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("watergun"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 49,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_effectspore() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = "effectspore".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("tackle"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 8.999999,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                }),
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: 0,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Poison,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 12,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 9.1,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                }),
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: 0,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Paralyze,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 9.009,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                }),
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: 0,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Sleep,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 72.891,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            })],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_flashfire() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = "flashfire".to_string();
+    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Normal);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("ember"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::ApplyVolatileStatus(
+            ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::FlashFire,
+            },
+        )],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_hypercutter() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = "hypercutter".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("aurorabeam"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 51,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_innerfocus() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state.side_two.get_active().ability = "innerfocus".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("ironhead"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 63,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions)
 }

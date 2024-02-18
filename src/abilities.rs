@@ -4,15 +4,17 @@ use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
-use crate::choices::{Choice, Effect, MoveCategory, MoveTarget, Secondary};
+use crate::choices::{
+    Choice, Effect, Heal, MoveCategory, MoveTarget, Secondary, StatBoosts, VolatileStatus,
+};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::get_boost_instruction;
 use crate::instruction::{
     BoostInstruction, ChangeStatusInstruction, ChangeType, HealInstruction, Instruction,
 };
-use crate::state::{PokemonVolatileStatus, SideReference, Weather};
-use crate::state::{PokemonBoostableStat, PokemonType};
+use crate::state::{PokemonBoostableStat, PokemonType, Terrain};
 use crate::state::{PokemonStatus, State};
+use crate::state::{PokemonVolatileStatus, SideReference, Weather};
 
 type ModifyAttackBeingUsed = fn(&State, &mut Choice, &Choice, &SideReference);
 type ModifyAttackAgainst = fn(&State, &mut Choice, &Choice, &SideReference);
@@ -203,6 +205,13 @@ lazy_static! {
         abilities.insert(
             "bulletproof".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if attacker_choice.flags.bullet {
+                            attacker_choice.accuracy = 0.0;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -367,6 +376,24 @@ lazy_static! {
         abilities.insert(
             "swiftswim".to_string(),
             Ability {
+                ..Default::default()
+            },
+        );
+        abilities.insert(
+            "eartheater".to_string(),
+            Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if attacker_choice.move_type == PokemonType::Ground {
+                            attacker_choice.base_power = 0.0;
+                            attacker_choice.heal = Some(Heal {
+                                target: MoveTarget::Opponent,
+                                amount: 0.25
+                            });
+                            attacker_choice.category = MoveCategory::Status;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -783,6 +810,33 @@ lazy_static! {
         abilities.insert(
             "effectspore".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |_state, attacker_choice: &mut Choice, _defender_choice, _attacking_side| {
+                        if attacker_choice.flags.contact {
+                            attacker_choice.add_or_create_secondaries(
+                                Secondary {
+                                    chance: 9.0,
+                                    target: MoveTarget::User,
+                                    effect: Effect::Status(PokemonStatus::Poison),
+                                }
+                            );
+                            attacker_choice.add_or_create_secondaries(
+                                Secondary {
+                                    chance: 10.0,
+                                    target: MoveTarget::User,
+                                    effect: Effect::Status(PokemonStatus::Paralyze),
+                                }
+                            );
+                            attacker_choice.add_or_create_secondaries(
+                                Secondary {
+                                    chance: 11.0,
+                                    target: MoveTarget::User,
+                                    effect: Effect::Status(PokemonStatus::Sleep),
+                                }
+                            );
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -865,6 +919,28 @@ lazy_static! {
         abilities.insert(
             "gooey".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if attacker_choice.flags.contact {
+                            attacker_choice.add_or_create_secondaries(
+                                Secondary {
+                                    chance: 100.0,
+                                    target: MoveTarget::User,
+                                    effect: Effect::Boost(
+                                        StatBoosts {
+                                            attack: 0,
+                                            defense: 0,
+                                            special_attack: 0,
+                                            special_defense: 0,
+                                            speed: -1,
+                                            accuracy: 0,
+                                        }
+                                    ),
+                                }
+                            )
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -898,7 +974,7 @@ lazy_static! {
             Ability {
                 modify_attack_being_used: Some(
                     |state, attacking_choice, defender_choice, attacking_side| {
-                        if state.weather.weather_type == Weather::Sun && state.weather.turns_remaining > 0 {
+                        if state.weather_is_active(&Weather::Sun) {
                             attacking_choice.base_power *= 1.5;
                         }
                     },
@@ -997,6 +1073,13 @@ lazy_static! {
                     |state, attacking_choice, defender_choice, attacking_side| {
                         if attacking_choice.move_type == PokemonType::Fairy {
                             attacking_choice.base_power *= 1.33;
+                        }
+                    },
+                ),
+                modify_attack_against: Some(
+                    |_state, attacker_choice: &mut Choice, _defender_choice, _attacking_side| {
+                        if attacker_choice.move_type == PokemonType::Fairy {
+                            attacker_choice.base_power *= 1.33;
                         }
                     },
                 ),
@@ -1171,6 +1254,19 @@ lazy_static! {
         abilities.insert(
             "static".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if state.move_makes_contact(&attacker_choice, attacking_side) {
+                            attacker_choice.add_or_create_secondaries(
+                                Secondary {
+                                    chance: 30.0,
+                                    target: MoveTarget::User,
+                                    effect: Effect::Status(PokemonStatus::Paralyze),
+                                }
+                            )
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -1227,6 +1323,17 @@ lazy_static! {
         abilities.insert(
             "flashfire".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if attacker_choice.move_type == PokemonType::Fire {
+                            attacker_choice.base_power = 0.0;
+                            attacker_choice.volatile_status = Some(VolatileStatus {
+                                target: MoveTarget::Opponent,
+                                volatile_status: PokemonVolatileStatus::FlashFire,
+                            });
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -1269,6 +1376,13 @@ lazy_static! {
         abilities.insert(
             "dazzling".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if attacker_choice.priority > 0 {
+                            attacker_choice.accuracy = 0.0;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -1432,6 +1546,13 @@ lazy_static! {
         abilities.insert(
             "heatproof".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if attacker_choice.move_type == PokemonType::Fire {
+                            attacker_choice.base_power *= 0.5 ;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -1498,6 +1619,13 @@ lazy_static! {
         abilities.insert(
             "grasspelt".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if state.terrain_is_active(&Terrain::GrassyTerrain) && attacker_choice.category == MoveCategory::Physical {
+                            attacker_choice.base_power /= 1.5;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -1558,6 +1686,20 @@ lazy_static! {
         abilities.insert(
             "filter".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if type_effectiveness_modifier(
+                            &attacker_choice.move_type,
+                            &state
+                                .get_side_immutable(&attacking_side.get_other_side())
+                                .get_active_immutable()
+                                .types,
+                        ) > 1.0
+                        {
+                            attacker_choice.base_power *= 0.75;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -1570,6 +1712,13 @@ lazy_static! {
         abilities.insert(
             "furcoat".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if attacker_choice.category == MoveCategory::Physical {
+                            attacker_choice.base_power *= 0.5;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -1611,6 +1760,19 @@ lazy_static! {
         abilities.insert(
             "ironbarbs".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if attacker_choice.flags.contact {
+                            attacker_choice.add_or_create_secondaries(
+                                Secondary {
+                                    chance: 100.0,
+                                    target: MoveTarget::User,
+                                    effect: Effect::Heal(-0.125),
+                                }
+                            );
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -1737,6 +1899,28 @@ lazy_static! {
         abilities.insert(
             "justified".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |_state, attacker_choice: &mut Choice, _defender_choice, _attacking_side| {
+                        if attacker_choice.move_type == PokemonType::Dark {
+                            attacker_choice.add_or_create_secondaries(
+                                Secondary {
+                                    chance: 100.0,
+                                    target: MoveTarget::Opponent,
+                                    effect: Effect::Boost(
+                                        StatBoosts {
+                                            attack: 1,
+                                            defense: 0,
+                                            special_attack: 0,
+                                            special_defense: 0,
+                                            speed: 0,
+                                            accuracy: 0,
+                                        }
+                                    ),
+                                }
+                            )
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -1773,6 +1957,13 @@ lazy_static! {
         abilities.insert(
             "icescales".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if attacker_choice.category == MoveCategory::Special {
+                            attacker_choice.base_power *= 0.5;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -1811,6 +2002,18 @@ lazy_static! {
         abilities.insert(
             "waterabsorb".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if attacker_choice.move_type == PokemonType::Water {
+                            attacker_choice.base_power = 0.0;
+                            attacker_choice.heal = Some(Heal {
+                                target: MoveTarget::Opponent,
+                                amount: 0.25
+                            });
+                            attacker_choice.category = MoveCategory::Status;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -1823,12 +2026,49 @@ lazy_static! {
         abilities.insert(
             "dryskin".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if attacker_choice.move_type == PokemonType::Water {
+                            attacker_choice.base_power = 0.0;
+                            attacker_choice.heal = Some(Heal {
+                                target: MoveTarget::Opponent,
+                                amount: 0.25
+                            });
+                            attacker_choice.category = MoveCategory::Status;
+                        } else if attacker_choice.move_type == PokemonType::Fire {
+                            attacker_choice.base_power *= 1.25;
+                        }
+                    },
+                ),
+                end_of_turn: Some(|state: &State, side_ref: &SideReference| {
+                    if state.weather_is_active(&Weather::Rain) {
+                        let active_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
+
+                        if active_pkmn.hp < active_pkmn.maxhp {
+                            return vec![Instruction::Heal(HealInstruction {
+                                side_ref: side_ref.clone(),
+                                heal_amount: cmp::min(active_pkmn.maxhp / 8, active_pkmn.maxhp - active_pkmn.hp),
+                            })];
+                        }
+                    }
+                    return vec![];
+                }),
                 ..Default::default()
             },
         );
         abilities.insert(
             "fluffy".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if attacker_choice.flags.contact {
+                            attacker_choice.base_power *= 0.5;
+                        }
+                        if attacker_choice.move_type == PokemonType::Fire {
+                            attacker_choice.base_power *= 2.0;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -1935,6 +2175,13 @@ lazy_static! {
         abilities.insert(
             "damp".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if ["selfdestruct", "explosion", "mindblown", "mistyexplosion"].contains(&attacker_choice.move_id.as_str()) {
+                            attacker_choice.accuracy = 0.0;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -2148,6 +2395,28 @@ lazy_static! {
         abilities.insert(
             "rattled".to_string(),
             Ability {
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        if attacker_choice.move_type == PokemonType::Bug
+                        || attacker_choice.move_type == PokemonType::Dark
+                        || attacker_choice.move_type == PokemonType::Ghost {
+                            attacker_choice.add_or_create_secondaries(
+                                Secondary {
+                                    chance: 100.0,
+                                    target: MoveTarget::Opponent,
+                                    effect: Effect::Boost(StatBoosts {
+                                        attack: 0,
+                                        defense: 0,
+                                        special_attack: 0,
+                                        special_defense: 0,
+                                        speed: 1,
+                                        accuracy: 0,
+                                    }),
+                                }
+                            );
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -2162,8 +2431,7 @@ lazy_static! {
             Ability {
                 modify_attack_being_used: Some(
                     |state, attacking_choice, defender_choice, attacking_side| {
-                        if state.weather.weather_type == Weather::Sand
-                            && state.weather.turns_remaining > 0
+                        if state.weather_is_active(&Weather::Sand)
                             && (attacking_choice.move_type == PokemonType::Rock
                                 || attacking_choice.move_type == PokemonType::Ground
                                 || attacking_choice.move_type == PokemonType::Steel)

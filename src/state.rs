@@ -425,14 +425,36 @@ impl Pokemon {
         }
         match volatile_status {
             PokemonVolatileStatus::Substitute => return self.hp > self.maxhp / 4,
-            PokemonVolatileStatus::Flinch | PokemonVolatileStatus::Protect => return first_move,
+            PokemonVolatileStatus::Flinch => {
+                if !first_move || ["innerfocus"].contains(&self.ability.as_str()) {
+                    return false;
+                }
+                return true;
+            }
+            PokemonVolatileStatus::Protect => return first_move,
+            PokemonVolatileStatus::Taunt
+            | PokemonVolatileStatus::Torment
+            | PokemonVolatileStatus::Encore
+            | PokemonVolatileStatus::Disable
+            | PokemonVolatileStatus::HealBlock
+            | PokemonVolatileStatus::Attract => return self.ability.as_str() != "aromaveil",
+            | PokemonVolatileStatus::Yawn => return self.ability.as_str() != "insomnia",
             _ => return true,
         }
     }
 
-    pub fn immune_to_stats_lowered_by_opponent(&self) -> bool {
-        return ["clearbody", "whitesmoke", "fullmetalbody"].contains(&self.ability.as_str())
-            || (["clearamulet"].contains(&self.item.as_str()));
+    pub fn immune_to_stats_lowered_by_opponent(&self, stat: &PokemonBoostableStat) -> bool {
+        if ["clearbody", "whitesmoke", "fullmetalbody"].contains(&self.ability.as_str())
+            || (["clearamulet"].contains(&self.item.as_str()))
+        {
+            return true;
+        }
+
+        if stat == &PokemonBoostableStat::Attack && self.ability.as_str() == "hypercutter" {
+            return true;
+        }
+
+        return false;
     }
 }
 
@@ -636,6 +658,10 @@ impl State {
 
     pub fn terrain_is_active(&self, terrain: &Terrain) -> bool {
         return &self.terrain.terrain_type == terrain && self.terrain.turns_remaining > 0;
+    }
+
+    pub fn weather_is_active(&self, weather: &Weather) -> bool {
+        return &self.weather.weather_type == weather && self.weather.turns_remaining > 0;
     }
 
     fn damage(&mut self, side_ref: &SideReference, amount: i16) {

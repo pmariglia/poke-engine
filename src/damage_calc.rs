@@ -300,8 +300,7 @@ pub fn calculate_damage(
         defending_side.get_active_immutable(),
     );
 
-    if attacking_side.get_active_immutable().ability.as_str() != "infiltrator"
-    {
+    if attacking_side.get_active_immutable().ability.as_str() != "infiltrator" {
         if defending_side.side_conditions.aurora_veil > 0 {
             damage_modifier *= 0.5
         } else if defending_side.side_conditions.reflect > 0
@@ -314,7 +313,6 @@ pub fn calculate_damage(
             damage_modifier *= 0.5
         }
     }
-
 
     damage = damage * damage_modifier;
 

@@ -487,7 +487,7 @@ pub fn get_boost_instruction(
     let mut boost_amount = get_boost_amount(target_pkmn, &stat, boost);
     if boost_amount != 0
         && !(target_side_ref != attacking_side_ref
-            && target_pkmn.immune_to_stats_lowered_by_opponent())
+            && target_pkmn.immune_to_stats_lowered_by_opponent(&stat))
     {
         if target_pkmn.ability.as_str() == "contrary" {
             boost_amount *= -1;
