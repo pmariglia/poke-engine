@@ -1419,13 +1419,17 @@ lazy_static! {
                     let (attacker_side, defender_side) =
                         state.get_both_sides_immutable(attacking_side);
                     if defender_side.get_active_immutable().hp == damage_dealt {
-                        return vec![Instruction::Boost(BoostInstruction {
-                            side_ref: *attacking_side,
-                            stat: attacker_side
+                        if let Some(boost_instruction) = get_boost_instruction(
+                            state,
+                            &attacker_side
                                 .get_active_immutable()
                                 .calculate_highest_stat(),
-                            amount: 1,
-                        })];
+                            &1,
+                            attacking_side,
+                            attacking_side,
+                        ) {
+                            return vec![boost_instruction];
+                        }
                     }
                     return vec![];
                 }),

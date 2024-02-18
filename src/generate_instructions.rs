@@ -117,14 +117,16 @@ fn generate_instructions_from_switch(
             // a pkmn switching in don't have any other speed drops,
             // so no need to check for going below -6
 
-            let sticky_web_instruction = Instruction::Boost(BoostInstruction {
-                side_ref: switching_side_ref,
-                stat: PokemonBoostableStat::Speed,
-                amount: -1,
-            });
-
-            state.apply_one_instruction(&sticky_web_instruction);
-            switch_in_hazards_instructions.push(sticky_web_instruction);
+            if let Some(sticky_web_instruction) = get_boost_instruction(
+                state,
+                &PokemonBoostableStat::Speed,
+                &-1,
+                &switching_side_ref,
+                &switching_side_ref,
+            ) {
+                state.apply_one_instruction(&sticky_web_instruction);
+                switch_in_hazards_instructions.push(sticky_web_instruction);
+            }
         }
 
         let switch_in_side = state.get_side_immutable(&switching_side_ref);
@@ -740,18 +742,22 @@ fn check_move_hit_or_miss(
         if attacking_pokemon.item.as_str() == "blunderpolicy"
             && attacking_pokemon.item_can_be_removed()
         {
-            move_missed_instruction.instruction_list.extend(vec![
-                Instruction::ChangeItem(ChangeItemInstruction {
-                    side_ref: *attacking_side_ref,
-                    current_item: String::from("blunderpolicy"),
-                    new_item: "".to_string(),
-                }),
-                Instruction::Boost(BoostInstruction {
-                    side_ref: *attacking_side_ref,
-                    stat: PokemonBoostableStat::Speed,
-                    amount: 2,
-                }),
-            ]);
+            if let Some(boost_instruction) = get_boost_instruction(
+                state,
+                &PokemonBoostableStat::Speed,
+                &2,
+                attacking_side_ref,
+                attacking_side_ref,
+            ) {
+                move_missed_instruction.instruction_list.extend(vec![
+                    Instruction::ChangeItem(ChangeItemInstruction {
+                        side_ref: *attacking_side_ref,
+                        current_item: String::from("blunderpolicy"),
+                        new_item: "".to_string(),
+                    }),
+                    boost_instruction,
+                ]);
+            }
         }
 
         frozen_instructions.push(move_missed_instruction);
@@ -4128,6 +4134,34 @@ mod tests {
     }
 
     #[test]
+    fn test_beastboost_does_not_overboost() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get("tackle").unwrap().to_owned();
+        state.side_one.get_active().ability = String::from("beastboost");
+        state.side_one.get_active().attack = 500; // highest stat
+        state.side_one.get_active().attack_boost = 6;  // max boosts already
+        state.side_two.get_active().hp = 1;
+
+        let instructions = generate_instructions_from_move(
+            &mut state,
+            &mut choice,
+            MOVES.get("tackle").unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 1,
+            })],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
     fn test_beastboost_does_not_boost_without_kill() {
         let mut state: State = State::default();
         let mut choice = MOVES.get("tackle").unwrap().to_owned();
@@ -5187,6 +5221,44 @@ mod tests {
                 previous_index: 0,
                 next_index: 1,
             })],
+            ..Default::default()
+        };
+
+        let incoming_instructions = generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            incoming_instructions,
+        );
+
+        assert_eq!(expected_instructions, incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_into_stickyweb_with_contrary() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.sticky_web = 1;
+        state.side_one.pokemon[1].ability = String::from("contrary");
+        let incoming_instructions = StateInstructions::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = 1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: 0,
+                    next_index: 1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: 1,
+                }),
+            ],
             ..Default::default()
         };
 

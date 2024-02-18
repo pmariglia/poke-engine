@@ -1699,6 +1699,43 @@ fn test_switching_in_with_grassyseed_in_grassy_terrain() {
 }
 
 #[test]
+fn test_contrary_with_seed() {
+    let mut state = State::default();
+    state.side_two.pokemon[1].item = "psychicseed".to_string();
+    state.side_two.pokemon[1].ability = "contrary".to_string();
+    state.terrain.terrain_type = Terrain::PsychicTerrain;
+    state.terrain.turns_remaining = 3;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("splash"),
+        String::from("Switch 1"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideTwo,
+                previous_index: 0,
+                next_index: 1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::SpecialDefense,
+                amount: -1,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideTwo,
+                current_item: "psychicseed".to_string(),
+                new_item: "".to_string(),
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
 fn test_contrary() {
     let mut state = State::default();
     state.side_one.get_active().ability = "contrary".to_string();

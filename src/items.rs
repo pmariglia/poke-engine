@@ -5,7 +5,7 @@ use lazy_static::lazy_static;
 
 use crate::choices::{Choice, Effect, MoveCategory, MoveTarget, Secondary, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
-use crate::generate_instructions::immune_to_status;
+use crate::generate_instructions::{get_boost_instruction, immune_to_status};
 use crate::instruction::{
     BoostInstruction, ChangeItemInstruction, ChangeStatusInstruction, DamageInstruction,
     DisableMoveInstruction, HealInstruction, Instruction,
@@ -258,18 +258,22 @@ lazy_static! {
             Item {
                 on_switch_in: Some(|state: &State, side_ref: &SideReference| {
                     if state.terrain_is_active(&Terrain::ElectricTerrain) {
-                        return vec![
-                            Instruction::Boost(BoostInstruction {
-                                side_ref: side_ref.clone(),
-                                stat: PokemonBoostableStat::Defense,
-                                amount: 1,
-                            }),
-                            Instruction::ChangeItem(ChangeItemInstruction {
-                                side_ref: side_ref.clone(),
-                                current_item: "electricseed".to_string(),
-                                new_item: "".to_string(),
-                            }),
-                        ];
+                        if let Some(boost_instruction) = get_boost_instruction(
+                            state,
+                            &PokemonBoostableStat::Defense,
+                            &1,
+                            side_ref,
+                            side_ref,
+                        ) {
+                            return vec![
+                                boost_instruction,
+                                Instruction::ChangeItem(ChangeItemInstruction {
+                                    side_ref: side_ref.clone(),
+                                    current_item: "electricseed".to_string(),
+                                    new_item: "".to_string(),
+                                }),
+                            ];
+                        }
                     }
                     return vec![];
                 }),
@@ -341,18 +345,22 @@ lazy_static! {
             Item {
                 on_switch_in: Some(|state: &State, side_ref: &SideReference| {
                     if state.terrain_is_active(&Terrain::GrassyTerrain) {
-                        return vec![
-                            Instruction::Boost(BoostInstruction {
-                                side_ref: side_ref.clone(),
-                                stat: PokemonBoostableStat::Defense,
-                                amount: 1,
-                            }),
-                            Instruction::ChangeItem(ChangeItemInstruction {
-                                side_ref: side_ref.clone(),
-                                current_item: "grassyseed".to_string(),
-                                new_item: "".to_string(),
-                            }),
-                        ];
+                        if let Some(boost_instruction) = get_boost_instruction(
+                            state,
+                            &PokemonBoostableStat::Defense,
+                            &1,
+                            side_ref,
+                            side_ref,
+                        ) {
+                            return vec![
+                                boost_instruction,
+                                Instruction::ChangeItem(ChangeItemInstruction {
+                                    side_ref: side_ref.clone(),
+                                    current_item: "grassyseed".to_string(),
+                                    new_item: "".to_string(),
+                                }),
+                            ];
+                        }
                     }
                     return vec![];
                 }),
@@ -412,18 +420,22 @@ lazy_static! {
             Item {
                 on_switch_in: Some(|state: &State, side_ref: &SideReference| {
                     if state.terrain_is_active(&Terrain::MistyTerrain) {
-                        return vec![
-                            Instruction::Boost(BoostInstruction {
-                                side_ref: side_ref.clone(),
-                                stat: PokemonBoostableStat::SpecialDefense,
-                                amount: 1,
-                            }),
-                            Instruction::ChangeItem(ChangeItemInstruction {
-                                side_ref: side_ref.clone(),
-                                current_item: "mistyseed".to_string(),
-                                new_item: "".to_string(),
-                            }),
-                        ];
+                        if let Some(boost_instruction) = get_boost_instruction(
+                            state,
+                            &PokemonBoostableStat::SpecialDefense,
+                            &1,
+                            side_ref,
+                            side_ref,
+                        ) {
+                            return vec![
+                                boost_instruction,
+                                Instruction::ChangeItem(ChangeItemInstruction {
+                                    side_ref: side_ref.clone(),
+                                    current_item: "mistyseed".to_string(),
+                                    new_item: "".to_string(),
+                                }),
+                            ];
+                        }
                     }
                     return vec![];
                 }),
@@ -500,18 +512,22 @@ lazy_static! {
             Item {
                 on_switch_in: Some(|state: &State, side_ref: &SideReference| {
                     if state.terrain_is_active(&Terrain::PsychicTerrain) {
-                        return vec![
-                            Instruction::Boost(BoostInstruction {
-                                side_ref: side_ref.clone(),
-                                stat: PokemonBoostableStat::SpecialDefense,
-                                amount: 1,
-                            }),
-                            Instruction::ChangeItem(ChangeItemInstruction {
-                                side_ref: side_ref.clone(),
-                                current_item: "psychicseed".to_string(),
-                                new_item: "".to_string(),
-                            }),
-                        ];
+                        if let Some(boost_instruction) = get_boost_instruction(
+                            state,
+                            &PokemonBoostableStat::SpecialDefense,
+                            &1,
+                            side_ref,
+                            side_ref,
+                        ) {
+                            return vec![
+                                boost_instruction,
+                                Instruction::ChangeItem(ChangeItemInstruction {
+                                    side_ref: side_ref.clone(),
+                                    current_item: "psychicseed".to_string(),
+                                    new_item: "".to_string(),
+                                }),
+                            ];
+                        }
                     }
                     return vec![];
                 }),
