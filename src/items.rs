@@ -6,11 +6,8 @@ use lazy_static::lazy_static;
 use crate::choices::{Choice, Effect, MoveCategory, MoveTarget, Secondary, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::immune_to_status;
-use crate::instruction::{
-    ChangeStatusInstruction, DamageInstruction, DisableMoveInstruction, HealInstruction,
-    Instruction,
-};
-use crate::state::State;
+use crate::instruction::{BoostInstruction, ChangeItemInstruction, ChangeStatusInstruction, DamageInstruction, DisableMoveInstruction, HealInstruction, Instruction};
+use crate::state::{PokemonBoostableStat, State, Terrain};
 use crate::state::{Pokemon, PokemonType};
 use crate::state::{PokemonStatus, SideReference};
 
@@ -254,6 +251,29 @@ lazy_static! {
             },
         );
         items.insert(
+            "electricseed".to_string(),
+            Item {
+                on_switch_in: Some(|state: &State, side_ref: &SideReference| {
+                    if state.terrain_is_active(&Terrain::ElectricTerrain) {
+                        return vec![
+                            Instruction::Boost(BoostInstruction {
+                                side_ref: side_ref.clone(),
+                                stat: PokemonBoostableStat::Defense,
+                                amount: 1
+                            }),
+                            Instruction::ChangeItem(ChangeItemInstruction {
+                                side_ref: side_ref.clone(),
+                                current_item: "electricseed".to_string(),
+                                new_item: "".to_string(),
+                            }),
+                        ];
+                    }
+                    return vec![]
+                }),
+                ..Default::default()
+            },
+        );
+        items.insert(
             "expertbelt".to_string(),
             Item {
                 modify_attack_being_used: Some(
@@ -314,6 +334,29 @@ lazy_static! {
             },
         );
         items.insert(
+            "grassyseed".to_string(),
+            Item {
+                on_switch_in: Some(|state: &State, side_ref: &SideReference| {
+                    if state.terrain_is_active(&Terrain::GrassyTerrain) {
+                        return vec![
+                            Instruction::Boost(BoostInstruction {
+                                side_ref: side_ref.clone(),
+                                stat: PokemonBoostableStat::Defense,
+                                amount: 1
+                            }),
+                            Instruction::ChangeItem(ChangeItemInstruction {
+                                side_ref: side_ref.clone(),
+                                current_item: "grassyseed".to_string(),
+                                new_item: "".to_string(),
+                            }),
+                        ];
+                    }
+                    return vec![]
+                }),
+                ..Default::default()
+            },
+        );
+        items.insert(
             "leftovers".to_string(),
             Item {
                 end_of_turn: Some(|state: &State, side_ref: &SideReference| {
@@ -358,6 +401,29 @@ lazy_static! {
                         }
                     },
                 ),
+                ..Default::default()
+            },
+        );
+        items.insert(
+            "mistyseed".to_string(),
+            Item {
+                on_switch_in: Some(|state: &State, side_ref: &SideReference| {
+                    if state.terrain_is_active(&Terrain::MistyTerrain) {
+                        return vec![
+                            Instruction::Boost(BoostInstruction {
+                                side_ref: side_ref.clone(),
+                                stat: PokemonBoostableStat::SpecialDefense,
+                                amount: 1
+                            }),
+                            Instruction::ChangeItem(ChangeItemInstruction {
+                                side_ref: side_ref.clone(),
+                                current_item: "mistyseed".to_string(),
+                                new_item: "".to_string(),
+                            }),
+                        ];
+                    }
+                    return vec![]
+                }),
                 ..Default::default()
             },
         );
@@ -423,6 +489,29 @@ lazy_static! {
                         }
                     },
                 ),
+                ..Default::default()
+            },
+        );
+        items.insert(
+            "psychicseed".to_string(),
+            Item {
+                on_switch_in: Some(|state: &State, side_ref: &SideReference| {
+                    if state.terrain_is_active(&Terrain::PsychicTerrain) {
+                        return vec![
+                            Instruction::Boost(BoostInstruction {
+                                side_ref: side_ref.clone(),
+                                stat: PokemonBoostableStat::SpecialDefense,
+                                amount: 1
+                            }),
+                            Instruction::ChangeItem(ChangeItemInstruction {
+                                side_ref: side_ref.clone(),
+                                current_item: "psychicseed".to_string(),
+                                new_item: "".to_string(),
+                            }),
+                        ];
+                    }
+                    return vec![]
+                }),
                 ..Default::default()
             },
         );

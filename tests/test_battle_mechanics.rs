@@ -6,10 +6,7 @@ use poke_engine::instruction::{
     RemoveVolatileStatusInstruction, SetSubstituteHealthInstruction, StateInstructions,
     SwitchInstruction,
 };
-use poke_engine::state::{
-    Move, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType,
-    PokemonVolatileStatus, SideReference, State,
-};
+use poke_engine::state::{Move, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, Terrain};
 
 #[test]
 fn test_basic_move_pair_instruction_generation() {
@@ -1655,6 +1652,42 @@ fn test_weaknesspolicy_does_not_overboost() {
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideTwo,
                 current_item: "weaknesspolicy".to_string(),
+                new_item: "".to_string(),
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_switching_in_with_grassyseed_in_grassy_terrain() {
+    let mut state = State::default();
+    state.side_two.pokemon[1].item = "grassyseed".to_string();
+    state.terrain.terrain_type = Terrain::GrassyTerrain;
+    state.terrain.turns_remaining = 3;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("splash"),
+        String::from("Switch 1"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideTwo,
+                previous_index: 0,
+                next_index: 1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Defense,
+                amount: 1,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideTwo,
+                current_item: "grassyseed".to_string(),
                 new_item: "".to_string(),
             }),
         ],

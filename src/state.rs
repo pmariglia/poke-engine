@@ -634,6 +634,10 @@ impl State {
         return false;
     }
 
+    pub fn terrain_is_active(&self, terrain: &Terrain) -> bool {
+        return &self.terrain.terrain_type == terrain && self.terrain.turns_remaining > 0;
+    }
+
     fn damage(&mut self, side_ref: &SideReference, amount: i16) {
         let active = self.get_side(&side_ref).get_active();
 
