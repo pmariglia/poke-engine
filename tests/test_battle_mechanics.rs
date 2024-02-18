@@ -1784,3 +1784,44 @@ fn test_contrary_with_secondary() {
     }];
     assert_eq!(expected_instructions, vec_of_instructions)
 }
+
+#[test]
+fn test_throatspray_with_move_that_can_miss() {
+    let mut state = State::default();
+    state.side_one.get_active().item = "throatspray".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("grasswhistle"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 45.0,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 55.0,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    pokemon_index: 0,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Sleep,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::SpecialAttack,
+                    amount: 1,
+                }),
+                Instruction::ChangeItem(ChangeItemInstruction {
+                    side_ref: SideReference::SideOne,
+                    current_item: "throatspray".to_string(),
+                    new_item: "".to_string(),
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}

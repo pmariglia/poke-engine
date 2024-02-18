@@ -4139,7 +4139,7 @@ mod tests {
         let mut choice = MOVES.get("tackle").unwrap().to_owned();
         state.side_one.get_active().ability = String::from("beastboost");
         state.side_one.get_active().attack = 500; // highest stat
-        state.side_one.get_active().attack_boost = 6;  // max boosts already
+        state.side_one.get_active().attack_boost = 6; // max boosts already
         state.side_two.get_active().hp = 1;
 
         let instructions = generate_instructions_from_move(

@@ -640,6 +640,35 @@ lazy_static! {
             },
         );
         items.insert(
+            "throatspray".to_string(),
+            Item {
+                modify_attack_being_used: Some(
+                    |_state, attacking_choice: &mut Choice, _side_ref| {
+                        if attacking_choice.flags.sound {
+                            attacking_choice.add_or_create_secondaries(Secondary {
+                                chance: 100.0,
+                                effect: Effect::Boost(StatBoosts {
+                                    attack: 0,
+                                    defense: 0,
+                                    special_attack: 1,
+                                    special_defense: 0,
+                                    speed: 0,
+                                    accuracy: 0,
+                                }),
+                                target: MoveTarget::User,
+                            });
+                            attacking_choice.add_or_create_secondaries(Secondary {
+                                chance: 100.0,
+                                effect: Effect::RemoveItem,
+                                target: MoveTarget::User,
+                            });
+                        }
+                    },
+                ),
+                ..Default::default()
+            },
+        );
+        items.insert(
             "toxicorb".to_string(),
             Item {
                 end_of_turn: Some(|state: &State, side_ref: &SideReference| {
