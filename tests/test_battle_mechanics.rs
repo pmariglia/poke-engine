@@ -1502,6 +1502,57 @@ fn test_absorbbulb() {
                 stat: PokemonBoostableStat::SpecialAttack,
                 amount: 1,
             }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideTwo,
+                current_item: "absorbbulb".to_string(),
+                new_item: "".to_string(),
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_ground_move_versus_airballoon() {
+    let mut state = State::default();
+    state.side_two.get_active().item = "airballoon".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("earthquake"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_non_ground_move_versus_airballoon() {
+    let mut state = State::default();
+    state.side_two.get_active().item = "airballoon".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("tackle"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideTwo,
+                current_item: "airballoon".to_string(),
+                new_item: "".to_string(),
+            }),
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions)

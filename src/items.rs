@@ -41,6 +41,11 @@ lazy_static! {
                                 }),
                                 target: MoveTarget::Opponent,
                             });
+                            attacking_choice.add_or_create_secondaries(Secondary {
+                                chance: 100.0,
+                                effect: Effect::RemoveItem,
+                                target: MoveTarget::Opponent,
+                            });
                         }
                     },
                 ),
@@ -55,6 +60,12 @@ lazy_static! {
                         && attacking_choice.move_id != "thousandarrows"
                     {
                         attacking_choice.base_power = 0.0;
+                    } else {
+                        attacking_choice.add_or_create_secondaries(Secondary {
+                            chance: 100.0,
+                            effect: Effect::RemoveItem,
+                            target: MoveTarget::Opponent,
+                        });
                     }
                 }),
                 ..Default::default()

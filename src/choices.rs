@@ -16431,6 +16431,7 @@ pub enum Effect {
     Boost(StatBoosts),
     Status(PokemonStatus),
     Heal(f32),
+    RemoveItem,
 }
 
 #[derive(Clone)]
