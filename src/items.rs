@@ -75,10 +75,8 @@ lazy_static! {
             "assaultvest".to_string(),
             Item {
                 modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
-                    if attacking_choice.move_type == PokemonType::Ground
-                        && attacking_choice.move_id != "thousandarrows"
-                    {
-                        attacking_choice.base_power = 0.0;
+                    if attacking_choice.category == MoveCategory::Special {
+                        attacking_choice.base_power /= 1.5;
                     }
                 }),
                 ..Default::default()
