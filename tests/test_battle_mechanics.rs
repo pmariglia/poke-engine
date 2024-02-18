@@ -1825,3 +1825,165 @@ fn test_throatspray_with_move_that_can_miss() {
     ];
     assert_eq!(expected_instructions, vec_of_instructions)
 }
+
+#[test]
+fn test_adaptability() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = "adaptability".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("tackle"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 63,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_poisonpoint_with_poisonjab() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = "poisonpoint".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("poisonjab"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 51.000004,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 63,
+                }),
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    pokemon_index: 0,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Poison,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 12,
+                })
+            ],
+        },
+        StateInstructions {
+            percentage: 49.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 63,
+            })],
+        }
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_serenegrace_with_secondary() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = "serenegrace".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("poisonjab"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 60.000004,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 63,
+                }),
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    pokemon_index: 0,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Poison,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 12,
+                })
+            ],
+        },
+        StateInstructions {
+            percentage: 39.999996,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 63,
+            })],
+        }
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_technician() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = "technician".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("tackle"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 72,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_unseenfist() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = "unseenfist".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("tackle"),
+        String::from("protect"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Protect,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Protect,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideTwo,
+                side_condition: PokemonSideCondition::Protect,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}

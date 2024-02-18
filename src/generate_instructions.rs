@@ -1015,7 +1015,7 @@ fn before_move(state: &State, choice: &Choice, attacking_side: &SideReference) -
 // Updates the attacker's Choice based on some special effects
 fn update_choice(
     state: &State,
-    mut attacker_choice: &mut Choice,
+    attacker_choice: &mut Choice,
     defender_choice: &Choice,
     attacking_side: &SideReference,
 ) {
@@ -1479,7 +1479,7 @@ pub fn generate_instructions_from_move(
         next_instructions = continuing_instructions;
     }
 
-    for mut instruction in next_instructions.iter_mut() {
+    for instruction in next_instructions.iter_mut() {
         state.apply_instructions(&instruction.instruction_list);
 
         let defending_pokemon = state

@@ -300,17 +300,21 @@ pub fn calculate_damage(
         defending_side.get_active_immutable(),
     );
 
-    if defending_side.side_conditions.aurora_veil > 0 {
-        damage_modifier *= 0.5
-    } else if defending_side.side_conditions.reflect > 0
-        && choice.category == MoveCategory::Physical
+    if attacking_side.get_active_immutable().ability.as_str() != "infiltrator"
     {
-        damage_modifier *= 0.5
-    } else if defending_side.side_conditions.light_screen > 0
-        && choice.category == MoveCategory::Special
-    {
-        damage_modifier *= 0.5
+        if defending_side.side_conditions.aurora_veil > 0 {
+            damage_modifier *= 0.5
+        } else if defending_side.side_conditions.reflect > 0
+            && choice.category == MoveCategory::Physical
+        {
+            damage_modifier *= 0.5
+        } else if defending_side.side_conditions.light_screen > 0
+            && choice.category == MoveCategory::Special
+        {
+            damage_modifier *= 0.5
+        }
     }
+
 
     damage = damage * damage_modifier;
 

@@ -1,3 +1,4 @@
+#![allow(unused_variables)]
 use std::cmp;
 use std::collections::HashMap;
 
@@ -7,7 +8,7 @@ use crate::choices::{Choice, Effect, MoveCategory, MoveTarget, Secondary, StatBo
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::{get_boost_instruction, immune_to_status};
 use crate::instruction::{
-    BoostInstruction, ChangeItemInstruction, ChangeStatusInstruction, DamageInstruction,
+    ChangeItemInstruction, ChangeStatusInstruction, DamageInstruction,
     DisableMoveInstruction, HealInstruction, Instruction,
 };
 use crate::state::{Pokemon, PokemonType};
