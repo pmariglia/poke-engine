@@ -6,7 +6,10 @@ use poke_engine::instruction::{
     RemoveVolatileStatusInstruction, SetSubstituteHealthInstruction, StateInstructions,
     SwitchInstruction,
 };
-use poke_engine::state::{Move, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, Terrain};
+use poke_engine::state::{
+    Move, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType,
+    PokemonVolatileStatus, SideReference, State, Terrain,
+};
 
 #[test]
 fn test_basic_move_pair_instruction_generation() {
@@ -1689,6 +1692,56 @@ fn test_switching_in_with_grassyseed_in_grassy_terrain() {
                 side_ref: SideReference::SideTwo,
                 current_item: "grassyseed".to_string(),
                 new_item: "".to_string(),
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_contrary() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = "contrary".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("swordsdance"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Boost(BoostInstruction {
+            side_ref: SideReference::SideOne,
+            stat: PokemonBoostableStat::Attack,
+            amount: -2,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_contrary_with_secondary() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = "contrary".to_string();
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("poweruppunch"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 64,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: -1,
             }),
         ],
     }];

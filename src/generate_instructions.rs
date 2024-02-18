@@ -482,11 +482,14 @@ pub fn get_boost_instruction(
     let target_pkmn = state
         .get_side_immutable(target_side_ref)
         .get_active_immutable();
-    let boost_amount = get_boost_amount(target_pkmn, &stat, boost);
+    let mut boost_amount = get_boost_amount(target_pkmn, &stat, boost);
     if boost_amount != 0
         && !(target_side_ref != attacking_side_ref
             && target_pkmn.immune_to_stats_lowered_by_opponent())
     {
+        if target_pkmn.ability.as_str() == "contrary" {
+            boost_amount *= -1;
+        }
         return Some(Instruction::Boost(BoostInstruction {
             side_ref: *target_side_ref,
             stat: *stat,

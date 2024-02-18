@@ -6,9 +6,12 @@ use lazy_static::lazy_static;
 use crate::choices::{Choice, Effect, MoveCategory, MoveTarget, Secondary, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::immune_to_status;
-use crate::instruction::{BoostInstruction, ChangeItemInstruction, ChangeStatusInstruction, DamageInstruction, DisableMoveInstruction, HealInstruction, Instruction};
-use crate::state::{PokemonBoostableStat, State, Terrain};
+use crate::instruction::{
+    BoostInstruction, ChangeItemInstruction, ChangeStatusInstruction, DamageInstruction,
+    DisableMoveInstruction, HealInstruction, Instruction,
+};
 use crate::state::{Pokemon, PokemonType};
+use crate::state::{PokemonBoostableStat, State, Terrain};
 use crate::state::{PokemonStatus, SideReference};
 
 type ItemBeforeMoveFn = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
@@ -259,7 +262,7 @@ lazy_static! {
                             Instruction::Boost(BoostInstruction {
                                 side_ref: side_ref.clone(),
                                 stat: PokemonBoostableStat::Defense,
-                                amount: 1
+                                amount: 1,
                             }),
                             Instruction::ChangeItem(ChangeItemInstruction {
                                 side_ref: side_ref.clone(),
@@ -268,7 +271,7 @@ lazy_static! {
                             }),
                         ];
                     }
-                    return vec![]
+                    return vec![];
                 }),
                 ..Default::default()
             },
@@ -342,7 +345,7 @@ lazy_static! {
                             Instruction::Boost(BoostInstruction {
                                 side_ref: side_ref.clone(),
                                 stat: PokemonBoostableStat::Defense,
-                                amount: 1
+                                amount: 1,
                             }),
                             Instruction::ChangeItem(ChangeItemInstruction {
                                 side_ref: side_ref.clone(),
@@ -351,7 +354,7 @@ lazy_static! {
                             }),
                         ];
                     }
-                    return vec![]
+                    return vec![];
                 }),
                 ..Default::default()
             },
@@ -413,7 +416,7 @@ lazy_static! {
                             Instruction::Boost(BoostInstruction {
                                 side_ref: side_ref.clone(),
                                 stat: PokemonBoostableStat::SpecialDefense,
-                                amount: 1
+                                amount: 1,
                             }),
                             Instruction::ChangeItem(ChangeItemInstruction {
                                 side_ref: side_ref.clone(),
@@ -422,7 +425,7 @@ lazy_static! {
                             }),
                         ];
                     }
-                    return vec![]
+                    return vec![];
                 }),
                 ..Default::default()
             },
@@ -501,7 +504,7 @@ lazy_static! {
                             Instruction::Boost(BoostInstruction {
                                 side_ref: side_ref.clone(),
                                 stat: PokemonBoostableStat::SpecialDefense,
-                                amount: 1
+                                amount: 1,
                             }),
                             Instruction::ChangeItem(ChangeItemInstruction {
                                 side_ref: side_ref.clone(),
@@ -510,7 +513,7 @@ lazy_static! {
                             }),
                         ];
                     }
-                    return vec![]
+                    return vec![];
                 }),
                 ..Default::default()
             },
