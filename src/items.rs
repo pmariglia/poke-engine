@@ -3,16 +3,16 @@ use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
-use crate::choices::{Choice, Effect, Heal, MoveCategory, MoveTarget, Secondary, StatBoosts};
+use crate::choices::{Choice, Effect, MoveCategory, MoveTarget, Secondary, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::immune_to_status;
 use crate::instruction::{
-    ChangeItemInstruction, ChangeStatusInstruction, DamageInstruction, DisableMoveInstruction,
-    HealInstruction, Instruction,
+    ChangeStatusInstruction, DamageInstruction, DisableMoveInstruction, HealInstruction,
+    Instruction,
 };
+use crate::state::State;
 use crate::state::{Pokemon, PokemonType};
 use crate::state::{PokemonStatus, SideReference};
-use crate::state::{Side, State};
 
 type ItemBeforeMoveFn = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
 type ModifyAttackBeingUsed = fn(&State, &mut Choice, &SideReference);
@@ -133,6 +133,35 @@ lazy_static! {
             },
         );
         items.insert(
+            "cellbattery".to_string(),
+            Item {
+                modify_attack_against: Some(
+                    |_state, attacking_choice: &mut Choice, attacking_side_ref| {
+                        if attacking_choice.move_type == PokemonType::Electric {
+                            attacking_choice.add_or_create_secondaries(Secondary {
+                                chance: 100.0,
+                                effect: Effect::Boost(StatBoosts {
+                                    attack: 1,
+                                    defense: 0,
+                                    special_attack: 0,
+                                    special_defense: 0,
+                                    speed: 0,
+                                    accuracy: 0,
+                                }),
+                                target: MoveTarget::Opponent,
+                            });
+                            attacking_choice.add_or_create_secondaries(Secondary {
+                                chance: 100.0,
+                                effect: Effect::RemoveItem,
+                                target: MoveTarget::Opponent,
+                            });
+                        }
+                    },
+                ),
+                ..Default::default()
+            },
+        );
+        items.insert(
             "charcoal".to_string(),
             Item {
                 modify_attack_being_used: Some(
@@ -241,6 +270,15 @@ lazy_static! {
                         }
                     },
                 ),
+                ..Default::default()
+            },
+        );
+        items.insert(
+            "eviolite".to_string(),
+            Item {
+                modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                    attacking_choice.base_power /= 1.5;
+                }),
                 ..Default::default()
             },
         );
@@ -535,6 +573,41 @@ lazy_static! {
                         }
                     },
                 ),
+                ..Default::default()
+            },
+        );
+        items.insert(
+            "weaknesspolicy".to_string(),
+            Item {
+                modify_attack_against: Some(|state, attacking_choice: &mut Choice, side_ref| {
+                    if attacking_choice.category != MoveCategory::Status
+                        && type_effectiveness_modifier(
+                            &attacking_choice.move_type,
+                            &state
+                                .get_side_immutable(&side_ref.get_other_side())
+                                .get_active_immutable()
+                                .types,
+                        ) > 1.0
+                    {
+                        attacking_choice.add_or_create_secondaries(Secondary {
+                            chance: 100.0,
+                            effect: Effect::Boost(StatBoosts {
+                                attack: 2,
+                                defense: 0,
+                                special_attack: 2,
+                                special_defense: 0,
+                                speed: 0,
+                                accuracy: 0,
+                            }),
+                            target: MoveTarget::Opponent,
+                        });
+                        attacking_choice.add_or_create_secondaries(Secondary {
+                            chance: 100.0,
+                            effect: Effect::RemoveItem,
+                            target: MoveTarget::Opponent,
+                        });
+                    }
+                }),
                 ..Default::default()
             },
         );

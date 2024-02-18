@@ -1571,10 +1571,91 @@ fn test_assaultvest() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 22,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_weaknesspolicy() {
+    let mut state = State::default();
+    state.side_two.get_active().item = "weaknesspolicy".to_string();
+    state.side_two.get_active().hp = 200;
+    state.side_two.get_active().maxhp = 200;
+    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Normal);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("watergun"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
         instruction_list: vec![
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
-                damage_amount: 22,
+                damage_amount: 64,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Attack,
+                amount: 2,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: 2,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideTwo,
+                current_item: "weaknesspolicy".to_string(),
+                new_item: "".to_string(),
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions)
+}
+
+#[test]
+fn test_weaknesspolicy_does_not_overboost() {
+    let mut state = State::default();
+    state.side_two.get_active().item = "weaknesspolicy".to_string();
+    state.side_two.get_active().hp = 200;
+    state.side_two.get_active().maxhp = 200;
+    state.side_two.get_active().attack_boost = 5;
+    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Normal);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        String::from("watergun"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 64,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Attack,
+                amount: 1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: 2,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideTwo,
+                current_item: "weaknesspolicy".to_string(),
+                new_item: "".to_string(),
             }),
         ],
     }];

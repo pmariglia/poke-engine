@@ -566,15 +566,6 @@ fn get_instructions_from_secondaries(
                 let mut secondary_hit_instructions = ins.clone();
                 secondary_hit_instructions.update_percentage(secondary_percent_hit);
 
-                let secondary_target_side_ref: SideReference;
-                match secondary.target {
-                    MoveTarget::Opponent => {
-                        secondary_target_side_ref = side_reference.get_other_side();
-                    }
-                    MoveTarget::User => {
-                        secondary_target_side_ref = *side_reference;
-                    }
-                }
                 match &secondary.effect {
                     Effect::VolatileStatus(volatile_status) => {
                         secondary_hit_instructions = get_instructions_from_volatile_statuses(
@@ -622,6 +613,15 @@ fn get_instructions_from_secondaries(
                         );
                     }
                     Effect::RemoveItem => {
+                        let secondary_target_side_ref: SideReference;
+                        match secondary.target {
+                            MoveTarget::Opponent => {
+                                secondary_target_side_ref = side_reference.get_other_side();
+                            }
+                            MoveTarget::User => {
+                                secondary_target_side_ref = *side_reference;
+                            }
+                        }
                         secondary_hit_instructions
                             .instruction_list
                             .push(Instruction::ChangeItem(ChangeItemInstruction {
