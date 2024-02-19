@@ -1,4 +1,4 @@
-use crate::choices::{Choice, MoveCategory, MOVES};
+use crate::choices::Choice;
 use core::panic;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
@@ -335,18 +335,6 @@ pub struct Pokemon {
 }
 
 impl Pokemon {
-    pub fn get_available_moves(&self) -> Vec<Choice> {
-        let mut available_moves: Vec<Choice> = Vec::new();
-        for m in &self.moves {
-            if !m.disabled {
-                available_moves.push(
-                    MOVES.get(&m.id).unwrap().clone()
-                );
-            }
-        }
-        return available_moves;
-    }
-
     pub fn get_pkmn_boost_enum_pairs(&self) -> [(PokemonBoostableStat, i8); 7] {
         return [
             (PokemonBoostableStat::Attack, self.attack_boost),
@@ -531,22 +519,6 @@ pub struct Side {
 }
 
 impl Side {
-    pub fn get_switches(&self) -> Vec<Choice> {
-        let mut switches: Vec<Choice> = Vec::new();
-        for (index, p) in self.pokemon.iter().enumerate() {
-            if p.hp > 0 {
-                switches.push(
-                    Choice {
-                        category: MoveCategory::Switch,
-                        switch_id: index,
-                        ..Default::default()
-                    },
-                );
-            }
-        }
-        return switches;
-    }
-
     pub fn get_active(&mut self) -> &mut Pokemon {
         &mut self.pokemon[self.active_index]
     }
@@ -640,22 +612,6 @@ impl Default for State {
 }
 
 impl State {
-    pub fn get_all_options(&self) -> (Vec<Choice>, Vec<Choice>) {
-        let mut side_one_options: Vec<Choice> = Vec::new();
-        let mut side_two_options: Vec<Choice> = Vec::new();
-
-        let side_one_force_switch = self.side_one.get_active_immutable().hp <= 0;
-        let side_two_force_switch = self.side_two.get_active_immutable().hp <= 0;
-
-        if side_one_force_switch && side_two_force_switch {
-            side_one_options.extend(self.side_one.get_switches());
-            side_two_options.extend(self.side_two.get_switches());
-            return (side_one_options, side_two_options);
-        }
-
-        return (side_one_options, side_two_options);
-    }
-
     pub fn get_side(&mut self, side_ref: &SideReference) -> &mut Side {
         match side_ref {
             SideReference::SideOne => return &mut self.side_one,
