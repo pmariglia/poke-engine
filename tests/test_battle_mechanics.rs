@@ -1,5 +1,5 @@
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
-use poke_engine::instruction::Instruction::Heal;
+use poke_engine::choices::{Choice, MoveCategory, MOVES};
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeStatusInstruction, DamageInstruction,
@@ -18,8 +18,8 @@ fn test_basic_move_pair_instruction_generation() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("tackle"),
-        String::from("tackle"),
+        MOVES.get("tackle").unwrap().clone(),
+        MOVES.get("tackle").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -45,8 +45,8 @@ fn test_move_pair_instruction_generation_where_first_move_branches() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("playrough"),
-        String::from("tackle"),
+        MOVES.get("playrough").unwrap().clone(),
+        MOVES.get("tackle").unwrap().clone(),
     );
 
     let expected_instructions = vec![
@@ -100,8 +100,8 @@ fn test_move_pair_instruction_generation_where_second_move_branches() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("playrough"),
-        String::from("tackle"),
+        MOVES.get("playrough").unwrap().clone(),
+        MOVES.get("tackle").unwrap().clone(),
     );
 
     let expected_instructions = vec![
@@ -154,8 +154,8 @@ fn test_basic_flinching_functionality() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("ironhead"),
-        String::from("tackle"),
+        MOVES.get("ironhead").unwrap().clone(),
+        MOVES.get("tackle").unwrap().clone(),
     );
 
     let expected_instructions = vec![
@@ -200,8 +200,8 @@ fn test_fliching_first_and_second_move() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("ironhead"),
-        String::from("ironhead"),
+        MOVES.get("ironhead").unwrap().clone(),
+        MOVES.get("ironhead").unwrap().clone(),
     );
 
     let expected_instructions = vec![
@@ -246,8 +246,8 @@ fn test_flinching_on_move_that_can_miss() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("airslash"),
-        String::from("tackle"),
+        MOVES.get("airslash").unwrap().clone(),
+        MOVES.get("tackle").unwrap().clone(),
     );
 
     let expected_instructions = vec![
@@ -298,8 +298,8 @@ fn test_using_protect_against_damaging_move() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("protect"),
-        String::from("tackle"),
+        MOVES.get("protect").unwrap().clone(),
+        MOVES.get("tackle").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -329,8 +329,8 @@ fn test_self_boosting_move_against_protect() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("protect"),
-        String::from("swordsdance"),
+        MOVES.get("protect").unwrap().clone(),
+        MOVES.get("swordsdance").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -365,8 +365,8 @@ fn test_crash_move_into_protect() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("protect"),
-        String::from("jumpkick"),
+        MOVES.get("protect").unwrap().clone(),
+        MOVES.get("jumpkick").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -400,8 +400,8 @@ fn test_protect_stops_secondaries() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("protect"),
-        String::from("ironhead"),
+        MOVES.get("protect").unwrap().clone(),
+        MOVES.get("ironhead").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -432,8 +432,8 @@ fn test_protect_stops_after_damage_hit_callback() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("protect"),
-        String::from("knockoff"),
+        MOVES.get("protect").unwrap().clone(),
+        MOVES.get("knockoff").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -463,8 +463,8 @@ fn test_move_that_goes_through_protect() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("protect"),
-        String::from("feint"),
+        MOVES.get("protect").unwrap().clone(),
+        MOVES.get("feint").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -498,8 +498,8 @@ fn test_using_spikyshield_against_contact_move() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("spikyshield"),
-        String::from("tackle"),
+        MOVES.get("spikyshield").unwrap().clone(),
+        MOVES.get("tackle").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -534,8 +534,8 @@ fn test_spikyshield_recoil_does_not_overkill() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("spikyshield"),
-        String::from("tackle"),
+        MOVES.get("spikyshield").unwrap().clone(),
+        MOVES.get("tackle").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -569,8 +569,8 @@ fn test_spikyshield_does_not_activate_on_non_contact_move() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("spikyshield"),
-        String::from("watergun"),
+        MOVES.get("spikyshield").unwrap().clone(),
+        MOVES.get("watergun").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -600,8 +600,8 @@ fn test_banefulbunker_poisons() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("banefulbunker"),
-        String::from("tackle"),
+        MOVES.get("banefulbunker").unwrap().clone(),
+        MOVES.get("tackle").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -642,8 +642,8 @@ fn test_banefulbunker_cannot_poison_already_statused_target() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("banefulbunker"),
-        String::from("tackle"),
+        MOVES.get("banefulbunker").unwrap().clone(),
+        MOVES.get("tackle").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -677,8 +677,8 @@ fn test_silktrap() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("silktrap"),
-        String::from("tackle"),
+        MOVES.get("silktrap").unwrap().clone(),
+        MOVES.get("tackle").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -714,8 +714,8 @@ fn test_protect_side_condition_is_removed() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("splash"),
-        String::from("splash"),
+        MOVES.get("splash").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -738,8 +738,8 @@ fn test_protect_for_second_turn_in_a_row() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("protect"),
-        String::from("tackle"),
+        MOVES.get("protect").unwrap().clone(),
+        MOVES.get("tackle").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -765,8 +765,8 @@ fn test_double_protect() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("protect"),
-        String::from("protect"),
+        MOVES.get("protect").unwrap().clone(),
+        MOVES.get("protect").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -797,8 +797,8 @@ fn test_basic_substitute_usage() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("substitute"),
-        String::from("tackle"),
+        MOVES.get("substitute").unwrap().clone(),
+        MOVES.get("tackle").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -837,8 +837,8 @@ fn test_substitute_does_not_let_secondary_status_effect_happen() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("substitute"),
-        String::from("firepunch"),
+        MOVES.get("substitute").unwrap().clone(),
+        MOVES.get("firepunch").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -877,8 +877,8 @@ fn test_secondary_on_self_works_against_substitute() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("substitute"),
-        String::from("poweruppunch"),
+        MOVES.get("substitute").unwrap().clone(),
+        MOVES.get("poweruppunch").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -922,8 +922,8 @@ fn test_move_goes_through_substitute() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("substitute"),
-        String::from("boomburst"),
+        MOVES.get("substitute").unwrap().clone(),
+        MOVES.get("boomburst").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -955,12 +955,12 @@ fn test_move_goes_through_substitute() {
 fn test_infiltrator_goes_through_substitute() {
     let mut state = State::default();
     state.side_one.get_active().speed = 150;
-    state.side_two.get_active().ability = String::from("infiltrator");
+    state.side_two.get_active().ability = "infiltrator".to_string();
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("substitute"),
-        String::from("tackle"),
+        MOVES.get("substitute").unwrap().clone(),
+        MOVES.get("tackle").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1001,8 +1001,8 @@ fn test_using_protect_with_a_substitute() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("protect"),
-        String::from("tackle"),
+        MOVES.get("protect").unwrap().clone(),
+        MOVES.get("tackle").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1039,8 +1039,8 @@ fn test_drag_move_against_substitute() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("splash"),
-        String::from("dragontail"),
+        MOVES.get("splash").unwrap().clone(),
+        MOVES.get("dragontail").unwrap().clone(),
     );
 
     let expected_instructions = vec![
@@ -1078,8 +1078,8 @@ fn test_whirlwind_move_against_substitute() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("splash"),
-        String::from("whirlwind"),
+        MOVES.get("splash").unwrap().clone(),
+        MOVES.get("whirlwind").unwrap().clone(),
     );
 
     let expected_instructions = vec![
@@ -1170,8 +1170,8 @@ fn test_drag_move_against_protect_and_substitute() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("protect"),
-        String::from("dragontail"),
+        MOVES.get("protect").unwrap().clone(),
+        MOVES.get("dragontail").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1203,8 +1203,8 @@ fn test_rockyhelmet_damage_taken() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        MOVES.get("tackle").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1232,8 +1232,8 @@ fn test_rockyhelmet_does_not_overkill() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        MOVES.get("tackle").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1264,8 +1264,8 @@ fn test_choiceband_locking() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("willowisp"),
-        String::from("splash"),
+        MOVES.get("willowisp").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![
@@ -1326,8 +1326,12 @@ fn test_locked_moves_unlock_on_switchout() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("Switch 1"),
-        String::from("splash"),
+        Choice {
+            category: MoveCategory::Switch,
+            switch_id: 1,
+            ..Default::default()
+        },
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1364,8 +1368,8 @@ fn test_fighting_move_with_blackbelt() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("drainpunch"),
-        String::from("splash"),
+        MOVES.get("drainpunch").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1387,8 +1391,8 @@ fn test_expert_belt_boost() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("drainpunch"),
-        String::from("splash"),
+        MOVES.get("drainpunch").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1411,8 +1415,8 @@ fn test_expert_belt_does_not_boost() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("drainpunch"),
-        String::from("splash"),
+        MOVES.get("drainpunch").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1432,8 +1436,8 @@ fn test_lifeorb_boost_and_recoil() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        MOVES.get("tackle").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1460,8 +1464,8 @@ fn test_shellbell_drain() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        MOVES.get("tackle").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1487,8 +1491,8 @@ fn test_absorbbulb() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        MOVES.get("watergun").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1520,8 +1524,8 @@ fn test_ground_move_versus_airballoon() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("earthquake"),
-        String::from("splash"),
+        MOVES.get("earthquake").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1538,8 +1542,8 @@ fn test_non_ground_move_versus_airballoon() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        MOVES.get("tackle").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1566,8 +1570,8 @@ fn test_assaultvest() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        MOVES.get("watergun").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1590,8 +1594,8 @@ fn test_weaknesspolicy() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        MOVES.get("watergun").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1632,8 +1636,8 @@ fn test_weaknesspolicy_does_not_overboost() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        MOVES.get("watergun").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1672,8 +1676,12 @@ fn test_switching_in_with_grassyseed_in_grassy_terrain() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("splash"),
-        String::from("Switch 1"),
+        MOVES.get("splash").unwrap().clone(),
+        Choice {
+            category: MoveCategory::Switch,
+            switch_id: 1,
+            ..Default::default()
+        },
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1709,8 +1717,12 @@ fn test_contrary_with_seed() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("splash"),
-        String::from("Switch 1"),
+        MOVES.get("splash").unwrap().clone(),
+        Choice {
+            category: MoveCategory::Switch,
+            switch_id: 1,
+            ..Default::default()
+        },
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1743,8 +1755,8 @@ fn test_contrary() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("swordsdance"),
-        String::from("splash"),
+        MOVES.get("swordsdance").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1765,8 +1777,8 @@ fn test_contrary_with_secondary() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("poweruppunch"),
-        String::from("splash"),
+        MOVES.get("poweruppunch").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1793,8 +1805,8 @@ fn test_throatspray_with_move_that_can_miss() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("grasswhistle"),
-        String::from("splash"),
+        MOVES.get("grasswhistle").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![
@@ -1834,8 +1846,8 @@ fn test_adaptability() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        MOVES.get("tackle").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1855,8 +1867,8 @@ fn test_poisonpoint_with_poisonjab() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("poisonjab"),
-        String::from("splash"),
+        MOVES.get("poisonjab").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![
@@ -1897,8 +1909,8 @@ fn test_serenegrace_with_secondary() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("poisonjab"),
-        String::from("splash"),
+        MOVES.get("poisonjab").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![
@@ -1939,8 +1951,8 @@ fn test_technician() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        MOVES.get("tackle").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1960,8 +1972,8 @@ fn test_unseenfist() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("tackle"),
-        String::from("protect"),
+        MOVES.get("tackle").unwrap().clone(),
+        MOVES.get("protect").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1996,8 +2008,8 @@ fn test_ironbarbs() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        MOVES.get("tackle").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2023,8 +2035,8 @@ fn test_rattled() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("feintattack"),
-        String::from("splash"),
+        MOVES.get("feintattack").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2051,8 +2063,8 @@ fn test_taunt_into_aromaveil() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("taunt"),
-        String::from("splash"),
+        MOVES.get("taunt").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2069,8 +2081,8 @@ fn test_explosion_into_damp() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("explosion"),
-        String::from("splash"),
+        MOVES.get("explosion").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2088,8 +2100,8 @@ fn test_waterabsorb() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        MOVES.get("watergun").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2110,8 +2122,8 @@ fn test_dryskin_does_not_overheal() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        MOVES.get("watergun").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2134,8 +2146,8 @@ fn test_dryskin_in_rain() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("splash"),
-        String::from("splash"),
+        MOVES.get("splash").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2156,8 +2168,8 @@ fn test_filter() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        MOVES.get("watergun").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2177,8 +2189,8 @@ fn test_effectspore() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        MOVES.get("tackle").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![
@@ -2250,8 +2262,8 @@ fn test_flashfire() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("ember"),
-        String::from("splash"),
+        MOVES.get("ember").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2273,8 +2285,8 @@ fn test_hypercutter() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("aurorabeam"),
-        String::from("splash"),
+        MOVES.get("aurorabeam").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2295,8 +2307,8 @@ fn test_innerfocus() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        String::from("ironhead"),
-        String::from("splash"),
+        MOVES.get("ironhead").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     let expected_instructions = vec![StateInstructions {

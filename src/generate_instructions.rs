@@ -1948,8 +1948,8 @@ fn get_end_of_turn_instructions(
 
 pub fn generate_instructions_from_move_pair(
     state: &mut State,
-    side_one_move: String,
-    side_two_move: String,
+    mut side_one_choice: Choice,
+    mut side_two_choice: Choice,
 ) -> Vec<StateInstructions> {
     /*
     - get Choice structs from moves
@@ -1963,35 +1963,35 @@ pub fn generate_instructions_from_move_pair(
           This was done elsewhere in the other bot, but it should be here instead
     */
 
-    let mut side_one_choice;
-    if side_one_move.starts_with("Switch") {
-        side_one_choice = Choice::default();
-        side_one_choice.switch_id = side_one_move
-            .chars()
-            .last()
-            .unwrap()
-            .to_owned()
-            .to_digit(10)
-            .unwrap() as usize;
-        side_one_choice.category = MoveCategory::Switch;
-    } else {
-        side_one_choice = MOVES.get(&side_one_move).unwrap().to_owned();
-    }
-
-    let mut side_two_choice;
-    if side_two_move.starts_with("Switch") {
-        side_two_choice = Choice::default();
-        side_two_choice.switch_id = side_two_move
-            .chars()
-            .last()
-            .unwrap()
-            .to_owned()
-            .to_digit(10)
-            .unwrap() as usize;
-        side_two_choice.category = MoveCategory::Switch;
-    } else {
-        side_two_choice = MOVES.get(&side_two_move).unwrap().to_owned();
-    }
+    // let mut side_one_choice;
+    // if side_one_move.starts_with("Switch") {
+    //     side_one_choice = Choice::default();
+    //     side_one_choice.switch_id = side_one_move
+    //         .chars()
+    //         .last()
+    //         .unwrap()
+    //         .to_owned()
+    //         .to_digit(10)
+    //         .unwrap() as usize;
+    //     side_one_choice.category = MoveCategory::Switch;
+    // } else {
+    //     side_one_choice = MOVES.get(&side_one_move).unwrap().to_owned();
+    // }
+    //
+    // let mut side_two_choice;
+    // if side_two_move.starts_with("Switch") {
+    //     side_two_choice = Choice::default();
+    //     side_two_choice.switch_id = side_two_move
+    //         .chars()
+    //         .last()
+    //         .unwrap()
+    //         .to_owned()
+    //         .to_digit(10)
+    //         .unwrap() as usize;
+    //     side_two_choice.category = MoveCategory::Switch;
+    // } else {
+    //     side_two_choice = MOVES.get(&side_two_move).unwrap().to_owned();
+    // }
 
     let mut state_instruction_vec: Vec<StateInstructions> = vec![];
     let incoming_instructions: StateInstructions = StateInstructions::default();

@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+use poke_engine::choices::MOVES;
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::state::State;
 
@@ -13,8 +14,8 @@ fn main() {
 
     let ins = generate_instructions_from_move_pair(
         &mut state,
-        String::from("leechseed"),
-        String::from("splash"),
+        MOVES.get("leechseed").unwrap().clone(),
+        MOVES.get("splash").unwrap().clone(),
     );
 
     for i in ins {

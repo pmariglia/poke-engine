@@ -16467,6 +16467,7 @@ pub struct Choice {
 }
 
 impl Choice {
+
     pub fn add_or_create_secondaries(&mut self, secondary: Secondary) {
         if let Some(secondaries) = &mut self.secondaries {
             secondaries.push(secondary);
@@ -16492,6 +16493,7 @@ impl Choice {
 }
 
 impl Default for Choice {
+
     fn default() -> Choice {
         return Choice {
             move_id: "splash".to_string(),
