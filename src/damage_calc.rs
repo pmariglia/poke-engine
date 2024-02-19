@@ -5,6 +5,7 @@ use crate::{
         SideReference, State, Weather,
     },
 };
+use crate::abilities::Abilities;
 
 #[rustfmt::skip]
 const TYPE_MATCHUP_DAMAGE_MULTIPICATION: [[f32; 19]; 19] = [
@@ -233,14 +234,14 @@ pub fn calculate_damage(
     let defending_stat;
     match choice.category {
         MoveCategory::Physical => {
-            if defending_side.get_active_immutable().ability.as_str() == "unaware" {
+            if defending_side.get_active_immutable().ability == Abilities::UNAWARE {
                 attacking_stat = attacking_side.get_active_immutable().attack;
             } else {
                 attacking_stat = attacking_side
                     .get_active_immutable()
                     .calculate_boosted_stat(PokemonBoostableStat::Attack);
             }
-            if attacking_side.get_active_immutable().ability.as_str() == "unaware" {
+            if attacking_side.get_active_immutable().ability == Abilities::UNAWARE {
                 defending_stat = defending_side.get_active_immutable().defense;
             } else {
                 defending_stat = defending_side
@@ -249,14 +250,14 @@ pub fn calculate_damage(
             }
         }
         MoveCategory::Special => {
-            if defending_side.get_active_immutable().ability.as_str() == "unaware" {
+            if defending_side.get_active_immutable().ability == Abilities::UNAWARE {
                 attacking_stat = attacking_side.get_active_immutable().special_attack;
             } else {
                 attacking_stat = attacking_side
                     .get_active_immutable()
                     .calculate_boosted_stat(PokemonBoostableStat::SpecialAttack);
             }
-            if attacking_side.get_active_immutable().ability.as_str() == "unaware" {
+            if attacking_side.get_active_immutable().ability == Abilities::UNAWARE {
                 defending_stat = defending_side.get_active_immutable().special_defense;
             } else {
                 defending_stat = defending_side
@@ -300,7 +301,7 @@ pub fn calculate_damage(
         defending_side.get_active_immutable(),
     );
 
-    if attacking_side.get_active_immutable().ability.as_str() != "infiltrator" {
+    if attacking_side.get_active_immutable().ability != Abilities::INFILTRATOR {
         if defending_side.side_conditions.aurora_veil > 0 {
             damage_modifier *= 0.5
         } else if defending_side.side_conditions.reflect > 0
@@ -402,7 +403,7 @@ mod tests {
             ..Default::default()
         };
         state.side_one.get_active().attack_boost = 1;
-        state.side_two.get_active().ability = "unaware".to_string();
+        state.side_two.get_active().ability = Abilities::UNAWARE;
         choice.move_id = "tackle".to_string();
         choice.move_type = PokemonType::Typeless;
         choice.base_power = 40.0;

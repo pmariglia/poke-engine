@@ -1,31 +1,35 @@
-use crate::choices::Choice;
+use crate::choices::{Choice, MOVES};
 use core::panic;
-use lazy_static::lazy_static;
-use std::collections::HashMap;
 use std::collections::HashSet;
+use crate::abilities::Abilities;
 
 use crate::instruction::Instruction;
+use crate::items::Items;
 
-lazy_static! {
-    pub static ref BOOST_MULTIPLIER: HashMap<i8, f32> = {
-        let mut boost_multiplier: HashMap<i8, f32> = HashMap::new();
+fn get_boost_multiplier(boost_num: i8) -> f32 {
+    match boost_num {
+        -6 => 2.0 / 8.0,
+        -5 => 2.0 / 7.0,
+        -4 => 2.0 / 6.0,
+        -3 => 2.0 / 5.0,
+        -2 => 2.0 / 4.0,
+        -1 => 2.0 / 3.0,
+        0 => 2.0 / 2.0,
+        1 => 3.0 / 2.0,
+        2 => 4.0 / 8.0,
+        3 => 5.0 / 8.0,
+        4 => 6.0 / 8.0,
+        5 => 7.0 / 8.0,
+        6 => 8.0 / 8.0,
+        _ => panic!("Invalid boost number"),
+    }
+}
 
-        boost_multiplier.insert(-6, 2.0 / 8.0);
-        boost_multiplier.insert(-5, 2.0 / 7.0);
-        boost_multiplier.insert(-4, 2.0 / 6.0);
-        boost_multiplier.insert(-3, 2.0 / 5.0);
-        boost_multiplier.insert(-2, 2.0 / 4.0);
-        boost_multiplier.insert(-1, 2.0 / 3.0);
-        boost_multiplier.insert(0, 2.0 / 2.0);
-        boost_multiplier.insert(1, 3.0 / 2.0);
-        boost_multiplier.insert(2, 4.0 / 8.0);
-        boost_multiplier.insert(3, 5.0 / 8.0);
-        boost_multiplier.insert(4, 6.0 / 8.0);
-        boost_multiplier.insert(5, 7.0 / 8.0);
-        boost_multiplier.insert(6, 8.0 / 8.0);
-
-        boost_multiplier
-    };
+#[derive(PartialEq, Eq, Copy, Clone)]
+pub enum MoveChoice {
+    Move(usize),
+    Switch(usize),
+    None
 }
 
 #[derive(Debug, PartialEq, Copy, Clone, Hash)]
@@ -304,6 +308,18 @@ pub struct Move {
     pub id: String,
     pub disabled: bool,
     pub pp: i8,
+    pub choice: Choice
+}
+
+impl Default for Move {
+    fn default() -> Move {
+        return Move {
+            id: "".to_string(),
+            disabled: false,
+            pp: 32,
+            choice: Choice::default()
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -313,8 +329,8 @@ pub struct Pokemon {
     pub types: (PokemonType, PokemonType),
     pub hp: i16,
     pub maxhp: i16,
-    pub ability: String,
-    pub item: String,
+    pub ability: usize,
+    pub item: usize,
     pub attack: i16,
     pub defense: i16,
     pub special_attack: i16,
@@ -335,6 +351,21 @@ pub struct Pokemon {
 }
 
 impl Pokemon {
+    pub fn replace_move(&mut self, move_index: usize, new_move_name: String) {
+        self.moves[move_index].choice = MOVES.get(&new_move_name).unwrap().to_owned();
+        self.moves[move_index].id = new_move_name;
+    }
+
+    pub fn get_available_moves(&self) -> Vec<MoveChoice> {
+        let mut available_moves: Vec<MoveChoice> = Vec::new();
+        for (index, m) in self.moves.iter().enumerate() {
+            if !m.disabled {
+                available_moves.push(MoveChoice::Move(index));
+            }
+        }
+        return available_moves;
+    }
+
     pub fn get_pkmn_boost_enum_pairs(&self) -> [(PokemonBoostableStat, i8); 7] {
         return [
             (PokemonBoostableStat::Attack, self.attack_boost),
@@ -369,7 +400,7 @@ impl Pokemon {
     }
 
     pub fn item_can_be_removed(&self) -> bool {
-        return true;
+        return self.item != Items::NONE;
     }
 
     pub fn clear_volatile_statuses(&mut self) {
@@ -378,8 +409,8 @@ impl Pokemon {
 
     pub fn is_grounded(&self) -> bool {
         if self.has_type(&PokemonType::Flying)
-            || self.ability == "levitate"
-            || self.item == "airballoon"
+            || self.ability == Abilities::LEVITATE
+            || self.item == Items::AIR_BALLOON
         {
             return false;
         }
@@ -389,21 +420,19 @@ impl Pokemon {
     pub fn calculate_boosted_stat(&self, stat: PokemonBoostableStat) -> i16 {
         match stat {
             PokemonBoostableStat::Attack => {
-                (BOOST_MULTIPLIER.get(&self.attack_boost).unwrap() * self.attack as f32) as i16
+                (get_boost_multiplier(self.attack_boost) * self.attack as f32) as i16
             }
             PokemonBoostableStat::Defense => {
-                (BOOST_MULTIPLIER.get(&self.defense_boost).unwrap() * self.defense as f32) as i16
+                (get_boost_multiplier(self.defense_boost) * self.defense as f32) as i16
             }
             PokemonBoostableStat::SpecialAttack => {
-                (BOOST_MULTIPLIER.get(&self.special_attack_boost).unwrap()
-                    * self.special_attack as f32) as i16
+                (get_boost_multiplier(self.special_attack_boost) * self.special_attack as f32) as i16
             }
             PokemonBoostableStat::SpecialDefense => {
-                (BOOST_MULTIPLIER.get(&self.special_defense_boost).unwrap()
-                    * self.special_defense as f32) as i16
+                (get_boost_multiplier(self.special_defense_boost) * self.special_defense as f32) as i16
             }
             PokemonBoostableStat::Speed => {
-                (BOOST_MULTIPLIER.get(&self.speed_boost).unwrap() * self.speed as f32) as i16
+                (get_boost_multiplier(self.speed_boost) * self.speed as f32) as i16
             }
             _ => {
                 panic!("Not implemented")
@@ -426,7 +455,7 @@ impl Pokemon {
         match volatile_status {
             PokemonVolatileStatus::Substitute => return self.hp > self.maxhp / 4,
             PokemonVolatileStatus::Flinch => {
-                if !first_move || ["innerfocus"].contains(&self.ability.as_str()) {
+                if !first_move || [Abilities::INNERFOCUS].contains(&self.ability) {
                     return false;
                 }
                 return true;
@@ -437,20 +466,20 @@ impl Pokemon {
             | PokemonVolatileStatus::Encore
             | PokemonVolatileStatus::Disable
             | PokemonVolatileStatus::HealBlock
-            | PokemonVolatileStatus::Attract => return self.ability.as_str() != "aromaveil",
-            | PokemonVolatileStatus::Yawn => return self.ability.as_str() != "insomnia",
+            | PokemonVolatileStatus::Attract => return self.ability != Abilities::AROMAVEIL,
+            PokemonVolatileStatus::Yawn => return self.ability != Abilities::INSOMNIA,
             _ => return true,
         }
     }
 
     pub fn immune_to_stats_lowered_by_opponent(&self, stat: &PokemonBoostableStat) -> bool {
-        if ["clearbody", "whitesmoke", "fullmetalbody"].contains(&self.ability.as_str())
-            || (["clearamulet"].contains(&self.item.as_str()))
+        if [Abilities::CLEARBODY, Abilities::WHITESMOKE, Abilities::FULLMETALBODY].contains(&self.ability)
+            || ([Items::CLEAR_AMULET].contains(&self.item))
         {
             return true;
         }
 
-        if stat == &PokemonBoostableStat::Attack && self.ability.as_str() == "hypercutter" {
+        if stat == &PokemonBoostableStat::Attack && self.ability == Abilities::HYPERCUTTER {
             return true;
         }
 
@@ -466,8 +495,8 @@ impl Default for Pokemon {
             types: (PokemonType::Normal, PokemonType::Typeless),
             hp: 100,
             maxhp: 100,
-            ability: "none".to_string(),
-            item: "none".to_string(),
+            ability: Abilities::NONE,
+            item: Items::NONE,
             attack: 100,
             defense: 100,
             special_attack: 100,
@@ -489,21 +518,25 @@ impl Default for Pokemon {
                     id: "tackle".to_string(),
                     disabled: false,
                     pp: 35,
+                    choice: MOVES.get("tackle").unwrap().to_owned(),
                 },
                 Move {
                     id: "growl".to_string(),
                     disabled: false,
                     pp: 40,
+                    choice: MOVES.get("growl").unwrap().to_owned(),
                 },
                 Move {
                     id: "quickattack".to_string(),
                     disabled: false,
                     pp: 30,
+                    choice: MOVES.get("quickattack").unwrap().to_owned(),
                 },
                 Move {
                     id: "tailwhip".to_string(),
                     disabled: false,
                     pp: 30,
+                    choice: MOVES.get("tailwhip").unwrap().to_owned(),
                 },
             ],
         };
@@ -519,6 +552,16 @@ pub struct Side {
 }
 
 impl Side {
+    pub fn get_switches(&self) -> Vec<MoveChoice> {
+        let mut switches: Vec<MoveChoice> = Vec::new();
+        for (index, p) in self.pokemon.iter().enumerate() {
+            if p.hp > 0 && index != self.active_index {
+                switches.push(MoveChoice::Switch(index));
+            }
+        }
+        return switches;
+    }
+
     pub fn get_active(&mut self) -> &mut Pokemon {
         &mut self.pokemon[self.active_index]
     }
@@ -612,6 +655,51 @@ impl Default for State {
 }
 
 impl State {
+    pub fn battle_is_over(&self) -> f32 {
+        //  0 if battle is not over
+        //  1 if side one has won
+        // -1 if side two has won
+        if self.side_one.pokemon.iter().all(|p| p.hp <= 0) {
+            return -1.0;
+        }
+        if self.side_two.pokemon.iter().all(|p| p.hp <= 0) {
+            return 1.0;
+        }
+        return 0.0;
+    }
+
+    pub fn get_all_options(&self) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
+        let mut side_one_options: Vec<MoveChoice> = Vec::new();
+        let mut side_two_options: Vec<MoveChoice> = Vec::new();
+
+        let side_one_force_switch = self.side_one.get_active_immutable().hp <= 0;
+        let side_two_force_switch = self.side_two.get_active_immutable().hp <= 0;
+
+        if side_one_force_switch && side_two_force_switch {
+            side_one_options.extend(self.side_one.get_switches());
+            side_two_options.extend(self.side_two.get_switches());
+            return (side_one_options, side_two_options);
+        }
+        if side_one_force_switch {
+            side_one_options.extend(self.side_one.get_switches());
+            side_two_options.push(MoveChoice::None);
+            return (side_one_options, side_two_options);
+        }
+        if side_two_force_switch {
+            side_one_options.push(MoveChoice::None);
+            side_two_options.extend(self.side_two.get_switches());
+            return (side_one_options, side_two_options);
+        }
+
+        side_one_options.extend(self.side_one.get_active_immutable().get_available_moves());
+        side_one_options.extend(self.side_one.get_switches());
+
+        side_two_options.extend(self.side_two.get_active_immutable().get_available_moves());
+        side_two_options.extend(self.side_two.get_switches());
+
+        return (side_one_options, side_two_options);
+    }
+
     pub fn get_side(&mut self, side_ref: &SideReference) -> &mut Side {
         match side_ref {
             SideReference::SideOne => return &mut self.side_one,
@@ -646,8 +734,7 @@ impl State {
                 .get_side_immutable(attacking_side_ref)
                 .get_active_immutable()
                 .item
-                .as_str()
-                == "protectivepads"
+                == Items::PROTECTIVE_PADS
             {
                 return false;
             }
@@ -766,7 +853,7 @@ impl State {
         self.get_side(side_reference).get_active().types = new_types;
     }
 
-    fn change_item(&mut self, side_reference: &SideReference, new_item: String) {
+    fn change_item(&mut self, side_reference: &SideReference, new_item: usize) {
         self.get_side(side_reference).get_active().item = new_item;
     }
 
@@ -858,7 +945,7 @@ impl State {
                 self.heal(&instruction.side_ref, instruction.heal_amount)
             }
             Instruction::ChangeItem(instruction) => {
-                self.change_item(&instruction.side_ref, instruction.new_item.clone())
+                self.change_item(&instruction.side_ref, instruction.new_item)
             }
             Instruction::EnableMove(instruction) => {
                 self.enable_move(&instruction.side_ref, instruction.move_index)
@@ -939,7 +1026,7 @@ impl State {
                 self.damage(&instruction.side_ref, instruction.heal_amount)
             }
             Instruction::ChangeItem(instruction) => {
-                self.change_item(&instruction.side_ref, instruction.current_item.clone())
+                self.change_item(&instruction.side_ref, instruction.current_item)
             }
             Instruction::IncrementWish(instruction) => self.decrement_wish(&instruction.side_ref),
             Instruction::DecrementWish(instruction) => self.increment_wish(&instruction.side_ref),

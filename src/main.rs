@@ -1,26 +1,24 @@
 #![allow(dead_code)]
 
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
-use poke_engine::state::State;
+use poke_engine::search::expectiminimax_search;
+use poke_engine::state::{Move, State};
+use poke_engine::choices::MOVES;
 
 extern crate lazy_static;
 
 fn main() {
     let mut state: State = State::default();
-    state.side_one.get_active().speed = 100;
-    state.side_one.get_active().hp = 99;
-    state.side_two.get_active().speed = 50;
 
-    let ins = generate_instructions_from_move_pair(
+    println!("{:?}", state);
+    let (side_one_options, side_two_options) = state.get_all_options();
+
+    let result = expectiminimax_search(
         &mut state,
-        String::from("leechseed"),
-        String::from("splash"),
+        3,
+        side_one_options,
+        side_two_options,
+        false,
     );
-
-    for i in ins {
-        println!(
-            "Generated Instruction: {:?}: {:?}",
-            i.percentage, i.instruction_list
-        );
-    }
+    println!("{:?}", state);
 }

@@ -86,8 +86,8 @@ pub struct DisableMoveInstruction {
 #[derive(Debug, PartialEq, Clone)]
 pub struct ChangeItemInstruction {
     pub side_ref: SideReference,
-    pub current_item: String,
-    pub new_item: String,
+    pub current_item: usize,
+    pub new_item: usize,
 }
 
 #[derive(Debug, PartialEq, Clone)]

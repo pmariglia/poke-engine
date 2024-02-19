@@ -1,6 +1,5 @@
 #![allow(unused_variables)]
 use std::cmp;
-use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
@@ -21,12 +20,75 @@ type ModifyAttackAgainst = fn(&State, &mut Choice, &SideReference);
 type ItemOnSwitchInFn = fn(&State, &SideReference) -> Vec<Instruction>;
 type ItemEndOfTurn = fn(&State, &SideReference) -> Vec<Instruction>;
 
+
+#[non_exhaustive]
+pub struct Items;
+
+impl Items {
+    pub const NONE: usize = 0;
+    pub const ABSORB_BULB: usize = 1;
+    pub const AIR_BALLOON: usize = 2;
+    pub const ASSAULT_VEST: usize = 3;
+    pub const BLACK_BELT: usize = 4;
+    pub const BLACK_SLUDGE: usize = 5;
+    pub const BLACK_GLASSES: usize = 6;
+    pub const CELL_BATTERY: usize = 7;
+    pub const CHARCOAL: usize = 8;
+    pub const CHOICE_BAND: usize = 9;
+    pub const CHOICE_SPECS: usize = 10;
+    pub const CHOICE_SCARF: usize = 11;
+    pub const DRAGON_FANG: usize = 12;
+    pub const DREAD_PLATE: usize = 13;
+    pub const ELECTRIC_SEED: usize = 14;
+    pub const EXPERT_BELT: usize = 15;
+    pub const EVIOLITE: usize = 16;
+    pub const FAIRY_FEATHER: usize = 17;
+    pub const FLAME_ORB: usize = 18;
+    pub const GRASSY_SEED: usize = 19;
+    pub const LEFTOVERS: usize = 20;
+    pub const LIFE_ORB: usize = 21;
+    pub const METAL_COAL: usize = 22;
+    pub const MISTY_SEED: usize = 23;
+    pub const MUSCLE_BAND: usize = 24;
+    pub const MYSTIC_WATER: usize = 25;
+    pub const NEVER_MELT_ICE: usize = 26;
+    pub const ODD_INCENSE: usize = 27;
+    pub const POISON_BARB: usize = 28;
+    pub const PSYCHIC_SEED: usize = 29;
+    pub const PUNCHING_GLOVE: usize = 30;
+    pub const ROCKY_HELMET: usize = 31;
+    pub const SEA_INCENSE: usize = 32;
+    pub const SHARP_BEAK: usize = 33;
+    pub const SHELL_BELL: usize = 34;
+    pub const SILK_SCARF: usize = 35;
+    pub const SILVER_POWDER: usize = 36;
+    pub const SOFT_SAND: usize = 37;
+    pub const THROAT_SPRAY: usize = 38;
+    pub const TOXIC_ORB: usize = 39;
+    pub const TWISTED_SPOON: usize = 40;
+    pub const WAVE_INCENSE: usize = 41;
+    pub const WEAKNESS_POLICY: usize = 42;
+    pub const WISE_GLASSES: usize = 43;
+    pub const BLUNDER_POLICY: usize = 44;
+    pub const HEAVY_DUTY_BOOTS: usize = 45;
+    pub const CLEAR_AMULET: usize = 46;
+    pub const PROTECTIVE_PADS: usize = 47;
+}
+
 lazy_static! {
-    pub static ref ITEMS: HashMap<String, Item> = {
-        let mut items: HashMap<String, Item> = HashMap::new();
-        items.insert(
-            "absorbbulb".to_string(),
+    pub static ref ITEMS_VEC: Vec<Item> = {
+        let mut items: Vec<Item> = Vec::new();
+        items.push(
             Item {
+                id: "".to_string(),
+                index: 0,
+                ..Default::default()
+            },
+        );
+        items.push(
+            Item {
+                id: "absorbbulb".to_string(),
+                index: 1,
                 modify_attack_against: Some(
                     |_state, attacking_choice: &mut Choice, attacking_side_ref| {
                         if attacking_choice.move_type == PokemonType::Water {
@@ -53,9 +115,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "airballoon".to_string(),
+        items.push(
             Item {
+                id: "airballoon".to_string(),
+                index: 2,
                 modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
                     if attacking_choice.move_type == PokemonType::Ground
                         && attacking_choice.move_id != "thousandarrows"
@@ -72,9 +135,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "assaultvest".to_string(),
+        items.push(
             Item {
+                id: "assaultvest".to_string(),
+                index: 3,
                 modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
                     if attacking_choice.category == MoveCategory::Special {
                         attacking_choice.base_power /= 1.5;
@@ -83,9 +147,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "blackbelt".to_string(),
+        items.push(
             Item {
+                id: "blackbelt".to_string(),
+                index: 4,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Fighting {
@@ -96,9 +161,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "blacksludge".to_string(),
+        items.push(
             Item {
+                id: "blacksludge".to_string(),
+                index: 5,
                 end_of_turn: Some(|state: &State, side_ref: &SideReference| {
                     let attacker = state.get_side_immutable(side_ref).get_active_immutable();
                     if attacker.has_type(&PokemonType::Poison) {
@@ -120,9 +186,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "blackglasses".to_string(),
+        items.push(
             Item {
+                id: "blackglasses".to_string(),
+                index: 6,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Dark {
@@ -133,9 +200,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "cellbattery".to_string(),
+        items.push(
             Item {
+                id: "cellbattery".to_string(),
+                index: 7,
                 modify_attack_against: Some(
                     |_state, attacking_choice: &mut Choice, attacking_side_ref| {
                         if attacking_choice.move_type == PokemonType::Electric {
@@ -162,9 +230,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "charcoal".to_string(),
+        items.push(
             Item {
+                id: "charcoal".to_string(),
+                index: 8,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Fire {
@@ -175,9 +244,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "choiceband".to_string(),
+        items.push(
             Item {
+                id: "choiceband".to_string(),
+                index: 9,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.category == MoveCategory::Physical {
@@ -195,9 +265,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "choicespecs".to_string(),
+        items.push(
             Item {
+                id: "choicespecs".to_string(),
+                index: 10,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.category == MoveCategory::Special {
@@ -215,9 +286,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "choicescarf".to_string(),
+        items.push(
             Item {
+                id: "choicescarf".to_string(),
+                index: 11,
                 before_move: Some(|state, choice, side_ref| {
                     return get_choice_move_disable_instructions(
                         state.get_side_immutable(side_ref).get_active_immutable(),
@@ -228,9 +300,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "dragonfang".to_string(),
+        items.push(
             Item {
+                id: "dragonfang".to_string(),
+                index: 12,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Dragon {
@@ -241,9 +314,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "dreadplate".to_string(),
+        items.push(
             Item {
+                id: "dreadplate".to_string(),
+                index: 13,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Dark {
@@ -254,9 +328,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "electricseed".to_string(),
+        items.push(
             Item {
+                id: "electricseed".to_string(),
+                index: 14,
                 on_switch_in: Some(|state: &State, side_ref: &SideReference| {
                     if state.terrain_is_active(&Terrain::ElectricTerrain) {
                         if let Some(boost_instruction) = get_boost_instruction(
@@ -270,8 +345,8 @@ lazy_static! {
                                 boost_instruction,
                                 Instruction::ChangeItem(ChangeItemInstruction {
                                     side_ref: side_ref.clone(),
-                                    current_item: "electricseed".to_string(),
-                                    new_item: "".to_string(),
+                                    current_item: Items::ELECTRIC_SEED,
+                                    new_item: Items::NONE,
                                 }),
                             ];
                         }
@@ -281,9 +356,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "expertbelt".to_string(),
+        items.push(
             Item {
+                id: "expertbelt".to_string(),
+                index: 15,
                 modify_attack_being_used: Some(
                     |state: &State, attacking_choice: &mut Choice, side_ref: &SideReference| {
                         if type_effectiveness_modifier(
@@ -301,18 +377,20 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "eviolite".to_string(),
+        items.push(
             Item {
+                id: "eviolite".to_string(),
+                index: 16,
                 modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
                     attacking_choice.base_power /= 1.5;
                 }),
                 ..Default::default()
             },
         );
-        items.insert(
-            "fairyfeather".to_string(),
+        items.push(
             Item {
+                id: "fairyfeather".to_string(),
+                index: 17,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Fairy {
@@ -323,9 +401,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "flameorb".to_string(),
+        items.push(
             Item {
+                id: "flameorb".to_string(),
+                index: 18,
                 end_of_turn: Some(|state: &State, side_ref: &SideReference| {
                     let side = state.get_side_immutable(side_ref);
                     if !immune_to_status(state, &MoveTarget::User, side_ref, &PokemonStatus::Burn) {
@@ -341,9 +420,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "grassyseed".to_string(),
+        items.push(
             Item {
+                id: "grassyseed".to_string(),
+                index: 19,
                 on_switch_in: Some(|state: &State, side_ref: &SideReference| {
                     if state.terrain_is_active(&Terrain::GrassyTerrain) {
                         if let Some(boost_instruction) = get_boost_instruction(
@@ -357,8 +437,8 @@ lazy_static! {
                                 boost_instruction,
                                 Instruction::ChangeItem(ChangeItemInstruction {
                                     side_ref: side_ref.clone(),
-                                    current_item: "grassyseed".to_string(),
-                                    new_item: "".to_string(),
+                                    current_item: Items::GRASSY_SEED,
+                                    new_item: Items::NONE,
                                 }),
                             ];
                         }
@@ -368,9 +448,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "leftovers".to_string(),
+        items.push(
             Item {
+                id: "leftovers".to_string(),
+                index: 20,
                 end_of_turn: Some(|state: &State, side_ref: &SideReference| {
                     let attacker = state.get_side_immutable(side_ref).get_active_immutable();
                     if attacker.hp < attacker.maxhp {
@@ -387,9 +468,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "lifeorb".to_string(),
+        items.push(
             Item {
+                id: "lifeorb".to_string(),
+                index: 21,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         attacking_choice.base_power *= 1.3;
@@ -403,9 +485,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "metalcoal".to_string(),
+        items.push(
             Item {
+                id: "metalcoal".to_string(),
+                index: 22,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Steel {
@@ -416,9 +499,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "mistyseed".to_string(),
+        items.push(
             Item {
+                id: "mistyseed".to_string(),
+                index: 23,
                 on_switch_in: Some(|state: &State, side_ref: &SideReference| {
                     if state.terrain_is_active(&Terrain::MistyTerrain) {
                         if let Some(boost_instruction) = get_boost_instruction(
@@ -432,8 +516,8 @@ lazy_static! {
                                 boost_instruction,
                                 Instruction::ChangeItem(ChangeItemInstruction {
                                     side_ref: side_ref.clone(),
-                                    current_item: "mistyseed".to_string(),
-                                    new_item: "".to_string(),
+                                    current_item: Items::MISTY_SEED,
+                                    new_item: Items::NONE,
                                 }),
                             ];
                         }
@@ -443,9 +527,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "muscleband".to_string(),
+        items.push(
             Item {
+                id: "muscleband".to_string(),
+                index: 24,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.category == MoveCategory::Physical {
@@ -456,9 +541,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "mysticwater".to_string(),
+        items.push(
             Item {
+                id: "mysticwater".to_string(),
+                index: 25,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Water {
@@ -469,9 +555,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "nevermeltice".to_string(),
+        items.push(
             Item {
+                id: "nevermeltice".to_string(),
+                index: 26,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Ice {
@@ -482,9 +569,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "oddincense".to_string(),
+        items.push(
             Item {
+                id: "oddincense".to_string(),
+                index: 27,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Psychic {
@@ -495,9 +583,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "poisonbarb".to_string(),
+        items.push(
             Item {
+                id: "poisonbarb".to_string(),
+                index: 28,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Poison {
@@ -508,9 +597,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "psychicseed".to_string(),
+        items.push(
             Item {
+                id: "psychicseed".to_string(),
+                index: 29,
                 on_switch_in: Some(|state: &State, side_ref: &SideReference| {
                     if state.terrain_is_active(&Terrain::PsychicTerrain) {
                         if let Some(boost_instruction) = get_boost_instruction(
@@ -524,8 +614,8 @@ lazy_static! {
                                 boost_instruction,
                                 Instruction::ChangeItem(ChangeItemInstruction {
                                     side_ref: side_ref.clone(),
-                                    current_item: "psychicseed".to_string(),
-                                    new_item: "".to_string(),
+                                    current_item: Items::PSYCHIC_SEED,
+                                    new_item: Items::NONE,
                                 }),
                             ];
                         }
@@ -535,9 +625,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "punchingglove".to_string(),
+        items.push(
             Item {
+                id: "punchingglove".to_string(),
+                index: 30,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.flags.punch {
@@ -549,9 +640,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "rockyhelmet".to_string(),
+        items.push(
             Item {
+                id: "rockyhelmet".to_string(),
+                index: 31,
                 modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
                     if attacking_choice.flags.contact {
                         attacking_choice.add_or_create_secondaries(Secondary {
@@ -564,9 +656,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "seaincense".to_string(),
+        items.push(
             Item {
+                id: "seaincense".to_string(),
+                index: 32,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Water {
@@ -577,9 +670,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "sharpbeak".to_string(),
+        items.push(
             Item {
+                id: "sharpbeak".to_string(),
+                index: 33,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Flying {
@@ -590,9 +684,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "shellbell".to_string(),
+        items.push(
             Item {
+                id: "shellbell".to_string(),
+                index: 34,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         attacking_choice.drain = Some(0.125);
@@ -601,9 +696,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "silkscarf".to_string(),
+        items.push(
             Item {
+                id: "silkscarf".to_string(),
+                index: 35,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Normal {
@@ -614,9 +710,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "silverpowder".to_string(),
+        items.push(
             Item {
+                id: "silverpowder".to_string(),
+                index: 36,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Bug {
@@ -627,9 +724,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "softsand".to_string(),
+        items.push(
             Item {
+                id: "softsand".to_string(),
+                index: 37,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Ground {
@@ -640,9 +738,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "throatspray".to_string(),
+        items.push(
             Item {
+                id: "throatspray".to_string(),
+                index: 38,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.flags.sound {
@@ -669,9 +768,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "toxicorb".to_string(),
+        items.push(
             Item {
+                id: "toxicorb".to_string(),
+                index: 39,
                 end_of_turn: Some(|state: &State, side_ref: &SideReference| {
                     let side = state.get_side_immutable(side_ref);
                     if !immune_to_status(state, &MoveTarget::User, side_ref, &PokemonStatus::Toxic)
@@ -688,9 +788,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "twistedspoon".to_string(),
+        items.push(
             Item {
+                id: "twistedspoon".to_string(),
+                index: 40,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Psychic {
@@ -701,9 +802,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "waveincense".to_string(),
+        items.push(
             Item {
+                id: "waveincense".to_string(),
+                index: 41,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.move_type == PokemonType::Water {
@@ -714,9 +816,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "weaknesspolicy".to_string(),
+        items.push(
             Item {
+                id: "weaknesspolicy".to_string(),
+                index: 42,
                 modify_attack_against: Some(|state, attacking_choice: &mut Choice, side_ref| {
                     if attacking_choice.category != MoveCategory::Status
                         && type_effectiveness_modifier(
@@ -749,9 +852,10 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        items.insert(
-            "wiseglasses".to_string(),
+        items.push(
             Item {
+                id: "wiseglasses".to_string(),
+                index: 43,
                 modify_attack_being_used: Some(
                     |_state, attacking_choice: &mut Choice, _side_ref| {
                         if attacking_choice.category == MoveCategory::Special {
@@ -759,6 +863,34 @@ lazy_static! {
                         }
                     },
                 ),
+                ..Default::default()
+            },
+        );
+        items.push(
+            Item {
+                id: "blunderpolicy".to_string(),
+                index: 44,
+                ..Default::default()
+            },
+        );
+        items.push(
+            Item {
+                id: "heavydutyboots".to_string(),
+                index: 45,
+                ..Default::default()
+            },
+        );
+        items.push(
+            Item {
+                id: "clearamulet".to_string(),
+                index: 46,
+                ..Default::default()
+            },
+        );
+        items.push(
+            Item {
+                id: "protectivepads".to_string(),
+                index: 47,
                 ..Default::default()
             },
         );
@@ -785,6 +917,8 @@ fn get_choice_move_disable_instructions(
 }
 
 pub struct Item {
+    id: String,
+    index: usize,
     pub before_move: Option<ItemBeforeMoveFn>,
     pub modify_attack_being_used: Option<ModifyAttackBeingUsed>,
     pub modify_attack_against: Option<ModifyAttackAgainst>,
@@ -795,6 +929,8 @@ pub struct Item {
 impl Default for Item {
     fn default() -> Item {
         return Item {
+            id: "".to_string(),
+            index: 0,
             before_move: None,
             modify_attack_being_used: None,
             modify_attack_against: None,

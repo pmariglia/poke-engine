@@ -12,8 +12,10 @@ use crate::state::SideReference;
 use crate::state::State;
 use crate::state::Terrain;
 use crate::state::{PokemonBoostableStat, PokemonSideCondition};
+use crate::items::Items;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
+use std::fmt;
 
 pub type ModifyChoiceFn = fn(&State, &mut Choice, &Choice, &SideReference);
 pub type AfterDamageHitFn = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
@@ -23,7 +25,13 @@ pub type MoveSpecialEffectFn = fn(&State, &SideReference) -> Vec<Instruction>;
 lazy_static! {
     pub static ref MOVES: HashMap<String, Choice> = {
         let mut moves: HashMap<String, Choice> = HashMap::new();
-
+        moves.insert(
+            String::from(""),
+            Choice {
+                move_id: String::from(""),
+                ..Default::default()
+            },
+        );
         moves.insert(
             String::from("absorb"),
             Choice {
@@ -7754,8 +7762,8 @@ lazy_static! {
                         if defender_active.item_can_be_removed() {
                             return vec![Instruction::ChangeItem(ChangeItemInstruction {
                                 side_ref: attacking_side_reference.get_other_side(),
-                                current_item: defender_active.item.clone(),
-                                new_item: String::from(""),
+                                current_item: defender_active.item,
+                                new_item: Items::NONE,
                             })];
                         }
                         return vec![];
@@ -16466,6 +16474,12 @@ pub struct Choice {
     pub move_special_effect: Option<MoveSpecialEffectFn>,
 }
 
+impl fmt::Debug for Choice {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Choice: {}", self.move_id)
+    }
+}
+
 impl Choice {
     pub fn add_or_create_secondaries(&mut self, secondary: Secondary) {
         if let Some(secondaries) = &mut self.secondaries {
@@ -16494,7 +16508,7 @@ impl Choice {
 impl Default for Choice {
     fn default() -> Choice {
         return Choice {
-            move_id: "splash".to_string(),
+            move_id: "".to_string(),
             switch_id: 0,
             move_type: PokemonType::Normal,
             accuracy: 100.0,
