@@ -2100,7 +2100,7 @@ lazy_static! {
                 after_damage_hit: Some(|state, _, attacking_side, damage_dealt| {
                     let (attacker_side, defender_side) =
                         state.get_both_sides_immutable(attacking_side);
-                    if defender_side.get_active_immutable().hp == damage_dealt {
+                    if damage_dealt > 0 && defender_side.get_active_immutable().hp == 0 {
                         if let Some(boost_instruction) = get_boost_instruction(
                             state,
                             &attacker_side

@@ -698,7 +698,7 @@ fn check_move_hit_or_miss(
     attacking_side_ref: &SideReference,
     incoming_instructions: &mut StateInstructions,
     frozen_instructions: &mut Vec<StateInstructions>,
-) -> StateInstructions {
+) -> Option<StateInstructions> {
     /*
     Checks whether a move can miss
 
@@ -715,11 +715,6 @@ fn check_move_hit_or_miss(
 
     let percent_hit = choice.accuracy / 100.0;
 
-    let mut move_hit_instructions = incoming_instructions.clone();
-
-    if percent_hit > 0.0 {
-        move_hit_instructions.update_percentage(percent_hit);
-    }
     if percent_hit < 1.0 {
         let mut move_missed_instruction = incoming_instructions.clone();
         move_missed_instruction.update_percentage(1.0 - percent_hit);
@@ -758,10 +753,18 @@ fn check_move_hit_or_miss(
 
         frozen_instructions.push(move_missed_instruction);
     }
+    let mut ret;
+    if percent_hit > 0.0 {
+        let mut move_hit_instructions = incoming_instructions.clone();
+        move_hit_instructions.update_percentage(percent_hit);
+        ret = Some(move_hit_instructions);
+    }
+    else {
+        ret = None
+    }
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
-
-    return move_hit_instructions;
+    return ret;
 }
 
 fn get_instructions_from_drag(
@@ -812,20 +815,16 @@ fn generate_instructions_from_damage(
     calculated_damage: i16,
     attacking_side_ref: &SideReference,
     mut incoming_instructions: StateInstructions,
-) -> Vec<StateInstructions> {
+) -> StateInstructions {
     /*
     TODO:
         - arbitrary other after_move as well from the old engine (triggers on hit OR miss)
             - dig/dive/bounce/fly volatilestatus
     */
-
-    let mut return_instructions: Vec<StateInstructions> = vec![];
-
     state.apply_instructions(&incoming_instructions.instruction_list);
 
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     let attacking_pokemon = attacking_side.get_active_immutable();
-    let defending_pokemon = defending_side.get_active_immutable();
 
     if calculated_damage <= 0 {
         if let Some(crash_fraction) = choice.crash {
@@ -842,14 +841,16 @@ fn generate_instructions_from_damage(
             state.reverse_instructions(&incoming_instructions.instruction_list);
         }
 
-        return vec![incoming_instructions];
+        return incoming_instructions;
     }
 
+    let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
+    let attacking_pokemon = attacking_side.get_active_immutable();
+    let defending_pokemon = defending_side.get_active_immutable();
     let percent_hit = choice.accuracy / 100.0;
-    // Move hit
+
     if percent_hit > 0.0 {
         let mut damage_dealt;
-        let mut move_hit_instructions = incoming_instructions.clone();
         if defending_pokemon
             .volatile_statuses
             .contains(&PokemonVolatileStatus::Substitute)
@@ -861,7 +862,8 @@ fn generate_instructions_from_damage(
                 side_ref: attacking_side_ref.get_other_side(),
                 damage_amount: cmp::min(calculated_damage, damage_dealt),
             });
-            move_hit_instructions
+            state.apply_one_instruction(&substitute_instruction);
+            incoming_instructions
                 .instruction_list
                 .push(substitute_instruction);
         } else {
@@ -872,70 +874,81 @@ fn generate_instructions_from_damage(
                 damage_dealt -= 1;
             }
 
-            move_hit_instructions
+            let damage_instruction = Instruction::Damage(DamageInstruction {
+                side_ref: attacking_side_ref.get_other_side(),
+                damage_amount: damage_dealt,
+            });
+            state.apply_one_instruction(&damage_instruction);
+            incoming_instructions
                 .instruction_list
-                .push(Instruction::Damage(DamageInstruction {
-                    side_ref: attacking_side_ref.get_other_side(),
-                    damage_amount: damage_dealt,
-                }));
+                .push(damage_instruction);
+
+            let attacking_side = state.get_side_immutable(attacking_side_ref);
+            let attacking_pokemon = attacking_side.get_active_immutable();
             if let Some(after_damage_hit_fn) = ABILITIES[attacking_pokemon.ability].after_damage_hit {
-                move_hit_instructions
+                let ability_after_damage_hit_instructions = after_damage_hit_fn(
+                    &state,
+                    &choice,
+                    attacking_side_ref,
+                    damage_dealt,
+                );
+                state.apply_instructions(&ability_after_damage_hit_instructions);
+                incoming_instructions
                     .instruction_list
-                    .extend(after_damage_hit_fn(
-                        state,
-                        choice,
-                        attacking_side_ref,
-                        damage_dealt,
-                    ));
+                    .extend(ability_after_damage_hit_instructions);
             };
         }
 
-        /*
-        Generating these instructions does not need to mutate the state, so use
-        `attacking_pokemon_health` to keep track of the attacking pokemon's health separately
-        */
-        let mut attacking_pokemon_health = attacking_pokemon.hp;
+        let attacking_side = state.get_side_immutable(attacking_side_ref);
+        let attacking_pokemon = attacking_side.get_active_immutable();
         if let Some(drain_fraction) = choice.drain {
             let drain_amount = (damage_dealt as f32 * drain_fraction) as i16;
             let heal_amount = cmp::min(
                 drain_amount,
-                attacking_pokemon.maxhp - attacking_pokemon_health,
+                attacking_pokemon.maxhp - attacking_pokemon.hp,
             );
             if heal_amount > 0 {
                 let drain_instruction = Instruction::Heal(HealInstruction {
                     side_ref: *attacking_side_ref,
                     heal_amount: heal_amount,
                 });
-                move_hit_instructions
+                state.apply_one_instruction(&drain_instruction);
+                incoming_instructions
                     .instruction_list
                     .push(drain_instruction);
-                attacking_pokemon_health += heal_amount;
             }
         }
 
+        let attacking_side = state.get_side_immutable(attacking_side_ref);
+        let attacking_pokemon = attacking_side.get_active_immutable();
         if let Some(recoil_fraction) = choice.recoil {
             let recoil_amount = (damage_dealt as f32 * recoil_fraction) as i16;
             let recoil_instruction = Instruction::Damage(DamageInstruction {
                 side_ref: *attacking_side_ref,
-                damage_amount: cmp::min(recoil_amount, attacking_pokemon_health),
+                damage_amount: cmp::min(recoil_amount, attacking_pokemon.hp),
             });
-            move_hit_instructions
+            state.apply_one_instruction(&recoil_instruction);
+            incoming_instructions
                 .instruction_list
                 .push(recoil_instruction);
         }
 
         if let Some(after_damage_hit_fn) = choice.after_damage_hit {
-            move_hit_instructions
+            let choice_after_damage_hit_instructions = after_damage_hit_fn(
+                &state,
+                &choice,
+                attacking_side_ref,
+            );
+            state.apply_instructions(&choice_after_damage_hit_instructions);
+            incoming_instructions
                 .instruction_list
-                .extend(after_damage_hit_fn(&state, &choice, attacking_side_ref));
+                .extend(choice_after_damage_hit_instructions);
         }
-
-        return_instructions.push(move_hit_instructions);
     }
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
 
-    return return_instructions;
+    return incoming_instructions;
 }
 
 fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideReference) -> bool {
@@ -1183,86 +1196,6 @@ pub fn generate_instructions_from_move(
     attacking_side: SideReference,
     mut incoming_instructions: StateInstructions,
 ) -> Vec<StateInstructions> {
-    /*
-    The functions that are called by this function will each take a StateInstruction struct that
-    signifies what has already happened. If the function can cause a branch, it will return a
-    vector of StateInstructions, otherwise it will return a StateInstruction. In both cases,
-    the functions will take ownership of the value, and return a new value.
-
-    Note: end-of-turn instructions are not included here - this is only the instructions from a move
-
-    Order of Operations:
-    (*) indicates it can branch, (-) indicates it does not
-
-    - DONE check for if the user is switching - do so & exit early
-    - check for short-circuit situations that would exit before doing anything
-        - DONE using drag move but you moved 2nd (possible if say both users use dragontail)
-        - DONE attacking pokemon is dead (possible if you got KO-ed this turn)
-        - DONE attacking pokemon is taunted & chose a non-damaging move
-        - DONE attacker was flinched
-            - not a branching event because the previous turn would've decided whether a flinch happened or not
-    - update choice struct based on special effects
-        - protect (or it's variants) nullifying a move
-            - this may generate a custom instruction because some protect variants do things (spikyshield, banefulbunker, etc)
-            - rather than updating the choice struct, this should be a check that immediately adds the instruction list
-              to `final_instructions` after applying the custom instructions from something like spikyshield ofc.
-            - this can be done in the move_hit_or_miss function called before other moves
-        - charging move that sets some charge flags and exits
-            - again.. rather than exit, add the instructions to final instructions
-        - DONE move special effect
-        - DONE ability special effect (both sides)
-        - DONE item special effect (both sides)
-
-    BEGIN THINGS THAT HAPPEN AFTER FIRST POSSIBLE BRANCH
-    * DONE attacker is fully-paralyzed, asleep, frozen (the first thing that can branch from the old engine)
-    - DONE move has no effect (maybe something like check_if_move_can_hit)
-        - i.e. electric-type status move used against a ground type, powder move used against grass / overcoat
-        - Normally, the move doing 0 damage would trigger this, but for non-damaging moves there needs to be another
-        spot where this is checked. This may be better done elsewhere
-        - This HAS to be done after the frozen/sleep/paralyzed check, which is the first possible branch
-    - move special effects
-        hail, trick, futuresight, trickroom, etc. Anything that cannot be succinctly expressed in a Choice
-        these will generate instructions (sometimes conditionally), but should not branch
-    - MULTI HIT MOVES?!
-    * DONE GOOD ENOUGH - WILL COME BACK TO AFTER ENGINE COMPLETE calculate damage amount(s) and do the damage
-    - after-move effects
-        * move special effect (both sides)
-            - protect and it's variants, which can generate some custom instructions
-        - ability (both sides)
-        - item (both sides)
-    - DONE side_conditions: spikes, wish, veil. Anything using the `side_condition` section of the Choice
-    - DONE hazard clearing: defog, rapidspin, courtchange, etc.
-    - DONE volatile_statuses: Anything using the `volatile_status` section of the Choice
-    - DONE status effects: Anything using the `status` section of the Choice
-    - DONE boosts: Anything using the `boosts` section of the Choice
-    - WONT DO boost reset (clearsmog & haze)
-        potentially could be an `after_move` for clearsmog, and a move special effect for haze
-            ^ will do this
-    - DONE heal Anything using the `heal` section of the Choice
-    * WONT DO flinching move
-        collapse into secondaries
-    * DONE drag moves
-        potentially could be a move special effect, or even a short-circuit since nothing else could happen?
-    * DONE secondaries, which will be one of the following:
-        PokemonVolatileStatus
-        PokemonSideCondition
-        StatBoosts
-        Heal
-        PokemonStatus
-
-        These secondaries have their own separate chance & target,
-        whereas their equivalents above are assumed to be 100% if the
-        move hit
-        They only are attempted if the move did not miss , so some
-        flag will be needed to signify that the move hit/missed
-            or will the fact that the instructions are a non-end-of-turn be enough to know that
-            a secondary should be attempted?
-
-    - switch-out move
-        Will have to come back to this since it breaks a bunch of patterns and stops the turn mid-way through
-
-    */
-
     if choice.category == MoveCategory::Switch {
         return vec![generate_instructions_from_switch(
             state,
@@ -1272,6 +1205,7 @@ pub fn generate_instructions_from_move(
         )];
     }
 
+    // TODO: test first-turn dragontail missing - it should not trigger this early return
     if !choice.first_move && defender_choice.flags.drag {
         return vec![incoming_instructions];
     }
@@ -1303,7 +1237,7 @@ pub fn generate_instructions_from_move(
     state.reverse_instructions(&incoming_instructions.instruction_list);
 
     // The final return-value of this function
-    let mut final_instructions: Vec<StateInstructions> = vec![];
+    let mut final_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
     let list_of_instructions = generate_instructions_from_existing_status_conditions(
         state,
         &attacking_side,
@@ -1311,7 +1245,7 @@ pub fn generate_instructions_from_move(
         &mut final_instructions,
     );
 
-    let mut next_instructions = vec![];
+    let mut next_instructions = Vec::with_capacity(20);
     for instruction in list_of_instructions {
         state.apply_instructions(&instruction.instruction_list);
         if cannot_use_move(state, &choice, &attacking_side) {
@@ -1323,7 +1257,7 @@ pub fn generate_instructions_from_move(
         }
     }
 
-    let mut continuing_instructions: Vec<StateInstructions> = vec![];
+    let mut continuing_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
     for instruction in next_instructions {
         continuing_instructions.push(generate_instructions_from_move_special_effect(
             state,
@@ -1334,28 +1268,30 @@ pub fn generate_instructions_from_move(
     }
     next_instructions = continuing_instructions;
 
-    let mut move_hit_instructions: Vec<StateInstructions> = vec![];
+    let mut move_hit_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
     for mut instruction in next_instructions {
-        move_hit_instructions.push(check_move_hit_or_miss(
+        if let Some(hit_instruction) = check_move_hit_or_miss(
             state,
             &choice,
             &attacking_side,
             &mut instruction,
             &mut final_instructions,
-        ))
+        ) {
+            move_hit_instructions.push(hit_instruction);
+        }
     }
 
     next_instructions = move_hit_instructions;
 
     // Damage generation gets its own block because it has some special logic
     if let Some(damages_dealt) = damage {
-        let mut temp_instructions: Vec<StateInstructions> = vec![];
+        let mut temp_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
         for instruction in next_instructions {
             let num_damage_amounts = damages_dealt.len() as f32;
             for dmg in &damages_dealt {
                 let mut this_instruction = instruction.clone();
                 this_instruction.update_percentage(1.0 / num_damage_amounts);
-                temp_instructions.extend(generate_instructions_from_damage(
+                temp_instructions.push(generate_instructions_from_damage(
                     state,
                     &choice,
                     *dmg,
@@ -1375,7 +1311,7 @@ pub fn generate_instructions_from_move(
     }
 
     if let Some(side_condition) = &choice.side_condition {
-        let mut continuing_instructions: Vec<StateInstructions> = vec![];
+        let mut continuing_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
         for instruction in next_instructions {
             continuing_instructions.push(generate_instructions_from_side_conditions(
                 state,
@@ -1387,7 +1323,7 @@ pub fn generate_instructions_from_move(
         next_instructions = continuing_instructions;
     }
     if let Some(hazard_clear) = &choice.hazard_clear {
-        let mut continuing_instructions: Vec<StateInstructions> = vec![];
+        let mut continuing_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
         for instruction in next_instructions {
             continuing_instructions.push(get_instructions_from_hazard_clearing_moves(
                 state,
@@ -1399,7 +1335,7 @@ pub fn generate_instructions_from_move(
         next_instructions = continuing_instructions;
     }
     if let Some(volatile_status) = &choice.volatile_status {
-        let mut continuing_instructions: Vec<StateInstructions> = vec![];
+        let mut continuing_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
         for instruction in next_instructions {
             continuing_instructions.push(get_instructions_from_volatile_statuses(
                 state,
@@ -1412,7 +1348,7 @@ pub fn generate_instructions_from_move(
         next_instructions = continuing_instructions;
     }
     if let Some(status) = &choice.status {
-        let mut continuing_instructions: Vec<StateInstructions> = vec![];
+        let mut continuing_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
         for instruction in next_instructions {
             continuing_instructions.push(get_instructions_from_status_effects(
                 state,
@@ -1424,7 +1360,7 @@ pub fn generate_instructions_from_move(
         next_instructions = continuing_instructions;
     }
     if let Some(boost) = &choice.boost {
-        let mut continuing_instructions: Vec<StateInstructions> = vec![];
+        let mut continuing_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
         for instruction in next_instructions {
             continuing_instructions.push(get_instructions_from_boosts(
                 state,
@@ -1436,7 +1372,7 @@ pub fn generate_instructions_from_move(
         next_instructions = continuing_instructions;
     }
     if let Some(heal) = &choice.heal {
-        let mut continuing_instructions: Vec<StateInstructions> = vec![];
+        let mut continuing_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
         for instruction in next_instructions {
             continuing_instructions.push(get_instructions_from_heal(
                 state,
@@ -1448,7 +1384,7 @@ pub fn generate_instructions_from_move(
         next_instructions = continuing_instructions;
     }
     if let Some(secondaries_vec) = &choice.secondaries {
-        let mut continuing_instructions: Vec<StateInstructions> = vec![];
+        let mut continuing_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
         for instruction in next_instructions {
             continuing_instructions.extend(get_instructions_from_secondaries(
                 state,
@@ -1611,13 +1547,13 @@ fn side_one_moves_first(state: &State, side_one_choice: &Choice, side_two_choice
     };
 }
 
-fn get_end_of_turn_instructions(
+fn add_end_of_turn_instructions(
     state: &mut State,
-    mut incoming_instructions: StateInstructions,
+    mut incoming_instructions: &mut StateInstructions,
     _side_one_choice: &Choice,
     _side_two_choice: &Choice,
     first_move_side: &SideReference,
-) -> StateInstructions {
+) {
     /*
     Methodology:
         This function is deterministic and will not branch.
@@ -1920,8 +1856,6 @@ fn get_end_of_turn_instructions(
     }
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
-
-    return incoming_instructions;
 }
 
 pub fn generate_instructions_from_move_pair(
@@ -1950,7 +1884,7 @@ pub fn generate_instructions_from_move_pair(
             side_one_choice.category = MoveCategory::Switch;
         }
         MoveChoice::Move(move_index) => {
-            side_one_choice = state.side_one.get_active().moves[*move_index].choice.clone().to_owned();
+            side_one_choice = state.side_one.get_active().moves[*move_index].choice.clone();
         }
         MoveChoice::None => {
             side_one_choice = Choice::default();
@@ -2016,18 +1950,17 @@ pub fn generate_instructions_from_move_pair(
     }
 
     // TODO: Check if end-of-turn instructions are triggered - they are not always run
-    let mut final_instructions = vec![];
-    for state_instruction in state_instruction_vec {
-        final_instructions.push(get_end_of_turn_instructions(
+    for state_instruction in state_instruction_vec.iter_mut() {
+        add_end_of_turn_instructions(
             state,
             state_instruction,
             &side_one_choice,
             &side_two_choice,
             &first_move_side,
-        ));
+        );
     }
 
-    return final_instructions;
+    return state_instruction_vec;
 }
 
 #[cfg(test)]
@@ -5950,9 +5883,10 @@ mod tests {
         let mut state = State::default();
         state.weather.weather_type = Weather::Hail;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -5972,7 +5906,7 @@ mod tests {
             ],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -5981,9 +5915,10 @@ mod tests {
         state.weather.weather_type = Weather::Hail;
         state.side_one.get_active().hp = 3;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6003,7 +5938,7 @@ mod tests {
             ],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6012,9 +5947,10 @@ mod tests {
         state.weather.weather_type = Weather::Hail;
         state.side_one.get_active().hp = 0;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6028,7 +5964,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6037,9 +5973,10 @@ mod tests {
         state.side_one.wish = (1, 5);
         state.side_one.get_active().hp = 50;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6058,7 +5995,7 @@ mod tests {
             ],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6067,9 +6004,10 @@ mod tests {
         state.side_one.wish = (1, 50);
         state.side_one.get_active().hp = 95;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6088,7 +6026,7 @@ mod tests {
             ],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6097,9 +6035,10 @@ mod tests {
         state.side_one.wish = (2, 50);
         state.side_one.get_active().hp = 95;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6112,7 +6051,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6121,9 +6060,10 @@ mod tests {
         state.side_one.get_active().hp = 50;
         state.side_one.get_active().item = Items::LEFTOVERS;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6137,7 +6077,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6146,9 +6086,10 @@ mod tests {
         state.side_one.get_active().hp = 99;
         state.side_one.get_active().item = Items::LEFTOVERS;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6162,7 +6103,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6171,9 +6112,10 @@ mod tests {
         state.side_one.get_active().hp = 100;
         state.side_one.get_active().item = Items::LEFTOVERS;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6184,7 +6126,7 @@ mod tests {
             instruction_list: vec![],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6193,9 +6135,10 @@ mod tests {
         state.side_one.get_active().hp = 0;
         state.side_one.get_active().item = Items::LEFTOVERS;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6206,7 +6149,7 @@ mod tests {
             instruction_list: vec![],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6216,9 +6159,10 @@ mod tests {
         state.side_one.get_active().item = Items::BLACK_SLUDGE;
         state.side_one.get_active().types.0 = PokemonType::Poison;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6232,7 +6176,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6241,9 +6185,10 @@ mod tests {
         state.side_one.get_active().hp = 50;
         state.side_one.get_active().item = Items::BLACK_SLUDGE;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6257,7 +6202,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6267,9 +6212,10 @@ mod tests {
         state.side_one.get_active().item = Items::BLACK_SLUDGE;
         state.side_one.get_active().types.0 = PokemonType::Poison;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6283,7 +6229,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6291,9 +6237,10 @@ mod tests {
         let mut state = State::default();
         state.side_one.get_active().item = Items::FLAME_ORB;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6309,7 +6256,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6317,9 +6264,10 @@ mod tests {
         let mut state = State::default();
         state.side_one.get_active().item = Items::FLAME_ORB;
         state.side_one.get_active().types.0 = PokemonType::Fire;
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6330,7 +6278,7 @@ mod tests {
             instruction_list: vec![],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6338,9 +6286,10 @@ mod tests {
         let mut state = State::default();
         state.side_one.get_active().item = Items::TOXIC_ORB;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6356,7 +6305,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6365,9 +6314,10 @@ mod tests {
         state.side_one.get_active().item = Items::TOXIC_ORB;
         state.side_one.get_active().types.0 = PokemonType::Poison;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6378,7 +6328,7 @@ mod tests {
             instruction_list: vec![],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6388,9 +6338,10 @@ mod tests {
         state.side_one.get_active().status = PokemonStatus::Poison;
         state.side_one.get_active().hp = 50;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6404,7 +6355,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6414,9 +6365,10 @@ mod tests {
         state.side_one.get_active().status = PokemonStatus::Poison;
         state.side_one.get_active().hp = 99;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6430,7 +6382,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6439,9 +6391,10 @@ mod tests {
         state.side_one.get_active().ability = Abilities::POISONHEAL;
         state.side_one.get_active().status = PokemonStatus::Poison;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6452,7 +6405,7 @@ mod tests {
             instruction_list: vec![],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6460,9 +6413,10 @@ mod tests {
         let mut state = State::default();
         state.side_one.get_active().ability = Abilities::SPEEDBOOST;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6477,7 +6431,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6486,9 +6440,10 @@ mod tests {
         state.side_one.get_active().ability = Abilities::SPEEDBOOST;
         state.side_one.get_active().speed_boost = 6;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6499,7 +6454,7 @@ mod tests {
             instruction_list: vec![],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6507,9 +6462,10 @@ mod tests {
         let mut state = State::default();
         state.side_one.get_active().status = PokemonStatus::Poison;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6523,7 +6479,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6532,9 +6488,10 @@ mod tests {
         state.side_one.get_active().status = PokemonStatus::Poison;
         state.side_one.get_active().hp = 5;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6548,7 +6505,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6556,9 +6513,10 @@ mod tests {
         let mut state = State::default();
         state.side_one.get_active().status = PokemonStatus::Burn;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6572,7 +6530,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6581,9 +6539,10 @@ mod tests {
         state.side_one.get_active().status = PokemonStatus::Burn;
         state.side_one.get_active().hp = 5;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6597,7 +6556,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6607,9 +6566,10 @@ mod tests {
         state.side_one.get_active().ability = Abilities::MAGICGUARD;
         state.side_one.get_active().hp = 5;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6620,7 +6580,7 @@ mod tests {
             instruction_list: vec![],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6628,9 +6588,10 @@ mod tests {
         let mut state = State::default();
         state.side_one.get_active().status = PokemonStatus::Toxic;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6651,7 +6612,7 @@ mod tests {
             ],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6665,9 +6626,10 @@ mod tests {
         state.side_one.get_active().hp = 50;
         state.side_two.get_active().hp = 50;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6687,7 +6649,7 @@ mod tests {
             ],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6701,9 +6663,10 @@ mod tests {
         state.side_one.get_active().hp = 50;
         state.side_two.get_active().hp = 100;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6717,7 +6680,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6731,9 +6694,10 @@ mod tests {
         state.side_one.get_active().hp = 5;
         state.side_two.get_active().hp = 50;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6753,7 +6717,7 @@ mod tests {
             ],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6767,9 +6731,10 @@ mod tests {
         state.side_one.get_active().hp = 50;
         state.side_two.get_active().hp = 95;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6789,7 +6754,7 @@ mod tests {
             ],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6801,9 +6766,10 @@ mod tests {
             .volatile_statuses
             .insert(PokemonVolatileStatus::Protect);
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6824,7 +6790,7 @@ mod tests {
             ],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6832,9 +6798,10 @@ mod tests {
         let mut state = State::default();
         state.side_one.side_conditions.protect = 2;
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6851,7 +6818,7 @@ mod tests {
             )],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6863,9 +6830,10 @@ mod tests {
             .volatile_statuses
             .insert(PokemonVolatileStatus::Roost);
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6881,7 +6849,7 @@ mod tests {
             )],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6893,9 +6861,10 @@ mod tests {
             .volatile_statuses
             .insert(PokemonVolatileStatus::PartiallyTrapped);
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6909,7 +6878,7 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 
     #[test]
@@ -6922,9 +6891,10 @@ mod tests {
             .volatile_statuses
             .insert(PokemonVolatileStatus::SaltCure);
 
-        let vec_of_instructions = get_end_of_turn_instructions(
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
             &mut state,
-            StateInstructions::default(),
+            &mut incoming_instructions,
             &MOVES.get("tackle").unwrap().to_owned(),
             &MOVES.get("tackle").unwrap().to_owned(),
             &SideReference::SideOne,
@@ -6938,6 +6908,6 @@ mod tests {
             })],
         };
 
-        assert_eq!(expected_instructions, vec_of_instructions)
+        assert_eq!(expected_instructions, incoming_instructions)
     }
 }

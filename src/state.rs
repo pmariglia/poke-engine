@@ -356,14 +356,12 @@ impl Pokemon {
         self.moves[move_index].id = new_move_name;
     }
 
-    pub fn get_available_moves(&self) -> Vec<MoveChoice> {
-        let mut available_moves: Vec<MoveChoice> = Vec::new();
+    pub fn add_available_moves(&self, vec: &mut Vec<MoveChoice>) {
         for (index, m) in self.moves.iter().enumerate() {
             if !m.disabled {
-                available_moves.push(MoveChoice::Move(index));
+                vec.push(MoveChoice::Move(index));
             }
         }
-        return available_moves;
     }
 
     pub fn get_pkmn_boost_enum_pairs(&self) -> [(PokemonBoostableStat, i8); 7] {
@@ -552,14 +550,12 @@ pub struct Side {
 }
 
 impl Side {
-    pub fn get_switches(&self) -> Vec<MoveChoice> {
-        let mut switches: Vec<MoveChoice> = Vec::new();
+    pub fn add_switches(&self, vec: &mut Vec<MoveChoice>) {
         for (index, p) in self.pokemon.iter().enumerate() {
             if p.hp > 0 && index != self.active_index {
-                switches.push(MoveChoice::Switch(index));
+                vec.push(MoveChoice::Switch(index));
             }
         }
-        return switches;
     }
 
     pub fn get_active(&mut self) -> &mut Pokemon {
@@ -669,33 +665,33 @@ impl State {
     }
 
     pub fn get_all_options(&self) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
-        let mut side_one_options: Vec<MoveChoice> = Vec::new();
-        let mut side_two_options: Vec<MoveChoice> = Vec::new();
+        let mut side_one_options: Vec<MoveChoice> = Vec::with_capacity(9);
+        let mut side_two_options: Vec<MoveChoice> = Vec::with_capacity(9);
 
         let side_one_force_switch = self.side_one.get_active_immutable().hp <= 0;
         let side_two_force_switch = self.side_two.get_active_immutable().hp <= 0;
 
         if side_one_force_switch && side_two_force_switch {
-            side_one_options.extend(self.side_one.get_switches());
-            side_two_options.extend(self.side_two.get_switches());
+            self.side_one.add_switches(&mut side_one_options);
+            self.side_two.add_switches(&mut side_two_options);
             return (side_one_options, side_two_options);
         }
         if side_one_force_switch {
-            side_one_options.extend(self.side_one.get_switches());
+            self.side_one.add_switches(&mut side_one_options);
             side_two_options.push(MoveChoice::None);
             return (side_one_options, side_two_options);
         }
         if side_two_force_switch {
             side_one_options.push(MoveChoice::None);
-            side_two_options.extend(self.side_two.get_switches());
+            self.side_two.add_switches(&mut side_two_options);
             return (side_one_options, side_two_options);
         }
 
-        side_one_options.extend(self.side_one.get_active_immutable().get_available_moves());
-        side_one_options.extend(self.side_one.get_switches());
+        self.side_one.get_active_immutable().add_available_moves(&mut side_one_options);
+        self.side_one.add_switches(&mut side_one_options);
 
-        side_two_options.extend(self.side_two.get_active_immutable().get_available_moves());
-        side_two_options.extend(self.side_two.get_switches());
+        self.side_two.get_active_immutable().add_available_moves(&mut side_two_options);
+        self.side_two.add_switches(&mut side_two_options);
 
         return (side_one_options, side_two_options);
     }
