@@ -1876,7 +1876,7 @@ pub fn generate_instructions_from_move_pair(
         }
     }
 
-    let mut state_instruction_vec: Vec<StateInstructions> = vec![];
+    let mut state_instruction_vec: Vec<StateInstructions> = Vec::with_capacity(20);;
     let incoming_instructions: StateInstructions = StateInstructions::default();
     let first_move_side;
     if side_one_moves_first(&state, &side_one_choice, &side_two_choice) {

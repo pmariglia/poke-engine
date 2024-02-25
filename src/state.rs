@@ -795,7 +795,7 @@ impl State {
         let side = self.get_side(side_ref);
         let active_pkmn = side.get_active();
 
-        if active_pkmn.attack_boost > 0 {
+        if active_pkmn.attack_boost != 0 {
             vec_to_add_to.push(Instruction::Boost(BoostInstruction {
                 side_ref: *side_ref,
                 stat: PokemonBoostableStat::Attack,
@@ -804,7 +804,7 @@ impl State {
             active_pkmn.attack_boost = 0;
         }
 
-        if active_pkmn.defense_boost > 0 {
+        if active_pkmn.defense_boost != 0 {
             vec_to_add_to.push(Instruction::Boost(BoostInstruction {
                 side_ref: *side_ref,
                 stat: PokemonBoostableStat::Defense,
@@ -813,7 +813,7 @@ impl State {
             active_pkmn.defense_boost = 0;
         }
 
-        if active_pkmn.special_attack_boost > 0 {
+        if active_pkmn.special_attack_boost != 0 {
             vec_to_add_to.push(Instruction::Boost(BoostInstruction {
                 side_ref: *side_ref,
                 stat: PokemonBoostableStat::SpecialAttack,
@@ -822,7 +822,7 @@ impl State {
             active_pkmn.special_attack_boost = 0;
         }
 
-        if active_pkmn.special_defense_boost > 0 {
+        if active_pkmn.special_defense_boost != 0 {
             vec_to_add_to.push(Instruction::Boost(BoostInstruction {
                 side_ref: *side_ref,
                 stat: PokemonBoostableStat::SpecialDefense,
@@ -831,7 +831,7 @@ impl State {
             active_pkmn.special_defense_boost = 0;
         }
 
-        if active_pkmn.speed_boost > 0 {
+        if active_pkmn.speed_boost != 0 {
             vec_to_add_to.push(Instruction::Boost(BoostInstruction {
                 side_ref: *side_ref,
                 stat: PokemonBoostableStat::Speed,
@@ -840,7 +840,7 @@ impl State {
             active_pkmn.speed_boost = 0;
         }
 
-        if active_pkmn.evasion_boost > 0 {
+        if active_pkmn.evasion_boost != 0 {
             vec_to_add_to.push(Instruction::Boost(BoostInstruction {
                 side_ref: *side_ref,
                 stat: PokemonBoostableStat::Evasion,
@@ -849,7 +849,7 @@ impl State {
             active_pkmn.evasion_boost = 0;
         }
 
-        if active_pkmn.accuracy_boost > 0 {
+        if active_pkmn.accuracy_boost != 0 {
             vec_to_add_to.push(Instruction::Boost(BoostInstruction {
                 side_ref: *side_ref,
                 stat: PokemonBoostableStat::Accuracy,
