@@ -4,13 +4,13 @@ use crate::choices::{
 };
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-    ChangeSideConditionInstruction, DecrementWishInstruction, EnableMoveInstruction,
+    ChangeSideConditionInstruction, DecrementWishInstruction,
     HealInstruction, RemoveVolatileStatusInstruction,
 };
 use crate::state::{MoveChoice, PokemonBoostableStat, PokemonSideCondition, PokemonType, Side, Terrain};
 use crate::{
     abilities::ABILITIES,
-    choices::{Choice, MoveCategory, MOVES},
+    choices::{Choice, MoveCategory},
     damage_calc::{calculate_damage, type_effectiveness_modifier, DamageRolls},
     instruction::{
         ChangeStatusInstruction, DamageInstruction, Instruction, StateInstructions,
@@ -32,33 +32,16 @@ fn generate_instructions_from_switch(
     let mut incoming_instructions = incoming_instructions;
     state.apply_instructions(&incoming_instructions.instruction_list);
 
-    let switching_side = state.get_side_immutable(&switching_side_ref);
-    let mut additional_instructions = vec![];
-    for (pkmn_move_index, _) in switching_side
-        .get_active_immutable()
-        .moves
-        .iter()
-        .enumerate()
-        .filter(|(_, m)| m.disabled)
-    {
-        additional_instructions.push(Instruction::EnableMove(EnableMoveInstruction {
-            side_ref: switching_side_ref,
-            move_index: pkmn_move_index,
-        }));
-    }
+    state.re_enable_disabled_moves(&switching_side_ref, &mut incoming_instructions.instruction_list);
+    state.remove_volatile_statuses(&switching_side_ref, &mut incoming_instructions.instruction_list);
+    state.reset_toxic_count(&switching_side_ref, &mut incoming_instructions.instruction_list);
+    state.reset_boosts(&switching_side_ref, &mut incoming_instructions.instruction_list);
 
-    for i in get_remove_volatile_status_and_boosts_instructions(switching_side, &switching_side_ref)
-    {
-        additional_instructions.push(i);
-    }
-
-    if let Some(on_switch_out_fn) = ABILITIES[switching_side.get_active_immutable().ability].on_switch_out {
-        additional_instructions.extend(on_switch_out_fn(&state, &switching_side_ref));
-    }
-
-    for i in additional_instructions {
-        state.apply_one_instruction(&i);
-        incoming_instructions.instruction_list.push(i);
+    if let Some(on_switch_out_fn) = ABILITIES[state.get_side_immutable(&switching_side_ref).get_active_immutable().ability].on_switch_out {
+        for i in on_switch_out_fn(&state, &switching_side_ref) {
+            state.apply_one_instruction(&i);
+            incoming_instructions.instruction_list.push(i);
+        }
     }
 
     let switch_instruction = Instruction::Switch(SwitchInstruction {
@@ -72,7 +55,6 @@ fn generate_instructions_from_switch(
         .instruction_list
         .push(switch_instruction);
 
-    let mut switch_in_hazards_instructions = vec![];
     let switch_in_side = state.get_side_immutable(&switching_side_ref);
     let switched_in_pkmn = state
         .get_side_immutable(&switching_side_ref)
@@ -90,7 +72,7 @@ fn generate_instructions_from_switch(
                 ),
             });
             state.apply_one_instruction(&stealth_rock_dmg_instruction);
-            switch_in_hazards_instructions.push(stealth_rock_dmg_instruction);
+            incoming_instructions.instruction_list.push(stealth_rock_dmg_instruction);
         }
 
         let switch_in_side = state.get_side_immutable(&switching_side_ref);
@@ -106,7 +88,7 @@ fn generate_instructions_from_switch(
                 ),
             });
             state.apply_one_instruction(&spikes_dmg_instruction);
-            switch_in_hazards_instructions.push(spikes_dmg_instruction);
+            incoming_instructions.instruction_list.push(spikes_dmg_instruction);
         }
 
         let switch_in_side = state.get_side_immutable(&switching_side_ref);
@@ -125,7 +107,7 @@ fn generate_instructions_from_switch(
                 &switching_side_ref,
             ) {
                 state.apply_one_instruction(&sticky_web_instruction);
-                switch_in_hazards_instructions.push(sticky_web_instruction);
+                incoming_instructions.instruction_list.push(sticky_web_instruction);
             }
         }
 
@@ -170,68 +152,29 @@ fn generate_instructions_from_switch(
 
             if let Some(i) = toxic_spike_instruction {
                 state.apply_one_instruction(&i);
-                switch_in_hazards_instructions.push(i);
+                incoming_instructions.instruction_list.push(i);
             }
         }
     }
 
-    for i in switch_in_hazards_instructions {
-        incoming_instructions.instruction_list.push(i)
-    }
-
-    let mut additional_instructions = vec![];
     let switching_side = state.get_side_immutable(&switching_side_ref);
     if let Some(on_switch_in_fn) = ABILITIES[switching_side.get_active_immutable().ability].on_switch_in {
-        additional_instructions.extend(on_switch_in_fn(&state, &switching_side_ref));
-    }
-    if let Some(on_switch_in_fn) = ITEMS_VEC[switching_side.get_active_immutable().item].on_switch_in {
-        additional_instructions.extend(on_switch_in_fn(&state, &switching_side_ref));
+        for i in on_switch_in_fn(&state, &switching_side_ref) {
+            state.apply_one_instruction(&i);
+            incoming_instructions.instruction_list.push(i);
+        }
     }
 
-    for i in additional_instructions {
-        incoming_instructions.instruction_list.push(i)
+    let switching_side = state.get_side_immutable(&switching_side_ref);
+    if let Some(on_switch_in_fn) = ITEMS_VEC[switching_side.get_active_immutable().item].on_switch_in {
+        for i in on_switch_in_fn(&state, &switching_side_ref) {
+            state.apply_one_instruction(&i);
+            incoming_instructions.instruction_list.push(i);
+        }
     }
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
-
     return incoming_instructions;
-}
-
-fn get_remove_volatile_status_and_boosts_instructions(
-    side: &Side,
-    side_ref: &SideReference,
-) -> Vec<Instruction> {
-    let mut instructions = vec![];
-    let pkmn = side.get_active_immutable();
-    for pkmn_volatile_status in &pkmn.volatile_statuses {
-        instructions.push(Instruction::RemoveVolatileStatus(
-            RemoveVolatileStatusInstruction {
-                side_ref: *side_ref,
-                volatile_status: *pkmn_volatile_status,
-            },
-        ));
-    }
-
-    if side.side_conditions.toxic_count > 0 {
-        instructions.push(Instruction::ChangeSideCondition(
-            ChangeSideConditionInstruction {
-                side_ref: *side_ref,
-                side_condition: PokemonSideCondition::ToxicCount,
-                amount: -1 * side.side_conditions.toxic_count,
-            },
-        ))
-    }
-
-    for (boostable_stat, boost_val) in pkmn.get_pkmn_boost_enum_pairs() {
-        if boost_val > 0 {
-            instructions.push(Instruction::Boost(BoostInstruction {
-                side_ref: *side_ref,
-                stat: boostable_stat,
-                amount: -1 * boost_val,
-            }))
-        }
-    }
-    return instructions;
 }
 
 fn generate_instructions_from_side_conditions(
@@ -753,7 +696,7 @@ fn check_move_hit_or_miss(
 
         frozen_instructions.push(move_missed_instruction);
     }
-    let mut ret;
+    let ret;
     if percent_hit > 0.0 {
         let mut move_hit_instructions = incoming_instructions.clone();
         move_hit_instructions.update_percentage(percent_hit);

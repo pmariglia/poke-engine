@@ -3,7 +3,7 @@ use core::panic;
 use std::collections::HashSet;
 use crate::abilities::Abilities;
 
-use crate::instruction::Instruction;
+use crate::instruction::{BoostInstruction, ChangeSideConditionInstruction, EnableMoveInstruction, Instruction, RemoveVolatileStatusInstruction};
 use crate::items::Items;
 
 fn get_boost_multiplier(boost_num: i8) -> f32 {
@@ -721,6 +721,145 @@ impl State {
         match side_ref {
             SideReference::SideOne => return (&self.side_one, &self.side_two),
             SideReference::SideTwo => return (&self.side_two, &self.side_one),
+        }
+    }
+
+    pub fn re_enable_disabled_moves(
+        &mut self,
+        side_ref: &SideReference,
+        vec_to_add_to: &mut Vec<Instruction>
+    ) {
+        let side = self.get_side(side_ref);
+        for (index, m) in side.get_active().moves.iter_mut().enumerate() {
+            if m.disabled {
+                m.disabled = false;
+                vec_to_add_to.push(Instruction::EnableMove(EnableMoveInstruction {
+                    side_ref: *side_ref,
+                    move_index: index,
+                }));
+            }
+        }
+    }
+
+    pub fn reset_toxic_count(
+        &mut self,
+        side_ref: &SideReference,
+        vec_to_add_to: &mut Vec<Instruction>
+    ) {
+        let side = self.get_side(side_ref);
+        if side.side_conditions.toxic_count > 0 {
+            vec_to_add_to.push(Instruction::ChangeSideCondition(
+                ChangeSideConditionInstruction {
+                    side_ref: *side_ref,
+                    side_condition: PokemonSideCondition::ToxicCount,
+                    amount: -1 * side.side_conditions.toxic_count,
+                },
+            ));
+            side.side_conditions.toxic_count = 0;
+        }
+    }
+
+    pub fn remove_volatile_statuses(
+        &mut self,
+        side_ref: &SideReference,
+        vec_to_add_to: &mut Vec<Instruction>
+    ) {
+        let side = self.get_side(side_ref);
+        let active_pkmn = side.get_active();
+        for pkmn_volatile_status in &active_pkmn.volatile_statuses {
+            vec_to_add_to.push(Instruction::RemoveVolatileStatus(
+                RemoveVolatileStatusInstruction {
+                    side_ref: *side_ref,
+                    volatile_status: *pkmn_volatile_status,
+                },
+            ));
+        }
+        active_pkmn.volatile_statuses.drain();
+    }
+
+    pub fn reset_boosts(
+        &mut self,
+        side_ref: &SideReference,
+        vec_to_add_to: &mut Vec<Instruction>
+    ) {
+        let side = self.get_side(side_ref);
+        let active_pkmn = side.get_active();
+
+        if active_pkmn.attack_boost > 0 {
+            vec_to_add_to.push(
+                Instruction::Boost(BoostInstruction {
+                    side_ref: *side_ref,
+                    stat: PokemonBoostableStat::Attack,
+                    amount: -1 * active_pkmn.attack_boost,
+                })
+            );
+            active_pkmn.attack_boost = 0;
+        }
+
+        if active_pkmn.defense_boost > 0 {
+            vec_to_add_to.push(
+                Instruction::Boost(BoostInstruction {
+                    side_ref: *side_ref,
+                    stat: PokemonBoostableStat::Defense,
+                    amount: -1 * active_pkmn.defense_boost,
+                })
+            );
+            active_pkmn.defense_boost = 0;
+        }
+
+        if active_pkmn.special_attack_boost > 0 {
+            vec_to_add_to.push(
+                Instruction::Boost(BoostInstruction {
+                    side_ref: *side_ref,
+                    stat: PokemonBoostableStat::SpecialAttack,
+                    amount: -1 * active_pkmn.special_attack_boost,
+                })
+            );
+            active_pkmn.special_attack_boost = 0;
+        }
+
+        if active_pkmn.special_defense_boost > 0 {
+            vec_to_add_to.push(
+                Instruction::Boost(BoostInstruction {
+                    side_ref: *side_ref,
+                    stat: PokemonBoostableStat::SpecialDefense,
+                    amount: -1 * active_pkmn.special_defense_boost,
+                })
+            );
+            active_pkmn.special_defense_boost = 0;
+        }
+
+        if active_pkmn.speed_boost > 0 {
+            vec_to_add_to.push(
+                Instruction::Boost(BoostInstruction {
+                    side_ref: *side_ref,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: -1 * active_pkmn.speed_boost,
+                })
+            );
+            active_pkmn.speed_boost = 0;
+        }
+
+        if active_pkmn.evasion_boost > 0 {
+            vec_to_add_to.push(
+                Instruction::Boost(BoostInstruction {
+                    side_ref: *side_ref,
+                    stat: PokemonBoostableStat::Evasion,
+                    amount: -1 * active_pkmn.evasion_boost,
+                })
+            );
+            active_pkmn.evasion_boost = 0;
+        }
+
+        if active_pkmn.accuracy_boost > 0 {
+            vec_to_add_to.push(
+                Instruction::Boost(BoostInstruction {
+                    side_ref: *side_ref,
+                    stat: PokemonBoostableStat::Accuracy,
+                    amount: -1 * active_pkmn.accuracy_boost,
+                })
+            );
+            active_pkmn.accuracy_boost = 0;
         }
     }
 

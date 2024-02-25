@@ -1,6 +1,5 @@
 #![allow(unused_variables)]
 use std::cmp;
-use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
