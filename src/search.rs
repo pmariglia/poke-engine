@@ -23,8 +23,8 @@ pub fn expectiminimax_search(
     let battle_is_over = state.battle_is_over();
     if battle_is_over != 0.0 {
         // score_lookup.insert(
-            // (MoveChoice::NONE, MoveChoice::NONE),
-            // evaluate(state) * WIN_BONUS * battle_is_over,
+        // (MoveChoice::NONE, MoveChoice::NONE),
+        // evaluate(state) * WIN_BONUS * battle_is_over,
         // );
         return score_lookup;
     }
@@ -47,12 +47,12 @@ pub fn expectiminimax_search(
                         state.get_all_options();
 
                     expectiminimax_search(
-                            state,
-                            depth - 1,
-                            next_turn_side_one_options,
-                            next_turn_side_two_options,
-                            ab_prune,
-                        );
+                        state,
+                        depth - 1,
+                        next_turn_side_one_options,
+                        next_turn_side_two_options,
+                        ab_prune,
+                    );
 
                     state.reverse_instructions(&instruction.instruction_list);
                 }

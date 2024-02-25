@@ -1,3 +1,4 @@
+use poke_engine::abilities::Abilities;
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
@@ -6,9 +7,11 @@ use poke_engine::instruction::{
     RemoveVolatileStatusInstruction, SetSubstituteHealthInstruction, StateInstructions,
     SwitchInstruction,
 };
-use poke_engine::abilities::Abilities;
 use poke_engine::items::Items;
-use poke_engine::state::{Move, MoveChoice, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather};
+use poke_engine::state::{
+    Move, MoveChoice, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType,
+    PokemonVolatileStatus, SideReference, State, Terrain, Weather,
+};
 
 fn set_moves_on_pkmn_and_call_generate_instructions(
     state: &mut State,
@@ -1333,7 +1336,10 @@ fn test_locked_moves_unlock_on_switchout() {
     state.side_one.get_active().moves[2].disabled = true;
     state.side_one.get_active().moves[3].disabled = true;
 
-    state.side_two.get_active().replace_move(0, String::from("splash"));
+    state
+        .side_two
+        .get_active()
+        .replace_move(0, String::from("splash"));
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
@@ -1681,7 +1687,10 @@ fn test_switching_in_with_grassyseed_in_grassy_terrain() {
     state.terrain.terrain_type = Terrain::GrassyTerrain;
     state.terrain.turns_remaining = 3;
 
-    state.side_one.get_active().replace_move(0, String::from("splash"));
+    state
+        .side_one
+        .get_active()
+        .replace_move(0, String::from("splash"));
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
@@ -1720,12 +1729,15 @@ fn test_contrary_with_seed() {
     state.terrain.terrain_type = Terrain::PsychicTerrain;
     state.terrain.turns_remaining = 3;
 
-    state.side_one.get_active().replace_move(0, String::from("splash"));
+    state
+        .side_one
+        .get_active()
+        .replace_move(0, String::from("splash"));
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
         &MoveChoice::Move(0),
-        &MoveChoice::Switch(1)
+        &MoveChoice::Switch(1),
     );
 
     let expected_instructions = vec![StateInstructions {

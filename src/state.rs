@@ -1,9 +1,12 @@
+use crate::abilities::Abilities;
 use crate::choices::{Choice, MOVES};
 use core::panic;
 use std::collections::HashSet;
-use crate::abilities::Abilities;
 
-use crate::instruction::{BoostInstruction, ChangeSideConditionInstruction, EnableMoveInstruction, Instruction, RemoveVolatileStatusInstruction};
+use crate::instruction::{
+    BoostInstruction, ChangeSideConditionInstruction, EnableMoveInstruction, Instruction,
+    RemoveVolatileStatusInstruction,
+};
 use crate::items::Items;
 
 fn get_boost_multiplier(boost_num: i8) -> f32 {
@@ -29,7 +32,7 @@ fn get_boost_multiplier(boost_num: i8) -> f32 {
 pub enum MoveChoice {
     Move(usize),
     Switch(usize),
-    None
+    None,
 }
 
 #[derive(Debug, PartialEq, Copy, Clone, Hash)]
@@ -308,7 +311,7 @@ pub struct Move {
     pub id: String,
     pub disabled: bool,
     pub pp: i8,
-    pub choice: Choice
+    pub choice: Choice,
 }
 
 impl Default for Move {
@@ -317,8 +320,8 @@ impl Default for Move {
             id: "".to_string(),
             disabled: false,
             pp: 32,
-            choice: Choice::default()
-        }
+            choice: Choice::default(),
+        };
     }
 }
 
@@ -424,10 +427,12 @@ impl Pokemon {
                 (get_boost_multiplier(self.defense_boost) * self.defense as f32) as i16
             }
             PokemonBoostableStat::SpecialAttack => {
-                (get_boost_multiplier(self.special_attack_boost) * self.special_attack as f32) as i16
+                (get_boost_multiplier(self.special_attack_boost) * self.special_attack as f32)
+                    as i16
             }
             PokemonBoostableStat::SpecialDefense => {
-                (get_boost_multiplier(self.special_defense_boost) * self.special_defense as f32) as i16
+                (get_boost_multiplier(self.special_defense_boost) * self.special_defense as f32)
+                    as i16
             }
             PokemonBoostableStat::Speed => {
                 (get_boost_multiplier(self.speed_boost) * self.speed as f32) as i16
@@ -471,7 +476,12 @@ impl Pokemon {
     }
 
     pub fn immune_to_stats_lowered_by_opponent(&self, stat: &PokemonBoostableStat) -> bool {
-        if [Abilities::CLEARBODY, Abilities::WHITESMOKE, Abilities::FULLMETALBODY].contains(&self.ability)
+        if [
+            Abilities::CLEARBODY,
+            Abilities::WHITESMOKE,
+            Abilities::FULLMETALBODY,
+        ]
+        .contains(&self.ability)
             || ([Items::CLEAR_AMULET].contains(&self.item))
         {
             return true;
@@ -687,10 +697,14 @@ impl State {
             return (side_one_options, side_two_options);
         }
 
-        self.side_one.get_active_immutable().add_available_moves(&mut side_one_options);
+        self.side_one
+            .get_active_immutable()
+            .add_available_moves(&mut side_one_options);
         self.side_one.add_switches(&mut side_one_options);
 
-        self.side_two.get_active_immutable().add_available_moves(&mut side_two_options);
+        self.side_two
+            .get_active_immutable()
+            .add_available_moves(&mut side_two_options);
         self.side_two.add_switches(&mut side_two_options);
 
         return (side_one_options, side_two_options);
@@ -727,7 +741,7 @@ impl State {
     pub fn re_enable_disabled_moves(
         &mut self,
         side_ref: &SideReference,
-        vec_to_add_to: &mut Vec<Instruction>
+        vec_to_add_to: &mut Vec<Instruction>,
     ) {
         let side = self.get_side(side_ref);
         for (index, m) in side.get_active().moves.iter_mut().enumerate() {
@@ -744,7 +758,7 @@ impl State {
     pub fn reset_toxic_count(
         &mut self,
         side_ref: &SideReference,
-        vec_to_add_to: &mut Vec<Instruction>
+        vec_to_add_to: &mut Vec<Instruction>,
     ) {
         let side = self.get_side(side_ref);
         if side.side_conditions.toxic_count > 0 {
@@ -762,7 +776,7 @@ impl State {
     pub fn remove_volatile_statuses(
         &mut self,
         side_ref: &SideReference,
-        vec_to_add_to: &mut Vec<Instruction>
+        vec_to_add_to: &mut Vec<Instruction>,
     ) {
         let side = self.get_side(side_ref);
         let active_pkmn = side.get_active();
@@ -777,88 +791,70 @@ impl State {
         active_pkmn.volatile_statuses.drain();
     }
 
-    pub fn reset_boosts(
-        &mut self,
-        side_ref: &SideReference,
-        vec_to_add_to: &mut Vec<Instruction>
-    ) {
+    pub fn reset_boosts(&mut self, side_ref: &SideReference, vec_to_add_to: &mut Vec<Instruction>) {
         let side = self.get_side(side_ref);
         let active_pkmn = side.get_active();
 
         if active_pkmn.attack_boost > 0 {
-            vec_to_add_to.push(
-                Instruction::Boost(BoostInstruction {
-                    side_ref: *side_ref,
-                    stat: PokemonBoostableStat::Attack,
-                    amount: -1 * active_pkmn.attack_boost,
-                })
-            );
+            vec_to_add_to.push(Instruction::Boost(BoostInstruction {
+                side_ref: *side_ref,
+                stat: PokemonBoostableStat::Attack,
+                amount: -1 * active_pkmn.attack_boost,
+            }));
             active_pkmn.attack_boost = 0;
         }
 
         if active_pkmn.defense_boost > 0 {
-            vec_to_add_to.push(
-                Instruction::Boost(BoostInstruction {
-                    side_ref: *side_ref,
-                    stat: PokemonBoostableStat::Defense,
-                    amount: -1 * active_pkmn.defense_boost,
-                })
-            );
+            vec_to_add_to.push(Instruction::Boost(BoostInstruction {
+                side_ref: *side_ref,
+                stat: PokemonBoostableStat::Defense,
+                amount: -1 * active_pkmn.defense_boost,
+            }));
             active_pkmn.defense_boost = 0;
         }
 
         if active_pkmn.special_attack_boost > 0 {
-            vec_to_add_to.push(
-                Instruction::Boost(BoostInstruction {
-                    side_ref: *side_ref,
-                    stat: PokemonBoostableStat::SpecialAttack,
-                    amount: -1 * active_pkmn.special_attack_boost,
-                })
-            );
+            vec_to_add_to.push(Instruction::Boost(BoostInstruction {
+                side_ref: *side_ref,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: -1 * active_pkmn.special_attack_boost,
+            }));
             active_pkmn.special_attack_boost = 0;
         }
 
         if active_pkmn.special_defense_boost > 0 {
-            vec_to_add_to.push(
-                Instruction::Boost(BoostInstruction {
-                    side_ref: *side_ref,
-                    stat: PokemonBoostableStat::SpecialDefense,
-                    amount: -1 * active_pkmn.special_defense_boost,
-                })
-            );
+            vec_to_add_to.push(Instruction::Boost(BoostInstruction {
+                side_ref: *side_ref,
+                stat: PokemonBoostableStat::SpecialDefense,
+                amount: -1 * active_pkmn.special_defense_boost,
+            }));
             active_pkmn.special_defense_boost = 0;
         }
 
         if active_pkmn.speed_boost > 0 {
-            vec_to_add_to.push(
-                Instruction::Boost(BoostInstruction {
-                    side_ref: *side_ref,
-                    stat: PokemonBoostableStat::Speed,
-                    amount: -1 * active_pkmn.speed_boost,
-                })
-            );
+            vec_to_add_to.push(Instruction::Boost(BoostInstruction {
+                side_ref: *side_ref,
+                stat: PokemonBoostableStat::Speed,
+                amount: -1 * active_pkmn.speed_boost,
+            }));
             active_pkmn.speed_boost = 0;
         }
 
         if active_pkmn.evasion_boost > 0 {
-            vec_to_add_to.push(
-                Instruction::Boost(BoostInstruction {
-                    side_ref: *side_ref,
-                    stat: PokemonBoostableStat::Evasion,
-                    amount: -1 * active_pkmn.evasion_boost,
-                })
-            );
+            vec_to_add_to.push(Instruction::Boost(BoostInstruction {
+                side_ref: *side_ref,
+                stat: PokemonBoostableStat::Evasion,
+                amount: -1 * active_pkmn.evasion_boost,
+            }));
             active_pkmn.evasion_boost = 0;
         }
 
         if active_pkmn.accuracy_boost > 0 {
-            vec_to_add_to.push(
-                Instruction::Boost(BoostInstruction {
-                    side_ref: *side_ref,
-                    stat: PokemonBoostableStat::Accuracy,
-                    amount: -1 * active_pkmn.accuracy_boost,
-                })
-            );
+            vec_to_add_to.push(Instruction::Boost(BoostInstruction {
+                side_ref: *side_ref,
+                stat: PokemonBoostableStat::Accuracy,
+                amount: -1 * active_pkmn.accuracy_boost,
+            }));
             active_pkmn.accuracy_boost = 0;
         }
     }

@@ -1,3 +1,4 @@
+use crate::abilities::Abilities;
 use crate::{
     choices::{Choice, MoveCategory},
     state::{
@@ -5,7 +6,6 @@ use crate::{
         SideReference, State, Weather,
     },
 };
-use crate::abilities::Abilities;
 
 #[rustfmt::skip]
 const TYPE_MATCHUP_DAMAGE_MULTIPICATION: [[f32; 19]; 19] = [

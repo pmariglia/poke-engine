@@ -1,13 +1,17 @@
+use crate::abilities::Abilities;
 use crate::choices::{
     Boost, Effect, HazardClearFn, Heal, MoveTarget, Secondary, SideCondition, StatBoosts, Status,
     VolatileStatus,
 };
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-    ChangeSideConditionInstruction, DecrementWishInstruction,
-    HealInstruction, RemoveVolatileStatusInstruction,
+    ChangeSideConditionInstruction, DecrementWishInstruction, HealInstruction,
+    RemoveVolatileStatusInstruction,
 };
-use crate::state::{MoveChoice, PokemonBoostableStat, PokemonSideCondition, PokemonType, Side, Terrain};
+use crate::items::Items;
+use crate::state::{
+    MoveChoice, PokemonBoostableStat, PokemonSideCondition, PokemonType, Side, Terrain,
+};
 use crate::{
     abilities::ABILITIES,
     choices::{Choice, MoveCategory},
@@ -20,8 +24,6 @@ use crate::{
     state::{Pokemon, PokemonStatus, PokemonVolatileStatus, SideReference, State, Weather},
 };
 use std::cmp;
-use crate::abilities::Abilities;
-use crate::items::Items;
 
 fn generate_instructions_from_switch(
     state: &mut State,
@@ -32,12 +34,29 @@ fn generate_instructions_from_switch(
     let mut incoming_instructions = incoming_instructions;
     state.apply_instructions(&incoming_instructions.instruction_list);
 
-    state.re_enable_disabled_moves(&switching_side_ref, &mut incoming_instructions.instruction_list);
-    state.remove_volatile_statuses(&switching_side_ref, &mut incoming_instructions.instruction_list);
-    state.reset_toxic_count(&switching_side_ref, &mut incoming_instructions.instruction_list);
-    state.reset_boosts(&switching_side_ref, &mut incoming_instructions.instruction_list);
+    state.re_enable_disabled_moves(
+        &switching_side_ref,
+        &mut incoming_instructions.instruction_list,
+    );
+    state.remove_volatile_statuses(
+        &switching_side_ref,
+        &mut incoming_instructions.instruction_list,
+    );
+    state.reset_toxic_count(
+        &switching_side_ref,
+        &mut incoming_instructions.instruction_list,
+    );
+    state.reset_boosts(
+        &switching_side_ref,
+        &mut incoming_instructions.instruction_list,
+    );
 
-    if let Some(on_switch_out_fn) = ABILITIES[state.get_side_immutable(&switching_side_ref).get_active_immutable().ability].on_switch_out {
+    if let Some(on_switch_out_fn) = ABILITIES[state
+        .get_side_immutable(&switching_side_ref)
+        .get_active_immutable()
+        .ability]
+        .on_switch_out
+    {
         for i in on_switch_out_fn(&state, &switching_side_ref) {
             state.apply_one_instruction(&i);
             incoming_instructions.instruction_list.push(i);
@@ -72,7 +91,9 @@ fn generate_instructions_from_switch(
                 ),
             });
             state.apply_one_instruction(&stealth_rock_dmg_instruction);
-            incoming_instructions.instruction_list.push(stealth_rock_dmg_instruction);
+            incoming_instructions
+                .instruction_list
+                .push(stealth_rock_dmg_instruction);
         }
 
         let switch_in_side = state.get_side_immutable(&switching_side_ref);
@@ -88,7 +109,9 @@ fn generate_instructions_from_switch(
                 ),
             });
             state.apply_one_instruction(&spikes_dmg_instruction);
-            incoming_instructions.instruction_list.push(spikes_dmg_instruction);
+            incoming_instructions
+                .instruction_list
+                .push(spikes_dmg_instruction);
         }
 
         let switch_in_side = state.get_side_immutable(&switching_side_ref);
@@ -107,7 +130,9 @@ fn generate_instructions_from_switch(
                 &switching_side_ref,
             ) {
                 state.apply_one_instruction(&sticky_web_instruction);
-                incoming_instructions.instruction_list.push(sticky_web_instruction);
+                incoming_instructions
+                    .instruction_list
+                    .push(sticky_web_instruction);
             }
         }
 
@@ -158,7 +183,9 @@ fn generate_instructions_from_switch(
     }
 
     let switching_side = state.get_side_immutable(&switching_side_ref);
-    if let Some(on_switch_in_fn) = ABILITIES[switching_side.get_active_immutable().ability].on_switch_in {
+    if let Some(on_switch_in_fn) =
+        ABILITIES[switching_side.get_active_immutable().ability].on_switch_in
+    {
         for i in on_switch_in_fn(&state, &switching_side_ref) {
             state.apply_one_instruction(&i);
             incoming_instructions.instruction_list.push(i);
@@ -166,7 +193,9 @@ fn generate_instructions_from_switch(
     }
 
     let switching_side = state.get_side_immutable(&switching_side_ref);
-    if let Some(on_switch_in_fn) = ITEMS_VEC[switching_side.get_active_immutable().item].on_switch_in {
+    if let Some(on_switch_in_fn) =
+        ITEMS_VEC[switching_side.get_active_immutable().item].on_switch_in
+    {
         for i in on_switch_in_fn(&state, &switching_side_ref) {
             state.apply_one_instruction(&i);
             incoming_instructions.instruction_list.push(i);
@@ -335,8 +364,12 @@ pub fn immune_to_status(
             PokemonStatus::Sleep => {
                 (state.terrain.terrain_type == Terrain::ElectricTerrain
                     && target_pkmn.is_grounded())
-                    || [Abilities::INSOMNIA, Abilities::SWEETVEIL, Abilities::VITALSPIRIT]
-                        .contains(&target_pkmn.ability)
+                    || [
+                        Abilities::INSOMNIA,
+                        Abilities::SWEETVEIL,
+                        Abilities::VITALSPIRIT,
+                    ]
+                    .contains(&target_pkmn.ability)
                     || sleep_clause_activated()
             }
             PokemonStatus::Paralyze => {
@@ -701,8 +734,7 @@ fn check_move_hit_or_miss(
         let mut move_hit_instructions = incoming_instructions.clone();
         move_hit_instructions.update_percentage(percent_hit);
         ret = Some(move_hit_instructions);
-    }
-    else {
+    } else {
         ret = None
     }
 
@@ -828,13 +860,10 @@ fn generate_instructions_from_damage(
 
             let attacking_side = state.get_side_immutable(attacking_side_ref);
             let attacking_pokemon = attacking_side.get_active_immutable();
-            if let Some(after_damage_hit_fn) = ABILITIES[attacking_pokemon.ability].after_damage_hit {
-                let ability_after_damage_hit_instructions = after_damage_hit_fn(
-                    &state,
-                    &choice,
-                    attacking_side_ref,
-                    damage_dealt,
-                );
+            if let Some(after_damage_hit_fn) = ABILITIES[attacking_pokemon.ability].after_damage_hit
+            {
+                let ability_after_damage_hit_instructions =
+                    after_damage_hit_fn(&state, &choice, attacking_side_ref, damage_dealt);
                 state.apply_instructions(&ability_after_damage_hit_instructions);
                 incoming_instructions
                     .instruction_list
@@ -846,10 +875,8 @@ fn generate_instructions_from_damage(
         let attacking_pokemon = attacking_side.get_active_immutable();
         if let Some(drain_fraction) = choice.drain {
             let drain_amount = (damage_dealt as f32 * drain_fraction) as i16;
-            let heal_amount = cmp::min(
-                drain_amount,
-                attacking_pokemon.maxhp - attacking_pokemon.hp,
-            );
+            let heal_amount =
+                cmp::min(drain_amount, attacking_pokemon.maxhp - attacking_pokemon.hp);
             if heal_amount > 0 {
                 let drain_instruction = Instruction::Heal(HealInstruction {
                     side_ref: *attacking_side_ref,
@@ -877,11 +904,8 @@ fn generate_instructions_from_damage(
         }
 
         if let Some(after_damage_hit_fn) = choice.after_damage_hit {
-            let choice_after_damage_hit_instructions = after_damage_hit_fn(
-                &state,
-                &choice,
-                attacking_side_ref,
-            );
+            let choice_after_damage_hit_instructions =
+                after_damage_hit_fn(&state, &choice, attacking_side_ref);
             state.apply_instructions(&choice_after_damage_hit_instructions);
             incoming_instructions
                 .instruction_list
@@ -1818,7 +1842,6 @@ pub fn generate_instructions_from_move_pair(
           This was done elsewhere in the other bot, but it should be here instead
     */
 
-
     let mut side_one_choice;
     match side_one_move {
         MoveChoice::Switch(switch_id) => {
@@ -1827,7 +1850,9 @@ pub fn generate_instructions_from_move_pair(
             side_one_choice.category = MoveCategory::Switch;
         }
         MoveChoice::Move(move_index) => {
-            side_one_choice = state.side_one.get_active().moves[*move_index].choice.clone();
+            side_one_choice = state.side_one.get_active().moves[*move_index]
+                .choice
+                .clone();
         }
         MoveChoice::None => {
             side_one_choice = Choice::default();
@@ -1842,7 +1867,9 @@ pub fn generate_instructions_from_move_pair(
             side_two_choice.category = MoveCategory::Switch;
         }
         MoveChoice::Move(move_index) => {
-            side_two_choice = state.side_two.get_active().moves[*move_index].choice.clone();
+            side_two_choice = state.side_two.get_active().moves[*move_index]
+                .choice
+                .clone();
         }
         MoveChoice::None => {
             side_two_choice = Choice::default();
@@ -1908,8 +1935,8 @@ pub fn generate_instructions_from_move_pair(
 
 #[cfg(test)]
 mod tests {
-    use crate::abilities::Abilities;
     use super::*;
+    use crate::abilities::Abilities;
     use crate::choices::MOVES;
     use crate::instruction::{
         ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,

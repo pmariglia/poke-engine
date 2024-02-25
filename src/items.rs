@@ -20,7 +20,6 @@ type ModifyAttackAgainst = fn(&State, &mut Choice, &SideReference);
 type ItemOnSwitchInFn = fn(&State, &SideReference) -> Vec<Instruction>;
 type ItemEndOfTurn = fn(&State, &SideReference) -> Vec<Instruction>;
 
-
 #[non_exhaustive]
 pub struct Items;
 
@@ -78,764 +77,23 @@ impl Items {
 lazy_static! {
     pub static ref ITEMS_VEC: Vec<Item> = {
         let mut items: Vec<Item> = Vec::new();
-        items.push(
-            Item {
-                id: "".to_string(),
-                index: 0,
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "absorbbulb".to_string(),
-                index: 1,
-                modify_attack_against: Some(
-                    |_state, attacking_choice: &mut Choice, attacking_side_ref| {
-                        if attacking_choice.move_type == PokemonType::Water {
-                            attacking_choice.add_or_create_secondaries(Secondary {
-                                chance: 100.0,
-                                effect: Effect::Boost(StatBoosts {
-                                    attack: 0,
-                                    defense: 0,
-                                    special_attack: 1,
-                                    special_defense: 0,
-                                    speed: 0,
-                                    accuracy: 0,
-                                }),
-                                target: MoveTarget::Opponent,
-                            });
-                            attacking_choice.add_or_create_secondaries(Secondary {
-                                chance: 100.0,
-                                effect: Effect::RemoveItem,
-                                target: MoveTarget::Opponent,
-                            });
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "airballoon".to_string(),
-                index: 2,
-                modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
-                    if attacking_choice.move_type == PokemonType::Ground
-                        && attacking_choice.move_id != "thousandarrows"
-                    {
-                        attacking_choice.base_power = 0.0;
-                    } else {
-                        attacking_choice.add_or_create_secondaries(Secondary {
-                            chance: 100.0,
-                            effect: Effect::RemoveItem,
-                            target: MoveTarget::Opponent,
-                        });
-                    }
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "assaultvest".to_string(),
-                index: 3,
-                modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
-                    if attacking_choice.category == MoveCategory::Special {
-                        attacking_choice.base_power /= 1.5;
-                    }
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "blackbelt".to_string(),
-                index: 4,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Fighting {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "blacksludge".to_string(),
-                index: 5,
-                end_of_turn: Some(|state: &State, side_ref: &SideReference| {
-                    let attacker = state.get_side_immutable(side_ref).get_active_immutable();
-                    if attacker.has_type(&PokemonType::Poison) {
-                        if attacker.hp < attacker.maxhp {
-                            return vec![Instruction::Heal(HealInstruction {
-                                side_ref: side_ref.clone(),
-                                heal_amount: cmp::min(
-                                    attacker.maxhp / 16,
-                                    attacker.maxhp - attacker.hp,
-                                ),
-                            })];
-                        }
-                    }
-                    return vec![Instruction::Damage(DamageInstruction {
-                        side_ref: side_ref.clone(),
-                        damage_amount: cmp::min(attacker.maxhp / 16, attacker.maxhp - attacker.hp),
-                    })];
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "blackglasses".to_string(),
-                index: 6,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Dark {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "cellbattery".to_string(),
-                index: 7,
-                modify_attack_against: Some(
-                    |_state, attacking_choice: &mut Choice, attacking_side_ref| {
-                        if attacking_choice.move_type == PokemonType::Electric {
-                            attacking_choice.add_or_create_secondaries(Secondary {
-                                chance: 100.0,
-                                effect: Effect::Boost(StatBoosts {
-                                    attack: 1,
-                                    defense: 0,
-                                    special_attack: 0,
-                                    special_defense: 0,
-                                    speed: 0,
-                                    accuracy: 0,
-                                }),
-                                target: MoveTarget::Opponent,
-                            });
-                            attacking_choice.add_or_create_secondaries(Secondary {
-                                chance: 100.0,
-                                effect: Effect::RemoveItem,
-                                target: MoveTarget::Opponent,
-                            });
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "charcoal".to_string(),
-                index: 8,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Fire {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "choiceband".to_string(),
-                index: 9,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.category == MoveCategory::Physical {
-                            attacking_choice.base_power *= 1.3;
-                        }
-                    },
-                ),
-                before_move: Some(|state, choice, side_ref| {
-                    return get_choice_move_disable_instructions(
-                        state.get_side_immutable(side_ref).get_active_immutable(),
-                        side_ref,
-                        &choice.move_id,
-                    );
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "choicespecs".to_string(),
-                index: 10,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.category == MoveCategory::Special {
-                            attacking_choice.base_power *= 1.3;
-                        }
-                    },
-                ),
-                before_move: Some(|state, choice, side_ref| {
-                    return get_choice_move_disable_instructions(
-                        state.get_side_immutable(side_ref).get_active_immutable(),
-                        side_ref,
-                        &choice.move_id,
-                    );
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "choicescarf".to_string(),
-                index: 11,
-                before_move: Some(|state, choice, side_ref| {
-                    return get_choice_move_disable_instructions(
-                        state.get_side_immutable(side_ref).get_active_immutable(),
-                        side_ref,
-                        &choice.move_id,
-                    );
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "dragonfang".to_string(),
-                index: 12,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Dragon {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "dreadplate".to_string(),
-                index: 13,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Dark {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "electricseed".to_string(),
-                index: 14,
-                on_switch_in: Some(|state: &State, side_ref: &SideReference| {
-                    if state.terrain_is_active(&Terrain::ElectricTerrain) {
-                        if let Some(boost_instruction) = get_boost_instruction(
-                            state,
-                            &PokemonBoostableStat::Defense,
-                            &1,
-                            side_ref,
-                            side_ref,
-                        ) {
-                            return vec![
-                                boost_instruction,
-                                Instruction::ChangeItem(ChangeItemInstruction {
-                                    side_ref: side_ref.clone(),
-                                    current_item: Items::ELECTRIC_SEED,
-                                    new_item: Items::NONE,
-                                }),
-                            ];
-                        }
-                    }
-                    return vec![];
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "expertbelt".to_string(),
-                index: 15,
-                modify_attack_being_used: Some(
-                    |state: &State, attacking_choice: &mut Choice, side_ref: &SideReference| {
-                        if type_effectiveness_modifier(
-                            &attacking_choice.move_type,
-                            &state
-                                .get_side_immutable(&side_ref.get_other_side())
-                                .get_active_immutable()
-                                .types,
-                        ) > 1.0
-                        {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "eviolite".to_string(),
-                index: 16,
-                modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
-                    attacking_choice.base_power /= 1.5;
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "fairyfeather".to_string(),
-                index: 17,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Fairy {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "flameorb".to_string(),
-                index: 18,
-                end_of_turn: Some(|state: &State, side_ref: &SideReference| {
-                    let side = state.get_side_immutable(side_ref);
-                    if !immune_to_status(state, &MoveTarget::User, side_ref, &PokemonStatus::Burn) {
-                        return vec![Instruction::ChangeStatus(ChangeStatusInstruction {
-                            side_ref: side_ref.clone(),
-                            pokemon_index: side.active_index,
-                            new_status: PokemonStatus::Burn,
-                            old_status: PokemonStatus::None,
-                        })];
-                    }
-                    return vec![];
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "grassyseed".to_string(),
-                index: 19,
-                on_switch_in: Some(|state: &State, side_ref: &SideReference| {
-                    if state.terrain_is_active(&Terrain::GrassyTerrain) {
-                        if let Some(boost_instruction) = get_boost_instruction(
-                            state,
-                            &PokemonBoostableStat::Defense,
-                            &1,
-                            side_ref,
-                            side_ref,
-                        ) {
-                            return vec![
-                                boost_instruction,
-                                Instruction::ChangeItem(ChangeItemInstruction {
-                                    side_ref: side_ref.clone(),
-                                    current_item: Items::GRASSY_SEED,
-                                    new_item: Items::NONE,
-                                }),
-                            ];
-                        }
-                    }
-                    return vec![];
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "leftovers".to_string(),
-                index: 20,
-                end_of_turn: Some(|state: &State, side_ref: &SideReference| {
-                    let attacker = state.get_side_immutable(side_ref).get_active_immutable();
-                    if attacker.hp < attacker.maxhp {
-                        return vec![Instruction::Heal(HealInstruction {
-                            side_ref: side_ref.clone(),
-                            heal_amount: cmp::min(
-                                attacker.maxhp / 16,
-                                attacker.maxhp - attacker.hp,
-                            ),
-                        })];
-                    }
-                    return vec![];
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "lifeorb".to_string(),
-                index: 21,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        attacking_choice.base_power *= 1.3;
-                        attacking_choice.add_or_create_secondaries(Secondary {
-                            chance: 100.0,
-                            effect: Effect::Heal(-0.1),
-                            target: MoveTarget::User,
-                        });
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "metalcoal".to_string(),
-                index: 22,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Steel {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "mistyseed".to_string(),
-                index: 23,
-                on_switch_in: Some(|state: &State, side_ref: &SideReference| {
-                    if state.terrain_is_active(&Terrain::MistyTerrain) {
-                        if let Some(boost_instruction) = get_boost_instruction(
-                            state,
-                            &PokemonBoostableStat::SpecialDefense,
-                            &1,
-                            side_ref,
-                            side_ref,
-                        ) {
-                            return vec![
-                                boost_instruction,
-                                Instruction::ChangeItem(ChangeItemInstruction {
-                                    side_ref: side_ref.clone(),
-                                    current_item: Items::MISTY_SEED,
-                                    new_item: Items::NONE,
-                                }),
-                            ];
-                        }
-                    }
-                    return vec![];
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "muscleband".to_string(),
-                index: 24,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.category == MoveCategory::Physical {
-                            attacking_choice.base_power *= 1.1;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "mysticwater".to_string(),
-                index: 25,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Water {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "nevermeltice".to_string(),
-                index: 26,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Ice {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "oddincense".to_string(),
-                index: 27,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Psychic {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "poisonbarb".to_string(),
-                index: 28,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Poison {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "psychicseed".to_string(),
-                index: 29,
-                on_switch_in: Some(|state: &State, side_ref: &SideReference| {
-                    if state.terrain_is_active(&Terrain::PsychicTerrain) {
-                        if let Some(boost_instruction) = get_boost_instruction(
-                            state,
-                            &PokemonBoostableStat::SpecialDefense,
-                            &1,
-                            side_ref,
-                            side_ref,
-                        ) {
-                            return vec![
-                                boost_instruction,
-                                Instruction::ChangeItem(ChangeItemInstruction {
-                                    side_ref: side_ref.clone(),
-                                    current_item: Items::PSYCHIC_SEED,
-                                    new_item: Items::NONE,
-                                }),
-                            ];
-                        }
-                    }
-                    return vec![];
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "punchingglove".to_string(),
-                index: 30,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.flags.punch {
-                            attacking_choice.base_power *= 1.1;
-                            attacking_choice.flags.contact = false
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "rockyhelmet".to_string(),
-                index: 31,
-                modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
-                    if attacking_choice.flags.contact {
-                        attacking_choice.add_or_create_secondaries(Secondary {
-                            chance: 100.0,
-                            effect: Effect::Heal(-0.125),
-                            target: MoveTarget::User,
-                        })
-                    }
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "seaincense".to_string(),
-                index: 32,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Water {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "sharpbeak".to_string(),
-                index: 33,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Flying {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "shellbell".to_string(),
-                index: 34,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        attacking_choice.drain = Some(0.125);
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "silkscarf".to_string(),
-                index: 35,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Normal {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "silverpowder".to_string(),
-                index: 36,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Bug {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "softsand".to_string(),
-                index: 37,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Ground {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "throatspray".to_string(),
-                index: 38,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.flags.sound {
-                            attacking_choice.add_or_create_secondaries(Secondary {
-                                chance: 100.0,
-                                effect: Effect::Boost(StatBoosts {
-                                    attack: 0,
-                                    defense: 0,
-                                    special_attack: 1,
-                                    special_defense: 0,
-                                    speed: 0,
-                                    accuracy: 0,
-                                }),
-                                target: MoveTarget::User,
-                            });
-                            attacking_choice.add_or_create_secondaries(Secondary {
-                                chance: 100.0,
-                                effect: Effect::RemoveItem,
-                                target: MoveTarget::User,
-                            });
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "toxicorb".to_string(),
-                index: 39,
-                end_of_turn: Some(|state: &State, side_ref: &SideReference| {
-                    let side = state.get_side_immutable(side_ref);
-                    if !immune_to_status(state, &MoveTarget::User, side_ref, &PokemonStatus::Toxic)
-                    {
-                        return vec![Instruction::ChangeStatus(ChangeStatusInstruction {
-                            side_ref: side_ref.clone(),
-                            pokemon_index: side.active_index,
-                            new_status: PokemonStatus::Toxic,
-                            old_status: PokemonStatus::None,
-                        })];
-                    }
-                    return vec![];
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "twistedspoon".to_string(),
-                index: 40,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Psychic {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "waveincense".to_string(),
-                index: 41,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.move_type == PokemonType::Water {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "weaknesspolicy".to_string(),
-                index: 42,
-                modify_attack_against: Some(|state, attacking_choice: &mut Choice, side_ref| {
-                    if attacking_choice.category != MoveCategory::Status
-                        && type_effectiveness_modifier(
-                            &attacking_choice.move_type,
-                            &state
-                                .get_side_immutable(&side_ref.get_other_side())
-                                .get_active_immutable()
-                                .types,
-                        ) > 1.0
-                    {
+        items.push(Item {
+            id: "".to_string(),
+            index: 0,
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "absorbbulb".to_string(),
+            index: 1,
+            modify_attack_against: Some(
+                |_state, attacking_choice: &mut Choice, attacking_side_ref| {
+                    if attacking_choice.move_type == PokemonType::Water {
                         attacking_choice.add_or_create_secondaries(Secondary {
                             chance: 100.0,
                             effect: Effect::Boost(StatBoosts {
-                                attack: 2,
+                                attack: 0,
                                 defense: 0,
-                                special_attack: 2,
+                                special_attack: 1,
                                 special_defense: 0,
                                 speed: 0,
                                 accuracy: 0,
@@ -848,52 +106,641 @@ lazy_static! {
                             target: MoveTarget::Opponent,
                         });
                     }
-                }),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "wiseglasses".to_string(),
-                index: 43,
-                modify_attack_being_used: Some(
-                    |_state, attacking_choice: &mut Choice, _side_ref| {
-                        if attacking_choice.category == MoveCategory::Special {
-                            attacking_choice.base_power *= 1.1;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "blunderpolicy".to_string(),
-                index: 44,
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "heavydutyboots".to_string(),
-                index: 45,
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "clearamulet".to_string(),
-                index: 46,
-                ..Default::default()
-            },
-        );
-        items.push(
-            Item {
-                id: "protectivepads".to_string(),
-                index: 47,
-                ..Default::default()
-            },
-        );
+                },
+            ),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "airballoon".to_string(),
+            index: 2,
+            modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Ground
+                    && attacking_choice.move_id != "thousandarrows"
+                {
+                    attacking_choice.base_power = 0.0;
+                } else {
+                    attacking_choice.add_or_create_secondaries(Secondary {
+                        chance: 100.0,
+                        effect: Effect::RemoveItem,
+                        target: MoveTarget::Opponent,
+                    });
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "assaultvest".to_string(),
+            index: 3,
+            modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.category == MoveCategory::Special {
+                    attacking_choice.base_power /= 1.5;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "blackbelt".to_string(),
+            index: 4,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Fighting {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "blacksludge".to_string(),
+            index: 5,
+            end_of_turn: Some(|state: &State, side_ref: &SideReference| {
+                let attacker = state.get_side_immutable(side_ref).get_active_immutable();
+                if attacker.has_type(&PokemonType::Poison) {
+                    if attacker.hp < attacker.maxhp {
+                        return vec![Instruction::Heal(HealInstruction {
+                            side_ref: side_ref.clone(),
+                            heal_amount: cmp::min(
+                                attacker.maxhp / 16,
+                                attacker.maxhp - attacker.hp,
+                            ),
+                        })];
+                    }
+                }
+                return vec![Instruction::Damage(DamageInstruction {
+                    side_ref: side_ref.clone(),
+                    damage_amount: cmp::min(attacker.maxhp / 16, attacker.maxhp - attacker.hp),
+                })];
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "blackglasses".to_string(),
+            index: 6,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Dark {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "cellbattery".to_string(),
+            index: 7,
+            modify_attack_against: Some(
+                |_state, attacking_choice: &mut Choice, attacking_side_ref| {
+                    if attacking_choice.move_type == PokemonType::Electric {
+                        attacking_choice.add_or_create_secondaries(Secondary {
+                            chance: 100.0,
+                            effect: Effect::Boost(StatBoosts {
+                                attack: 1,
+                                defense: 0,
+                                special_attack: 0,
+                                special_defense: 0,
+                                speed: 0,
+                                accuracy: 0,
+                            }),
+                            target: MoveTarget::Opponent,
+                        });
+                        attacking_choice.add_or_create_secondaries(Secondary {
+                            chance: 100.0,
+                            effect: Effect::RemoveItem,
+                            target: MoveTarget::Opponent,
+                        });
+                    }
+                },
+            ),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "charcoal".to_string(),
+            index: 8,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Fire {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "choiceband".to_string(),
+            index: 9,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.category == MoveCategory::Physical {
+                    attacking_choice.base_power *= 1.3;
+                }
+            }),
+            before_move: Some(|state, choice, side_ref| {
+                return get_choice_move_disable_instructions(
+                    state.get_side_immutable(side_ref).get_active_immutable(),
+                    side_ref,
+                    &choice.move_id,
+                );
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "choicespecs".to_string(),
+            index: 10,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.category == MoveCategory::Special {
+                    attacking_choice.base_power *= 1.3;
+                }
+            }),
+            before_move: Some(|state, choice, side_ref| {
+                return get_choice_move_disable_instructions(
+                    state.get_side_immutable(side_ref).get_active_immutable(),
+                    side_ref,
+                    &choice.move_id,
+                );
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "choicescarf".to_string(),
+            index: 11,
+            before_move: Some(|state, choice, side_ref| {
+                return get_choice_move_disable_instructions(
+                    state.get_side_immutable(side_ref).get_active_immutable(),
+                    side_ref,
+                    &choice.move_id,
+                );
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "dragonfang".to_string(),
+            index: 12,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Dragon {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "dreadplate".to_string(),
+            index: 13,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Dark {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "electricseed".to_string(),
+            index: 14,
+            on_switch_in: Some(|state: &State, side_ref: &SideReference| {
+                if state.terrain_is_active(&Terrain::ElectricTerrain) {
+                    if let Some(boost_instruction) = get_boost_instruction(
+                        state,
+                        &PokemonBoostableStat::Defense,
+                        &1,
+                        side_ref,
+                        side_ref,
+                    ) {
+                        return vec![
+                            boost_instruction,
+                            Instruction::ChangeItem(ChangeItemInstruction {
+                                side_ref: side_ref.clone(),
+                                current_item: Items::ELECTRIC_SEED,
+                                new_item: Items::NONE,
+                            }),
+                        ];
+                    }
+                }
+                return vec![];
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "expertbelt".to_string(),
+            index: 15,
+            modify_attack_being_used: Some(
+                |state: &State, attacking_choice: &mut Choice, side_ref: &SideReference| {
+                    if type_effectiveness_modifier(
+                        &attacking_choice.move_type,
+                        &state
+                            .get_side_immutable(&side_ref.get_other_side())
+                            .get_active_immutable()
+                            .types,
+                    ) > 1.0
+                    {
+                        attacking_choice.base_power *= 1.2;
+                    }
+                },
+            ),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "eviolite".to_string(),
+            index: 16,
+            modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                attacking_choice.base_power /= 1.5;
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "fairyfeather".to_string(),
+            index: 17,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Fairy {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "flameorb".to_string(),
+            index: 18,
+            end_of_turn: Some(|state: &State, side_ref: &SideReference| {
+                let side = state.get_side_immutable(side_ref);
+                if !immune_to_status(state, &MoveTarget::User, side_ref, &PokemonStatus::Burn) {
+                    return vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+                        side_ref: side_ref.clone(),
+                        pokemon_index: side.active_index,
+                        new_status: PokemonStatus::Burn,
+                        old_status: PokemonStatus::None,
+                    })];
+                }
+                return vec![];
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "grassyseed".to_string(),
+            index: 19,
+            on_switch_in: Some(|state: &State, side_ref: &SideReference| {
+                if state.terrain_is_active(&Terrain::GrassyTerrain) {
+                    if let Some(boost_instruction) = get_boost_instruction(
+                        state,
+                        &PokemonBoostableStat::Defense,
+                        &1,
+                        side_ref,
+                        side_ref,
+                    ) {
+                        return vec![
+                            boost_instruction,
+                            Instruction::ChangeItem(ChangeItemInstruction {
+                                side_ref: side_ref.clone(),
+                                current_item: Items::GRASSY_SEED,
+                                new_item: Items::NONE,
+                            }),
+                        ];
+                    }
+                }
+                return vec![];
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "leftovers".to_string(),
+            index: 20,
+            end_of_turn: Some(|state: &State, side_ref: &SideReference| {
+                let attacker = state.get_side_immutable(side_ref).get_active_immutable();
+                if attacker.hp < attacker.maxhp {
+                    return vec![Instruction::Heal(HealInstruction {
+                        side_ref: side_ref.clone(),
+                        heal_amount: cmp::min(attacker.maxhp / 16, attacker.maxhp - attacker.hp),
+                    })];
+                }
+                return vec![];
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "lifeorb".to_string(),
+            index: 21,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                attacking_choice.base_power *= 1.3;
+                attacking_choice.add_or_create_secondaries(Secondary {
+                    chance: 100.0,
+                    effect: Effect::Heal(-0.1),
+                    target: MoveTarget::User,
+                });
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "metalcoal".to_string(),
+            index: 22,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Steel {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "mistyseed".to_string(),
+            index: 23,
+            on_switch_in: Some(|state: &State, side_ref: &SideReference| {
+                if state.terrain_is_active(&Terrain::MistyTerrain) {
+                    if let Some(boost_instruction) = get_boost_instruction(
+                        state,
+                        &PokemonBoostableStat::SpecialDefense,
+                        &1,
+                        side_ref,
+                        side_ref,
+                    ) {
+                        return vec![
+                            boost_instruction,
+                            Instruction::ChangeItem(ChangeItemInstruction {
+                                side_ref: side_ref.clone(),
+                                current_item: Items::MISTY_SEED,
+                                new_item: Items::NONE,
+                            }),
+                        ];
+                    }
+                }
+                return vec![];
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "muscleband".to_string(),
+            index: 24,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.category == MoveCategory::Physical {
+                    attacking_choice.base_power *= 1.1;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "mysticwater".to_string(),
+            index: 25,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Water {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "nevermeltice".to_string(),
+            index: 26,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Ice {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "oddincense".to_string(),
+            index: 27,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Psychic {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "poisonbarb".to_string(),
+            index: 28,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Poison {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "psychicseed".to_string(),
+            index: 29,
+            on_switch_in: Some(|state: &State, side_ref: &SideReference| {
+                if state.terrain_is_active(&Terrain::PsychicTerrain) {
+                    if let Some(boost_instruction) = get_boost_instruction(
+                        state,
+                        &PokemonBoostableStat::SpecialDefense,
+                        &1,
+                        side_ref,
+                        side_ref,
+                    ) {
+                        return vec![
+                            boost_instruction,
+                            Instruction::ChangeItem(ChangeItemInstruction {
+                                side_ref: side_ref.clone(),
+                                current_item: Items::PSYCHIC_SEED,
+                                new_item: Items::NONE,
+                            }),
+                        ];
+                    }
+                }
+                return vec![];
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "punchingglove".to_string(),
+            index: 30,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.flags.punch {
+                    attacking_choice.base_power *= 1.1;
+                    attacking_choice.flags.contact = false
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "rockyhelmet".to_string(),
+            index: 31,
+            modify_attack_against: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.flags.contact {
+                    attacking_choice.add_or_create_secondaries(Secondary {
+                        chance: 100.0,
+                        effect: Effect::Heal(-0.125),
+                        target: MoveTarget::User,
+                    })
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "seaincense".to_string(),
+            index: 32,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Water {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "sharpbeak".to_string(),
+            index: 33,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Flying {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "shellbell".to_string(),
+            index: 34,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                attacking_choice.drain = Some(0.125);
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "silkscarf".to_string(),
+            index: 35,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Normal {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "silverpowder".to_string(),
+            index: 36,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Bug {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "softsand".to_string(),
+            index: 37,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Ground {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "throatspray".to_string(),
+            index: 38,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.flags.sound {
+                    attacking_choice.add_or_create_secondaries(Secondary {
+                        chance: 100.0,
+                        effect: Effect::Boost(StatBoosts {
+                            attack: 0,
+                            defense: 0,
+                            special_attack: 1,
+                            special_defense: 0,
+                            speed: 0,
+                            accuracy: 0,
+                        }),
+                        target: MoveTarget::User,
+                    });
+                    attacking_choice.add_or_create_secondaries(Secondary {
+                        chance: 100.0,
+                        effect: Effect::RemoveItem,
+                        target: MoveTarget::User,
+                    });
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "toxicorb".to_string(),
+            index: 39,
+            end_of_turn: Some(|state: &State, side_ref: &SideReference| {
+                let side = state.get_side_immutable(side_ref);
+                if !immune_to_status(state, &MoveTarget::User, side_ref, &PokemonStatus::Toxic) {
+                    return vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+                        side_ref: side_ref.clone(),
+                        pokemon_index: side.active_index,
+                        new_status: PokemonStatus::Toxic,
+                        old_status: PokemonStatus::None,
+                    })];
+                }
+                return vec![];
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "twistedspoon".to_string(),
+            index: 40,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Psychic {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "waveincense".to_string(),
+            index: 41,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.move_type == PokemonType::Water {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "weaknesspolicy".to_string(),
+            index: 42,
+            modify_attack_against: Some(|state, attacking_choice: &mut Choice, side_ref| {
+                if attacking_choice.category != MoveCategory::Status
+                    && type_effectiveness_modifier(
+                        &attacking_choice.move_type,
+                        &state
+                            .get_side_immutable(&side_ref.get_other_side())
+                            .get_active_immutable()
+                            .types,
+                    ) > 1.0
+                {
+                    attacking_choice.add_or_create_secondaries(Secondary {
+                        chance: 100.0,
+                        effect: Effect::Boost(StatBoosts {
+                            attack: 2,
+                            defense: 0,
+                            special_attack: 2,
+                            special_defense: 0,
+                            speed: 0,
+                            accuracy: 0,
+                        }),
+                        target: MoveTarget::Opponent,
+                    });
+                    attacking_choice.add_or_create_secondaries(Secondary {
+                        chance: 100.0,
+                        effect: Effect::RemoveItem,
+                        target: MoveTarget::Opponent,
+                    });
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "wiseglasses".to_string(),
+            index: 43,
+            modify_attack_being_used: Some(|_state, attacking_choice: &mut Choice, _side_ref| {
+                if attacking_choice.category == MoveCategory::Special {
+                    attacking_choice.base_power *= 1.1;
+                }
+            }),
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "blunderpolicy".to_string(),
+            index: 44,
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "heavydutyboots".to_string(),
+            index: 45,
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "clearamulet".to_string(),
+            index: 46,
+            ..Default::default()
+        });
+        items.push(Item {
+            id: "protectivepads".to_string(),
+            index: 47,
+            ..Default::default()
+        });
 
         items
     };
