@@ -1,4 +1,4 @@
-use crate::instruction::ApplyVolatileStatusInstruction;
+use crate::instruction::{ApplyVolatileStatusInstruction, StateInstructions};
 use crate::instruction::ChangeItemInstruction;
 use crate::instruction::ChangeSideConditionInstruction;
 use crate::instruction::ChangeTerrain;
@@ -20,7 +20,7 @@ use std::fmt;
 pub type ModifyChoiceFn = fn(&State, &mut Choice, &Choice, &SideReference);
 pub type AfterDamageHitFn = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
 pub type HazardClearFn = fn(&State, &SideReference) -> Vec<Instruction>;
-pub type MoveSpecialEffectFn = fn(&State, &SideReference) -> Vec<Instruction>;
+pub type MoveSpecialEffectFn = fn(&mut State, &SideReference, &mut StateInstructions);
 
 lazy_static! {
     pub static ref MOVES: HashMap<String, Choice> = {
@@ -14117,28 +14117,30 @@ lazy_static! {
                     target: MoveTarget::User,
                     volatile_status: PokemonVolatileStatus::Substitute,
                 }),
-                move_special_effect: Some(|state: &State, side_ref: &SideReference| {
+                move_special_effect: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
                     let active_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
                     let sub_target_health = active_pkmn.maxhp / 4;
                     if active_pkmn.hp > sub_target_health {
-                        return vec![
-                            Instruction::Damage(DamageInstruction {
-                                side_ref: side_ref.clone(),
-                                damage_amount: sub_target_health,
-                            }),
-                            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
-                                side_ref: side_ref.clone(),
-                                new_health: sub_target_health,
-                                old_health: active_pkmn.substitute_health,
-                            }),
-                            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                                side_ref: side_ref.clone(),
-                                volatile_status: PokemonVolatileStatus::Substitute
-                            })
-                        ];
+                        let damage_instruction = Instruction::Damage(DamageInstruction {
+                            side_ref: side_ref.clone(),
+                            damage_amount: sub_target_health,
+                        });
+                        let set_sub_health_instruction = Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                            side_ref: side_ref.clone(),
+                            new_health: sub_target_health,
+                            old_health: active_pkmn.substitute_health,
+                        });
+                        let apply_vs_instruction = Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                            side_ref: side_ref.clone(),
+                            volatile_status: PokemonVolatileStatus::Substitute
+                        });
+                        state.apply_one_instruction(&damage_instruction);
+                        state.apply_one_instruction(&set_sub_health_instruction);
+                        state.apply_one_instruction(&apply_vs_instruction);
+                        incoming_instructions.instruction_list.push(damage_instruction);
+                        incoming_instructions.instruction_list.push(set_sub_health_instruction);
+                        incoming_instructions.instruction_list.push(apply_vs_instruction);
                     }
-
-                    return vec![];
                 }),
                 ..Default::default()
             },

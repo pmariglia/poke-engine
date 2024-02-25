@@ -496,18 +496,13 @@ fn generate_instructions_from_move_special_effect(
     state: &mut State,
     choice: &Choice,
     side_reference: &SideReference,
-    mut incoming_instructions: StateInstructions,
-) -> StateInstructions {
+    incoming_instructions: &mut StateInstructions,
+) {
     if let Some(move_special_effect_fn) = choice.move_special_effect {
         state.apply_instructions(&incoming_instructions.instruction_list);
-        let additional_instructions = move_special_effect_fn(state, side_reference);
+        move_special_effect_fn(state, side_reference, incoming_instructions);
         state.reverse_instructions(&incoming_instructions.instruction_list);
-        incoming_instructions
-            .instruction_list
-            .extend(additional_instructions);
-        return incoming_instructions;
     }
-    return incoming_instructions;
 }
 
 fn get_instructions_from_secondaries(
@@ -1198,16 +1193,14 @@ pub fn generate_instructions_from_move(
         }
     }
 
-    let mut continuing_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
-    for instruction in next_instructions {
-        continuing_instructions.push(generate_instructions_from_move_special_effect(
+    for instruction in next_instructions.iter_mut() {
+        generate_instructions_from_move_special_effect(
             state,
             &choice,
             &attacking_side,
             instruction,
-        ));
+        );
     }
-    next_instructions = continuing_instructions;
 
     for mut instruction in next_instructions.iter_mut() {
         check_move_hit_or_miss(
