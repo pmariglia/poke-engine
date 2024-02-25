@@ -18,7 +18,7 @@ type ItemBeforeMoveFn = fn(&mut State, &Choice, &SideReference, &mut StateInstru
 type ModifyAttackBeingUsed = fn(&State, &mut Choice, &SideReference);
 type ModifyAttackAgainst = fn(&State, &mut Choice, &SideReference);
 type ItemOnSwitchInFn = fn(&State, &SideReference) -> Vec<Instruction>;
-type ItemEndOfTurn = fn(&State, &SideReference) -> Vec<Instruction>;
+type ItemEndOfTurn = fn(&mut State, &SideReference, &mut StateInstructions);
 
 #[non_exhaustive]
 pub struct Items;
@@ -151,24 +151,36 @@ lazy_static! {
         items.push(Item {
             id: "blacksludge".to_string(),
             index: 5,
-            end_of_turn: Some(|state: &State, side_ref: &SideReference| {
-                let attacker = state.get_side_immutable(side_ref).get_active_immutable();
-                if attacker.has_type(&PokemonType::Poison) {
-                    if attacker.hp < attacker.maxhp {
-                        return vec![Instruction::Heal(HealInstruction {
+            end_of_turn: Some(
+                |state: &mut State,
+                 side_ref: &SideReference,
+                 incoming_instructions: &mut StateInstructions| {
+                    let attacker = state.get_side_immutable(side_ref).get_active_immutable();
+                    if attacker.has_type(&PokemonType::Poison) {
+                        if attacker.hp < attacker.maxhp {
+                            let ins = Instruction::Heal(HealInstruction {
+                                side_ref: side_ref.clone(),
+                                heal_amount: cmp::min(
+                                    attacker.maxhp / 16,
+                                    attacker.maxhp - attacker.hp,
+                                ),
+                            });
+                            state.apply_one_instruction(&ins);
+                            incoming_instructions.instruction_list.push(ins);
+                        }
+                    } else {
+                        let ins = Instruction::Damage(DamageInstruction {
                             side_ref: side_ref.clone(),
-                            heal_amount: cmp::min(
+                            damage_amount: cmp::min(
                                 attacker.maxhp / 16,
                                 attacker.maxhp - attacker.hp,
                             ),
-                        })];
+                        });
+                        state.apply_one_instruction(&ins);
+                        incoming_instructions.instruction_list.push(ins);
                     }
-                }
-                return vec![Instruction::Damage(DamageInstruction {
-                    side_ref: side_ref.clone(),
-                    damage_amount: cmp::min(attacker.maxhp / 16, attacker.maxhp - attacker.hp),
-                })];
-            }),
+                },
+            ),
             ..Default::default()
         });
         items.push(Item {
@@ -378,18 +390,23 @@ lazy_static! {
         items.push(Item {
             id: "flameorb".to_string(),
             index: 18,
-            end_of_turn: Some(|state: &State, side_ref: &SideReference| {
-                let side = state.get_side_immutable(side_ref);
-                if !immune_to_status(state, &MoveTarget::User, side_ref, &PokemonStatus::Burn) {
-                    return vec![Instruction::ChangeStatus(ChangeStatusInstruction {
-                        side_ref: side_ref.clone(),
-                        pokemon_index: side.active_index,
-                        new_status: PokemonStatus::Burn,
-                        old_status: PokemonStatus::None,
-                    })];
-                }
-                return vec![];
-            }),
+            end_of_turn: Some(
+                |state: &mut State,
+                 side_ref: &SideReference,
+                 incoming_instructions: &mut StateInstructions| {
+                    let side = state.get_side_immutable(side_ref);
+                    if !immune_to_status(state, &MoveTarget::User, side_ref, &PokemonStatus::Burn) {
+                        let ins = Instruction::ChangeStatus(ChangeStatusInstruction {
+                            side_ref: side_ref.clone(),
+                            pokemon_index: side.active_index,
+                            new_status: PokemonStatus::Burn,
+                            old_status: PokemonStatus::None,
+                        });
+                        state.apply_one_instruction(&ins);
+                        incoming_instructions.instruction_list.push(ins);
+                    }
+                },
+            ),
             ..Default::default()
         });
         items.push(Item {
@@ -421,16 +438,24 @@ lazy_static! {
         items.push(Item {
             id: "leftovers".to_string(),
             index: 20,
-            end_of_turn: Some(|state: &State, side_ref: &SideReference| {
-                let attacker = state.get_side_immutable(side_ref).get_active_immutable();
-                if attacker.hp < attacker.maxhp {
-                    return vec![Instruction::Heal(HealInstruction {
-                        side_ref: side_ref.clone(),
-                        heal_amount: cmp::min(attacker.maxhp / 16, attacker.maxhp - attacker.hp),
-                    })];
-                }
-                return vec![];
-            }),
+            end_of_turn: Some(
+                |state: &mut State,
+                 side_ref: &SideReference,
+                 incoming_instructions: &mut StateInstructions| {
+                    let attacker = state.get_side_immutable(side_ref).get_active_immutable();
+                    if attacker.hp < attacker.maxhp {
+                        let ins = Instruction::Heal(HealInstruction {
+                            side_ref: side_ref.clone(),
+                            heal_amount: cmp::min(
+                                attacker.maxhp / 16,
+                                attacker.maxhp - attacker.hp,
+                            ),
+                        });
+                        state.apply_one_instruction(&ins);
+                        incoming_instructions.instruction_list.push(ins);
+                    }
+                },
+            ),
             ..Default::default()
         });
         items.push(Item {
@@ -670,18 +695,24 @@ lazy_static! {
         items.push(Item {
             id: "toxicorb".to_string(),
             index: 39,
-            end_of_turn: Some(|state: &State, side_ref: &SideReference| {
-                let side = state.get_side_immutable(side_ref);
-                if !immune_to_status(state, &MoveTarget::User, side_ref, &PokemonStatus::Toxic) {
-                    return vec![Instruction::ChangeStatus(ChangeStatusInstruction {
-                        side_ref: side_ref.clone(),
-                        pokemon_index: side.active_index,
-                        new_status: PokemonStatus::Toxic,
-                        old_status: PokemonStatus::None,
-                    })];
-                }
-                return vec![];
-            }),
+            end_of_turn: Some(
+                |state: &mut State,
+                 side_ref: &SideReference,
+                 incoming_instructions: &mut StateInstructions| {
+                    let side = state.get_side_immutable(side_ref);
+                    if !immune_to_status(state, &MoveTarget::User, side_ref, &PokemonStatus::Toxic)
+                    {
+                        let ins = Instruction::ChangeStatus(ChangeStatusInstruction {
+                            side_ref: side_ref.clone(),
+                            pokemon_index: side.active_index,
+                            new_status: PokemonStatus::Toxic,
+                            old_status: PokemonStatus::None,
+                        });
+                        state.apply_one_instruction(&ins);
+                        incoming_instructions.instruction_list.push(ins);
+                    }
+                },
+            ),
             ..Default::default()
         });
         items.push(Item {

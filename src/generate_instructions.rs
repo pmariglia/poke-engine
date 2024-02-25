@@ -989,6 +989,10 @@ fn update_choice(
         modify_move_fn(state, attacker_choice, attacking_side)
     }
 
+    /*
+        TODO: this needs to be here because from_drag is called after the substitute volatilestatus
+            has already been removed
+    */
     if defending_pokemon
         .volatile_statuses
         .contains(&PokemonVolatileStatus::Substitute)
@@ -1514,20 +1518,23 @@ fn add_end_of_turn_instructions(
         let active_pkmn = side.get_active_immutable();
 
         if side.wish.0 > 0 {
-            let mut wish_instructions =
-                vec![Instruction::DecrementWish(DecrementWishInstruction {
-                    side_ref: *side_ref,
-                })];
+            let decrement_wish_instruction = Instruction::DecrementWish(DecrementWishInstruction {
+                side_ref: *side_ref,
+            });
             if side.wish.0 == 1 && 0 < active_pkmn.hp && active_pkmn.hp < active_pkmn.maxhp {
-                wish_instructions.push(Instruction::Heal(HealInstruction {
+                let wish_heal_instruction = Instruction::Heal(HealInstruction {
                     side_ref: *side_ref,
                     heal_amount: cmp::min(active_pkmn.maxhp - active_pkmn.hp, side.wish.1),
-                }));
+                });
+                state.apply_one_instruction(&wish_heal_instruction);
+                incoming_instructions
+                    .instruction_list
+                    .push(wish_heal_instruction);
             }
-            state.apply_instructions(&wish_instructions);
+            state.apply_one_instruction(&decrement_wish_instruction);
             incoming_instructions
                 .instruction_list
-                .extend(wish_instructions);
+                .push(decrement_wish_instruction);
         }
     }
 
@@ -1574,27 +1581,30 @@ fn add_end_of_turn_instructions(
                     (active_pkmn.maxhp as f32 * toxic_multiplier) as i16,
                     active_pkmn.hp,
                 );
-                let toxic_instructions = vec![
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: *side_ref,
-                        damage_amount: toxic_damage,
-                    }),
+                let toxic_damage_instruction = Instruction::Damage(DamageInstruction {
+                    side_ref: *side_ref,
+                    damage_amount: toxic_damage,
+                });
+                let toxic_counter_increment_instruction =
                     Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                         side_ref: *side_ref,
                         side_condition: PokemonSideCondition::ToxicCount,
                         amount: 1,
-                    }),
-                ];
-                state.apply_instructions(&toxic_instructions);
+                    });
+                state.apply_one_instruction(&toxic_damage_instruction);
+                state.apply_one_instruction(&toxic_counter_increment_instruction);
                 incoming_instructions
                     .instruction_list
-                    .extend(toxic_instructions);
+                    .push(toxic_damage_instruction);
+                incoming_instructions
+                    .instruction_list
+                    .push(toxic_counter_increment_instruction);
             }
             _ => {}
         }
     }
 
-    // item end-of-turn effects
+    // ability/item end-of-turn effects
     for side_ref in sides {
         let side = state.get_side_immutable(side_ref);
         let active_pkmn = side.get_active_immutable();
@@ -1603,20 +1613,15 @@ fn add_end_of_turn_instructions(
             continue;
         }
 
-        let mut additional_instructions = vec![];
         if let Some(end_of_turn_fn) = ITEMS_VEC[active_pkmn.item].end_of_turn {
-            let item_instructions = end_of_turn_fn(state, side_ref);
-            additional_instructions.extend(item_instructions);
+            end_of_turn_fn(state, side_ref, &mut incoming_instructions);
         }
 
+        let side = state.get_side_immutable(side_ref);
+        let active_pkmn = side.get_active_immutable();
         if let Some(end_of_turn_fn) = ABILITIES[active_pkmn.ability].end_of_turn {
-            let ability_instructions = end_of_turn_fn(state, side_ref);
-            additional_instructions.extend(ability_instructions);
+            end_of_turn_fn(state, side_ref, &mut incoming_instructions);
         }
-        state.apply_instructions(&additional_instructions);
-        incoming_instructions
-            .instruction_list
-            .extend(additional_instructions);
     }
 
     // leechseed sap
@@ -1634,23 +1639,25 @@ fn add_end_of_turn_instructions(
             .contains(&PokemonVolatileStatus::LeechSeed)
         {
             let health_sapped = cmp::min((active_pkmn.maxhp as f32 * 0.125) as i16, active_pkmn.hp);
-            let mut leechseed_instructions = vec![Instruction::Damage(DamageInstruction {
+            let health_recovered = cmp::min(
+                health_sapped,
+                other_side_active.maxhp - other_side_active.hp,
+            );
+            let damage_ins = Instruction::Damage(DamageInstruction {
                 side_ref: *side_ref,
                 damage_amount: health_sapped,
-            })];
-            if other_side_active.maxhp != other_side_active.hp {
-                leechseed_instructions.push(Instruction::Heal(HealInstruction {
+            });
+            state.apply_one_instruction(&damage_ins);
+            incoming_instructions.instruction_list.push(damage_ins);
+
+            if health_recovered > 0 {
+                let heal_ins = Instruction::Heal(HealInstruction {
                     side_ref: side_ref.get_other_side(),
-                    heal_amount: cmp::min(
-                        health_sapped,
-                        other_side_active.maxhp - other_side_active.hp,
-                    ),
-                }))
+                    heal_amount: health_recovered,
+                });
+                state.apply_one_instruction(&heal_ins);
+                incoming_instructions.instruction_list.push(heal_ins);
             }
-            state.apply_instructions(&leechseed_instructions);
-            incoming_instructions
-                .instruction_list
-                .extend(leechseed_instructions);
         }
     }
 
@@ -5892,12 +5899,12 @@ mod tests {
         let expected_instructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
-                Instruction::DecrementWish(DecrementWishInstruction {
-                    side_ref: SideReference::SideOne,
-                }),
                 Instruction::Heal(HealInstruction {
                     side_ref: SideReference::SideOne,
                     heal_amount: 5,
+                }),
+                Instruction::DecrementWish(DecrementWishInstruction {
+                    side_ref: SideReference::SideOne,
                 }),
             ],
         };
@@ -5923,14 +5930,64 @@ mod tests {
         let expected_instructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
-                Instruction::DecrementWish(DecrementWishInstruction {
-                    side_ref: SideReference::SideOne,
-                }),
                 Instruction::Heal(HealInstruction {
                     side_ref: SideReference::SideOne,
                     heal_amount: 5,
                 }),
+                Instruction::DecrementWish(DecrementWishInstruction {
+                    side_ref: SideReference::SideOne,
+                }),
             ],
+        };
+
+        assert_eq!(expected_instructions, incoming_instructions)
+    }
+
+    #[test]
+    fn test_wish_does_nothing_when_maxhp() {
+        let mut state = State::default();
+        state.side_one.wish = (1, 50);
+        state.side_one.get_active().hp = 100;
+
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
+            &mut state,
+            &mut incoming_instructions,
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::DecrementWish(DecrementWishInstruction {
+                side_ref: SideReference::SideOne,
+            })],
+        };
+
+        assert_eq!(expected_instructions, incoming_instructions)
+    }
+
+    #[test]
+    fn test_wish_does_nothing_when_fainted() {
+        let mut state = State::default();
+        state.side_one.wish = (1, 50);
+        state.side_one.get_active().hp = 0;
+
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
+            &mut state,
+            &mut incoming_instructions,
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &MOVES.get("tackle").unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::DecrementWish(DecrementWishInstruction {
+                side_ref: SideReference::SideOne,
+            })],
         };
 
         assert_eq!(expected_instructions, incoming_instructions)

@@ -22,7 +22,7 @@ type AbilityBeforeMove = fn(&mut State, &Choice, &SideReference, &mut StateInstr
 type AbilityAfterDamageHit = fn(&State, &Choice, &SideReference, i16) -> Vec<Instruction>;
 type AbilityOnSwitchOut = fn(&State, &SideReference) -> Vec<Instruction>;
 type AbilityOnSwitchIn = fn(&State, &SideReference) -> Vec<Instruction>;
-type AbilityEndOfTurn = fn(&State, &SideReference) -> Vec<Instruction>;
+type AbilityEndOfTurn = fn(&mut State, &SideReference, &mut StateInstructions);
 
 #[non_exhaustive]
 pub struct Abilities;
@@ -1856,18 +1856,22 @@ lazy_static! {
             Ability {
                 id: "poisonheal".to_string(),
                 index: 162,
-                end_of_turn: Some(|state: &State, side_ref: &SideReference| {
+                end_of_turn: Some(|state: &mut State,
+                 side_ref: &SideReference,
+                 incoming_instructions: &mut StateInstructions| {
                     let attacker = state.get_side_immutable(side_ref).get_active_immutable();
                     if attacker.hp < attacker.maxhp
                         && (attacker.status == PokemonStatus::Poison
                             || attacker.status == PokemonStatus::Toxic)
                     {
-                        return vec![Instruction::Heal(HealInstruction {
+                        let ins = Instruction::Heal(HealInstruction {
                             side_ref: side_ref.clone(),
                             heal_amount: cmp::min(attacker.maxhp / 8, attacker.maxhp - attacker.hp),
-                        })];
+                        });
+                        state.apply_one_instruction(&ins);
+                        incoming_instructions.instruction_list.push(ins);
+
                     }
-                    return vec![];
                 }),
                 ..Default::default()
             },
@@ -1975,16 +1979,17 @@ lazy_static! {
             Ability {
                 id: "speedboost".to_string(),
                 index: 172,
-                end_of_turn: Some(|state: &State, side_ref: &SideReference| {
+                end_of_turn: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
                     let attacker = state.get_side_immutable(side_ref).get_active_immutable();
                     if attacker.speed_boost < 6 {
-                        return vec![Instruction::Boost(BoostInstruction {
+                        let ins = Instruction::Boost(BoostInstruction {
                             side_ref: side_ref.clone(),
                             stat: PokemonBoostableStat::Speed,
                             amount: 1,
-                        })];
+                        });
+                        state.apply_one_instruction(&ins);
+                        incoming_instructions.instruction_list.push(ins);
                     }
-                    return vec![];
                 }),
                 ..Default::default()
             },
@@ -2540,18 +2545,19 @@ lazy_static! {
                         }
                     },
                 ),
-                end_of_turn: Some(|state: &State, side_ref: &SideReference| {
+                end_of_turn: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
                     if state.weather_is_active(&Weather::Rain) {
                         let active_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
 
                         if active_pkmn.hp < active_pkmn.maxhp {
-                            return vec![Instruction::Heal(HealInstruction {
+                            let ins = Instruction::Heal(HealInstruction {
                                 side_ref: side_ref.clone(),
                                 heal_amount: cmp::min(active_pkmn.maxhp / 8, active_pkmn.maxhp - active_pkmn.hp),
-                            })];
+                            });
+                            state.apply_one_instruction(&ins);
+                            incoming_instructions.instruction_list.push(ins);
                         }
                     }
-                    return vec![];
                 }),
                 ..Default::default()
             },

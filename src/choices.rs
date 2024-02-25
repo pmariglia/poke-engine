@@ -1,10 +1,10 @@
-use crate::instruction::{ApplyVolatileStatusInstruction, StateInstructions};
 use crate::instruction::ChangeItemInstruction;
 use crate::instruction::ChangeSideConditionInstruction;
 use crate::instruction::ChangeTerrain;
 use crate::instruction::DamageInstruction;
 use crate::instruction::Instruction;
 use crate::instruction::SetSubstituteHealthInstruction;
+use crate::instruction::{ApplyVolatileStatusInstruction, StateInstructions};
 use crate::items::Items;
 use crate::state::PokemonStatus;
 use crate::state::PokemonType;
