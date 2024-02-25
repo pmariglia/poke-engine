@@ -477,10 +477,9 @@ fn get_instructions_from_boosts(
     state: &mut State,
     boosts: &Boost,
     attacking_side_reference: &SideReference,
-    mut incoming_instructions: StateInstructions,
-) -> StateInstructions {
+    incoming_instructions: &mut StateInstructions,
+) {
     state.apply_instructions(&incoming_instructions.instruction_list);
-    let mut additional_instructions = vec![];
 
     let target_side_ref: SideReference;
     match boosts.target {
@@ -496,15 +495,12 @@ fn get_instructions_from_boosts(
             attacking_side_reference,
             &target_side_ref,
         ) {
-            additional_instructions.push(boost_instruction)
+            state.apply_one_instruction(&boost_instruction);
+            incoming_instructions.instruction_list.push(boost_instruction);
         }
     }
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
-    for i in additional_instructions {
-        incoming_instructions.instruction_list.push(i)
-    }
-    return incoming_instructions;
 }
 
 fn generate_instructions_from_move_special_effect(
@@ -557,14 +553,14 @@ fn get_instructions_from_secondaries(
                         );
                     }
                     Effect::Boost(boost) => {
-                        secondary_hit_instructions = get_instructions_from_boosts(
+                        get_instructions_from_boosts(
                             state,
                             &Boost {
                                 target: secondary.target.clone(),
                                 boosts: boost.clone(),
                             },
                             side_reference,
-                            secondary_hit_instructions,
+                            &mut secondary_hit_instructions,
                         );
                     }
                     Effect::Status(status) => {
@@ -1327,16 +1323,14 @@ pub fn generate_instructions_from_move(
         next_instructions = continuing_instructions;
     }
     if let Some(boost) = &choice.boost {
-        let mut continuing_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
-        for instruction in next_instructions {
-            continuing_instructions.push(get_instructions_from_boosts(
+        for instruction in next_instructions.iter_mut() {
+            get_instructions_from_boosts(
                 state,
                 boost,
                 &attacking_side,
                 instruction,
-            ));
+            );
         }
-        next_instructions = continuing_instructions;
     }
     if let Some(heal) = &choice.heal {
         let mut continuing_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
@@ -1876,7 +1870,7 @@ pub fn generate_instructions_from_move_pair(
         }
     }
 
-    let mut state_instruction_vec: Vec<StateInstructions> = Vec::with_capacity(20);;
+    let mut state_instruction_vec: Vec<StateInstructions> = Vec::with_capacity(20);
     let incoming_instructions: StateInstructions = StateInstructions::default();
     let first_move_side;
     if side_one_moves_first(&state, &side_one_choice, &side_two_choice) {
