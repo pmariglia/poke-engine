@@ -938,21 +938,26 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
     return false;
 }
 
-fn before_move(state: &State, choice: &Choice, attacking_side: &SideReference) -> Vec<Instruction> {
-    let mut new_instructions = vec![];
+fn before_move(
+    state: &mut State,
+    choice: &Choice,
+    attacking_side: &SideReference,
+    incoming_instructions: &mut StateInstructions,
+) {
     let attacking_pokemon = state
         .get_side_immutable(attacking_side)
         .get_active_immutable();
 
     if let Some(before_move_fn) = ABILITIES[attacking_pokemon.ability].before_move {
-        new_instructions.append(&mut before_move_fn(state, choice, attacking_side));
+        before_move_fn(state, choice, attacking_side, incoming_instructions);
     };
 
+    let attacking_pokemon = state
+        .get_side_immutable(attacking_side)
+        .get_active_immutable();
     if let Some(before_move_fn) = ITEMS_VEC[attacking_pokemon.item].before_move {
-        new_instructions.append(&mut before_move_fn(state, choice, attacking_side));
+        before_move_fn(state, choice, attacking_side, incoming_instructions);
     }
-
-    return new_instructions;
 }
 
 // Updates the attacker's Choice based on some special effects
@@ -1165,12 +1170,8 @@ pub fn generate_instructions_from_move(
     // Before-Move callbacks to update the choice
     update_choice(state, choice, defender_choice, &attacking_side);
 
-    // Before-Move callbacks to generate new instructions
-    let before_move_instructions = before_move(state, &choice, &attacking_side);
-    state.apply_instructions(&before_move_instructions);
-    incoming_instructions
-        .instruction_list
-        .extend(before_move_instructions);
+    // Before-Move callbacks to add new instructions
+    before_move(state, &choice, &attacking_side, &mut incoming_instructions);
 
     let damage = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
 

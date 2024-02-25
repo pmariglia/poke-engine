@@ -10,6 +10,7 @@ use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::get_boost_instruction;
 use crate::instruction::{
     BoostInstruction, ChangeStatusInstruction, ChangeType, HealInstruction, Instruction,
+    StateInstructions,
 };
 use crate::state::{PokemonBoostableStat, PokemonType, Terrain};
 use crate::state::{PokemonStatus, State};
@@ -17,7 +18,7 @@ use crate::state::{PokemonVolatileStatus, SideReference, Weather};
 
 type ModifyAttackBeingUsed = fn(&State, &mut Choice, &Choice, &SideReference);
 type ModifyAttackAgainst = fn(&State, &mut Choice, &Choice, &SideReference);
-type AbilityBeforeMove = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
+type AbilityBeforeMove = fn(&mut State, &Choice, &SideReference, &mut StateInstructions);
 type AbilityAfterDamageHit = fn(&State, &Choice, &SideReference, i16) -> Vec<Instruction>;
 type AbilityOnSwitchOut = fn(&State, &SideReference) -> Vec<Instruction>;
 type AbilityOnSwitchIn = fn(&State, &SideReference) -> Vec<Instruction>;
@@ -636,16 +637,17 @@ lazy_static! {
             Ability {
                 id: "protean".to_string(),
                 index: 35,
-                before_move: Some(|state: &State, choice: &Choice, side_ref: &SideReference| {
+                before_move: Some(|state: &mut State, choice: &Choice, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
                     let active_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
                     if !active_pkmn.has_type(&choice.move_type) {
-                        return vec![Instruction::ChangeType(ChangeType {
+                        let ins = Instruction::ChangeType(ChangeType {
                             side_ref: *side_ref,
                             new_types: (choice.move_type, PokemonType::Typeless),
                             old_types: active_pkmn.types,
-                        })];
+                        });
+                        state.apply_one_instruction(&ins);
+                        incoming_instructions.instruction_list.push(ins);
                     }
-                    return vec![];
                 }),
                 ..Default::default()
             },

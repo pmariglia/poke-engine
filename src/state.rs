@@ -1003,7 +1003,7 @@ impl State {
     }
 
     fn disable_move(&mut self, side_reference: &SideReference, move_index: usize) {
-        self.get_side(side_reference).get_active().moves[move_index].disabled = false;
+        self.get_side(side_reference).get_active().moves[move_index].disabled = true;
     }
 
     fn increment_wish(&mut self, side_reference: &SideReference) {

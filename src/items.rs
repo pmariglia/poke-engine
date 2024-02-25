@@ -8,13 +8,13 @@ use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::{get_boost_instruction, immune_to_status};
 use crate::instruction::{
     ChangeItemInstruction, ChangeStatusInstruction, DamageInstruction, DisableMoveInstruction,
-    HealInstruction, Instruction,
+    HealInstruction, Instruction, StateInstructions,
 };
 use crate::state::{Pokemon, PokemonType};
 use crate::state::{PokemonBoostableStat, State, Terrain};
 use crate::state::{PokemonStatus, SideReference};
 
-type ItemBeforeMoveFn = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
+type ItemBeforeMoveFn = fn(&mut State, &Choice, &SideReference, &mut StateInstructions);
 type ModifyAttackBeingUsed = fn(&State, &mut Choice, &SideReference);
 type ModifyAttackAgainst = fn(&State, &mut Choice, &SideReference);
 type ItemOnSwitchInFn = fn(&State, &SideReference) -> Vec<Instruction>;
@@ -227,13 +227,22 @@ lazy_static! {
                     attacking_choice.base_power *= 1.3;
                 }
             }),
-            before_move: Some(|state, choice, side_ref| {
-                return get_choice_move_disable_instructions(
-                    state.get_side_immutable(side_ref).get_active_immutable(),
-                    side_ref,
-                    &choice.move_id,
-                );
-            }),
+            before_move: Some(
+                |state: &mut State,
+                 choice: &Choice,
+                 side_ref: &SideReference,
+                 incoming_instructions: &mut StateInstructions| {
+                    let ins = get_choice_move_disable_instructions(
+                        state.get_side_immutable(side_ref).get_active_immutable(),
+                        side_ref,
+                        &choice.move_id,
+                    );
+                    for i in ins {
+                        state.apply_one_instruction(&i);
+                        incoming_instructions.instruction_list.push(i);
+                    }
+                },
+            ),
             ..Default::default()
         });
         items.push(Item {
@@ -244,25 +253,43 @@ lazy_static! {
                     attacking_choice.base_power *= 1.3;
                 }
             }),
-            before_move: Some(|state, choice, side_ref| {
-                return get_choice_move_disable_instructions(
-                    state.get_side_immutable(side_ref).get_active_immutable(),
-                    side_ref,
-                    &choice.move_id,
-                );
-            }),
+            before_move: Some(
+                |state: &mut State,
+                 choice: &Choice,
+                 side_ref: &SideReference,
+                 incoming_instructions: &mut StateInstructions| {
+                    let ins = get_choice_move_disable_instructions(
+                        state.get_side_immutable(side_ref).get_active_immutable(),
+                        side_ref,
+                        &choice.move_id,
+                    );
+                    for i in ins {
+                        state.apply_one_instruction(&i);
+                        incoming_instructions.instruction_list.push(i);
+                    }
+                },
+            ),
             ..Default::default()
         });
         items.push(Item {
             id: "choicescarf".to_string(),
             index: 11,
-            before_move: Some(|state, choice, side_ref| {
-                return get_choice_move_disable_instructions(
-                    state.get_side_immutable(side_ref).get_active_immutable(),
-                    side_ref,
-                    &choice.move_id,
-                );
-            }),
+            before_move: Some(
+                |state: &mut State,
+                 choice: &Choice,
+                 side_ref: &SideReference,
+                 incoming_instructions: &mut StateInstructions| {
+                    let ins = get_choice_move_disable_instructions(
+                        state.get_side_immutable(side_ref).get_active_immutable(),
+                        side_ref,
+                        &choice.move_id,
+                    );
+                    for i in ins {
+                        state.apply_one_instruction(&i);
+                        incoming_instructions.instruction_list.push(i);
+                    }
+                },
+            ),
             ..Default::default()
         });
         items.push(Item {
