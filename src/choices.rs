@@ -16465,7 +16465,6 @@ pub struct Choice {
     pub side_condition: Option<SideCondition>,
     pub secondaries: Option<Vec<Secondary>>,
 
-    // Might not be needed since everything has it's own `target`
     pub target: MoveTarget,
 
     pub first_move: bool,
