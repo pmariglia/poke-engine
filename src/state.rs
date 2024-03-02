@@ -9,21 +9,21 @@ use crate::instruction::{
 };
 use crate::items::Items;
 
-fn get_boost_multiplier(boost_num: i8) -> f32 {
-    match boost_num {
-        -6 => 2.0 / 8.0,
-        -5 => 2.0 / 7.0,
-        -4 => 2.0 / 6.0,
-        -3 => 2.0 / 5.0,
-        -2 => 2.0 / 4.0,
-        -1 => 2.0 / 3.0,
-        0 => 2.0 / 2.0,
-        1 => 3.0 / 2.0,
-        2 => 4.0 / 8.0,
-        3 => 5.0 / 8.0,
-        4 => 6.0 / 8.0,
-        5 => 7.0 / 8.0,
-        6 => 8.0 / 8.0,
+fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
+    return match boost_num {
+        -6 => stat_value * 2 / 8,
+        -5 => stat_value * 2 / 7,
+        -4 => stat_value * 2 / 6,
+        -3 => stat_value * 2 / 5,
+        -2 => stat_value * 2 / 4,
+        -1 => stat_value * 2 / 3,
+        0 => stat_value,
+        1 => stat_value * 3 / 2,
+        2 => stat_value * 4 / 2,
+        3 => stat_value * 5 / 2,
+        4 => stat_value * 6 / 2,
+        5 => stat_value * 7 / 2,
+        6 => stat_value * 8 / 2,
         _ => panic!("Invalid boost number"),
     }
 }
@@ -421,21 +421,19 @@ impl Pokemon {
     pub fn calculate_boosted_stat(&self, stat: PokemonBoostableStat) -> i16 {
         match stat {
             PokemonBoostableStat::Attack => {
-                (get_boost_multiplier(self.attack_boost) * self.attack as f32) as i16
+                multiply_boost(self.attack_boost, self.attack)
             }
             PokemonBoostableStat::Defense => {
-                (get_boost_multiplier(self.defense_boost) * self.defense as f32) as i16
+                multiply_boost(self.defense_boost, self.defense)
             }
             PokemonBoostableStat::SpecialAttack => {
-                (get_boost_multiplier(self.special_attack_boost) * self.special_attack as f32)
-                    as i16
+                multiply_boost(self.special_attack_boost, self.special_attack)
             }
             PokemonBoostableStat::SpecialDefense => {
-                (get_boost_multiplier(self.special_defense_boost) * self.special_defense as f32)
-                    as i16
+                multiply_boost(self.special_defense_boost, self.special_defense)
             }
             PokemonBoostableStat::Speed => {
-                (get_boost_multiplier(self.speed_boost) * self.speed as f32) as i16
+                multiply_boost(self.speed_boost, self.speed)
             }
             _ => {
                 panic!("Not implemented")
