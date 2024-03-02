@@ -1477,36 +1477,38 @@ fn add_end_of_turn_instructions(
 
     // Weather Damage
     for side_ref in sides {
-        let side = state.get_side_immutable(side_ref);
-        let active_pkmn = side.get_active_immutable();
-
+        let weather_type = state.weather.weather_type;
+        let active_pkmn = state.get_side(side_ref).get_active();
         if active_pkmn.hp == 0 || active_pkmn.ability == Abilities::MAGICGUARD {
             continue;
         }
 
-        match state.weather.weather_type {
+        match weather_type {
             Weather::Hail => {
+                let damage_amount = cmp::min(
+                    (active_pkmn.maxhp as f32 * 0.0625) as i16,
+                    active_pkmn.hp,
+                );
                 let hail_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
-                    damage_amount: cmp::min(
-                        (active_pkmn.maxhp as f32 * 0.0625) as i16,
-                        active_pkmn.hp,
-                    ),
+                    damage_amount: damage_amount,
                 });
-                state.apply_one_instruction(&hail_damage_instruction);
+
+                active_pkmn.hp -= damage_amount;
                 incoming_instructions
                     .instruction_list
                     .push(hail_damage_instruction);
             }
             Weather::Sand => {
+                let damage_amount = cmp::min(
+                    (active_pkmn.maxhp as f32 * 0.0625) as i16,
+                    active_pkmn.hp,
+                );
                 let sand_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
-                    damage_amount: cmp::min(
-                        (active_pkmn.maxhp as f32 * 0.0625) as i16,
-                        active_pkmn.hp,
-                    ),
+                    damage_amount: damage_amount,
                 });
-                state.apply_one_instruction(&sand_damage_instruction);
+                active_pkmn.hp -= damage_amount;
                 incoming_instructions
                     .instruction_list
                     .push(sand_damage_instruction);
@@ -1517,24 +1519,25 @@ fn add_end_of_turn_instructions(
 
     // wish
     for side_ref in sides {
-        let side = state.get_side_immutable(side_ref);
+        let side = state.get_side(side_ref);
+        let side_wish = side.wish;
         let active_pkmn = side.get_active_immutable();
 
-        if side.wish.0 > 0 {
+        if side_wish.0 > 0 {
             let decrement_wish_instruction = Instruction::DecrementWish(DecrementWishInstruction {
                 side_ref: *side_ref,
             });
-            if side.wish.0 == 1 && 0 < active_pkmn.hp && active_pkmn.hp < active_pkmn.maxhp {
+            if side_wish.0 == 1 && 0 < active_pkmn.hp && active_pkmn.hp < active_pkmn.maxhp {
+                let heal_amount = cmp::min(active_pkmn.maxhp - active_pkmn.hp, side_wish.1);
                 let wish_heal_instruction = Instruction::Heal(HealInstruction {
                     side_ref: *side_ref,
-                    heal_amount: cmp::min(active_pkmn.maxhp - active_pkmn.hp, side.wish.1),
+                    heal_amount: heal_amount,
                 });
-                state.apply_one_instruction(&wish_heal_instruction);
                 incoming_instructions
                     .instruction_list
                     .push(wish_heal_instruction);
             }
-            state.apply_one_instruction(&decrement_wish_instruction);
+            side.wish.0 -= 1;
             incoming_instructions
                 .instruction_list
                 .push(decrement_wish_instruction);
@@ -1543,50 +1546,52 @@ fn add_end_of_turn_instructions(
 
     // status damage
     for side_ref in sides {
-        let side = state.get_side_immutable(side_ref);
-        let active_pkmn = side.get_active_immutable();
-
+        let side = state.get_side(side_ref);
+        let toxic_count = side.side_conditions.toxic_count as f32;
+        let active_pkmn = side.get_active();
         if active_pkmn.hp == 0 || active_pkmn.ability == Abilities::MAGICGUARD {
             continue;
         }
 
         match active_pkmn.status {
             PokemonStatus::Burn => {
+                let damage_amount = cmp::min(
+                    (active_pkmn.maxhp as f32 * 0.0625) as i16,
+                    active_pkmn.hp,
+                );
                 let burn_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
-                    damage_amount: cmp::min(
-                        (active_pkmn.maxhp as f32 * 0.0625) as i16,
-                        active_pkmn.hp,
-                    ),
+                    damage_amount: damage_amount,
                 });
-                state.apply_one_instruction(&burn_damage_instruction);
+                active_pkmn.hp -= damage_amount;
                 incoming_instructions
                     .instruction_list
                     .push(burn_damage_instruction);
             }
             PokemonStatus::Poison if active_pkmn.ability != Abilities::POISONHEAL => {
+                let damage_amount = cmp::min(
+                    (active_pkmn.maxhp as f32 * 0.125) as i16,
+                    active_pkmn.hp,
+                );
                 let poison_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
-                    damage_amount: cmp::min(
-                        (active_pkmn.maxhp as f32 * 0.125) as i16,
-                        active_pkmn.hp,
-                    ),
+                    damage_amount: damage_amount,
                 });
-                state.apply_one_instruction(&poison_damage_instruction);
+                active_pkmn.hp -= damage_amount;
                 incoming_instructions
                     .instruction_list
                     .push(poison_damage_instruction);
             }
             PokemonStatus::Toxic if active_pkmn.ability != Abilities::POISONHEAL => {
                 let toxic_multiplier =
-                    (1.0 / 16.0) * side.side_conditions.toxic_count as f32 + (1.0 / 16.0);
-                let toxic_damage = cmp::min(
+                    (1.0 / 16.0) * toxic_count + (1.0 / 16.0);
+                let damage_amount = cmp::min(
                     (active_pkmn.maxhp as f32 * toxic_multiplier) as i16,
                     active_pkmn.hp,
                 );
                 let toxic_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
-                    damage_amount: toxic_damage,
+                    damage_amount,
                 });
                 let toxic_counter_increment_instruction =
                     Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
@@ -1594,8 +1599,8 @@ fn add_end_of_turn_instructions(
                         side_condition: PokemonSideCondition::ToxicCount,
                         amount: 1,
                     });
-                state.apply_one_instruction(&toxic_damage_instruction);
-                state.apply_one_instruction(&toxic_counter_increment_instruction);
+                active_pkmn.hp -= damage_amount;
+                side.side_conditions.toxic_count += 1;
                 incoming_instructions
                     .instruction_list
                     .push(toxic_damage_instruction);
@@ -1609,9 +1614,8 @@ fn add_end_of_turn_instructions(
 
     // ability/item end-of-turn effects
     for side_ref in sides {
-        let side = state.get_side_immutable(side_ref);
-        let active_pkmn = side.get_active_immutable();
-
+        let side = state.get_side(side_ref);
+        let active_pkmn = side.get_active();
         if active_pkmn.hp == 0 {
             continue;
         }
@@ -1629,10 +1633,7 @@ fn add_end_of_turn_instructions(
 
     // leechseed sap
     for side_ref in sides {
-        let other_side_active = state
-            .get_side_immutable(&side_ref.get_other_side())
-            .get_active_immutable();
-        let active_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
+        let active_pkmn = state.get_side(side_ref).get_active();
         if active_pkmn.hp == 0 || active_pkmn.ability == Abilities::MAGICGUARD {
             continue;
         }
@@ -1642,23 +1643,24 @@ fn add_end_of_turn_instructions(
             .contains(&PokemonVolatileStatus::LeechSeed)
         {
             let health_sapped = cmp::min((active_pkmn.maxhp as f32 * 0.125) as i16, active_pkmn.hp);
-            let health_recovered = cmp::min(
-                health_sapped,
-                other_side_active.maxhp - other_side_active.hp,
-            );
             let damage_ins = Instruction::Damage(DamageInstruction {
                 side_ref: *side_ref,
                 damage_amount: health_sapped,
             });
-            state.apply_one_instruction(&damage_ins);
+            active_pkmn.hp -= health_sapped;
             incoming_instructions.instruction_list.push(damage_ins);
 
+            let other_active_pkmn = state.get_side(&side_ref.get_other_side()).get_active();
+            let health_recovered = cmp::min(
+                health_sapped,
+                other_active_pkmn.maxhp - other_active_pkmn.hp,
+            );
             if health_recovered > 0 {
                 let heal_ins = Instruction::Heal(HealInstruction {
                     side_ref: side_ref.get_other_side(),
                     heal_amount: health_recovered,
                 });
-                state.apply_one_instruction(&heal_ins);
+                other_active_pkmn.hp += health_recovered;
                 incoming_instructions.instruction_list.push(heal_ins);
             }
         }
@@ -1666,18 +1668,18 @@ fn add_end_of_turn_instructions(
 
     // volatile statuses
     for side_ref in sides {
-        let side = state.get_side_immutable(side_ref);
-        let active_pkmn = side.get_active_immutable();
+        let side = state.get_side(side_ref);
+        let active_pkmn = side.get_active();
         if active_pkmn.hp == 0 {
             continue;
         }
 
-        let mut additional_instructions = vec![];
         if active_pkmn
             .volatile_statuses
             .contains(&PokemonVolatileStatus::Flinch)
         {
-            additional_instructions.push(Instruction::RemoveVolatileStatus(
+            active_pkmn.volatile_statuses.remove(&PokemonVolatileStatus::Flinch);
+            incoming_instructions.instruction_list.push(Instruction::RemoveVolatileStatus(
                 RemoveVolatileStatusInstruction {
                     side_ref: *side_ref,
                     volatile_status: PokemonVolatileStatus::Flinch,
@@ -1688,7 +1690,8 @@ fn add_end_of_turn_instructions(
             .volatile_statuses
             .contains(&PokemonVolatileStatus::Roost)
         {
-            additional_instructions.push(Instruction::RemoveVolatileStatus(
+            active_pkmn.volatile_statuses.remove(&PokemonVolatileStatus::Roost);
+            incoming_instructions.instruction_list.push(Instruction::RemoveVolatileStatus(
                 RemoveVolatileStatusInstruction {
                     side_ref: *side_ref,
                     volatile_status: PokemonVolatileStatus::Roost,
@@ -1700,10 +1703,12 @@ fn add_end_of_turn_instructions(
             .volatile_statuses
             .contains(&PokemonVolatileStatus::PartiallyTrapped)
         {
-            additional_instructions.push(Instruction::Damage(DamageInstruction {
+            let damage_amount = cmp::min((active_pkmn.maxhp as f32 / 8.0) as i16, active_pkmn.hp);
+            incoming_instructions.instruction_list.push(Instruction::Damage(DamageInstruction {
                 side_ref: *side_ref,
-                damage_amount: cmp::min((active_pkmn.maxhp as f32 / 8.0) as i16, active_pkmn.hp),
+                damage_amount,
             }));
+            active_pkmn.hp -= damage_amount;
         }
         if active_pkmn
             .volatile_statuses
@@ -1715,13 +1720,15 @@ fn add_end_of_turn_instructions(
             {
                 divisor = 4.0;
             }
-            additional_instructions.push(Instruction::Damage(DamageInstruction {
+            let damage_amount = cmp::min(
+                (active_pkmn.maxhp as f32 / divisor) as i16,
+                active_pkmn.hp,
+            );
+            incoming_instructions.instruction_list.push(Instruction::Damage(DamageInstruction {
                 side_ref: *side_ref,
-                damage_amount: cmp::min(
-                    (active_pkmn.maxhp as f32 / divisor) as i16,
-                    active_pkmn.hp,
-                ),
+                damage_amount: damage_amount,
             }));
+            active_pkmn.hp -= damage_amount;
         }
 
         let possible_statuses = [
@@ -1740,33 +1747,31 @@ fn add_end_of_turn_instructions(
         }
 
         if let Some(protect_vs) = protect_vs {
-            additional_instructions.push(Instruction::RemoveVolatileStatus(
+            incoming_instructions.instruction_list.push(Instruction::RemoveVolatileStatus(
                 RemoveVolatileStatusInstruction {
                     side_ref: *side_ref,
                     volatile_status: protect_vs,
                 },
             ));
-            additional_instructions.push(Instruction::ChangeSideCondition(
+            active_pkmn.volatile_statuses.remove(&protect_vs);
+            incoming_instructions.instruction_list.push(Instruction::ChangeSideCondition(
                 ChangeSideConditionInstruction {
                     side_ref: *side_ref,
                     side_condition: PokemonSideCondition::Protect,
                     amount: 1,
                 },
             ));
+            side.side_conditions.protect += 1;
         } else if side.side_conditions.protect > 0 {
-            additional_instructions.push(Instruction::ChangeSideCondition(
+            incoming_instructions.instruction_list.push(Instruction::ChangeSideCondition(
                 ChangeSideConditionInstruction {
                     side_ref: *side_ref,
                     side_condition: PokemonSideCondition::Protect,
                     amount: -1 * side.side_conditions.protect,
                 },
             ));
+            side.side_conditions.protect -= side.side_conditions.protect;
         }
-
-        state.apply_instructions(&additional_instructions);
-        incoming_instructions
-            .instruction_list
-            .extend(additional_instructions);
     }
 
     state.reverse_instructions(&incoming_instructions.instruction_list);

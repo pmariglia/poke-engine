@@ -155,28 +155,30 @@ lazy_static! {
                 |state: &mut State,
                  side_ref: &SideReference,
                  incoming_instructions: &mut StateInstructions| {
-                    let attacker = state.get_side_immutable(side_ref).get_active_immutable();
-                    if attacker.has_type(&PokemonType::Poison) {
-                        if attacker.hp < attacker.maxhp {
+                    let active_pkmn = state.get_side(side_ref).get_active();
+                    if active_pkmn.has_type(&PokemonType::Poison) {
+                        if active_pkmn.hp < active_pkmn.maxhp {
+                            let heal_amount = cmp::min(
+                                active_pkmn.maxhp / 16,
+                                active_pkmn.maxhp - active_pkmn.hp,
+                            );
                             let ins = Instruction::Heal(HealInstruction {
                                 side_ref: side_ref.clone(),
-                                heal_amount: cmp::min(
-                                    attacker.maxhp / 16,
-                                    attacker.maxhp - attacker.hp,
-                                ),
+                                heal_amount: heal_amount,
                             });
-                            state.apply_one_instruction(&ins);
+                            active_pkmn.hp += heal_amount;
                             incoming_instructions.instruction_list.push(ins);
                         }
                     } else {
+                        let damage_amount = cmp::min(
+                            active_pkmn.maxhp / 16,
+                            active_pkmn.maxhp - active_pkmn.hp,
+                        );
                         let ins = Instruction::Damage(DamageInstruction {
                             side_ref: side_ref.clone(),
-                            damage_amount: cmp::min(
-                                attacker.maxhp / 16,
-                                attacker.maxhp - attacker.hp,
-                            ),
+                            damage_amount: damage_amount,
                         });
-                        state.apply_one_instruction(&ins);
+                        active_pkmn.hp -= damage_amount;
                         incoming_instructions.instruction_list.push(ins);
                     }
                 },
@@ -394,15 +396,15 @@ lazy_static! {
                 |state: &mut State,
                  side_ref: &SideReference,
                  incoming_instructions: &mut StateInstructions| {
-                    let side = state.get_side_immutable(side_ref);
                     if !immune_to_status(state, &MoveTarget::User, side_ref, &PokemonStatus::Burn) {
+                        let side = state.get_side(side_ref);
                         let ins = Instruction::ChangeStatus(ChangeStatusInstruction {
                             side_ref: side_ref.clone(),
                             pokemon_index: side.active_index,
                             new_status: PokemonStatus::Burn,
                             old_status: PokemonStatus::None,
                         });
-                        state.apply_one_instruction(&ins);
+                        side.get_active().status = PokemonStatus::Burn;
                         incoming_instructions.instruction_list.push(ins);
                     }
                 },
@@ -442,16 +444,17 @@ lazy_static! {
                 |state: &mut State,
                  side_ref: &SideReference,
                  incoming_instructions: &mut StateInstructions| {
-                    let attacker = state.get_side_immutable(side_ref).get_active_immutable();
+                    let attacker = state.get_side(side_ref).get_active();
                     if attacker.hp < attacker.maxhp {
+                        let heal_amount = cmp::min(
+                            attacker.maxhp / 16,
+                            attacker.maxhp - attacker.hp,
+                        );
                         let ins = Instruction::Heal(HealInstruction {
                             side_ref: side_ref.clone(),
-                            heal_amount: cmp::min(
-                                attacker.maxhp / 16,
-                                attacker.maxhp - attacker.hp,
-                            ),
+                            heal_amount: heal_amount,
                         });
-                        state.apply_one_instruction(&ins);
+                        attacker.hp += heal_amount;
                         incoming_instructions.instruction_list.push(ins);
                     }
                 },
@@ -699,16 +702,16 @@ lazy_static! {
                 |state: &mut State,
                  side_ref: &SideReference,
                  incoming_instructions: &mut StateInstructions| {
-                    let side = state.get_side_immutable(side_ref);
                     if !immune_to_status(state, &MoveTarget::User, side_ref, &PokemonStatus::Toxic)
                     {
+                        let side = state.get_side(side_ref);
                         let ins = Instruction::ChangeStatus(ChangeStatusInstruction {
                             side_ref: side_ref.clone(),
                             pokemon_index: side.active_index,
                             new_status: PokemonStatus::Toxic,
                             old_status: PokemonStatus::None,
                         });
-                        state.apply_one_instruction(&ins);
+                        side.get_active().status = PokemonStatus::Toxic;
                         incoming_instructions.instruction_list.push(ins);
                     }
                 },

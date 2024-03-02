@@ -1859,16 +1859,17 @@ lazy_static! {
                 end_of_turn: Some(|state: &mut State,
                  side_ref: &SideReference,
                  incoming_instructions: &mut StateInstructions| {
-                    let attacker = state.get_side_immutable(side_ref).get_active_immutable();
+                    let attacker = state.get_side(side_ref).get_active();
                     if attacker.hp < attacker.maxhp
                         && (attacker.status == PokemonStatus::Poison
                             || attacker.status == PokemonStatus::Toxic)
                     {
+                        let heal_amount = cmp::min(attacker.maxhp / 8, attacker.maxhp - attacker.hp);
                         let ins = Instruction::Heal(HealInstruction {
                             side_ref: side_ref.clone(),
-                            heal_amount: cmp::min(attacker.maxhp / 8, attacker.maxhp - attacker.hp),
+                            heal_amount: heal_amount,
                         });
-                        state.apply_one_instruction(&ins);
+                        attacker.hp += heal_amount;
                         incoming_instructions.instruction_list.push(ins);
 
                     }
@@ -1980,14 +1981,14 @@ lazy_static! {
                 id: "speedboost".to_string(),
                 index: 172,
                 end_of_turn: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
-                    let attacker = state.get_side_immutable(side_ref).get_active_immutable();
+                    let attacker = state.get_side(side_ref).get_active();
                     if attacker.speed_boost < 6 {
                         let ins = Instruction::Boost(BoostInstruction {
                             side_ref: side_ref.clone(),
                             stat: PokemonBoostableStat::Speed,
                             amount: 1,
                         });
-                        state.apply_one_instruction(&ins);
+                        attacker.speed_boost += 1;
                         incoming_instructions.instruction_list.push(ins);
                     }
                 }),
@@ -2547,14 +2548,15 @@ lazy_static! {
                 ),
                 end_of_turn: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
                     if state.weather_is_active(&Weather::Rain) {
-                        let active_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
+                        let active_pkmn = state.get_side(side_ref).get_active();
 
                         if active_pkmn.hp < active_pkmn.maxhp {
+                            let heal_amount = cmp::min(active_pkmn.maxhp / 8, active_pkmn.maxhp - active_pkmn.hp);
                             let ins = Instruction::Heal(HealInstruction {
                                 side_ref: side_ref.clone(),
-                                heal_amount: cmp::min(active_pkmn.maxhp / 8, active_pkmn.maxhp - active_pkmn.hp),
+                                heal_amount: heal_amount,
                             });
-                            state.apply_one_instruction(&ins);
+                            active_pkmn.hp += heal_amount;
                             incoming_instructions.instruction_list.push(ins);
                         }
                     }
