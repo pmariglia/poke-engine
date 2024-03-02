@@ -29,9 +29,9 @@ fn generate_instructions_from_switch(
     state: &mut State,
     new_pokemon_index: usize,
     switching_side_ref: SideReference,
-    incoming_instructions: StateInstructions,
-) -> StateInstructions {
-    let mut incoming_instructions = incoming_instructions;
+    incoming_instructions: &mut StateInstructions,
+) {
+    // let mut incoming_instructions = incoming_instructions;
     state.apply_instructions(&incoming_instructions.instruction_list);
 
     state.re_enable_disabled_moves(
@@ -203,7 +203,7 @@ fn generate_instructions_from_switch(
     }
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
-    return incoming_instructions;
+    // return incoming_instructions;
 }
 
 fn generate_instructions_from_side_conditions(
@@ -740,15 +740,17 @@ fn get_instructions_from_drag(
         frozen_instructions.push(incoming_instructions);
         return;
     }
+
     for pkmn_id in defending_side_alive_reserve_indices {
-        let mut switch_instructions = generate_instructions_from_switch(
+        let mut cloned_instructions = incoming_instructions.clone();
+        generate_instructions_from_switch(
             state,
             pkmn_id,
             attacking_side_reference.get_other_side(),
-            incoming_instructions.clone(),
+            &mut cloned_instructions,
         );
-        switch_instructions.update_percentage(1.0 / num_alive_reserve as f32);
-        frozen_instructions.push(switch_instructions);
+        cloned_instructions.update_percentage(1.0 / num_alive_reserve as f32);
+        frozen_instructions.push(cloned_instructions);
     }
 }
 
@@ -1141,12 +1143,13 @@ pub fn generate_instructions_from_move(
     mut incoming_instructions: StateInstructions,
 ) -> Vec<StateInstructions> {
     if choice.category == MoveCategory::Switch {
-        return vec![generate_instructions_from_switch(
+        generate_instructions_from_switch(
             state,
             choice.switch_id,
             attacking_side,
-            incoming_instructions,
-        )];
+            &mut incoming_instructions,
+        );
+        return vec![incoming_instructions];
     }
 
     // TODO: test first-turn dragontail missing - it should not trigger this early return
@@ -4365,11 +4368,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            StateInstructions::default(),
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -4404,11 +4408,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            StateInstructions::default(),
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -4440,11 +4445,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            StateInstructions::default(),
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -4482,11 +4488,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            StateInstructions::default(),
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -4530,11 +4537,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            StateInstructions::default(),
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -4598,11 +4606,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            StateInstructions::default(),
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -4640,11 +4649,11 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -4655,8 +4664,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.get_active().hp -= 10;
         state.side_one.get_active().ability = Abilities::REGENERATOR;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4677,11 +4685,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -4718,8 +4727,7 @@ mod tests {
         ];
         state.side_one.get_active().hp -= 10;
         state.side_one.get_active().ability = Abilities::REGENERATOR;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4752,11 +4760,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -4766,8 +4775,7 @@ mod tests {
     fn test_switch_with_regenerator_but_no_damage_taken() {
         let mut state: State = State::default();
         state.side_one.get_active().ability = Abilities::REGENERATOR;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4782,11 +4790,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -4797,8 +4806,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.get_active().ability = Abilities::REGENERATOR;
         state.side_one.get_active().hp = 0;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4813,11 +4821,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -4828,8 +4837,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.get_active().ability = Abilities::REGENERATOR;
         state.side_one.get_active().hp = 3;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4850,11 +4858,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -4865,8 +4874,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.get_active().ability = Abilities::NATURALCURE;
         state.side_one.get_active().status = PokemonStatus::Paralyze;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4889,11 +4897,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -4904,8 +4913,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.get_active().ability = Abilities::NATURALCURE;
         state.side_one.get_active().status = PokemonStatus::None;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4920,11 +4928,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -4934,8 +4943,7 @@ mod tests {
     fn test_switching_into_stealthrock() {
         let mut state: State = State::default();
         state.side_one.side_conditions.stealth_rock = 1;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4956,11 +4964,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -4971,8 +4980,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.side_conditions.stealth_rock = 1;
         state.side_one.pokemon[1].hp = 5;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4993,11 +5001,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -5007,8 +5016,7 @@ mod tests {
     fn test_switching_into_stickyweb() {
         let mut state: State = State::default();
         state.side_one.side_conditions.sticky_web = 1;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5030,11 +5038,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -5045,8 +5054,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.side_conditions.sticky_web = 1;
         state.side_one.pokemon[1].item = Items::HEAVY_DUTY_BOOTS;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5061,11 +5069,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -5076,8 +5085,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.side_conditions.sticky_web = 1;
         state.side_one.pokemon[1].ability = Abilities::CONTRARY;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5099,11 +5107,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -5113,8 +5122,7 @@ mod tests {
     fn test_switching_into_single_layer_toxicspikes() {
         let mut state: State = State::default();
         state.side_one.side_conditions.toxic_spikes = 1;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5137,11 +5145,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -5151,8 +5160,7 @@ mod tests {
     fn test_switching_into_double_layer_toxicspikes() {
         let mut state: State = State::default();
         state.side_one.side_conditions.toxic_spikes = 2;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5175,11 +5183,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -5190,8 +5199,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.side_conditions.toxic_spikes = 2;
         state.side_one.pokemon[1].types.0 = PokemonType::Flying;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5206,11 +5214,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -5222,8 +5231,7 @@ mod tests {
         state.side_one.side_conditions.toxic_spikes = 2;
         state.side_one.pokemon[1].types.0 = PokemonType::Flying;
         state.side_one.pokemon[1].types.1 = PokemonType::Poison;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5238,11 +5246,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -5252,8 +5261,7 @@ mod tests {
     fn test_switching_in_with_intimidate() {
         let mut state: State = State::default();
         state.side_one.pokemon[1].ability = Abilities::INTIMIDATE;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5275,11 +5283,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -5290,8 +5299,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.pokemon[1].ability = Abilities::INTIMIDATE;
         state.side_two.get_active().attack_boost = -6;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5306,11 +5314,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -5321,8 +5330,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.pokemon[1].ability = Abilities::INTIMIDATE;
         state.side_two.get_active().ability = Abilities::CLEARBODY;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5337,11 +5345,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -5352,8 +5361,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.pokemon[1].types.0 = PokemonType::Poison;
         state.side_one.side_conditions.toxic_spikes = 2;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5375,11 +5383,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -5391,8 +5400,7 @@ mod tests {
         state.side_one.side_conditions.stealth_rock = 1;
         state.side_one.side_conditions.spikes = 1;
         state.side_one.pokemon[1].hp = 15;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5417,11 +5425,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
@@ -5433,8 +5442,7 @@ mod tests {
         state.side_one.side_conditions.stealth_rock = 1;
         state.side_one.side_conditions.spikes = 3;
         state.side_one.pokemon[1].hp = 25;
-        let incoming_instructions = StateInstructions::default();
-        let mut choice = Choice {
+                let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5459,11 +5467,12 @@ mod tests {
             ..Default::default()
         };
 
-        let incoming_instructions = generate_instructions_from_switch(
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
             &mut state,
             choice.switch_id,
             SideReference::SideOne,
-            incoming_instructions,
+            &mut incoming_instructions,
         );
 
         assert_eq!(expected_instructions, incoming_instructions);
