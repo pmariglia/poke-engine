@@ -1732,6 +1732,13 @@ fn add_end_of_turn_instructions(
     state.reverse_instructions(&incoming_instructions.instruction_list);
 }
 
+fn end_of_turn_triggered(side_one_move: &MoveChoice, side_two_move: &MoveChoice) -> bool {
+    return !(matches!(side_one_move, &MoveChoice::Switch(_))
+        && side_two_move == &MoveChoice::None)
+        && !(side_one_move == &MoveChoice::None
+            && matches!(side_two_move, &MoveChoice::Switch(_)));
+}
+
 pub fn generate_instructions_from_move_pair(
     state: &mut State,
     side_one_move: &MoveChoice,
@@ -1826,17 +1833,17 @@ pub fn generate_instructions_from_move_pair(
         }
     }
 
-    // TODO: Check if end-of-turn instructions are triggered - they are not always run
-    for state_instruction in state_instruction_vec.iter_mut() {
-        add_end_of_turn_instructions(
-            state,
-            state_instruction,
-            &side_one_choice,
-            &side_two_choice,
-            &first_move_side,
-        );
+    if end_of_turn_triggered(side_one_move, side_two_move) {
+        for state_instruction in state_instruction_vec.iter_mut() {
+            add_end_of_turn_instructions(
+                state,
+                state_instruction,
+                &side_one_choice,
+                &side_two_choice,
+                &first_move_side,
+            );
+        }
     }
-
     return state_instruction_vec;
 }
 

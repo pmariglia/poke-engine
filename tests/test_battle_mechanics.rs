@@ -33,6 +33,31 @@ fn set_moves_on_pkmn_and_call_generate_instructions(
 }
 
 #[test]
+fn test_force_switch_after_faint_does_not_trigger_end_of_turn() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 0;
+
+    // Hail shouldn't do any damage
+    state.weather.weather_type = Weather::Hail;
+    state.weather.turns_remaining = 2;
+
+    let side_one_move = MoveChoice::Switch(1);
+    let side_two_move = MoveChoice::None;
+    let vec_of_instructions =
+        generate_instructions_from_move_pair(&mut state, &side_one_move, &side_two_move);
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Switch(SwitchInstruction {
+            side_ref: SideReference::SideOne,
+            previous_index: 0,
+            next_index: 1,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_basic_move_pair_instruction_generation() {
     let mut state = State::default();
 
