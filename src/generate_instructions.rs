@@ -9,9 +9,7 @@ use crate::instruction::{
     RemoveVolatileStatusInstruction,
 };
 use crate::items::Items;
-use crate::state::{
-    MoveChoice, PokemonBoostableStat, PokemonSideCondition, PokemonType, Side, Terrain,
-};
+use crate::state::{MoveChoice, PokemonBoostableStat, PokemonSideCondition, PokemonType, Terrain};
 use crate::{
     abilities::ABILITIES,
     choices::{Choice, MoveCategory},
@@ -760,7 +758,7 @@ fn generate_instructions_from_damage(
     calculated_damage: i16,
     attacking_side_ref: &SideReference,
     mut incoming_instructions: &mut StateInstructions,
-)  {
+) {
     /*
     TODO:
         - arbitrary other after_move as well from the old engine (triggers on hit OR miss)
@@ -785,7 +783,7 @@ fn generate_instructions_from_damage(
         } else {
             state.reverse_instructions(&incoming_instructions.instruction_list);
         }
-        return
+        return;
     }
 
     let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
@@ -832,7 +830,13 @@ fn generate_instructions_from_damage(
             let attacking_pokemon = attacking_side.get_active_immutable();
             if let Some(after_damage_hit_fn) = ABILITIES[attacking_pokemon.ability].after_damage_hit
             {
-                after_damage_hit_fn(&mut state, &choice, attacking_side_ref, damage_dealt, &mut incoming_instructions);
+                after_damage_hit_fn(
+                    &mut state,
+                    &choice,
+                    attacking_side_ref,
+                    damage_dealt,
+                    &mut incoming_instructions,
+                );
             };
         }
 
@@ -868,7 +872,12 @@ fn generate_instructions_from_damage(
         }
 
         if let Some(after_damage_hit_fn) = choice.after_damage_hit {
-            after_damage_hit_fn(&mut state, &choice, attacking_side_ref, &mut incoming_instructions);
+            after_damage_hit_fn(
+                &mut state,
+                &choice,
+                attacking_side_ref,
+                &mut incoming_instructions,
+            );
         }
     }
 
@@ -1465,10 +1474,8 @@ fn add_end_of_turn_instructions(
 
         match weather_type {
             Weather::Hail => {
-                let damage_amount = cmp::min(
-                    (active_pkmn.maxhp as f32 * 0.0625) as i16,
-                    active_pkmn.hp,
-                );
+                let damage_amount =
+                    cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
                 let hail_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
                     damage_amount: damage_amount,
@@ -1480,10 +1487,8 @@ fn add_end_of_turn_instructions(
                     .push(hail_damage_instruction);
             }
             Weather::Sand => {
-                let damage_amount = cmp::min(
-                    (active_pkmn.maxhp as f32 * 0.0625) as i16,
-                    active_pkmn.hp,
-                );
+                let damage_amount =
+                    cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
                 let sand_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
                     damage_amount: damage_amount,
@@ -1535,10 +1540,8 @@ fn add_end_of_turn_instructions(
 
         match active_pkmn.status {
             PokemonStatus::Burn => {
-                let damage_amount = cmp::min(
-                    (active_pkmn.maxhp as f32 * 0.0625) as i16,
-                    active_pkmn.hp,
-                );
+                let damage_amount =
+                    cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
                 let burn_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
                     damage_amount: damage_amount,
@@ -1549,10 +1552,8 @@ fn add_end_of_turn_instructions(
                     .push(burn_damage_instruction);
             }
             PokemonStatus::Poison if active_pkmn.ability != Abilities::POISONHEAL => {
-                let damage_amount = cmp::min(
-                    (active_pkmn.maxhp as f32 * 0.125) as i16,
-                    active_pkmn.hp,
-                );
+                let damage_amount =
+                    cmp::min((active_pkmn.maxhp as f32 * 0.125) as i16, active_pkmn.hp);
                 let poison_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
                     damage_amount: damage_amount,
@@ -1563,8 +1564,7 @@ fn add_end_of_turn_instructions(
                     .push(poison_damage_instruction);
             }
             PokemonStatus::Toxic if active_pkmn.ability != Abilities::POISONHEAL => {
-                let toxic_multiplier =
-                    (1.0 / 16.0) * toxic_count + (1.0 / 16.0);
+                let toxic_multiplier = (1.0 / 16.0) * toxic_count + (1.0 / 16.0);
                 let damage_amount = cmp::min(
                     (active_pkmn.maxhp as f32 * toxic_multiplier) as i16,
                     active_pkmn.hp,
@@ -1658,25 +1658,33 @@ fn add_end_of_turn_instructions(
             .volatile_statuses
             .contains(&PokemonVolatileStatus::Flinch)
         {
-            active_pkmn.volatile_statuses.remove(&PokemonVolatileStatus::Flinch);
-            incoming_instructions.instruction_list.push(Instruction::RemoveVolatileStatus(
-                RemoveVolatileStatusInstruction {
-                    side_ref: *side_ref,
-                    volatile_status: PokemonVolatileStatus::Flinch,
-                },
-            ));
+            active_pkmn
+                .volatile_statuses
+                .remove(&PokemonVolatileStatus::Flinch);
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::RemoveVolatileStatus(
+                    RemoveVolatileStatusInstruction {
+                        side_ref: *side_ref,
+                        volatile_status: PokemonVolatileStatus::Flinch,
+                    },
+                ));
         }
         if active_pkmn
             .volatile_statuses
             .contains(&PokemonVolatileStatus::Roost)
         {
-            active_pkmn.volatile_statuses.remove(&PokemonVolatileStatus::Roost);
-            incoming_instructions.instruction_list.push(Instruction::RemoveVolatileStatus(
-                RemoveVolatileStatusInstruction {
-                    side_ref: *side_ref,
-                    volatile_status: PokemonVolatileStatus::Roost,
-                },
-            ));
+            active_pkmn
+                .volatile_statuses
+                .remove(&PokemonVolatileStatus::Roost);
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::RemoveVolatileStatus(
+                    RemoveVolatileStatusInstruction {
+                        side_ref: *side_ref,
+                        volatile_status: PokemonVolatileStatus::Roost,
+                    },
+                ));
         }
 
         if active_pkmn
@@ -1684,10 +1692,12 @@ fn add_end_of_turn_instructions(
             .contains(&PokemonVolatileStatus::PartiallyTrapped)
         {
             let damage_amount = cmp::min((active_pkmn.maxhp as f32 / 8.0) as i16, active_pkmn.hp);
-            incoming_instructions.instruction_list.push(Instruction::Damage(DamageInstruction {
-                side_ref: *side_ref,
-                damage_amount,
-            }));
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::Damage(DamageInstruction {
+                    side_ref: *side_ref,
+                    damage_amount,
+                }));
             active_pkmn.hp -= damage_amount;
         }
         if active_pkmn
@@ -1700,14 +1710,14 @@ fn add_end_of_turn_instructions(
             {
                 divisor = 4.0;
             }
-            let damage_amount = cmp::min(
-                (active_pkmn.maxhp as f32 / divisor) as i16,
-                active_pkmn.hp,
-            );
-            incoming_instructions.instruction_list.push(Instruction::Damage(DamageInstruction {
-                side_ref: *side_ref,
-                damage_amount: damage_amount,
-            }));
+            let damage_amount =
+                cmp::min((active_pkmn.maxhp as f32 / divisor) as i16, active_pkmn.hp);
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::Damage(DamageInstruction {
+                    side_ref: *side_ref,
+                    damage_amount: damage_amount,
+                }));
             active_pkmn.hp -= damage_amount;
         }
 
@@ -1727,29 +1737,35 @@ fn add_end_of_turn_instructions(
         }
 
         if let Some(protect_vs) = protect_vs {
-            incoming_instructions.instruction_list.push(Instruction::RemoveVolatileStatus(
-                RemoveVolatileStatusInstruction {
-                    side_ref: *side_ref,
-                    volatile_status: protect_vs,
-                },
-            ));
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::RemoveVolatileStatus(
+                    RemoveVolatileStatusInstruction {
+                        side_ref: *side_ref,
+                        volatile_status: protect_vs,
+                    },
+                ));
             active_pkmn.volatile_statuses.remove(&protect_vs);
-            incoming_instructions.instruction_list.push(Instruction::ChangeSideCondition(
-                ChangeSideConditionInstruction {
-                    side_ref: *side_ref,
-                    side_condition: PokemonSideCondition::Protect,
-                    amount: 1,
-                },
-            ));
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ChangeSideCondition(
+                    ChangeSideConditionInstruction {
+                        side_ref: *side_ref,
+                        side_condition: PokemonSideCondition::Protect,
+                        amount: 1,
+                    },
+                ));
             side.side_conditions.protect += 1;
         } else if side.side_conditions.protect > 0 {
-            incoming_instructions.instruction_list.push(Instruction::ChangeSideCondition(
-                ChangeSideConditionInstruction {
-                    side_ref: *side_ref,
-                    side_condition: PokemonSideCondition::Protect,
-                    amount: -1 * side.side_conditions.protect,
-                },
-            ));
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ChangeSideCondition(
+                    ChangeSideConditionInstruction {
+                        side_ref: *side_ref,
+                        side_condition: PokemonSideCondition::Protect,
+                        amount: -1 * side.side_conditions.protect,
+                    },
+                ));
             side.side_conditions.protect -= side.side_conditions.protect;
         }
     }
@@ -4649,7 +4665,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.get_active().hp -= 10;
         state.side_one.get_active().ability = Abilities::REGENERATOR;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4712,7 +4728,7 @@ mod tests {
         ];
         state.side_one.get_active().hp -= 10;
         state.side_one.get_active().ability = Abilities::REGENERATOR;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4760,7 +4776,7 @@ mod tests {
     fn test_switch_with_regenerator_but_no_damage_taken() {
         let mut state: State = State::default();
         state.side_one.get_active().ability = Abilities::REGENERATOR;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4791,7 +4807,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.get_active().ability = Abilities::REGENERATOR;
         state.side_one.get_active().hp = 0;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4822,7 +4838,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.get_active().ability = Abilities::REGENERATOR;
         state.side_one.get_active().hp = 3;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4859,7 +4875,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.get_active().ability = Abilities::NATURALCURE;
         state.side_one.get_active().status = PokemonStatus::Paralyze;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4898,7 +4914,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.get_active().ability = Abilities::NATURALCURE;
         state.side_one.get_active().status = PokemonStatus::None;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4928,7 +4944,7 @@ mod tests {
     fn test_switching_into_stealthrock() {
         let mut state: State = State::default();
         state.side_one.side_conditions.stealth_rock = 1;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -4965,7 +4981,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.side_conditions.stealth_rock = 1;
         state.side_one.pokemon[1].hp = 5;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5001,7 +5017,7 @@ mod tests {
     fn test_switching_into_stickyweb() {
         let mut state: State = State::default();
         state.side_one.side_conditions.sticky_web = 1;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5039,7 +5055,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.side_conditions.sticky_web = 1;
         state.side_one.pokemon[1].item = Items::HEAVY_DUTY_BOOTS;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5070,7 +5086,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.side_conditions.sticky_web = 1;
         state.side_one.pokemon[1].ability = Abilities::CONTRARY;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5107,7 +5123,7 @@ mod tests {
     fn test_switching_into_single_layer_toxicspikes() {
         let mut state: State = State::default();
         state.side_one.side_conditions.toxic_spikes = 1;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5145,7 +5161,7 @@ mod tests {
     fn test_switching_into_double_layer_toxicspikes() {
         let mut state: State = State::default();
         state.side_one.side_conditions.toxic_spikes = 2;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5184,7 +5200,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.side_conditions.toxic_spikes = 2;
         state.side_one.pokemon[1].types.0 = PokemonType::Flying;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5216,7 +5232,7 @@ mod tests {
         state.side_one.side_conditions.toxic_spikes = 2;
         state.side_one.pokemon[1].types.0 = PokemonType::Flying;
         state.side_one.pokemon[1].types.1 = PokemonType::Poison;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5246,7 +5262,7 @@ mod tests {
     fn test_switching_in_with_intimidate() {
         let mut state: State = State::default();
         state.side_one.pokemon[1].ability = Abilities::INTIMIDATE;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5284,7 +5300,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.pokemon[1].ability = Abilities::INTIMIDATE;
         state.side_two.get_active().attack_boost = -6;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5315,7 +5331,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.pokemon[1].ability = Abilities::INTIMIDATE;
         state.side_two.get_active().ability = Abilities::CLEARBODY;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5346,7 +5362,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.pokemon[1].types.0 = PokemonType::Poison;
         state.side_one.side_conditions.toxic_spikes = 2;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5385,7 +5401,7 @@ mod tests {
         state.side_one.side_conditions.stealth_rock = 1;
         state.side_one.side_conditions.spikes = 1;
         state.side_one.pokemon[1].hp = 15;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;
@@ -5427,7 +5443,7 @@ mod tests {
         state.side_one.side_conditions.stealth_rock = 1;
         state.side_one.side_conditions.spikes = 3;
         state.side_one.pokemon[1].hp = 25;
-                let mut choice = Choice {
+        let mut choice = Choice {
             ..Default::default()
         };
         choice.switch_id = 1;

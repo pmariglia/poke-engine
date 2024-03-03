@@ -173,7 +173,7 @@ fn volatile_status_modifier(
     return modifier;
 }
 
-fn get_damage_rolls(damage: f32, damage_roll_type: DamageRolls) -> Vec<i16> {
+fn _get_damage_rolls(damage: f32, damage_roll_type: DamageRolls) -> Vec<i16> {
     match damage_roll_type {
         DamageRolls::Min => {
             return vec![(damage * 0.85) as i16];
@@ -341,7 +341,12 @@ mod tests {
         choice.base_power = 40.0;
         choice.category = MoveCategory::Physical;
 
-        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
+        let dmg = calculate_damage(
+            &state,
+            SideReference::SideOne,
+            &choice,
+            DamageRolls::Average,
+        );
 
         // level 100 tackle with 100 base stats across the board (attacker & defender)
         assert_eq!(32, dmg.unwrap());
@@ -356,7 +361,12 @@ mod tests {
         choice.move_id = "protect".to_string();
         choice.category = MoveCategory::Status;
 
-        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
+        let dmg = calculate_damage(
+            &state,
+            SideReference::SideOne,
+            &choice,
+            DamageRolls::Average,
+        );
 
         assert_eq!(None, dmg);
     }
@@ -372,7 +382,12 @@ mod tests {
         choice.base_power = 0.0;
         choice.category = MoveCategory::Physical;
 
-        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
+        let dmg = calculate_damage(
+            &state,
+            SideReference::SideOne,
+            &choice,
+            DamageRolls::Average,
+        );
 
         assert_eq!(0, dmg.unwrap());
     }
@@ -389,7 +404,12 @@ mod tests {
         choice.base_power = 40.0;
         choice.category = MoveCategory::Physical;
 
-        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
+        let dmg = calculate_damage(
+            &state,
+            SideReference::SideOne,
+            &choice,
+            DamageRolls::Average,
+        );
 
         assert_eq!(48, dmg.unwrap());
     }
@@ -407,7 +427,12 @@ mod tests {
         choice.base_power = 40.0;
         choice.category = MoveCategory::Physical;
 
-        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
+        let dmg = calculate_damage(
+            &state,
+            SideReference::SideOne,
+            &choice,
+            DamageRolls::Average,
+        );
 
         assert_eq!(32, dmg.unwrap());
     }
@@ -424,7 +449,12 @@ mod tests {
         choice.move_type = PokemonType::Water;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Special;
-        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
+        let dmg = calculate_damage(
+            &state,
+            SideReference::SideOne,
+            &choice,
+            DamageRolls::Average,
+        );
 
         assert_eq!(64, dmg.unwrap());
     }
@@ -441,7 +471,12 @@ mod tests {
         choice.move_type = PokemonType::Water;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Special;
-        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
+        let dmg = calculate_damage(
+            &state,
+            SideReference::SideOne,
+            &choice,
+            DamageRolls::Average,
+        );
 
         assert_eq!(15, dmg.unwrap());
     }

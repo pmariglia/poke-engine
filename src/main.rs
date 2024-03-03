@@ -1,9 +1,7 @@
 #![allow(dead_code)]
 
-use poke_engine::choices::MOVES;
-use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::search::expectiminimax_search;
-use poke_engine::state::{Move, State};
+use poke_engine::state::State;
 
 extern crate lazy_static;
 

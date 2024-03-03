@@ -170,10 +170,8 @@ lazy_static! {
                             incoming_instructions.instruction_list.push(ins);
                         }
                     } else {
-                        let damage_amount = cmp::min(
-                            active_pkmn.maxhp / 16,
-                            active_pkmn.maxhp - active_pkmn.hp,
-                        );
+                        let damage_amount =
+                            cmp::min(active_pkmn.maxhp / 16, active_pkmn.maxhp - active_pkmn.hp);
                         let ins = Instruction::Damage(DamageInstruction {
                             side_ref: side_ref.clone(),
                             damage_amount: damage_amount,
@@ -446,10 +444,8 @@ lazy_static! {
                  incoming_instructions: &mut StateInstructions| {
                     let attacker = state.get_side(side_ref).get_active();
                     if attacker.hp < attacker.maxhp {
-                        let heal_amount = cmp::min(
-                            attacker.maxhp / 16,
-                            attacker.maxhp - attacker.hp,
-                        );
+                        let heal_amount =
+                            cmp::min(attacker.maxhp / 16, attacker.maxhp - attacker.hp);
                         let ins = Instruction::Heal(HealInstruction {
                             side_ref: side_ref.clone(),
                             heal_amount: heal_amount,

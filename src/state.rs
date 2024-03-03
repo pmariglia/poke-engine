@@ -25,7 +25,7 @@ fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
         5 => stat_value * 7 / 2,
         6 => stat_value * 8 / 2,
         _ => panic!("Invalid boost number"),
-    }
+    };
 }
 
 #[derive(PartialEq, Eq, Copy, Clone)]
@@ -420,21 +420,15 @@ impl Pokemon {
 
     pub fn calculate_boosted_stat(&self, stat: PokemonBoostableStat) -> i16 {
         match stat {
-            PokemonBoostableStat::Attack => {
-                multiply_boost(self.attack_boost, self.attack)
-            }
-            PokemonBoostableStat::Defense => {
-                multiply_boost(self.defense_boost, self.defense)
-            }
+            PokemonBoostableStat::Attack => multiply_boost(self.attack_boost, self.attack),
+            PokemonBoostableStat::Defense => multiply_boost(self.defense_boost, self.defense),
             PokemonBoostableStat::SpecialAttack => {
                 multiply_boost(self.special_attack_boost, self.special_attack)
             }
             PokemonBoostableStat::SpecialDefense => {
                 multiply_boost(self.special_defense_boost, self.special_defense)
             }
-            PokemonBoostableStat::Speed => {
-                multiply_boost(self.speed_boost, self.speed)
-            }
+            PokemonBoostableStat::Speed => multiply_boost(self.speed_boost, self.speed),
             _ => {
                 panic!("Not implemented")
             }

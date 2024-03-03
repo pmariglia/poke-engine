@@ -9,7 +9,7 @@ TODO:
 - alpha beta pruning
 */
 
-const WIN_BONUS: f32 = 1000.0;
+const _WIN_BONUS: f32 = 1000.0;
 
 pub fn expectiminimax_search(
     state: &mut State,
@@ -18,7 +18,7 @@ pub fn expectiminimax_search(
     side_two_options: Vec<MoveChoice>,
     ab_prune: bool,
 ) -> HashMap<(MoveChoice, MoveChoice), f32> {
-    let mut score_lookup: HashMap<(MoveChoice, MoveChoice), f32> = HashMap::new();
+    let score_lookup: HashMap<(MoveChoice, MoveChoice), f32> = HashMap::new();
 
     let battle_is_over = state.battle_is_over();
     if battle_is_over != 0.0 {
@@ -64,7 +64,7 @@ pub fn expectiminimax_search(
     return score_lookup;
 }
 
-fn evaluate(state: &State) -> f32 {
+fn evaluate(_state: &State) -> f32 {
     return 0.0;
 }
 
