@@ -18,7 +18,7 @@ use std::collections::HashMap;
 use std::fmt;
 
 pub type ModifyChoiceFn = fn(&State, &mut Choice, &Choice, &SideReference);
-pub type AfterDamageHitFn = fn(&State, &Choice, &SideReference) -> Vec<Instruction>;
+pub type AfterDamageHitFn = fn(&mut State, &Choice, &SideReference, &mut StateInstructions);
 pub type HazardClearFn = fn(&State, &SideReference) -> Vec<Instruction>;
 pub type MoveSpecialEffectFn = fn(&mut State, &SideReference, &mut StateInstructions);
 
@@ -7755,18 +7755,19 @@ lazy_static! {
                     ..Default::default()
                 },
                 after_damage_hit: Some(
-                    |state: &State, _: &Choice, attacking_side_reference: &SideReference| {
+                    |state: &mut State, _: &Choice, attacking_side_reference: &SideReference, instructions: &mut StateInstructions| {
                         let defending_side =
-                            state.get_side_immutable(&attacking_side_reference.get_other_side());
-                        let defender_active = defending_side.get_active_immutable();
+                            state.get_side(&attacking_side_reference.get_other_side());
+                        let defender_active = defending_side.get_active();
                         if defender_active.item_can_be_removed() {
-                            return vec![Instruction::ChangeItem(ChangeItemInstruction {
+                            let instruction = Instruction::ChangeItem(ChangeItemInstruction {
                                 side_ref: attacking_side_reference.get_other_side(),
                                 current_item: defender_active.item,
                                 new_item: Items::NONE,
-                            })];
+                            });
+                            instructions.instruction_list.push(instruction);
+                            defender_active.item = Items::NONE;
                         }
-                        return vec![];
                     },
                 ),
                 ..Default::default()

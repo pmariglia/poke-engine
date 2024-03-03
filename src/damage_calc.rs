@@ -226,8 +226,8 @@ pub fn calculate_damage(
     state: &State,
     attacking_side: SideReference,
     choice: &Choice,
-    damage_rolls: DamageRolls,
-) -> Option<Vec<i16>> {
+    _damage_rolls: DamageRolls,
+) -> Option<i16> {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(&attacking_side);
 
     let attacking_stat;
@@ -269,7 +269,7 @@ pub fn calculate_damage(
     }
 
     if choice.base_power <= 0.0 {
-        return Some(vec![0]);
+        return Some(0);
     }
 
     let mut damage: f32;
@@ -317,7 +317,7 @@ pub fn calculate_damage(
 
     damage = damage * damage_modifier;
 
-    return Some(get_damage_rolls(damage.floor(), damage_rolls));
+    return Some((damage.floor() * 0.925) as i16);
 }
 
 #[cfg(test)]
@@ -341,11 +341,10 @@ mod tests {
         choice.base_power = 40.0;
         choice.category = MoveCategory::Physical;
 
-        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
+        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
 
         // level 100 tackle with 100 base stats across the board (attacker & defender)
-        // should do 35 damage max
-        assert_eq!(vec![35], dmg.unwrap());
+        assert_eq!(32, dmg.unwrap());
     }
 
     #[test]
@@ -357,7 +356,7 @@ mod tests {
         choice.move_id = "protect".to_string();
         choice.category = MoveCategory::Status;
 
-        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
+        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
 
         assert_eq!(None, dmg);
     }
@@ -373,9 +372,9 @@ mod tests {
         choice.base_power = 0.0;
         choice.category = MoveCategory::Physical;
 
-        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
+        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
 
-        assert_eq!(vec![0], dmg.unwrap());
+        assert_eq!(0, dmg.unwrap());
     }
 
     #[test]
@@ -390,10 +389,9 @@ mod tests {
         choice.base_power = 40.0;
         choice.category = MoveCategory::Physical;
 
-        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
+        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
 
-        // 35 * 1.5x attack boost is 52.5 => 52
-        assert_eq!(vec![52], dmg.unwrap());
+        assert_eq!(48, dmg.unwrap());
     }
 
     #[test]
@@ -409,9 +407,9 @@ mod tests {
         choice.base_power = 40.0;
         choice.category = MoveCategory::Physical;
 
-        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
+        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
 
-        assert_eq!(vec![35], dmg.unwrap());
+        assert_eq!(32, dmg.unwrap());
     }
 
     #[test]
@@ -426,10 +424,9 @@ mod tests {
         choice.move_type = PokemonType::Water;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Special;
-        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
+        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
 
-        // 2x damage should be 35 * 2 = 70
-        assert_eq!(vec![70], dmg.unwrap());
+        assert_eq!(64, dmg.unwrap());
     }
 
     #[test]
@@ -444,10 +441,9 @@ mod tests {
         choice.move_type = PokemonType::Water;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Special;
-        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
+        let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
 
-        // 0.5x damage should be 35 / 2 = 17.5 => 17
-        assert_eq!(vec![17], dmg.unwrap());
+        assert_eq!(15, dmg.unwrap());
     }
 
     macro_rules! weather_tests {
@@ -465,23 +461,23 @@ mod tests {
                     choice.move_type = move_type;
                     choice.base_power = 40.0;
                     choice.category = MoveCategory::Special;
-                    let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
+                    let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
 
-                    assert_eq!(vec![expected_damage_amount], dmg.unwrap());
+                    assert_eq!(expected_damage_amount, dmg.unwrap());
                 }
              )*
         }
     }
     weather_tests! {
-        test_rain_boosting_water: (Weather::Rain, PokemonType::Water, 52),
-        test_rain_not_boosting_normal: (Weather::Rain, PokemonType::Normal, 52),
-        test_sun_boosting_fire: (Weather::Sun, PokemonType::Fire, 52),
-        test_sun_reducing_water: (Weather::Sun, PokemonType::Water, 17),
-        test_sun_not_boosting_normal: (Weather::Sun, PokemonType::Normal, 52),
+        test_rain_boosting_water: (Weather::Rain, PokemonType::Water, 48),
+        test_rain_not_boosting_normal: (Weather::Rain, PokemonType::Normal, 48),
+        test_sun_boosting_fire: (Weather::Sun, PokemonType::Fire, 48),
+        test_sun_reducing_water: (Weather::Sun, PokemonType::Water, 15),
+        test_sun_not_boosting_normal: (Weather::Sun, PokemonType::Normal, 48),
         test_heavy_rain_makes_fire_do_zero: (Weather::HeavyRain, PokemonType::Fire, 0),
-        test_heavy_rain_boost_water: (Weather::HeavyRain, PokemonType::Water, 52),
+        test_heavy_rain_boost_water: (Weather::HeavyRain, PokemonType::Water, 48),
         test_harsh_sun_makes_water_do_zero: (Weather::HarshSun, PokemonType::Water, 0),
-        test_harsh_sun_boosting_fire: (Weather::HarshSun, PokemonType::Fire, 52),
+        test_harsh_sun_boosting_fire: (Weather::HarshSun, PokemonType::Fire, 48),
     }
 
     macro_rules! stab_tests {
@@ -499,16 +495,16 @@ mod tests {
                     choice.move_type = attacking_move_type;
                     choice.base_power = 40.0;
                     choice.category = MoveCategory::Special;
-                    let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
+                    let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
 
-                    assert_eq!(vec![expected_damage_amount], dmg.unwrap());
+                    assert_eq!(expected_damage_amount, dmg.unwrap());
                 }
              )*
         }
     }
     stab_tests! {
-        test_basic_stab: ((PokemonType::Water, PokemonType::Fire), PokemonType::Water, 52),
-        test_basic_without_stab: ((PokemonType::Water, PokemonType::Fire), PokemonType::Normal, 35),
+        test_basic_stab: ((PokemonType::Water, PokemonType::Fire), PokemonType::Water, 48),
+        test_basic_without_stab: ((PokemonType::Water, PokemonType::Fire), PokemonType::Normal, 32),
     }
 
     macro_rules! burn_tests {
@@ -526,16 +522,16 @@ mod tests {
                     choice.category = attacking_move_category;
                     choice.move_type = PokemonType::Typeless;
                     choice.base_power = 40.0;
-                    let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
+                    let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
 
-                    assert_eq!(vec![expected_damage_amount], dmg.unwrap());
+                    assert_eq!(expected_damage_amount, dmg.unwrap());
                 }
              )*
         }
     }
     burn_tests! {
-        test_physical_move_when_burned_reduces: (MoveCategory::Physical, 17),
-        test_special_move_when_burned_does_not_reduce: (MoveCategory::Special, 35),
+        test_physical_move_when_burned_reduces: (MoveCategory::Physical, 15),
+        test_special_move_when_burned_does_not_reduce: (MoveCategory::Special, 32),
     }
 
     macro_rules! screens_tests {
@@ -555,22 +551,22 @@ mod tests {
                     choice.category = move_category;
                     choice.base_power = 40.0;
                     choice.move_type = PokemonType::Typeless;
-                    let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
+                    let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
 
-                    assert_eq!(vec![expected_damage_amount], dmg.unwrap());
+                    assert_eq!(expected_damage_amount, dmg.unwrap());
                 }
              )*
         }
     }
     screens_tests! {
-        test_reflect_reduces_physical_damage_by_half: (1, 0, 0, MoveCategory::Physical, 17),
-        test_lightscreen_reduces_special_damage_by_half: (0, 1, 0, MoveCategory::Special, 17),
-        test_auroraveil_reduces_physical_damage_by_half: (0, 0, 1, MoveCategory::Physical, 17),
-        test_auroraveil_reduces_special_damage_by_half: (0, 0, 1, MoveCategory::Special, 17),
-        test_reflect_does_not_reduce_special_damage: (1, 0, 0, MoveCategory::Special, 35),
-        test_light_screen_does_not_reduce_physical_damage: (0, 1, 0, MoveCategory::Physical, 35),
-        test_auroraveil_does_not_stack_with_reflect: (1, 1, 1, MoveCategory::Physical, 17),
-        test_auroraveil_does_not_stack_with_lightscreen: (1, 1, 1, MoveCategory::Special, 17),
+        test_reflect_reduces_physical_damage_by_half: (1, 0, 0, MoveCategory::Physical, 15),
+        test_lightscreen_reduces_special_damage_by_half: (0, 1, 0, MoveCategory::Special, 15),
+        test_auroraveil_reduces_physical_damage_by_half: (0, 0, 1, MoveCategory::Physical, 15),
+        test_auroraveil_reduces_special_damage_by_half: (0, 0, 1, MoveCategory::Special, 15),
+        test_reflect_does_not_reduce_special_damage: (1, 0, 0, MoveCategory::Special, 32),
+        test_light_screen_does_not_reduce_physical_damage: (0, 1, 0, MoveCategory::Physical, 32),
+        test_auroraveil_does_not_stack_with_reflect: (1, 1, 1, MoveCategory::Physical, 15),
+        test_auroraveil_does_not_stack_with_lightscreen: (1, 1, 1, MoveCategory::Special, 15),
     }
 
     macro_rules! volatile_status_tests{
@@ -590,9 +586,9 @@ mod tests {
                     choice.category = MoveCategory::Physical;
                     choice.move_type = move_type;
                     choice.base_power = 40.0;
-                    let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Max);
+                    let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
 
-                    assert_eq!(vec![expected_damage_amount], dmg.unwrap());
+                    assert_eq!(expected_damage_amount, dmg.unwrap());
                 }
              )*
         }
@@ -603,14 +599,14 @@ mod tests {
             vec![],
             PokemonType::Fire,
             "",
-            52
+            48
         ),
         test_flashfire_does_not_boost_normal_move: (
             vec![PokemonVolatileStatus::FlashFire],
             vec![],
             PokemonType::Typeless,
             "",
-            35
+            32
         ),
         test_magnetrise_makes_pkmn_immune_to_ground_move: (
             vec![],
@@ -624,28 +620,28 @@ mod tests {
             vec![PokemonVolatileStatus::MagnetRise],
             PokemonType::Ground,
             "thousandarrows",
-            35
+            32
         ),
         test_tarshot_boosts_fire_move: (
             vec![],
             vec![PokemonVolatileStatus::TarShot],
             PokemonType::Fire,
             "",
-            70
+            64
         ),
         test_tarshot_and_flashfire_together: (
             vec![PokemonVolatileStatus::FlashFire],
             vec![PokemonVolatileStatus::TarShot],
             PokemonType::Fire,
             "",
-            105
+            97
         ),
         test_glaiverush_doubles_damage_against: (
             vec![],
             vec![PokemonVolatileStatus::GlaiveRush],
             PokemonType::Normal,
             "",
-            105
+            97
         ),
         test_phantomforce_on_defender_causes_0_damage: (
             vec![],

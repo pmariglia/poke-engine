@@ -755,12 +755,12 @@ fn get_instructions_from_drag(
 }
 
 fn generate_instructions_from_damage(
-    state: &mut State,
+    mut state: &mut State,
     choice: &Choice,
     calculated_damage: i16,
     attacking_side_ref: &SideReference,
-    mut incoming_instructions: StateInstructions,
-) -> StateInstructions {
+    mut incoming_instructions: &mut StateInstructions,
+)  {
     /*
     TODO:
         - arbitrary other after_move as well from the old engine (triggers on hit OR miss)
@@ -768,7 +768,7 @@ fn generate_instructions_from_damage(
     */
     state.apply_instructions(&incoming_instructions.instruction_list);
 
-    let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
+    let attacking_side = state.get_side_immutable(attacking_side_ref);
     let attacking_pokemon = attacking_side.get_active_immutable();
 
     if calculated_damage <= 0 {
@@ -785,13 +785,12 @@ fn generate_instructions_from_damage(
         } else {
             state.reverse_instructions(&incoming_instructions.instruction_list);
         }
-
-        return incoming_instructions;
+        return
     }
 
-    let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
-    let attacking_pokemon = attacking_side.get_active_immutable();
-    let defending_pokemon = defending_side.get_active_immutable();
+    let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
+    let attacking_pokemon = attacking_side.get_active();
+    let defending_pokemon = defending_side.get_active();
     let percent_hit = choice.accuracy / 100.0;
 
     if percent_hit > 0.0 {
@@ -803,11 +802,12 @@ fn generate_instructions_from_damage(
             && attacking_pokemon.ability != Abilities::INFILTRATOR
         {
             damage_dealt = cmp::min(calculated_damage, defending_pokemon.substitute_health);
+            let substitute_damage_dealt = cmp::min(calculated_damage, damage_dealt);
             let substitute_instruction = Instruction::DamageSubstitute(DamageInstruction {
                 side_ref: attacking_side_ref.get_other_side(),
-                damage_amount: cmp::min(calculated_damage, damage_dealt),
+                damage_amount: substitute_damage_dealt,
             });
-            state.apply_one_instruction(&substitute_instruction);
+            defending_pokemon.substitute_health -= substitute_damage_dealt;
             incoming_instructions
                 .instruction_list
                 .push(substitute_instruction);
@@ -823,7 +823,7 @@ fn generate_instructions_from_damage(
                 side_ref: attacking_side_ref.get_other_side(),
                 damage_amount: damage_dealt,
             });
-            state.apply_one_instruction(&damage_instruction);
+            defending_pokemon.hp -= damage_dealt;
             incoming_instructions
                 .instruction_list
                 .push(damage_instruction);
@@ -832,17 +832,11 @@ fn generate_instructions_from_damage(
             let attacking_pokemon = attacking_side.get_active_immutable();
             if let Some(after_damage_hit_fn) = ABILITIES[attacking_pokemon.ability].after_damage_hit
             {
-                let ability_after_damage_hit_instructions =
-                    after_damage_hit_fn(&state, &choice, attacking_side_ref, damage_dealt);
-                state.apply_instructions(&ability_after_damage_hit_instructions);
-                incoming_instructions
-                    .instruction_list
-                    .extend(ability_after_damage_hit_instructions);
+                after_damage_hit_fn(&mut state, &choice, attacking_side_ref, damage_dealt, &mut incoming_instructions);
             };
         }
 
-        let attacking_side = state.get_side_immutable(attacking_side_ref);
-        let attacking_pokemon = attacking_side.get_active_immutable();
+        let attacking_pokemon = state.get_side(attacking_side_ref).get_active();
         if let Some(drain_fraction) = choice.drain {
             let drain_amount = (damage_dealt as f32 * drain_fraction) as i16;
             let heal_amount =
@@ -852,40 +846,33 @@ fn generate_instructions_from_damage(
                     side_ref: *attacking_side_ref,
                     heal_amount: heal_amount,
                 });
-                state.apply_one_instruction(&drain_instruction);
+                attacking_pokemon.hp += heal_amount;
                 incoming_instructions
                     .instruction_list
                     .push(drain_instruction);
             }
         }
 
-        let attacking_side = state.get_side_immutable(attacking_side_ref);
-        let attacking_pokemon = attacking_side.get_active_immutable();
+        let attacking_pokemon = state.get_side(attacking_side_ref).get_active();
         if let Some(recoil_fraction) = choice.recoil {
             let recoil_amount = (damage_dealt as f32 * recoil_fraction) as i16;
+            let damage_amount = cmp::min(recoil_amount, attacking_pokemon.hp);
             let recoil_instruction = Instruction::Damage(DamageInstruction {
                 side_ref: *attacking_side_ref,
-                damage_amount: cmp::min(recoil_amount, attacking_pokemon.hp),
+                damage_amount: damage_amount,
             });
-            state.apply_one_instruction(&recoil_instruction);
+            attacking_pokemon.hp -= damage_amount;
             incoming_instructions
                 .instruction_list
                 .push(recoil_instruction);
         }
 
         if let Some(after_damage_hit_fn) = choice.after_damage_hit {
-            let choice_after_damage_hit_instructions =
-                after_damage_hit_fn(&state, &choice, attacking_side_ref);
-            state.apply_instructions(&choice_after_damage_hit_instructions);
-            incoming_instructions
-                .instruction_list
-                .extend(choice_after_damage_hit_instructions);
+            after_damage_hit_fn(&mut state, &choice, attacking_side_ref, &mut incoming_instructions);
         }
     }
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
-
-    return incoming_instructions;
 }
 
 fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideReference) -> bool {
@@ -1223,22 +1210,15 @@ pub fn generate_instructions_from_move(
 
     // Damage generation gets its own block because it has some special logic
     if let Some(damages_dealt) = damage {
-        let mut temp_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
-        for instruction in next_instructions {
-            let num_damage_amounts = damages_dealt.len() as f32;
-            for dmg in &damages_dealt {
-                let mut this_instruction = instruction.clone();
-                this_instruction.update_percentage(1.0 / num_damage_amounts);
-                temp_instructions.push(generate_instructions_from_damage(
-                    state,
-                    &choice,
-                    *dmg,
-                    &attacking_side,
-                    this_instruction,
-                ));
-            }
+        for instruction in next_instructions.iter_mut() {
+            generate_instructions_from_damage(
+                state,
+                &choice,
+                damages_dealt,
+                &attacking_side,
+                instruction,
+            );
         }
-        next_instructions = temp_instructions;
     }
 
     if choice.flags.drag {

@@ -19,7 +19,7 @@ use crate::state::{PokemonVolatileStatus, SideReference, Weather};
 type ModifyAttackBeingUsed = fn(&State, &mut Choice, &Choice, &SideReference);
 type ModifyAttackAgainst = fn(&State, &mut Choice, &Choice, &SideReference);
 type AbilityBeforeMove = fn(&mut State, &Choice, &SideReference, &mut StateInstructions);
-type AbilityAfterDamageHit = fn(&State, &Choice, &SideReference, i16) -> Vec<Instruction>;
+type AbilityAfterDamageHit = fn(&mut State, &Choice, &SideReference, i16, &mut StateInstructions);
 type AbilityOnSwitchOut = fn(&State, &SideReference) -> Vec<Instruction>;
 type AbilityOnSwitchIn = fn(&State, &SideReference) -> Vec<Instruction>;
 type AbilityEndOfTurn = fn(&mut State, &SideReference, &mut StateInstructions);
@@ -2104,23 +2104,24 @@ lazy_static! {
             Ability {
                 id: "beastboost".to_string(),
                 index: 186,
-                after_damage_hit: Some(|state, _, attacking_side, damage_dealt| {
+                after_damage_hit: Some(|state, _, attacking_side, damage_dealt, instructions| {
                     let (attacker_side, defender_side) =
-                        state.get_both_sides_immutable(attacking_side);
+                        state.get_both_sides(attacking_side);
                     if damage_dealt > 0 && defender_side.get_active_immutable().hp == 0 {
+                        let highest_stat = &attacker_side
+                            .get_active_immutable()
+                            .calculate_highest_stat();
                         if let Some(boost_instruction) = get_boost_instruction(
                             state,
-                            &attacker_side
-                                .get_active_immutable()
-                                .calculate_highest_stat(),
+                            highest_stat,
                             &1,
                             attacking_side,
                             attacking_side,
                         ) {
-                            return vec![boost_instruction];
+                            state.apply_one_instruction(&boost_instruction);
+                            instructions.instruction_list.push(boost_instruction);
                         }
                     }
-                    return vec![];
                 }),
                 ..Default::default()
             },
