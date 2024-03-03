@@ -210,8 +210,6 @@ fn generate_instructions_from_side_conditions(
     attacking_side_reference: &SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
-    state.apply_instructions(&incoming_instructions.instruction_list);
-
     let affected_side_ref;
     match side_condition.target {
         MoveTarget::Opponent => affected_side_ref = attacking_side_reference.get_other_side(),
@@ -243,8 +241,6 @@ fn generate_instructions_from_side_conditions(
         state.apply_one_instruction(&ins);
         incoming_instructions.instruction_list.push(ins);
     }
-
-    state.reverse_instructions(&incoming_instructions.instruction_list);
 }
 
 fn get_instructions_from_hazard_clearing_moves(
@@ -253,9 +249,7 @@ fn get_instructions_from_hazard_clearing_moves(
     attacking_side_reference: &SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
-    state.apply_instructions(&incoming_instructions.instruction_list);
     let additional_instructions = hazard_clear_fn(state, attacking_side_reference);
-    state.reverse_instructions(&incoming_instructions.instruction_list);
     incoming_instructions
         .instruction_list
         .extend(additional_instructions);
@@ -268,17 +262,13 @@ fn get_instructions_from_volatile_statuses(
     attacking_side_reference: &SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
-    state.apply_instructions(&incoming_instructions.instruction_list);
-
     let target_side: SideReference;
     match volatile_status.target {
         MoveTarget::Opponent => target_side = attacking_side_reference.get_other_side(),
         MoveTarget::User => target_side = *attacking_side_reference,
     }
 
-    let affected_pkmn = state
-        .get_side_immutable(&target_side)
-        .get_active_immutable();
+    let affected_pkmn = state.get_side(&target_side).get_active();
     if affected_pkmn.volatile_status_can_be_applied(
         &volatile_status.volatile_status,
         attacker_choice.first_move,
@@ -287,22 +277,23 @@ fn get_instructions_from_volatile_statuses(
             side_ref: target_side,
             volatile_status: volatile_status.volatile_status,
         });
-        state.apply_one_instruction(&ins);
+
+        affected_pkmn
+            .volatile_statuses
+            .insert(volatile_status.volatile_status);
         incoming_instructions.instruction_list.push(ins);
 
-        let affected_pkmn = state
-            .get_side_immutable(&target_side)
-            .get_active_immutable();
+        let affected_pkmn = state.get_side(&target_side).get_active();
+        let damage_taken = affected_pkmn.maxhp / 4;
         if volatile_status.volatile_status == PokemonVolatileStatus::Substitute {
             let ins = Instruction::Damage(DamageInstruction {
                 side_ref: target_side,
-                damage_amount: affected_pkmn.maxhp / 4,
+                damage_amount: damage_taken,
             });
-            state.apply_one_instruction(&ins);
+            affected_pkmn.hp -= damage_taken;
             incoming_instructions.instruction_list.push(ins);
         }
     }
-    state.reverse_instructions(&incoming_instructions.instruction_list);
 }
 
 fn sleep_clause_activated() -> bool {
@@ -381,8 +372,6 @@ fn get_instructions_from_status_effects(
     attacking_side_reference: &SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
-    state.apply_instructions(&incoming_instructions.instruction_list);
-
     let target_side_ref: SideReference;
     match status.target {
         MoveTarget::Opponent => target_side_ref = attacking_side_reference.get_other_side(),
@@ -390,25 +379,23 @@ fn get_instructions_from_status_effects(
     }
 
     if immune_to_status(state, &status.target, &target_side_ref, &status.status) {
-        state.reverse_instructions(&incoming_instructions.instruction_list);
         return;
     }
 
-    let target_side = state.get_side_immutable(&target_side_ref);
-    let target_pkmn = target_side.get_active_immutable();
+    let target_side = state.get_side(&target_side_ref);
+    let target_side_active = target_side.active_index;
+    let target_pkmn = target_side.get_active();
 
     let status_hit_instruction = Instruction::ChangeStatus(ChangeStatusInstruction {
         side_ref: target_side_ref,
-        pokemon_index: target_side.active_index,
+        pokemon_index: target_side_active,
         old_status: target_pkmn.status,
         new_status: status.status,
     });
-    state.apply_one_instruction(&status_hit_instruction);
+    target_pkmn.status = status.status;
     incoming_instructions
         .instruction_list
         .push(status_hit_instruction);
-
-    state.reverse_instructions(&incoming_instructions.instruction_list);
 }
 
 pub fn get_boost_amount(pkmn: &Pokemon, boost: &PokemonBoostableStat, amount: &i8) -> i8 {
@@ -464,8 +451,6 @@ fn get_instructions_from_boosts(
     attacking_side_reference: &SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
-    state.apply_instructions(&incoming_instructions.instruction_list);
-
     let target_side_ref: SideReference;
     match boosts.target {
         MoveTarget::Opponent => target_side_ref = attacking_side_reference.get_other_side(),
@@ -486,8 +471,6 @@ fn get_instructions_from_boosts(
                 .push(boost_instruction);
         }
     }
-
-    state.reverse_instructions(&incoming_instructions.instruction_list);
 }
 
 fn generate_instructions_from_move_special_effect(
@@ -497,9 +480,7 @@ fn generate_instructions_from_move_special_effect(
     incoming_instructions: &mut StateInstructions,
 ) {
     if let Some(move_special_effect_fn) = choice.move_special_effect {
-        state.apply_instructions(&incoming_instructions.instruction_list);
         move_special_effect_fn(state, side_reference, incoming_instructions);
-        state.reverse_instructions(&incoming_instructions.instruction_list);
     }
 }
 
@@ -521,6 +502,7 @@ fn get_instructions_from_secondaries(
                 let mut secondary_hit_instructions = ins.clone();
                 secondary_hit_instructions.update_percentage(secondary_percent_hit);
 
+                state.apply_instructions(&secondary_hit_instructions.instruction_list);
                 match &secondary.effect {
                     Effect::VolatileStatus(volatile_status) => {
                         get_instructions_from_volatile_statuses(
@@ -577,19 +559,18 @@ fn get_instructions_from_secondaries(
                                 secondary_target_side_ref = *side_reference;
                             }
                         }
+                        let target_pkmn = state.get_side(&secondary_target_side_ref).get_active();
                         secondary_hit_instructions
                             .instruction_list
                             .push(Instruction::ChangeItem(ChangeItemInstruction {
                                 side_ref: secondary_target_side_ref,
-                                current_item: state
-                                    .get_side_immutable(&secondary_target_side_ref)
-                                    .get_active_immutable()
-                                    .item
-                                    .clone(),
+                                current_item: target_pkmn.item.clone(),
                                 new_item: Items::NONE,
                             }));
+                        target_pkmn.item = Items::NONE;
                     }
                 }
+                state.reverse_instructions(&secondary_hit_instructions.instruction_list);
                 loop_vec.push(secondary_hit_instructions);
             }
 
@@ -610,17 +591,13 @@ fn get_instructions_from_heal(
     attacking_side_reference: &SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
-    state.apply_instructions(&incoming_instructions.instruction_list);
-
     let target_side_ref: SideReference;
     match heal.target {
         MoveTarget::Opponent => target_side_ref = attacking_side_reference.get_other_side(),
         MoveTarget::User => target_side_ref = *attacking_side_reference,
     }
 
-    let target_pkmn = state
-        .get_side_immutable(&target_side_ref)
-        .get_active_immutable();
+    let mut target_pkmn = state.get_side(&target_side_ref).get_active();
 
     let mut health_recovered = (heal.amount * target_pkmn.maxhp as f32) as i16;
     let final_health = target_pkmn.hp + health_recovered;
@@ -635,10 +612,9 @@ fn get_instructions_from_heal(
             side_ref: target_side_ref,
             heal_amount: health_recovered,
         });
-        state.apply_one_instruction(&ins);
+        target_pkmn.hp += health_recovered;
         incoming_instructions.instruction_list.push(ins);
     }
-    state.reverse_instructions(&incoming_instructions.instruction_list);
 }
 
 fn check_move_hit_or_miss(
@@ -656,9 +632,6 @@ fn check_move_hit_or_miss(
 
     Otherwise, update the incoming instructions' percent_hit to reflect the chance of the move hitting
     */
-
-    state.apply_instructions(&incoming_instructions.instruction_list);
-
     let attacking_side = state.get_side_immutable(attacking_side_ref);
     let attacking_pokemon = attacking_side.get_active_immutable();
 
@@ -705,7 +678,6 @@ fn check_move_hit_or_miss(
         frozen_instructions.push(move_missed_instruction);
     }
     incoming_instructions.update_percentage(percent_hit);
-    state.reverse_instructions(&incoming_instructions.instruction_list);
 }
 
 fn get_instructions_from_drag(
@@ -764,24 +736,21 @@ fn generate_instructions_from_damage(
         - arbitrary other after_move as well from the old engine (triggers on hit OR miss)
             - dig/dive/bounce/fly volatilestatus
     */
-    state.apply_instructions(&incoming_instructions.instruction_list);
-
-    let attacking_side = state.get_side_immutable(attacking_side_ref);
-    let attacking_pokemon = attacking_side.get_active_immutable();
+    let attacking_side = state.get_side(attacking_side_ref);
+    let attacking_pokemon = attacking_side.get_active();
 
     if calculated_damage <= 0 {
         if let Some(crash_fraction) = choice.crash {
             let crash_amount = (attacking_pokemon.maxhp as f32 * crash_fraction) as i16;
+            let damage_taken = cmp::min(crash_amount, attacking_pokemon.hp);
             let crash_instruction = Instruction::Damage(DamageInstruction {
                 side_ref: *attacking_side_ref,
-                damage_amount: cmp::min(crash_amount, attacking_pokemon.hp),
+                damage_amount: damage_taken,
             });
-            state.reverse_instructions(&incoming_instructions.instruction_list);
+            attacking_pokemon.hp -= damage_taken;
             incoming_instructions
                 .instruction_list
                 .push(crash_instruction);
-        } else {
-            state.reverse_instructions(&incoming_instructions.instruction_list);
         }
         return;
     }
@@ -880,8 +849,6 @@ fn generate_instructions_from_damage(
             );
         }
     }
-
-    state.reverse_instructions(&incoming_instructions.instruction_list);
 }
 
 fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideReference) -> bool {
@@ -1063,12 +1030,11 @@ fn generate_instructions_from_existing_status_conditions(
     // Frozen, Sleep, and Paralysis may cause a Pokemon to not move
 
     let apply_reverse_instruction_list = incoming_instructions.instruction_list.clone();
-    state.apply_instructions(&apply_reverse_instruction_list);
 
     let (attacking_side, _defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     let attacker_active = attacking_side.get_active_immutable();
 
-    let mut instructions_that_will_proceed = Vec::<StateInstructions>::new();
+    let mut instructions_that_will_proceed = Vec::<StateInstructions>::with_capacity(20);
     match attacker_active.status {
         PokemonStatus::Paralyze => {
             // Fully-Paralyzed Branch
@@ -1173,39 +1139,34 @@ pub fn generate_instructions_from_move(
 
     let damage = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
 
-    state.reverse_instructions(&incoming_instructions.instruction_list);
-
     // The final return-value of this function
     let mut final_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
-    let list_of_instructions = generate_instructions_from_existing_status_conditions(
+    let mut list_of_instructions = generate_instructions_from_existing_status_conditions(
         state,
         &attacking_side,
         incoming_instructions,
         &mut final_instructions,
     );
 
-    let mut next_instructions = Vec::with_capacity(20);
-    for instruction in list_of_instructions {
+    list_of_instructions.retain_mut(|instruction| {
         state.apply_instructions(&instruction.instruction_list);
-        if cannot_use_move(state, &choice, &attacking_side) {
-            state.reverse_instructions(&instruction.instruction_list);
-            final_instructions.push(instruction);
-        } else {
-            state.reverse_instructions(&instruction.instruction_list);
-            next_instructions.push(instruction);
+        let should_drop = cannot_use_move(state, &choice, &attacking_side);
+        state.reverse_instructions(&instruction.instruction_list);
+        if should_drop {
+            final_instructions.push(instruction.clone());
         }
-    }
+        return !should_drop;
+    });
 
-    for instruction in next_instructions.iter_mut() {
+    // START HERE
+    for mut instruction in list_of_instructions.iter_mut() {
+        state.apply_instructions(&instruction.instruction_list);
         generate_instructions_from_move_special_effect(
             state,
             &choice,
             &attacking_side,
             instruction,
         );
-    }
-
-    for mut instruction in next_instructions.iter_mut() {
         check_move_hit_or_miss(
             state,
             &choice,
@@ -1213,13 +1174,7 @@ pub fn generate_instructions_from_move(
             &mut instruction,
             &mut final_instructions,
         );
-    }
-    // the above function can cause some instructions to have a 0% chance of happening
-    next_instructions.retain(|instruction| instruction.percentage > 0.0);
-
-    // Damage generation gets its own block because it has some special logic
-    if let Some(damages_dealt) = damage {
-        for instruction in next_instructions.iter_mut() {
+        if let Some(damages_dealt) = damage {
             generate_instructions_from_damage(
                 state,
                 &choice,
@@ -1228,17 +1183,8 @@ pub fn generate_instructions_from_move(
                 instruction,
             );
         }
-    }
 
-    if choice.flags.drag {
-        for ins in next_instructions {
-            get_instructions_from_drag(state, &attacking_side, ins, &mut final_instructions);
-        }
-        return combine_duplicate_instructions(final_instructions);
-    }
-
-    if let Some(side_condition) = &choice.side_condition {
-        for instruction in next_instructions.iter_mut() {
+        if let Some(side_condition) = &choice.side_condition {
             generate_instructions_from_side_conditions(
                 state,
                 side_condition,
@@ -1246,9 +1192,8 @@ pub fn generate_instructions_from_move(
                 instruction,
             );
         }
-    }
-    if let Some(hazard_clear) = &choice.hazard_clear {
-        for instruction in next_instructions.iter_mut() {
+
+        if let Some(hazard_clear) = &choice.hazard_clear {
             get_instructions_from_hazard_clearing_moves(
                 state,
                 hazard_clear,
@@ -1256,9 +1201,8 @@ pub fn generate_instructions_from_move(
                 instruction,
             );
         }
-    }
-    if let Some(volatile_status) = &choice.volatile_status {
-        for instruction in next_instructions.iter_mut() {
+
+        if let Some(volatile_status) = &choice.volatile_status {
             get_instructions_from_volatile_statuses(
                 state,
                 &choice,
@@ -1267,25 +1211,32 @@ pub fn generate_instructions_from_move(
                 instruction,
             );
         }
-    }
-    if let Some(status) = &choice.status {
-        for instruction in next_instructions.iter_mut() {
+
+        if let Some(status) = &choice.status {
             get_instructions_from_status_effects(state, status, &attacking_side, instruction);
         }
-    }
-    if let Some(boost) = &choice.boost {
-        for instruction in next_instructions.iter_mut() {
+        if let Some(boost) = &choice.boost {
             get_instructions_from_boosts(state, boost, &attacking_side, instruction);
         }
-    }
-    if let Some(heal) = &choice.heal {
-        for instruction in next_instructions.iter_mut() {
+        if let Some(heal) = &choice.heal {
             get_instructions_from_heal(state, heal, &attacking_side, instruction);
         }
+
+        state.reverse_instructions(&instruction.instruction_list);
     }
+    list_of_instructions.retain(|instruction| instruction.percentage > 0.0);
+
+    if choice.flags.drag {
+        for ins in list_of_instructions {
+            get_instructions_from_drag(state, &attacking_side, ins, &mut final_instructions);
+        }
+        return combine_duplicate_instructions(final_instructions);
+    }
+    // END HERE
+
     if let Some(secondaries_vec) = &choice.secondaries {
         let mut continuing_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
-        for instruction in next_instructions {
+        for instruction in list_of_instructions {
             continuing_instructions.extend(get_instructions_from_secondaries(
                 state,
                 &choice,
@@ -1294,10 +1245,10 @@ pub fn generate_instructions_from_move(
                 instruction,
             ));
         }
-        next_instructions = continuing_instructions;
+        list_of_instructions = continuing_instructions;
     }
 
-    for instruction in next_instructions.iter_mut() {
+    for instruction in list_of_instructions.iter_mut() {
         state.apply_instructions(&instruction.instruction_list);
 
         let defending_pokemon = state
@@ -1321,7 +1272,7 @@ pub fn generate_instructions_from_move(
         state.reverse_instructions(&instruction.instruction_list);
     }
 
-    for instruction in next_instructions {
+    for instruction in list_of_instructions {
         final_instructions.push(instruction);
     }
 
@@ -5630,44 +5581,6 @@ mod tests {
 
         assert_eq!(expected_instructions, actual_instructions);
         assert_eq!(expected_frozen_instructions, frozen_instructions);
-    }
-
-    #[test]
-    fn test_previous_instruction_removing_paralysis_stops_the_branch() {
-        let mut state = State::default();
-        state.side_one.get_active().status = PokemonStatus::Paralyze; // pokemon is paralyzed
-
-        let mut incoming_instructions = StateInstructions::default();
-        // there is an incoming instruction to remove the paralysis
-        incoming_instructions.instruction_list =
-            vec![Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: state.side_one.active_index,
-                old_status: state.side_one.get_active_immutable().status,
-                new_status: PokemonStatus::None,
-            })];
-
-        // expected instructions are the incoming instructions, since the paralysis check should
-        // fail
-        let expected_instructions = vec![StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: state.side_one.active_index,
-                old_status: state.side_one.get_active_immutable().status,
-                new_status: PokemonStatus::None,
-            })],
-            ..Default::default()
-        }];
-
-        let actual_instructions = generate_instructions_from_existing_status_conditions(
-            &mut state,
-            &SideReference::SideOne,
-            incoming_instructions,
-            &mut vec![],
-        );
-
-        assert_eq!(expected_instructions, actual_instructions);
     }
 
     #[test]

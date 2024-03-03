@@ -9,8 +9,9 @@ use poke_engine::instruction::{
 };
 use poke_engine::items::Items;
 use poke_engine::state::{
-    Move, MoveChoice, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType,
-    PokemonVolatileStatus, SideReference, State, Terrain, Weather,
+    Move, MoveChoice, Pokemon, PokemonBoostableStat, PokemonSideCondition, PokemonStatus,
+    PokemonType, PokemonVolatileStatus, Side, SideConditions, SideReference, State, StateTerrain,
+    StateWeather, Terrain, Weather,
 };
 
 fn set_moves_on_pkmn_and_call_generate_instructions(
@@ -20,7 +21,15 @@ fn set_moves_on_pkmn_and_call_generate_instructions(
 ) -> Vec<StateInstructions> {
     state.side_one.get_active().replace_move(0, move_one);
     state.side_two.get_active().replace_move(0, move_two);
-    return generate_instructions_from_move_pair(state, &MoveChoice::Move(0), &MoveChoice::Move(0));
+
+    let before_state_string = format!("{:?}", state);
+    let instructions =
+        generate_instructions_from_move_pair(state, &MoveChoice::Move(0), &MoveChoice::Move(0));
+
+    let after_state_string = format!("{:?}", state);
+    assert_eq!(before_state_string, after_state_string);
+
+    return instructions;
 }
 
 #[test]
@@ -46,7 +55,7 @@ fn test_basic_move_pair_instruction_generation() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -101,7 +110,7 @@ fn test_move_pair_instruction_generation_where_first_move_branches() {
             ],
         },
     ];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -155,7 +164,7 @@ fn test_move_pair_instruction_generation_where_second_move_branches() {
             ],
         },
     ];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -201,7 +210,7 @@ fn test_basic_flinching_functionality() {
             ],
         },
     ];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -247,7 +256,7 @@ fn test_fliching_first_and_second_move() {
             ],
         },
     ];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -300,7 +309,7 @@ fn test_flinching_on_move_that_can_miss() {
             ],
         },
     ];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -331,7 +340,7 @@ fn test_using_protect_against_damaging_move() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -367,7 +376,7 @@ fn test_self_boosting_move_against_protect() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -402,7 +411,7 @@ fn test_crash_move_into_protect() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -433,7 +442,7 @@ fn test_protect_stops_secondaries() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -465,7 +474,7 @@ fn test_protect_stops_after_damage_hit_callback() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -500,7 +509,7 @@ fn test_move_that_goes_through_protect() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -535,7 +544,7 @@ fn test_using_spikyshield_against_contact_move() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -571,7 +580,7 @@ fn test_spikyshield_recoil_does_not_overkill() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -602,7 +611,7 @@ fn test_spikyshield_does_not_activate_on_non_contact_move() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -643,7 +652,7 @@ fn test_banefulbunker_poisons() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -679,7 +688,7 @@ fn test_banefulbunker_cannot_poison_already_statused_target() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -715,7 +724,7 @@ fn test_silktrap() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -739,7 +748,7 @@ fn test_protect_side_condition_is_removed() {
             },
         )],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -767,7 +776,7 @@ fn test_protect_for_second_turn_in_a_row() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -798,7 +807,7 @@ fn test_double_protect() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -838,7 +847,7 @@ fn test_basic_substitute_usage() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -878,7 +887,7 @@ fn test_substitute_does_not_let_secondary_status_effect_happen() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -923,7 +932,7 @@ fn test_secondary_on_self_works_against_substitute() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -959,7 +968,7 @@ fn test_move_goes_through_substitute() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -996,7 +1005,7 @@ fn test_infiltrator_goes_through_substitute() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1034,7 +1043,7 @@ fn test_using_protect_with_a_substitute() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1073,7 +1082,7 @@ fn test_drag_move_against_substitute() {
             ],
         },
     ];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1165,7 +1174,7 @@ fn test_whirlwind_move_against_substitute() {
             ],
         },
     ];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1203,7 +1212,7 @@ fn test_drag_move_against_protect_and_substitute() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1231,7 +1240,7 @@ fn test_rockyhelmet_damage_taken() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1260,7 +1269,7 @@ fn test_rockyhelmet_does_not_overkill() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1326,7 +1335,7 @@ fn test_choiceband_locking() {
             ],
         },
     ];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1369,7 +1378,7 @@ fn test_locked_moves_unlock_on_switchout() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1392,7 +1401,7 @@ fn test_fighting_move_with_blackbelt() {
             damage_amount: 142,
         })],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1415,7 +1424,7 @@ fn test_expert_belt_boost() {
             damage_amount: 142,
         })],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1439,7 +1448,7 @@ fn test_expert_belt_does_not_boost() {
             damage_amount: 60,
         })],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1466,7 +1475,7 @@ fn test_lifeorb_boost_and_recoil() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1494,7 +1503,7 @@ fn test_shellbell_drain() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1527,7 +1536,7 @@ fn test_absorbbulb() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1545,7 +1554,7 @@ fn test_ground_move_versus_airballoon() {
         percentage: 100.0,
         instruction_list: vec![],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1573,7 +1582,7 @@ fn test_non_ground_move_versus_airballoon() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1594,7 +1603,7 @@ fn test_assaultvest() {
             damage_amount: 22,
         })],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1635,7 +1644,7 @@ fn test_weaknesspolicy() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1677,7 +1686,7 @@ fn test_weaknesspolicy_does_not_overboost() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1718,7 +1727,7 @@ fn test_switching_in_with_grassyseed_in_grassy_terrain() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1760,7 +1769,7 @@ fn test_contrary_with_seed() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1782,7 +1791,7 @@ fn test_contrary() {
             amount: -2,
         })],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1810,7 +1819,7 @@ fn test_contrary_with_secondary() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1851,7 +1860,7 @@ fn test_throatspray_with_move_that_can_miss() {
             ],
         },
     ];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1872,7 +1881,7 @@ fn test_adaptability() {
             damage_amount: 63,
         })],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1914,7 +1923,7 @@ fn test_poisonpoint_with_poisonjab() {
             })],
         },
     ];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1956,7 +1965,7 @@ fn test_serenegrace_with_secondary() {
             })],
         },
     ];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -1977,7 +1986,7 @@ fn test_technician() {
             damage_amount: 72,
         })],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -2013,7 +2022,7 @@ fn test_unseenfist() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -2040,7 +2049,7 @@ fn test_ironbarbs() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -2068,7 +2077,7 @@ fn test_rattled() {
             }),
         ],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -2086,7 +2095,7 @@ fn test_taunt_into_aromaveil() {
         percentage: 100.0,
         instruction_list: vec![],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -2104,7 +2113,7 @@ fn test_explosion_into_damp() {
         percentage: 100.0,
         instruction_list: vec![],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -2126,7 +2135,7 @@ fn test_waterabsorb() {
             heal_amount: 25,
         })],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -2148,7 +2157,7 @@ fn test_dryskin_does_not_overheal() {
             heal_amount: 10,
         })],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -2172,7 +2181,7 @@ fn test_dryskin_in_rain() {
             heal_amount: 10,
         })],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -2194,7 +2203,7 @@ fn test_filter() {
             damage_amount: 49,
         })],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -2266,7 +2275,7 @@ fn test_effectspore() {
             })],
         },
     ];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -2290,7 +2299,7 @@ fn test_flashfire() {
             },
         )],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -2311,7 +2320,7 @@ fn test_hypercutter() {
             damage_amount: 51,
         })],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
@@ -2333,5 +2342,5 @@ fn test_innerfocus() {
             damage_amount: 63,
         })],
     }];
-    assert_eq!(expected_instructions, vec_of_instructions)
+    assert_eq!(expected_instructions, vec_of_instructions);
 }

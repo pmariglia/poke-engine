@@ -215,7 +215,7 @@ pub enum PokemonType {
     Typeless,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum PokemonNatures {
     Lonely,
     Adamant,
@@ -257,7 +257,7 @@ pub enum PokemonBoostableStat {
     Accuracy,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct SideConditions {
     pub aurora_veil: i8,
     pub crafty_shield: i8,
