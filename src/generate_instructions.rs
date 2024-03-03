@@ -1158,9 +1158,15 @@ pub fn generate_instructions_from_move(
         return !should_drop;
     });
 
-    // START HERE
-    for mut instruction in list_of_instructions.iter_mut() {
+    list_of_instructions.retain_mut(|mut instruction| {
         state.apply_instructions(&instruction.instruction_list);
+        let should_drop = cannot_use_move(state, &choice, &attacking_side);
+        if should_drop {
+            state.reverse_instructions(&instruction.instruction_list);
+            final_instructions.push(instruction.clone());
+            return false;
+        }
+
         generate_instructions_from_move_special_effect(
             state,
             &choice,
@@ -1223,7 +1229,10 @@ pub fn generate_instructions_from_move(
         }
 
         state.reverse_instructions(&instruction.instruction_list);
-    }
+
+        return true;
+    });
+
     list_of_instructions.retain(|instruction| instruction.percentage > 0.0);
 
     if choice.flags.drag {
@@ -1232,7 +1241,6 @@ pub fn generate_instructions_from_move(
         }
         return combine_duplicate_instructions(final_instructions);
     }
-    // END HERE
 
     if let Some(secondaries_vec) = &choice.secondaries {
         let mut continuing_instructions: Vec<StateInstructions> = Vec::with_capacity(20);
