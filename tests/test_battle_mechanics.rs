@@ -8,11 +8,7 @@ use poke_engine::instruction::{
     SwitchInstruction,
 };
 use poke_engine::items::Items;
-use poke_engine::state::{
-    Move, MoveChoice, Pokemon, PokemonBoostableStat, PokemonSideCondition, PokemonStatus,
-    PokemonType, PokemonVolatileStatus, Side, SideConditions, SideReference, State, StateTerrain,
-    StateWeather, Terrain, Weather,
-};
+use poke_engine::state::{Move, MoveChoice, Pokemon, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, Side, SideConditions, SideReference, State, StateTerrain, StateWeather, Terrain, Weather};
 
 fn set_moves_on_pkmn_and_call_generate_instructions(
     state: &mut State,
@@ -41,7 +37,7 @@ fn test_force_switch_after_faint_does_not_trigger_end_of_turn() {
     state.weather.weather_type = Weather::Hail;
     state.weather.turns_remaining = 2;
 
-    let side_one_move = MoveChoice::Switch(1);
+    let side_one_move = MoveChoice::Switch(PokemonIndex::P1);
     let side_two_move = MoveChoice::None;
     let vec_of_instructions =
         generate_instructions_from_move_pair(&mut state, &side_one_move, &side_two_move);
@@ -50,8 +46,8 @@ fn test_force_switch_after_faint_does_not_trigger_end_of_turn() {
         percentage: 100.0,
         instruction_list: vec![Instruction::Switch(SwitchInstruction {
             side_ref: SideReference::SideOne,
-            previous_index: 0,
-            next_index: 1,
+            previous_index: PokemonIndex::P0,
+            next_index: PokemonIndex::P1,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -658,7 +654,7 @@ fn test_banefulbunker_poisons() {
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                pokemon_index: 0,
+                pokemon_index: PokemonIndex::P0,
                 old_status: PokemonStatus::None,
                 new_status: PokemonStatus::Poison,
             }),
@@ -1137,8 +1133,8 @@ fn test_whirlwind_move_against_substitute() {
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
             ],
         },
@@ -1151,8 +1147,8 @@ fn test_whirlwind_move_against_substitute() {
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 2,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P2,
                 }),
             ],
         },
@@ -1165,8 +1161,8 @@ fn test_whirlwind_move_against_substitute() {
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 3,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P3,
                 }),
             ],
         },
@@ -1179,8 +1175,8 @@ fn test_whirlwind_move_against_substitute() {
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 4,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P4,
                 }),
             ],
         },
@@ -1193,8 +1189,8 @@ fn test_whirlwind_move_against_substitute() {
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 5,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P5,
                 }),
             ],
         },
@@ -1349,7 +1345,7 @@ fn test_choiceband_locking() {
                 }),
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
-                    pokemon_index: 0,
+                    pokemon_index: PokemonIndex::P0,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Burn,
                 }),
@@ -1377,7 +1373,7 @@ fn test_locked_moves_unlock_on_switchout() {
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        &MoveChoice::Switch(1),
+        &MoveChoice::Switch(PokemonIndex::P1),
         &MoveChoice::Move(0),
     );
 
@@ -1398,8 +1394,8 @@ fn test_locked_moves_unlock_on_switchout() {
             }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
-                previous_index: 0,
-                next_index: 1,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
             }),
         ],
     }];
@@ -1717,7 +1713,7 @@ fn test_weaknesspolicy_does_not_overboost() {
 #[test]
 fn test_switching_in_with_grassyseed_in_grassy_terrain() {
     let mut state = State::default();
-    state.side_two.pokemon[1].item = Items::GRASSY_SEED;
+    state.side_two.pokemon[PokemonIndex::P1].item = Items::GRASSY_SEED;
     state.terrain.terrain_type = Terrain::GrassyTerrain;
     state.terrain.turns_remaining = 3;
 
@@ -1729,7 +1725,7 @@ fn test_switching_in_with_grassyseed_in_grassy_terrain() {
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
         &MoveChoice::Move(0),
-        &MoveChoice::Switch(1),
+        &MoveChoice::Switch(PokemonIndex::P1),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1737,8 +1733,8 @@ fn test_switching_in_with_grassyseed_in_grassy_terrain() {
         instruction_list: vec![
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideTwo,
-                previous_index: 0,
-                next_index: 1,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
             }),
             Instruction::Boost(BoostInstruction {
                 side_ref: SideReference::SideTwo,
@@ -1758,8 +1754,8 @@ fn test_switching_in_with_grassyseed_in_grassy_terrain() {
 #[test]
 fn test_contrary_with_seed() {
     let mut state = State::default();
-    state.side_two.pokemon[1].item = Items::PSYCHIC_SEED;
-    state.side_two.pokemon[1].ability = Abilities::CONTRARY;
+    state.side_two.pokemon[PokemonIndex::P1].item = Items::PSYCHIC_SEED;
+    state.side_two.pokemon[PokemonIndex::P1].ability = Abilities::CONTRARY;
     state.terrain.terrain_type = Terrain::PsychicTerrain;
     state.terrain.turns_remaining = 3;
 
@@ -1771,7 +1767,7 @@ fn test_contrary_with_seed() {
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
         &MoveChoice::Move(0),
-        &MoveChoice::Switch(1),
+        &MoveChoice::Switch(PokemonIndex::P1),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1779,8 +1775,8 @@ fn test_contrary_with_seed() {
         instruction_list: vec![
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideTwo,
-                previous_index: 0,
-                next_index: 1,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
             }),
             Instruction::Boost(BoostInstruction {
                 side_ref: SideReference::SideTwo,
@@ -1868,7 +1864,7 @@ fn test_throatspray_with_move_that_can_miss() {
             instruction_list: vec![
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
-                    pokemon_index: 0,
+                    pokemon_index: PokemonIndex::P0,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Sleep,
                 }),
@@ -1930,7 +1926,7 @@ fn test_poisonpoint_with_poisonjab() {
                 }),
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
-                    pokemon_index: 0,
+                    pokemon_index: PokemonIndex::P0,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Poison,
                 }),
@@ -1972,7 +1968,7 @@ fn test_serenegrace_with_secondary() {
                 }),
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
-                    pokemon_index: 0,
+                    pokemon_index: PokemonIndex::P0,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Poison,
                 }),
@@ -2252,7 +2248,7 @@ fn test_effectspore() {
                 }),
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    pokemon_index: 0,
+                    pokemon_index: PokemonIndex::P0,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Poison,
                 }),
@@ -2271,7 +2267,7 @@ fn test_effectspore() {
                 }),
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    pokemon_index: 0,
+                    pokemon_index: PokemonIndex::P0,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Paralyze,
                 }),
@@ -2286,7 +2282,7 @@ fn test_effectspore() {
                 }),
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    pokemon_index: 0,
+                    pokemon_index: PokemonIndex::P0,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Sleep,
                 }),

@@ -1,4 +1,4 @@
-use crate::state::PokemonSideCondition;
+use crate::state::{PokemonIndex, PokemonSideCondition};
 use crate::state::PokemonStatus;
 use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
@@ -112,8 +112,8 @@ pub struct SetSubstituteHealthInstruction {
 #[derive(Debug, PartialEq, Clone)]
 pub struct SwitchInstruction {
     pub side_ref: SideReference,
-    pub previous_index: usize,
-    pub next_index: usize,
+    pub previous_index: PokemonIndex,
+    pub next_index: PokemonIndex,
 }
 
 // pokemon_index is present because even reserve pokemon can have their status
@@ -121,7 +121,7 @@ pub struct SwitchInstruction {
 #[derive(Debug, PartialEq, Clone)]
 pub struct ChangeStatusInstruction {
     pub side_ref: SideReference,
-    pub pokemon_index: usize,
+    pub pokemon_index: PokemonIndex,
     pub old_status: PokemonStatus,
     pub new_status: PokemonStatus,
 }

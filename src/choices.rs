@@ -6,7 +6,7 @@ use crate::instruction::Instruction;
 use crate::instruction::SetSubstituteHealthInstruction;
 use crate::instruction::{ApplyVolatileStatusInstruction, StateInstructions};
 use crate::items::Items;
-use crate::state::PokemonStatus;
+use crate::state::{PokemonIndex, PokemonStatus};
 use crate::state::PokemonType;
 use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
@@ -16449,7 +16449,7 @@ pub enum Effect {
 pub struct Choice {
     // Basic move information
     pub move_id: String, // in the case of category::Switch, this is not used
-    pub switch_id: usize,
+    pub switch_id: PokemonIndex,
     pub move_type: PokemonType,
     pub accuracy: f32,
     pub category: MoveCategory,
@@ -16511,7 +16511,7 @@ impl Default for Choice {
     fn default() -> Choice {
         return Choice {
             move_id: "".to_string(),
-            switch_id: 0,
+            switch_id: PokemonIndex::P0,
             move_type: PokemonType::Normal,
             accuracy: 100.0,
             category: MoveCategory::Status,

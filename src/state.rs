@@ -2,6 +2,7 @@ use crate::abilities::Abilities;
 use crate::choices::{Choice, MOVES};
 use core::panic;
 use std::collections::HashSet;
+use std::ops::{Index, IndexMut};
 
 use crate::instruction::{
     BoostInstruction, ChangeSideConditionInstruction, EnableMoveInstruction, Instruction,
@@ -31,7 +32,7 @@ fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum MoveChoice {
     Move(usize),
-    Switch(usize),
+    Switch(PokemonIndex),
     None,
 }
 
@@ -543,19 +544,140 @@ impl Default for Pokemon {
     }
 }
 
+#[derive(Debug, Copy, PartialEq, Clone, Eq)]
+pub enum PokemonIndex {
+    P0,
+    P1,
+    P2,
+    P3,
+    P4,
+    P5,
+}
+
+impl PokemonIndex {
+    pub fn get_index(&self) -> usize {
+        match self {
+            PokemonIndex::P0 => 0,
+            PokemonIndex::P1 => 1,
+            PokemonIndex::P2 => 2,
+            PokemonIndex::P3 => 3,
+            PokemonIndex::P4 => 4,
+            PokemonIndex::P5 => 5,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct SidePokemon {
+    pub p0: Pokemon,
+    pub p1: Pokemon,
+    pub p2: Pokemon,
+    pub p3: Pokemon,
+    pub p4: Pokemon,
+    pub p5: Pokemon,
+}
+
+impl <'a> IntoIterator for &'a SidePokemon {
+    type Item = &'a Pokemon;
+    type IntoIter = SidePokemonIterator<'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        SidePokemonIterator {
+            side_pokemon: &self,
+            pokemon_index: PokemonIndex::P0,
+            index: 0,
+        }
+    }
+}
+
+pub struct SidePokemonIterator<'a> {
+    side_pokemon: &'a SidePokemon,
+    pokemon_index: PokemonIndex,
+    index: usize,
+}
+
+impl <'a> Iterator for SidePokemonIterator<'a> {
+    type Item = &'a Pokemon;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        return match self.index {
+            0 => {
+                self.index += 1;
+                self.pokemon_index = PokemonIndex::P0;
+                Some(&self.side_pokemon.p0)
+            },
+            1 => {
+                self.index += 1;
+                self.pokemon_index = PokemonIndex::P1;
+                Some(&self.side_pokemon.p1)
+            },
+            2 => {
+                self.index += 1;
+                self.pokemon_index = PokemonIndex::P2;
+                Some(&self.side_pokemon.p2)
+            },
+            3 => {
+                self.index += 1;
+                self.pokemon_index = PokemonIndex::P3;
+                Some(&self.side_pokemon.p3)
+            },
+            4 => {
+                self.index += 1;
+                self.pokemon_index = PokemonIndex::P4;
+                Some(&self.side_pokemon.p4)
+            },
+            5 => {
+                self.index += 1;
+                self.pokemon_index = PokemonIndex::P5;
+                Some(&self.side_pokemon.p5)
+            },
+            _ => return None,
+        }
+    }
+}
+
+impl Index<PokemonIndex> for SidePokemon {
+    type Output = Pokemon;
+
+    fn index(&self, index: PokemonIndex) -> &Self::Output {
+        match index {
+            PokemonIndex::P0 => &self.p0,
+            PokemonIndex::P1 => &self.p1,
+            PokemonIndex::P2 => &self.p2,
+            PokemonIndex::P3 => &self.p3,
+            PokemonIndex::P4 => &self.p4,
+            PokemonIndex::P5 => &self.p5,
+        }
+    }
+}
+
+impl IndexMut<PokemonIndex> for SidePokemon {
+    fn index_mut(&mut self, index: PokemonIndex) -> &mut Self::Output {
+        match index {
+            PokemonIndex::P0 => &mut self.p0,
+            PokemonIndex::P1 => &mut self.p1,
+            PokemonIndex::P2 => &mut self.p2,
+            PokemonIndex::P3 => &mut self.p3,
+            PokemonIndex::P4 => &mut self.p4,
+            PokemonIndex::P5 => &mut self.p5,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Side {
-    pub active_index: usize,
-    pub pokemon: [Pokemon; 6],
+    pub active_index: PokemonIndex,
+    pub pokemon: SidePokemon,
     pub side_conditions: SideConditions,
     pub wish: (i8, i16),
 }
 
 impl Side {
     pub fn add_switches(&self, vec: &mut Vec<MoveChoice>) {
-        for (index, p) in self.pokemon.iter().enumerate() {
-            if p.hp > 0 && index != self.active_index {
-                vec.push(MoveChoice::Switch(index));
+        let mut iter = self.pokemon.into_iter();
+        while let Some(p) = iter.next() {
+            if p.hp > 0 && iter.pokemon_index != self.active_index {
+                vec.push(MoveChoice::Switch(iter.pokemon_index));
             }
         }
     }
@@ -566,6 +688,29 @@ impl Side {
 
     pub fn get_active_immutable(&self) -> &Pokemon {
         &self.pokemon[self.active_index]
+    }
+
+    pub fn num_alive_pkmn(&self) -> i8 {
+        let mut count = 0;
+        for p in self.pokemon.into_iter() {
+            if p.hp > 0 {
+                count += 1;
+            }
+        }
+        return count;
+    }
+
+    pub fn get_alive_pkmn_indices(&self) -> Vec<PokemonIndex> {
+        let mut vec = Vec::with_capacity(6);
+        let mut iter = self.pokemon.into_iter();
+
+        while let Some(p) = iter.next() {
+            if p.hp > 0 && iter.pokemon_index != self.active_index {
+                vec.push(iter.pokemon_index.clone());
+            }
+        }
+
+        return vec;
     }
 
     pub fn get_side_condition(&self, side_condition: PokemonSideCondition) -> i8 {
@@ -596,27 +741,27 @@ impl Side {
 impl Default for Side {
     fn default() -> Side {
         Side {
-            active_index: 0,
-            pokemon: [
-                Pokemon {
+            active_index: PokemonIndex::P0,
+            pokemon: SidePokemon {
+                p0: Pokemon {
                     ..Pokemon::default()
                 },
-                Pokemon {
+                p1: Pokemon {
                     ..Pokemon::default()
                 },
-                Pokemon {
+                p2: Pokemon {
                     ..Pokemon::default()
                 },
-                Pokemon {
+                p3: Pokemon {
                     ..Pokemon::default()
                 },
-                Pokemon {
+                p4: Pokemon {
                     ..Pokemon::default()
                 },
-                Pokemon {
+                p5: Pokemon {
                     ..Pokemon::default()
                 },
-            ],
+            },
             side_conditions: SideConditions {
                 ..Default::default()
             },
@@ -657,10 +802,10 @@ impl State {
         //  0 if battle is not over
         //  1 if side one has won
         // -1 if side two has won
-        if self.side_one.pokemon.iter().all(|p| p.hp <= 0) {
+        if self.side_one.pokemon.into_iter().all(|p| p.hp <= 0) {
             return -1.0;
         }
-        if self.side_two.pokemon.iter().all(|p| p.hp <= 0) {
+        if self.side_two.pokemon.into_iter().all(|p| p.hp <= 0) {
             return 1.0;
         }
         return 0.0;
@@ -886,12 +1031,12 @@ impl State {
         active.hp += amount;
     }
 
-    fn switch(&mut self, side_ref: &SideReference, next_active_index: usize, _: usize) {
+    fn switch(&mut self, side_ref: &SideReference, next_active_index: PokemonIndex, _: PokemonIndex) {
         let side = self.get_side(&side_ref);
         side.active_index = next_active_index;
     }
 
-    fn reverse_switch(&mut self, side_ref: &SideReference, _: usize, previous_active_index: usize) {
+    fn reverse_switch(&mut self, side_ref: &SideReference, _: PokemonIndex, previous_active_index: PokemonIndex) {
         let side = self.get_side(&side_ref);
         side.active_index = previous_active_index;
     }
@@ -917,7 +1062,7 @@ impl State {
     fn change_status(
         &mut self,
         side_ref: &SideReference,
-        pokemon_index: usize,
+        pokemon_index: PokemonIndex,
         new_status: PokemonStatus,
     ) {
         let pkmn = &mut self.get_side(&side_ref).pokemon[pokemon_index];

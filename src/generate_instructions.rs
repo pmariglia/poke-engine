@@ -9,7 +9,7 @@ use crate::instruction::{
     RemoveVolatileStatusInstruction,
 };
 use crate::items::Items;
-use crate::state::{MoveChoice, PokemonBoostableStat, PokemonSideCondition, PokemonType, Terrain};
+use crate::state::{MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonType, Terrain};
 use crate::{
     abilities::ABILITIES,
     choices::{Choice, MoveCategory},
@@ -25,7 +25,7 @@ use std::cmp;
 
 fn generate_instructions_from_switch(
     state: &mut State,
-    new_pokemon_index: usize,
+    new_pokemon_index: PokemonIndex,
     switching_side_ref: SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
@@ -695,13 +695,7 @@ fn get_instructions_from_drag(
         return;
     }
 
-    let defending_side_alive_reserve_indices = defending_side
-        .pokemon
-        .iter()
-        .enumerate()
-        .filter(|(a, b)| b.hp > 0 && a != &defending_side.active_index)
-        .map(|(index, _)| index)
-        .collect::<Vec<_>>();
+    let defending_side_alive_reserve_indices = defending_side.get_alive_pkmn_indices();
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
 
@@ -1857,7 +1851,7 @@ mod tests {
         ChangeStatusInstruction, ChangeTerrain, DamageInstruction, EnableMoveInstruction,
         SwitchInstruction,
     };
-    use crate::state::{Move, PokemonBoostableStat, SideReference, State, Terrain};
+    use crate::state::{Move, PokemonBoostableStat, PokemonIndex, SideReference, State, Terrain};
 
     #[test]
     fn test_drag_move_as_second_move_exits_early_if_opponent_used_drag_move() {
@@ -2300,40 +2294,40 @@ mod tests {
                 percentage: 20.0,
                 instruction_list: vec![Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideTwo,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 })],
             },
             StateInstructions {
                 percentage: 20.0,
                 instruction_list: vec![Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideTwo,
-                    previous_index: 0,
-                    next_index: 2,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P2,
                 })],
             },
             StateInstructions {
                 percentage: 20.0,
                 instruction_list: vec![Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideTwo,
-                    previous_index: 0,
-                    next_index: 3,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P3,
                 })],
             },
             StateInstructions {
                 percentage: 20.0,
                 instruction_list: vec![Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideTwo,
-                    previous_index: 0,
-                    next_index: 4,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P4,
                 })],
             },
             StateInstructions {
                 percentage: 20.0,
                 instruction_list: vec![Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideTwo,
-                    previous_index: 0,
-                    next_index: 5,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P5,
                 })],
             },
         ];
@@ -2344,8 +2338,8 @@ mod tests {
     #[test]
     fn test_basic_drag_move_with_fainted_reserve() {
         let mut state: State = State::default();
-        state.side_two.pokemon[1].hp = 0;
-        state.side_two.pokemon[3].hp = 0;
+        state.side_two.pokemon[PokemonIndex::P1].hp = 0;
+        state.side_two.pokemon[PokemonIndex::P3].hp = 0;
         let mut choice = MOVES.get("whirlwind").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
@@ -2361,24 +2355,24 @@ mod tests {
                 percentage: 33.333336,
                 instruction_list: vec![Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideTwo,
-                    previous_index: 0,
-                    next_index: 2,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P2,
                 })],
             },
             StateInstructions {
                 percentage: 33.333336,
                 instruction_list: vec![Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideTwo,
-                    previous_index: 0,
-                    next_index: 4,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P4,
                 })],
             },
             StateInstructions {
                 percentage: 33.333336,
                 instruction_list: vec![Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideTwo,
-                    previous_index: 0,
-                    next_index: 5,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P5,
                 })],
             },
         ];
@@ -2389,8 +2383,8 @@ mod tests {
     #[test]
     fn test_basic_damaging_drag_move_with_fainted_reserve() {
         let mut state: State = State::default();
-        state.side_two.pokemon[1].hp = 0;
-        state.side_two.pokemon[3].hp = 0;
+        state.side_two.pokemon[PokemonIndex::P1].hp = 0;
+        state.side_two.pokemon[PokemonIndex::P3].hp = 0;
         let mut choice = MOVES.get("dragontail").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
@@ -2415,8 +2409,8 @@ mod tests {
                     }),
                     Instruction::Switch(SwitchInstruction {
                         side_ref: SideReference::SideTwo,
-                        previous_index: 0,
-                        next_index: 2,
+                        previous_index: PokemonIndex::P0,
+                        next_index: PokemonIndex::P2,
                     }),
                 ],
             },
@@ -2429,8 +2423,8 @@ mod tests {
                     }),
                     Instruction::Switch(SwitchInstruction {
                         side_ref: SideReference::SideTwo,
-                        previous_index: 0,
-                        next_index: 4,
+                        previous_index: PokemonIndex::P0,
+                        next_index: PokemonIndex::P4,
                     }),
                 ],
             },
@@ -2443,8 +2437,8 @@ mod tests {
                     }),
                     Instruction::Switch(SwitchInstruction {
                         side_ref: SideReference::SideTwo,
-                        previous_index: 0,
-                        next_index: 5,
+                        previous_index: PokemonIndex::P0,
+                        next_index: PokemonIndex::P5,
                     }),
                 ],
             },
@@ -2456,8 +2450,8 @@ mod tests {
     #[test]
     fn test_basic_damaging_drag_that_knocks_out_defender() {
         let mut state: State = State::default();
-        state.side_two.pokemon[1].hp = 0;
-        state.side_two.pokemon[3].hp = 0;
+        state.side_two.pokemon[PokemonIndex::P1].hp = 0;
+        state.side_two.pokemon[PokemonIndex::P3].hp = 0;
         state.side_two.get_active().hp = 5;
         let mut choice = MOVES.get("dragontail").unwrap().to_owned();
 
@@ -2489,11 +2483,11 @@ mod tests {
     #[test]
     fn test_drag_versus_no_alive_reserved() {
         let mut state: State = State::default();
-        state.side_two.pokemon[1].hp = 0;
-        state.side_two.pokemon[2].hp = 0;
-        state.side_two.pokemon[3].hp = 0;
-        state.side_two.pokemon[4].hp = 0;
-        state.side_two.pokemon[5].hp = 0;
+        state.side_two.pokemon[PokemonIndex::P1].hp = 0;
+        state.side_two.pokemon[PokemonIndex::P2].hp = 0;
+        state.side_two.pokemon[PokemonIndex::P3].hp = 0;
+        state.side_two.pokemon[PokemonIndex::P4].hp = 0;
+        state.side_two.pokemon[PokemonIndex::P5].hp = 0;
         let mut choice = MOVES.get("whirlwind").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
@@ -2515,8 +2509,8 @@ mod tests {
     #[test]
     fn test_basic_drag_move_with_fainted_reserve_and_prior_instruction() {
         let mut state: State = State::default();
-        state.side_two.pokemon[1].hp = 0;
-        state.side_two.pokemon[3].hp = 0;
+        state.side_two.pokemon[PokemonIndex::P1].hp = 0;
+        state.side_two.pokemon[PokemonIndex::P3].hp = 0;
         let mut choice = MOVES.get("whirlwind").unwrap().to_owned();
 
         let previous_instruction = StateInstructions {
@@ -2545,8 +2539,8 @@ mod tests {
                     }),
                     Instruction::Switch(SwitchInstruction {
                         side_ref: SideReference::SideTwo,
-                        previous_index: 0,
-                        next_index: 2,
+                        previous_index: PokemonIndex::P0,
+                        next_index: PokemonIndex::P2,
                     }),
                 ],
             },
@@ -2559,8 +2553,8 @@ mod tests {
                     }),
                     Instruction::Switch(SwitchInstruction {
                         side_ref: SideReference::SideTwo,
-                        previous_index: 0,
-                        next_index: 4,
+                        previous_index: PokemonIndex::P0,
+                        next_index: PokemonIndex::P4,
                     }),
                 ],
             },
@@ -2573,8 +2567,8 @@ mod tests {
                     }),
                     Instruction::Switch(SwitchInstruction {
                         side_ref: SideReference::SideTwo,
-                        previous_index: 0,
-                        next_index: 5,
+                        previous_index: PokemonIndex::P0,
+                        next_index: PokemonIndex::P5,
                     }),
                 ],
             },
@@ -2600,7 +2594,7 @@ mod tests {
             percentage: 100.0,
             instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                pokemon_index: 0,
+                pokemon_index: PokemonIndex::P0,
                 old_status: PokemonStatus::None,
                 new_status: PokemonStatus::Paralyze,
             })],
@@ -2631,7 +2625,7 @@ mod tests {
                 percentage: 90.0,
                 instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
-                    pokemon_index: 0,
+                    pokemon_index: PokemonIndex::P0,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Paralyze,
                 })],
@@ -2687,7 +2681,7 @@ mod tests {
                     }),
                     Instruction::ChangeStatus(ChangeStatusInstruction {
                         side_ref: SideReference::SideOne,
-                        pokemon_index: 0,
+                        pokemon_index: PokemonIndex::P0,
                         old_status: PokemonStatus::None,
                         new_status: PokemonStatus::Burn,
                     }),
@@ -2809,7 +2803,7 @@ mod tests {
                     }),
                     Instruction::ChangeStatus(ChangeStatusInstruction {
                         side_ref: SideReference::SideTwo,
-                        pokemon_index: 0,
+                        pokemon_index: PokemonIndex::P0,
                         old_status: PokemonStatus::None,
                         new_status: PokemonStatus::Burn,
                     }),
@@ -2828,7 +2822,7 @@ mod tests {
                     }),
                     Instruction::ChangeStatus(ChangeStatusInstruction {
                         side_ref: SideReference::SideTwo,
-                        pokemon_index: 0,
+                        pokemon_index: PokemonIndex::P0,
                         old_status: PokemonStatus::None,
                         new_status: PokemonStatus::Burn,
                     }),
@@ -2883,7 +2877,7 @@ mod tests {
                     }),
                     Instruction::ChangeStatus(ChangeStatusInstruction {
                         side_ref: SideReference::SideOne,
-                        pokemon_index: 0,
+                        pokemon_index: PokemonIndex::P0,
                         old_status: PokemonStatus::None,
                         new_status: PokemonStatus::Burn,
                     }),
@@ -2925,13 +2919,13 @@ mod tests {
                     }),
                     Instruction::ChangeStatus(ChangeStatusInstruction {
                         side_ref: SideReference::SideTwo,
-                        pokemon_index: 0,
+                        pokemon_index: PokemonIndex::P0,
                         old_status: PokemonStatus::None,
                         new_status: PokemonStatus::Burn,
                     }),
                     Instruction::ChangeStatus(ChangeStatusInstruction {
                         side_ref: SideReference::SideOne,
-                        pokemon_index: 0,
+                        pokemon_index: PokemonIndex::P0,
                         old_status: PokemonStatus::None,
                         new_status: PokemonStatus::Burn,
                     }),
@@ -2946,7 +2940,7 @@ mod tests {
                     }),
                     Instruction::ChangeStatus(ChangeStatusInstruction {
                         side_ref: SideReference::SideTwo,
-                        pokemon_index: 0,
+                        pokemon_index: PokemonIndex::P0,
                         old_status: PokemonStatus::None,
                         new_status: PokemonStatus::Burn,
                     }),
@@ -2961,7 +2955,7 @@ mod tests {
                     }),
                     Instruction::ChangeStatus(ChangeStatusInstruction {
                         side_ref: SideReference::SideOne,
-                        pokemon_index: 0,
+                        pokemon_index: PokemonIndex::P0,
                         old_status: PokemonStatus::None,
                         new_status: PokemonStatus::Burn,
                     }),
@@ -3002,7 +2996,7 @@ mod tests {
             instruction_list: vec![
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    pokemon_index: 0,
+                    pokemon_index: PokemonIndex::P0,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Sleep,
                 }),
@@ -4323,14 +4317,14 @@ mod tests {
             ..Default::default()
         };
 
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
-                previous_index: 0,
-                next_index: 1,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
             })],
             ..Default::default()
         };
@@ -4357,7 +4351,7 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
@@ -4368,8 +4362,8 @@ mod tests {
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
             ],
             ..Default::default()
@@ -4393,7 +4387,7 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
@@ -4405,8 +4399,8 @@ mod tests {
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
             ],
             ..Default::default()
@@ -4431,7 +4425,7 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
@@ -4448,8 +4442,8 @@ mod tests {
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
             ],
             ..Default::default()
@@ -4486,7 +4480,7 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
@@ -4497,8 +4491,8 @@ mod tests {
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
             ],
             ..Default::default()
@@ -4547,7 +4541,7 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
@@ -4566,8 +4560,8 @@ mod tests {
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
             ],
             ..Default::default()
@@ -4592,7 +4586,7 @@ mod tests {
             ..Default::default()
         };
 
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
         incoming_instructions
             .instruction_list
             .push(Instruction::Damage(DamageInstruction {
@@ -4609,8 +4603,8 @@ mod tests {
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
             ],
             ..Default::default()
@@ -4634,7 +4628,7 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
@@ -4645,8 +4639,8 @@ mod tests {
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
             ],
             ..Default::default()
@@ -4697,7 +4691,7 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
@@ -4720,8 +4714,8 @@ mod tests {
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
             ],
             ..Default::default()
@@ -4745,14 +4739,14 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
-                previous_index: 0,
-                next_index: 1,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
             })],
             ..Default::default()
         };
@@ -4776,14 +4770,14 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
-                previous_index: 0,
-                next_index: 1,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
             })],
             ..Default::default()
         };
@@ -4807,7 +4801,7 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
@@ -4818,8 +4812,8 @@ mod tests {
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
             ],
             ..Default::default()
@@ -4844,21 +4838,21 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    pokemon_index: 0,
+                    pokemon_index: PokemonIndex::P0,
                     old_status: PokemonStatus::Paralyze,
                     new_status: PokemonStatus::None,
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
             ],
             ..Default::default()
@@ -4883,14 +4877,14 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
-                previous_index: 0,
-                next_index: 1,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
             })],
             ..Default::default()
         };
@@ -4913,15 +4907,15 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideOne,
@@ -4946,19 +4940,19 @@ mod tests {
     fn test_switching_into_stealthrock_does_not_overkill() {
         let mut state: State = State::default();
         state.side_one.side_conditions.stealth_rock = 1;
-        state.side_one.pokemon[1].hp = 5;
+        state.side_one.pokemon[PokemonIndex::P1].hp = 5;
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideOne,
@@ -4986,15 +4980,15 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
                 Instruction::Boost(BoostInstruction {
                     side_ref: SideReference::SideOne,
@@ -5020,18 +5014,18 @@ mod tests {
     fn test_switching_into_stickyweb_with_heavydutyboots() {
         let mut state: State = State::default();
         state.side_one.side_conditions.sticky_web = 1;
-        state.side_one.pokemon[1].item = Items::HEAVY_DUTY_BOOTS;
+        state.side_one.pokemon[PokemonIndex::P1].item = Items::HEAVY_DUTY_BOOTS;
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
-                previous_index: 0,
-                next_index: 1,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
             })],
             ..Default::default()
         };
@@ -5051,19 +5045,19 @@ mod tests {
     fn test_switching_into_stickyweb_with_contrary() {
         let mut state: State = State::default();
         state.side_one.side_conditions.sticky_web = 1;
-        state.side_one.pokemon[1].ability = Abilities::CONTRARY;
+        state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::CONTRARY;
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
                 Instruction::Boost(BoostInstruction {
                     side_ref: SideReference::SideOne,
@@ -5092,19 +5086,19 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    pokemon_index: 1,
+                    pokemon_index: PokemonIndex::P1,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Poison,
                 }),
@@ -5130,19 +5124,19 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    pokemon_index: 1,
+                    pokemon_index: PokemonIndex::P1,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Toxic,
                 }),
@@ -5165,18 +5159,18 @@ mod tests {
     fn test_switching_into_double_layer_toxicspikes_as_flying_type() {
         let mut state: State = State::default();
         state.side_one.side_conditions.toxic_spikes = 2;
-        state.side_one.pokemon[1].types.0 = PokemonType::Flying;
+        state.side_one.pokemon[PokemonIndex::P1].types.0 = PokemonType::Flying;
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
-                previous_index: 0,
-                next_index: 1,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
             })],
             ..Default::default()
         };
@@ -5196,19 +5190,19 @@ mod tests {
     fn test_switching_into_double_layer_toxicspikes_as_poison_and_flying_type() {
         let mut state: State = State::default();
         state.side_one.side_conditions.toxic_spikes = 2;
-        state.side_one.pokemon[1].types.0 = PokemonType::Flying;
-        state.side_one.pokemon[1].types.1 = PokemonType::Poison;
+        state.side_one.pokemon[PokemonIndex::P1].types.0 = PokemonType::Flying;
+        state.side_one.pokemon[PokemonIndex::P1].types.1 = PokemonType::Poison;
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
-                previous_index: 0,
-                next_index: 1,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
             })],
             ..Default::default()
         };
@@ -5227,19 +5221,19 @@ mod tests {
     #[test]
     fn test_switching_in_with_intimidate() {
         let mut state: State = State::default();
-        state.side_one.pokemon[1].ability = Abilities::INTIMIDATE;
+        state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::INTIMIDATE;
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
                 Instruction::Boost(BoostInstruction {
                     side_ref: SideReference::SideTwo,
@@ -5264,19 +5258,19 @@ mod tests {
     #[test]
     fn test_switching_in_with_intimidate_when_opponent_is_already_lowest_atk_boost() {
         let mut state: State = State::default();
-        state.side_one.pokemon[1].ability = Abilities::INTIMIDATE;
+        state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::INTIMIDATE;
         state.side_two.get_active().attack_boost = -6;
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
-                previous_index: 0,
-                next_index: 1,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
             })],
             ..Default::default()
         };
@@ -5295,19 +5289,19 @@ mod tests {
     #[test]
     fn test_switching_in_with_intimidate_versus_clearbody() {
         let mut state: State = State::default();
-        state.side_one.pokemon[1].ability = Abilities::INTIMIDATE;
+        state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::INTIMIDATE;
         state.side_two.get_active().ability = Abilities::CLEARBODY;
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
-                previous_index: 0,
-                next_index: 1,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
             })],
             ..Default::default()
         };
@@ -5326,20 +5320,20 @@ mod tests {
     #[test]
     fn test_switching_into_double_layer_toxicspikes_as_poison_type() {
         let mut state: State = State::default();
-        state.side_one.pokemon[1].types.0 = PokemonType::Poison;
+        state.side_one.pokemon[PokemonIndex::P1].types.0 = PokemonType::Poison;
         state.side_one.side_conditions.toxic_spikes = 2;
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
                 Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                     side_ref: SideReference::SideOne,
@@ -5366,19 +5360,19 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.side_conditions.stealth_rock = 1;
         state.side_one.side_conditions.spikes = 1;
-        state.side_one.pokemon[1].hp = 15;
+        state.side_one.pokemon[PokemonIndex::P1].hp = 15;
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideOne,
@@ -5408,19 +5402,19 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.side_conditions.stealth_rock = 1;
         state.side_one.side_conditions.spikes = 3;
-        state.side_one.pokemon[1].hp = 25;
+        state.side_one.pokemon[PokemonIndex::P1].hp = 25;
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.switch_id = 1;
+        choice.switch_id = PokemonIndex::P1;
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
-                    previous_index: 0,
-                    next_index: 1,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideOne,
@@ -6152,7 +6146,7 @@ mod tests {
             percentage: 100.0,
             instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
-                pokemon_index: 0,
+                pokemon_index: PokemonIndex::P0,
                 old_status: PokemonStatus::None,
                 new_status: PokemonStatus::Burn,
             })],
@@ -6201,7 +6195,7 @@ mod tests {
             percentage: 100.0,
             instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
-                pokemon_index: 0,
+                pokemon_index: PokemonIndex::P0,
                 old_status: PokemonStatus::None,
                 new_status: PokemonStatus::Toxic,
             })],

@@ -728,11 +728,7 @@ lazy_static! {
                     |state, attacking_choice, defender_choice, attacking_side| {
                         let mut boost_amount = 1.0;
                         let side = state.get_side_immutable(attacking_side);
-                        for (index, pkmn) in side.pokemon.iter().enumerate() {
-                            if pkmn.hp <= 0 && index != side.active_index {
-                                boost_amount += 0.1;
-                            }
-                        }
+                        boost_amount += 0.1 * side.num_alive_pkmn() as f32;
                         attacking_choice.base_power *= boost_amount;
                     },
                 ),
