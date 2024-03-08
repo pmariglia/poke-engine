@@ -2698,6 +2698,7 @@ lazy_static! {
                     |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
                         if ["selfdestruct", "explosion", "mindblown", "mistyexplosion"].contains(&attacker_choice.move_id.as_str()) {
                             attacker_choice.accuracy = 0.0;
+                            attacker_choice.heal = None;
                         }
                     },
                 ),
