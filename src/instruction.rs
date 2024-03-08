@@ -1,10 +1,11 @@
-use crate::state::{PokemonIndex, PokemonSideCondition};
+use crate::items::Items;
 use crate::state::PokemonStatus;
 use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
 use crate::state::Terrain;
 use crate::state::Weather;
 use crate::state::{PokemonBoostableStat, PokemonType};
+use crate::state::{PokemonIndex, PokemonSideCondition};
 use std::fmt;
 
 #[derive(PartialEq, Clone)]
@@ -86,8 +87,8 @@ pub struct DisableMoveInstruction {
 #[derive(Debug, PartialEq, Clone)]
 pub struct ChangeItemInstruction {
     pub side_ref: SideReference,
-    pub current_item: usize,
-    pub new_item: usize,
+    pub current_item: Items,
+    pub new_item: Items,
 }
 
 #[derive(Debug, PartialEq, Clone)]

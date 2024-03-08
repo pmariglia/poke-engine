@@ -334,7 +334,7 @@ pub struct Pokemon {
     pub hp: i16,
     pub maxhp: i16,
     pub ability: usize,
-    pub item: usize,
+    pub item: Items,
     pub attack: i16,
     pub defense: i16,
     pub special_attack: i16,
@@ -412,7 +412,7 @@ impl Pokemon {
     pub fn is_grounded(&self) -> bool {
         if self.has_type(&PokemonType::Flying)
             || self.ability == Abilities::LEVITATE
-            || self.item == Items::AIR_BALLOON
+            || self.item == Items::AirBalloon
         {
             return false;
         }
@@ -475,7 +475,7 @@ impl Pokemon {
             Abilities::FULLMETALBODY,
         ]
         .contains(&self.ability)
-            || ([Items::CLEAR_AMULET].contains(&self.item))
+            || ([Items::ClearAmulet].contains(&self.item))
         {
             return true;
         }
@@ -554,19 +554,6 @@ pub enum PokemonIndex {
     P5,
 }
 
-impl PokemonIndex {
-    pub fn get_index(&self) -> usize {
-        match self {
-            PokemonIndex::P0 => 0,
-            PokemonIndex::P1 => 1,
-            PokemonIndex::P2 => 2,
-            PokemonIndex::P3 => 3,
-            PokemonIndex::P4 => 4,
-            PokemonIndex::P5 => 5,
-        }
-    }
-}
-
 #[derive(Debug)]
 pub struct SidePokemon {
     pub p0: Pokemon,
@@ -577,7 +564,7 @@ pub struct SidePokemon {
     pub p5: Pokemon,
 }
 
-impl <'a> IntoIterator for &'a SidePokemon {
+impl<'a> IntoIterator for &'a SidePokemon {
     type Item = &'a Pokemon;
     type IntoIter = SidePokemonIterator<'a>;
 
@@ -596,7 +583,7 @@ pub struct SidePokemonIterator<'a> {
     index: usize,
 }
 
-impl <'a> Iterator for SidePokemonIterator<'a> {
+impl<'a> Iterator for SidePokemonIterator<'a> {
     type Item = &'a Pokemon;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -605,34 +592,34 @@ impl <'a> Iterator for SidePokemonIterator<'a> {
                 self.index += 1;
                 self.pokemon_index = PokemonIndex::P0;
                 Some(&self.side_pokemon.p0)
-            },
+            }
             1 => {
                 self.index += 1;
                 self.pokemon_index = PokemonIndex::P1;
                 Some(&self.side_pokemon.p1)
-            },
+            }
             2 => {
                 self.index += 1;
                 self.pokemon_index = PokemonIndex::P2;
                 Some(&self.side_pokemon.p2)
-            },
+            }
             3 => {
                 self.index += 1;
                 self.pokemon_index = PokemonIndex::P3;
                 Some(&self.side_pokemon.p3)
-            },
+            }
             4 => {
                 self.index += 1;
                 self.pokemon_index = PokemonIndex::P4;
                 Some(&self.side_pokemon.p4)
-            },
+            }
             5 => {
                 self.index += 1;
                 self.pokemon_index = PokemonIndex::P5;
                 Some(&self.side_pokemon.p5)
-            },
+            }
             _ => return None,
-        }
+        };
     }
 }
 
@@ -1002,7 +989,7 @@ impl State {
                 .get_side_immutable(attacking_side_ref)
                 .get_active_immutable()
                 .item
-                == Items::PROTECTIVE_PADS
+                == Items::ProtectivePads
             {
                 return false;
             }
@@ -1031,12 +1018,22 @@ impl State {
         active.hp += amount;
     }
 
-    fn switch(&mut self, side_ref: &SideReference, next_active_index: PokemonIndex, _: PokemonIndex) {
+    fn switch(
+        &mut self,
+        side_ref: &SideReference,
+        next_active_index: PokemonIndex,
+        _: PokemonIndex,
+    ) {
         let side = self.get_side(&side_ref);
         side.active_index = next_active_index;
     }
 
-    fn reverse_switch(&mut self, side_ref: &SideReference, _: PokemonIndex, previous_active_index: PokemonIndex) {
+    fn reverse_switch(
+        &mut self,
+        side_ref: &SideReference,
+        _: PokemonIndex,
+        previous_active_index: PokemonIndex,
+    ) {
         let side = self.get_side(&side_ref);
         side.active_index = previous_active_index;
     }
@@ -1121,7 +1118,7 @@ impl State {
         self.get_side(side_reference).get_active().types = new_types;
     }
 
-    fn change_item(&mut self, side_reference: &SideReference, new_item: usize) {
+    fn change_item(&mut self, side_reference: &SideReference, new_item: Items) {
         self.get_side(side_reference).get_active().item = new_item;
     }
 

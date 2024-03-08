@@ -8,8 +8,10 @@ use crate::instruction::{
     ChangeSideConditionInstruction, DecrementWishInstruction, HealInstruction,
     RemoveVolatileStatusInstruction,
 };
-use crate::items::Items;
-use crate::state::{MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonType, Terrain};
+use crate::items::{item_from_index, Items};
+use crate::state::{
+    MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonType, Terrain,
+};
 use crate::{
     abilities::ABILITIES,
     choices::{Choice, MoveCategory},
@@ -18,7 +20,6 @@ use crate::{
         ChangeStatusInstruction, DamageInstruction, Instruction, StateInstructions,
         SwitchInstruction,
     },
-    items::ITEMS_VEC,
     state::{Pokemon, PokemonStatus, PokemonVolatileStatus, SideReference, State, Weather},
 };
 use std::cmp;
@@ -76,7 +77,7 @@ fn generate_instructions_from_switch(
     let switched_in_pkmn = state
         .get_side_immutable(&switching_side_ref)
         .get_active_immutable();
-    if switched_in_pkmn.item != Items::HEAVY_DUTY_BOOTS {
+    if switched_in_pkmn.item != Items::HeavyDutyBoots {
         if switch_in_side.side_conditions.stealth_rock == 1 {
             let multiplier =
                 type_effectiveness_modifier(&PokemonType::Rock, &switched_in_pkmn.types) as i16;
@@ -192,7 +193,7 @@ fn generate_instructions_from_switch(
 
     let switching_side = state.get_side_immutable(&switching_side_ref);
     if let Some(on_switch_in_fn) =
-        ITEMS_VEC[switching_side.get_active_immutable().item].on_switch_in
+        item_from_index(switching_side.get_active_immutable().item).on_switch_in
     {
         for i in on_switch_in_fn(&state, &switching_side_ref) {
             state.apply_one_instruction(&i);
@@ -201,7 +202,6 @@ fn generate_instructions_from_switch(
     }
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
-    // return incoming_instructions;
 }
 
 fn generate_instructions_from_side_conditions(
@@ -597,7 +597,7 @@ fn get_instructions_from_heal(
         MoveTarget::User => target_side_ref = *attacking_side_reference,
     }
 
-    let mut target_pkmn = state.get_side(&target_side_ref).get_active();
+    let target_pkmn = state.get_side(&target_side_ref).get_active();
 
     let mut health_recovered = (heal.amount * target_pkmn.maxhp as f32) as i16;
     let final_health = target_pkmn.hp + health_recovered;
@@ -652,7 +652,7 @@ fn check_move_hit_or_miss(
                 .push(crash_instruction);
         }
 
-        if Items::BLUNDER_POLICY == attacking_pokemon.item
+        if Items::BlunderPolicy == attacking_pokemon.item
             && attacking_pokemon.item_can_be_removed()
         {
             if let Some(boost_instruction) = get_boost_instruction(
@@ -909,7 +909,7 @@ fn before_move(
     let attacking_pokemon = state
         .get_side_immutable(attacking_side)
         .get_active_immutable();
-    if let Some(before_move_fn) = ITEMS_VEC[attacking_pokemon.item].before_move {
+    if let Some(before_move_fn) = item_from_index(attacking_pokemon.item).before_move {
         before_move_fn(state, choice, attacking_side, incoming_instructions);
     }
 }
@@ -940,11 +940,11 @@ fn update_choice(
         modify_move_fn(state, attacker_choice, defender_choice, attacking_side)
     };
 
-    if let Some(modify_move_fn) = ITEMS_VEC[attacking_pokemon.item].modify_attack_being_used {
+    if let Some(modify_move_fn) = item_from_index(attacking_pokemon.item).modify_attack_being_used {
         modify_move_fn(state, attacker_choice, attacking_side)
     }
 
-    if let Some(modify_move_fn) = ITEMS_VEC[defending_pokemon.item].modify_attack_against {
+    if let Some(modify_move_fn) = item_from_index(defending_pokemon.item).modify_attack_against {
         modify_move_fn(state, attacker_choice, attacking_side)
     }
 
@@ -1340,7 +1340,7 @@ fn get_effective_speed(state: &State, side_reference: &SideReference) -> i16 {
         boosted_speed *= 2.0
     }
 
-    if active_pkmn.item == Items::CHOICE_SCARF {
+    if active_pkmn.item == Items::ChoiceScarf {
         boosted_speed *= 1.5
     }
 
@@ -1553,7 +1553,7 @@ fn add_end_of_turn_instructions(
             continue;
         }
 
-        if let Some(end_of_turn_fn) = ITEMS_VEC[active_pkmn.item].end_of_turn {
+        if let Some(end_of_turn_fn) = item_from_index(active_pkmn.item).end_of_turn {
             end_of_turn_fn(state, side_ref, &mut incoming_instructions);
         }
 
@@ -2703,7 +2703,7 @@ mod tests {
     fn test_protectivepads_stops_flamebody() {
         let mut state: State = State::default();
         state.side_two.get_active().ability = Abilities::FLAMEBODY;
-        state.side_one.get_active().item = Items::PROTECTIVE_PADS;
+        state.side_one.get_active().item = Items::ProtectivePads;
         let mut choice = MOVES.get("tackle").unwrap().to_owned();
 
         let instructions = generate_instructions_from_move(
@@ -4240,7 +4240,7 @@ mod tests {
     fn test_knockoff_removing_item() {
         let mut state: State = State::default();
         let mut choice = MOVES.get("knockoff").unwrap().to_owned();
-        state.get_side(&SideReference::SideTwo).get_active().item = Items::HEAVY_DUTY_BOOTS;
+        state.get_side(&SideReference::SideTwo).get_active().item = Items::HeavyDutyBoots;
 
         let instructions = generate_instructions_from_move(
             &mut state,
@@ -4259,7 +4259,7 @@ mod tests {
                 }),
                 Instruction::ChangeItem(ChangeItemInstruction {
                     side_ref: SideReference::SideTwo,
-                    current_item: Items::HEAVY_DUTY_BOOTS,
+                    current_item: Items::HeavyDutyBoots,
                     new_item: Items::NONE,
                 }),
             ],
@@ -4272,7 +4272,7 @@ mod tests {
     fn test_blunderpolicy_boost() {
         let mut state: State = State::default();
         let mut choice = MOVES.get("crosschop").unwrap().to_owned();
-        state.get_side(&SideReference::SideOne).get_active().item = Items::BLUNDER_POLICY;
+        state.get_side(&SideReference::SideOne).get_active().item = Items::BlunderPolicy;
 
         let instructions = generate_instructions_from_move(
             &mut state,
@@ -4288,7 +4288,7 @@ mod tests {
                 instruction_list: vec![
                     Instruction::ChangeItem(ChangeItemInstruction {
                         side_ref: SideReference::SideOne,
-                        current_item: Items::BLUNDER_POLICY,
+                        current_item: Items::BlunderPolicy,
                         new_item: Items::NONE,
                     }),
                     Instruction::Boost(BoostInstruction {
@@ -5014,7 +5014,7 @@ mod tests {
     fn test_switching_into_stickyweb_with_heavydutyboots() {
         let mut state: State = State::default();
         state.side_one.side_conditions.sticky_web = 1;
-        state.side_one.pokemon[PokemonIndex::P1].item = Items::HEAVY_DUTY_BOOTS;
+        state.side_one.pokemon[PokemonIndex::P1].item = Items::HeavyDutyBoots;
         let mut choice = Choice {
             ..Default::default()
         };
@@ -6052,7 +6052,7 @@ mod tests {
     fn test_blacksludge_heal_as_poison_type() {
         let mut state = State::default();
         state.side_one.get_active().hp = 50;
-        state.side_one.get_active().item = Items::BLACK_SLUDGE;
+        state.side_one.get_active().item = Items::BlackSludge;
         state.side_one.get_active().types.0 = PokemonType::Poison;
 
         let mut incoming_instructions = StateInstructions::default();
@@ -6079,7 +6079,7 @@ mod tests {
     fn test_blacksludge_damage_as_non_poison_type() {
         let mut state = State::default();
         state.side_one.get_active().hp = 50;
-        state.side_one.get_active().item = Items::BLACK_SLUDGE;
+        state.side_one.get_active().item = Items::BlackSludge;
 
         let mut incoming_instructions = StateInstructions::default();
         add_end_of_turn_instructions(
@@ -6105,7 +6105,7 @@ mod tests {
     fn test_blacksludge_does_not_overheal() {
         let mut state = State::default();
         state.side_one.get_active().hp = 99;
-        state.side_one.get_active().item = Items::BLACK_SLUDGE;
+        state.side_one.get_active().item = Items::BlackSludge;
         state.side_one.get_active().types.0 = PokemonType::Poison;
 
         let mut incoming_instructions = StateInstructions::default();
@@ -6131,7 +6131,7 @@ mod tests {
     #[test]
     fn test_flameorb_end_of_turn_burn() {
         let mut state = State::default();
-        state.side_one.get_active().item = Items::FLAME_ORB;
+        state.side_one.get_active().item = Items::FlameOrb;
 
         let mut incoming_instructions = StateInstructions::default();
         add_end_of_turn_instructions(
@@ -6158,7 +6158,7 @@ mod tests {
     #[test]
     fn test_fire_type_cannot_be_burned_by_flameorb() {
         let mut state = State::default();
-        state.side_one.get_active().item = Items::FLAME_ORB;
+        state.side_one.get_active().item = Items::FlameOrb;
         state.side_one.get_active().types.0 = PokemonType::Fire;
         let mut incoming_instructions = StateInstructions::default();
         add_end_of_turn_instructions(
@@ -6180,7 +6180,7 @@ mod tests {
     #[test]
     fn test_toxicorb_applies_status() {
         let mut state = State::default();
-        state.side_one.get_active().item = Items::TOXIC_ORB;
+        state.side_one.get_active().item = Items::ToxicOrb;
 
         let mut incoming_instructions = StateInstructions::default();
         add_end_of_turn_instructions(
@@ -6207,7 +6207,7 @@ mod tests {
     #[test]
     fn test_toxicorb_does_not_apply_to_poison_type() {
         let mut state = State::default();
-        state.side_one.get_active().item = Items::TOXIC_ORB;
+        state.side_one.get_active().item = Items::ToxicOrb;
         state.side_one.get_active().types.0 = PokemonType::Poison;
 
         let mut incoming_instructions = StateInstructions::default();
