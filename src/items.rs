@@ -814,11 +814,12 @@ fn get_choice_move_disable_instructions(
     move_name: &String,
 ) -> Vec<Instruction> {
     let mut moves_to_disable = vec![];
-    for (i, m) in pkmn.moves.iter().enumerate() {
-        if &m.id != move_name {
+    let mut iter = pkmn.moves.into_iter();
+    while let Some(p) = iter.next() {
+        if &p.id != move_name {
             moves_to_disable.push(Instruction::DisableMove(DisableMoveInstruction {
                 side_ref: *side_ref,
-                move_index: i,
+                move_index: iter.pokemon_move_index,
             }));
         }
     }

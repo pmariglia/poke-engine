@@ -31,7 +31,7 @@ fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum MoveChoice {
-    Move(usize),
+    Move(PokemonMoveIndex),
     Switch(PokemonIndex),
     None,
 }
@@ -307,6 +307,110 @@ impl Default for SideConditions {
     }
 }
 
+#[derive(Debug, Copy, PartialEq, Clone, Eq)]
+pub enum PokemonMoveIndex {
+    M0,
+    M1,
+    M2,
+    M3,
+}
+
+#[derive(Debug)]
+pub struct PokemonMoves {
+    pub m0: Move,
+    pub m1: Move,
+    pub m2: Move,
+    pub m3: Move,
+}
+
+impl Index<PokemonMoveIndex> for PokemonMoves {
+    type Output = Move;
+
+    fn index(&self, index: PokemonMoveIndex) -> &Self::Output {
+        match index {
+            PokemonMoveIndex::M0 => &self.m0,
+            PokemonMoveIndex::M1 => &self.m1,
+            PokemonMoveIndex::M2 => &self.m2,
+            PokemonMoveIndex::M3 => &self.m3,
+        }
+    }
+}
+
+/*
+impl IndexMut<PokemonIndex> for SidePokemon {
+    fn index_mut(&mut self, index: PokemonIndex) -> &mut Self::Output {
+        match index {
+            PokemonIndex::P0 => &mut self.p0,
+            PokemonIndex::P1 => &mut self.p1,
+            PokemonIndex::P2 => &mut self.p2,
+            PokemonIndex::P3 => &mut self.p3,
+            PokemonIndex::P4 => &mut self.p4,
+            PokemonIndex::P5 => &mut self.p5,
+        }
+    }
+}
+*/
+
+impl IndexMut<PokemonMoveIndex> for PokemonMoves {
+    fn index_mut(&mut self, index: PokemonMoveIndex) -> &mut Self::Output {
+        match index {
+            PokemonMoveIndex::M0 => &mut self.m0,
+            PokemonMoveIndex::M1 => &mut self.m1,
+            PokemonMoveIndex::M2 => &mut self.m2,
+            PokemonMoveIndex::M3 => &mut self.m3,
+        }
+    }
+}
+
+pub struct PokemonMoveIterator<'a> {
+    pub pokemon_move: &'a PokemonMoves,
+    pub pokemon_move_index: PokemonMoveIndex,
+    pub index: usize,
+}
+
+impl <'a> Iterator for PokemonMoveIterator<'a> {
+    type Item = &'a Move;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        return match self.index {
+            0 => {
+                self.index += 1;
+                self.pokemon_move_index = PokemonMoveIndex::M0;
+                Some(&self.pokemon_move.m0)
+            }
+            1 => {
+                self.index += 1;
+                self.pokemon_move_index = PokemonMoveIndex::M1;
+                Some(&self.pokemon_move.m1)
+            }
+            2 => {
+                self.index += 1;
+                self.pokemon_move_index = PokemonMoveIndex::M2;
+                Some(&self.pokemon_move.m2)
+            }
+            3 => {
+                self.index += 1;
+                self.pokemon_move_index = PokemonMoveIndex::M3;
+                Some(&self.pokemon_move.m3)
+            }
+            _ => return None,
+        };
+    }
+}
+
+impl<'a> IntoIterator for &'a PokemonMoves {
+    type Item = &'a Move;
+    type IntoIter = PokemonMoveIterator<'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        PokemonMoveIterator {
+            pokemon_move: &self,
+            pokemon_move_index: PokemonMoveIndex::M0,
+            index: 0,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Move {
     pub id: String,
@@ -351,19 +455,20 @@ pub struct Pokemon {
     pub substitute_health: i16,
     pub nature: PokemonNatures,
     pub volatile_statuses: HashSet<PokemonVolatileStatus>,
-    pub moves: Vec<Move>,
+    pub moves: PokemonMoves,
 }
 
 impl Pokemon {
-    pub fn replace_move(&mut self, move_index: usize, new_move_name: String) {
+    pub fn replace_move(&mut self, move_index: PokemonMoveIndex, new_move_name: String) {
         self.moves[move_index].choice = MOVES.get(&new_move_name).unwrap().to_owned();
         self.moves[move_index].id = new_move_name;
     }
 
     pub fn add_available_moves(&self, vec: &mut Vec<MoveChoice>) {
-        for (index, m) in self.moves.iter().enumerate() {
-            if !m.disabled {
-                vec.push(MoveChoice::Move(index));
+        let mut iter = self.moves.into_iter();
+        while let Some(p) = iter.next() {
+            if !p.disabled {
+                vec.push(MoveChoice::Move(iter.pokemon_move_index));
             }
         }
     }
@@ -514,32 +619,12 @@ impl Default for Pokemon {
             substitute_health: 0,
             nature: PokemonNatures::Serious,
             volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
-            moves: vec![
-                Move {
-                    id: "tackle".to_string(),
-                    disabled: false,
-                    pp: 35,
-                    choice: MOVES.get("tackle").unwrap().to_owned(),
-                },
-                Move {
-                    id: "growl".to_string(),
-                    disabled: false,
-                    pp: 40,
-                    choice: MOVES.get("growl").unwrap().to_owned(),
-                },
-                Move {
-                    id: "quickattack".to_string(),
-                    disabled: false,
-                    pp: 30,
-                    choice: MOVES.get("quickattack").unwrap().to_owned(),
-                },
-                Move {
-                    id: "tailwhip".to_string(),
-                    disabled: false,
-                    pp: 30,
-                    choice: MOVES.get("tailwhip").unwrap().to_owned(),
-                },
-            ],
+            moves: PokemonMoves {
+                m0: Default::default(),
+                m1: Default::default(),
+                m2: Default::default(),
+                m3: Default::default(),
+            }
         };
     }
 }
@@ -867,15 +952,34 @@ impl State {
         side_ref: &SideReference,
         vec_to_add_to: &mut Vec<Instruction>,
     ) {
-        let side = self.get_side(side_ref);
-        for (index, m) in side.get_active().moves.iter_mut().enumerate() {
-            if m.disabled {
-                m.disabled = false;
-                vec_to_add_to.push(Instruction::EnableMove(EnableMoveInstruction {
-                    side_ref: *side_ref,
-                    move_index: index,
-                }));
-            }
+        let active = self.get_side(side_ref).get_active();
+        if active.moves.m0.disabled {
+            active.moves.m0.disabled = false;
+            vec_to_add_to.push(Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: *side_ref,
+                move_index: PokemonMoveIndex::M0,
+            }));
+        }
+        if active.moves.m1.disabled {
+            active.moves.m1.disabled = false;
+            vec_to_add_to.push(Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: *side_ref,
+                move_index: PokemonMoveIndex::M1,
+            }));
+        }
+        if active.moves.m2.disabled {
+            active.moves.m2.disabled = false;
+            vec_to_add_to.push(Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: *side_ref,
+                move_index: PokemonMoveIndex::M2,
+            }));
+        }
+        if active.moves.m3.disabled {
+            active.moves.m3.disabled = false;
+            vec_to_add_to.push(Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: *side_ref,
+                move_index: PokemonMoveIndex::M3,
+            }));
         }
     }
 
@@ -1132,11 +1236,11 @@ impl State {
         self.terrain.turns_remaining = turns_remaining;
     }
 
-    fn enable_move(&mut self, side_reference: &SideReference, move_index: usize) {
+    fn enable_move(&mut self, side_reference: &SideReference, move_index: PokemonMoveIndex) {
         self.get_side(side_reference).get_active().moves[move_index].disabled = false;
     }
 
-    fn disable_move(&mut self, side_reference: &SideReference, move_index: usize) {
+    fn disable_move(&mut self, side_reference: &SideReference, move_index: PokemonMoveIndex) {
         self.get_side(side_reference).get_active().moves[move_index].disabled = true;
     }
 

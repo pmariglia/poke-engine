@@ -1142,16 +1142,6 @@ pub fn generate_instructions_from_move(
         &mut final_instructions,
     );
 
-    list_of_instructions.retain_mut(|instruction| {
-        state.apply_instructions(&instruction.instruction_list);
-        let should_drop = cannot_use_move(state, &choice, &attacking_side);
-        state.reverse_instructions(&instruction.instruction_list);
-        if should_drop {
-            final_instructions.push(instruction.clone());
-        }
-        return !should_drop;
-    });
-
     list_of_instructions.retain_mut(|mut instruction| {
         state.apply_instructions(&instruction.instruction_list);
         let should_drop = cannot_use_move(state, &choice, &attacking_side);
@@ -1851,7 +1841,7 @@ mod tests {
         ChangeStatusInstruction, ChangeTerrain, DamageInstruction, EnableMoveInstruction,
         SwitchInstruction,
     };
-    use crate::state::{Move, PokemonBoostableStat, PokemonIndex, SideReference, State, Terrain};
+    use crate::state::{Move, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonMoves, SideReference, State, Terrain};
 
     #[test]
     fn test_drag_move_as_second_move_exits_early_if_opponent_used_drag_move() {
@@ -4463,20 +4453,19 @@ mod tests {
     #[test]
     fn test_basic_switch_with_disabled_move() {
         let mut state: State = State::default();
-        state.side_one.get_active().moves = vec![
-            Move {
-                id: "disabled move".to_string(),
-                disabled: true,
-                pp: 32,
-                ..Default::default()
-            },
-            Move {
-                id: "not disabled move".to_string(),
-                disabled: false,
-                pp: 32,
-                ..Default::default()
-            },
-        ];
+        state.side_one.get_active().moves.m0 = Move {
+            id: "disabled move".to_string(),
+            disabled: true,
+            pp: 32,
+            ..Default::default()
+        };
+        state.side_one.get_active().moves.m1 = Move {
+            id: "not disabled move".to_string(),
+            disabled: false,
+            pp: 32,
+            ..Default::default()
+        };
+
         let mut choice = Choice {
             ..Default::default()
         };
@@ -4487,7 +4476,7 @@ mod tests {
             instruction_list: vec![
                 Instruction::EnableMove(EnableMoveInstruction {
                     side_ref: SideReference::SideOne,
-                    move_index: 0,
+                    move_index: PokemonMoveIndex::M0,
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
@@ -4512,32 +4501,30 @@ mod tests {
     #[test]
     fn test_basic_switch_with_multiple_disabled_moves() {
         let mut state: State = State::default();
-        state.side_one.get_active().moves = vec![
-            Move {
-                id: "disabled move".to_string(),
-                disabled: true,
-                pp: 32,
-                ..Default::default()
-            },
-            Move {
-                id: "also disabled move".to_string(),
-                disabled: true,
-                pp: 32,
-                ..Default::default()
-            },
-            Move {
-                id: "not disabled move".to_string(),
-                disabled: false,
-                pp: 32,
-                ..Default::default()
-            },
-            Move {
-                id: "also also disabled move".to_string(),
-                disabled: true,
-                pp: 32,
-                ..Default::default()
-            },
-        ];
+        state.side_one.get_active().moves.m0 = Move {
+            id: "disabled move".to_string(),
+            disabled: true,
+            pp: 32,
+            ..Default::default()
+        };
+        state.side_one.get_active().moves.m1 = Move {
+            id: "also disabled move".to_string(),
+            disabled: true,
+            pp: 32,
+            ..Default::default()
+        };
+        state.side_one.get_active().moves.m2 = Move {
+            id: "not disabled move".to_string(),
+            disabled: false,
+            pp: 32,
+            ..Default::default()
+        };
+        state.side_one.get_active().moves.m3 = Move {
+            id: "also also disabled move".to_string(),
+            disabled: true,
+            pp: 32,
+            ..Default::default()
+        };
         let mut choice = Choice {
             ..Default::default()
         };
@@ -4548,15 +4535,15 @@ mod tests {
             instruction_list: vec![
                 Instruction::EnableMove(EnableMoveInstruction {
                     side_ref: SideReference::SideOne,
-                    move_index: 0,
+                    move_index: PokemonMoveIndex::M0,
                 }),
                 Instruction::EnableMove(EnableMoveInstruction {
                     side_ref: SideReference::SideOne,
-                    move_index: 1,
+                    move_index: PokemonMoveIndex::M1,
                 }),
                 Instruction::EnableMove(EnableMoveInstruction {
                     side_ref: SideReference::SideOne,
-                    move_index: 3,
+                    move_index: PokemonMoveIndex::M3,
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
@@ -4660,32 +4647,30 @@ mod tests {
     #[test]
     fn test_switch_with_regenerator_plus_move_enabling() {
         let mut state: State = State::default();
-        state.side_one.get_active().moves = vec![
-            Move {
-                id: "disabled move".to_string(),
-                disabled: true,
-                pp: 32,
-                ..Default::default()
-            },
-            Move {
-                id: "also disabled move".to_string(),
-                disabled: true,
-                pp: 32,
-                ..Default::default()
-            },
-            Move {
-                id: "not disabled move".to_string(),
-                disabled: false,
-                pp: 32,
-                ..Default::default()
-            },
-            Move {
-                id: "also also disabled move".to_string(),
-                disabled: true,
-                pp: 32,
-                ..Default::default()
-            },
-        ];
+        state.side_one.get_active().moves.m0 = Move {
+            id: "disabled move".to_string(),
+            disabled: true,
+            pp: 32,
+            ..Default::default()
+        };
+        state.side_one.get_active().moves.m1 = Move {
+            id: "also disabled move".to_string(),
+            disabled: true,
+            pp: 32,
+            ..Default::default()
+        };
+        state.side_one.get_active().moves.m2 = Move {
+            id: "not disabled move".to_string(),
+            disabled: false,
+            pp: 32,
+            ..Default::default()
+        };
+        state.side_one.get_active().moves.m3 = Move {
+            id: "also also disabled move".to_string(),
+            disabled: true,
+            pp: 32,
+            ..Default::default()
+        };
         state.side_one.get_active().hp -= 10;
         state.side_one.get_active().ability = Abilities::REGENERATOR;
         let mut choice = Choice {
@@ -4698,15 +4683,15 @@ mod tests {
             instruction_list: vec![
                 Instruction::EnableMove(EnableMoveInstruction {
                     side_ref: SideReference::SideOne,
-                    move_index: 0,
+                    move_index: PokemonMoveIndex::M0,
                 }),
                 Instruction::EnableMove(EnableMoveInstruction {
                     side_ref: SideReference::SideOne,
-                    move_index: 1,
+                    move_index: PokemonMoveIndex::M1,
                 }),
                 Instruction::EnableMove(EnableMoveInstruction {
                     side_ref: SideReference::SideOne,
-                    move_index: 3,
+                    move_index: PokemonMoveIndex::M3,
                 }),
                 Instruction::Heal(HealInstruction {
                     side_ref: SideReference::SideOne,

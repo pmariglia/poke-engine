@@ -1,5 +1,5 @@
 use crate::items::Items;
-use crate::state::PokemonStatus;
+use crate::state::{PokemonMoveIndex, PokemonStatus};
 use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
 use crate::state::Terrain;
@@ -75,13 +75,13 @@ pub struct DecrementWishInstruction {
 #[derive(Debug, PartialEq, Clone)]
 pub struct EnableMoveInstruction {
     pub side_ref: SideReference,
-    pub move_index: usize,
+    pub move_index: PokemonMoveIndex,
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct DisableMoveInstruction {
     pub side_ref: SideReference,
-    pub move_index: usize,
+    pub move_index: PokemonMoveIndex,
 }
 
 #[derive(Debug, PartialEq, Clone)]

@@ -8,22 +8,19 @@ use poke_engine::instruction::{
     SwitchInstruction,
 };
 use poke_engine::items::Items;
-use poke_engine::state::{
-    Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition,
-    PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather,
-};
+use poke_engine::state::{Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather};
 
 fn set_moves_on_pkmn_and_call_generate_instructions(
     state: &mut State,
     move_one: String,
     move_two: String,
 ) -> Vec<StateInstructions> {
-    state.side_one.get_active().replace_move(0, move_one);
-    state.side_two.get_active().replace_move(0, move_two);
+    state.side_one.get_active().replace_move(PokemonMoveIndex::M0, move_one);
+    state.side_two.get_active().replace_move(PokemonMoveIndex::M0, move_two);
 
     let before_state_string = format!("{:?}", state);
     let instructions =
-        generate_instructions_from_move_pair(state, &MoveChoice::Move(0), &MoveChoice::Move(0));
+        generate_instructions_from_move_pair(state, &MoveChoice::Move(PokemonMoveIndex::M0), &MoveChoice::Move(PokemonMoveIndex::M0));
 
     let after_state_string = format!("{:?}", state);
     assert_eq!(before_state_string, after_state_string);
@@ -1300,7 +1297,7 @@ fn test_rockyhelmet_does_not_overkill() {
 fn test_choiceband_locking() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::ChoiceBand;
-    state.side_one.get_active().moves[0] = Move {
+    state.side_one.get_active().moves[PokemonMoveIndex::M0] = Move {
         id: "willowisp".to_string(),
         disabled: false,
         pp: 35,
@@ -1319,15 +1316,15 @@ fn test_choiceband_locking() {
             instruction_list: vec![
                 Instruction::DisableMove(DisableMoveInstruction {
                     side_ref: SideReference::SideOne,
-                    move_index: 1,
+                    move_index: PokemonMoveIndex::M1,
                 }),
                 Instruction::DisableMove(DisableMoveInstruction {
                     side_ref: SideReference::SideOne,
-                    move_index: 2,
+                    move_index: PokemonMoveIndex::M2,
                 }),
                 Instruction::DisableMove(DisableMoveInstruction {
                     side_ref: SideReference::SideOne,
-                    move_index: 3,
+                    move_index: PokemonMoveIndex::M3,
                 }),
             ],
         },
@@ -1336,15 +1333,15 @@ fn test_choiceband_locking() {
             instruction_list: vec![
                 Instruction::DisableMove(DisableMoveInstruction {
                     side_ref: SideReference::SideOne,
-                    move_index: 1,
+                    move_index: PokemonMoveIndex::M1,
                 }),
                 Instruction::DisableMove(DisableMoveInstruction {
                     side_ref: SideReference::SideOne,
-                    move_index: 2,
+                    move_index: PokemonMoveIndex::M2,
                 }),
                 Instruction::DisableMove(DisableMoveInstruction {
                     side_ref: SideReference::SideOne,
-                    move_index: 3,
+                    move_index: PokemonMoveIndex::M3,
                 }),
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
@@ -1365,19 +1362,19 @@ fn test_choiceband_locking() {
 #[test]
 fn test_locked_moves_unlock_on_switchout() {
     let mut state = State::default();
-    state.side_one.get_active().moves[1].disabled = true;
-    state.side_one.get_active().moves[2].disabled = true;
-    state.side_one.get_active().moves[3].disabled = true;
+    state.side_one.get_active().moves[PokemonMoveIndex::M1].disabled = true;
+    state.side_one.get_active().moves[PokemonMoveIndex::M2].disabled = true;
+    state.side_one.get_active().moves[PokemonMoveIndex::M3].disabled = true;
 
     state
         .side_two
         .get_active()
-        .replace_move(0, String::from("splash"));
+        .replace_move(PokemonMoveIndex::M0, String::from("splash"));
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
         &MoveChoice::Switch(PokemonIndex::P1),
-        &MoveChoice::Move(0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1385,15 +1382,15 @@ fn test_locked_moves_unlock_on_switchout() {
         instruction_list: vec![
             Instruction::EnableMove(EnableMoveInstruction {
                 side_ref: SideReference::SideOne,
-                move_index: 1,
+                move_index: PokemonMoveIndex::M1,
             }),
             Instruction::EnableMove(EnableMoveInstruction {
                 side_ref: SideReference::SideOne,
-                move_index: 2,
+                move_index: PokemonMoveIndex::M2,
             }),
             Instruction::EnableMove(EnableMoveInstruction {
                 side_ref: SideReference::SideOne,
-                move_index: 3,
+                move_index: PokemonMoveIndex::M3,
             }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
@@ -1723,11 +1720,11 @@ fn test_switching_in_with_grassyseed_in_grassy_terrain() {
     state
         .side_one
         .get_active()
-        .replace_move(0, String::from("splash"));
+        .replace_move(PokemonMoveIndex::M0, String::from("splash"));
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        &MoveChoice::Move(0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Switch(PokemonIndex::P1),
     );
 
@@ -1765,11 +1762,11 @@ fn test_contrary_with_seed() {
     state
         .side_one
         .get_active()
-        .replace_move(0, String::from("splash"));
+        .replace_move(PokemonMoveIndex::M0, String::from("splash"));
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
-        &MoveChoice::Move(0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Switch(PokemonIndex::P1),
     );
 
