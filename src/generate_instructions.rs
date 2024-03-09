@@ -30,7 +30,6 @@ fn generate_instructions_from_switch(
     switching_side_ref: SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
-    // let mut incoming_instructions = incoming_instructions;
     state.apply_instructions(&incoming_instructions.instruction_list);
 
     state.re_enable_disabled_moves(
@@ -57,10 +56,6 @@ fn generate_instructions_from_switch(
         .on_switch_out
     {
         on_switch_out_fn(state, &switching_side_ref, incoming_instructions);
-        // for i in on_switch_out_fn(&state, &switching_side_ref) {
-        //     state.apply_one_instruction(&i);
-        //     incoming_instructions.instruction_list.push(i);
-        // }
     }
 
     let switch_instruction = Instruction::Switch(SwitchInstruction {
