@@ -111,6 +111,19 @@ fn test_move_pair_instruction_generation_where_first_move_branches() {
             })],
         },
         StateInstructions {
+            percentage: 81.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 71,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 48,
+                }),
+            ],
+        },
+        StateInstructions {
             percentage: 9.0,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
@@ -126,19 +139,6 @@ fn test_move_pair_instruction_generation_where_first_move_branches() {
                     side_ref: SideReference::SideOne,
                     // playrough lowered attack means this does less dmg than other branches
                     damage_amount: 33,
-                }),
-            ],
-        },
-        StateInstructions {
-            percentage: 81.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 71,
-                }),
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 48,
                 }),
             ],
         },
@@ -166,6 +166,19 @@ fn test_move_pair_instruction_generation_where_second_move_branches() {
             })],
         },
         StateInstructions {
+            percentage: 81.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 48,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 71,
+                }),
+            ],
+        },
+        StateInstructions {
             percentage: 9.0,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
@@ -180,19 +193,6 @@ fn test_move_pair_instruction_generation_where_second_move_branches() {
                     side_ref: SideReference::SideTwo,
                     stat: PokemonBoostableStat::Attack,
                     amount: -1,
-                }),
-            ],
-        },
-        StateInstructions {
-            percentage: 81.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 48,
-                }),
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 71,
                 }),
             ],
         },
@@ -213,23 +213,6 @@ fn test_basic_flinching_functionality() {
 
     let expected_instructions = vec![
         StateInstructions {
-            percentage: 30.0000019,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 63,
-                }),
-                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                    side_ref: SideReference::SideTwo,
-                    volatile_status: PokemonVolatileStatus::Flinch,
-                }),
-                Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
-                    side_ref: SideReference::SideTwo,
-                    volatile_status: PokemonVolatileStatus::Flinch,
-                }),
-            ],
-        },
-        StateInstructions {
             percentage: 70.0,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
@@ -242,22 +225,6 @@ fn test_basic_flinching_functionality() {
                 }),
             ],
         },
-    ];
-    assert_eq!(expected_instructions, vec_of_instructions);
-}
-
-#[test]
-fn test_fliching_first_and_second_move() {
-    let mut state = State::default();
-    state.side_one.get_active().speed = 150; // faster than side two
-
-    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
-        &mut state,
-        String::from("ironhead"),
-        String::from("ironhead"),
-    );
-
-    let expected_instructions = vec![
         StateInstructions {
             percentage: 30.0000019,
             instruction_list: vec![
@@ -275,6 +242,22 @@ fn test_fliching_first_and_second_move() {
                 }),
             ],
         },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_flinching_first_and_second_move() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150; // faster than side two
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("ironhead"),
+        String::from("ironhead"),
+    );
+
+    let expected_instructions = vec![
         StateInstructions {
             percentage: 70.0,
             instruction_list: vec![
@@ -285,6 +268,23 @@ fn test_fliching_first_and_second_move() {
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideOne,
                     damage_amount: 63,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 30.0000019,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 63,
+                }),
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    volatile_status: PokemonVolatileStatus::Flinch,
+                }),
+                Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    volatile_status: PokemonVolatileStatus::Flinch,
                 }),
             ],
         },
@@ -312,6 +312,19 @@ fn test_flinching_on_move_that_can_miss() {
             })],
         },
         StateInstructions {
+            percentage: 66.5,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 60,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 48,
+                }),
+            ],
+        },
+        StateInstructions {
             percentage: 28.5000019,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
@@ -325,19 +338,6 @@ fn test_flinching_on_move_that_can_miss() {
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     volatile_status: PokemonVolatileStatus::Flinch,
-                }),
-            ],
-        },
-        StateInstructions {
-            percentage: 66.5,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 60,
-                }),
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 48,
                 }),
             ],
         },
@@ -1930,7 +1930,14 @@ fn test_poisonpoint_with_poisonjab() {
 
     let expected_instructions = vec![
         StateInstructions {
-            percentage: 51.000004,
+            percentage: 49.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 63,
+            })],
+        },
+        StateInstructions {
+            percentage: 51.0,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -1947,13 +1954,6 @@ fn test_poisonpoint_with_poisonjab() {
                     damage_amount: 12,
                 }),
             ],
-        },
-        StateInstructions {
-            percentage: 49.0,
-            instruction_list: vec![Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 63,
-            })],
         },
     ];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -1972,6 +1972,13 @@ fn test_serenegrace_with_secondary() {
 
     let expected_instructions = vec![
         StateInstructions {
+            percentage: 39.999996,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 63,
+            })],
+        },
+        StateInstructions {
             percentage: 60.000004,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
@@ -1989,13 +1996,6 @@ fn test_serenegrace_with_secondary() {
                     damage_amount: 12,
                 }),
             ],
-        },
-        StateInstructions {
-            percentage: 39.999996,
-            instruction_list: vec![Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 63,
-            })],
         },
     ];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -2252,7 +2252,14 @@ fn test_effectspore() {
 
     let expected_instructions = vec![
         StateInstructions {
-            percentage: 8.999999,
+            percentage: 72.891,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            })],
+        },
+        StateInstructions {
+            percentage: 9.009,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -2262,11 +2269,7 @@ fn test_effectspore() {
                     side_ref: SideReference::SideOne,
                     pokemon_index: PokemonIndex::P0,
                     old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Poison,
-                }),
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 12,
+                    new_status: PokemonStatus::Sleep,
                 }),
             ],
         },
@@ -2286,7 +2289,7 @@ fn test_effectspore() {
             ],
         },
         StateInstructions {
-            percentage: 9.009,
+            percentage: 8.999999,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -2296,16 +2299,13 @@ fn test_effectspore() {
                     side_ref: SideReference::SideOne,
                     pokemon_index: PokemonIndex::P0,
                     old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Sleep,
+                    new_status: PokemonStatus::Poison,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 12,
                 }),
             ],
-        },
-        StateInstructions {
-            percentage: 72.891,
-            instruction_list: vec![Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 48,
-            })],
         },
     ];
     assert_eq!(expected_instructions, vec_of_instructions);
