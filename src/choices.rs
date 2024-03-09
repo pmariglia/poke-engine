@@ -19,8 +19,16 @@ use std::fmt;
 
 pub type ModifyChoiceFn = fn(&State, &mut Choice, &Choice, &SideReference);
 pub type AfterDamageHitFn = fn(&mut State, &Choice, &SideReference, &mut StateInstructions);
-pub type HazardClearFn = fn(&State, &SideReference) -> Vec<Instruction>;
+pub type HazardClearFn = fn(&mut State, &SideReference, &mut StateInstructions);
 pub type MoveSpecialEffectFn = fn(&mut State, &SideReference, &mut StateInstructions);
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum MoveCategory {
+    Physical,
+    Special,
+    Status,
+    Switch,
+}
 
 lazy_static! {
     pub static ref MOVES: HashMap<String, Choice> = {
@@ -2587,8 +2595,8 @@ lazy_static! {
                     mirror: true,
                     ..Default::default()
                 },
-                hazard_clear: Some(|state: &State, _: &SideReference| {
-                    let mut instructions = vec![];
+                hazard_clear: Some(|state: &mut State, _: &SideReference, instructions: &mut StateInstructions| {
+                    let mut instruction_list = vec![];
                     let courtchange_swaps = [
                         PokemonSideCondition::Stealthrock,
                         PokemonSideCondition::Spikes,
@@ -2606,14 +2614,14 @@ lazy_static! {
                                 .get_side_immutable(&side)
                                 .get_side_condition(side_condition);
                             if side_condition_num > 0 {
-                                instructions.push(Instruction::ChangeSideCondition(
+                                instruction_list.push(Instruction::ChangeSideCondition(
                                     ChangeSideConditionInstruction {
                                         side_ref: side,
                                         side_condition: side_condition,
                                         amount: -1 * side_condition_num,
                                     },
                                 ));
-                                instructions.push(Instruction::ChangeSideCondition(
+                                instruction_list.push(Instruction::ChangeSideCondition(
                                     ChangeSideConditionInstruction {
                                         side_ref: side.get_other_side(),
                                         side_condition: side_condition,
@@ -2623,7 +2631,10 @@ lazy_static! {
                             }
                         }
                     }
-                    return instructions;
+                    state.apply_instructions(&instruction_list);
+                    for i in instruction_list {
+                        instructions.instruction_list.push(i)
+                    }
                 }),
                 ..Default::default()
             },
@@ -3000,15 +3011,16 @@ lazy_static! {
                         accuracy: 0,
                     },
                 }),
-                hazard_clear: Some(|state: &State, _: &SideReference| {
-                    let mut instructions = vec![];
+                hazard_clear: Some(|state: &mut State, _: &SideReference, instructions: &mut StateInstructions| {
                     if state.terrain.terrain_type != Terrain::None {
-                        instructions.push(Instruction::ChangeTerrain(ChangeTerrain {
+                        instructions.instruction_list.push(Instruction::ChangeTerrain(ChangeTerrain {
                             new_terrain: Terrain::None,
                             new_terrain_turns_remaining: 0,
                             previous_terrain: state.terrain.terrain_type,
                             previous_terrain_turns_remaining: state.terrain.turns_remaining,
                         }));
+                        state.terrain.terrain_type = Terrain::None;
+                        state.terrain.turns_remaining = 0;
                     }
                     let side_condition_clears = [
                         PokemonSideCondition::Stealthrock,
@@ -3026,17 +3038,18 @@ lazy_static! {
                                 .get_side_immutable(&side)
                                 .get_side_condition(side_condition);
                             if side_condition_num > 0 {
-                                instructions.push(Instruction::ChangeSideCondition(
+                                let i = Instruction::ChangeSideCondition(
                                     ChangeSideConditionInstruction {
                                         side_ref: side,
                                         side_condition: side_condition,
                                         amount: -1 * side_condition_num,
                                     },
-                                ))
+                                );
+                                state.apply_one_instruction(&i);
+                                instructions.instruction_list.push(i)
                             }
                         }
                     }
-                    return instructions;
                 }),
                 ..Default::default()
             },
@@ -11163,46 +11176,48 @@ lazy_static! {
                         accuracy: 0,
                     }),
                 }]),
-                hazard_clear: Some(|state: &State, side_ref: &SideReference| {
-                    let attacking_side = state.get_side_immutable(side_ref);
-                    let mut instructions = vec![];
+                hazard_clear: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                    let attacking_side = state.get_side(side_ref);
                     if attacking_side.side_conditions.stealth_rock > 0 {
-                        instructions.push(Instruction::ChangeSideCondition(
+                        instructions.instruction_list.push(Instruction::ChangeSideCondition(
                             ChangeSideConditionInstruction {
                                 side_ref: *side_ref,
                                 side_condition: PokemonSideCondition::Stealthrock,
                                 amount: -1 * attacking_side.side_conditions.stealth_rock,
                             },
-                        ))
+                        ));
+                        attacking_side.side_conditions.stealth_rock = 0;
                     }
                     if attacking_side.side_conditions.spikes > 0 {
-                        instructions.push(Instruction::ChangeSideCondition(
+                        instructions.instruction_list.push(Instruction::ChangeSideCondition(
                             ChangeSideConditionInstruction {
                                 side_ref: *side_ref,
                                 side_condition: PokemonSideCondition::Spikes,
                                 amount: -1 * attacking_side.side_conditions.spikes,
                             },
-                        ))
+                        ));
+                        attacking_side.side_conditions.spikes = 0;
                     }
                     if attacking_side.side_conditions.toxic_spikes > 0 {
-                        instructions.push(Instruction::ChangeSideCondition(
+                        instructions.instruction_list.push(Instruction::ChangeSideCondition(
                             ChangeSideConditionInstruction {
                                 side_ref: *side_ref,
                                 side_condition: PokemonSideCondition::ToxicSpikes,
                                 amount: -1 * attacking_side.side_conditions.toxic_spikes,
                             },
-                        ))
+                        ));
+                        attacking_side.side_conditions.toxic_spikes = 0;
                     }
                     if attacking_side.side_conditions.sticky_web > 0 {
-                        instructions.push(Instruction::ChangeSideCondition(
+                        instructions.instruction_list.push(Instruction::ChangeSideCondition(
                             ChangeSideConditionInstruction {
                                 side_ref: *side_ref,
                                 side_condition: PokemonSideCondition::StickyWeb,
                                 amount: -1 * attacking_side.side_conditions.sticky_web,
                             },
-                        ))
+                        ));
+                        attacking_side.side_conditions.sticky_web = 0;
                     }
-                    return instructions;
                 }),
                 ..Default::default()
             },
@@ -16299,14 +16314,6 @@ lazy_static! {
 
         moves
     };
-}
-
-#[derive(Debug, PartialEq, Clone)]
-pub enum MoveCategory {
-    Physical,
-    Special,
-    Status,
-    Switch,
 }
 
 #[derive(PartialEq, Debug, Clone)]

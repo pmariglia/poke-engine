@@ -238,18 +238,6 @@ fn generate_instructions_from_side_conditions(
     }
 }
 
-fn get_instructions_from_hazard_clearing_moves(
-    state: &mut State,
-    hazard_clear_fn: &HazardClearFn,
-    attacking_side_reference: &SideReference,
-    incoming_instructions: &mut StateInstructions,
-) {
-    let additional_instructions = hazard_clear_fn(state, attacking_side_reference);
-    incoming_instructions
-        .instruction_list
-        .extend(additional_instructions);
-}
-
 fn get_instructions_from_volatile_statuses(
     state: &mut State,
     attacker_choice: &Choice,
@@ -1155,13 +1143,8 @@ pub fn generate_instructions_from_move(
             &mut incoming_instructions,
         );
     }
-    if let Some(hazard_clear) = &choice.hazard_clear {
-        get_instructions_from_hazard_clearing_moves(
-            state,
-            hazard_clear,
-            &attacking_side,
-            &mut incoming_instructions,
-        );
+    if let Some(hazard_clear_fn) = &choice.hazard_clear {
+        hazard_clear_fn(state, &attacking_side, &mut incoming_instructions);
     }
     if let Some(volatile_status) = &choice.volatile_status {
         get_instructions_from_volatile_statuses(
