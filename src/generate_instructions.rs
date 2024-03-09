@@ -195,10 +195,7 @@ fn generate_instructions_from_switch(
     if let Some(on_switch_in_fn) =
         item_from_index(switching_side.get_active_immutable().item).on_switch_in
     {
-        for i in on_switch_in_fn(&state, &switching_side_ref) {
-            state.apply_one_instruction(&i);
-            incoming_instructions.instruction_list.push(i);
-        }
+        on_switch_in_fn(state, &switching_side_ref, incoming_instructions);
     }
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
@@ -1258,16 +1255,15 @@ pub fn generate_instructions_from_move(
         final_instructions.push(incoming_instructions);
     }
     combine_duplicate_instructions(&mut final_instructions);
-    return final_instructions
+    return final_instructions;
 }
 
-fn combine_duplicate_instructions(
-    mut list_of_instructions: &mut Vec<StateInstructions>,
-) {
+fn combine_duplicate_instructions(mut list_of_instructions: &mut Vec<StateInstructions>) {
     for i in 0..list_of_instructions.len() {
         let mut j = i + 1;
         while j < list_of_instructions.len() {
-            if list_of_instructions[i].instruction_list == list_of_instructions[j].instruction_list {
+            if list_of_instructions[i].instruction_list == list_of_instructions[j].instruction_list
+            {
                 list_of_instructions[i].percentage += list_of_instructions[j].percentage;
                 list_of_instructions.remove(j);
             } else {
@@ -2778,7 +2774,6 @@ mod tests {
                     damage_amount: 51,
                 })],
             },
-
             StateInstructions {
                 percentage: 8.55000019,
                 instruction_list: vec![

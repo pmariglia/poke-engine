@@ -17,7 +17,7 @@ use crate::state::{PokemonStatus, SideReference};
 type ItemBeforeMoveFn = fn(&mut State, &Choice, &SideReference, &mut StateInstructions);
 type ModifyAttackBeingUsed = fn(&State, &mut Choice, &SideReference);
 type ModifyAttackAgainst = fn(&State, &mut Choice, &SideReference);
-type ItemOnSwitchInFn = fn(&State, &SideReference) -> Vec<Instruction>;
+type ItemOnSwitchInFn = fn(&mut State, &SideReference, &mut StateInstructions);
 type ItemEndOfTurn = fn(&mut State, &SideReference, &mut StateInstructions);
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -346,27 +346,32 @@ lazy_static! {
             ..Default::default()
         },
         electric_seed: Item {
-            on_switch_in: Some(|state: &State, side_ref: &SideReference| {
-                if state.terrain_is_active(&Terrain::ElectricTerrain) {
-                    if let Some(boost_instruction) = get_boost_instruction(
-                        state,
-                        &PokemonBoostableStat::Defense,
-                        &1,
-                        side_ref,
-                        side_ref,
-                    ) {
-                        return vec![
-                            boost_instruction,
-                            Instruction::ChangeItem(ChangeItemInstruction {
-                                side_ref: side_ref.clone(),
-                                current_item: Items::ElectricSeed,
-                                new_item: Items::NONE,
-                            }),
-                        ];
+            on_switch_in: Some(
+                |state: &mut State,
+                 side_ref: &SideReference,
+                 instructions: &mut StateInstructions| {
+                    if state.terrain_is_active(&Terrain::ElectricTerrain) {
+                        if let Some(boost_instruction) = get_boost_instruction(
+                            state,
+                            &PokemonBoostableStat::Defense,
+                            &1,
+                            side_ref,
+                            side_ref,
+                        ) {
+                            state.apply_one_instruction(&boost_instruction);
+                            instructions.instruction_list.push(boost_instruction);
+                            state.get_side(side_ref).get_active().item = Items::NONE;
+                            instructions.instruction_list.push(Instruction::ChangeItem(
+                                ChangeItemInstruction {
+                                    side_ref: side_ref.clone(),
+                                    current_item: Items::ElectricSeed,
+                                    new_item: Items::NONE,
+                                },
+                            ));
+                        }
                     }
                 }
-                return vec![];
-            }),
+            ),
             ..Default::default()
         },
         expert_belt: Item {
@@ -421,27 +426,32 @@ lazy_static! {
             ..Default::default()
         },
         grassy_seed: Item {
-            on_switch_in: Some(|state: &State, side_ref: &SideReference| {
-                if state.terrain_is_active(&Terrain::GrassyTerrain) {
-                    if let Some(boost_instruction) = get_boost_instruction(
-                        state,
-                        &PokemonBoostableStat::Defense,
-                        &1,
-                        side_ref,
-                        side_ref,
-                    ) {
-                        return vec![
-                            boost_instruction,
-                            Instruction::ChangeItem(ChangeItemInstruction {
-                                side_ref: side_ref.clone(),
-                                current_item: Items::GrassySeed,
-                                new_item: Items::NONE,
-                            }),
-                        ];
+            on_switch_in: Some(
+                |state: &mut State,
+                 side_ref: &SideReference,
+                 instructions: &mut StateInstructions| {
+                    if state.terrain_is_active(&Terrain::GrassyTerrain) {
+                        if let Some(boost_instruction) = get_boost_instruction(
+                            state,
+                            &PokemonBoostableStat::Defense,
+                            &1,
+                            side_ref,
+                            side_ref,
+                        ) {
+                            state.apply_one_instruction(&boost_instruction);
+                            instructions.instruction_list.push(boost_instruction);
+                            state.get_side(side_ref).get_active().item = Items::NONE;
+                            instructions.instruction_list.push(Instruction::ChangeItem(
+                                ChangeItemInstruction {
+                                    side_ref: side_ref.clone(),
+                                    current_item: Items::GrassySeed,
+                                    new_item: Items::NONE,
+                                },
+                            ));
+                        }
                     }
                 }
-                return vec![];
-            }),
+            ),
             ..Default::default()
         },
         leftovers: Item {
@@ -484,27 +494,32 @@ lazy_static! {
             ..Default::default()
         },
         misty_seed: Item {
-            on_switch_in: Some(|state: &State, side_ref: &SideReference| {
-                if state.terrain_is_active(&Terrain::MistyTerrain) {
-                    if let Some(boost_instruction) = get_boost_instruction(
-                        state,
-                        &PokemonBoostableStat::SpecialDefense,
-                        &1,
-                        side_ref,
-                        side_ref,
-                    ) {
-                        return vec![
-                            boost_instruction,
-                            Instruction::ChangeItem(ChangeItemInstruction {
-                                side_ref: side_ref.clone(),
-                                current_item: Items::MistySeed,
-                                new_item: Items::NONE,
-                            }),
-                        ];
+            on_switch_in: Some(
+                |state: &mut State,
+                 side_ref: &SideReference,
+                 instructions: &mut StateInstructions| {
+                    if state.terrain_is_active(&Terrain::MistyTerrain) {
+                        if let Some(boost_instruction) = get_boost_instruction(
+                            state,
+                            &PokemonBoostableStat::SpecialDefense,
+                            &1,
+                            side_ref,
+                            side_ref,
+                        ) {
+                            state.apply_one_instruction(&boost_instruction);
+                            instructions.instruction_list.push(boost_instruction);
+                            state.get_side(side_ref).get_active().item = Items::NONE;
+                            instructions.instruction_list.push(Instruction::ChangeItem(
+                                ChangeItemInstruction {
+                                    side_ref: side_ref.clone(),
+                                    current_item: Items::MistySeed,
+                                    new_item: Items::NONE,
+                                },
+                            ));
+                        }
                     }
                 }
-                return vec![];
-            }),
+            ),
             ..Default::default()
         },
         muscle_band: Item {
@@ -548,27 +563,32 @@ lazy_static! {
             ..Default::default()
         },
         psychic_seed: Item {
-            on_switch_in: Some(|state: &State, side_ref: &SideReference| {
-                if state.terrain_is_active(&Terrain::PsychicTerrain) {
-                    if let Some(boost_instruction) = get_boost_instruction(
-                        state,
-                        &PokemonBoostableStat::SpecialDefense,
-                        &1,
-                        side_ref,
-                        side_ref,
-                    ) {
-                        return vec![
-                            boost_instruction,
-                            Instruction::ChangeItem(ChangeItemInstruction {
-                                side_ref: side_ref.clone(),
-                                current_item: Items::PsychicSeed,
-                                new_item: Items::NONE,
-                            }),
-                        ];
+            on_switch_in: Some(
+                |state: &mut State,
+                 side_ref: &SideReference,
+                 instructions: &mut StateInstructions| {
+                    if state.terrain_is_active(&Terrain::PsychicTerrain) {
+                        if let Some(boost_instruction) = get_boost_instruction(
+                            state,
+                            &PokemonBoostableStat::SpecialDefense,
+                            &1,
+                            side_ref,
+                            side_ref,
+                        ) {
+                            state.apply_one_instruction(&boost_instruction);
+                            instructions.instruction_list.push(boost_instruction);
+                            state.get_side(side_ref).get_active().item = Items::NONE;
+                            instructions.instruction_list.push(Instruction::ChangeItem(
+                                ChangeItemInstruction {
+                                    side_ref: side_ref.clone(),
+                                    current_item: Items::PsychicSeed,
+                                    new_item: Items::NONE,
+                                },
+                            ));
+                        }
                     }
                 }
-                return vec![];
-            }),
+            ),
             ..Default::default()
         },
         punching_glove: Item {
