@@ -368,7 +368,7 @@ pub struct PokemonMoveIterator<'a> {
     pub index: usize,
 }
 
-impl <'a> Iterator for PokemonMoveIterator<'a> {
+impl<'a> Iterator for PokemonMoveIterator<'a> {
     type Item = &'a Move;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -624,7 +624,7 @@ impl Default for Pokemon {
                 m1: Default::default(),
                 m2: Default::default(),
                 m3: Default::default(),
-            }
+            },
         };
     }
 }

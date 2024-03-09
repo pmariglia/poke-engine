@@ -8,19 +8,31 @@ use poke_engine::instruction::{
     SwitchInstruction,
 };
 use poke_engine::items::Items;
-use poke_engine::state::{Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather};
+use poke_engine::state::{
+    Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
+    PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather,
+};
 
 fn set_moves_on_pkmn_and_call_generate_instructions(
     state: &mut State,
     move_one: String,
     move_two: String,
 ) -> Vec<StateInstructions> {
-    state.side_one.get_active().replace_move(PokemonMoveIndex::M0, move_one);
-    state.side_two.get_active().replace_move(PokemonMoveIndex::M0, move_two);
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_one);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_two);
 
     let before_state_string = format!("{:?}", state);
-    let instructions =
-        generate_instructions_from_move_pair(state, &MoveChoice::Move(PokemonMoveIndex::M0), &MoveChoice::Move(PokemonMoveIndex::M0));
+    let instructions = generate_instructions_from_move_pair(
+        state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
 
     let after_state_string = format!("{:?}", state);
     assert_eq!(before_state_string, after_state_string);

@@ -652,8 +652,7 @@ fn check_move_hit_or_miss(
                 .push(crash_instruction);
         }
 
-        if Items::BlunderPolicy == attacking_pokemon.item
-            && attacking_pokemon.item_can_be_removed()
+        if Items::BlunderPolicy == attacking_pokemon.item && attacking_pokemon.item_can_be_removed()
         {
             if let Some(boost_instruction) = get_boost_instruction(
                 state,
@@ -1038,7 +1037,8 @@ fn generate_instructions_from_existing_status_conditions(
 
             incoming_instructions.update_percentage(0.20);
             attacker_active.status = PokemonStatus::None;
-            incoming_instructions.instruction_list
+            incoming_instructions
+                .instruction_list
                 .push(Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: attacking_side_ref.clone(),
                     pokemon_index: attacking_side.active_index,
@@ -1053,7 +1053,8 @@ fn generate_instructions_from_existing_status_conditions(
 
             incoming_instructions.update_percentage(0.33);
             attacker_active.status = PokemonStatus::None;
-            incoming_instructions.instruction_list
+            incoming_instructions
+                .instruction_list
                 .push(Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: attacking_side_ref.clone(),
                     pokemon_index: attacking_side.active_index,
@@ -1147,7 +1148,6 @@ pub fn generate_instructions_from_move(
             &mut incoming_instructions,
         );
     }
-
     if let Some(side_condition) = &choice.side_condition {
         generate_instructions_from_side_conditions(
             state,
@@ -1156,7 +1156,6 @@ pub fn generate_instructions_from_move(
             &mut incoming_instructions,
         );
     }
-
     if let Some(hazard_clear) = &choice.hazard_clear {
         get_instructions_from_hazard_clearing_moves(
             state,
@@ -1165,7 +1164,6 @@ pub fn generate_instructions_from_move(
             &mut incoming_instructions,
         );
     }
-
     if let Some(volatile_status) = &choice.volatile_status {
         get_instructions_from_volatile_statuses(
             state,
@@ -1175,9 +1173,13 @@ pub fn generate_instructions_from_move(
             &mut incoming_instructions,
         );
     }
-
     if let Some(status) = &choice.status {
-        get_instructions_from_status_effects(state, status, &attacking_side, &mut incoming_instructions);
+        get_instructions_from_status_effects(
+            state,
+            status,
+            &attacking_side,
+            &mut incoming_instructions,
+        );
     }
     if let Some(boost) = &choice.boost {
         get_instructions_from_boosts(state, boost, &attacking_side, &mut incoming_instructions);
@@ -1186,7 +1188,12 @@ pub fn generate_instructions_from_move(
         get_instructions_from_heal(state, heal, &attacking_side, &mut incoming_instructions);
     }
     if choice.flags.drag {
-        get_instructions_from_drag(state, &attacking_side, incoming_instructions, &mut final_instructions);
+        get_instructions_from_drag(
+            state,
+            &attacking_side,
+            incoming_instructions,
+            &mut final_instructions,
+        );
         return combine_duplicate_instructions(final_instructions);
     }
 
@@ -1223,7 +1230,6 @@ pub fn generate_instructions_from_move(
             state.reverse_instructions(&instruction.instruction_list);
             final_instructions.push(instruction);
         }
-
     } else {
         let defending_pokemon = state
             .get_side_immutable(&attacking_side.get_other_side())
@@ -1819,7 +1825,10 @@ mod tests {
         ChangeStatusInstruction, ChangeTerrain, DamageInstruction, EnableMoveInstruction,
         SwitchInstruction,
     };
-    use crate::state::{Move, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonMoves, SideReference, State, Terrain};
+    use crate::state::{
+        Move, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonMoves, SideReference,
+        State, Terrain,
+    };
 
     #[test]
     fn test_drag_move_as_second_move_exits_early_if_opponent_used_drag_move() {

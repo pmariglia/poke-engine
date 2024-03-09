@@ -1,11 +1,11 @@
 use crate::items::Items;
-use crate::state::{PokemonMoveIndex, PokemonStatus};
 use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
 use crate::state::Terrain;
 use crate::state::Weather;
 use crate::state::{PokemonBoostableStat, PokemonType};
 use crate::state::{PokemonIndex, PokemonSideCondition};
+use crate::state::{PokemonMoveIndex, PokemonStatus};
 use std::fmt;
 
 #[derive(PartialEq, Clone)]
