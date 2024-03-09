@@ -1194,7 +1194,8 @@ pub fn generate_instructions_from_move(
             incoming_instructions,
             &mut final_instructions,
         );
-        return combine_duplicate_instructions(final_instructions);
+        combine_duplicate_instructions(&mut final_instructions);
+        return final_instructions;
     }
 
     if let Some(secondaries_vec) = &choice.secondaries {
@@ -1252,29 +1253,24 @@ pub fn generate_instructions_from_move(
         state.reverse_instructions(&incoming_instructions.instruction_list);
         final_instructions.push(incoming_instructions);
     }
-    return combine_duplicate_instructions(final_instructions);
+    combine_duplicate_instructions(&mut final_instructions);
+    return final_instructions
 }
 
 fn combine_duplicate_instructions(
-    mut list_of_instructions: Vec<StateInstructions>,
-) -> Vec<StateInstructions> {
-    let mut result = vec![list_of_instructions.remove(0)];
-
-    for instruction_1 in list_of_instructions {
-        let mut found_duplicate = false;
-        for instruction_2 in result.iter_mut() {
-            if instruction_1.instruction_list == instruction_2.instruction_list {
-                instruction_2.percentage += instruction_1.percentage;
-                found_duplicate = true;
-                break;
+    mut list_of_instructions: &mut Vec<StateInstructions>,
+) {
+    for i in 0..list_of_instructions.len() {
+        let mut j = i + 1;
+        while j < list_of_instructions.len() {
+            if list_of_instructions[i].instruction_list == list_of_instructions[j].instruction_list {
+                list_of_instructions[i].percentage += list_of_instructions[j].percentage;
+                list_of_instructions.remove(j);
+            } else {
+                j += 1;
             }
         }
-        if !found_duplicate {
-            result.push(instruction_1);
-        }
     }
-
-    return result;
 }
 
 fn get_effective_speed(state: &State, side_reference: &SideReference) -> i16 {
