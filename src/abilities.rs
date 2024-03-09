@@ -20,291 +20,9 @@ type ModifyAttackBeingUsed = fn(&State, &mut Choice, &Choice, &SideReference);
 type ModifyAttackAgainst = fn(&State, &mut Choice, &Choice, &SideReference);
 type AbilityBeforeMove = fn(&mut State, &Choice, &SideReference, &mut StateInstructions);
 type AbilityAfterDamageHit = fn(&mut State, &Choice, &SideReference, i16, &mut StateInstructions);
-type AbilityOnSwitchOut = fn(&State, &SideReference) -> Vec<Instruction>;
-type AbilityOnSwitchIn = fn(&State, &SideReference) -> Vec<Instruction>;
+type AbilityOnSwitchOut = fn(&mut State, &SideReference, &mut StateInstructions);
+type AbilityOnSwitchIn = fn(&mut State, &SideReference, &mut StateInstructions);
 type AbilityEndOfTurn = fn(&mut State, &SideReference, &mut StateInstructions);
-
-#[non_exhaustive]
-pub struct Abilities;
-
-impl Abilities {
-    pub const RIPEN: usize = 0;
-    pub const TANGLEDFEET: usize = 1;
-    pub const DRAGONSMAW: usize = 2;
-    pub const CLEARBODY: usize = 3;
-    pub const GALVANIZE: usize = 4;
-    pub const VITALSPIRIT: usize = 5;
-    pub const AERILATE: usize = 6;
-    pub const DEFIANT: usize = 7;
-    pub const CUTECHARM: usize = 8;
-    pub const NEUROFORCE: usize = 9;
-    pub const SOUNDPROOF: usize = 10;
-    pub const RKSSYSTEM: usize = 11;
-    pub const POISONPOINT: usize = 12;
-    pub const STAKEOUT: usize = 13;
-    pub const UNNERVE: usize = 14;
-    pub const ROCKHEAD: usize = 15;
-    pub const AURABREAK: usize = 16;
-    pub const MIMICRY: usize = 17;
-    pub const BULLETPROOF: usize = 18;
-    pub const POWEROFALCHEMY: usize = 19;
-    pub const TECHNICIAN: usize = 20;
-    pub const MULTISCALE: usize = 21;
-    pub const ARENATRAP: usize = 22;
-    pub const BATTLEBOND: usize = 23;
-    pub const DISGUISE: usize = 24;
-    pub const EARLYBIRD: usize = 25;
-    pub const LIGHTNINGROD: usize = 26;
-    pub const MAGICIAN: usize = 27;
-    pub const REFRIGERATE: usize = 28;
-    pub const FRIENDGUARD: usize = 29;
-    pub const NOABILITY: usize = 30;
-    pub const GULPMISSILE: usize = 31;
-    pub const POWERCONSTRUCT: usize = 32;
-    pub const FORECAST: usize = 33;
-    pub const PRANKSTER: usize = 34;
-    pub const PROTEAN: usize = 35;
-    pub const ASONEGLASTRIER: usize = 36;
-    pub const SHADOWTAG: usize = 37;
-    pub const SKILLLINK: usize = 38;
-    pub const INTREPIDSWORD: usize = 39;
-    pub const SOULHEART: usize = 40;
-    pub const SWIFTSWIM: usize = 41;
-    pub const EARTHEATER: usize = 42;
-    pub const SUPERLUCK: usize = 43;
-    pub const SUPREMEOVERLORD: usize = 44;
-    pub const INSOMNIA: usize = 45;
-    pub const DANCER: usize = 46;
-    pub const STEAMENGINE: usize = 47;
-    pub const ANGERPOINT: usize = 48;
-    pub const CONTRARY: usize = 49;
-    pub const MAGMAARMOR: usize = 50;
-    pub const HUNGERSWITCH: usize = 51;
-    pub const RECEIVER: usize = 52;
-    pub const ZENMODE: usize = 53;
-    pub const EMERGENCYEXIT: usize = 54;
-    pub const ILLUSION: usize = 55;
-    pub const WEAKARMOR: usize = 56;
-    pub const DROUGHT: usize = 57;
-    pub const INNARDSOUT: usize = 58;
-    pub const SHIELDSDOWN: usize = 59;
-    pub const ADAPTABILITY: usize = 60;
-    pub const CORROSION: usize = 61;
-    pub const LONGREACH: usize = 62;
-    pub const PUREPOWER: usize = 63;
-    pub const TINTEDLENS: usize = 64;
-    pub const QUEENLYMAJESTY: usize = 65;
-    pub const DESOLATELAND: usize = 66;
-    pub const MOXIE: usize = 67;
-    pub const SAPSIPPER: usize = 68;
-    pub const SLUSHRUSH: usize = 69;
-    pub const BIGPECKS: usize = 70;
-    pub const STALL: usize = 71;
-    pub const WHITESMOKE: usize = 72;
-    pub const FLAREBOOST: usize = 73;
-    pub const SHADOWSHIELD: usize = 74;
-    pub const LIQUIDVOICE: usize = 75;
-    pub const MISTYSURGE: usize = 76;
-    pub const MULTITYPE: usize = 77;
-    pub const NOGUARD: usize = 78;
-    pub const TORRENT: usize = 79;
-    pub const DELTASTREAM: usize = 80;
-    pub const KLUTZ: usize = 81;
-    pub const LIBERO: usize = 82;
-    pub const SERENEGRACE: usize = 83;
-    pub const CURSEDBODY: usize = 84;
-    pub const UNAWARE: usize = 85;
-    pub const LIGHTMETAL: usize = 86;
-    pub const MARVELSCALE: usize = 87;
-    pub const TELEPATHY: usize = 88;
-    pub const QUICKDRAW: usize = 89;
-    pub const HYPERCUTTER: usize = 90;
-    pub const SYMBIOSIS: usize = 91;
-    pub const PLUS: usize = 92;
-    pub const MIRRORARMOR: usize = 93;
-    pub const PASTELVEIL: usize = 94;
-    pub const TOUGHCLAWS: usize = 95;
-    pub const EFFECTSPORE: usize = 96;
-    pub const MUMMY: usize = 97;
-    pub const BADDREAMS: usize = 98;
-    pub const MAGICGUARD: usize = 99;
-    pub const SANDSTREAM: usize = 100;
-    pub const POWERSPOT: usize = 101;
-    pub const FLAMEBODY: usize = 102;
-    pub const RECKLESS: usize = 103;
-    pub const PRESSURE: usize = 104;
-    pub const GOOEY: usize = 105;
-    pub const IMMUNITY: usize = 106;
-    pub const LEAFGUARD: usize = 107;
-    pub const HUGEPOWER: usize = 108;
-    pub const SOLARPOWER: usize = 109;
-    pub const SCHOOLING: usize = 110;
-    pub const MOTORDRIVE: usize = 111;
-    pub const ANTICIPATION: usize = 112;
-    pub const MERCILESS: usize = 113;
-    pub const TRACE: usize = 114;
-    pub const NATURALCURE: usize = 115;
-    pub const HARVEST: usize = 116;
-    pub const SUCTIONCUPS: usize = 117;
-    pub const ICEFACE: usize = 118;
-    pub const ROUGHSKIN: usize = 119;
-    pub const WONDERGUARD: usize = 120;
-    pub const WATERVEIL: usize = 121;
-    pub const FAIRYAURA: usize = 122;
-    pub const SANDSPIT: usize = 123;
-    pub const INTIMIDATE: usize = 124;
-    pub const DAUNTLESSSHIELD: usize = 125;
-    pub const AROMAVEIL: usize = 126;
-    pub const AIRLOCK: usize = 127;
-    pub const NORMALIZE: usize = 128;
-    pub const DARKAURA: usize = 129;
-    pub const VICTORYSTAR: usize = 130;
-    pub const GRASSYSURGE: usize = 131;
-    pub const STURDY: usize = 132;
-    pub const PICKPOCKET: usize = 133;
-    pub const ELECTRICSURGE: usize = 134;
-    pub const RUNAWAY: usize = 135;
-    pub const OBLIVIOUS: usize = 136;
-    pub const SURGESURFER: usize = 137;
-    pub const LEVITATE: usize = 138;
-    pub const ASONESPECTRIER: usize = 139;
-    pub const PICKUP: usize = 140;
-    pub const ICEBODY: usize = 141;
-    pub const CURIOUSMEDICINE: usize = 142;
-    pub const FLOWERVEIL: usize = 143;
-    pub const STATIC: usize = 144;
-    pub const WONDERSKIN: usize = 145;
-    pub const OVERGROW: usize = 146;
-    pub const PROPELLERTAIL: usize = 147;
-    pub const THICKFAT: usize = 148;
-    pub const GLUTTONY: usize = 149;
-    pub const KEENEYE: usize = 150;
-    pub const MOUNTAINEER: usize = 151;
-    pub const FLASHFIRE: usize = 152;
-    pub const COMPOUNDEYES: usize = 153;
-    pub const STEELWORKER: usize = 154;
-    pub const COMATOSE: usize = 155;
-    pub const BALLFETCH: usize = 156;
-    pub const DAZZLING: usize = 157;
-    pub const DOWNLOAD: usize = 158;
-    pub const TRANSISTOR: usize = 159;
-    pub const MOLDBREAKER: usize = 160;
-    pub const LIQUIDOOZE: usize = 161;
-    pub const POISONHEAL: usize = 162;
-    pub const PRISMARMOR: usize = 163;
-    pub const SNIPER: usize = 164;
-    pub const STENCH: usize = 165;
-    pub const COMPETITIVE: usize = 166;
-    pub const SWARM: usize = 167;
-    pub const STALWART: usize = 168;
-    pub const ILLUMINATE: usize = 169;
-    pub const TURBOBLAZE: usize = 170;
-    pub const GORILLATACTICS: usize = 171;
-    pub const SPEEDBOOST: usize = 172;
-    pub const HEATPROOF: usize = 173;
-    pub const SNOWCLOAK: usize = 174;
-    pub const TERAVOLT: usize = 175;
-    pub const CHILLINGNEIGH: usize = 176;
-    pub const SHIELDDUST: usize = 177;
-    pub const RIVALRY: usize = 178;
-    pub const PRIMORDIALSEA: usize = 179;
-    pub const SCREENCLEANER: usize = 180;
-    pub const MAGNETPULL: usize = 181;
-    pub const HONEYGATHER: usize = 182;
-    pub const COTTONDOWN: usize = 183;
-    pub const GRASSPELT: usize = 184;
-    pub const BATTLEARMOR: usize = 185;
-    pub const BEASTBOOST: usize = 186;
-    pub const BERSERK: usize = 187;
-    pub const MINUS: usize = 188;
-    pub const RAINDISH: usize = 189;
-    pub const SYNCHRONIZE: usize = 190;
-    pub const FILTER: usize = 191;
-    pub const TRUANT: usize = 192;
-    pub const FURCOAT: usize = 193;
-    pub const FULLMETALBODY: usize = 194;
-    pub const REGENERATOR: usize = 195;
-    pub const FOREWARN: usize = 196;
-    pub const IRONBARBS: usize = 197;
-    pub const STAMINA: usize = 198;
-    pub const SANDRUSH: usize = 199;
-    pub const COLORCHANGE: usize = 200;
-    pub const BLAZE: usize = 201;
-    pub const ANALYTIC: usize = 202;
-    pub const TANGLINGHAIR: usize = 203;
-    pub const CLOUDNINE: usize = 204;
-    pub const STEELYSPIRIT: usize = 205;
-    pub const QUICKFEET: usize = 206;
-    pub const MAGICBOUNCE: usize = 207;
-    pub const MEGALAUNCHER: usize = 208;
-    pub const HEAVYMETAL: usize = 209;
-    pub const STORMDRAIN: usize = 210;
-    pub const PIXILATE: usize = 211;
-    pub const WATERCOMPACTION: usize = 212;
-    pub const JUSTIFIED: usize = 213;
-    pub const SLOWSTART: usize = 214;
-    pub const SNOWWARNING: usize = 215;
-    pub const FLOWERGIFT: usize = 216;
-    pub const SHEDSKIN: usize = 217;
-    pub const WIMPOUT: usize = 218;
-    pub const ICESCALES: usize = 219;
-    pub const INFILTRATOR: usize = 220;
-    pub const LIMBER: usize = 221;
-    pub const PSYCHICSURGE: usize = 222;
-    pub const DEFEATIST: usize = 223;
-    pub const WATERABSORB: usize = 224;
-    pub const IMPOSTER: usize = 225;
-    pub const DRYSKIN: usize = 226;
-    pub const FLUFFY: usize = 227;
-    pub const UNBURDEN: usize = 228;
-    pub const CHEEKPOUCH: usize = 229;
-    pub const STANCECHANGE: usize = 230;
-    pub const MOODY: usize = 231;
-    pub const ROCKYPAYLOAD: usize = 232;
-    pub const PUNKROCK: usize = 233;
-    pub const SANDVEIL: usize = 234;
-    pub const PARENTALBOND: usize = 235;
-    pub const STRONGJAW: usize = 236;
-    pub const BATTERY: usize = 237;
-    pub const HEALER: usize = 238;
-    pub const STEADFAST: usize = 239;
-    pub const DAMP: usize = 240;
-    pub const PERISHBODY: usize = 241;
-    pub const TRIAGE: usize = 242;
-    pub const SHEERFORCE: usize = 243;
-    pub const OWNTEMPO: usize = 244;
-    pub const FRISK: usize = 245;
-    pub const VOLTABSORB: usize = 246;
-    pub const GALEWINGS: usize = 247;
-    pub const AFTERMATH: usize = 248;
-    pub const STICKYHOLD: usize = 249;
-    pub const GRIMNEIGH: usize = 250;
-    pub const IRONFIST: usize = 251;
-    pub const REBOUND: usize = 252;
-    pub const UNSEENFIST: usize = 253;
-    pub const SOLIDROCK: usize = 254;
-    pub const HUSTLE: usize = 255;
-    pub const HYDRATION: usize = 256;
-    pub const SCRAPPY: usize = 257;
-    pub const OVERCOAT: usize = 258;
-    pub const NEUTRALIZINGGAS: usize = 259;
-    pub const SWEETVEIL: usize = 260;
-    pub const DRIZZLE: usize = 261;
-    pub const INNERFOCUS: usize = 262;
-    pub const POISONTOUCH: usize = 263;
-    pub const WANDERINGSPIRIT: usize = 264;
-    pub const GUTS: usize = 265;
-    pub const SHELLARMOR: usize = 266;
-    pub const RATTLED: usize = 267;
-    pub const WATERBUBBLE: usize = 268;
-    pub const SANDFORCE: usize = 269;
-    pub const TOXICBOOST: usize = 270;
-    pub const PERSISTENT: usize = 271;
-    pub const CHLOROPHYLL: usize = 272;
-    pub const SIMPLE: usize = 273;
-    pub const NONE: usize = 274;
-    pub const PURIFYINGSALT: usize = 275;
-}
 
 lazy_static! {
     pub static ref ABILITIES: Vec<Ability> = {
@@ -1400,17 +1118,21 @@ lazy_static! {
             Ability {
                 id: "naturalcure".to_string(),
                 index: 115,
-                on_switch_out: Some(|state: &State, side_reference: &SideReference| {
-                    let side = state.get_side_immutable(side_reference);
-                    if side.get_active_immutable().status != PokemonStatus::None {
-                        return vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+                on_switch_out: Some(|state: &mut State, side_reference: &SideReference, instructions: &mut StateInstructions| {
+                    let side = state.get_side(side_reference);
+                    let active_index = side.active_index;
+                    let active = side.get_active();
+                    if active.status != PokemonStatus::None {
+                        instructions.instruction_list.push(
+                            Instruction::ChangeStatus(ChangeStatusInstruction {
                             side_ref: *side_reference,
-                            pokemon_index: side.active_index,
-                            old_status: side.get_active_immutable().status,
+                            pokemon_index: active_index,
+                            old_status: active.status,
                             new_status: PokemonStatus::None,
-                        })];
+                            })
+                        );
+                        active.status = PokemonStatus::None;
                     }
-                    return vec![];
                 }),
                 ..Default::default()
             },
@@ -1489,7 +1211,7 @@ lazy_static! {
             Ability {
                 id: "intimidate".to_string(),
                 index: 124,
-                on_switch_in: Some(|state: &State, side_ref: &SideReference| {
+                on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
                     if let Some(boost_instruction) = get_boost_instruction(
                         state,
                         &PokemonBoostableStat::Attack,
@@ -1497,9 +1219,9 @@ lazy_static! {
                         side_ref,
                         &side_ref.get_other_side(),
                     ) {
-                        return vec![boost_instruction];
+                        state.apply_one_instruction(&boost_instruction);
+                        instructions.instruction_list.push(boost_instruction);
                     }
-                    return vec![];
                 }),
                 ..Default::default()
             },
@@ -2203,22 +1925,21 @@ lazy_static! {
             Ability {
                 id: "regenerator".to_string(),
                 index: 195,
-                on_switch_out: Some(|state: &State, side_ref: &SideReference| {
+                on_switch_out: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
                     let switching_out_pkmn =
-                        state.get_side_immutable(side_ref).get_active_immutable();
+                        state.get_side(side_ref).get_active();
                     let hp_recovered = cmp::min(
                         switching_out_pkmn.maxhp / 3,
                         switching_out_pkmn.maxhp - switching_out_pkmn.hp,
                     );
 
                     if hp_recovered > 0 && switching_out_pkmn.hp > 0 {
-                        return vec![Instruction::Heal(HealInstruction {
+                        instructions.instruction_list.push(Instruction::Heal(HealInstruction {
                             side_ref: *side_ref,
                             heal_amount: hp_recovered,
-                        })];
+                        }));
+                        switching_out_pkmn.hp += hp_recovered;
                     }
-
-                    return vec![];
                 }),
                 ..Default::default()
             },
@@ -3045,6 +2766,288 @@ lazy_static! {
         );
         abilities
     };
+}
+
+#[non_exhaustive]
+pub struct Abilities;
+
+impl Abilities {
+    pub const RIPEN: usize = 0;
+    pub const TANGLEDFEET: usize = 1;
+    pub const DRAGONSMAW: usize = 2;
+    pub const CLEARBODY: usize = 3;
+    pub const GALVANIZE: usize = 4;
+    pub const VITALSPIRIT: usize = 5;
+    pub const AERILATE: usize = 6;
+    pub const DEFIANT: usize = 7;
+    pub const CUTECHARM: usize = 8;
+    pub const NEUROFORCE: usize = 9;
+    pub const SOUNDPROOF: usize = 10;
+    pub const RKSSYSTEM: usize = 11;
+    pub const POISONPOINT: usize = 12;
+    pub const STAKEOUT: usize = 13;
+    pub const UNNERVE: usize = 14;
+    pub const ROCKHEAD: usize = 15;
+    pub const AURABREAK: usize = 16;
+    pub const MIMICRY: usize = 17;
+    pub const BULLETPROOF: usize = 18;
+    pub const POWEROFALCHEMY: usize = 19;
+    pub const TECHNICIAN: usize = 20;
+    pub const MULTISCALE: usize = 21;
+    pub const ARENATRAP: usize = 22;
+    pub const BATTLEBOND: usize = 23;
+    pub const DISGUISE: usize = 24;
+    pub const EARLYBIRD: usize = 25;
+    pub const LIGHTNINGROD: usize = 26;
+    pub const MAGICIAN: usize = 27;
+    pub const REFRIGERATE: usize = 28;
+    pub const FRIENDGUARD: usize = 29;
+    pub const NOABILITY: usize = 30;
+    pub const GULPMISSILE: usize = 31;
+    pub const POWERCONSTRUCT: usize = 32;
+    pub const FORECAST: usize = 33;
+    pub const PRANKSTER: usize = 34;
+    pub const PROTEAN: usize = 35;
+    pub const ASONEGLASTRIER: usize = 36;
+    pub const SHADOWTAG: usize = 37;
+    pub const SKILLLINK: usize = 38;
+    pub const INTREPIDSWORD: usize = 39;
+    pub const SOULHEART: usize = 40;
+    pub const SWIFTSWIM: usize = 41;
+    pub const EARTHEATER: usize = 42;
+    pub const SUPERLUCK: usize = 43;
+    pub const SUPREMEOVERLORD: usize = 44;
+    pub const INSOMNIA: usize = 45;
+    pub const DANCER: usize = 46;
+    pub const STEAMENGINE: usize = 47;
+    pub const ANGERPOINT: usize = 48;
+    pub const CONTRARY: usize = 49;
+    pub const MAGMAARMOR: usize = 50;
+    pub const HUNGERSWITCH: usize = 51;
+    pub const RECEIVER: usize = 52;
+    pub const ZENMODE: usize = 53;
+    pub const EMERGENCYEXIT: usize = 54;
+    pub const ILLUSION: usize = 55;
+    pub const WEAKARMOR: usize = 56;
+    pub const DROUGHT: usize = 57;
+    pub const INNARDSOUT: usize = 58;
+    pub const SHIELDSDOWN: usize = 59;
+    pub const ADAPTABILITY: usize = 60;
+    pub const CORROSION: usize = 61;
+    pub const LONGREACH: usize = 62;
+    pub const PUREPOWER: usize = 63;
+    pub const TINTEDLENS: usize = 64;
+    pub const QUEENLYMAJESTY: usize = 65;
+    pub const DESOLATELAND: usize = 66;
+    pub const MOXIE: usize = 67;
+    pub const SAPSIPPER: usize = 68;
+    pub const SLUSHRUSH: usize = 69;
+    pub const BIGPECKS: usize = 70;
+    pub const STALL: usize = 71;
+    pub const WHITESMOKE: usize = 72;
+    pub const FLAREBOOST: usize = 73;
+    pub const SHADOWSHIELD: usize = 74;
+    pub const LIQUIDVOICE: usize = 75;
+    pub const MISTYSURGE: usize = 76;
+    pub const MULTITYPE: usize = 77;
+    pub const NOGUARD: usize = 78;
+    pub const TORRENT: usize = 79;
+    pub const DELTASTREAM: usize = 80;
+    pub const KLUTZ: usize = 81;
+    pub const LIBERO: usize = 82;
+    pub const SERENEGRACE: usize = 83;
+    pub const CURSEDBODY: usize = 84;
+    pub const UNAWARE: usize = 85;
+    pub const LIGHTMETAL: usize = 86;
+    pub const MARVELSCALE: usize = 87;
+    pub const TELEPATHY: usize = 88;
+    pub const QUICKDRAW: usize = 89;
+    pub const HYPERCUTTER: usize = 90;
+    pub const SYMBIOSIS: usize = 91;
+    pub const PLUS: usize = 92;
+    pub const MIRRORARMOR: usize = 93;
+    pub const PASTELVEIL: usize = 94;
+    pub const TOUGHCLAWS: usize = 95;
+    pub const EFFECTSPORE: usize = 96;
+    pub const MUMMY: usize = 97;
+    pub const BADDREAMS: usize = 98;
+    pub const MAGICGUARD: usize = 99;
+    pub const SANDSTREAM: usize = 100;
+    pub const POWERSPOT: usize = 101;
+    pub const FLAMEBODY: usize = 102;
+    pub const RECKLESS: usize = 103;
+    pub const PRESSURE: usize = 104;
+    pub const GOOEY: usize = 105;
+    pub const IMMUNITY: usize = 106;
+    pub const LEAFGUARD: usize = 107;
+    pub const HUGEPOWER: usize = 108;
+    pub const SOLARPOWER: usize = 109;
+    pub const SCHOOLING: usize = 110;
+    pub const MOTORDRIVE: usize = 111;
+    pub const ANTICIPATION: usize = 112;
+    pub const MERCILESS: usize = 113;
+    pub const TRACE: usize = 114;
+    pub const NATURALCURE: usize = 115;
+    pub const HARVEST: usize = 116;
+    pub const SUCTIONCUPS: usize = 117;
+    pub const ICEFACE: usize = 118;
+    pub const ROUGHSKIN: usize = 119;
+    pub const WONDERGUARD: usize = 120;
+    pub const WATERVEIL: usize = 121;
+    pub const FAIRYAURA: usize = 122;
+    pub const SANDSPIT: usize = 123;
+    pub const INTIMIDATE: usize = 124;
+    pub const DAUNTLESSSHIELD: usize = 125;
+    pub const AROMAVEIL: usize = 126;
+    pub const AIRLOCK: usize = 127;
+    pub const NORMALIZE: usize = 128;
+    pub const DARKAURA: usize = 129;
+    pub const VICTORYSTAR: usize = 130;
+    pub const GRASSYSURGE: usize = 131;
+    pub const STURDY: usize = 132;
+    pub const PICKPOCKET: usize = 133;
+    pub const ELECTRICSURGE: usize = 134;
+    pub const RUNAWAY: usize = 135;
+    pub const OBLIVIOUS: usize = 136;
+    pub const SURGESURFER: usize = 137;
+    pub const LEVITATE: usize = 138;
+    pub const ASONESPECTRIER: usize = 139;
+    pub const PICKUP: usize = 140;
+    pub const ICEBODY: usize = 141;
+    pub const CURIOUSMEDICINE: usize = 142;
+    pub const FLOWERVEIL: usize = 143;
+    pub const STATIC: usize = 144;
+    pub const WONDERSKIN: usize = 145;
+    pub const OVERGROW: usize = 146;
+    pub const PROPELLERTAIL: usize = 147;
+    pub const THICKFAT: usize = 148;
+    pub const GLUTTONY: usize = 149;
+    pub const KEENEYE: usize = 150;
+    pub const MOUNTAINEER: usize = 151;
+    pub const FLASHFIRE: usize = 152;
+    pub const COMPOUNDEYES: usize = 153;
+    pub const STEELWORKER: usize = 154;
+    pub const COMATOSE: usize = 155;
+    pub const BALLFETCH: usize = 156;
+    pub const DAZZLING: usize = 157;
+    pub const DOWNLOAD: usize = 158;
+    pub const TRANSISTOR: usize = 159;
+    pub const MOLDBREAKER: usize = 160;
+    pub const LIQUIDOOZE: usize = 161;
+    pub const POISONHEAL: usize = 162;
+    pub const PRISMARMOR: usize = 163;
+    pub const SNIPER: usize = 164;
+    pub const STENCH: usize = 165;
+    pub const COMPETITIVE: usize = 166;
+    pub const SWARM: usize = 167;
+    pub const STALWART: usize = 168;
+    pub const ILLUMINATE: usize = 169;
+    pub const TURBOBLAZE: usize = 170;
+    pub const GORILLATACTICS: usize = 171;
+    pub const SPEEDBOOST: usize = 172;
+    pub const HEATPROOF: usize = 173;
+    pub const SNOWCLOAK: usize = 174;
+    pub const TERAVOLT: usize = 175;
+    pub const CHILLINGNEIGH: usize = 176;
+    pub const SHIELDDUST: usize = 177;
+    pub const RIVALRY: usize = 178;
+    pub const PRIMORDIALSEA: usize = 179;
+    pub const SCREENCLEANER: usize = 180;
+    pub const MAGNETPULL: usize = 181;
+    pub const HONEYGATHER: usize = 182;
+    pub const COTTONDOWN: usize = 183;
+    pub const GRASSPELT: usize = 184;
+    pub const BATTLEARMOR: usize = 185;
+    pub const BEASTBOOST: usize = 186;
+    pub const BERSERK: usize = 187;
+    pub const MINUS: usize = 188;
+    pub const RAINDISH: usize = 189;
+    pub const SYNCHRONIZE: usize = 190;
+    pub const FILTER: usize = 191;
+    pub const TRUANT: usize = 192;
+    pub const FURCOAT: usize = 193;
+    pub const FULLMETALBODY: usize = 194;
+    pub const REGENERATOR: usize = 195;
+    pub const FOREWARN: usize = 196;
+    pub const IRONBARBS: usize = 197;
+    pub const STAMINA: usize = 198;
+    pub const SANDRUSH: usize = 199;
+    pub const COLORCHANGE: usize = 200;
+    pub const BLAZE: usize = 201;
+    pub const ANALYTIC: usize = 202;
+    pub const TANGLINGHAIR: usize = 203;
+    pub const CLOUDNINE: usize = 204;
+    pub const STEELYSPIRIT: usize = 205;
+    pub const QUICKFEET: usize = 206;
+    pub const MAGICBOUNCE: usize = 207;
+    pub const MEGALAUNCHER: usize = 208;
+    pub const HEAVYMETAL: usize = 209;
+    pub const STORMDRAIN: usize = 210;
+    pub const PIXILATE: usize = 211;
+    pub const WATERCOMPACTION: usize = 212;
+    pub const JUSTIFIED: usize = 213;
+    pub const SLOWSTART: usize = 214;
+    pub const SNOWWARNING: usize = 215;
+    pub const FLOWERGIFT: usize = 216;
+    pub const SHEDSKIN: usize = 217;
+    pub const WIMPOUT: usize = 218;
+    pub const ICESCALES: usize = 219;
+    pub const INFILTRATOR: usize = 220;
+    pub const LIMBER: usize = 221;
+    pub const PSYCHICSURGE: usize = 222;
+    pub const DEFEATIST: usize = 223;
+    pub const WATERABSORB: usize = 224;
+    pub const IMPOSTER: usize = 225;
+    pub const DRYSKIN: usize = 226;
+    pub const FLUFFY: usize = 227;
+    pub const UNBURDEN: usize = 228;
+    pub const CHEEKPOUCH: usize = 229;
+    pub const STANCECHANGE: usize = 230;
+    pub const MOODY: usize = 231;
+    pub const ROCKYPAYLOAD: usize = 232;
+    pub const PUNKROCK: usize = 233;
+    pub const SANDVEIL: usize = 234;
+    pub const PARENTALBOND: usize = 235;
+    pub const STRONGJAW: usize = 236;
+    pub const BATTERY: usize = 237;
+    pub const HEALER: usize = 238;
+    pub const STEADFAST: usize = 239;
+    pub const DAMP: usize = 240;
+    pub const PERISHBODY: usize = 241;
+    pub const TRIAGE: usize = 242;
+    pub const SHEERFORCE: usize = 243;
+    pub const OWNTEMPO: usize = 244;
+    pub const FRISK: usize = 245;
+    pub const VOLTABSORB: usize = 246;
+    pub const GALEWINGS: usize = 247;
+    pub const AFTERMATH: usize = 248;
+    pub const STICKYHOLD: usize = 249;
+    pub const GRIMNEIGH: usize = 250;
+    pub const IRONFIST: usize = 251;
+    pub const REBOUND: usize = 252;
+    pub const UNSEENFIST: usize = 253;
+    pub const SOLIDROCK: usize = 254;
+    pub const HUSTLE: usize = 255;
+    pub const HYDRATION: usize = 256;
+    pub const SCRAPPY: usize = 257;
+    pub const OVERCOAT: usize = 258;
+    pub const NEUTRALIZINGGAS: usize = 259;
+    pub const SWEETVEIL: usize = 260;
+    pub const DRIZZLE: usize = 261;
+    pub const INNERFOCUS: usize = 262;
+    pub const POISONTOUCH: usize = 263;
+    pub const WANDERINGSPIRIT: usize = 264;
+    pub const GUTS: usize = 265;
+    pub const SHELLARMOR: usize = 266;
+    pub const RATTLED: usize = 267;
+    pub const WATERBUBBLE: usize = 268;
+    pub const SANDFORCE: usize = 269;
+    pub const TOXICBOOST: usize = 270;
+    pub const PERSISTENT: usize = 271;
+    pub const CHLOROPHYLL: usize = 272;
+    pub const SIMPLE: usize = 273;
+    pub const NONE: usize = 274;
+    pub const PURIFYINGSALT: usize = 275;
 }
 
 pub struct Ability {

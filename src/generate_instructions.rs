@@ -56,10 +56,11 @@ fn generate_instructions_from_switch(
         .ability]
         .on_switch_out
     {
-        for i in on_switch_out_fn(&state, &switching_side_ref) {
-            state.apply_one_instruction(&i);
-            incoming_instructions.instruction_list.push(i);
-        }
+        on_switch_out_fn(state, &switching_side_ref, incoming_instructions);
+        // for i in on_switch_out_fn(&state, &switching_side_ref) {
+        //     state.apply_one_instruction(&i);
+        //     incoming_instructions.instruction_list.push(i);
+        // }
     }
 
     let switch_instruction = Instruction::Switch(SwitchInstruction {
@@ -185,10 +186,7 @@ fn generate_instructions_from_switch(
     if let Some(on_switch_in_fn) =
         ABILITIES[switching_side.get_active_immutable().ability].on_switch_in
     {
-        for i in on_switch_in_fn(&state, &switching_side_ref) {
-            state.apply_one_instruction(&i);
-            incoming_instructions.instruction_list.push(i);
-        }
+        on_switch_in_fn(state, &switching_side_ref, incoming_instructions);
     }
 
     let switching_side = state.get_side_immutable(&switching_side_ref);
