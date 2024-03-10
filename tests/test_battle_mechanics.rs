@@ -2324,6 +2324,57 @@ fn test_contrary_with_secondary() {
 }
 
 #[test]
+fn test_shielddust_doesnt_stop_self_secondary() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::SHIELDDUST;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("poweruppunch"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 64,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_shielddust_stops_secondary_against_opponent() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::SHIELDDUST;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("thunderpunch"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 60,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_throatspray_with_move_that_can_miss() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::ThroatSpray;

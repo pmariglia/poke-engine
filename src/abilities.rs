@@ -1098,7 +1098,7 @@ lazy_static! {
             modify_attack_against: Some(
                 |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
                     if attacker_choice.priority > 0 {
-                        attacker_choice.remove_all_effects()
+                        attacker_choice.remove_all_effects();
                         attacker_choice.accuracy = 0.0;
                     }
                 },
@@ -2001,247 +2001,258 @@ lazy_static! {
             ..Default::default()
         },
         swarm: Ability {
-                id: "swarm".to_string(),
-                index: 167,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        let attacking_pokemon = state.get_side_immutable(attacking_side).get_active_immutable();
-                        if attacking_choice.move_type == PokemonType::Bug && attacking_pokemon.hp < attacking_pokemon.maxhp / 3 {
-                            attacking_choice.base_power *= 1.3;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "swarm".to_string(),
+            index: 167,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    let attacking_pokemon = state.get_side_immutable(attacking_side).get_active_immutable();
+                    if attacking_choice.move_type == PokemonType::Bug && attacking_pokemon.hp < attacking_pokemon.maxhp / 3 {
+                        attacking_choice.base_power *= 1.3;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         stalwart: Ability {
-                id: "stalwart".to_string(),
-                index: 168,
-                ..Default::default()
-            },
+            id: "stalwart".to_string(),
+            index: 168,
+            ..Default::default()
+        },
         illuminate: Ability {
-                id: "illuminate".to_string(),
-                index: 169,
-                ..Default::default()
-            },
+            id: "illuminate".to_string(),
+            index: 169,
+            ..Default::default()
+        },
         turboblaze: Ability {
-                id: "turboblaze".to_string(),
-                index: 170,
-                ..Default::default()
-            },
+            id: "turboblaze".to_string(),
+            index: 170,
+            ..Default::default()
+        },
         gorillatactics: Ability {
-                id: "gorillatactics".to_string(),
-                index: 171,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.category == MoveCategory::Physical {
-                            attacking_choice.base_power *= 1.5;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "gorillatactics".to_string(),
+            index: 171,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.category == MoveCategory::Physical {
+                        attacking_choice.base_power *= 1.5;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         speedboost: Ability {
-                id: "speedboost".to_string(),
-                index: 172,
-                end_of_turn: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
-                    let attacker = state.get_side(side_ref).get_active();
-                    if attacker.speed_boost < 6 {
-                        let ins = Instruction::Boost(BoostInstruction {
-                            side_ref: side_ref.clone(),
-                            stat: PokemonBoostableStat::Speed,
-                            amount: 1,
-                        });
-                        attacker.speed_boost += 1;
-                        incoming_instructions.instruction_list.push(ins);
-                    }
-                }),
-                ..Default::default()
-            },
+            id: "speedboost".to_string(),
+            index: 172,
+            end_of_turn: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
+                let attacker = state.get_side(side_ref).get_active();
+                if attacker.speed_boost < 6 {
+                    let ins = Instruction::Boost(BoostInstruction {
+                        side_ref: side_ref.clone(),
+                        stat: PokemonBoostableStat::Speed,
+                        amount: 1,
+                    });
+                    attacker.speed_boost += 1;
+                    incoming_instructions.instruction_list.push(ins);
+                }
+            }),
+            ..Default::default()
+        },
         heatproof: Ability {
-                id: "heatproof".to_string(),
-                index: 173,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if attacker_choice.move_type == PokemonType::Fire {
-                            attacker_choice.base_power *= 0.5 ;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "heatproof".to_string(),
+            index: 173,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Fire {
+                        attacker_choice.base_power *= 0.5 ;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         snowcloak: Ability {
-                id: "snowcloak".to_string(),
-                index: 174,
-                ..Default::default()
-            },
+            id: "snowcloak".to_string(),
+            index: 174,
+            ..Default::default()
+        },
         teravolt: Ability {
-                id: "teravolt".to_string(),
-                index: 175,
-                ..Default::default()
-            },
+            id: "teravolt".to_string(),
+            index: 175,
+            ..Default::default()
+        },
         chillingneigh: Ability {
-                id: "chillingneigh".to_string(),
-                index: 176,
-                ..Default::default()
-            },
+            id: "chillingneigh".to_string(),
+            index: 176,
+            ..Default::default()
+        },
         shielddust: Ability {
-                id: "shielddust".to_string(),
-                index: 177,
-                ..Default::default()
-            },
+            id: "shielddust".to_string(),
+            index: 177,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if let Some(secondaries) = &mut attacker_choice.secondaries {
+                        for secondary in secondaries.iter_mut() {
+                            if secondary.target == MoveTarget::Opponent {
+                                secondary.chance = 0.0;
+                            }
+                        }
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         rivalry: Ability {
-                id: "rivalry".to_string(),
-                index: 178,
-                ..Default::default()
-            },
+            id: "rivalry".to_string(),
+            index: 178,
+            ..Default::default()
+        },
         primordialsea: Ability {
-                id: "primordialsea".to_string(),
-                index: 179,
-                ..Default::default()
-            },
+            id: "primordialsea".to_string(),
+            index: 179,
+            ..Default::default()
+        },
         screencleaner: Ability {
-                id: "screencleaner".to_string(),
-                index: 180,
-                ..Default::default()
-            },
+            id: "screencleaner".to_string(),
+            index: 180,
+            ..Default::default()
+        },
         magnetpull: Ability {
-                id: "magnetpull".to_string(),
-                index: 181,
-                ..Default::default()
-            },
+            id: "magnetpull".to_string(),
+            index: 181,
+            ..Default::default()
+        },
         honeygather: Ability {
-                id: "honeygather".to_string(),
-                index: 182,
-                ..Default::default()
-            },
+            id: "honeygather".to_string(),
+            index: 182,
+            ..Default::default()
+        },
         cottondown: Ability {
-                id: "cottondown".to_string(),
-                index: 183,
-                ..Default::default()
-            },
+            id: "cottondown".to_string(),
+            index: 183,
+            ..Default::default()
+        },
         grasspelt: Ability {
-                id: "grasspelt".to_string(),
-                index: 184,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if state.terrain_is_active(&Terrain::GrassyTerrain) && attacker_choice.category == MoveCategory::Physical {
-                            attacker_choice.base_power /= 1.5;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "grasspelt".to_string(),
+            index: 184,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if state.terrain_is_active(&Terrain::GrassyTerrain) && attacker_choice.category == MoveCategory::Physical {
+                        attacker_choice.base_power /= 1.5;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         battlearmor: Ability {
-                id: "battlearmor".to_string(),
-                index: 185,
-                ..Default::default()
-            },
+            id: "battlearmor".to_string(),
+            index: 185,
+            ..Default::default()
+        },
         beastboost: Ability {
-                id: "beastboost".to_string(),
-                index: 186,
-                after_damage_hit: Some(|state, _, attacking_side, damage_dealt, instructions| {
-                    let (attacker_side, defender_side) =
-                        state.get_both_sides(attacking_side);
-                    if damage_dealt > 0 && defender_side.get_active_immutable().hp == 0 {
-                        let highest_stat = &attacker_side
-                            .get_active_immutable()
-                            .calculate_highest_stat();
-                        if let Some(boost_instruction) = get_boost_instruction(
-                            state.get_side_immutable(attacking_side).get_active_immutable(),
-                            highest_stat,
-                            &1,
-                            attacking_side,
-                            attacking_side,
-                        ) {
-                            state.apply_one_instruction(&boost_instruction);
-                            instructions.instruction_list.push(boost_instruction);
-                        }
+            id: "beastboost".to_string(),
+            index: 186,
+            after_damage_hit: Some(|state, _, attacking_side, damage_dealt, instructions| {
+                let (attacker_side, defender_side) =
+                    state.get_both_sides(attacking_side);
+                if damage_dealt > 0 && defender_side.get_active_immutable().hp == 0 {
+                    let highest_stat = &attacker_side
+                        .get_active_immutable()
+                        .calculate_highest_stat();
+                    if let Some(boost_instruction) = get_boost_instruction(
+                        state.get_side_immutable(attacking_side).get_active_immutable(),
+                        highest_stat,
+                        &1,
+                        attacking_side,
+                        attacking_side,
+                    ) {
+                        state.apply_one_instruction(&boost_instruction);
+                        instructions.instruction_list.push(boost_instruction);
                     }
-                }),
-                ..Default::default()
-            },
+                }
+            }),
+            ..Default::default()
+        },
         berserk: Ability {
-                id: "berserk".to_string(),
-                index: 187,
-                ..Default::default()
-            },
+            id: "berserk".to_string(),
+            index: 187,
+            ..Default::default()
+        },
         minus: Ability {
-                id: "minus".to_string(),
-                index: 188,
-                ..Default::default()
-            },
+            id: "minus".to_string(),
+            index: 188,
+            ..Default::default()
+        },
         raindish: Ability {
-                id: "raindish".to_string(),
-                index: 189,
-                ..Default::default()
-            },
+            id: "raindish".to_string(),
+            index: 189,
+            ..Default::default()
+        },
         synchronize: Ability {
-                id: "synchronize".to_string(),
-                index: 190,
-                ..Default::default()
-            },
+            id: "synchronize".to_string(),
+            index: 190,
+            ..Default::default()
+        },
         filter: Ability {
-                id: "filter".to_string(),
-                index: 191,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if type_effectiveness_modifier(
-                            &attacker_choice.move_type,
-                            &state
-                                .get_side_immutable(&attacking_side.get_other_side())
-                                .get_active_immutable()
-                                .types,
-                        ) > 1.0
-                        {
-                            attacker_choice.base_power *= 0.75;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        truant: Ability {
-                id: "truant".to_string(),
-                index: 192,
-                ..Default::default()
-            },
-        furcoat: Ability {
-                id: "furcoat".to_string(),
-                index: 193,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if attacker_choice.category == MoveCategory::Physical {
-                            attacker_choice.base_power *= 0.5;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        fullmetalbody: Ability {
-                id: "fullmetalbody".to_string(),
-                index: 194,
-                ..Default::default()
-            },
-        regenerator: Ability {
-                id: "regenerator".to_string(),
-                index: 195,
-                on_switch_out: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
-                    let switching_out_pkmn =
-                        state.get_side(side_ref).get_active();
-                    let hp_recovered = cmp::min(
-                        switching_out_pkmn.maxhp / 3,
-                        switching_out_pkmn.maxhp - switching_out_pkmn.hp,
-                    );
-
-                    if hp_recovered > 0 && switching_out_pkmn.hp > 0 {
-                        instructions.instruction_list.push(Instruction::Heal(HealInstruction {
-                            side_ref: *side_ref,
-                            heal_amount: hp_recovered,
-                        }));
-                        switching_out_pkmn.hp += hp_recovered;
+            id: "filter".to_string(),
+            index: 191,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if type_effectiveness_modifier(
+                        &attacker_choice.move_type,
+                        &state
+                            .get_side_immutable(&attacking_side.get_other_side())
+                            .get_active_immutable()
+                            .types,
+                    ) > 1.0
+                    {
+                        attacker_choice.base_power *= 0.75;
                     }
-                }),
-                ..Default::default()
-            },
+                },
+            ),
+            ..Default::default()
+        },
+        truant: Ability {
+            id: "truant".to_string(),
+            index: 192,
+            ..Default::default()
+        },
+        furcoat: Ability {
+            id: "furcoat".to_string(),
+            index: 193,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.category == MoveCategory::Physical {
+                        attacker_choice.base_power *= 0.5;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
+        fullmetalbody: Ability {
+            id: "fullmetalbody".to_string(),
+            index: 194,
+            ..Default::default()
+        },
+        regenerator: Ability {
+            id: "regenerator".to_string(),
+            index: 195,
+            on_switch_out: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                let switching_out_pkmn =
+                    state.get_side(side_ref).get_active();
+                let hp_recovered = cmp::min(
+                    switching_out_pkmn.maxhp / 3,
+                    switching_out_pkmn.maxhp - switching_out_pkmn.hp,
+                );
+
+                if hp_recovered > 0 && switching_out_pkmn.hp > 0 {
+                    instructions.instruction_list.push(Instruction::Heal(HealInstruction {
+                        side_ref: *side_ref,
+                        heal_amount: hp_recovered,
+                    }));
+                    switching_out_pkmn.hp += hp_recovered;
+                }
+            }),
+            ..Default::default()
+        },
         forewarn: Ability {
                 id: "forewarn".to_string(),
                 index: 196,
