@@ -678,15 +678,23 @@ lazy_static! {
             ..Default::default()
         },
         soundproof: Ability {
-                id: "soundproof".to_string(),
-                index: 10,
-                ..Default::default()
-            },
+            id: "soundproof".to_string(),
+            index: 10,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.flags.sound {
+                        attacker_choice.remove_all_effects();
+                        attacker_choice.accuracy = 0.0;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         rkssystem: Ability {
-                id: "rkssystem".to_string(),
-                index: 11,
-                ..Default::default()
-            },
+            id: "rkssystem".to_string(),
+            index: 11,
+            ..Default::default()
+        },
         poisonpoint: Ability {
             id: "poisonpoint".to_string(),
             index: 12,
@@ -2759,6 +2767,20 @@ lazy_static! {
         solidrock: Ability {
             id: "solidrock".to_string(),
             index: 254,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if type_effectiveness_modifier(
+                        &attacker_choice.move_type,
+                        &state
+                            .get_side_immutable(&attacking_side.get_other_side())
+                            .get_active_immutable()
+                            .types,
+                    ) > 1.0
+                    {
+                        attacker_choice.base_power *= 0.75;
+                    }
+                },
+            ),
             ..Default::default()
         },
         hustle: Ability {
