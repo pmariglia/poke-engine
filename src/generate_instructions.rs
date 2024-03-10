@@ -1437,7 +1437,11 @@ fn add_end_of_turn_instructions(
 
         match active_pkmn.status {
             PokemonStatus::Burn => {
-                let damage_amount =
+                let mut damage_factor = 0.0625;
+                if active_pkmn.ability == Abilities::HEATPROOF {
+                    damage_factor /= 2.0;
+                }
+                let mut damage_amount =
                     cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
                 let burn_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
