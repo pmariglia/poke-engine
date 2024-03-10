@@ -2800,57 +2800,71 @@ lazy_static! {
             ..Default::default()
         },
         owntempo: Ability {
-                id: "owntempo".to_string(),
-                index: 244,
-                ..Default::default()
-            },
+            id: "owntempo".to_string(),
+            index: 244,
+            ..Default::default()
+        },
         frisk: Ability {
-                id: "frisk".to_string(),
-                index: 245,
-                ..Default::default()
-            },
+            id: "frisk".to_string(),
+            index: 245,
+            ..Default::default()
+        },
         voltabsorb: Ability {
-                id: "voltabsorb".to_string(),
-                index: 246,
-                ..Default::default()
-            },
+            id: "voltabsorb".to_string(),
+            index: 246,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Electric {
+                        attacker_choice.remove_all_effects();
+                        attacker_choice.accuracy = 100.0;
+                        attacker_choice.base_power = 0.0;
+                        attacker_choice.heal = Some(Heal {
+                            target: MoveTarget::Opponent,
+                            amount: 0.25
+                        });
+                        attacker_choice.category = MoveCategory::Status;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         galewings: Ability {
-                id: "galewings".to_string(),
-                index: 247,
-                ..Default::default()
-            },
+            id: "galewings".to_string(),
+            index: 247,
+            ..Default::default()
+        },
         aftermath: Ability {
-                id: "aftermath".to_string(),
-                index: 248,
-                ..Default::default()
-            },
+            id: "aftermath".to_string(),
+            index: 248,
+            ..Default::default()
+        },
         stickyhold: Ability {
-                id: "stickyhold".to_string(),
-                index: 249,
-                ..Default::default()
-            },
+            id: "stickyhold".to_string(),
+            index: 249,
+            ..Default::default()
+        },
         grimneigh: Ability {
-                id: "grimneigh".to_string(),
-                index: 250,
-                ..Default::default()
-            },
+            id: "grimneigh".to_string(),
+            index: 250,
+            ..Default::default()
+        },
         ironfist: Ability {
-                id: "ironfist".to_string(),
-                index: 251,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.flags.punch {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "ironfist".to_string(),
+            index: 251,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.flags.punch {
+                        attacking_choice.base_power *= 1.2;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         rebound: Ability {
-                id: "rebound".to_string(),
-                index: 252,
-                ..Default::default()
-            },
+            id: "rebound".to_string(),
+            index: 252,
+            ..Default::default()
+        },
         unseenfist: Ability {
             id: "unseenfist".to_string(),
             index: 253,
