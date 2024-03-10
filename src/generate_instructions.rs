@@ -1,7 +1,6 @@
 use crate::abilities::Abilities;
 use crate::choices::{
-    Boost, Effect, HazardClearFn, Heal, MoveTarget, Secondary, SideCondition, StatBoosts, Status,
-    VolatileStatus,
+    Boost, Effect, Heal, MoveTarget, Secondary, SideCondition, StatBoosts, Status, VolatileStatus,
 };
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
@@ -997,7 +996,7 @@ fn update_choice(
 fn generate_instructions_from_existing_status_conditions(
     state: &mut State,
     attacking_side_ref: &SideReference,
-    mut incoming_instructions: &mut StateInstructions,
+    incoming_instructions: &mut StateInstructions,
     final_instructions: &mut Vec<StateInstructions>,
 ) {
     let (attacking_side, _defending_side) = state.get_both_sides(attacking_side_ref);
@@ -1060,7 +1059,8 @@ pub fn generate_instructions_from_move(
     defender_choice: &Choice,
     attacking_side: SideReference,
     mut incoming_instructions: StateInstructions,
-) -> Vec<StateInstructions> {
+    mut final_instructions: &mut Vec<StateInstructions>,
+) {
     if choice.category == MoveCategory::Switch {
         generate_instructions_from_switch(
             state,
@@ -1068,12 +1068,14 @@ pub fn generate_instructions_from_move(
             attacking_side,
             &mut incoming_instructions,
         );
-        return vec![incoming_instructions];
+        final_instructions.push(incoming_instructions);
+        return;
     }
 
     // TODO: test first-turn dragontail missing - it should not trigger this early return
     if !choice.first_move && defender_choice.flags.drag {
-        return vec![incoming_instructions];
+        final_instructions.push(incoming_instructions);
+        return;
     }
 
     state.apply_instructions(&incoming_instructions.instruction_list);
@@ -1085,15 +1087,16 @@ pub fn generate_instructions_from_move(
         == 0
     {
         state.reverse_instructions(&incoming_instructions.instruction_list);
-        return vec![incoming_instructions];
+        final_instructions.push(incoming_instructions);
+        return;
     }
 
-    let mut final_instructions: Vec<StateInstructions> = Vec::with_capacity(16);
+    // let mut final_instructions: Vec<StateInstructions> = Vec::with_capacity(16);
     update_choice(state, choice, defender_choice, &attacking_side);
     before_move(state, &choice, &attacking_side, &mut incoming_instructions);
     if incoming_instructions.percentage == 0.0 {
         state.reverse_instructions(&incoming_instructions.instruction_list);
-        return final_instructions;
+        return; //final_instructions;
     }
 
     let damage = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
@@ -1106,7 +1109,7 @@ pub fn generate_instructions_from_move(
     if cannot_use_move(state, &choice, &attacking_side) {
         state.reverse_instructions(&incoming_instructions.instruction_list);
         final_instructions.push(incoming_instructions);
-        return final_instructions;
+        return;
     }
     generate_instructions_from_move_special_effect(
         state,
@@ -1172,12 +1175,12 @@ pub fn generate_instructions_from_move(
             &mut final_instructions,
         );
         combine_duplicate_instructions(&mut final_instructions);
-        return final_instructions;
+        return;
     }
 
     if let Some(secondaries_vec) = &choice.secondaries {
         state.reverse_instructions(&incoming_instructions.instruction_list);
-        let mut instructions_vec_after_secondaries = get_instructions_from_secondaries(
+        let instructions_vec_after_secondaries = get_instructions_from_secondaries(
             state,
             &choice,
             secondaries_vec,
@@ -1231,10 +1234,10 @@ pub fn generate_instructions_from_move(
         final_instructions.push(incoming_instructions);
     }
     combine_duplicate_instructions(&mut final_instructions);
-    return final_instructions;
+    return;
 }
 
-fn combine_duplicate_instructions(mut list_of_instructions: &mut Vec<StateInstructions>) {
+fn combine_duplicate_instructions(list_of_instructions: &mut Vec<StateInstructions>) {
     for i in 0..list_of_instructions.len() {
         let mut j = i + 1;
         while j < list_of_instructions.len() {
@@ -1730,51 +1733,63 @@ pub fn generate_instructions_from_move_pair(
         }
     }
 
-    let mut state_instruction_vec: Vec<StateInstructions> = Vec::with_capacity(16);
+    let mut state_instructions_vec: Vec<StateInstructions> = Vec::with_capacity(16);
     let incoming_instructions: StateInstructions = StateInstructions::default();
     let first_move_side;
     if side_one_moves_first(&state, &side_one_choice, &side_two_choice) {
         first_move_side = SideReference::SideOne;
-        let first_move_instructions = generate_instructions_from_move(
+        generate_instructions_from_move(
             state,
             &mut side_one_choice,
             &side_two_choice,
             SideReference::SideOne,
             incoming_instructions,
+            &mut state_instructions_vec,
         );
         side_two_choice.first_move = false;
-        for state_instruction in first_move_instructions {
-            state_instruction_vec.extend(generate_instructions_from_move(
+        let mut i = 0;
+        let vec_len = state_instructions_vec.len();
+        while i < vec_len {
+            let state_instruction = state_instructions_vec.remove(0);
+            generate_instructions_from_move(
                 state,
                 &mut side_two_choice,
                 &side_one_choice,
                 SideReference::SideTwo,
                 state_instruction,
-            ));
+                &mut state_instructions_vec,
+            );
+            i += 1;
         }
     } else {
         first_move_side = SideReference::SideTwo;
-        let first_move_instructions = generate_instructions_from_move(
+        generate_instructions_from_move(
             state,
             &mut side_two_choice,
             &side_one_choice,
             SideReference::SideTwo,
             incoming_instructions,
+            &mut state_instructions_vec,
         );
         side_one_choice.first_move = false;
-        for state_instruction in first_move_instructions {
-            state_instruction_vec.extend(generate_instructions_from_move(
+        let mut i = 0;
+        let vec_len = state_instructions_vec.len();
+        while i < vec_len {
+            let state_instruction = state_instructions_vec.remove(0);
+            generate_instructions_from_move(
                 state,
                 &mut side_one_choice,
                 &side_two_choice,
                 SideReference::SideOne,
                 state_instruction,
-            ));
+                &mut state_instructions_vec,
+            );
+            i += 1;
         }
     }
 
     if end_of_turn_triggered(side_one_move, side_two_move) {
-        for state_instruction in state_instruction_vec.iter_mut() {
+        for state_instruction in state_instructions_vec.iter_mut() {
             add_end_of_turn_instructions(
                 state,
                 state_instruction,
@@ -1784,7 +1799,7 @@ pub fn generate_instructions_from_move_pair(
             );
         }
     }
-    return state_instruction_vec;
+    return state_instructions_vec;
 }
 
 #[cfg(test)]
@@ -1808,12 +1823,14 @@ mod tests {
         let mut choice = MOVES.get("dragontail").unwrap().to_owned();
         choice.first_move = false;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("dragontail").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
         assert_eq!(instructions, vec![StateInstructions::default()])
     }
@@ -1825,12 +1842,14 @@ mod tests {
         state.side_two.get_active().types = (PokemonType::Ground, PokemonType::Typeless);
         choice.first_move = false;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
         assert_eq!(instructions, vec![StateInstructions::default()])
     }
@@ -1842,12 +1861,14 @@ mod tests {
         state.side_two.get_active().types = (PokemonType::Grass, PokemonType::Typeless);
         choice.first_move = false;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
         assert_eq!(instructions, vec![StateInstructions::default()])
     }
@@ -1857,12 +1878,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("spikes").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -1885,12 +1908,14 @@ mod tests {
         state.side_two.side_conditions.spikes = 3;
         let mut choice = MOVES.get("spikes").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -1907,12 +1932,14 @@ mod tests {
         state.weather.weather_type = Weather::Hail;
         let mut choice = MOVES.get("auroraveil").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -1935,12 +1962,14 @@ mod tests {
         state.weather.weather_type = Weather::None;
         let mut choice = MOVES.get("auroraveil").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -1957,12 +1986,14 @@ mod tests {
         state.side_two.side_conditions.stealth_rock = 1;
         let mut choice = MOVES.get("stealthrock").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -1978,12 +2009,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("stoneaxe").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![
@@ -2015,12 +2048,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("chatter").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -2045,12 +2080,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("confusion").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![
@@ -2084,12 +2121,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("axekick").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![
@@ -2130,12 +2169,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("aquaring").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -2156,12 +2197,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("attract").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -2187,12 +2230,14 @@ mod tests {
             .insert(PokemonVolatileStatus::Attract);
         let mut choice = MOVES.get("attract").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -2209,12 +2254,14 @@ mod tests {
         state.side_one.get_active().hp = 25;
         let mut choice = MOVES.get("substitute").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -2230,12 +2277,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("whirlwind").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![
@@ -2291,12 +2340,14 @@ mod tests {
         state.side_two.pokemon[PokemonIndex::P3].hp = 0;
         let mut choice = MOVES.get("whirlwind").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![
@@ -2336,12 +2387,14 @@ mod tests {
         state.side_two.pokemon[PokemonIndex::P3].hp = 0;
         let mut choice = MOVES.get("dragontail").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![
@@ -2404,12 +2457,14 @@ mod tests {
         state.side_two.get_active().hp = 5;
         let mut choice = MOVES.get("dragontail").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![
@@ -2439,12 +2494,14 @@ mod tests {
         state.side_two.pokemon[PokemonIndex::P5].hp = 0;
         let mut choice = MOVES.get("whirlwind").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -2470,12 +2527,14 @@ mod tests {
             })],
         };
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             previous_instruction,
+            &mut instructions,
         );
 
         let expected_instructions = vec![
@@ -2531,12 +2590,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("glare").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -2557,12 +2618,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("thunderwave").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![
@@ -2590,12 +2653,14 @@ mod tests {
         state.side_two.get_active().ability = Abilities::LIMBER;
         let mut choice = MOVES.get("thunderwave").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -2612,12 +2677,14 @@ mod tests {
         state.side_two.get_active().ability = Abilities::FLAMEBODY;
         let mut choice = MOVES.get("tackle").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![
@@ -2655,12 +2722,14 @@ mod tests {
         state.side_one.get_active().item = Items::ProtectivePads;
         let mut choice = MOVES.get("tackle").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -2680,12 +2749,14 @@ mod tests {
         state.side_two.get_active().ability = Abilities::FLAMEBODY;
         let mut choice = MOVES.get("watergun").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -2706,12 +2777,14 @@ mod tests {
         state.side_two.get_active().ability = Abilities::FLAMEBODY;
         let mut choice = MOVES.get("watergun").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -2730,12 +2803,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("firefang").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![
@@ -2808,12 +2883,14 @@ mod tests {
         state.side_two.get_active().ability = Abilities::FLAMEBODY;
         let mut choice = MOVES.get("tackle").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![
@@ -2850,12 +2927,14 @@ mod tests {
         state.side_two.get_active().ability = Abilities::FLAMEBODY;
         let mut choice = MOVES.get("firepunch").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![
@@ -2932,12 +3011,14 @@ mod tests {
         state.side_one.get_active().hp = state.side_one.get_active().maxhp - 1;
         let mut choice = MOVES.get("rest").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -2965,12 +3046,14 @@ mod tests {
         state.side_one.get_active().hp = 1;
         let mut choice = MOVES.get("recover").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -2989,12 +3072,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("recover").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3010,12 +3095,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("explosion").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3041,12 +3128,14 @@ mod tests {
         state.side_one.get_active().hp = 1;
         let mut choice = MOVES.get("explosion").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3072,12 +3161,14 @@ mod tests {
         state.side_one.get_active().hp = 55;
         let mut choice = MOVES.get("recover").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3096,12 +3187,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("swordsdance").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3122,12 +3215,14 @@ mod tests {
         state.side_one.get_active().attack_boost = 5;
         let mut choice = MOVES.get("swordsdance").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3148,12 +3243,14 @@ mod tests {
         state.side_one.get_active().attack_boost = 6;
         let mut choice = MOVES.get("swordsdance").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3169,12 +3266,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("kinesis").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![
@@ -3200,12 +3299,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("charm").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3226,12 +3327,14 @@ mod tests {
         state.side_two.get_active().attack_boost = -5;
         let mut choice = MOVES.get("charm").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3252,12 +3355,14 @@ mod tests {
         state.side_two.get_active().attack_boost = -6;
         let mut choice = MOVES.get("charm").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3274,12 +3379,14 @@ mod tests {
         state.side_two.get_active().ability = Abilities::CLEARBODY;
         let mut choice = MOVES.get("charm").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3296,12 +3403,14 @@ mod tests {
         state.side_one.get_active().ability = Abilities::CLEARBODY;
         let mut choice = MOVES.get("shellsmash").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3344,12 +3453,14 @@ mod tests {
 
         let mut choice = MOVES.get("defog").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3368,12 +3479,14 @@ mod tests {
 
         let mut choice = MOVES.get("defog").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3399,12 +3512,14 @@ mod tests {
 
         let mut choice = MOVES.get("defog").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3439,12 +3554,14 @@ mod tests {
 
         let mut choice = MOVES.get("rapidspin").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3480,12 +3597,14 @@ mod tests {
 
         let mut choice = MOVES.get("rapidspin").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3536,12 +3655,14 @@ mod tests {
 
         let mut choice = MOVES.get("rapidspin").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3569,12 +3690,14 @@ mod tests {
 
         let mut choice = MOVES.get("courtchange").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3606,12 +3729,14 @@ mod tests {
 
         let mut choice = MOVES.get("courtchange").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![StateInstructions {
@@ -3669,12 +3794,14 @@ mod tests {
         state.side_two.side_conditions.stealth_rock = 1;
         let mut choice = MOVES.get("stoneaxe").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions = vec![
@@ -3704,12 +3831,14 @@ mod tests {
             .volatile_statuses
             .insert(PokemonVolatileStatus::Flinch);
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
         assert_eq!(instructions, vec![StateInstructions::default()])
     }
@@ -3724,12 +3853,14 @@ mod tests {
             .volatile_statuses
             .insert(PokemonVolatileStatus::Taunt);
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
         assert_eq!(instructions, vec![StateInstructions::default()])
     }
@@ -3758,12 +3889,14 @@ mod tests {
 
         let original_incoming_instructions = incoming_instructions.clone();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             incoming_instructions,
+            &mut instructions,
         );
         assert_eq!(instructions, vec![original_incoming_instructions])
     }
@@ -3775,12 +3908,14 @@ mod tests {
         choice.first_move = false;
         state.side_one.get_active().hp = 0;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
         assert_eq!(instructions, vec![StateInstructions::default()])
     }
@@ -3793,12 +3928,14 @@ mod tests {
         state.side_two.get_active().hp = 50;
         state.side_two.get_active().maxhp = 50;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -3820,12 +3957,14 @@ mod tests {
         state.side_two.get_active().hp = 45;
         state.side_two.get_active().maxhp = 50;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -3847,12 +3986,14 @@ mod tests {
         state.side_one.get_active().attack = 500; // highest stat
         state.side_two.get_active().hp = 1;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -3882,12 +4023,14 @@ mod tests {
         state.side_one.get_active().attack_boost = 6; // max boosts already
         state.side_two.get_active().hp = 1;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -3909,12 +4052,14 @@ mod tests {
         state.side_one.get_active().attack = 150; // highest stat
         state.side_two.get_active().hp = 100;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -3935,12 +4080,14 @@ mod tests {
         state.side_one.get_active().hp = 100;
         state.side_one.get_active().maxhp = 200;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -3967,12 +4114,14 @@ mod tests {
         state.side_one.get_active().hp = 100;
         state.side_one.get_active().maxhp = 105;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -3999,12 +4148,14 @@ mod tests {
         state.side_one.get_active().hp = 105;
         state.side_one.get_active().maxhp = 105;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -4031,12 +4182,14 @@ mod tests {
         state.side_one.get_active().hp = 5;
         state.side_one.get_active().maxhp = 105;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -4064,12 +4217,14 @@ mod tests {
         state.side_one.get_active().hp = 1;
         state.side_one.get_active().maxhp = 105;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -4098,12 +4253,14 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get("jumpkick").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: Vec<StateInstructions> = vec![
@@ -4132,12 +4289,14 @@ mod tests {
         state.side_two.get_active().types.0 = PokemonType::Ghost;
         let mut choice = MOVES.get("jumpkick").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: Vec<StateInstructions> = vec![StateInstructions {
@@ -4157,12 +4316,14 @@ mod tests {
         state.get_side(&SideReference::SideOne).get_active().hp = 5;
         let mut choice = MOVES.get("jumpkick").unwrap().to_owned();
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: Vec<StateInstructions> = vec![
@@ -4191,12 +4352,14 @@ mod tests {
         let mut choice = MOVES.get("knockoff").unwrap().to_owned();
         state.get_side(&SideReference::SideTwo).get_active().item = Items::HeavyDutyBoots;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: StateInstructions = StateInstructions {
@@ -4223,12 +4386,14 @@ mod tests {
         let mut choice = MOVES.get("crosschop").unwrap().to_owned();
         state.get_side(&SideReference::SideOne).get_active().item = Items::BlunderPolicy;
 
-        let instructions = generate_instructions_from_move(
+        let mut instructions = vec![];
+        generate_instructions_from_move(
             &mut state,
             &mut choice,
             MOVES.get("tackle").unwrap(),
             SideReference::SideOne,
             StateInstructions::default(),
+            &mut instructions,
         );
 
         let expected_instructions: Vec<StateInstructions> = vec![

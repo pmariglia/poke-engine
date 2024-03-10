@@ -74,58 +74,59 @@ fn main() {
 
     let mut state: State = State::default();
 
-    // state.side_one.pokemon[PokemonIndex::P0].moves = PokemonMoves {
-    //     m0: Move {
-    //         id: "earthquake".to_string(),
-    //         disabled: false,
-    //         pp: 32,
-    //         choice: MOVES.get("earthquake").unwrap().to_owned(),
-    //     },
-    //     m1: Move {
-    //         id: "thunderwave".to_string(),
-    //         disabled: false,
-    //         pp: 32,
-    //         choice: MOVES.get("thunderwave").unwrap().to_owned(),
-    //     },
-    //     m2: Move {
-    //         id: "zapcannon".to_string(),
-    //         disabled: false,
-    //         pp: 32,
-    //         choice: MOVES.get("zapcannon").unwrap().to_owned(),
-    //     },
-    //     m3: Move {
-    //         id: "airslash".to_string(),
-    //         disabled: false,
-    //         pp: 32,
-    //         choice: MOVES.get("airslash").unwrap().to_owned(),
-    //     },
-    // };
-    // state.side_two.pokemon[PokemonIndex::P0].moves = PokemonMoves {
-    //     m0: Move {
-    //         id: "earthquake".to_string(),
-    //         disabled: false,
-    //         pp: 32,
-    //         choice: MOVES.get("earthquake").unwrap().to_owned(),
-    //     },
-    //     m1: Move {
-    //         id: "thunderwave".to_string(),
-    //         disabled: false,
-    //         pp: 32,
-    //         choice: MOVES.get("thunderwave").unwrap().to_owned(),
-    //     },
-    //     m2: Move {
-    //         id: "zapcannon".to_string(),
-    //         disabled: false,
-    //         pp: 32,
-    //         choice: MOVES.get("zapcannon").unwrap().to_owned(),
-    //     },
-    //     m3: Move {
-    //         id: "airslash".to_string(),
-    //         disabled: false,
-    //         pp: 32,
-    //         choice: MOVES.get("airslash").unwrap().to_owned(),
-    //     },
-    // };
+    state.side_one.pokemon[PokemonIndex::P0].moves = PokemonMoves {
+        m0: Move {
+            id: "earthquake".to_string(),
+            disabled: false,
+            pp: 32,
+            choice: MOVES.get("earthquake").unwrap().to_owned(),
+        },
+        m1: Move {
+            id: "thunderwave".to_string(),
+            disabled: false,
+            pp: 32,
+            choice: MOVES.get("thunderwave").unwrap().to_owned(),
+        },
+        m2: Move {
+            id: "zapcannon".to_string(),
+            disabled: false,
+            pp: 32,
+            choice: MOVES.get("zapcannon").unwrap().to_owned(),
+        },
+        m3: Move {
+            id: "airslash".to_string(),
+            disabled: false,
+            pp: 32,
+            choice: MOVES.get("airslash").unwrap().to_owned(),
+        },
+    };
+
+    state.side_two.pokemon[PokemonIndex::P0].moves = PokemonMoves {
+        m0: Move {
+            id: "earthquake".to_string(),
+            disabled: false,
+            pp: 32,
+            choice: MOVES.get("earthquake").unwrap().to_owned(),
+        },
+        m1: Move {
+            id: "thunderwave".to_string(),
+            disabled: false,
+            pp: 32,
+            choice: MOVES.get("thunderwave").unwrap().to_owned(),
+        },
+        m2: Move {
+            id: "zapcannon".to_string(),
+            disabled: false,
+            pp: 32,
+            choice: MOVES.get("zapcannon").unwrap().to_owned(),
+        },
+        m3: Move {
+            id: "airslash".to_string(),
+            disabled: false,
+            pp: 32,
+            choice: MOVES.get("airslash").unwrap().to_owned(),
+        },
+    };
 
     // println!("{:?}", state);
     let (side_one_options, side_two_options) = state.get_all_options();
