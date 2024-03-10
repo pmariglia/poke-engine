@@ -1575,6 +1575,20 @@ lazy_static! {
                     }
                 },
             ),
+            end_of_turn: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
+                if state.weather.weather_type == Weather::HarshSun || state.weather.weather_type == Weather::Sun {
+                    let side = state.get_side(side_ref);
+                    let active = side.get_active();
+                    let damage_dealt = cmp::min(active.maxhp / 8, active.maxhp - active.hp);
+                    if damage_dealt > 0 {
+                        incoming_instructions.instruction_list.push(Instruction::Damage(DamageInstruction {
+                        side_ref: *side_ref,
+                        damage_amount: damage_dealt,
+                    }));
+                    active.hp -= damage_dealt;
+                    }
+                }
+            }),
             ..Default::default()
         },
         schooling: Ability {
