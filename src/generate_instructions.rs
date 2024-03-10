@@ -63,98 +63,89 @@ fn generate_instructions_from_switch(
         next_index: new_pokemon_index,
     });
 
-    state.apply_one_instruction(&switch_instruction);
+    let side = state.get_side(&switching_side_ref);
+    side.active_index = new_pokemon_index;
     incoming_instructions
         .instruction_list
         .push(switch_instruction);
 
-    let switch_in_side = state.get_side_immutable(&switching_side_ref);
-    let switched_in_pkmn = state
-        .get_side_immutable(&switching_side_ref)
-        .get_active_immutable();
-    if switched_in_pkmn.item != Items::HeavyDutyBoots {
-        if switch_in_side.side_conditions.stealth_rock == 1 {
+    if side.get_active_immutable().item != Items::HeavyDutyBoots {
+        if side.side_conditions.stealth_rock == 1 {
+            let switched_in_pkmn = side.get_active();
             let multiplier =
                 type_effectiveness_modifier(&PokemonType::Rock, &switched_in_pkmn.types) as i16;
 
+            let dmg_amount = cmp::min(
+                switched_in_pkmn.maxhp * multiplier / 8,
+                switched_in_pkmn.hp,
+            );
             let stealth_rock_dmg_instruction = Instruction::Damage(DamageInstruction {
                 side_ref: switching_side_ref,
-                damage_amount: cmp::min(
-                    switched_in_pkmn.maxhp * multiplier / 8,
-                    switched_in_pkmn.hp,
-                ),
+                damage_amount: dmg_amount
             });
-            state.apply_one_instruction(&stealth_rock_dmg_instruction);
+            switched_in_pkmn.hp -= dmg_amount;
             incoming_instructions
                 .instruction_list
                 .push(stealth_rock_dmg_instruction);
         }
 
-        let switch_in_side = state.get_side_immutable(&switching_side_ref);
-        let switched_in_pkmn = state
-            .get_side_immutable(&switching_side_ref)
-            .get_active_immutable();
-        if switch_in_side.side_conditions.spikes > 0 && switched_in_pkmn.is_grounded() {
+        let switched_in_pkmn = side.get_active_immutable();
+        if side.side_conditions.spikes > 0 && switched_in_pkmn.is_grounded() {
+            let dmg_amount = cmp::min(
+                switched_in_pkmn.maxhp * side.side_conditions.spikes as i16 / 8,
+                switched_in_pkmn.hp,
+            );
             let spikes_dmg_instruction = Instruction::Damage(DamageInstruction {
                 side_ref: switching_side_ref,
-                damage_amount: cmp::min(
-                    switched_in_pkmn.maxhp * switch_in_side.side_conditions.spikes as i16 / 8,
-                    switched_in_pkmn.hp,
-                ),
+                damage_amount: dmg_amount
             });
-            state.apply_one_instruction(&spikes_dmg_instruction);
+            side.get_active().hp -= dmg_amount;
             incoming_instructions
                 .instruction_list
                 .push(spikes_dmg_instruction);
         }
 
-        let switch_in_side = state.get_side_immutable(&switching_side_ref);
-        let switched_in_pkmn = state
-            .get_side_immutable(&switching_side_ref)
-            .get_active_immutable();
-        if switch_in_side.side_conditions.sticky_web == 1 && switched_in_pkmn.is_grounded() {
-            // a pkmn switching in don't have any other speed drops,
+        let switched_in_pkmn = side.get_active_immutable();
+        if side.side_conditions.sticky_web == 1 && switched_in_pkmn.is_grounded() {
+            // a pkmn switching in doesn't have any other speed drops,
             // so no need to check for going below -6
-
             if let Some(sticky_web_instruction) = get_boost_instruction(
-                state,
+                switched_in_pkmn,
                 &PokemonBoostableStat::Speed,
                 &-1,
                 &switching_side_ref,
                 &switching_side_ref,
             ) {
-                state.apply_one_instruction(&sticky_web_instruction);
+                side.get_active().speed_boost -= 1;
                 incoming_instructions
                     .instruction_list
                     .push(sticky_web_instruction);
             }
         }
 
-        let switch_in_side = state.get_side_immutable(&switching_side_ref);
-        let switched_in_pkmn = state
-            .get_side_immutable(&switching_side_ref)
-            .get_active_immutable();
+        let side = state.get_side_immutable(&switching_side_ref);
+        let switched_in_pkmn = side.get_active_immutable();
         let mut toxic_spike_instruction: Option<Instruction> = None;
-        if switch_in_side.side_conditions.toxic_spikes > 0 && switched_in_pkmn.is_grounded() {
+        if side.side_conditions.toxic_spikes > 0 && switched_in_pkmn.is_grounded() {
             if !immune_to_status(
                 &state,
                 &MoveTarget::User,
                 &switching_side_ref,
                 &PokemonStatus::Poison,
             ) {
-                if switch_in_side.side_conditions.toxic_spikes == 1 {
+                if side.side_conditions.toxic_spikes == 1 {
                     toxic_spike_instruction =
                         Some(Instruction::ChangeStatus(ChangeStatusInstruction {
                             side_ref: switching_side_ref,
-                            pokemon_index: switch_in_side.active_index,
+                            pokemon_index: side.active_index,
                             old_status: switched_in_pkmn.status,
                             new_status: PokemonStatus::Poison,
                         }))
-                } else if switch_in_side.side_conditions.toxic_spikes == 2 {
+                } else if side.side_conditions.toxic_spikes == 2 {
                     toxic_spike_instruction =
                         Some(Instruction::ChangeStatus(ChangeStatusInstruction {
                             side_ref: switching_side_ref,
-                            pokemon_index: switch_in_side.active_index,
+                            pokemon_index: side.active_index,
                             old_status: switched_in_pkmn.status,
                             new_status: PokemonStatus::Toxic,
                         }))
@@ -164,7 +155,7 @@ fn generate_instructions_from_switch(
                     ChangeSideConditionInstruction {
                         side_ref: switching_side_ref,
                         side_condition: PokemonSideCondition::ToxicSpikes,
-                        amount: -1 * switch_in_side.side_conditions.toxic_spikes,
+                        amount: -1 * side.side_conditions.toxic_spikes,
                     },
                 ))
             }
@@ -391,7 +382,7 @@ pub fn get_boost_amount(pkmn: &Pokemon, boost: &PokemonBoostableStat, amount: &i
 }
 
 pub fn get_boost_instruction(
-    state: &State,
+    target_pkmn: &Pokemon,
     stat: &PokemonBoostableStat,
     boost: &i8,
     attacking_side_ref: &SideReference,
@@ -402,9 +393,6 @@ pub fn get_boost_instruction(
     Returns that boost instruction, if applicable
     */
 
-    let target_pkmn = state
-        .get_side_immutable(target_side_ref)
-        .get_active_immutable();
     let mut boost_amount = get_boost_amount(target_pkmn, &stat, boost);
     if boost_amount != 0
         && !(target_side_ref != attacking_side_ref
@@ -436,7 +424,7 @@ fn get_instructions_from_boosts(
     let boostable_stats = boosts.boosts.get_as_pokemon_boostable();
     for (pkmn_boostable_stat, boost) in boostable_stats.iter().filter(|(_, b)| b != &0) {
         if let Some(boost_instruction) = get_boost_instruction(
-            &state,
+            &state.get_side_immutable(&target_side_ref).get_active_immutable(),
             pkmn_boostable_stat,
             boost,
             attacking_side_reference,
@@ -636,7 +624,7 @@ fn check_move_hit_or_miss(
         if Items::BlunderPolicy == attacking_pokemon.item && attacking_pokemon.item_can_be_removed()
         {
             if let Some(boost_instruction) = get_boost_instruction(
-                state,
+                attacking_pokemon,
                 &PokemonBoostableStat::Speed,
                 &2,
                 attacking_side_ref,

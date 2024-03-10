@@ -352,7 +352,7 @@ lazy_static! {
                  instructions: &mut StateInstructions| {
                     if state.terrain_is_active(&Terrain::ElectricTerrain) {
                         if let Some(boost_instruction) = get_boost_instruction(
-                            state,
+                            state.get_side_immutable(side_ref).get_active_immutable(),
                             &PokemonBoostableStat::Defense,
                             &1,
                             side_ref,
@@ -432,7 +432,7 @@ lazy_static! {
                  instructions: &mut StateInstructions| {
                     if state.terrain_is_active(&Terrain::GrassyTerrain) {
                         if let Some(boost_instruction) = get_boost_instruction(
-                            state,
+                            state.get_side_immutable(side_ref).get_active_immutable(),
                             &PokemonBoostableStat::Defense,
                             &1,
                             side_ref,
@@ -500,7 +500,7 @@ lazy_static! {
                  instructions: &mut StateInstructions| {
                     if state.terrain_is_active(&Terrain::MistyTerrain) {
                         if let Some(boost_instruction) = get_boost_instruction(
-                            state,
+                            state.get_side_immutable(side_ref).get_active_immutable(),
                             &PokemonBoostableStat::SpecialDefense,
                             &1,
                             side_ref,
@@ -569,7 +569,7 @@ lazy_static! {
                  instructions: &mut StateInstructions| {
                     if state.terrain_is_active(&Terrain::PsychicTerrain) {
                         if let Some(boost_instruction) = get_boost_instruction(
-                            state,
+                            state.get_side_immutable(side_ref).get_active_immutable(),
                             &PokemonBoostableStat::SpecialDefense,
                             &1,
                             side_ref,

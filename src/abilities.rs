@@ -1212,12 +1212,13 @@ lazy_static! {
                 id: "intimidate".to_string(),
                 index: 124,
                 on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                    let target_side_ref = side_ref.get_other_side();
                     if let Some(boost_instruction) = get_boost_instruction(
-                        state,
+                        state.get_side_immutable(&target_side_ref).get_active_immutable(),
                         &PokemonBoostableStat::Attack,
                         &-1,
                         side_ref,
-                        &side_ref.get_other_side(),
+                        &target_side_ref,
                     ) {
                         state.apply_one_instruction(&boost_instruction);
                         instructions.instruction_list.push(boost_instruction);
@@ -1830,7 +1831,7 @@ lazy_static! {
                             .get_active_immutable()
                             .calculate_highest_stat();
                         if let Some(boost_instruction) = get_boost_instruction(
-                            state,
+                            state.get_side_immutable(attacking_side).get_active_immutable(),
                             highest_stat,
                             &1,
                             attacking_side,
