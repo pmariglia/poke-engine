@@ -1,5 +1,5 @@
 use crate::abilities::Abilities;
-use crate::choices::{Choice, MOVES};
+use crate::choices::{Choice, MOVES, SideCondition};
 use core::panic;
 use std::collections::HashSet;
 use std::ops::{Index, IndexMut};
@@ -808,6 +808,31 @@ impl Side {
             PokemonSideCondition::WideGuard => self.side_conditions.wide_guard,
         }
     }
+    
+    pub fn update_side_condition(&mut self, side_condition: PokemonSideCondition, amount: i8) {
+        match side_condition {
+            PokemonSideCondition::AuroraVeil => self.side_conditions.aurora_veil += amount,
+            PokemonSideCondition::CraftyShield => self.side_conditions.crafty_shield += amount,
+            PokemonSideCondition::HealingWish => self.side_conditions.healing_wish += amount,
+            PokemonSideCondition::LightScreen => self.side_conditions.light_screen += amount,
+            PokemonSideCondition::LuckyChant => self.side_conditions.lucky_chant += amount,
+            PokemonSideCondition::LunarDance => self.side_conditions.lunar_dance += amount,
+            PokemonSideCondition::MatBlock => self.side_conditions.mat_block += amount,
+            PokemonSideCondition::Mist => self.side_conditions.mist += amount,
+            PokemonSideCondition::Protect => self.side_conditions.protect += amount,
+            PokemonSideCondition::QuickGuard => self.side_conditions.quick_guard += amount,
+            PokemonSideCondition::Reflect => self.side_conditions.reflect += amount,
+            PokemonSideCondition::Safeguard => self.side_conditions.safeguard += amount,
+            PokemonSideCondition::Spikes => self.side_conditions.spikes += amount,
+            PokemonSideCondition::Stealthrock => self.side_conditions.stealth_rock += amount,
+            PokemonSideCondition::StickyWeb => self.side_conditions.sticky_web += amount,
+            PokemonSideCondition::Tailwind => self.side_conditions.tailwind += amount,
+            PokemonSideCondition::ToxicCount => self.side_conditions.toxic_count += amount,
+            PokemonSideCondition::ToxicSpikes => self.side_conditions.toxic_spikes += amount,
+            PokemonSideCondition::WideGuard => self.side_conditions.wide_guard += amount,
+        }
+    }
+    
 }
 
 impl Default for Side {

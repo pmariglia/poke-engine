@@ -196,8 +196,6 @@ fn generate_instructions_from_side_conditions(
         MoveTarget::User => affected_side_ref = *attacking_side_reference,
     }
 
-    let affected_side = state.get_side_immutable(&affected_side_ref);
-
     let max_layers;
     match side_condition.condition {
         PokemonSideCondition::Spikes => max_layers = 3,
@@ -212,13 +210,14 @@ fn generate_instructions_from_side_conditions(
         _ => max_layers = 1,
     }
 
+    let affected_side = state.get_side(&affected_side_ref);
     if affected_side.get_side_condition(side_condition.condition) < max_layers {
         let ins = Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
             side_ref: affected_side_ref,
             side_condition: side_condition.condition,
             amount: 1,
         });
-        state.apply_one_instruction(&ins);
+        affected_side.update_side_condition(side_condition.condition, 1);
         incoming_instructions.instruction_list.push(ins);
     }
 }

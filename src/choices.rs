@@ -14134,7 +14134,7 @@ lazy_static! {
                     volatile_status: PokemonVolatileStatus::Substitute,
                 }),
                 move_special_effect: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
-                    let active_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
+                    let active_pkmn = state.get_side(side_ref).get_active();
                     let sub_target_health = active_pkmn.maxhp / 4;
                     if active_pkmn.hp > sub_target_health {
                         let damage_instruction = Instruction::Damage(DamageInstruction {
@@ -14150,9 +14150,9 @@ lazy_static! {
                             side_ref: side_ref.clone(),
                             volatile_status: PokemonVolatileStatus::Substitute
                         });
-                        state.apply_one_instruction(&damage_instruction);
-                        state.apply_one_instruction(&set_sub_health_instruction);
-                        state.apply_one_instruction(&apply_vs_instruction);
+                        active_pkmn.hp -= sub_target_health;
+                        active_pkmn.substitute_health = sub_target_health;
+                        active_pkmn.volatile_statuses.insert(PokemonVolatileStatus::Substitute);
                         incoming_instructions.instruction_list.push(damage_instruction);
                         incoming_instructions.instruction_list.push(set_sub_health_instruction);
                         incoming_instructions.instruction_list.push(apply_vs_instruction);

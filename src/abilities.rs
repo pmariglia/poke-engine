@@ -356,14 +356,14 @@ lazy_static! {
                 id: "protean".to_string(),
                 index: 35,
                 before_move: Some(|state: &mut State, choice: &Choice, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
-                    let active_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
+                    let active_pkmn = state.get_side(side_ref).get_active();
                     if !active_pkmn.has_type(&choice.move_type) {
                         let ins = Instruction::ChangeType(ChangeType {
                             side_ref: *side_ref,
                             new_types: (choice.move_type, PokemonType::Typeless),
                             old_types: active_pkmn.types,
                         });
-                        state.apply_one_instruction(&ins);
+                        active_pkmn.types = (choice.move_type, PokemonType::Typeless);
                         incoming_instructions.instruction_list.push(ins);
                     }
                 }),
