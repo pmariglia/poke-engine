@@ -1699,56 +1699,56 @@ lazy_static! {
                 ..Default::default()
             },
         propellertail: Ability {
-                id: "propellertail".to_string(),
-                index: 147,
-                ..Default::default()
-            },
+            id: "propellertail".to_string(),
+            index: 147,
+            ..Default::default()
+        },
         thickfat: Ability {
-                id: "thickfat".to_string(),
-                index: 148,
-                ..Default::default()
-            },
+            id: "thickfat".to_string(),
+            index: 148,
+            ..Default::default()
+        },
         gluttony: Ability {
-                id: "gluttony".to_string(),
-                index: 149,
-                ..Default::default()
-            },
+            id: "gluttony".to_string(),
+            index: 149,
+            ..Default::default()
+        },
         keeneye: Ability {
-                id: "keeneye".to_string(),
-                index: 150,
-                ..Default::default()
-            },
+            id: "keeneye".to_string(),
+            index: 150,
+            ..Default::default()
+        },
         mountaineer: Ability {
-                id: "mountaineer".to_string(),
-                index: 151,
-                ..Default::default()
-            },
+            id: "mountaineer".to_string(),
+            index: 151,
+            ..Default::default()
+        },
         flashfire: Ability {
-                id: "flashfire".to_string(),
-                index: 152,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if attacker_choice.move_type == PokemonType::Fire {
-                            attacker_choice.base_power = 0.0;
-                            attacker_choice.volatile_status = Some(VolatileStatus {
-                                target: MoveTarget::Opponent,
-                                volatile_status: PokemonVolatileStatus::FlashFire,
-                            });
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "flashfire".to_string(),
+            index: 152,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Fire {
+                        attacker_choice.base_power = 0.0;
+                        attacker_choice.volatile_status = Some(VolatileStatus {
+                            target: MoveTarget::Opponent,
+                            volatile_status: PokemonVolatileStatus::FlashFire,
+                        });
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         compoundeyes: Ability {
-                id: "compoundeyes".to_string(),
-                index: 153,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        attacking_choice.accuracy *= 1.3;
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "compoundeyes".to_string(),
+            index: 153,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    attacking_choice.accuracy *= 1.3;
+                },
+            ),
+            ..Default::default()
+        },
         steelworker: Ability {
                 id: "steelworker".to_string(),
                 index: 154,
@@ -2227,60 +2227,60 @@ lazy_static! {
                 ..Default::default()
             },
         pixilate: Ability {
-                id: "pixilate".to_string(),
-                index: 211,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.move_type == PokemonType::Normal {
-                            attacking_choice.move_type = PokemonType::Fairy;
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "pixilate".to_string(),
+            index: 211,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.move_type == PokemonType::Normal {
+                        attacking_choice.move_type = PokemonType::Fairy;
+                        attacking_choice.base_power *= 1.2;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         watercompaction: Ability {
-                id: "watercompaction".to_string(),
-                index: 212,
-                ..Default::default()
-            },
+            id: "watercompaction".to_string(),
+            index: 212,
+            ..Default::default()
+        },
         justified: Ability {
-                id: "justified".to_string(),
-                index: 213,
-                modify_attack_against: Some(
-                    |_state, attacker_choice: &mut Choice, _defender_choice, _attacking_side| {
-                        if attacker_choice.move_type == PokemonType::Dark {
-                            attacker_choice.add_or_create_secondaries(
-                                Secondary {
-                                    chance: 100.0,
-                                    target: MoveTarget::Opponent,
-                                    effect: Effect::Boost(
-                                        StatBoosts {
-                                            attack: 1,
-                                            defense: 0,
-                                            special_attack: 0,
-                                            special_defense: 0,
-                                            speed: 0,
-                                            accuracy: 0,
-                                        }
-                                    ),
-                                }
-                            )
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "justified".to_string(),
+            index: 213,
+            modify_attack_against: Some(
+                |_state, attacker_choice: &mut Choice, _defender_choice, _attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Dark {
+                        attacker_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 100.0,
+                                target: MoveTarget::Opponent,
+                                effect: Effect::Boost(
+                                    StatBoosts {
+                                        attack: 1,
+                                        defense: 0,
+                                        special_attack: 0,
+                                        special_defense: 0,
+                                        speed: 0,
+                                        accuracy: 0,
+                                    }
+                                ),
+                            }
+                        )
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         slowstart: Ability {
-                id: "slowstart".to_string(),
-                index: 214,
-                ..Default::default()
-            },
+            id: "slowstart".to_string(),
+            index: 214,
+            ..Default::default()
+        },
         snowwarning: Ability {
-                id: "snowwarning".to_string(),
-                index: 215,
-                ..Default::default()
-            },
+            id: "snowwarning".to_string(),
+            index: 215,
+            ..Default::default()
+        },
         flowergift: Ability {
                 id: "flowergift".to_string(),
                 index: 216,

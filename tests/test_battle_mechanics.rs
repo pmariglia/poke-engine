@@ -1573,6 +1573,25 @@ fn test_absorbbulb() {
 }
 
 #[test]
+fn test_leafguard() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::LEAFGUARD;
+    state.weather.weather_type = Weather::Sun;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("spore"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_ground_move_versus_airballoon() {
     let mut state = State::default();
     state.side_two.get_active().item = Items::AirBalloon;

@@ -587,6 +587,8 @@ impl Pokemon {
 
         if stat == &PokemonBoostableStat::Attack && self.ability == Abilities::HYPERCUTTER {
             return true;
+        } else if stat == &PokemonBoostableStat::Accuracy && self.ability == Abilities::KEENEYE {
+            return true;
         }
 
         return false;
