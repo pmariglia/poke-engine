@@ -1686,158 +1686,158 @@ lazy_static! {
             ..Default::default()
         },
         aromaveil: Ability {
-                id: "aromaveil".to_string(),
-                index: 126,
-                ..Default::default()
-            },
+            id: "aromaveil".to_string(),
+            index: 126,
+            ..Default::default()
+        },
         airlock: Ability {
-                id: "airlock".to_string(),
-                index: 127,
-                ..Default::default()
-            },
+            id: "airlock".to_string(),
+            index: 127,
+            ..Default::default()
+        },
         normalize: Ability {
-                id: "normalize".to_string(),
-                index: 128,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        attacking_choice.move_type = PokemonType::Normal;
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "normalize".to_string(),
+            index: 128,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    attacking_choice.move_type = PokemonType::Normal;
+                },
+            ),
+            ..Default::default()
+        },
         darkaura: Ability {
-                id: "darkaura".to_string(),
-                index: 129,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.move_type == PokemonType::Dark {
-                            attacking_choice.base_power *= 1.33;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "darkaura".to_string(),
+            index: 129,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.move_type == PokemonType::Dark {
+                        attacking_choice.base_power *= 1.33;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         victorystar: Ability {
-                id: "victorystar".to_string(),
-                index: 130,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        attacking_choice.accuracy *= 1.1;
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "victorystar".to_string(),
+            index: 130,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    attacking_choice.accuracy *= 1.1;
+                },
+            ),
+            ..Default::default()
+        },
         grassysurge: Ability {
-                id: "grassysurge".to_string(),
-                index: 131,
-                ..Default::default()
-            },
+            id: "grassysurge".to_string(),
+            index: 131,
+            ..Default::default()
+        },
         sturdy: Ability {
-                id: "sturdy".to_string(),
-                index: 132,
-                ..Default::default()
-            },
+            id: "sturdy".to_string(),
+            index: 132,
+            ..Default::default()
+        },
         pickpocket: Ability {
-                id: "pickpocket".to_string(),
-                index: 133,
-                ..Default::default()
-            },
+            id: "pickpocket".to_string(),
+            index: 133,
+            ..Default::default()
+        },
         electricsurge: Ability {
-                id: "electricsurge".to_string(),
-                index: 134,
-                ..Default::default()
-            },
+            id: "electricsurge".to_string(),
+            index: 134,
+            ..Default::default()
+        },
         runaway: Ability {
-                id: "runaway".to_string(),
-                index: 135,
-                ..Default::default()
-            },
+            id: "runaway".to_string(),
+            index: 135,
+            ..Default::default()
+        },
         oblivious: Ability {
-                id: "oblivious".to_string(),
-                index: 136,
-                ..Default::default()
-            },
+            id: "oblivious".to_string(),
+            index: 136,
+            ..Default::default()
+        },
         surgesurfer: Ability {
-                id: "surgesurfer".to_string(),
-                index: 137,
-                ..Default::default()
-            },
+            id: "surgesurfer".to_string(),
+            index: 137,
+            ..Default::default()
+        },
         levitate: Ability {
-                id: "levitate".to_string(),
-                index: 138,
-                modify_attack_against: Some(
-                    |_state, attacker_choice: &mut Choice, _defender_choice, _attacking_side| {
-                        if attacker_choice.move_type == PokemonType::Ground
-                            && attacker_choice.target == MoveTarget::Opponent
-                            && attacker_choice.move_id != "thousandarrows"
-                        {
-                            attacker_choice.base_power = 0.0;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "levitate".to_string(),
+            index: 138,
+            modify_attack_against: Some(
+                |_state, attacker_choice: &mut Choice, _defender_choice, _attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Ground
+                        && attacker_choice.target == MoveTarget::Opponent
+                        && attacker_choice.move_id != "thousandarrows"
+                    {
+                        attacker_choice.base_power = 0.0;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         asonespectrier: Ability {
-                id: "asonespectrier".to_string(),
-                index: 139,
-                ..Default::default()
-            },
+            id: "asonespectrier".to_string(),
+            index: 139,
+            ..Default::default()
+        },
         pickup: Ability {
-                id: "pickup".to_string(),
-                index: 140,
-                ..Default::default()
-            },
+            id: "pickup".to_string(),
+            index: 140,
+            ..Default::default()
+        },
         icebody: Ability {
-                id: "icebody".to_string(),
-                index: 141,
-                ..Default::default()
-            },
+            id: "icebody".to_string(),
+            index: 141,
+            ..Default::default()
+        },
         curiousmedicine: Ability {
-                id: "curiousmedicine".to_string(),
-                index: 142,
-                ..Default::default()
-            },
+            id: "curiousmedicine".to_string(),
+            index: 142,
+            ..Default::default()
+        },
         flowerveil: Ability {
-                id: "flowerveil".to_string(),
-                index: 143,
-                ..Default::default()
-            },
+            id: "flowerveil".to_string(),
+            index: 143,
+            ..Default::default()
+        },
         _static: Ability {
-                id: "static".to_string(),
-                index: 144,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if state.move_makes_contact(&attacker_choice, attacking_side) {
-                            attacker_choice.add_or_create_secondaries(
-                                Secondary {
-                                    chance: 30.0,
-                                    target: MoveTarget::User,
-                                    effect: Effect::Status(PokemonStatus::Paralyze),
-                                }
-                            )
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "static".to_string(),
+            index: 144,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if state.move_makes_contact(&attacker_choice, attacking_side) {
+                        attacker_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 30.0,
+                                target: MoveTarget::User,
+                                effect: Effect::Status(PokemonStatus::Paralyze),
+                            }
+                        )
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         wonderskin: Ability {
-                id: "wonderskin".to_string(),
-                index: 145,
-                ..Default::default()
-            },
+            id: "wonderskin".to_string(),
+            index: 145,
+            ..Default::default()
+        },
         overgrow: Ability {
-                id: "overgrow".to_string(),
-                index: 146,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        let attacking_pokemon = state.get_side_immutable(attacking_side).get_active_immutable();
-                        if attacking_choice.move_type == PokemonType::Grass && attacking_pokemon.hp < attacking_pokemon.maxhp / 3 {
-                            attacking_choice.base_power *= 1.3;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "overgrow".to_string(),
+            index: 146,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    let attacking_pokemon = state.get_side_immutable(attacking_side).get_active_immutable();
+                    if attacking_choice.move_type == PokemonType::Grass && attacking_pokemon.hp < attacking_pokemon.maxhp / 3 {
+                        attacking_choice.base_power *= 1.3;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         propellertail: Ability {
             id: "propellertail".to_string(),
             index: 147,
@@ -1846,6 +1846,13 @@ lazy_static! {
         thickfat: Ability {
             id: "thickfat".to_string(),
             index: 148,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Fire || attacker_choice.move_type == PokemonType::Ice {
+                        attacker_choice.base_power /= 2.0;
+                    }
+                },
+            ),
             ..Default::default()
         },
         gluttony: Ability {
