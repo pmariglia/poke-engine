@@ -1,5 +1,5 @@
 use crate::abilities::Abilities;
-use crate::choices::{Choice, MOVES, SideCondition};
+use crate::choices::{Choice, SideCondition, MOVES};
 use core::panic;
 use std::collections::HashSet;
 use std::ops::{Index, IndexMut};
@@ -808,7 +808,7 @@ impl Side {
             PokemonSideCondition::WideGuard => self.side_conditions.wide_guard,
         }
     }
-    
+
     pub fn update_side_condition(&mut self, side_condition: PokemonSideCondition, amount: i8) {
         match side_condition {
             PokemonSideCondition::AuroraVeil => self.side_conditions.aurora_veil += amount,
@@ -832,7 +832,6 @@ impl Side {
             PokemonSideCondition::WideGuard => self.side_conditions.wide_guard += amount,
         }
     }
-    
 }
 
 impl Default for Side {

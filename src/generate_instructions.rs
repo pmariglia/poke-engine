@@ -75,13 +75,10 @@ fn generate_instructions_from_switch(
             let multiplier =
                 type_effectiveness_modifier(&PokemonType::Rock, &switched_in_pkmn.types) as i16;
 
-            let dmg_amount = cmp::min(
-                switched_in_pkmn.maxhp * multiplier / 8,
-                switched_in_pkmn.hp,
-            );
+            let dmg_amount = cmp::min(switched_in_pkmn.maxhp * multiplier / 8, switched_in_pkmn.hp);
             let stealth_rock_dmg_instruction = Instruction::Damage(DamageInstruction {
                 side_ref: switching_side_ref,
-                damage_amount: dmg_amount
+                damage_amount: dmg_amount,
             });
             switched_in_pkmn.hp -= dmg_amount;
             incoming_instructions
@@ -97,7 +94,7 @@ fn generate_instructions_from_switch(
             );
             let spikes_dmg_instruction = Instruction::Damage(DamageInstruction {
                 side_ref: switching_side_ref,
-                damage_amount: dmg_amount
+                damage_amount: dmg_amount,
             });
             side.get_active().hp -= dmg_amount;
             incoming_instructions
@@ -423,7 +420,9 @@ fn get_instructions_from_boosts(
     let boostable_stats = boosts.boosts.get_as_pokemon_boostable();
     for (pkmn_boostable_stat, boost) in boostable_stats.iter().filter(|(_, b)| b != &0) {
         if let Some(boost_instruction) = get_boost_instruction(
-            &state.get_side_immutable(&target_side_ref).get_active_immutable(),
+            &state
+                .get_side_immutable(&target_side_ref)
+                .get_active_immutable(),
             pkmn_boostable_stat,
             boost,
             attacking_side_reference,
