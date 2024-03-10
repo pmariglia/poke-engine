@@ -1660,6 +1660,33 @@ fn test_lightning_rod_versus_status_move() {
 }
 
 #[test]
+fn test_liquidooze() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::LIQUIDOOZE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("absorb"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 16,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: -8,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_ground_move_versus_airballoon() {
     let mut state = State::default();
     state.side_two.get_active().item = Items::AirBalloon;

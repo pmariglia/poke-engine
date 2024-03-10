@@ -776,7 +776,7 @@ fn generate_instructions_from_damage(
             let drain_amount = (damage_dealt as f32 * drain_fraction) as i16;
             let heal_amount =
                 cmp::min(drain_amount, attacking_pokemon.maxhp - attacking_pokemon.hp);
-            if heal_amount > 0 {
+            if heal_amount != 0 {
                 let drain_instruction = Instruction::Heal(HealInstruction {
                     side_ref: *attacking_side_ref,
                     heal_amount: heal_amount,

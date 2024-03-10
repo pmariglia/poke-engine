@@ -1791,108 +1791,115 @@ lazy_static! {
                 ..Default::default()
             },
         dazzling: Ability {
-                id: "dazzling".to_string(),
-                index: 157,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if attacker_choice.priority > 0 {
-                            attacker_choice.accuracy = 0.0;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        download: Ability {
-                id: "download".to_string(),
-                index: 158,
-                ..Default::default()
-            },
-        transistor: Ability {
-                id: "transistor".to_string(),
-                index: 159,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.move_type == PokemonType::Electric {
-                            attacking_choice.base_power *= 1.5;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        moldbreaker: Ability {
-                id: "moldbreaker".to_string(),
-                index: 160,
-                ..Default::default()
-            },
-        liquidooze: Ability {
-                id: "liquidooze".to_string(),
-                index: 161,
-                ..Default::default()
-            },
-        poisonheal: Ability {
-                id: "poisonheal".to_string(),
-                index: 162,
-                end_of_turn: Some(|state: &mut State,
-                 side_ref: &SideReference,
-                 incoming_instructions: &mut StateInstructions| {
-                    let attacker = state.get_side(side_ref).get_active();
-                    if attacker.hp < attacker.maxhp
-                        && (attacker.status == PokemonStatus::Poison
-                            || attacker.status == PokemonStatus::Toxic)
-                    {
-                        let heal_amount = cmp::min(attacker.maxhp / 8, attacker.maxhp - attacker.hp);
-                        let ins = Instruction::Heal(HealInstruction {
-                            side_ref: side_ref.clone(),
-                            heal_amount: heal_amount,
-                        });
-                        attacker.hp += heal_amount;
-                        incoming_instructions.instruction_list.push(ins);
-
+            id: "dazzling".to_string(),
+            index: 157,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.priority > 0 {
+                        attacker_choice.accuracy = 0.0;
                     }
-                }),
-                ..Default::default()
-            },
+                },
+            ),
+            ..Default::default()
+        },
+        download: Ability {
+            id: "download".to_string(),
+            index: 158,
+            ..Default::default()
+        },
+        transistor: Ability {
+            id: "transistor".to_string(),
+            index: 159,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.move_type == PokemonType::Electric {
+                        attacking_choice.base_power *= 1.5;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
+        moldbreaker: Ability {
+            id: "moldbreaker".to_string(),
+            index: 160,
+            ..Default::default()
+        },
+        liquidooze: Ability {
+            id: "liquidooze".to_string(),
+            index: 161,
+            modify_attack_against: Some(
+                |_state, attacker_choice: &mut Choice, _defender_choice, _attacking_side| {
+                    if let Some(drain) = attacker_choice.drain {
+                        attacker_choice.drain = Some(-1.0 * drain);
+                    }
+                },
+            ),
+            ..Default::default()
+        },
+        poisonheal: Ability {
+            id: "poisonheal".to_string(),
+            index: 162,
+            end_of_turn: Some(|state: &mut State,
+             side_ref: &SideReference,
+             incoming_instructions: &mut StateInstructions| {
+                let attacker = state.get_side(side_ref).get_active();
+                if attacker.hp < attacker.maxhp
+                    && (attacker.status == PokemonStatus::Poison
+                        || attacker.status == PokemonStatus::Toxic)
+                {
+                    let heal_amount = cmp::min(attacker.maxhp / 8, attacker.maxhp - attacker.hp);
+                    let ins = Instruction::Heal(HealInstruction {
+                        side_ref: side_ref.clone(),
+                        heal_amount: heal_amount,
+                    });
+                    attacker.hp += heal_amount;
+                    incoming_instructions.instruction_list.push(ins);
+
+                }
+            }),
+            ..Default::default()
+        },
         prismarmor: Ability {
-                id: "prismarmor".to_string(),
-                index: 163,
-                ..Default::default()
-            },
+            id: "prismarmor".to_string(),
+            index: 163,
+            ..Default::default()
+        },
         sniper: Ability {
-                id: "sniper".to_string(),
-                index: 164,
-                ..Default::default()
-            },
+            id: "sniper".to_string(),
+            index: 164,
+            ..Default::default()
+        },
         stench: Ability {
-                id: "stench".to_string(),
-                index: 165,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        let mut already_flinches = false;
-                        if let Some(secondaries) = &mut attacking_choice.secondaries {
-                            for secondary in secondaries.iter() {
-                                if secondary.effect == Effect::VolatileStatus(PokemonVolatileStatus::Flinch) {
-                                    already_flinches = true;
-                                }
+            id: "stench".to_string(),
+            index: 165,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    let mut already_flinches = false;
+                    if let Some(secondaries) = &mut attacking_choice.secondaries {
+                        for secondary in secondaries.iter() {
+                            if secondary.effect == Effect::VolatileStatus(PokemonVolatileStatus::Flinch) {
+                                already_flinches = true;
                             }
                         }
-                        if !already_flinches {
-                            attacking_choice.add_or_create_secondaries(
-                                Secondary {
-                                    chance: 10.0,
-                                    target: MoveTarget::Opponent,
-                                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
-                                }
-                            )
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+                    }
+                    if !already_flinches {
+                        attacking_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 10.0,
+                                target: MoveTarget::Opponent,
+                                effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                            }
+                        )
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         competitive: Ability {
-                id: "competitive".to_string(),
-                index: 166,
-                ..Default::default()
-            },
+            id: "competitive".to_string(),
+            index: 166,
+            ..Default::default()
+        },
         swarm: Ability {
                 id: "swarm".to_string(),
                 index: 167,
