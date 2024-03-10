@@ -991,243 +991,251 @@ lazy_static! {
                 ..Default::default()
             },
         receiver: Ability {
-                id: "receiver".to_string(),
-                index: 52,
-                ..Default::default()
-            },
+            id: "receiver".to_string(),
+            index: 52,
+            ..Default::default()
+        },
         zenmode: Ability {
-                id: "zenmode".to_string(),
-                index: 53,
-                ..Default::default()
-            },
+            id: "zenmode".to_string(),
+            index: 53,
+            ..Default::default()
+        },
         emergencyexit: Ability {
-                id: "emergencyexit".to_string(),
-                index: 54,
-                ..Default::default()
-            },
+            id: "emergencyexit".to_string(),
+            index: 54,
+            ..Default::default()
+        },
         illusion: Ability {
-                id: "illusion".to_string(),
-                index: 55,
-                ..Default::default()
-            },
+            id: "illusion".to_string(),
+            index: 55,
+            ..Default::default()
+        },
         weakarmor: Ability {
-                id: "weakarmor".to_string(),
-                index: 56,
-                ..Default::default()
-            },
+            id: "weakarmor".to_string(),
+            index: 56,
+            ..Default::default()
+        },
         drought: Ability {
-                id: "drought".to_string(),
-                index: 57,
-                ..Default::default()
-            },
+            id: "drought".to_string(),
+            index: 57,
+            ..Default::default()
+        },
         innardsout: Ability {
-                id: "innardsout".to_string(),
-                index: 58,
-                ..Default::default()
-            },
+            id: "innardsout".to_string(),
+            index: 58,
+            ..Default::default()
+        },
         shieldsdown: Ability {
-                id: "shieldsdown".to_string(),
-                index: 59,
-                ..Default::default()
-            },
+            id: "shieldsdown".to_string(),
+            index: 59,
+            ..Default::default()
+        },
         adaptability: Ability {
-                id: "adaptability".to_string(),
-                index: 60,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if state
-                            .get_side_immutable(attacking_side)
-                            .get_active_immutable()
-                            .has_type(&attacking_choice.move_type)
-                        {
-                            attacking_choice.base_power *= 4.0 / 3.0;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "adaptability".to_string(),
+            index: 60,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if state
+                        .get_side_immutable(attacking_side)
+                        .get_active_immutable()
+                        .has_type(&attacking_choice.move_type)
+                    {
+                        attacking_choice.base_power *= 4.0 / 3.0;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         corrosion: Ability {
-                id: "corrosion".to_string(),
-                index: 61,
-                ..Default::default()
-            },
+            id: "corrosion".to_string(),
+            index: 61,
+            ..Default::default()
+        },
         longreach: Ability {
-                id: "longreach".to_string(),
-                index: 62,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        attacking_choice.flags.contact = false;
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "longreach".to_string(),
+            index: 62,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    attacking_choice.flags.contact = false;
+                },
+            ),
+            ..Default::default()
+        },
         purepower: Ability {
-                id: "purepower".to_string(),
-                index: 63,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.category == MoveCategory::Physical {
-                            attacking_choice.base_power *= 2.0;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "purepower".to_string(),
+            index: 63,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.category == MoveCategory::Physical {
+                        attacking_choice.base_power *= 2.0;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         tintedlens: Ability {
-                id: "tintedlens".to_string(),
-                index: 64,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if type_effectiveness_modifier(
-                            &attacking_choice.move_type,
-                            &state
-                                .get_side_immutable(&attacking_side.get_other_side())
-                                .get_active_immutable()
-                                .types,
-                        ) < 1.0
-                        {
-                            attacking_choice.base_power *= 2.0;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "tintedlens".to_string(),
+            index: 64,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if type_effectiveness_modifier(
+                        &attacking_choice.move_type,
+                        &state
+                            .get_side_immutable(&attacking_side.get_other_side())
+                            .get_active_immutable()
+                            .types,
+                    ) < 1.0
+                    {
+                        attacking_choice.base_power *= 2.0;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         queenlymajesty: Ability {
-                id: "queenlymajesty".to_string(),
-                index: 65,
-                ..Default::default()
-            },
+            id: "queenlymajesty".to_string(),
+            index: 65,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.priority > 0 {
+                        attacker_choice.remove_all_effects()
+                        attacker_choice.accuracy = 0.0;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         desolateland: Ability {
-                id: "desolateland".to_string(),
-                index: 66,
-                ..Default::default()
-            },
+            id: "desolateland".to_string(),
+            index: 66,
+            ..Default::default()
+        },
         moxie: Ability {
-                id: "moxie".to_string(),
-                index: 67,
-                ..Default::default()
-            },
+            id: "moxie".to_string(),
+            index: 67,
+            ..Default::default()
+        },
         sapsipper: Ability {
-                id: "sapsipper".to_string(),
-                index: 68,
-                ..Default::default()
-            },
+            id: "sapsipper".to_string(),
+            index: 68,
+            ..Default::default()
+        },
         slushrush: Ability {
-                id: "slushrush".to_string(),
-                index: 69,
-                ..Default::default()
-            },
+            id: "slushrush".to_string(),
+            index: 69,
+            ..Default::default()
+        },
         bigpecks: Ability {
-                id: "bigpecks".to_string(),
-                index: 70,
-                ..Default::default()
-            },
+            id: "bigpecks".to_string(),
+            index: 70,
+            ..Default::default()
+        },
         stall: Ability {
-                id: "stall".to_string(),
-                index: 71,
-                ..Default::default()
-            },
+            id: "stall".to_string(),
+            index: 71,
+            ..Default::default()
+        },
         whitesmoke: Ability {
-                id: "whitesmoke".to_string(),
-                index: 72,
-                ..Default::default()
-            },
+            id: "whitesmoke".to_string(),
+            index: 72,
+            ..Default::default()
+        },
         flareboost: Ability {
-                id: "flareboost".to_string(),
-                index: 73,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if state.get_side_immutable(attacking_side).get_active_immutable().status == PokemonStatus::Burn {
-                            attacking_choice.base_power *= 1.5;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "flareboost".to_string(),
+            index: 73,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if state.get_side_immutable(attacking_side).get_active_immutable().status == PokemonStatus::Burn {
+                        attacking_choice.base_power *= 1.5;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         shadowshield: Ability {
-                id: "shadowshield".to_string(),
-                index: 74,
-                ..Default::default()
-            },
+            id: "shadowshield".to_string(),
+            index: 74,
+            ..Default::default()
+        },
         liquidvoice: Ability {
-                id: "liquidvoice".to_string(),
-                index: 75,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.flags.sound {
-                            attacking_choice.move_type = PokemonType::Water;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "liquidvoice".to_string(),
+            index: 75,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.flags.sound {
+                        attacking_choice.move_type = PokemonType::Water;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         mistysurge: Ability {
-                id: "mistysurge".to_string(),
-                index: 76,
-                ..Default::default()
-            },
+            id: "mistysurge".to_string(),
+            index: 76,
+            ..Default::default()
+        },
         multitype: Ability {
-                id: "multitype".to_string(),
-                index: 77,
-                ..Default::default()
-            },
+            id: "multitype".to_string(),
+            index: 77,
+            ..Default::default()
+        },
         noguard: Ability {
-                id: "noguard".to_string(),
-                index: 78,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        attacking_choice.accuracy = 100.0
-                    },
-                ),
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        attacker_choice.accuracy = 100.0
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "noguard".to_string(),
+            index: 78,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    attacking_choice.accuracy = 100.0
+                },
+            ),
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    attacker_choice.accuracy = 100.0
+                },
+            ),
+            ..Default::default()
+        },
         torrent: Ability {
-                id: "torrent".to_string(),
-                index: 79,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        let attacking_pokemon = state.get_side_immutable(attacking_side).get_active_immutable();
-                        if attacking_choice.move_type == PokemonType::Water && attacking_pokemon.hp < attacking_pokemon.maxhp / 3 {
-                            attacking_choice.base_power *= 1.3;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "torrent".to_string(),
+            index: 79,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    let attacking_pokemon = state.get_side_immutable(attacking_side).get_active_immutable();
+                    if attacking_choice.move_type == PokemonType::Water && attacking_pokemon.hp < attacking_pokemon.maxhp / 3 {
+                        attacking_choice.base_power *= 1.3;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         deltastream: Ability {
-                id: "deltastream".to_string(),
-                index: 80,
-                ..Default::default()
-            },
+            id: "deltastream".to_string(),
+            index: 80,
+            ..Default::default()
+        },
         klutz: Ability {
-                id: "klutz".to_string(),
-                index: 81,
-                ..Default::default()
-            },
+            id: "klutz".to_string(),
+            index: 81,
+            ..Default::default()
+        },
         libero: Ability {
-                id: "libero".to_string(),
-                index: 82,
-                ..Default::default()
-            },
+            id: "libero".to_string(),
+            index: 82,
+            ..Default::default()
+        },
         serenegrace: Ability {
-                id: "serenegrace".to_string(),
-                index: 83,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if let Some(secondaries) = &mut attacking_choice.secondaries {
-                            for secondary in secondaries.iter_mut() {
-                                secondary.chance *= 2.0;
-                            }
+            id: "serenegrace".to_string(),
+            index: 83,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if let Some(secondaries) = &mut attacking_choice.secondaries {
+                        for secondary in secondaries.iter_mut() {
+                            secondary.chance *= 2.0;
                         }
-                    },
-                ),
-                ..Default::default()
-            },
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         cursedbody: Ability {
             id: "cursedbody".to_string(),
             index: 84,
