@@ -1290,130 +1290,130 @@ lazy_static! {
             ..Default::default()
         },
         quickdraw: Ability {
-                id: "quickdraw".to_string(),
-                index: 89,
-                ..Default::default()
-            },
+            id: "quickdraw".to_string(),
+            index: 89,
+            ..Default::default()
+        },
         hypercutter: Ability {
-                id: "hypercutter".to_string(),
-                index: 90,
-                ..Default::default()
-            },
+            id: "hypercutter".to_string(),
+            index: 90,
+            ..Default::default()
+        },
         symbiosis: Ability {
-                id: "symbiosis".to_string(),
-                index: 91,
-                ..Default::default()
-            },
+            id: "symbiosis".to_string(),
+            index: 91,
+            ..Default::default()
+        },
         plus: Ability {
-                id: "plus".to_string(),
-                index: 92,
-                ..Default::default()
-            },
+            id: "plus".to_string(),
+            index: 92,
+            ..Default::default()
+        },
         mirrorarmor: Ability {
-                id: "mirrorarmor".to_string(),
-                index: 93,
-                ..Default::default()
-            },
+            id: "mirrorarmor".to_string(),
+            index: 93,
+            ..Default::default()
+        },
         pastelveil: Ability {
-                id: "pastelveil".to_string(),
-                index: 94,
-                ..Default::default()
-            },
+            id: "pastelveil".to_string(),
+            index: 94,
+            ..Default::default()
+        },
         toughclaws: Ability {
-                id: "toughclaws".to_string(),
-                index: 95,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.flags.contact {
-                            attacking_choice.base_power *= 1.3;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "toughclaws".to_string(),
+            index: 95,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.flags.contact {
+                        attacking_choice.base_power *= 1.3;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         effectspore: Ability {
-                id: "effectspore".to_string(),
-                index: 96,
-                modify_attack_against: Some(
-                    |_state, attacker_choice: &mut Choice, _defender_choice, _attacking_side| {
-                        if attacker_choice.flags.contact {
-                            attacker_choice.add_or_create_secondaries(
-                                Secondary {
-                                    chance: 9.0,
-                                    target: MoveTarget::User,
-                                    effect: Effect::Status(PokemonStatus::Poison),
-                                }
-                            );
-                            attacker_choice.add_or_create_secondaries(
-                                Secondary {
-                                    chance: 10.0,
-                                    target: MoveTarget::User,
-                                    effect: Effect::Status(PokemonStatus::Paralyze),
-                                }
-                            );
-                            attacker_choice.add_or_create_secondaries(
-                                Secondary {
-                                    chance: 11.0,
-                                    target: MoveTarget::User,
-                                    effect: Effect::Status(PokemonStatus::Sleep),
-                                }
-                            );
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        mummy: Ability {
-                id: "mummy".to_string(),
-                index: 97,
-                ..Default::default()
-            },
-        baddreams: Ability {
-                id: "baddreams".to_string(),
-                index: 98,
-                ..Default::default()
-            },
-        magicguard: Ability {
-                id: "magicguard".to_string(),
-                index: 99,
-                ..Default::default()
-            },
-        sandstream: Ability {
-                id: "sandstream".to_string(),
-                index: 100,
-                ..Default::default()
-            },
-        powerspot: Ability {
-                id: "powerspot".to_string(),
-                index: 101,
-                ..Default::default()
-            },
-        flamebody: Ability {
-                id: "flamebody".to_string(),
-                index: 102,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if state.move_makes_contact(&attacker_choice, attacking_side) {
-                            let burn_secondary = Secondary {
-                                chance: 30.0,
+            id: "effectspore".to_string(),
+            index: 96,
+            modify_attack_against: Some(
+                |_state, attacker_choice: &mut Choice, _defender_choice, _attacking_side| {
+                    if attacker_choice.flags.contact {
+                        attacker_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 9.0,
                                 target: MoveTarget::User,
-                                effect: Effect::Status(PokemonStatus::Burn),
-                            };
-
-                            if attacker_choice.secondaries.is_none() {
-                                attacker_choice.secondaries = Some(vec![burn_secondary]);
-                            } else {
-                                attacker_choice
-                                    .secondaries
-                                    .as_mut()
-                                    .unwrap()
-                                    .push(burn_secondary);
+                                effect: Effect::Status(PokemonStatus::Poison),
                             }
+                        );
+                        attacker_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 10.0,
+                                target: MoveTarget::User,
+                                effect: Effect::Status(PokemonStatus::Paralyze),
+                            }
+                        );
+                        attacker_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 11.0,
+                                target: MoveTarget::User,
+                                effect: Effect::Status(PokemonStatus::Sleep),
+                            }
+                        );
+                    }
+                },
+            ),
+            ..Default::default()
+        },
+        mummy: Ability {
+            id: "mummy".to_string(),
+            index: 97,
+            ..Default::default()
+        },
+        baddreams: Ability {
+            id: "baddreams".to_string(),
+            index: 98,
+            ..Default::default()
+        },
+        magicguard: Ability {
+            id: "magicguard".to_string(),
+            index: 99,
+            ..Default::default()
+        },
+        sandstream: Ability {
+            id: "sandstream".to_string(),
+            index: 100,
+            ..Default::default()
+        },
+        powerspot: Ability {
+            id: "powerspot".to_string(),
+            index: 101,
+            ..Default::default()
+        },
+        flamebody: Ability {
+            id: "flamebody".to_string(),
+            index: 102,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if state.move_makes_contact(&attacker_choice, attacking_side) {
+                        let burn_secondary = Secondary {
+                            chance: 30.0,
+                            target: MoveTarget::User,
+                            effect: Effect::Status(PokemonStatus::Burn),
+                        };
+
+                        if attacker_choice.secondaries.is_none() {
+                            attacker_choice.secondaries = Some(vec![burn_secondary]);
+                        } else {
+                            attacker_choice
+                                .secondaries
+                                .as_mut()
+                                .unwrap()
+                                .push(burn_secondary);
                         }
-                    },
-                ),
-                ..Default::default()
-            },
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         reckless: Ability {
                 id: "reckless".to_string(),
                 index: 103,
