@@ -1118,6 +1118,27 @@ lazy_static! {
         sapsipper: Ability {
             id: "sapsipper".to_string(),
             index: 68,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Grass {
+                        attacker_choice.remove_all_effects();
+                        attacker_choice.accuracy = 100.0;
+                        attacker_choice.target = MoveTarget::Opponent;
+                        attacker_choice.boost = Some(Boost {
+                            boosts: StatBoosts {
+                                attack: 1,
+                                defense: 0,
+                                special_attack: 0,
+                                special_defense: 0,
+                                speed: 0,
+                                accuracy: 0,
+                            },
+                            target: MoveTarget::Opponent,
+                        });
+                        attacker_choice.category = MoveCategory::Status;
+                    }
+                },
+            ),
             ..Default::default()
         },
         slushrush: Ability {
