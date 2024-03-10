@@ -2376,6 +2376,28 @@ lazy_static! {
         tanglinghair: Ability {
             id: "tanglinghair".to_string(),
             index: 203,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.flags.contact {
+                        attacker_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 100.0,
+                                target: MoveTarget::User,
+                                effect: Effect::Boost(
+                                    StatBoosts {
+                                        attack: 0,
+                                        defense: 0,
+                                        special_attack: 0,
+                                        special_defense: 0,
+                                        speed: -1,
+                                        accuracy: 0,
+                                    }
+                                ),
+                            }
+                        )
+                    }
+                },
+            ),
             ..Default::default()
         },
         cloudnine: Ability {
