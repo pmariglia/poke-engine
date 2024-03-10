@@ -852,152 +852,174 @@ lazy_static! {
             ..Default::default()
         },
         friendguard: Ability {
-                id: "friendguard".to_string(),
-                index: 29,
-                ..Default::default()
-            },
+            id: "friendguard".to_string(),
+            index: 29,
+            ..Default::default()
+        },
         noability: Ability {
-                id: "noability".to_string(),
-                index: 30,
-                ..Default::default()
-            },
+            id: "noability".to_string(),
+            index: 30,
+            ..Default::default()
+        },
         gulpmissile: Ability {
-                id: "gulpmissile".to_string(),
-                index: 31,
-                ..Default::default()
-            },
+            id: "gulpmissile".to_string(),
+            index: 31,
+            ..Default::default()
+        },
         powerconstruct: Ability {
-                id: "powerconstruct".to_string(),
-                index: 32,
-                ..Default::default()
-            },
+            id: "powerconstruct".to_string(),
+            index: 32,
+            ..Default::default()
+        },
         forecast: Ability {
                 id: "forecast".to_string(),
                 index: 33,
                 ..Default::default()
             },
         prankster: Ability {
-                id: "prankster".to_string(),
-                index: 34,
-                ..Default::default()
-            },
+            id: "prankster".to_string(),
+            index: 34,
+            ..Default::default()
+        },
         protean: Ability {
-                id: "protean".to_string(),
-                index: 35,
-                before_move: Some(|state: &mut State, choice: &Choice, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
-                    let active_pkmn = state.get_side(side_ref).get_active();
-                    if !active_pkmn.has_type(&choice.move_type) {
-                        let ins = Instruction::ChangeType(ChangeType {
-                            side_ref: *side_ref,
-                            new_types: (choice.move_type, PokemonType::Typeless),
-                            old_types: active_pkmn.types,
-                        });
-                        active_pkmn.types = (choice.move_type, PokemonType::Typeless);
-                        incoming_instructions.instruction_list.push(ins);
-                    }
-                }),
-                ..Default::default()
-            },
+            id: "protean".to_string(),
+            index: 35,
+            before_move: Some(|state: &mut State, choice: &Choice, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
+                let active_pkmn = state.get_side(side_ref).get_active();
+                if !active_pkmn.has_type(&choice.move_type) {
+                    let ins = Instruction::ChangeType(ChangeType {
+                        side_ref: *side_ref,
+                        new_types: (choice.move_type, PokemonType::Typeless),
+                        old_types: active_pkmn.types,
+                    });
+                    active_pkmn.types = (choice.move_type, PokemonType::Typeless);
+                    incoming_instructions.instruction_list.push(ins);
+                }
+            }),
+            ..Default::default()
+        },
         asoneglastrier: Ability {
-                id: "asoneglastrier".to_string(),
-                index: 36,
-                ..Default::default()
-            },
+            id: "asoneglastrier".to_string(),
+            index: 36,
+            ..Default::default()
+        },
         shadowtag: Ability {
-                id: "shadowtag".to_string(),
-                index: 37,
-                ..Default::default()
-            },
+            id: "shadowtag".to_string(),
+            index: 37,
+            ..Default::default()
+        },
         skilllink: Ability {
-                id: "skilllink".to_string(),
-                index: 38,
-                ..Default::default()
-            },
+            id: "skilllink".to_string(),
+            index: 38,
+            ..Default::default()
+        },
         intrepidsword: Ability {
-                id: "intrepidsword".to_string(),
-                index: 39,
-                ..Default::default()
-            },
+            id: "intrepidsword".to_string(),
+            index: 39,
+            ..Default::default()
+        },
         soulheart: Ability {
-                id: "soulheart".to_string(),
-                index: 40,
-                ..Default::default()
-            },
+            id: "soulheart".to_string(),
+            index: 40,
+            ..Default::default()
+        },
         swiftswim: Ability {
-                id: "swiftswim".to_string(),
-                index: 41,
-                ..Default::default()
-            },
+            id: "swiftswim".to_string(),
+            index: 41,
+            ..Default::default()
+        },
         eartheater: Ability {
-                id: "eartheater".to_string(),
-                index: 42,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if attacker_choice.move_type == PokemonType::Ground {
-                            attacker_choice.base_power = 0.0;
-                            attacker_choice.heal = Some(Heal {
-                                target: MoveTarget::Opponent,
-                                amount: 0.25
-                            });
-                            attacker_choice.category = MoveCategory::Status;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "eartheater".to_string(),
+            index: 42,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Ground {
+                        attacker_choice.base_power = 0.0;
+                        attacker_choice.heal = Some(Heal {
+                            target: MoveTarget::Opponent,
+                            amount: 0.25
+                        });
+                        attacker_choice.category = MoveCategory::Status;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         superluck: Ability {
-                id: "superluck".to_string(),
-                index: 43,
-                ..Default::default()
-            },
+            id: "superluck".to_string(),
+            index: 43,
+            ..Default::default()
+        },
         supremeoverlord: Ability {
-                id: "supremeoverlord".to_string(),
-                index: 44,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        let mut boost_amount = 1.0;
-                        let side = state.get_side_immutable(attacking_side);
-                        boost_amount += 0.1 * side.num_alive_pkmn() as f32;
-                        attacking_choice.base_power *= boost_amount;
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "supremeoverlord".to_string(),
+            index: 44,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    let mut boost_amount = 1.0;
+                    let side = state.get_side_immutable(attacking_side);
+                    boost_amount += 0.1 * side.num_alive_pkmn() as f32;
+                    attacking_choice.base_power *= boost_amount;
+                },
+            ),
+            ..Default::default()
+        },
         insomnia: Ability {
-                id: "insomnia".to_string(),
-                index: 45,
-                ..Default::default()
-            },
+            id: "insomnia".to_string(),
+            index: 45,
+            ..Default::default()
+        },
         dancer: Ability {
-                id: "dancer".to_string(),
-                index: 46,
-                ..Default::default()
-            },
+            id: "dancer".to_string(),
+            index: 46,
+            ..Default::default()
+        },
         steamengine: Ability {
-                id: "steamengine".to_string(),
-                index: 47,
-                ..Default::default()
-            },
+            id: "steamengine".to_string(),
+            index: 47,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Water || attacker_choice.move_type == PokemonType::Fire {
+                        attacker_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 100.0,
+                                target: MoveTarget::Opponent,
+                                effect: Effect::Boost(
+                                    StatBoosts {
+                                        attack: 0,
+                                        defense: 0,
+                                        special_attack: 0,
+                                        special_defense: 0,
+                                        speed: 6,
+                                        accuracy: 0,
+                                    }
+                                ),
+                            }
+                        );
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         angerpoint: Ability {
-                id: "angerpoint".to_string(),
-                index: 48,
-                ..Default::default()
-            },
+            id: "angerpoint".to_string(),
+            index: 48,
+            ..Default::default()
+        },
         contrary: Ability {
-                id: "contrary".to_string(),
-                index: 49,
-                ..Default::default()
-            },
+            id: "contrary".to_string(),
+            index: 49,
+            ..Default::default()
+        },
         magmaarmor: Ability {
-                id: "magmaarmor".to_string(),
-                index: 50,
-                ..Default::default()
-            },
+            id: "magmaarmor".to_string(),
+            index: 50,
+            ..Default::default()
+        },
         hungerswitch: Ability {
-                id: "hungerswitch".to_string(),
-                index: 51,
-                ..Default::default()
-            },
+            id: "hungerswitch".to_string(),
+            index: 51,
+            ..Default::default()
+        },
         receiver: Ability {
             id: "receiver".to_string(),
             index: 52,
