@@ -2309,6 +2309,20 @@ lazy_static! {
         raindish: Ability {
             id: "raindish".to_string(),
             index: 189,
+            end_of_turn: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
+                if state.weather.weather_type == Weather::Rain || state.weather.weather_type == Weather::HeavyRain {
+                    let side = state.get_side(side_ref);
+                    let active = side.get_active();
+                    let health_recovered = cmp::min(active.maxhp / 16, active.maxhp - active.hp);
+                    if health_recovered > 0 {
+                        incoming_instructions.instruction_list.push(Instruction::Heal(HealInstruction {
+                        side_ref: *side_ref,
+                        heal_amount: health_recovered,
+                    }));
+                    active.hp += health_recovered;
+                    }
+                }
+            }),
             ..Default::default()
         },
         synchronize: Ability {

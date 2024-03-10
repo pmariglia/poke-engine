@@ -3133,6 +3133,31 @@ fn test_icebody_heal() {
 }
 
 #[test]
+fn test_raindish_heal() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::RAINDISH;
+    state.weather.weather_type = Weather::Rain;
+    state.side_two.get_active().hp = 50;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("splash"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideTwo,
+                heal_amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_baddreams() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::BADDREAMS;
