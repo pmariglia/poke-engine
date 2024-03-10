@@ -1577,56 +1577,61 @@ lazy_static! {
             ..Default::default()
         },
         naturalcure: Ability {
-                id: "naturalcure".to_string(),
-                index: 115,
-                on_switch_out: Some(|state: &mut State, side_reference: &SideReference, instructions: &mut StateInstructions| {
-                    let side = state.get_side(side_reference);
-                    let active_index = side.active_index;
-                    let active = side.get_active();
-                    if active.status != PokemonStatus::None {
-                        instructions.instruction_list.push(
-                            Instruction::ChangeStatus(ChangeStatusInstruction {
-                            side_ref: *side_reference,
-                            pokemon_index: active_index,
-                            old_status: active.status,
-                            new_status: PokemonStatus::None,
-                            })
-                        );
-                        active.status = PokemonStatus::None;
-                    }
-                }),
-                ..Default::default()
-            },
+            id: "naturalcure".to_string(),
+            index: 115,
+            on_switch_out: Some(|state: &mut State, side_reference: &SideReference, instructions: &mut StateInstructions| {
+                let side = state.get_side(side_reference);
+                let active_index = side.active_index;
+                let active = side.get_active();
+                if active.status != PokemonStatus::None {
+                    instructions.instruction_list.push(
+                        Instruction::ChangeStatus(ChangeStatusInstruction {
+                        side_ref: *side_reference,
+                        pokemon_index: active_index,
+                        old_status: active.status,
+                        new_status: PokemonStatus::None,
+                        })
+                    );
+                    active.status = PokemonStatus::None;
+                }
+            }),
+            ..Default::default()
+        },
         harvest: Ability {
-                id: "harvest".to_string(),
-                index: 116,
-                ..Default::default()
-            },
+            id: "harvest".to_string(),
+            index: 116,
+            ..Default::default()
+        },
         suctioncups: Ability {
-                id: "suctioncups".to_string(),
-                index: 117,
-                ..Default::default()
-            },
+            id: "suctioncups".to_string(),
+            index: 117,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    attacker_choice.flags.drag = false;
+                },
+            ),
+            ..Default::default()
+        },
         iceface: Ability {
-                id: "iceface".to_string(),
-                index: 118,
-                ..Default::default()
-            },
+            id: "iceface".to_string(),
+            index: 118,
+            ..Default::default()
+        },
         roughskin: Ability {
-                id: "roughskin".to_string(),
-                index: 119,
-                ..Default::default()
-            },
+            id: "roughskin".to_string(),
+            index: 119,
+            ..Default::default()
+        },
         wonderguard: Ability {
                 id: "wonderguard".to_string(),
                 index: 120,
                 ..Default::default()
             },
         waterveil: Ability {
-                id: "waterveil".to_string(),
-                index: 121,
-                ..Default::default()
-            },
+            id: "waterveil".to_string(),
+            index: 121,
+            ..Default::default()
+        },
         fairyaura: Ability {
             id: "fairyaura".to_string(),
             index: 122,
