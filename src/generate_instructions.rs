@@ -12,7 +12,7 @@ use crate::state::{
     MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonType, Terrain,
 };
 use crate::{
-    abilities::ABILITIES,
+    abilities::ability_from_index,
     choices::{Choice, MoveCategory},
     damage_calc::{calculate_damage, type_effectiveness_modifier, DamageRolls},
     instruction::{
@@ -48,10 +48,10 @@ fn generate_instructions_from_switch(
         &mut incoming_instructions.instruction_list,
     );
 
-    if let Some(on_switch_out_fn) = ABILITIES[state
+    if let Some(on_switch_out_fn) = ability_from_index(&state
         .get_side_immutable(&switching_side_ref)
         .get_active_immutable()
-        .ability]
+        .ability)
         .on_switch_out
     {
         on_switch_out_fn(state, &switching_side_ref, incoming_instructions);
@@ -166,14 +166,14 @@ fn generate_instructions_from_switch(
 
     let switching_side = state.get_side_immutable(&switching_side_ref);
     if let Some(on_switch_in_fn) =
-        ABILITIES[switching_side.get_active_immutable().ability].on_switch_in
+        ability_from_index(&switching_side.get_active_immutable().ability).on_switch_in
     {
         on_switch_in_fn(state, &switching_side_ref, incoming_instructions);
     }
 
     let switching_side = state.get_side_immutable(&switching_side_ref);
     if let Some(on_switch_in_fn) =
-        item_from_index(switching_side.get_active_immutable().item).on_switch_in
+        item_from_index(&switching_side.get_active_immutable().item).on_switch_in
     {
         on_switch_in_fn(state, &switching_side_ref, incoming_instructions);
     }
@@ -755,7 +755,7 @@ fn generate_instructions_from_damage(
 
             let attacking_side = state.get_side_immutable(attacking_side_ref);
             let attacking_pokemon = attacking_side.get_active_immutable();
-            if let Some(after_damage_hit_fn) = ABILITIES[attacking_pokemon.ability].after_damage_hit
+            if let Some(after_damage_hit_fn) = ability_from_index(&attacking_pokemon.ability).after_damage_hit
             {
                 after_damage_hit_fn(
                     &mut state,
@@ -866,14 +866,14 @@ fn before_move(
         .get_side_immutable(attacking_side)
         .get_active_immutable();
 
-    if let Some(before_move_fn) = ABILITIES[attacking_pokemon.ability].before_move {
+    if let Some(before_move_fn) = ability_from_index(&attacking_pokemon.ability).before_move {
         before_move_fn(state, choice, attacking_side, incoming_instructions);
     };
 
     let attacking_pokemon = state
         .get_side_immutable(attacking_side)
         .get_active_immutable();
-    if let Some(before_move_fn) = item_from_index(attacking_pokemon.item).before_move {
+    if let Some(before_move_fn) = item_from_index(&attacking_pokemon.item).before_move {
         before_move_fn(state, choice, attacking_side, incoming_instructions);
     }
 }
@@ -896,19 +896,19 @@ fn update_choice(
         None => {}
     }
 
-    if let Some(modify_move_fn) = ABILITIES[attacking_pokemon.ability].modify_attack_being_used {
+    if let Some(modify_move_fn) = ability_from_index(&attacking_pokemon.ability).modify_attack_being_used {
         modify_move_fn(state, attacker_choice, defender_choice, attacking_side)
     };
 
-    if let Some(modify_move_fn) = ABILITIES[defending_pokemon.ability].modify_attack_against {
+    if let Some(modify_move_fn) = ability_from_index(&defending_pokemon.ability).modify_attack_against {
         modify_move_fn(state, attacker_choice, defender_choice, attacking_side)
     };
 
-    if let Some(modify_move_fn) = item_from_index(attacking_pokemon.item).modify_attack_being_used {
+    if let Some(modify_move_fn) = item_from_index(&attacking_pokemon.item).modify_attack_being_used {
         modify_move_fn(state, attacker_choice, attacking_side)
     }
 
-    if let Some(modify_move_fn) = item_from_index(defending_pokemon.item).modify_attack_against {
+    if let Some(modify_move_fn) = item_from_index(&defending_pokemon.item).modify_attack_against {
         modify_move_fn(state, attacker_choice, attacking_side)
     }
 
@@ -1488,13 +1488,13 @@ fn add_end_of_turn_instructions(
             continue;
         }
 
-        if let Some(end_of_turn_fn) = item_from_index(active_pkmn.item).end_of_turn {
+        if let Some(end_of_turn_fn) = item_from_index(&active_pkmn.item).end_of_turn {
             end_of_turn_fn(state, side_ref, &mut incoming_instructions);
         }
 
         let side = state.get_side_immutable(side_ref);
         let active_pkmn = side.get_active_immutable();
-        if let Some(end_of_turn_fn) = ABILITIES[active_pkmn.ability].end_of_turn {
+        if let Some(end_of_turn_fn) = ability_from_index(&active_pkmn.ability).end_of_turn {
             end_of_turn_fn(state, side_ref, &mut incoming_instructions);
         }
     }

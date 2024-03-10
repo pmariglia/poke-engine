@@ -437,7 +437,7 @@ pub struct Pokemon {
     pub types: (PokemonType, PokemonType),
     pub hp: i16,
     pub maxhp: i16,
-    pub ability: usize,
+    pub ability: Abilities,
     pub item: Items,
     pub attack: i16,
     pub defense: i16,

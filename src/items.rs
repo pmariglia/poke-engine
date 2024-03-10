@@ -774,7 +774,7 @@ lazy_static! {
     };
 }
 
-pub fn item_from_index<'a>(index: Items) -> &'a Item {
+pub fn item_from_index<'a>(index: &Items) -> &'a Item {
     match index {
         Items::NONE => &ALL_ITEMS.none,
         Items::AbsorbBulb => &ALL_ITEMS.absorb_bulb,
