@@ -1370,7 +1370,7 @@ fn add_end_of_turn_instructions(
         }
 
         match weather_type {
-            Weather::Hail => {
+            Weather::Hail if active_pkmn.ability != Abilities::ICEBODY => {
                 let damage_amount =
                     cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
                 let hail_damage_instruction = Instruction::Damage(DamageInstruction {

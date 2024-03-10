@@ -1,4 +1,5 @@
 use poke_engine::abilities::Abilities;
+use poke_engine::choices::Heal;
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
@@ -3098,6 +3099,63 @@ fn test_hydration_end_of_turn() {
                     old_status: PokemonStatus::Burn,
                     new_status: PokemonStatus::None,
                 })
+            ],
+        }
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_icebody_no_heal() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::ICEBODY;
+    state.weather.weather_type = Weather::Hail;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("splash"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 6,
+                }),
+            ],
+        }
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_icebody_heal() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::ICEBODY;
+    state.weather.weather_type = Weather::Hail;
+    state.side_two.get_active().hp = 50;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("splash"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 6,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideTwo,
+                    heal_amount: 6,
+                }),
             ],
         }
     ];
