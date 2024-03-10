@@ -1427,54 +1427,75 @@ lazy_static! {
                 ..Default::default()
             },
         hugepower: Ability {
-                id: "hugepower".to_string(),
-                index: 108,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.category == MoveCategory::Physical {
-                            attacking_choice.base_power *= 2.0;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "hugepower".to_string(),
+            index: 108,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.category == MoveCategory::Physical {
+                        attacking_choice.base_power *= 2.0;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         solarpower: Ability {
-                id: "solarpower".to_string(),
-                index: 109,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if state.weather_is_active(&Weather::Sun) {
-                            attacking_choice.base_power *= 1.5;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "solarpower".to_string(),
+            index: 109,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if state.weather_is_active(&Weather::Sun) {
+                        attacking_choice.base_power *= 1.5;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         schooling: Ability {
-                id: "schooling".to_string(),
-                index: 110,
-                ..Default::default()
-            },
+            id: "schooling".to_string(),
+            index: 110,
+            ..Default::default()
+        },
         motordrive: Ability {
-                id: "motordrive".to_string(),
-                index: 111,
-                ..Default::default()
-            },
+            id: "motordrive".to_string(),
+            index: 111,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Electric {
+                        attacker_choice.remove_all_effects();
+                        attacker_choice.accuracy = 100.0;
+                        attacker_choice.target = MoveTarget::Opponent;
+                        attacker_choice.boost = Some(Boost {
+                            boosts: StatBoosts {
+                                attack: 0,
+                                defense: 0,
+                                special_attack: 0,
+                                special_defense: 0,
+                                speed: 1,
+                                accuracy: 0,
+                            },
+                            target: MoveTarget::Opponent,
+                        });
+                        attacker_choice.category = MoveCategory::Status;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         anticipation: Ability {
-                id: "anticipation".to_string(),
-                index: 112,
-                ..Default::default()
-            },
+            id: "anticipation".to_string(),
+            index: 112,
+            ..Default::default()
+        },
         merciless: Ability {
-                id: "merciless".to_string(),
-                index: 113,
-                ..Default::default()
-            },
+            id: "merciless".to_string(),
+            index: 113,
+            ..Default::default()
+        },
         trace: Ability {
-                id: "trace".to_string(),
-                index: 114,
-                ..Default::default()
-            },
+            id: "trace".to_string(),
+            index: 114,
+            ..Default::default()
+        },
         naturalcure: Ability {
                 id: "naturalcure".to_string(),
                 index: 115,
