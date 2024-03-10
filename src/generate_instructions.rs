@@ -1365,7 +1365,7 @@ fn add_end_of_turn_instructions(
     for side_ref in sides {
         let weather_type = state.weather.weather_type;
         let active_pkmn = state.get_side(side_ref).get_active();
-        if active_pkmn.hp == 0 || active_pkmn.ability == Abilities::MAGICGUARD {
+        if active_pkmn.hp == 0 || active_pkmn.ability == Abilities::MAGICGUARD || active_pkmn.ability == Abilities::OVERCOAT {
             continue;
         }
 

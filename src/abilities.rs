@@ -769,6 +769,14 @@ lazy_static! {
         multiscale: Ability {
             id: "multiscale".to_string(),
             index: 21,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    let target_pkmn = state.get_side_immutable(&attacking_side.get_other_side()).get_active_immutable();
+                    if target_pkmn.hp == target_pkmn.maxhp {
+                        attacker_choice.base_power /= 2.0;
+                    }
+                },
+            ),
             ..Default::default()
         },
         arenatrap: Ability {
@@ -1169,6 +1177,11 @@ lazy_static! {
                 modify_attack_being_used: Some(
                     |state, attacking_choice, defender_choice, attacking_side| {
                         attacking_choice.accuracy = 100.0
+                    },
+                ),
+                modify_attack_against: Some(
+                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                        attacker_choice.accuracy = 100.0
                     },
                 ),
                 ..Default::default()
@@ -2657,106 +2670,114 @@ lazy_static! {
                 ..Default::default()
             },
         unseenfist: Ability {
-                id: "unseenfist".to_string(),
-                index: 253,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.flags.contact {
-                            attacking_choice.flags.protect = false
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "unseenfist".to_string(),
+            index: 253,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.flags.contact {
+                        attacking_choice.flags.protect = false
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         solidrock: Ability {
-                id: "solidrock".to_string(),
-                index: 254,
-                ..Default::default()
-            },
+            id: "solidrock".to_string(),
+            index: 254,
+            ..Default::default()
+        },
         hustle: Ability {
-                id: "hustle".to_string(),
-                index: 255,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.category == MoveCategory::Physical {
-                            attacking_choice.base_power *= 1.5;
-                            attacking_choice.accuracy *= 0.80
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "hustle".to_string(),
+            index: 255,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.category == MoveCategory::Physical {
+                        attacking_choice.base_power *= 1.5;
+                        attacking_choice.accuracy *= 0.80
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         hydration: Ability {
-                id: "hydration".to_string(),
-                index: 256,
-                ..Default::default()
-            },
+            id: "hydration".to_string(),
+            index: 256,
+            ..Default::default()
+        },
         scrappy: Ability {
-                id: "scrappy".to_string(),
-                index: 257,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if state.get_side_immutable(&attacking_side.get_other_side()).get_active_immutable().has_type(&PokemonType::Ghost) {
-                            // Technically wrong, come back to this later
-                            attacking_choice.move_type = PokemonType::Typeless;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "scrappy".to_string(),
+            index: 257,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if state.get_side_immutable(&attacking_side.get_other_side()).get_active_immutable().has_type(&PokemonType::Ghost) {
+                        // Technically wrong, come back to this later
+                        attacking_choice.move_type = PokemonType::Typeless;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         overcoat: Ability {
-                id: "overcoat".to_string(),
-                index: 258,
-                ..Default::default()
-            },
+            id: "overcoat".to_string(),
+            index: 258,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.flags.powder {
+                        attacker_choice.remove_all_effects();
+                        attacker_choice.accuracy = 0.0
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         neutralizinggas: Ability {
-                id: "neutralizinggas".to_string(),
-                index: 259,
-                ..Default::default()
-            },
+            id: "neutralizinggas".to_string(),
+            index: 259,
+            ..Default::default()
+        },
         sweetveil: Ability {
-                id: "sweetveil".to_string(),
-                index: 260,
-                ..Default::default()
-            },
+            id: "sweetveil".to_string(),
+            index: 260,
+            ..Default::default()
+        },
         drizzle: Ability {
-                id: "drizzle".to_string(),
-                index: 261,
-                ..Default::default()
-            },
+            id: "drizzle".to_string(),
+            index: 261,
+            ..Default::default()
+        },
         innerfocus: Ability {
-                id: "innerfocus".to_string(),
-                index: 262,
-                ..Default::default()
-            },
+            id: "innerfocus".to_string(),
+            index: 262,
+            ..Default::default()
+        },
         poisontouch: Ability {
-                id: "poisontouch".to_string(),
-                index: 263,
-                ..Default::default()
-            },
+            id: "poisontouch".to_string(),
+            index: 263,
+            ..Default::default()
+        },
         wanderingspirit: Ability {
-                id: "wanderingspirit".to_string(),
-                index: 264,
-                ..Default::default()
-            },
+            id: "wanderingspirit".to_string(),
+            index: 264,
+            ..Default::default()
+        },
         guts: Ability {
-                id: "guts".to_string(),
-                index: 265,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        let attacking_pkmn = state.get_side_immutable(attacking_side).get_active_immutable();
-                        if attacking_pkmn.status != PokemonStatus::None {
-                            attacking_choice.base_power *= 1.5;
+            id: "guts".to_string(),
+            index: 265,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    let attacking_pkmn = state.get_side_immutable(attacking_side).get_active_immutable();
+                    if attacking_pkmn.status != PokemonStatus::None {
+                        attacking_choice.base_power *= 1.5;
 
-                            // not the right place to put this, but good enough
-                            if attacking_pkmn.status == PokemonStatus::Burn {
-                                attacking_choice.base_power *= 2.0;
-                            }
+                        // not the right place to put this, but good enough
+                        if attacking_pkmn.status == PokemonStatus::Burn {
+                            attacking_choice.base_power *= 2.0;
                         }
-                    },
-                ),
-                ..Default::default()
-            },
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         shellarmor: Ability {
                 id: "shellarmor".to_string(),
                 index: 266,

@@ -7,6 +7,7 @@ use poke_engine::instruction::{
     RemoveVolatileStatusInstruction, SetSubstituteHealthInstruction, StateInstructions,
     SwitchInstruction,
 };
+use poke_engine::instruction::Instruction::Damage;
 use poke_engine::items::Items;
 use poke_engine::state::{
     Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
@@ -1780,6 +1781,7 @@ fn test_magicbounce_with_status() {
     ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
+
 #[test]
 fn test_marvelscale() {
     let mut state = State::default();
@@ -1798,6 +1800,69 @@ fn test_marvelscale() {
             side_ref: SideReference::SideTwo,
             damage_amount: 33,
         })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_multiscale() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::MULTISCALE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("tackle"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 24,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_overcoat_vs_powder_move() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::OVERCOAT;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("spore"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_overcoat_vs_weather_damage() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::OVERCOAT;
+    state.weather.weather_type = Weather::Hail;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("splash"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            }),
+        ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
