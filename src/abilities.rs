@@ -1911,6 +1911,20 @@ lazy_static! {
         prismarmor: Ability {
             id: "prismarmor".to_string(),
             index: 163,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if type_effectiveness_modifier(
+                        &attacker_choice.move_type,
+                        &state
+                            .get_side_immutable(&attacking_side.get_other_side())
+                            .get_active_immutable()
+                            .types,
+                    ) > 1.0
+                    {
+                        attacker_choice.base_power *= 0.75;
+                    }
+                },
+            ),
             ..Default::default()
         },
         sniper: Ability {
@@ -2384,245 +2398,252 @@ lazy_static! {
                 ..Default::default()
             },
         wimpout: Ability {
-                id: "wimpout".to_string(),
-                index: 218,
-                ..Default::default()
-            },
+            id: "wimpout".to_string(),
+            index: 218,
+            ..Default::default()
+        },
         icescales: Ability {
-                id: "icescales".to_string(),
-                index: 219,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if attacker_choice.category == MoveCategory::Special {
-                            attacker_choice.base_power *= 0.5;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        infiltrator: Ability {
-                id: "infiltrator".to_string(),
-                index: 220,
-                ..Default::default()
-            },
-        limber: Ability {
-                id: "limber".to_string(),
-                index: 221,
-                ..Default::default()
-            },
-        psychicsurge: Ability {
-                id: "psychicsurge".to_string(),
-                index: 222,
-                ..Default::default()
-            },
-        defeatist: Ability {
-                id: "defeatist".to_string(),
-                index: 223,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        let attacking_pokemon = state.get_side_immutable(attacking_side).get_active_immutable();
-                        if attacking_pokemon.hp < attacking_pokemon.maxhp / 2 {
-                            attacking_choice.base_power *= 0.5;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        waterabsorb: Ability {
-                id: "waterabsorb".to_string(),
-                index: 224,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if attacker_choice.move_type == PokemonType::Water {
-                            attacker_choice.base_power = 0.0;
-                            attacker_choice.heal = Some(Heal {
-                                target: MoveTarget::Opponent,
-                                amount: 0.25
-                            });
-                            attacker_choice.category = MoveCategory::Status;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        imposter: Ability {
-                id: "imposter".to_string(),
-                index: 225,
-                ..Default::default()
-            },
-        dryskin: Ability {
-                id: "dryskin".to_string(),
-                index: 226,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if attacker_choice.move_type == PokemonType::Water {
-                            attacker_choice.base_power = 0.0;
-                            attacker_choice.heal = Some(Heal {
-                                target: MoveTarget::Opponent,
-                                amount: 0.25
-                            });
-                            attacker_choice.category = MoveCategory::Status;
-                        } else if attacker_choice.move_type == PokemonType::Fire {
-                            attacker_choice.base_power *= 1.25;
-                        }
-                    },
-                ),
-                end_of_turn: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
-                    if state.weather_is_active(&Weather::Rain) {
-                        let active_pkmn = state.get_side(side_ref).get_active();
-
-                        if active_pkmn.hp < active_pkmn.maxhp {
-                            let heal_amount = cmp::min(active_pkmn.maxhp / 8, active_pkmn.maxhp - active_pkmn.hp);
-                            let ins = Instruction::Heal(HealInstruction {
-                                side_ref: side_ref.clone(),
-                                heal_amount: heal_amount,
-                            });
-                            active_pkmn.hp += heal_amount;
-                            incoming_instructions.instruction_list.push(ins);
-                        }
+            id: "icescales".to_string(),
+            index: 219,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.category == MoveCategory::Special {
+                        attacker_choice.base_power *= 0.5;
                     }
-                }),
-                ..Default::default()
-            },
+                },
+            ),
+            ..Default::default()
+        },
+        infiltrator: Ability {
+            id: "infiltrator".to_string(),
+            index: 220,
+            ..Default::default()
+        },
+        limber: Ability {
+            id: "limber".to_string(),
+            index: 221,
+            ..Default::default()
+        },
+        psychicsurge: Ability {
+            id: "psychicsurge".to_string(),
+            index: 222,
+            ..Default::default()
+        },
+        defeatist: Ability {
+            id: "defeatist".to_string(),
+            index: 223,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    let attacking_pokemon = state.get_side_immutable(attacking_side).get_active_immutable();
+                    if attacking_pokemon.hp < attacking_pokemon.maxhp / 2 {
+                        attacking_choice.base_power *= 0.5;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
+        waterabsorb: Ability {
+            id: "waterabsorb".to_string(),
+            index: 224,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Water {
+                        attacker_choice.base_power = 0.0;
+                        attacker_choice.heal = Some(Heal {
+                            target: MoveTarget::Opponent,
+                            amount: 0.25
+                        });
+                        attacker_choice.category = MoveCategory::Status;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
+        imposter: Ability {
+            id: "imposter".to_string(),
+            index: 225,
+            ..Default::default()
+        },
+        dryskin: Ability {
+            id: "dryskin".to_string(),
+            index: 226,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Water {
+                        attacker_choice.base_power = 0.0;
+                        attacker_choice.heal = Some(Heal {
+                            target: MoveTarget::Opponent,
+                            amount: 0.25
+                        });
+                        attacker_choice.category = MoveCategory::Status;
+                    } else if attacker_choice.move_type == PokemonType::Fire {
+                        attacker_choice.base_power *= 1.25;
+                    }
+                },
+            ),
+            end_of_turn: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
+                if state.weather_is_active(&Weather::Rain) {
+                    let active_pkmn = state.get_side(side_ref).get_active();
+
+                    if active_pkmn.hp < active_pkmn.maxhp {
+                        let heal_amount = cmp::min(active_pkmn.maxhp / 8, active_pkmn.maxhp - active_pkmn.hp);
+                        let ins = Instruction::Heal(HealInstruction {
+                            side_ref: side_ref.clone(),
+                            heal_amount: heal_amount,
+                        });
+                        active_pkmn.hp += heal_amount;
+                        incoming_instructions.instruction_list.push(ins);
+                    }
+                }
+            }),
+            ..Default::default()
+        },
         fluffy: Ability {
-                id: "fluffy".to_string(),
-                index: 227,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if attacker_choice.flags.contact {
-                            attacker_choice.base_power *= 0.5;
-                        }
-                        if attacker_choice.move_type == PokemonType::Fire {
-                            attacker_choice.base_power *= 2.0;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "fluffy".to_string(),
+            index: 227,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.flags.contact {
+                        attacker_choice.base_power *= 0.5;
+                    }
+                    if attacker_choice.move_type == PokemonType::Fire {
+                        attacker_choice.base_power *= 2.0;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         unburden: Ability {
-                id: "unburden".to_string(),
-                index: 228,
-                ..Default::default()
-            },
+            id: "unburden".to_string(),
+            index: 228,
+            ..Default::default()
+        },
         cheekpouch: Ability {
-                id: "cheekpouch".to_string(),
-                index: 229,
-                ..Default::default()
-            },
+            id: "cheekpouch".to_string(),
+            index: 229,
+            ..Default::default()
+        },
         stancechange: Ability {
-                id: "stancechange".to_string(),
-                index: 230,
-                ..Default::default()
-            },
+            id: "stancechange".to_string(),
+            index: 230,
+            ..Default::default()
+        },
         moody: Ability {
-                id: "moody".to_string(),
-                index: 231,
-                ..Default::default()
-            },
+            id: "moody".to_string(),
+            index: 231,
+            ..Default::default()
+        },
         rockypayload: Ability {
-                id: "rockypayload".to_string(),
-                index: 232,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.move_type == PokemonType::Rock {
-                            attacking_choice.base_power *= 1.5;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "rockypayload".to_string(),
+            index: 232,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.move_type == PokemonType::Rock {
+                        attacking_choice.base_power *= 1.5;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         punkrock: Ability {
-                id: "punkrock".to_string(),
-                index: 233,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.flags.sound {
-                            attacking_choice.base_power *= 1.3;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "punkrock".to_string(),
+            index: 233,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.flags.sound {
+                        attacking_choice.base_power *= 1.3;
+                    }
+                },
+            ),
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.flags.sound {
+                        attacker_choice.base_power /= 2.0;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         sandveil: Ability {
-                id: "sandveil".to_string(),
-                index: 234,
-                ..Default::default()
-            },
+            id: "sandveil".to_string(),
+            index: 234,
+            ..Default::default()
+        },
         parentalbond: Ability {
-                id: "parentalbond".to_string(),
-                index: 235,
-                ..Default::default()
-            },
+            id: "parentalbond".to_string(),
+            index: 235,
+            ..Default::default()
+        },
         strongjaw: Ability {
-                id: "strongjaw".to_string(),
-                index: 236,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.flags.bite {
-                            attacking_choice.base_power *= 1.5;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "strongjaw".to_string(),
+            index: 236,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.flags.bite {
+                        attacking_choice.base_power *= 1.5;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         battery: Ability {
-                id: "battery".to_string(),
-                index: 237,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.category == MoveCategory::Special {
-                            attacking_choice.base_power *= 1.3;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "battery".to_string(),
+            index: 237,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.category == MoveCategory::Special {
+                        attacking_choice.base_power *= 1.3;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         healer: Ability {
-                id: "healer".to_string(),
-                index: 238,
-                ..Default::default()
-            },
+            id: "healer".to_string(),
+            index: 238,
+            ..Default::default()
+        },
         steadfast: Ability {
-                id: "steadfast".to_string(),
-                index: 239,
-                ..Default::default()
-            },
+            id: "steadfast".to_string(),
+            index: 239,
+            ..Default::default()
+        },
         damp: Ability {
-                id: "damp".to_string(),
-                index: 240,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if ["selfdestruct", "explosion", "mindblown", "mistyexplosion"].contains(&attacker_choice.move_id.as_str()) {
-                            attacker_choice.accuracy = 0.0;
-                            attacker_choice.heal = None;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "damp".to_string(),
+            index: 240,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if ["selfdestruct", "explosion", "mindblown", "mistyexplosion"].contains(&attacker_choice.move_id.as_str()) {
+                        attacker_choice.accuracy = 0.0;
+                        attacker_choice.heal = None;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         perishbody: Ability {
-                id: "perishbody".to_string(),
-                index: 241,
-                ..Default::default()
-            },
+            id: "perishbody".to_string(),
+            index: 241,
+            ..Default::default()
+        },
         triage: Ability {
-                id: "triage".to_string(),
-                index: 242,
-                ..Default::default()
-            },
+            id: "triage".to_string(),
+            index: 242,
+            ..Default::default()
+        },
         sheerforce: Ability {
-                id: "sheerforce".to_string(),
-                index: 243,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.secondaries.is_some() {
-                            attacking_choice.base_power *= 1.3;
-                            attacking_choice.secondaries = None
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "sheerforce".to_string(),
+            index: 243,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.secondaries.is_some() {
+                        attacking_choice.base_power *= 1.3;
+                        attacking_choice.secondaries = None
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         owntempo: Ability {
                 id: "owntempo".to_string(),
                 index: 244,
