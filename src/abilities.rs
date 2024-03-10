@@ -8,7 +8,10 @@ use crate::choices::{
 };
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::get_boost_instruction;
-use crate::instruction::{BoostInstruction, ChangeStatusInstruction, ChangeType, DamageInstruction, HealInstruction, Instruction, StateInstructions};
+use crate::instruction::{
+    BoostInstruction, ChangeStatusInstruction, ChangeType, DamageInstruction, HealInstruction,
+    Instruction, StateInstructions,
+};
 use crate::state::{PokemonBoostableStat, PokemonType, Terrain};
 use crate::state::{PokemonStatus, State};
 use crate::state::{PokemonVolatileStatus, SideReference, Weather};
