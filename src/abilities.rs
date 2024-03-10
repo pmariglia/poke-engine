@@ -2819,92 +2819,99 @@ lazy_static! {
             ..Default::default()
         },
         shellarmor: Ability {
-                id: "shellarmor".to_string(),
-                index: 266,
-                ..Default::default()
-            },
+            id: "shellarmor".to_string(),
+            index: 266,
+            ..Default::default()
+        },
         rattled: Ability {
-                id: "rattled".to_string(),
-                index: 267,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if attacker_choice.move_type == PokemonType::Bug
-                        || attacker_choice.move_type == PokemonType::Dark
-                        || attacker_choice.move_type == PokemonType::Ghost {
-                            attacker_choice.add_or_create_secondaries(
-                                Secondary {
-                                    chance: 100.0,
-                                    target: MoveTarget::Opponent,
-                                    effect: Effect::Boost(StatBoosts {
-                                        attack: 0,
-                                        defense: 0,
-                                        special_attack: 0,
-                                        special_defense: 0,
-                                        speed: 1,
-                                        accuracy: 0,
-                                    }),
-                                }
-                            );
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "rattled".to_string(),
+            index: 267,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Bug
+                    || attacker_choice.move_type == PokemonType::Dark
+                    || attacker_choice.move_type == PokemonType::Ghost {
+                        attacker_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 100.0,
+                                target: MoveTarget::Opponent,
+                                effect: Effect::Boost(StatBoosts {
+                                    attack: 0,
+                                    defense: 0,
+                                    special_attack: 0,
+                                    special_defense: 0,
+                                    speed: 1,
+                                    accuracy: 0,
+                                }),
+                            }
+                        );
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         waterbubble: Ability {
-                id: "waterbubble".to_string(),
-                index: 268,
-                ..Default::default()
-            },
+            id: "waterbubble".to_string(),
+            index: 268,
+            ..Default::default()
+        },
         sandforce: Ability {
-                id: "sandforce".to_string(),
-                index: 269,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if state.weather_is_active(&Weather::Sand)
-                            && (attacking_choice.move_type == PokemonType::Rock
-                                || attacking_choice.move_type == PokemonType::Ground
-                                || attacking_choice.move_type == PokemonType::Steel)
-                        {
-                            attacking_choice.base_power *= 1.3;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "sandforce".to_string(),
+            index: 269,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if state.weather_is_active(&Weather::Sand)
+                        && (attacking_choice.move_type == PokemonType::Rock
+                            || attacking_choice.move_type == PokemonType::Ground
+                            || attacking_choice.move_type == PokemonType::Steel)
+                    {
+                        attacking_choice.base_power *= 1.3;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         toxicboost: Ability {
-                id: "toxicboost".to_string(),
-                index: 270,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        let active_pkmn = state.get_side_immutable(attacking_side).get_active_immutable();
-                        if active_pkmn.status == PokemonStatus::Poison
-                        || active_pkmn.status == PokemonStatus::Toxic {
-                            attacking_choice.base_power *= 1.5;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "toxicboost".to_string(),
+            index: 270,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    let active_pkmn = state.get_side_immutable(attacking_side).get_active_immutable();
+                    if active_pkmn.status == PokemonStatus::Poison
+                    || active_pkmn.status == PokemonStatus::Toxic {
+                        attacking_choice.base_power *= 1.5;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         persistent: Ability {
-                id: "persistent".to_string(),
-                index: 271,
-                ..Default::default()
-            },
+            id: "persistent".to_string(),
+            index: 271,
+            ..Default::default()
+        },
         chlorophyll: Ability {
-                id: "chlorophyll".to_string(),
-                index: 272,
-                ..Default::default()
-            },
+            id: "chlorophyll".to_string(),
+            index: 272,
+            ..Default::default()
+        },
         simple: Ability {
-                id: "simple".to_string(),
-                index: 273,
-                ..Default::default()
-            },
+            id: "simple".to_string(),
+            index: 273,
+            ..Default::default()
+        },
         purifyingsalt: Ability {
-                id: "purifyingsalt".to_string(),
-                index: 275,
-                ..Default::default()
-            },
+            id: "purifyingsalt".to_string(),
+            index: 275,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Ghost {
+                        attacker_choice.base_power /= 2.0;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
     };
 }
 
