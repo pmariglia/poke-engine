@@ -16512,6 +16512,21 @@ impl Choice {
         self.side_condition = None;
         self.secondaries = None;
     }
+    pub fn remove_all_effects(&mut self) {
+        self.category = MoveCategory::Status;
+        self.base_power = 0.0;
+        self.accuracy = 100.0;
+        self.heal = None;
+        self.drain = None;
+        self.recoil = None;
+        self.crash = None;
+        self.heal = None;
+        self.boost = None;
+        self.status = None;
+        self.volatile_status = None;
+        self.side_condition = None;
+        self.secondaries = None;
+    }
 }
 
 impl Default for Choice {

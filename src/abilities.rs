@@ -3,9 +3,7 @@ use std::cmp;
 
 use lazy_static::lazy_static;
 
-use crate::choices::{
-    Choice, Effect, Heal, MoveCategory, MoveTarget, Secondary, StatBoosts, VolatileStatus,
-};
+use crate::choices::{Boost, Choice, Effect, Heal, MoveCategory, MoveTarget, Secondary, StatBoosts, VolatileStatus};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::get_boost_instruction;
 use crate::instruction::{
@@ -767,53 +765,74 @@ lazy_static! {
                 ..Default::default()
             },
         multiscale: Ability {
-                id: "multiscale".to_string(),
-                index: 21,
-                ..Default::default()
-            },
+            id: "multiscale".to_string(),
+            index: 21,
+            ..Default::default()
+        },
         arenatrap: Ability {
-                id: "arenatrap".to_string(),
-                index: 22,
-                ..Default::default()
-            },
+            id: "arenatrap".to_string(),
+            index: 22,
+            ..Default::default()
+        },
         battlebond: Ability {
-                id: "battlebond".to_string(),
-                index: 23,
-                ..Default::default()
-            },
+            id: "battlebond".to_string(),
+            index: 23,
+            ..Default::default()
+        },
         disguise: Ability {
-                id: "disguise".to_string(),
-                index: 24,
-                ..Default::default()
-            },
+            id: "disguise".to_string(),
+            index: 24,
+            ..Default::default()
+        },
         earlybird: Ability {
-                id: "earlybird".to_string(),
-                index: 25,
-                ..Default::default()
-            },
+            id: "earlybird".to_string(),
+            index: 25,
+            ..Default::default()
+        },
         lightningrod: Ability {
-                id: "lightningrod".to_string(),
-                index: 26,
-                ..Default::default()
-            },
+            id: "lightningrod".to_string(),
+            index: 26,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Electric {
+                        attacker_choice.remove_all_effects();
+                        attacker_choice.accuracy = 100.0;
+                        attacker_choice.target = MoveTarget::Opponent;
+                        attacker_choice.boost = Some(Boost {
+                            boosts: StatBoosts {
+                                attack: 0,
+                                defense: 0,
+                                special_attack: 1,
+                                special_defense: 0,
+                                speed: 0,
+                                accuracy: 0,
+                            },
+                            target: MoveTarget::Opponent,
+                        });
+                        attacker_choice.category = MoveCategory::Status;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         magician: Ability {
-                id: "magician".to_string(),
-                index: 27,
-                ..Default::default()
-            },
+            id: "magician".to_string(),
+            index: 27,
+            ..Default::default()
+        },
         refrigerate: Ability {
-                id: "refrigerate".to_string(),
-                index: 28,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.move_type == PokemonType::Normal {
-                            attacking_choice.move_type = PokemonType::Ice;
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "refrigerate".to_string(),
+            index: 28,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.move_type == PokemonType::Normal {
+                        attacking_choice.move_type = PokemonType::Ice;
+                        attacking_choice.base_power *= 1.2;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         friendguard: Ability {
                 id: "friendguard".to_string(),
                 index: 29,

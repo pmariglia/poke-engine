@@ -1592,6 +1592,74 @@ fn test_leafguard() {
 }
 
 #[test]
+fn test_basic_levitate() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::LEVITATE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("earthquake"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_lightning_rod() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::LIGHTNINGROD;
+    state.side_two.get_active().hp -= 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("thundershock"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_lightning_rod_versus_status_move() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::LIGHTNINGROD;
+    state.side_two.get_active().hp -= 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("thunderwave"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_ground_move_versus_airballoon() {
     let mut state = State::default();
     state.side_two.get_active().item = Items::AirBalloon;
