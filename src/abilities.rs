@@ -2262,73 +2262,95 @@ lazy_static! {
             ..Default::default()
         },
         forewarn: Ability {
-                id: "forewarn".to_string(),
-                index: 196,
-                ..Default::default()
-            },
+            id: "forewarn".to_string(),
+            index: 196,
+            ..Default::default()
+        },
         ironbarbs: Ability {
-                id: "ironbarbs".to_string(),
-                index: 197,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if attacker_choice.flags.contact {
-                            attacker_choice.add_or_create_secondaries(
-                                Secondary {
-                                    chance: 100.0,
-                                    target: MoveTarget::User,
-                                    effect: Effect::Heal(-0.125),
-                                }
-                            );
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "ironbarbs".to_string(),
+            index: 197,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.flags.contact {
+                        attacker_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 100.0,
+                                target: MoveTarget::User,
+                                effect: Effect::Heal(-0.125),
+                            }
+                        );
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         stamina: Ability {
-                id: "stamina".to_string(),
-                index: 198,
-                ..Default::default()
-            },
+            id: "stamina".to_string(),
+            index: 198,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.category != MoveCategory::Status {
+                        attacker_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 100.0,
+                                target: MoveTarget::Opponent,
+                                effect: Effect::Boost(
+                                    StatBoosts {
+                                        attack: 0,
+                                        defense: 1,
+                                        special_attack: 0,
+                                        special_defense: 0,
+                                        speed: 0,
+                                        accuracy: 0,
+                                    }
+                                ),
+                            }
+                        );
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         sandrush: Ability {
-                id: "sandrush".to_string(),
-                index: 199,
-                ..Default::default()
-            },
+            id: "sandrush".to_string(),
+            index: 199,
+            ..Default::default()
+        },
         colorchange: Ability {
-                id: "colorchange".to_string(),
-                index: 200,
-                ..Default::default()
-            },
+            id: "colorchange".to_string(),
+            index: 200,
+            ..Default::default()
+        },
         blaze: Ability {
-                id: "blaze".to_string(),
-                index: 201,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        let attacking_pokemon = state.get_side_immutable(attacking_side).get_active_immutable();
-                        if attacking_choice.move_type == PokemonType::Fire && attacking_pokemon.hp < attacking_pokemon.maxhp / 3 {
-                            attacking_choice.base_power *= 1.3;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "blaze".to_string(),
+            index: 201,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    let attacking_pokemon = state.get_side_immutable(attacking_side).get_active_immutable();
+                    if attacking_choice.move_type == PokemonType::Fire && attacking_pokemon.hp < attacking_pokemon.maxhp / 3 {
+                        attacking_choice.base_power *= 1.3;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         analytic: Ability {
-                id: "analytic".to_string(),
-                index: 202,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if !attacking_choice.first_move {
-                            attacking_choice.base_power *= 1.3;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "analytic".to_string(),
+            index: 202,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if !attacking_choice.first_move {
+                        attacking_choice.base_power *= 1.3;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         tanglinghair: Ability {
-                id: "tanglinghair".to_string(),
-                index: 203,
-                ..Default::default()
-            },
+            id: "tanglinghair".to_string(),
+            index: 203,
+            ..Default::default()
+        },
         cloudnine: Ability {
             id: "cloudnine".to_string(),
             index: 204,
