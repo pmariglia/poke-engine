@@ -1176,6 +1176,14 @@ lazy_static! {
         shadowshield: Ability {
             id: "shadowshield".to_string(),
             index: 74,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    let target_pkmn = state.get_side_immutable(&attacking_side.get_other_side()).get_active_immutable();
+                    if target_pkmn.hp == target_pkmn.maxhp {
+                        attacker_choice.base_power /= 2.0;
+                    }
+                },
+            ),
             ..Default::default()
         },
         liquidvoice: Ability {
