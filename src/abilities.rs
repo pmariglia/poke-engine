@@ -8,10 +8,7 @@ use crate::choices::{
 };
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::get_boost_instruction;
-use crate::instruction::{
-    BoostInstruction, ChangeStatusInstruction, ChangeType, HealInstruction, Instruction,
-    StateInstructions,
-};
+use crate::instruction::{BoostInstruction, ChangeStatusInstruction, ChangeType, DamageInstruction, HealInstruction, Instruction, StateInstructions};
 use crate::state::{PokemonBoostableStat, PokemonType, Terrain};
 use crate::state::{PokemonStatus, State};
 use crate::state::{PokemonVolatileStatus, SideReference, Weather};
@@ -1444,6 +1441,18 @@ lazy_static! {
         baddreams: Ability {
             id: "baddreams".to_string(),
             index: 98,
+            end_of_turn: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
+                let defender = state.get_side(&side_ref.get_other_side()).get_active();
+                if defender.status == PokemonStatus::Sleep {
+                    let damage_dealt = cmp::min(defender.maxhp / 8, defender.hp);
+                    incoming_instructions.instruction_list.push(Instruction::Damage(DamageInstruction {
+                        side_ref: side_ref.get_other_side(),
+                        damage_amount: damage_dealt,
+                    }));
+                    defender.hp -= damage_dealt;
+                }
+
+            }),
             ..Default::default()
         },
         magicguard: Ability {

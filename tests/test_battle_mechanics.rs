@@ -3072,6 +3072,81 @@ fn test_dryskin_in_rain() {
 }
 
 #[test]
+fn test_baddreams() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::BADDREAMS;
+    state.side_two.get_active().status = PokemonStatus::Sleep;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("splash"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 67.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 12,
+                })
+            ],
+        },
+        StateInstructions {
+            percentage: 33.0,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    pokemon_index: PokemonIndex::P0,
+                    old_status: PokemonStatus::Sleep,
+                    new_status: PokemonStatus::None,
+                })
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_baddreams_does_not_overkill() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::BADDREAMS;
+    state.side_two.get_active().status = PokemonStatus::Sleep;
+    state.side_two.get_active().hp = 5;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("splash"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 67.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 5,
+                })
+            ],
+        },
+        StateInstructions {
+            percentage: 33.0,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    pokemon_index: PokemonIndex::P0,
+                    old_status: PokemonStatus::Sleep,
+                    new_status: PokemonStatus::None,
+                })
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_filter() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::FILTER;
