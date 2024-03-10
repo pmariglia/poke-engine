@@ -591,50 +591,50 @@ lazy_static! {
             ..Default::default()
         },
         ripen: Ability {
-                id: "ripen".to_string(),
-                index: 0,
-                ..Default::default()
-            },
+            id: "ripen".to_string(),
+            index: 0,
+            ..Default::default()
+        },
         tangledfeet: Ability {
-                id: "tangledfeet".to_string(),
-                index: 1,
-                ..Default::default()
-            },
+            id: "tangledfeet".to_string(),
+            index: 1,
+            ..Default::default()
+        },
         dragonsmaw: Ability {
-                id: "dragonsmaw".to_string(),
-                index: 2,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.move_type == PokemonType::Dragon {
-                            attacking_choice.base_power *= 1.5;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "dragonsmaw".to_string(),
+            index: 2,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.move_type == PokemonType::Dragon {
+                        attacking_choice.base_power *= 1.5;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         clearbody: Ability {
-                id: "clearbody".to_string(),
-                index: 3,
-                ..Default::default()
-            },
+            id: "clearbody".to_string(),
+            index: 3,
+            ..Default::default()
+        },
         galvanize: Ability {
-                id: "galvanize".to_string(),
-                index: 4,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.move_type == PokemonType::Normal {
-                            attacking_choice.move_type = PokemonType::Electric;
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "galvanize".to_string(),
+            index: 4,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.move_type == PokemonType::Normal {
+                        attacking_choice.move_type = PokemonType::Electric;
+                        attacking_choice.base_power *= 1.2;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         vitalspirit: Ability {
-                id: "vitalspirit".to_string(),
-                index: 5,
-                ..Default::default()
-            },
+            id: "vitalspirit".to_string(),
+            index: 5,
+            ..Default::default()
+        },
         aerilate: Ability {
             id: "aerilate".to_string(),
             index: 6,
@@ -746,34 +746,34 @@ lazy_static! {
             ..Default::default()
         },
         bulletproof: Ability {
-                id: "bulletproof".to_string(),
-                index: 18,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if attacker_choice.flags.bullet {
-                            attacker_choice.accuracy = 0.0;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "bulletproof".to_string(),
+            index: 18,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.flags.bullet {
+                        attacker_choice.accuracy = 0.0;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         powerofalchemy: Ability {
-                id: "powerofalchemy".to_string(),
-                index: 19,
-                ..Default::default()
-            },
+            id: "powerofalchemy".to_string(),
+            index: 19,
+            ..Default::default()
+        },
         technician: Ability {
-                id: "technician".to_string(),
-                index: 20,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.base_power <= 60.0 {
-                            attacking_choice.base_power *= 1.5;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "technician".to_string(),
+            index: 20,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.base_power <= 60.0 {
+                        attacking_choice.base_power *= 1.5;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         multiscale: Ability {
             id: "multiscale".to_string(),
             index: 21,
@@ -872,10 +872,10 @@ lazy_static! {
             ..Default::default()
         },
         forecast: Ability {
-                id: "forecast".to_string(),
-                index: 33,
-                ..Default::default()
-            },
+            id: "forecast".to_string(),
+            index: 33,
+            ..Default::default()
+        },
         prankster: Ability {
             id: "prankster".to_string(),
             index: 34,
@@ -916,6 +916,15 @@ lazy_static! {
         intrepidsword: Ability {
             id: "intrepidsword".to_string(),
             index: 39,
+            on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                // no need to check for boost at +6 because we are switching in
+                state.get_side(side_ref).get_active().attack += 1;
+                instructions.instruction_list.push(Instruction::Boost(BoostInstruction {
+                    side_ref: *side_ref,
+                    stat: PokemonBoostableStat::Attack,
+                    amount: 1,
+                }));
+            }),
             ..Default::default()
         },
         soulheart: Ability {
@@ -1500,59 +1509,59 @@ lazy_static! {
             ..Default::default()
         },
         reckless: Ability {
-                id: "reckless".to_string(),
-                index: 103,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.crash.is_some() {
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "reckless".to_string(),
+            index: 103,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.crash.is_some() {
+                        attacking_choice.base_power *= 1.2;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         pressure: Ability {
-                id: "pressure".to_string(),
-                index: 104,
-                ..Default::default()
-            },
+            id: "pressure".to_string(),
+            index: 104,
+            ..Default::default()
+        },
         gooey: Ability {
-                id: "gooey".to_string(),
-                index: 105,
-                modify_attack_against: Some(
-                    |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
-                        if attacker_choice.flags.contact {
-                            attacker_choice.add_or_create_secondaries(
-                                Secondary {
-                                    chance: 100.0,
-                                    target: MoveTarget::User,
-                                    effect: Effect::Boost(
-                                        StatBoosts {
-                                            attack: 0,
-                                            defense: 0,
-                                            special_attack: 0,
-                                            special_defense: 0,
-                                            speed: -1,
-                                            accuracy: 0,
-                                        }
-                                    ),
-                                }
-                            )
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "gooey".to_string(),
+            index: 105,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.flags.contact {
+                        attacker_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 100.0,
+                                target: MoveTarget::User,
+                                effect: Effect::Boost(
+                                    StatBoosts {
+                                        attack: 0,
+                                        defense: 0,
+                                        special_attack: 0,
+                                        special_defense: 0,
+                                        speed: -1,
+                                        accuracy: 0,
+                                    }
+                                ),
+                            }
+                        )
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         immunity: Ability {
-                id: "immunity".to_string(),
-                index: 106,
-                ..Default::default()
-            },
+            id: "immunity".to_string(),
+            index: 106,
+            ..Default::default()
+        },
         leafguard: Ability {
-                id: "leafguard".to_string(),
-                index: 107,
-                ..Default::default()
-            },
+            id: "leafguard".to_string(),
+            index: 107,
+            ..Default::default()
+        },
         hugepower: Ability {
             id: "hugepower".to_string(),
             index: 108,
@@ -1759,6 +1768,15 @@ lazy_static! {
         dauntlessshield: Ability {
             id: "dauntlessshield".to_string(),
             index: 125,
+            on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                // no need to check for boost at +6 because we are switching in
+                state.get_side(side_ref).get_active().defense_boost += 1;
+                instructions.instruction_list.push(Instruction::Boost(BoostInstruction {
+                    side_ref: *side_ref,
+                    stat: PokemonBoostableStat::Defense,
+                    amount: 1,
+                }));
+            }),
             ..Default::default()
         },
         aromaveil: Ability {
@@ -1994,27 +2012,27 @@ lazy_static! {
             ..Default::default()
         },
         steelworker: Ability {
-                id: "steelworker".to_string(),
-                index: 154,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if defender_choice.move_type == PokemonType::Steel {
-                            attacking_choice.base_power *= 1.5;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "steelworker".to_string(),
+            index: 154,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if defender_choice.move_type == PokemonType::Steel {
+                        attacking_choice.base_power *= 1.5;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         comatose: Ability {
-                id: "comatose".to_string(),
-                index: 155,
-                ..Default::default()
-            },
+            id: "comatose".to_string(),
+            index: 155,
+            ..Default::default()
+        },
         ballfetch: Ability {
-                id: "ballfetch".to_string(),
-                index: 156,
-                ..Default::default()
-            },
+            id: "ballfetch".to_string(),
+            index: 156,
+            ..Default::default()
+        },
         dazzling: Ability {
             id: "dazzling".to_string(),
             index: 157,
@@ -2677,15 +2695,15 @@ lazy_static! {
             ..Default::default()
         },
         flowergift: Ability {
-                id: "flowergift".to_string(),
-                index: 216,
-                ..Default::default()
-            },
+            id: "flowergift".to_string(),
+            index: 216,
+            ..Default::default()
+        },
         shedskin: Ability {
-                id: "shedskin".to_string(),
-                index: 217,
-                ..Default::default()
-            },
+            id: "shedskin".to_string(),
+            index: 217,
+            ..Default::default()
+        },
         wimpout: Ability {
             id: "wimpout".to_string(),
             index: 218,
