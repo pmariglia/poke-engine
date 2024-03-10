@@ -1868,6 +1868,50 @@ fn test_overcoat_vs_weather_damage() {
 }
 
 #[test]
+fn test_poisonpoint() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::POISONPOINT;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("tackle"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 66.99999,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                })
+            ],
+        },
+        StateInstructions {
+            percentage: 33.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                }),
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Poison,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 12,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_owntempo_versus_intimidate() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::OWNTEMPO;
@@ -2342,9 +2386,9 @@ fn test_adaptability() {
 }
 
 #[test]
-fn test_poisonpoint_with_poisonjab() {
+fn test_poisontouch_with_poisonjab() {
     let mut state = State::default();
-    state.side_one.get_active().ability = Abilities::POISONPOINT;
+    state.side_one.get_active().ability = Abilities::POISONTOUCH;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,

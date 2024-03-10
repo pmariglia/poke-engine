@@ -636,47 +636,47 @@ lazy_static! {
                 ..Default::default()
             },
         aerilate: Ability {
-                id: "aerilate".to_string(),
-                index: 6,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.move_type == PokemonType::Normal {
-                            attacking_choice.move_type = PokemonType::Flying;
-                            attacking_choice.base_power *= 1.2;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "aerilate".to_string(),
+            index: 6,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.move_type == PokemonType::Normal {
+                        attacking_choice.move_type = PokemonType::Flying;
+                        attacking_choice.base_power *= 1.2;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         defiant: Ability {
-                id: "defiant".to_string(),
-                index: 7,
-                ..Default::default()
-            },
+            id: "defiant".to_string(),
+            index: 7,
+            ..Default::default()
+        },
         cutecharm: Ability {
-                id: "cutecharm".to_string(),
-                index: 8,
-                ..Default::default()
-            },
+            id: "cutecharm".to_string(),
+            index: 8,
+            ..Default::default()
+        },
         neuroforce: Ability {
-                id: "neuroforce".to_string(),
-                index: 9,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if type_effectiveness_modifier(
-                            &attacking_choice.move_type,
-                            &state
-                                .get_side_immutable(&attacking_side.get_other_side())
-                                .get_active_immutable()
-                                .types,
-                        ) > 1.0
-                        {
-                            attacking_choice.base_power *= 1.25;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "neuroforce".to_string(),
+            index: 9,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if type_effectiveness_modifier(
+                        &attacking_choice.move_type,
+                        &state
+                            .get_side_immutable(&attacking_side.get_other_side())
+                            .get_active_immutable()
+                            .types,
+                    ) > 1.0
+                    {
+                        attacking_choice.base_power *= 1.25;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         soundproof: Ability {
                 id: "soundproof".to_string(),
                 index: 10,
@@ -688,55 +688,55 @@ lazy_static! {
                 ..Default::default()
             },
         poisonpoint: Ability {
-                id: "poisonpoint".to_string(),
-                index: 12,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.flags.contact {
-                            attacking_choice.add_or_create_secondaries(
-                                Secondary {
-                                    chance: 30.0,
-                                    target: MoveTarget::Opponent,
-                                    effect: Effect::Status(PokemonStatus::Poison),
-                                }
-                            )
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "poisonpoint".to_string(),
+            index: 12,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.flags.contact {
+                        attacker_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 33.0,
+                                target: MoveTarget::User,
+                                effect: Effect::Status(PokemonStatus::Poison),
+                            }
+                        )
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         stakeout: Ability {
-                id: "stakeout".to_string(),
-                index: 13,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if defender_choice.category == MoveCategory::Switch {
-                            attacking_choice.base_power *= 2.0;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "stakeout".to_string(),
+            index: 13,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if defender_choice.category == MoveCategory::Switch {
+                        attacking_choice.base_power *= 2.0;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         unnerve: Ability {
-                id: "unnerve".to_string(),
-                index: 14,
-                ..Default::default()
-            },
+            id: "unnerve".to_string(),
+            index: 14,
+            ..Default::default()
+        },
         rockhead: Ability {
-                id: "rockhead".to_string(),
-                index: 15,
-                ..Default::default()
-            },
+            id: "rockhead".to_string(),
+            index: 15,
+            ..Default::default()
+        },
         aurabreak: Ability {
-                id: "aurabreak".to_string(),
-                index: 16,
-                ..Default::default()
-            },
+            id: "aurabreak".to_string(),
+            index: 16,
+            ..Default::default()
+        },
         mimicry: Ability {
-                id: "mimicry".to_string(),
-                index: 17,
-                ..Default::default()
-            },
+            id: "mimicry".to_string(),
+            index: 17,
+            ..Default::default()
+        },
         bulletproof: Ability {
                 id: "bulletproof".to_string(),
                 index: 18,
@@ -2759,6 +2759,19 @@ lazy_static! {
         poisontouch: Ability {
             id: "poisontouch".to_string(),
             index: 263,
+            modify_attack_being_used: Some(
+                    |state, attacking_choice, defender_choice, attacking_side| {
+                        if attacking_choice.flags.contact {
+                            attacking_choice.add_or_create_secondaries(
+                                Secondary {
+                                    chance: 30.0,
+                                    target: MoveTarget::Opponent,
+                                    effect: Effect::Status(PokemonStatus::Poison),
+                                }
+                            )
+                        }
+                    },
+                ),
             ..Default::default()
         },
         wanderingspirit: Ability {
