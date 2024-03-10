@@ -1861,6 +1861,13 @@ lazy_static! {
         wonderskin: Ability {
             id: "wonderskin".to_string(),
             index: 145,
+            modify_attack_against: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.category == MoveCategory::Status && attacking_choice.accuracy > 50.0{
+                        attacking_choice.accuracy = 50.0;
+                    }
+                },
+            ),
             ..Default::default()
         },
         overgrow: Ability {
