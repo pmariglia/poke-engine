@@ -1646,10 +1646,25 @@ lazy_static! {
             ..Default::default()
         },
         wonderguard: Ability {
-                id: "wonderguard".to_string(),
-                index: 120,
-                ..Default::default()
-            },
+            id: "wonderguard".to_string(),
+            index: 120,
+            modify_attack_against: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.category != MoveCategory::Status && type_effectiveness_modifier(
+                        &attacking_choice.move_type,
+                        &state
+                            .get_side_immutable(&attacking_side.get_other_side())
+                            .get_active_immutable()
+                            .types,
+                    ) <= 1.0
+                    {
+                        attacking_choice.remove_all_effects();
+                        attacking_choice.base_power = 0.0;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         waterveil: Ability {
             id: "waterveil".to_string(),
             index: 121,
