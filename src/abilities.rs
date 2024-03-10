@@ -1561,52 +1561,58 @@ lazy_static! {
                 ..Default::default()
             },
         fairyaura: Ability {
-                id: "fairyaura".to_string(),
-                index: 122,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.move_type == PokemonType::Fairy {
-                            attacking_choice.base_power *= 1.33;
-                        }
-                    },
-                ),
-                modify_attack_against: Some(
-                    |_state, attacker_choice: &mut Choice, _defender_choice, _attacking_side| {
-                        if attacker_choice.move_type == PokemonType::Fairy {
-                            attacker_choice.base_power *= 1.33;
-                        }
-                    },
-                ),
-                ..Default::default()
-            },
-        sandspit: Ability {
-                id: "sandspit".to_string(),
-                index: 123,
-                ..Default::default()
-            },
-        intimidate: Ability {
-                id: "intimidate".to_string(),
-                index: 124,
-                on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
-                    let target_side_ref = side_ref.get_other_side();
-                    if let Some(boost_instruction) = get_boost_instruction(
-                        state.get_side_immutable(&target_side_ref).get_active_immutable(),
-                        &PokemonBoostableStat::Attack,
-                        &-1,
-                        side_ref,
-                        &target_side_ref,
-                    ) {
-                        state.apply_one_instruction(&boost_instruction);
-                        instructions.instruction_list.push(boost_instruction);
+            id: "fairyaura".to_string(),
+            index: 122,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.move_type == PokemonType::Fairy {
+                        attacking_choice.base_power *= 1.33;
                     }
-                }),
-                ..Default::default()
-            },
+                },
+            ),
+            modify_attack_against: Some(
+                |_state, attacker_choice: &mut Choice, _defender_choice, _attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Fairy {
+                        attacker_choice.base_power *= 1.33;
+                    }
+                },
+            ),
+            ..Default::default()
+        },
+        sandspit: Ability {
+            id: "sandspit".to_string(),
+            index: 123,
+            ..Default::default()
+        },
+        intimidate: Ability {
+            id: "intimidate".to_string(),
+            index: 124,
+            on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                let target_side_ref = side_ref.get_other_side();
+                let target_pkmn = state.get_side_immutable(&target_side_ref).get_active_immutable();
+                if let Some(boost_instruction) = get_boost_instruction(
+                    target_pkmn,
+                    &PokemonBoostableStat::Attack,
+                    &-1,
+                    side_ref,
+                    &target_side_ref,
+                ) {
+                    match target_pkmn.ability {
+                        Abilities::OWNTEMPO | Abilities::OBLIVIOUS | Abilities::INNERFOCUS | Abilities::SCRAPPY => {}
+                        _ => {
+                            state.apply_one_instruction(&boost_instruction);
+                            instructions.instruction_list.push(boost_instruction);
+                        }
+                    }
+                }
+            }),
+            ..Default::default()
+        },
         dauntlessshield: Ability {
-                id: "dauntlessshield".to_string(),
-                index: 125,
-                ..Default::default()
-            },
+            id: "dauntlessshield".to_string(),
+            index: 125,
+            ..Default::default()
+        },
         aromaveil: Ability {
                 id: "aromaveil".to_string(),
                 index: 126,
