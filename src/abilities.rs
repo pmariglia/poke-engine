@@ -2503,6 +2503,29 @@ lazy_static! {
         watercompaction: Ability {
             id: "watercompaction".to_string(),
             index: 212,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Water {
+                        attacker_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 100.0,
+                                target: MoveTarget::Opponent,
+                                effect: Effect::Boost(
+                                    StatBoosts {
+                                        attack: 0,
+                                        defense: 2,
+                                        special_attack: 0,
+                                        special_defense: 0,
+                                        speed: 0,
+                                        accuracy: 0,
+                                    }
+                                ),
+                            }
+
+                        );
+                    }
+                },
+            ),
             ..Default::default()
         },
         justified: Ability {
@@ -3036,6 +3059,13 @@ lazy_static! {
         waterbubble: Ability {
             id: "waterbubble".to_string(),
             index: 268,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.move_type == PokemonType::Fire {
+                        attacker_choice.base_power /= 2.0;
+                    }
+                },
+            ),
             ..Default::default()
         },
         sandforce: Ability {
