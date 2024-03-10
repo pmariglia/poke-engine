@@ -1687,6 +1687,84 @@ fn test_liquidooze() {
 }
 
 #[test]
+fn test_magicbounce_with_side_condition() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::MAGICBOUNCE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("stealthrock"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideOne,  // side-one used SR, and gets it up
+                side_condition: PokemonSideCondition::Stealthrock,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_magicbounce_with_side_condition_that_is_already_up() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::MAGICBOUNCE;
+    state.side_one.side_conditions.stealth_rock = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("stealthrock"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_magicbounce_with_status() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::MAGICBOUNCE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("willowisp"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 14.999998,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 85.0,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Burn,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 6,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_ground_move_versus_airballoon() {
     let mut state = State::default();
     state.side_two.get_active().item = Items::AirBalloon;

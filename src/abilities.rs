@@ -2211,47 +2211,64 @@ lazy_static! {
                 ..Default::default()
             },
         cloudnine: Ability {
-                id: "cloudnine".to_string(),
-                index: 204,
-                ..Default::default()
-            },
+            id: "cloudnine".to_string(),
+            index: 204,
+            ..Default::default()
+        },
         steelyspirit: Ability {
-                id: "steelyspirit".to_string(),
-                index: 205,
-                ..Default::default()
-            },
+            id: "steelyspirit".to_string(),
+            index: 205,
+            ..Default::default()
+        },
         quickfeet: Ability {
-                id: "quickfeet".to_string(),
-                index: 206,
-                ..Default::default()
-            },
+            id: "quickfeet".to_string(),
+            index: 206,
+            ..Default::default()
+        },
         magicbounce: Ability {
-                id: "magicbounce".to_string(),
-                index: 207,
-                ..Default::default()
-            },
+            id: "magicbounce".to_string(),
+            index: 207,
+            modify_attack_against: Some(
+                |_state, attacker_choice: &mut Choice, _defender_choice, _attacking_side| {
+                    if attacker_choice.flags.reflectable {
+                        attacker_choice.target = MoveTarget::User;
+                        if let Some(side_condition) = &mut attacker_choice.side_condition {
+                            if side_condition.target == MoveTarget::Opponent {
+                                side_condition.target = MoveTarget::User;
+                            }
+                        }
+                        if let Some(status) = &mut attacker_choice.status {
+                            if status.target == MoveTarget::Opponent {
+                                status.target = MoveTarget::User;
+                            }
+                        }
+                    }
+                },
+            ),
+            ..Default::default()
+        },
         megalauncher: Ability {
-                id: "megalauncher".to_string(),
-                index: 208,
-                modify_attack_being_used: Some(
-                    |state, attacking_choice, defender_choice, attacking_side| {
-                        if attacking_choice.flags.pulse {
-                            attacking_choice.base_power *= 1.5;
-                        };
-                    },
-                ),
-                ..Default::default()
-            },
+            id: "megalauncher".to_string(),
+            index: 208,
+            modify_attack_being_used: Some(
+                |state, attacking_choice, defender_choice, attacking_side| {
+                    if attacking_choice.flags.pulse {
+                        attacking_choice.base_power *= 1.5;
+                    };
+                },
+            ),
+            ..Default::default()
+        },
         heavymetal: Ability {
-                id: "heavymetal".to_string(),
-                index: 209,
-                ..Default::default()
-            },
+            id: "heavymetal".to_string(),
+            index: 209,
+            ..Default::default()
+        },
         stormdrain: Ability {
-                id: "stormdrain".to_string(),
-                index: 210,
-                ..Default::default()
-            },
+            id: "stormdrain".to_string(),
+            index: 210,
+            ..Default::default()
+        },
         pixilate: Ability {
             id: "pixilate".to_string(),
             index: 211,
