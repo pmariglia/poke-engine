@@ -1043,6 +1043,29 @@ lazy_static! {
         weakarmor: Ability {
             id: "weakarmor".to_string(),
             index: 56,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.category == MoveCategory::Physical {
+                        attacker_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 100.0,
+                                target: MoveTarget::Opponent,
+                                effect: Effect::Boost(
+                                    StatBoosts {
+                                        attack: 0,
+                                        defense: -1,
+                                        special_attack: 0,
+                                        special_defense: 0,
+                                        speed: 2,
+                                        accuracy: 0,
+                                    }
+                                ),
+                            }
+
+                        );
+                    }
+                },
+            ),
             ..Default::default()
         },
         drought: Ability {
