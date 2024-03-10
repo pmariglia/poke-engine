@@ -3001,6 +3001,20 @@ lazy_static! {
         hydration: Ability {
             id: "hydration".to_string(),
             index: 256,
+            end_of_turn: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
+                let attacker = state.get_side(side_ref).get_active();
+                let attacker_status = attacker.status;
+                if attacker_status != PokemonStatus::None {
+                    attacker.status = PokemonStatus::None;
+                    let ins = Instruction::ChangeStatus(ChangeStatusInstruction {
+                        side_ref: *side_ref,
+                        pokemon_index: state.get_side_immutable(side_ref).active_index,
+                        old_status: attacker_status,
+                        new_status: PokemonStatus::None,
+                    });
+                    incoming_instructions.instruction_list.push(ins);
+                }
+            }),
             ..Default::default()
         },
         scrappy: Ability {

@@ -3072,6 +3072,39 @@ fn test_dryskin_in_rain() {
 }
 
 #[test]
+fn test_hydration_end_of_turn() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::HYDRATION;
+    state.side_two.get_active().status = PokemonStatus::Burn;
+    state.weather.weather_type = Weather::Rain;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("splash"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 6,
+                }),
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    pokemon_index: PokemonIndex::P0,
+                    old_status: PokemonStatus::Burn,
+                    new_status: PokemonStatus::None,
+                })
+            ],
+        }
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_baddreams() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::BADDREAMS;
