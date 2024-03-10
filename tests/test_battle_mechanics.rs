@@ -1623,13 +1623,11 @@ fn test_lightning_rod() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Boost(BoostInstruction {
-                side_ref: SideReference::SideTwo,
-                stat: PokemonBoostableStat::SpecialAttack,
-                amount: 1,
-            }),
-        ],
+        instruction_list: vec![Instruction::Boost(BoostInstruction {
+            side_ref: SideReference::SideTwo,
+            stat: PokemonBoostableStat::SpecialAttack,
+            amount: 1,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -1648,13 +1646,11 @@ fn test_lightning_rod_versus_status_move() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Boost(BoostInstruction {
-                side_ref: SideReference::SideTwo,
-                stat: PokemonBoostableStat::SpecialAttack,
-                amount: 1,
-            }),
-        ],
+        instruction_list: vec![Instruction::Boost(BoostInstruction {
+            side_ref: SideReference::SideTwo,
+            stat: PokemonBoostableStat::SpecialAttack,
+            amount: 1,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -1699,13 +1695,13 @@ fn test_magicbounce_with_side_condition() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
-                side_ref: SideReference::SideOne,  // side-one used SR, and gets it up
+        instruction_list: vec![Instruction::ChangeSideCondition(
+            ChangeSideConditionInstruction {
+                side_ref: SideReference::SideOne, // side-one used SR, and gets it up
                 side_condition: PokemonSideCondition::Stealthrock,
                 amount: 1,
-            }),
-        ],
+            },
+        )],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -1761,6 +1757,27 @@ fn test_magicbounce_with_status() {
             ],
         },
     ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+#[test]
+fn test_marvelscale() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::MARVELSCALE;
+    state.side_two.get_active().status = PokemonStatus::Paralyze;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("tackle"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 33,
+        })],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 

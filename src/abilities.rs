@@ -3,7 +3,9 @@ use std::cmp;
 
 use lazy_static::lazy_static;
 
-use crate::choices::{Boost, Choice, Effect, Heal, MoveCategory, MoveTarget, Secondary, StatBoosts, VolatileStatus};
+use crate::choices::{
+    Boost, Choice, Effect, Heal, MoveCategory, MoveTarget, Secondary, StatBoosts, VolatileStatus,
+};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::get_boost_instruction;
 use crate::instruction::{
@@ -1214,30 +1216,37 @@ lazy_static! {
                 ..Default::default()
             },
         cursedbody: Ability {
-                id: "cursedbody".to_string(),
-                index: 84,
-                ..Default::default()
-            },
+            id: "cursedbody".to_string(),
+            index: 84,
+            ..Default::default()
+        },
         unaware: Ability {
-                id: "unaware".to_string(),
-                index: 85,
-                ..Default::default()
-            },
+            id: "unaware".to_string(),
+            index: 85,
+            ..Default::default()
+        },
         lightmetal: Ability {
-                id: "lightmetal".to_string(),
-                index: 86,
-                ..Default::default()
-            },
+            id: "lightmetal".to_string(),
+            index: 86,
+            ..Default::default()
+        },
         marvelscale: Ability {
-                id: "marvelscale".to_string(),
-                index: 87,
-                ..Default::default()
+            id: "marvelscale".to_string(),
+            index: 87,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if state.get_side_immutable(&attacking_side.get_other_side()).get_active_immutable().status != PokemonStatus::None && attacker_choice.category == MoveCategory::Physical {
+                        attacker_choice.base_power /= 1.5;
+                    }
+                },
+            ),
+            ..Default::default()
             },
         telepathy: Ability {
-                id: "telepathy".to_string(),
-                index: 88,
-                ..Default::default()
-            },
+            id: "telepathy".to_string(),
+            index: 88,
+            ..Default::default()
+        },
         quickdraw: Ability {
                 id: "quickdraw".to_string(),
                 index: 89,
