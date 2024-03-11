@@ -2,7 +2,13 @@ use poke_engine::abilities::Abilities;
 use poke_engine::choices::Heal;
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::Instruction::Damage;
-use poke_engine::instruction::{ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction, SetSubstituteHealthInstruction, StateInstructions, SwitchInstruction};
+use poke_engine::instruction::{
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
+    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather,
+    DamageInstruction, DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction,
+    RemoveVolatileStatusInstruction, SetSubstituteHealthInstruction, StateInstructions,
+    SwitchInstruction,
+};
 use poke_engine::items::Items;
 use poke_engine::state::{
     Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
@@ -2003,7 +2009,7 @@ fn test_dauntlessshield() {
                 side_ref: SideReference::SideOne,
                 stat: PokemonBoostableStat::Defense,
                 amount: 1,
-            })
+            }),
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -2032,7 +2038,7 @@ fn test_intrepidsword() {
                 side_ref: SideReference::SideOne,
                 stat: PokemonBoostableStat::Attack,
                 amount: 1,
-            })
+            }),
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -2085,7 +2091,7 @@ fn test_drizze() {
                 new_weather_turns_remaining: 5,
                 previous_weather: Weather::None,
                 previous_weather_turns_remaining: 0,
-            })
+            }),
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -2115,7 +2121,7 @@ fn test_electricsurge() {
                 new_terrain_turns_remaining: 5,
                 previous_terrain: Terrain::None,
                 previous_terrain_turns_remaining: 0,
-            })
+            }),
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -2145,7 +2151,7 @@ fn test_drought() {
                 new_weather_turns_remaining: 5,
                 previous_weather: Weather::None,
                 previous_weather_turns_remaining: 0,
-            })
+            }),
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -2176,7 +2182,7 @@ fn test_download_for_defense() {
                 side_ref: SideReference::SideOne,
                 stat: PokemonBoostableStat::Attack,
                 amount: 1,
-            })
+            }),
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -2207,7 +2213,7 @@ fn test_download_for_special_defense() {
                 side_ref: SideReference::SideOne,
                 stat: PokemonBoostableStat::SpecialAttack,
                 amount: 1,
-            })
+            }),
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -3351,12 +3357,10 @@ fn test_raindish_heal() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Heal(HealInstruction {
-                side_ref: SideReference::SideTwo,
-                heal_amount: 6,
-            }),
-        ],
+        instruction_list: vec![Instruction::Heal(HealInstruction {
+            side_ref: SideReference::SideTwo,
+            heal_amount: 6,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -3376,12 +3380,10 @@ fn test_solarpower_damage() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 12,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 12,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
