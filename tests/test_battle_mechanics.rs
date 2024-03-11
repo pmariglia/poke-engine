@@ -1,7 +1,5 @@
 use poke_engine::abilities::Abilities;
-use poke_engine::choices::Heal;
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
-use poke_engine::instruction::Instruction::Damage;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather,
@@ -1913,7 +1911,7 @@ fn test_overcoat_vs_weather_damage() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![Damage(DamageInstruction {
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
             side_ref: SideReference::SideOne,
             damage_amount: 6,
         })],
