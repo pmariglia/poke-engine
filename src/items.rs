@@ -605,7 +605,7 @@ lazy_static! {
                 if attacking_choice.flags.contact {
                     attacking_choice.add_or_create_secondaries(Secondary {
                         chance: 100.0,
-                        effect: Effect::Heal(-0.125),
+                        effect: Effect::Heal(-0.166),
                         target: MoveTarget::User,
                     })
                 }

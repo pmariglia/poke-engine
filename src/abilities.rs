@@ -1742,6 +1742,19 @@ lazy_static! {
         roughskin: Ability {
             id: "roughskin".to_string(),
             index: 119,
+            modify_attack_against: Some(
+                |state, attacker_choice: &mut Choice, _defender_choice, attacking_side| {
+                    if attacker_choice.flags.contact {
+                        attacker_choice.add_or_create_secondaries(
+                            Secondary {
+                                chance: 100.0,
+                                target: MoveTarget::User,
+                                effect: Effect::Heal(-0.125),
+                            }
+                        );
+                    }
+                },
+            ),
             ..Default::default()
         },
         wonderguard: Ability {
