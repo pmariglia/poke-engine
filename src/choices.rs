@@ -11,7 +11,7 @@ use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
 use crate::state::State;
 use crate::state::Terrain;
-use crate::state::{PokemonBoostableStat, PokemonSideCondition};
+use crate::state::{PokemonBoostableStat, PokemonSideCondition, Weather};
 use crate::state::{PokemonIndex, PokemonStatus};
 use lazy_static::lazy_static;
 use std::collections::HashMap;
@@ -7038,6 +7038,16 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _,
+                     attacking_side_ref: &SideReference| {
+                        if state.weather.weather_type == Weather::Sun {
+                            attacking_choice.base_power *= 3.0; // 1.5x for being in sun, 2x for cancelling out rain debuff
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
