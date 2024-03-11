@@ -8,10 +8,7 @@ use crate::choices::{
 };
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::get_boost_instruction;
-use crate::instruction::{
-    BoostInstruction, ChangeStatusInstruction, ChangeType, DamageInstruction, HealInstruction,
-    Instruction, StateInstructions,
-};
+use crate::instruction::{BoostInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeType, ChangeWeather, DamageInstruction, HealInstruction, Instruction, StateInstructions};
 use crate::state::{PokemonBoostableStat, PokemonType, Terrain};
 use crate::state::{PokemonStatus, State};
 use crate::state::{PokemonVolatileStatus, SideReference, Weather};
@@ -1080,6 +1077,19 @@ lazy_static! {
         drought: Ability {
             id: "drought".to_string(),
             index: 57,
+            on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                if state.weather.weather_type != Weather::Sun {
+                    instructions.instruction_list.push(
+                        Instruction::ChangeWeather(ChangeWeather {
+                            new_weather: Weather::Sun,
+                            new_weather_turns_remaining: 5,
+                            previous_weather: state.weather.weather_type,
+                            previous_weather_turns_remaining: state.weather.turns_remaining,
+                        }));
+                        state.weather.weather_type = Weather::Sun;
+                        state.weather.turns_remaining = 5;
+                }
+            }),
             ..Default::default()
         },
         innardsout: Ability {
@@ -1170,6 +1180,19 @@ lazy_static! {
         desolateland: Ability {
             id: "desolateland".to_string(),
             index: 66,
+            on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                if state.weather.weather_type != Weather::HarshSun {
+                    instructions.instruction_list.push(
+                        Instruction::ChangeWeather(ChangeWeather {
+                            new_weather: Weather::HarshSun,
+                            new_weather_turns_remaining: 5,
+                            previous_weather: state.weather.weather_type,
+                            previous_weather_turns_remaining: state.weather.turns_remaining,
+                        }));
+                        state.weather.weather_type = Weather::HarshSun;
+                        state.weather.turns_remaining = 5;
+                }
+            }),
             ..Default::default()
         },
         moxie: Ability {
@@ -1263,6 +1286,19 @@ lazy_static! {
         mistysurge: Ability {
             id: "mistysurge".to_string(),
             index: 76,
+            on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                if state.terrain.terrain_type != Terrain::MistyTerrain {
+                    instructions.instruction_list.push(
+                        Instruction::ChangeTerrain(ChangeTerrain {
+                            new_terrain: Terrain::MistyTerrain,
+                            new_terrain_turns_remaining: 5,
+                            previous_terrain: state.terrain.terrain_type,
+                            previous_terrain_turns_remaining: state.terrain.turns_remaining,
+                        }));
+                        state.terrain.terrain_type = Terrain::MistyTerrain;
+                        state.terrain.turns_remaining = 5;
+                }
+            }),
             ..Default::default()
         },
         multitype: Ability {
@@ -1475,6 +1511,19 @@ lazy_static! {
         sandstream: Ability {
             id: "sandstream".to_string(),
             index: 100,
+            on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                if state.weather.weather_type != Weather::Sand {
+                    instructions.instruction_list.push(
+                        Instruction::ChangeWeather(ChangeWeather {
+                            new_weather: Weather::Sand,
+                            new_weather_turns_remaining: 5,
+                            previous_weather: state.weather.weather_type,
+                            previous_weather_turns_remaining: state.weather.turns_remaining,
+                        }));
+                        state.weather.weather_type = Weather::Sand;
+                        state.weather.turns_remaining = 5;
+                }
+            }),
             ..Default::default()
         },
         powerspot: Ability {
@@ -1824,6 +1873,19 @@ lazy_static! {
         grassysurge: Ability {
             id: "grassysurge".to_string(),
             index: 131,
+            on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                if state.terrain.terrain_type != Terrain::GrassyTerrain {
+                    instructions.instruction_list.push(
+                        Instruction::ChangeTerrain(ChangeTerrain {
+                            new_terrain: Terrain::GrassyTerrain,
+                            new_terrain_turns_remaining: 5,
+                            previous_terrain: state.terrain.terrain_type,
+                            previous_terrain_turns_remaining: state.terrain.turns_remaining,
+                        }));
+                        state.terrain.terrain_type = Terrain::GrassyTerrain;
+                        state.terrain.turns_remaining = 5;
+                }
+            }),
             ..Default::default()
         },
         sturdy: Ability {
@@ -1839,6 +1901,19 @@ lazy_static! {
         electricsurge: Ability {
             id: "electricsurge".to_string(),
             index: 134,
+            on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                if state.terrain.terrain_type != Terrain::ElectricTerrain {
+                    instructions.instruction_list.push(
+                        Instruction::ChangeTerrain(ChangeTerrain {
+                            new_terrain: Terrain::ElectricTerrain,
+                            new_terrain_turns_remaining: 5,
+                            previous_terrain: state.terrain.terrain_type,
+                            previous_terrain_turns_remaining: state.terrain.turns_remaining,
+                        }));
+                        state.terrain.terrain_type = Terrain::ElectricTerrain;
+                        state.terrain.turns_remaining = 5;
+                }
+            }),
             ..Default::default()
         },
         runaway: Ability {
@@ -2048,6 +2123,24 @@ lazy_static! {
         download: Ability {
             id: "download".to_string(),
             index: 158,
+            on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                let opposing_pokemon = state.get_side_immutable(&side_ref.get_other_side()).get_active_immutable();
+                if opposing_pokemon.calculate_boosted_stat(PokemonBoostableStat::Defense) < opposing_pokemon.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense) {
+                    instructions.instruction_list.push(Instruction::Boost(BoostInstruction {
+                        side_ref: side_ref.clone(),
+                        stat: PokemonBoostableStat::Attack,
+                        amount: 1,
+                    }));
+                    state.get_side(side_ref).get_active().attack_boost += 1;
+                } else {
+                    instructions.instruction_list.push(Instruction::Boost(BoostInstruction {
+                        side_ref: side_ref.clone(),
+                        stat: PokemonBoostableStat::SpecialAttack,
+                        amount: 1,
+                    }));
+                    state.get_side(side_ref).get_active().special_attack_boost += 1;
+                }
+            }),
             ..Default::default()
         },
         transistor: Ability {
@@ -2265,6 +2358,19 @@ lazy_static! {
         primordialsea: Ability {
             id: "primordialsea".to_string(),
             index: 179,
+            on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                if state.weather.weather_type != Weather::HeavyRain {
+                    instructions.instruction_list.push(
+                        Instruction::ChangeWeather(ChangeWeather {
+                            new_weather: Weather::HeavyRain,
+                            new_weather_turns_remaining: 5,
+                            previous_weather: state.weather.weather_type,
+                            previous_weather_turns_remaining: state.weather.turns_remaining,
+                        }));
+                        state.weather.weather_type = Weather::HeavyRain;
+                        state.weather.turns_remaining = 5;
+                }
+            }),
             ..Default::default()
         },
         screencleaner: Ability {
@@ -2692,6 +2798,19 @@ lazy_static! {
         snowwarning: Ability {
             id: "snowwarning".to_string(),
             index: 215,
+            on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                if state.weather.weather_type != Weather::Hail {
+                    instructions.instruction_list.push(
+                        Instruction::ChangeWeather(ChangeWeather {
+                            new_weather: Weather::Hail,
+                            new_weather_turns_remaining: 5,
+                            previous_weather: state.weather.weather_type,
+                            previous_weather_turns_remaining: state.weather.turns_remaining,
+                        }));
+                        state.weather.weather_type = Weather::Hail;
+                        state.weather.turns_remaining = 5;
+                }
+            }),
             ..Default::default()
         },
         flowergift: Ability {
@@ -2734,6 +2853,19 @@ lazy_static! {
         psychicsurge: Ability {
             id: "psychicsurge".to_string(),
             index: 222,
+            on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                if state.terrain.terrain_type != Terrain::PsychicTerrain {
+                    instructions.instruction_list.push(
+                        Instruction::ChangeTerrain(ChangeTerrain {
+                            new_terrain: Terrain::PsychicTerrain,
+                            new_terrain_turns_remaining: 5,
+                            previous_terrain: state.terrain.terrain_type,
+                            previous_terrain_turns_remaining: state.terrain.turns_remaining,
+                        }));
+                        state.terrain.terrain_type = Terrain::PsychicTerrain;
+                        state.terrain.turns_remaining = 5;
+                }
+            }),
             ..Default::default()
         },
         defeatist: Ability {
@@ -3119,6 +3251,19 @@ lazy_static! {
         drizzle: Ability {
             id: "drizzle".to_string(),
             index: 261,
+            on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                if state.weather.weather_type != Weather::Rain {
+                    instructions.instruction_list.push(
+                        Instruction::ChangeWeather(ChangeWeather {
+                            new_weather: Weather::Rain,
+                            new_weather_turns_remaining: 5,
+                            previous_weather: state.weather.weather_type,
+                            previous_weather_turns_remaining: state.weather.turns_remaining,
+                        }));
+                        state.weather.weather_type = Weather::Rain;
+                        state.weather.turns_remaining = 5;
+                }
+            }),
             ..Default::default()
         },
         innerfocus: Ability {

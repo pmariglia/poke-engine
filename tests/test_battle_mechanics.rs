@@ -2,13 +2,7 @@ use poke_engine::abilities::Abilities;
 use poke_engine::choices::Heal;
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::Instruction::Damage;
-use poke_engine::instruction::{
-    ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-    ChangeSideConditionInstruction, ChangeStatusInstruction, DamageInstruction,
-    DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction,
-    RemoveVolatileStatusInstruction, SetSubstituteHealthInstruction, StateInstructions,
-    SwitchInstruction,
-};
+use poke_engine::instruction::{ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction, SetSubstituteHealthInstruction, StateInstructions, SwitchInstruction};
 use poke_engine::items::Items;
 use poke_engine::state::{
     Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
@@ -2063,6 +2057,158 @@ fn test_oblivious_versus_intimidate() {
             previous_index: PokemonIndex::P0,
             next_index: PokemonIndex::P1,
         })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_drizze() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::DRIZZLE;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::Rain,
+                new_weather_turns_remaining: 5,
+                previous_weather: Weather::None,
+                previous_weather_turns_remaining: 0,
+            })
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_electricsurge() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::ELECTRICSURGE;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::ChangeTerrain(ChangeTerrain {
+                new_terrain: Terrain::ElectricTerrain,
+                new_terrain_turns_remaining: 5,
+                previous_terrain: Terrain::None,
+                previous_terrain_turns_remaining: 0,
+            })
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_drought() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::DROUGHT;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::Sun,
+                new_weather_turns_remaining: 5,
+                previous_weather: Weather::None,
+                previous_weather_turns_remaining: 0,
+            })
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_download_for_defense() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::DOWNLOAD;
+    state.side_two.get_active().defense = 100;
+    state.side_two.get_active().special_defense = 150;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 1,
+            })
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_download_for_special_defense() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::DOWNLOAD;
+    state.side_two.get_active().defense = 150;
+    state.side_two.get_active().special_defense = 100;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: 1,
+            })
+        ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
