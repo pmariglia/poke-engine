@@ -1201,6 +1201,22 @@ lazy_static! {
         moxie: Ability {
             id: "moxie".to_string(),
             index: 67,
+            after_damage_hit: Some(|state, _, attacking_side, damage_dealt, instructions| {
+                let (attacker_side, defender_side) =
+                    state.get_both_sides(attacking_side);
+                if damage_dealt > 0 && defender_side.get_active_immutable().hp == 0 {
+                    if let Some(boost_instruction) = get_boost_instruction(
+                        state.get_side_immutable(attacking_side).get_active_immutable(),
+                        &PokemonBoostableStat::Attack,
+                        &1,
+                        attacking_side,
+                        attacking_side,
+                    ) {
+                        state.apply_one_instruction(&boost_instruction);
+                        instructions.instruction_list.push(boost_instruction);
+                    }
+                }
+            }),
             ..Default::default()
         },
         sapsipper: Ability {
