@@ -9,10 +9,10 @@ use crate::choices::{
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::get_boost_instruction;
 use crate::instruction::{
-    BoostInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeType, ChangeWeather,
-    DamageInstruction, HealInstruction, Instruction, StateInstructions,
+    BoostInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain,
+    ChangeType, ChangeWeather, DamageInstruction, HealInstruction, Instruction, StateInstructions,
 };
-use crate::state::{PokemonBoostableStat, PokemonType, Terrain};
+use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Terrain};
 use crate::state::{PokemonStatus, State};
 use crate::state::{PokemonVolatileStatus, SideReference, Weather};
 
@@ -2379,6 +2379,56 @@ lazy_static! {
         screencleaner: Ability {
             id: "screencleaner".to_string(),
             index: 180,
+            on_switch_in: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
+                if state.side_one.side_conditions.reflect > 0 {
+                    instructions.instruction_list.push(Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                        side_ref: SideReference::SideOne,
+                        side_condition: PokemonSideCondition::Reflect,
+                        amount: -1 * state.side_one.side_conditions.reflect,
+                    }));
+                    state.side_one.side_conditions.reflect = 0;
+                }
+                if state.side_two.side_conditions.reflect > 0 {
+                    instructions.instruction_list.push(Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                        side_ref: SideReference::SideTwo,
+                        side_condition: PokemonSideCondition::Reflect,
+                        amount: -1 * state.side_two.side_conditions.reflect,
+                    }));
+                    state.side_two.side_conditions.reflect = 0;
+                }
+                if state.side_one.side_conditions.light_screen > 0 {
+                    instructions.instruction_list.push(Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                        side_ref: SideReference::SideOne,
+                        side_condition: PokemonSideCondition::LightScreen,
+                        amount: -1 * state.side_one.side_conditions.light_screen,
+                    }));
+                    state.side_one.side_conditions.light_screen = 0;
+                }
+                if state.side_two.side_conditions.light_screen > 0 {
+                    instructions.instruction_list.push(Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                        side_ref: SideReference::SideTwo,
+                        side_condition: PokemonSideCondition::LightScreen,
+                        amount: -1 * state.side_two.side_conditions.light_screen,
+                    }));
+                    state.side_two.side_conditions.light_screen = 0;
+                }
+                if state.side_one.side_conditions.aurora_veil > 0 {
+                    instructions.instruction_list.push(Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                        side_ref: SideReference::SideOne,
+                        side_condition: PokemonSideCondition::AuroraVeil,
+                        amount: -1 * state.side_one.side_conditions.aurora_veil,
+                    }));
+                    state.side_one.side_conditions.aurora_veil = 0;
+                }
+                if state.side_two.side_conditions.aurora_veil > 0 {
+                    instructions.instruction_list.push(Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                        side_ref: SideReference::SideTwo,
+                        side_condition: PokemonSideCondition::AuroraVeil,
+                        amount: -1 * state.side_two.side_conditions.aurora_veil,
+                    }));
+                    state.side_two.side_conditions.aurora_veil = 0;
+                }
+            }),
             ..Default::default()
         },
         magnetpull: Ability {
