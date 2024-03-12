@@ -1,5 +1,5 @@
 use poke_engine::abilities::Abilities;
-use poke_engine::choices::Heal;
+use poke_engine::choices::{Heal, MOVES};
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
@@ -1956,6 +1956,41 @@ fn test_boltbeak() {
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
                     damage_amount: 100,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_pursuit() {
+    let mut state = State::default();
+    state.side_one.get_active().moves.m0 = Move {
+        id: "pursuit".to_string(),
+        disabled: false,
+        pp: 35,
+        choice: MOVES.get("pursuit").unwrap().to_owned(),
+    };
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Switch(PokemonIndex::P1),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 63,
+                }),
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideTwo,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
                 }),
             ],
         },

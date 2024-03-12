@@ -11132,6 +11132,16 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     defender_choice: &Choice,
+                     attacking_side_ref: &SideReference| {
+                        if defender_choice.category == MoveCategory::Switch {
+                            attacking_choice.base_power *= 2.0;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
