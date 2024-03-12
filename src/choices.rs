@@ -1334,6 +1334,17 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _defender_choice: &Choice,
+                     attacking_side_ref: &SideReference| {
+                        let attacker = state.get_side_immutable(attacking_side_ref).get_active_immutable();
+                        println!("{}", attacking_choice.base_power);
+                        attacking_choice.base_power *= attacker.calculate_boosted_stat(PokemonBoostableStat::Defense) as f32 / attacker.calculate_boosted_stat(PokemonBoostableStat::Attack) as f32;
+                        println!("{}", attacking_choice.base_power);
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -13891,6 +13902,10 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                heal: Some(Heal {
+                    target: MoveTarget::User,
+                    amount: -0.5,
+                }),
                 ..Default::default()
             },
         );

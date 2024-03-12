@@ -1803,6 +1803,32 @@ fn test_morningsun_in_sun() {
 }
 
 #[test]
+fn test_bodypress() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 1000;
+    state.side_two.get_active().maxhp = 1000;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("bodypress"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 127,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_poltergeist_missing() {
     let mut state = State::default();
     state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Dragon);
