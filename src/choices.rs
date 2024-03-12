@@ -9236,6 +9236,28 @@ lazy_static! {
                     target: MoveTarget::User,
                     amount: 0.5,
                 }),
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _defender_choice: &Choice,
+                     attacking_side_ref: &SideReference| {
+                        match state.weather.weather_type {
+                            Weather::Sun => {
+                                attacking_choice.heal = Some(Heal {
+                                    target: MoveTarget::User,
+                                    amount: 0.667,
+                                })
+                            }
+                            Weather::None => {}
+                            _ => {
+                                attacking_choice.heal = Some(Heal {
+                                    target: MoveTarget::User,
+                                    amount: 0.25,
+                                })
+                            }
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
@@ -12716,6 +12738,23 @@ lazy_static! {
                     snatch: true,
                     ..Default::default()
                 },
+                heal: Some(Heal {
+                    target: MoveTarget::User,
+                    amount: 0.5,
+                }),
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _defender_choice: &Choice,
+                     attacking_side_ref: &SideReference| {
+                        if state.weather.weather_type == Weather::Sand {
+                            attacking_choice.heal = Some(Heal {
+                                target: MoveTarget::User,
+                                amount: 0.667,
+                            });
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );

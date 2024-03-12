@@ -5,6 +5,9 @@ authors = ["pmariglia <pmariglia@github.com>"]
 edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[profile.release]
+debug = 1
+
 [dependencies]
 
 lazy_static = "1.4.0"
