@@ -14811,6 +14811,32 @@ lazy_static! {
                     pulse: true,
                     ..Default::default()
                 },
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _defender_choice: &Choice,
+                     attacking_side_ref: &SideReference| {
+                        match state.terrain.terrain_type {
+                            Terrain::ElectricTerrain => {
+                                attacking_choice.move_type = PokemonType::Electric;
+                                attacking_choice.base_power *= 2.0;
+                            }
+                            Terrain::GrassyTerrain => {
+                                attacking_choice.move_type = PokemonType::Grass;
+                                attacking_choice.base_power *= 2.0;
+                            }
+                            Terrain::MistyTerrain => {
+                                attacking_choice.move_type = PokemonType::Fairy;
+                                attacking_choice.base_power *= 2.0;
+                            }
+                            Terrain::PsychicTerrain => {
+                                attacking_choice.move_type = PokemonType::Psychic;
+                                attacking_choice.base_power *= 2.0;
+                            }
+                            Terrain::None => {}
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
