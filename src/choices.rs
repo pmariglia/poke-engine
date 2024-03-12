@@ -10062,6 +10062,23 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                move_special_effect: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
+                    let (attacking_side, defending_side) = state.get_both_sides(side_ref);
+                    let target_hp = (attacking_side.get_active_immutable().hp + defending_side.get_active_immutable().hp) / 2;
+
+                    incoming_instructions.instruction_list.push(Instruction::Damage(DamageInstruction {
+                        side_ref: *side_ref,
+                        damage_amount: attacking_side.get_active_immutable().hp - target_hp,
+                    }));
+                    incoming_instructions.instruction_list.push(Instruction::Damage(DamageInstruction {
+                        side_ref: side_ref.get_other_side(),
+                        damage_amount: defending_side.get_active_immutable().hp - target_hp,
+                    }));
+
+                    attacking_side.get_active().hp = target_hp;
+                    defending_side.get_active().hp = target_hp;
+
+                }),
                 ..Default::default()
             },
         );

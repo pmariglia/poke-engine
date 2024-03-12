@@ -1964,6 +1964,36 @@ fn test_boltbeak() {
 }
 
 #[test]
+fn test_painsplit() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 50;
+    state.side_two.get_active().hp = 60;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("painsplit"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: -5,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 5,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_pursuit() {
     let mut state = State::default();
     state.side_one.get_active().moves.m0 = Move {
