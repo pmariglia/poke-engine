@@ -4201,6 +4201,16 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _defender_choice: &Choice,
+                     attacking_side_ref: &SideReference| {
+                        if state.terrain.terrain_type == Terrain::PsychicTerrain {
+                            attacking_choice.base_power *= 1.5;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
