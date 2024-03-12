@@ -2201,6 +2201,31 @@ lazy_static! {
                     sound: true,
                     ..Default::default()
                 },
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _defender_choice: &Choice,
+                     attacking_side_ref: &SideReference| {
+                        let attacker = state.get_side_immutable(attacking_side_ref).get_active_immutable();
+                        if attacker.hp > attacker.maxhp / 3 {
+                            attacking_choice.heal = Some(Heal {
+                                target: MoveTarget::User,
+                                amount: -0.33,
+                            });
+                            attacking_choice.boost = Some(Boost {
+                                target: MoveTarget::User,
+                                boosts: StatBoosts {
+                                    attack: 1,
+                                    defense: 1,
+                                    special_attack: 1,
+                                    special_defense: 1,
+                                    speed: 1,
+                                    accuracy: 0,
+                                },
+                            });
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );

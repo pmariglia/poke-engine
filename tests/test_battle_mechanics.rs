@@ -1890,6 +1890,75 @@ fn test_filletaway_lowhp() {
 }
 
 #[test]
+fn test_clangoroussoul() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("clangoroussoul"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Attack,
+                    amount: 1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Defense,
+                    amount: 1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::SpecialAttack,
+                    amount: 1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::SpecialDefense,
+                    amount: 1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: 1,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: -33,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_clangoroussoul_missing() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("clangoroussoul"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_poltergeist_missing() {
     let mut state = State::default();
     state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Dragon);
