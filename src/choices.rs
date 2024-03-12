@@ -15886,6 +15886,32 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _defender_choice: &Choice,
+                     attacking_side_ref: &SideReference| {
+                        match state.weather.weather_type {
+                            Weather::Sun | Weather::HarshSun => {
+                                attacking_choice.base_power = 100.0;
+                                attacking_choice.move_type = PokemonType::Fire;
+                            }
+                            Weather::Rain | Weather::HeavyRain => {
+                                attacking_choice.base_power = 100.0;
+                                attacking_choice.move_type = PokemonType::Water;
+                            }
+                            Weather::Sand => {
+                                attacking_choice.base_power = 100.0;
+                                attacking_choice.move_type = PokemonType::Rock;
+                            }
+                            Weather::Hail => {
+                                attacking_choice.base_power = 100.0;
+                                attacking_choice.move_type = PokemonType::Ice;
+                            }
+                            Weather::None => {}
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );

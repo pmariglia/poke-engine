@@ -1595,6 +1595,27 @@ fn test_hydrosteam() {
 }
 
 #[test]
+fn test_weatherball_in_sun() {
+    let mut state = State::default();
+    state.weather.weather_type = Weather::Sun;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("weatherball"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 100,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_expert_belt_does_not_boost() {
     let mut state = State::default();
     state.side_two.get_active().hp = 300;
