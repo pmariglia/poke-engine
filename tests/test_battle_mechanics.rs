@@ -1666,6 +1666,24 @@ fn test_growth_in_sun() {
 }
 
 #[test]
+fn test_noretreat_with_vs_already() {
+    let mut state = State::default();
+    state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::NoRetreat);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("noretreat"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_poltergeist() {
     let mut state = State::default();
     state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Dragon);

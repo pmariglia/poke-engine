@@ -9688,6 +9688,18 @@ lazy_static! {
                     target: MoveTarget::User,
                     volatile_status: PokemonVolatileStatus::NoRetreat,
                 }),
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _defender_choice: &Choice,
+                     attacking_side_ref: &SideReference| {
+                        if state.get_side_immutable(attacking_side_ref).get_active_immutable().volatile_statuses.contains(
+                            &PokemonVolatileStatus::NoRetreat,
+                        ) {
+                            attacking_choice.boost = None;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
