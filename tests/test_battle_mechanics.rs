@@ -1668,7 +1668,11 @@ fn test_growth_in_sun() {
 #[test]
 fn test_noretreat_with_vs_already() {
     let mut state = State::default();
-    state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::NoRetreat);
+    state
+        .side_one
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::NoRetreat);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
