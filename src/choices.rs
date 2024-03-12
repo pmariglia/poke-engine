@@ -10385,6 +10385,16 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _defender_choice: &Choice,
+                     attacking_side_ref: &SideReference| {
+                        if state.get_side_immutable(&attacking_side_ref.get_other_side()).get_active_immutable().item == Items::NONE {
+                            attacking_choice.base_power = 0.0;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );

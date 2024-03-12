@@ -1616,6 +1616,53 @@ fn test_weatherball_in_sun() {
 }
 
 #[test]
+fn test_poltergeist() {
+    let mut state = State::default();
+    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Dragon);
+    state.side_two.get_active().item = Items::BlunderPolicy;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("poltergeist"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 10.000002,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 90.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 86,
+            })],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_poltergeist_missing() {
+    let mut state = State::default();
+    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Dragon);
+    state.side_two.get_active().item = Items::NONE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("poltergeist"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_expert_belt_does_not_boost() {
     let mut state = State::default();
     state.side_two.get_active().hp = 300;
