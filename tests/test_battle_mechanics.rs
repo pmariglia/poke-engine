@@ -1637,6 +1637,35 @@ fn test_terrainpulse() {
 }
 
 #[test]
+fn test_growth_in_sun() {
+    let mut state = State::default();
+    state.weather.weather_type = Weather::Sun;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("growth"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 2,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: 2,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_poltergeist() {
     let mut state = State::default();
     state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Dragon);

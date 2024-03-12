@@ -5837,6 +5837,26 @@ lazy_static! {
                         accuracy: 0,
                     },
                 }),
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _defender_choice: &Choice,
+                     attacking_side_ref: &SideReference| {
+                        if state.weather.weather_type == Weather::Sun {
+                            attacking_choice.boost = Some(Boost {
+                                target: MoveTarget::User,
+                                boosts: StatBoosts {
+                                    attack: 2,
+                                    defense: 0,
+                                    special_attack: 2,
+                                    special_defense: 0,
+                                    speed: 0,
+                                    accuracy: 0,
+                                },
+                            });
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
