@@ -1381,6 +1381,16 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _defender_choice: &Choice,
+                     attacking_side_ref: &SideReference| {
+                        if attacking_choice.first_move {
+                            attacking_choice.base_power *= 2.0;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
