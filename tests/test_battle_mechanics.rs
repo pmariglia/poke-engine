@@ -1819,10 +1819,71 @@ fn test_bodypress() {
             percentage: 100.0,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
+                    side_ref: SideReference::SideTwo,
                     damage_amount: 127,
                 }),
             ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_filletaway() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 1000;
+    state.side_two.get_active().maxhp = 1000;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("filletaway"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Attack,
+                    amount: 2,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::SpecialAttack,
+                    amount: 2,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: 2,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: -50,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_filletaway_lowhp() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("filletaway"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
         },
     ];
     assert_eq!(expected_instructions, vec_of_instructions);

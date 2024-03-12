@@ -1340,9 +1340,7 @@ lazy_static! {
                      _defender_choice: &Choice,
                      attacking_side_ref: &SideReference| {
                         let attacker = state.get_side_immutable(attacking_side_ref).get_active_immutable();
-                        println!("{}", attacking_choice.base_power);
                         attacking_choice.base_power *= attacker.calculate_boosted_stat(PokemonBoostableStat::Defense) as f32 / attacker.calculate_boosted_stat(PokemonBoostableStat::Attack) as f32;
-                        println!("{}", attacking_choice.base_power);
                     },
                 ),
                 ..Default::default()
@@ -4534,6 +4532,31 @@ lazy_static! {
                     snatch: true,
                     ..Default::default()
                 },
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _defender_choice: &Choice,
+                     attacking_side_ref: &SideReference| {
+                        let attacker = state.get_side_immutable(attacking_side_ref).get_active_immutable();
+                        if attacker.hp > attacker.maxhp / 2 {
+                            attacking_choice.heal = Some(Heal {
+                                target: MoveTarget::User,
+                                amount: -0.5,
+                            });
+                            attacking_choice.boost = Some(Boost {
+                                target: MoveTarget::User,
+                                boosts: StatBoosts {
+                                    attack: 2,
+                                    defense: 0,
+                                    special_attack: 2,
+                                    special_defense: 0,
+                                    speed: 2,
+                                    accuracy: 0,
+                                },
+                            });
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );
