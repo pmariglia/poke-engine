@@ -14245,6 +14245,32 @@ lazy_static! {
                     reflectable: true,
                     ..Default::default()
                 },
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _defender_choice: &Choice,
+                     attacking_side_ref: &SideReference| {
+                        attacking_choice.boost = Some(Boost {
+                            target: MoveTarget::Opponent,
+                            boosts: StatBoosts {
+                                attack: -1,
+                                defense: 0,
+                                special_attack: 0,
+                                special_defense: 0,
+                                speed: 0,
+                                accuracy: 0,
+                            },
+                        });
+                        let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
+                        let defender_attack = defending_side.get_active_immutable().calculate_boosted_stat(PokemonBoostableStat::Attack);
+                        let attacker_maxhp = attacking_side.get_active_immutable().maxhp;
+                        attacking_choice.heal = Some(Heal {
+                            target: MoveTarget::User,
+                            amount: defender_attack as f32 / attacker_maxhp as f32,
+                        });
+
+                    },
+                ),
                 ..Default::default()
             },
         );

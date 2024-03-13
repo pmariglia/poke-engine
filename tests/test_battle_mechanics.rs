@@ -1994,6 +1994,37 @@ fn test_painsplit() {
 }
 
 #[test]
+fn test_strengthsap() {
+    let mut state = State::default();
+    state.side_one.get_active().maxhp = 500;
+    state.side_one.get_active().hp = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("strengthsap"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideTwo,
+                    stat: PokemonBoostableStat::Attack,
+                    amount: -1,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 100,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_pursuit() {
     let mut state = State::default();
     state.side_one.get_active().moves.m0 = Move {
