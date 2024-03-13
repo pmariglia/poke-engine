@@ -15487,6 +15487,16 @@ lazy_static! {
                     reflectable: true,
                     ..Default::default()
                 },
+                modify_move: Some(
+                    |state: &State,
+                     attacking_choice: &mut Choice,
+                     _defender_choice: &Choice,
+                     attacking_side_ref: &SideReference| {
+                        if state.get_side_immutable(attacking_side_ref).get_active_immutable().has_type(&PokemonType::Poison) {
+                            attacking_choice.accuracy = 100.0;
+                        }
+                    },
+                ),
                 ..Default::default()
             },
         );

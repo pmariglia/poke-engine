@@ -1728,25 +1728,23 @@ fn test_shoreup_in_sand() {
         String::from("splash"),
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Heal(HealInstruction {
-                    side_ref: SideReference::SideOne,
-                    heal_amount: 66,
-                }),
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 6,
-                }),
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 6,
-                }),
-            ],
-        },
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 66,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 6,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            }),
+        ],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -1762,17 +1760,13 @@ fn test_morningsun_in_rain() {
         String::from("splash"),
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Heal(HealInstruction {
-                    side_ref: SideReference::SideOne,
-                    heal_amount: 25,
-                }),
-            ],
-        },
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Heal(HealInstruction {
+            side_ref: SideReference::SideOne,
+            heal_amount: 25,
+        })],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -1788,17 +1782,13 @@ fn test_morningsun_in_sun() {
         String::from("splash"),
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Heal(HealInstruction {
-                    side_ref: SideReference::SideOne,
-                    heal_amount: 66,
-                }),
-            ],
-        },
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Heal(HealInstruction {
+            side_ref: SideReference::SideOne,
+            heal_amount: 66,
+        })],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -1814,17 +1804,13 @@ fn test_bodypress() {
         String::from("splash"),
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 127,
-                }),
-            ],
-        },
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 127,
+        })],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -1840,32 +1826,30 @@ fn test_filletaway() {
         String::from("splash"),
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Boost(BoostInstruction {
-                    side_ref: SideReference::SideOne,
-                    stat: PokemonBoostableStat::Attack,
-                    amount: 2,
-                }),
-                Instruction::Boost(BoostInstruction {
-                    side_ref: SideReference::SideOne,
-                    stat: PokemonBoostableStat::SpecialAttack,
-                    amount: 2,
-                }),
-                Instruction::Boost(BoostInstruction {
-                    side_ref: SideReference::SideOne,
-                    stat: PokemonBoostableStat::Speed,
-                    amount: 2,
-                }),
-                Instruction::Heal(HealInstruction {
-                    side_ref: SideReference::SideOne,
-                    heal_amount: -50,
-                }),
-            ],
-        },
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 2,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: 2,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Speed,
+                amount: 2,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: -50,
+            }),
+        ],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -1880,12 +1864,10 @@ fn test_filletaway_lowhp() {
         String::from("splash"),
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![],
-        },
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -1899,42 +1881,40 @@ fn test_clangoroussoul() {
         String::from("splash"),
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Boost(BoostInstruction {
-                    side_ref: SideReference::SideOne,
-                    stat: PokemonBoostableStat::Attack,
-                    amount: 1,
-                }),
-                Instruction::Boost(BoostInstruction {
-                    side_ref: SideReference::SideOne,
-                    stat: PokemonBoostableStat::Defense,
-                    amount: 1,
-                }),
-                Instruction::Boost(BoostInstruction {
-                    side_ref: SideReference::SideOne,
-                    stat: PokemonBoostableStat::SpecialAttack,
-                    amount: 1,
-                }),
-                Instruction::Boost(BoostInstruction {
-                    side_ref: SideReference::SideOne,
-                    stat: PokemonBoostableStat::SpecialDefense,
-                    amount: 1,
-                }),
-                Instruction::Boost(BoostInstruction {
-                    side_ref: SideReference::SideOne,
-                    stat: PokemonBoostableStat::Speed,
-                    amount: 1,
-                }),
-                Instruction::Heal(HealInstruction {
-                    side_ref: SideReference::SideOne,
-                    heal_amount: -33,
-                }),
-            ],
-        },
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Defense,
+                amount: 1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: 1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::SpecialDefense,
+                amount: 1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Speed,
+                amount: 1,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: -33,
+            }),
+        ],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -1949,17 +1929,13 @@ fn test_boltbeak() {
         String::from("splash"),
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 100,
-                }),
-            ],
-        },
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 100,
+        })],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -1975,21 +1951,19 @@ fn test_painsplit() {
         String::from("splash"),
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: -5,
-                }),
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 5,
-                }),
-            ],
-        },
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: -5,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 5,
+            }),
+        ],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -2005,22 +1979,54 @@ fn test_strengthsap() {
         String::from("splash"),
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Boost(BoostInstruction {
-                    side_ref: SideReference::SideTwo,
-                    stat: PokemonBoostableStat::Attack,
-                    amount: -1,
-                }),
-                Instruction::Heal(HealInstruction {
-                    side_ref: SideReference::SideOne,
-                    heal_amount: 100,
-                }),
-            ],
-        },
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Attack,
+                amount: -1,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 100,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_poisontype_using_toxic() {
+    let mut state = State::default();
+    state.side_one.get_active().types.0 = PokemonType::Poison;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        String::from("toxic"),
+        String::from("splash"),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::None,
+                new_status: PokemonStatus::Toxic,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 6,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideTwo,
+                side_condition: PokemonSideCondition::ToxicCount,
+                amount: 1,
+            }),
+        ],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -2040,22 +2046,20 @@ fn test_pursuit() {
         &MoveChoice::Switch(PokemonIndex::P1),
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 63,
-                }),
-                Instruction::Switch(SwitchInstruction {
-                    side_ref: SideReference::SideTwo,
-                    previous_index: PokemonIndex::P0,
-                    next_index: PokemonIndex::P1,
-                }),
-            ],
-        },
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 63,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideTwo,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -2070,12 +2074,10 @@ fn test_clangoroussoul_missing() {
         String::from("splash"),
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![],
-        },
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
