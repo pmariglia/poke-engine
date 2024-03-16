@@ -7,7 +7,7 @@ use crate::instruction::{
     ChangeSideConditionInstruction, DecrementWishInstruction, HealInstruction,
     RemoveVolatileStatusInstruction,
 };
-use crate::items::{item_from_index, Items};
+use crate::items::{item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used, item_on_switch_in, Items};
 use crate::state::{
     MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonType, Terrain,
 };
@@ -173,12 +173,11 @@ fn generate_instructions_from_switch(
         on_switch_in_fn(state, &switching_side_ref, incoming_instructions);
     }
 
-    let switching_side = state.get_side_immutable(&switching_side_ref);
-    if let Some(on_switch_in_fn) =
-        item_from_index(&switching_side.get_active_immutable().item).on_switch_in
-    {
-        on_switch_in_fn(state, &switching_side_ref, incoming_instructions);
-    }
+    item_on_switch_in(
+        state,
+        &switching_side_ref,
+        incoming_instructions,
+    );
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
 }
@@ -874,12 +873,7 @@ fn before_move(
         before_move_fn(state, choice, attacking_side, incoming_instructions);
     };
 
-    let attacking_pokemon = state
-        .get_side_immutable(attacking_side)
-        .get_active_immutable();
-    if let Some(before_move_fn) = item_from_index(&attacking_pokemon.item).before_move {
-        before_move_fn(state, choice, attacking_side, incoming_instructions);
-    }
+    item_before_move(state, choice, attacking_side, incoming_instructions);
 }
 
 // Updates the attacker's Choice based on some special effects
@@ -912,14 +906,8 @@ fn update_choice(
         modify_move_fn(state, attacker_choice, defender_choice, attacking_side)
     };
 
-    if let Some(modify_move_fn) = item_from_index(&attacking_pokemon.item).modify_attack_being_used
-    {
-        modify_move_fn(state, attacker_choice, attacking_side)
-    }
-
-    if let Some(modify_move_fn) = item_from_index(&defending_pokemon.item).modify_attack_against {
-        modify_move_fn(state, attacker_choice, attacking_side)
-    }
+    item_modify_attack_being_used(state, attacker_choice, attacking_side);
+    item_modify_attack_against(state, attacker_choice, attacking_side);
 
     /*
         TODO: this needs to be here because from_drag is called after the substitute volatilestatus
@@ -1504,9 +1492,7 @@ fn add_end_of_turn_instructions(
             continue;
         }
 
-        if let Some(end_of_turn_fn) = item_from_index(&active_pkmn.item).end_of_turn {
-            end_of_turn_fn(state, side_ref, &mut incoming_instructions);
-        }
+        item_end_of_turn(state, side_ref, &mut incoming_instructions);
 
         let side = state.get_side_immutable(side_ref);
         let active_pkmn = side.get_active_immutable();
