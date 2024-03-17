@@ -248,6 +248,14 @@ pub fn modify_choice(
                 attacker_choice.accuracy = 100.0;
             }
         }
+        Choices::HURRICANE => {
+            if state.weather.weather_type == Weather::Rain || state.weather.weather_type == Weather::HeavyRain {
+                attacker_choice.accuracy = 100.0;
+            }
+            else if state.weather.weather_type == Weather::Sun || state.weather.weather_type == Weather::HarshSun {
+                attacker_choice.accuracy = 50.0;
+            }
+        }
         _ => {}
     }
 }
