@@ -319,6 +319,12 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 2.0;
             }
         }
+        Choices::PSYSHOCK => {
+            let defender = defending_side.get_active_immutable();
+            let defender_defense = defender.calculate_boosted_stat(PokemonBoostableStat::Defense);
+            let defender_special_defense = defender.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
+            attacker_choice.base_power *= defender_special_defense as f32 / defender_defense as f32
+        }
         _ => {}
     }
 }
