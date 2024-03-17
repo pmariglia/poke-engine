@@ -2036,15 +2036,14 @@ fn test_solarbeam_with_active_volatile_status() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SolarBeam,
+            }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 94,
             }),
-            // Logic to remove the volatilestatus is not implemented.
-            // Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
-            //     side_ref: SideReference::SideOne,
-            //     volatile_status: PokemonVolatileStatus::SolarBeam,
-            // }),
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);

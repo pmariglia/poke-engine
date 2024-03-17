@@ -4,8 +4,8 @@ use crate::choices::{
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::instruction::{
     ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction,
-    ChangeTerrain, ChangeWeather, DamageInstruction, Instruction, SetSubstituteHealthInstruction,
-    StateInstructions,
+    ChangeTerrain, ChangeWeather, DamageInstruction, Instruction, RemoveVolatileStatusInstruction,
+    SetSubstituteHealthInstruction, StateInstructions,
 };
 use crate::items::Items;
 use crate::state::{
@@ -704,6 +704,7 @@ pub fn choice_special_effect(
 }
 
 pub fn charge_choice_to_volatile(choice: &Choices) -> PokemonVolatileStatus {
+    // Panics if you pass a choice that does not have a corresponding volatile status
     return match choice {
         Choices::BOUNCE => PokemonVolatileStatus::Bounce,
         Choices::DIG => PokemonVolatileStatus::Dig,

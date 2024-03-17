@@ -1039,12 +1039,27 @@ pub fn generate_instructions_from_move(
         return;
     }
 
-    // let mut final_instructions: Vec<StateInstructions> = Vec::with_capacity(16);
+    // If the move is a charge move, remove the volatile status if damage was done
+    if choice.flags.charge {
+        let attacker = state.get_side(&attacking_side).get_active();
+        let volatile_status = charge_choice_to_volatile(&choice.move_id);
+        if attacker.volatile_statuses.contains(&volatile_status) {
+            choice.flags.charge = false;
+            let instruction =
+                Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                    side_ref: attacking_side,
+                    volatile_status: volatile_status,
+                });
+            incoming_instructions.instruction_list.push(instruction);
+            attacker.volatile_statuses.remove(&volatile_status);
+        }
+    }
+
     update_choice(state, choice, defender_choice, &attacking_side);
     before_move(state, &choice, &attacking_side, &mut incoming_instructions);
     if incoming_instructions.percentage == 0.0 {
         state.reverse_instructions(&incoming_instructions.instruction_list);
-        return; //final_instructions;
+        return;
     }
 
     let damage = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
