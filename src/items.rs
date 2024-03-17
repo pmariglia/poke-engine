@@ -86,16 +86,12 @@ pub fn item_before_move(
     state: &mut State,
     choice: &Choice,
     side_ref: &SideReference,
-    instructions: &mut StateInstructions
+    instructions: &mut StateInstructions,
 ) {
     let active_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
     match active_pkmn.item {
         Items::ChoiceSpecs | Items::ChoiceBand | Items::ChoiceScarf => {
-            let ins = get_choice_move_disable_instructions(
-                active_pkmn,
-                side_ref,
-                &choice.move_id,
-            );
+            let ins = get_choice_move_disable_instructions(active_pkmn, side_ref, &choice.move_id);
             for i in ins {
                 state.apply_one_instruction(&i);
                 instructions.instruction_list.push(i);
@@ -214,10 +210,8 @@ pub fn item_end_of_turn(
         Items::BlackSludge => {
             if active_pkmn.has_type(&PokemonType::Poison) {
                 if active_pkmn.hp < active_pkmn.maxhp {
-                    let heal_amount = cmp::min(
-                        active_pkmn.maxhp / 16,
-                        active_pkmn.maxhp - active_pkmn.hp,
-                    );
+                    let heal_amount =
+                        cmp::min(active_pkmn.maxhp / 16, active_pkmn.maxhp - active_pkmn.hp);
                     let ins = Instruction::Heal(HealInstruction {
                         side_ref: side_ref.clone(),
                         heal_amount: heal_amount,
@@ -252,8 +246,7 @@ pub fn item_end_of_turn(
         Items::LEFTOVERS => {
             let attacker = state.get_side(side_ref).get_active();
             if attacker.hp < attacker.maxhp {
-                let heal_amount =
-                    cmp::min(attacker.maxhp / 16, attacker.maxhp - attacker.hp);
+                let heal_amount = cmp::min(attacker.maxhp / 16, attacker.maxhp - attacker.hp);
                 let ins = Instruction::Heal(HealInstruction {
                     side_ref: side_ref.clone(),
                     heal_amount: heal_amount,
@@ -263,8 +256,7 @@ pub fn item_end_of_turn(
             }
         }
         Items::ToxicOrb => {
-            if !immune_to_status(state, &MoveTarget::User, side_ref, &PokemonStatus::Toxic)
-            {
+            if !immune_to_status(state, &MoveTarget::User, side_ref, &PokemonStatus::Toxic) {
                 let side = state.get_side(side_ref);
                 let ins = Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: side_ref.clone(),
@@ -283,7 +275,7 @@ pub fn item_end_of_turn(
 pub fn item_modify_attack_against(
     state: &State,
     attacking_choice: &mut Choice,
-    attacking_side_ref: &SideReference
+    attacking_side_ref: &SideReference,
 ) {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     match defending_side.get_active_immutable().item {
@@ -362,11 +354,9 @@ pub fn item_modify_attack_against(
         Items::WeaknessPolicy => {
             if attacking_choice.category != MoveCategory::Status
                 && type_effectiveness_modifier(
-                &attacking_choice.move_type,
-                &defending_side
-                    .get_active_immutable()
-                    .types,
-            ) > 1.0
+                    &attacking_choice.move_type,
+                    &defending_side.get_active_immutable().types,
+                ) > 1.0
             {
                 attacking_choice.add_or_create_secondaries(Secondary {
                     chance: 100.0,
@@ -394,7 +384,7 @@ pub fn item_modify_attack_against(
 pub fn item_modify_attack_being_used(
     state: &State,
     attacking_choice: &mut Choice,
-    attacking_side_ref: &SideReference
+    attacking_side_ref: &SideReference,
 ) {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     match attacking_side.get_active_immutable().item {
@@ -436,9 +426,7 @@ pub fn item_modify_attack_being_used(
         Items::ExpertBelt => {
             if type_effectiveness_modifier(
                 &attacking_choice.move_type,
-                &defending_side
-                    .get_active_immutable()
-                    .types,
+                &defending_side.get_active_immutable().types,
             ) > 1.0
             {
                 attacking_choice.base_power *= 1.2;

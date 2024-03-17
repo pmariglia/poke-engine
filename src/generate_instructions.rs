@@ -1,4 +1,8 @@
-use crate::abilities::{Abilities, ability_after_damage_hit, ability_before_move, ability_end_of_turn, ability_modify_attack_against, ability_modify_attack_being_used, ability_on_switch_in, ability_on_switch_out};
+use crate::abilities::{
+    ability_after_damage_hit, ability_before_move, ability_end_of_turn,
+    ability_modify_attack_against, ability_modify_attack_being_used, ability_on_switch_in,
+    ability_on_switch_out, Abilities,
+};
 use crate::choices::{
     Boost, Effect, Heal, MoveTarget, Secondary, SideCondition, StatBoosts, Status, VolatileStatus,
 };
@@ -7,7 +11,10 @@ use crate::instruction::{
     ChangeSideConditionInstruction, DecrementWishInstruction, HealInstruction,
     RemoveVolatileStatusInstruction,
 };
-use crate::items::{item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used, item_on_switch_in, Items};
+use crate::items::{
+    item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
+    item_on_switch_in, Items,
+};
 use crate::state::{
     MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonType, Terrain,
 };
@@ -157,11 +164,7 @@ fn generate_instructions_from_switch(
     }
 
     ability_on_switch_in(state, &switching_side_ref, incoming_instructions);
-    item_on_switch_in(
-        state,
-        &switching_side_ref,
-        incoming_instructions,
-    );
+    item_on_switch_in(state, &switching_side_ref, incoming_instructions);
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
 }
@@ -1456,7 +1459,6 @@ fn add_end_of_turn_instructions(
 
         item_end_of_turn(state, side_ref, &mut incoming_instructions);
         ability_end_of_turn(state, side_ref, &mut incoming_instructions);
-
     }
 
     // leechseed sap
