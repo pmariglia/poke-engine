@@ -614,6 +614,33 @@ pub fn choice_special_effect(
                 instructions.instruction_list.push(apply_vs_instruction);
             }
         }
+        Choices::TRICK => {
+            let attacker = attacking_side.get_active();
+            let defender = defending_side.get_active();
+            let attacker_item = attacker.item;
+            let defender_item = defender.item;
+            if attacker_item == defender_item {
+                return;
+            }
+            let change_attacker_item_instruction = Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: *attacking_side_ref,
+                current_item: attacker_item,
+                new_item: defender_item,
+            });
+            let change_defender_item_instruction = Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: attacking_side_ref.get_other_side(),
+                current_item: defender_item,
+                new_item: attacker_item,
+            });
+            attacker.item = defender_item;
+            defender.item = attacker_item;
+            instructions
+                .instruction_list
+                .push(change_attacker_item_instruction);
+            instructions
+                .instruction_list
+                .push(change_defender_item_instruction);
+        }
         _ => {}
     }
 }

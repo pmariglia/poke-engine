@@ -2072,6 +2072,85 @@ fn test_solarbeam_in_sun() {
 }
 
 #[test]
+fn test_trick() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::SilverPowder;
+    state.side_two.get_active().item = Items::ExpertBelt;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TRICK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::SilverPowder,
+                new_item: Items::ExpertBelt,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideTwo,
+                current_item: Items::ExpertBelt,
+                new_item: Items::SilverPowder,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_trick_with_one_side_having_no_item() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::SilverPowder;
+    state.side_two.get_active().item = Items::NONE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TRICK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::SilverPowder,
+                new_item: Items::NONE,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideTwo,
+                current_item: Items::NONE,
+                new_item: Items::SilverPowder,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_identical_items_generates_no_instructions() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::NONE;
+    state.side_two.get_active().item = Items::NONE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TRICK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_focuspunch_after_getting_hit() {
     let mut state = State::default();
     state.weather.weather_type = Weather::Sun;
