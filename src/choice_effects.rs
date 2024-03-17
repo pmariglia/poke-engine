@@ -325,6 +325,19 @@ pub fn modify_choice(
             let defender_special_defense = defender.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
             attacker_choice.base_power *= defender_special_defense as f32 / defender_defense as f32
         }
+        Choices::STOREDPOWER => {
+            let attacking_pokemon = attacking_side.get_active_immutable();
+            let total_boosts = attacking_pokemon.attack_boost
+                + attacking_pokemon.defense_boost
+                + attacking_pokemon.special_attack_boost
+                + attacking_pokemon.special_defense_boost
+                + attacking_pokemon.speed_boost
+                + attacking_pokemon.accuracy_boost
+                + attacking_pokemon.evasion_boost;
+            if total_boosts > 0 {
+                attacker_choice.base_power *= total_boosts as f32;
+            }
+        }
         _ => {}
     }
 }
