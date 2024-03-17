@@ -4302,7 +4302,7 @@ mod tests {
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
-                    damage_amount: 51,
+                    damage_amount: 76,
                 }),
                 Instruction::ChangeItem(ChangeItemInstruction {
                     side_ref: SideReference::SideTwo,
