@@ -2151,6 +2151,30 @@ fn test_identical_items_generates_no_instructions() {
 }
 
 #[test]
+fn test_sunnyday() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SUNNYDAY,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::Sun,
+                new_weather_turns_remaining: 5,
+                previous_weather: Weather::None,
+                previous_weather_turns_remaining: 0,
+            })
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_focuspunch_after_getting_hit() {
     let mut state = State::default();
     state.weather.weather_type = Weather::Sun;

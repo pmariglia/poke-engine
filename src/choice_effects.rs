@@ -2,11 +2,7 @@ use crate::choices::{
     Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts, VolatileStatus,
 };
 use crate::damage_calc::type_effectiveness_modifier;
-use crate::instruction::{
-    ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction,
-    ChangeTerrain, DamageInstruction, Instruction, SetSubstituteHealthInstruction,
-    StateInstructions,
-};
+use crate::instruction::{ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, Instruction, SetSubstituteHealthInstruction, StateInstructions};
 use crate::items::Items;
 use crate::state::{
     PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus,
@@ -640,6 +636,62 @@ pub fn choice_special_effect(
             instructions
                 .instruction_list
                 .push(change_defender_item_instruction);
+        }
+        Choices::SUNNYDAY => {
+            if state.weather.weather_type != Weather::Sun {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeWeather(ChangeWeather {
+                        new_weather: Weather::Sun,
+                        new_weather_turns_remaining: 5,
+                        previous_weather: state.weather.weather_type,
+                        previous_weather_turns_remaining: 0,
+                    }));
+                state.weather.weather_type = Weather::Sun;
+                state.weather.turns_remaining = 5;
+            }
+        }
+        Choices::RAINDANCE => {
+            if state.weather.weather_type != Weather::Rain {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeWeather(ChangeWeather {
+                        new_weather: Weather::Rain,
+                        new_weather_turns_remaining: 5,
+                        previous_weather: state.weather.weather_type,
+                        previous_weather_turns_remaining: 0,
+                    }));
+                state.weather.weather_type = Weather::Rain;
+                state.weather.turns_remaining = 5;
+            }
+        }
+        Choices::RAINDANCE => {
+            if state.weather.weather_type != Weather::Sand {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeWeather(ChangeWeather {
+                        new_weather: Weather::Sand,
+                        new_weather_turns_remaining: 5,
+                        previous_weather: state.weather.weather_type,
+                        previous_weather_turns_remaining: 0,
+                    }));
+                state.weather.weather_type = Weather::Sand;
+                state.weather.turns_remaining = 5;
+            }
+        }
+        Choices::HAIL => {
+            if state.weather.weather_type != Weather::Hail {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeWeather(ChangeWeather {
+                        new_weather: Weather::Hail,
+                        new_weather_turns_remaining: 5,
+                        previous_weather: state.weather.weather_type,
+                        previous_weather_turns_remaining: 0,
+                    }));
+                state.weather.weather_type = Weather::Hail;
+                state.weather.turns_remaining = 5;
+            }
         }
         _ => {}
     }
