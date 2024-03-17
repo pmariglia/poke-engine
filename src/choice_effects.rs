@@ -1,3 +1,4 @@
+use std::cmp;
 use crate::choices::{
     Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts, VolatileStatus,
 };
@@ -297,6 +298,16 @@ pub fn modify_choice(
             } else {
                 attacker_choice.base_power = 40.0;
             }
+        }
+        Choices::GYROBALL => {
+            let attacker_speed = attacking_side
+                .get_active_immutable()
+                .calculate_boosted_stat(PokemonBoostableStat::Speed);
+            let defender_speed = defending_side
+                .get_active_immutable()
+                .calculate_boosted_stat(PokemonBoostableStat::Speed);
+
+            attacker_choice.base_power = ((25.0 * defender_speed as f32 / attacker_speed as f32) + 1.0).min(150.0);
         }
         _ => {}
     }
