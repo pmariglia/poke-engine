@@ -243,6 +243,11 @@ pub fn modify_choice(
                 attacker_choice.flags.charge = false;
             }
         }
+        Choices::BLIZZARD => {
+            if state.weather.weather_type == Weather::Hail {
+                attacker_choice.accuracy = 100.0;
+            }
+        }
         _ => {}
     }
 }
