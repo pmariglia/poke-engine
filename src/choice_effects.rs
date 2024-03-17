@@ -309,6 +309,11 @@ pub fn modify_choice(
 
             attacker_choice.base_power = ((25.0 * defender_speed as f32 / attacker_speed as f32) + 1.0).min(150.0);
         }
+        Choices::AVALANCHE => {
+            if !attacker_choice.first_move && (defender_choice.category == MoveCategory::Physical || defender_choice.category == MoveCategory::Special) {
+                attacker_choice.base_power *= 2.0;
+            }
+        }
         _ => {}
     }
 }
