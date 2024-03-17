@@ -1,4 +1,3 @@
-use std::cmp;
 use crate::choices::{
     Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts, VolatileStatus,
 };
@@ -12,6 +11,7 @@ use crate::state::{
     PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus,
     SideReference, State, Terrain, Weather,
 };
+use std::cmp;
 
 pub fn modify_choice(
     state: &State,
@@ -307,10 +307,14 @@ pub fn modify_choice(
                 .get_active_immutable()
                 .calculate_boosted_stat(PokemonBoostableStat::Speed);
 
-            attacker_choice.base_power = ((25.0 * defender_speed as f32 / attacker_speed as f32) + 1.0).min(150.0);
+            attacker_choice.base_power =
+                ((25.0 * defender_speed as f32 / attacker_speed as f32) + 1.0).min(150.0);
         }
         Choices::AVALANCHE => {
-            if !attacker_choice.first_move && (defender_choice.category == MoveCategory::Physical || defender_choice.category == MoveCategory::Special) {
+            if !attacker_choice.first_move
+                && (defender_choice.category == MoveCategory::Physical
+                    || defender_choice.category == MoveCategory::Special)
+            {
                 attacker_choice.base_power *= 2.0;
             }
         }
@@ -322,7 +326,8 @@ pub fn modify_choice(
         Choices::PSYSHOCK => {
             let defender = defending_side.get_active_immutable();
             let defender_defense = defender.calculate_boosted_stat(PokemonBoostableStat::Defense);
-            let defender_special_defense = defender.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
+            let defender_special_defense =
+                defender.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
             attacker_choice.base_power *= defender_special_defense as f32 / defender_defense as f32
         }
         Choices::STOREDPOWER => {
@@ -341,12 +346,25 @@ pub fn modify_choice(
         Choices::FOULPLAY => {
             let defender = defending_side.get_active_immutable();
             let defender_attack = defender.calculate_boosted_stat(PokemonBoostableStat::Attack);
-            let attacker_attack = attacking_side.get_active_immutable().calculate_boosted_stat(PokemonBoostableStat::Attack);
+            let attacker_attack = attacking_side
+                .get_active_immutable()
+                .calculate_boosted_stat(PokemonBoostableStat::Attack);
             attacker_choice.base_power = defender_attack as f32 / attacker_attack as f32;
         }
         Choices::BARBBARRAGE => {
-            if defending_side.get_active_immutable().status != PokemonStatus::None {
+            let defending_pkmn_status = defending_side.get_active_immutable().status;
+            if defending_pkmn_status == PokemonStatus::Poison
+                || defending_pkmn_status == PokemonStatus::Toxic
+            {
                 attacker_choice.base_power *= 2.0;
+            }
+        }
+        Choices::FREEZEDRY => {
+            if defending_side
+                .get_active_immutable()
+                .has_type(&PokemonType::Water)
+            {
+                attacker_choice.base_power *= 4.0; // 2x for being super effective, 2x for nullifying water resistance
             }
         }
         _ => {}
