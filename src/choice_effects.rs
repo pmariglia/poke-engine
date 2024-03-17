@@ -344,6 +344,11 @@ pub fn modify_choice(
             let attacker_attack = attacking_side.get_active_immutable().calculate_boosted_stat(PokemonBoostableStat::Attack);
             attacker_choice.base_power = defender_attack as f32 / attacker_attack as f32;
         }
+        Choices::BARBBARRAGE => {
+            if defending_side.get_active_immutable().status != PokemonStatus::None {
+                attacker_choice.base_power *= 2.0;
+            }
+        }
         _ => {}
     }
 }
