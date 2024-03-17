@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use poke_engine::choices::MOVES;
+use poke_engine::choices::{Choices, MOVES};
 use poke_engine::search::expectiminimax_search;
 use poke_engine::state::{Move, PokemonIndex, PokemonMoves, State};
 use std::mem;
@@ -36,55 +36,55 @@ fn main() {
 
     // state.side_one.pokemon[PokemonIndex::P0].moves = PokemonMoves {
     //     m0: Move {
-    //         id: "earthquake".to_string(),
+    //         id: Choices::EARTHQUAKE,
     //         disabled: false,
     //         pp: 32,
-    //         choice: MOVES.get("earthquake").unwrap().to_owned(),
+    //         choice: MOVES.get(&Choices::EARTHQUAKE).unwrap().to_owned(),
     //     },
     //     m1: Move {
-    //         id: "thunderwave".to_string(),
+    //         id: Choices::THUNDERWAVE,
     //         disabled: false,
     //         pp: 32,
-    //         choice: MOVES.get("thunderwave").unwrap().to_owned(),
+    //         choice: MOVES.get(&Choices::THUNDERWAVE).unwrap().to_owned(),
     //     },
     //     m2: Move {
-    //         id: "zapcannon".to_string(),
+    //         id: Choices::ZAPCANNON,
     //         disabled: false,
     //         pp: 32,
-    //         choice: MOVES.get("zapcannon").unwrap().to_owned(),
+    //         choice: MOVES.get(&Choices::ZAPCANNON).unwrap().to_owned(),
     //     },
     //     m3: Move {
-    //         id: "airslash".to_string(),
+    //         id: Choices::AIRSLASH,
     //         disabled: false,
     //         pp: 32,
-    //         choice: MOVES.get("airslash").unwrap().to_owned(),
+    //         choice: MOVES.get(&Choices::AIRSLASH).unwrap().to_owned(),
     //     },
     // };
     //
     // state.side_two.pokemon[PokemonIndex::P0].moves = PokemonMoves {
     //     m0: Move {
-    //         id: "earthquake".to_string(),
+    //         id: Choices::EARTHQUAKE,
     //         disabled: false,
     //         pp: 32,
-    //         choice: MOVES.get("earthquake").unwrap().to_owned(),
+    //         choice: MOVES.get(&Choices::EARTHQUAKE).unwrap().to_owned(),
     //     },
     //     m1: Move {
-    //         id: "thunderwave".to_string(),
+    //         id: Choices::THUNDERWAVE,
     //         disabled: false,
     //         pp: 32,
-    //         choice: MOVES.get("thunderwave").unwrap().to_owned(),
+    //         choice: MOVES.get(&Choices::THUNDERWAVE).unwrap().to_owned(),
     //     },
     //     m2: Move {
-    //         id: "zapcannon".to_string(),
+    //         id: Choices::ZAPCANNON,
     //         disabled: false,
     //         pp: 32,
-    //         choice: MOVES.get("zapcannon").unwrap().to_owned(),
+    //         choice: MOVES.get(&Choices::ZAPCANNON).unwrap().to_owned(),
     //     },
     //     m3: Move {
-    //         id: "airslash".to_string(),
+    //         id: Choices::AIRSLASH,
     //         disabled: false,
     //         pp: 32,
-    //         choice: MOVES.get("airslash").unwrap().to_owned(),
+    //         choice: MOVES.get(&Choices::AIRSLASH).unwrap().to_owned(),
     //     },
     // };
 
