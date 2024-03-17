@@ -3,9 +3,7 @@ use crate::abilities::{
     ability_modify_attack_against, ability_modify_attack_being_used, ability_on_switch_in,
     ability_on_switch_out, Abilities,
 };
-use crate::choice_effects::{
-    choice_after_damage_hit, choice_hazard_clear, choice_special_effect, modify_choice,
-};
+use crate::choice_effects::{charge_choice_to_volatile, choice_after_damage_hit, choice_hazard_clear, choice_special_effect, modify_choice};
 use crate::choices::{
     Boost, Choices, Effect, Heal, MoveTarget, Secondary, SideCondition, StatBoosts, Status,
     VolatileStatus,
@@ -859,15 +857,27 @@ fn update_choice(
         TODO: this needs to be here because from_drag is called after the substitute volatilestatus
             has already been removed
     */
-    let defending_pokemon = state
-        .get_side_immutable(&attacking_side.get_other_side())
-        .get_active_immutable();
+    let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side);
+    let attacking_pokemon = attacking_side.get_active_immutable();
+    let defending_pokemon = defending_side.get_active_immutable();
     if defending_pokemon
         .volatile_statuses
         .contains(&PokemonVolatileStatus::Substitute)
         && attacker_choice.category != MoveCategory::Status
     {
         attacker_choice.flags.drag = false;
+    }
+
+    // Update Choice for `charge` moves
+    if attacker_choice.flags.charge {
+        let charge_volatile_status = charge_choice_to_volatile(&attacker_choice.move_id);
+        if !attacking_pokemon.volatile_statuses.contains(&charge_volatile_status) {
+            attacker_choice.remove_all_effects();
+            attacker_choice.volatile_status = Some(VolatileStatus {
+                target: MoveTarget::User,
+                volatile_status: charge_volatile_status,
+            });
+        }
     }
 
     // modify choice if defender has protect active

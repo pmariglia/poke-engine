@@ -1,4 +1,4 @@
-use crate::choices::{Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts};
+use crate::choices::{Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts, VolatileStatus};
 use crate::instruction::{
     ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction,
     ChangeTerrain, DamageInstruction, Instruction, SetSubstituteHealthInstruction,
@@ -238,6 +238,11 @@ pub fn modify_choice(
             }
             Weather::None => {}
         },
+        Choices::SOLARBEAM => {
+            if state.weather.weather_type == Weather::Sun || state.weather.weather_type == Weather::HarshSun {
+                attacker_choice.flags.charge = false;
+            }
+        }
         _ => {}
     }
 }
@@ -469,5 +474,59 @@ pub fn choice_special_effect(
             }
         }
         _ => {}
+    }
+}
+
+pub fn charge_choice_to_volatile(choice: &Choices) -> PokemonVolatileStatus {
+    return match choice {
+        Choices::BOUNCE => {
+            PokemonVolatileStatus::Bounce
+        }
+        Choices::DIG => {
+            PokemonVolatileStatus::Dig
+        }
+        Choices::DIVE => {
+            PokemonVolatileStatus::Dive
+        }
+        Choices::FLY => {
+            PokemonVolatileStatus::Fly
+        }
+        Choices::FREEZESHOCK => {
+            PokemonVolatileStatus::Freezeshock
+        }
+        Choices::GEOMANCY => {
+            PokemonVolatileStatus::Geomancy
+        }
+        Choices::ICEBURN => {
+            PokemonVolatileStatus::IceBurn
+        }
+        Choices::METEORBEAM => {
+            PokemonVolatileStatus::MeteorBeam
+        }
+        Choices::PHANTOMFORCE => {
+            PokemonVolatileStatus::PhantomForce
+        }
+        Choices::RAZORWIND => {
+            PokemonVolatileStatus::RazorWind
+        }
+        Choices::SHADOWFORCE => {
+            PokemonVolatileStatus::ShadowForce
+        }
+        Choices::SKULLBASH => {
+            PokemonVolatileStatus::SkullBash
+        }
+        Choices::SKYATTACK => {
+            PokemonVolatileStatus::SkyAttack
+        }
+        Choices::SKYDROP => {
+            PokemonVolatileStatus::SkyDrop
+        }
+        Choices::SOLARBEAM => {
+            PokemonVolatileStatus::SolarBeam
+        }
+        Choices::SOLARBLADE => {
+            PokemonVolatileStatus::SolarBlade
+        }
+        _ => {panic!("Invalid choice for charge: {:?}", choice)}
     }
 }

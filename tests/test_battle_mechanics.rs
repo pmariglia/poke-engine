@@ -1997,6 +1997,79 @@ fn test_strengthsap() {
 }
 
 #[test]
+fn test_solarbeam_not_in_sun() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SOLARBEAM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SolarBeam,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_solarbeam_with_active_volatile_status() {
+    let mut state = State::default();
+    state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::SolarBeam);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SOLARBEAM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 94,
+            }),
+            // Logic to remove the volatilestatus is not implemented.
+            // Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+            //     side_ref: SideReference::SideOne,
+            //     volatile_status: PokemonVolatileStatus::SolarBeam,
+            // }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_solarbeam_in_sun() {
+    let mut state = State::default();
+    state.weather.weather_type = Weather::Sun;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SOLARBEAM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 94,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_poisontype_using_toxic() {
     let mut state = State::default();
     state.side_one.get_active().types.0 = PokemonType::Poison;
