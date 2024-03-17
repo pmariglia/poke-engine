@@ -256,6 +256,11 @@ pub fn modify_choice(
                 attacker_choice.accuracy = 50.0;
             }
         }
+        Choices::KNOCKOFF => {
+            if defending_side.get_active_immutable().item_can_be_removed() {
+                attacker_choice.base_power *= 1.5;
+            }
+        }
         _ => {}
     }
 }
