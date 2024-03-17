@@ -338,6 +338,12 @@ pub fn modify_choice(
                 attacker_choice.base_power *= total_boosts as f32;
             }
         }
+        Choices::FOULPLAY => {
+            let defender = defending_side.get_active_immutable();
+            let defender_attack = defender.calculate_boosted_stat(PokemonBoostableStat::Attack);
+            let attacker_attack = attacking_side.get_active_immutable().calculate_boosted_stat(PokemonBoostableStat::Attack);
+            attacker_choice.base_power = defender_attack as f32 / attacker_attack as f32;
+        }
         _ => {}
     }
 }
