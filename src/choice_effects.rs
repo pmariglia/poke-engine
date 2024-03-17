@@ -261,6 +261,11 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 1.5;
             }
         }
+        Choices::ACROBATICS => {
+            if attacking_side.get_active_immutable().item == Items::NONE {
+                attacker_choice.base_power *= 2.0;
+            }
+        }
         _ => {}
     }
 }

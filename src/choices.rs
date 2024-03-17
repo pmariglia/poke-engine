@@ -148,7 +148,7 @@ lazy_static! {
             Choices::ACROBATICS,
             Choice {
                 move_id: Choices::ACROBATICS,
-                base_power: 110.0,
+                base_power: 55.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Flying,
                 flags: Flags {
