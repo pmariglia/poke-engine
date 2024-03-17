@@ -1,6 +1,7 @@
 mod damage_calc;
 
 pub mod abilities;
+pub mod choice_effects;
 pub mod choices;
 pub mod generate_instructions;
 pub mod instruction;

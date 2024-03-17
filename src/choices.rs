@@ -1,26 +1,17 @@
-use crate::instruction::ChangeItemInstruction;
 use crate::instruction::ChangeSideConditionInstruction;
-use crate::instruction::ChangeTerrain;
 use crate::instruction::DamageInstruction;
 use crate::instruction::Instruction;
 use crate::instruction::SetSubstituteHealthInstruction;
 use crate::instruction::{ApplyVolatileStatusInstruction, StateInstructions};
-use crate::items::Items;
 use crate::state::PokemonType;
 use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
 use crate::state::State;
-use crate::state::Terrain;
-use crate::state::{PokemonBoostableStat, PokemonSideCondition, Weather};
+use crate::state::{PokemonBoostableStat, PokemonSideCondition};
 use crate::state::{PokemonIndex, PokemonStatus};
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::fmt;
-
-pub type ModifyChoiceFn = fn(&State, &mut Choice, &Choice, &SideReference);
-pub type AfterDamageHitFn = fn(&mut State, &Choice, &SideReference, &mut StateInstructions);
-pub type HazardClearFn = fn(&mut State, &SideReference, &mut StateInstructions);
-pub type MoveSpecialEffectFn = fn(&mut State, &SideReference, &mut StateInstructions);
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum MoveCategory {
@@ -31,19 +22,19 @@ pub enum MoveCategory {
 }
 
 lazy_static! {
-    pub static ref MOVES: HashMap<String, Choice> = {
-        let mut moves: HashMap<String, Choice> = HashMap::new();
+    pub static ref MOVES: HashMap<Choices, Choice> = {
+        let mut moves: HashMap<Choices, Choice> = HashMap::new();
         moves.insert(
-            String::from(""),
+            Choices::NONE,
             Choice {
-                move_id: String::from(""),
+                move_id: Choices::NONE,
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("absorb"),
+            Choices::ABSORB,
             Choice {
-                move_id: String::from("absorb"),
+                move_id: Choices::ABSORB,
                 base_power: 20.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Grass,
@@ -58,9 +49,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("accelerock"),
+            Choices::ACCELEROCK,
             Choice {
-                move_id: String::from("accelerock"),
+                move_id: Choices::ACCELEROCK,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
@@ -75,9 +66,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("acid"),
+            Choices::ACID,
             Choice {
-                move_id: String::from("acid"),
+                move_id: Choices::ACID,
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Poison,
@@ -102,9 +93,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("acidarmor"),
+            Choices::ACIDARMOR,
             Choice {
-                move_id: String::from("acidarmor"),
+                move_id: Choices::ACIDARMOR,
                 target: MoveTarget::User,
                 move_type: PokemonType::Poison,
                 flags: Flags {
@@ -126,9 +117,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("acidspray"),
+            Choices::ACIDSPRAY,
             Choice {
-                move_id: String::from("acidspray"),
+                move_id: Choices::ACIDSPRAY,
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Poison,
@@ -154,9 +145,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("acrobatics"),
+            Choices::ACROBATICS,
             Choice {
-                move_id: String::from("acrobatics"),
+                move_id: Choices::ACROBATICS,
                 base_power: 110.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Flying,
@@ -171,9 +162,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("acupressure"),
+            Choices::ACUPRESSURE,
             Choice {
-                move_id: String::from("acupressure"),
+                move_id: Choices::ACUPRESSURE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -183,9 +174,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("aerialace"),
+            Choices::AERIALACE,
             Choice {
-                move_id: String::from("aerialace"),
+                move_id: Choices::AERIALACE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Flying,
@@ -200,9 +191,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("aeroblast"),
+            Choices::AEROBLAST,
             Choice {
-                move_id: String::from("aeroblast"),
+                move_id: Choices::AEROBLAST,
                 accuracy: 95.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
@@ -217,9 +208,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("afteryou"),
+            Choices::AFTERYOU,
             Choice {
-                move_id: String::from("afteryou"),
+                move_id: Choices::AFTERYOU,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
@@ -228,9 +219,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("agility"),
+            Choices::AGILITY,
             Choice {
-                move_id: String::from("agility"),
+                move_id: Choices::AGILITY,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -252,9 +243,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("aircutter"),
+            Choices::AIRCUTTER,
             Choice {
-                move_id: String::from("aircutter"),
+                move_id: Choices::AIRCUTTER,
                 accuracy: 95.0,
                 base_power: 60.0,
                 category: MoveCategory::Special,
@@ -268,9 +259,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("airslash"),
+            Choices::AIRSLASH,
             Choice {
-                move_id: String::from("airslash"),
+                move_id: Choices::AIRSLASH,
                 accuracy: 95.0,
                 base_power: 75.0,
                 category: MoveCategory::Special,
@@ -290,9 +281,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("allyswitch"),
+            Choices::ALLYSWITCH,
             Choice {
-                move_id: String::from("allyswitch"),
+                move_id: Choices::ALLYSWITCH,
                 priority: 2,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
@@ -303,9 +294,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("amnesia"),
+            Choices::AMNESIA,
             Choice {
-                move_id: String::from("amnesia"),
+                move_id: Choices::AMNESIA,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -327,9 +318,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("anchorshot"),
+            Choices::ANCHORSHOT,
             Choice {
-                move_id: String::from("anchorshot"),
+                move_id: Choices::ANCHORSHOT,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Steel,
@@ -343,9 +334,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("ancientpower"),
+            Choices::ANCIENTPOWER,
             Choice {
-                move_id: String::from("ancientpower"),
+                move_id: Choices::ANCIENTPOWER,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Rock,
@@ -370,9 +361,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("appleacid"),
+            Choices::APPLEACID,
             Choice {
-                move_id: String::from("appleacid"),
+                move_id: Choices::APPLEACID,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Grass,
@@ -397,9 +388,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("aquacutter"),
+            Choices::AQUACUTTER,
             Choice {
-                move_id: String::from("aquacutter"),
+                move_id: Choices::AQUACUTTER,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Water,
@@ -412,9 +403,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("aquajet"),
+            Choices::AQUAJET,
             Choice {
-                move_id: String::from("aquajet"),
+                move_id: Choices::AQUAJET,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
@@ -429,9 +420,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("aquaring"),
+            Choices::AQUARING,
             Choice {
-                move_id: String::from("aquaring"),
+                move_id: Choices::AQUARING,
                 target: MoveTarget::User,
                 move_type: PokemonType::Water,
                 flags: Flags {
@@ -446,9 +437,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("aquastep"),
+            Choices::AQUASTEP,
             Choice {
-                move_id: String::from("aquastep"),
+                move_id: Choices::AQUASTEP,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Water,
@@ -475,9 +466,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("aquatail"),
+            Choices::AQUATAIL,
             Choice {
-                move_id: String::from("aquatail"),
+                move_id: Choices::AQUATAIL,
                 accuracy: 90.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
@@ -492,9 +483,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("armorcannon"),
+            Choices::ARMORCANNON,
             Choice {
-                move_id: String::from("armorcannon"),
+                move_id: Choices::ARMORCANNON,
                 base_power: 120.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -507,9 +498,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("armthrust"),
+            Choices::ARMTHRUST,
             Choice {
-                move_id: String::from("armthrust"),
+                move_id: Choices::ARMTHRUST,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -523,9 +514,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("aromatherapy"),
+            Choices::AROMATHERAPY,
             Choice {
-                move_id: String::from("aromatherapy"),
+                move_id: Choices::AROMATHERAPY,
                 target: MoveTarget::User,
                 move_type: PokemonType::Grass,
                 flags: Flags {
@@ -537,9 +528,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("aromaticmist"),
+            Choices::AROMATICMIST,
             Choice {
-                move_id: String::from("aromaticmist"),
+                move_id: Choices::AROMATICMIST,
                 target: MoveTarget::User,
                 move_type: PokemonType::Fairy,
                 flags: Flags {
@@ -560,9 +551,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("assist"),
+            Choices::ASSIST,
             Choice {
-                move_id: String::from("assist"),
+                move_id: Choices::ASSIST,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -572,9 +563,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("assurance"),
+            Choices::ASSURANCE,
             Choice {
-                move_id: String::from("assurance"),
+                move_id: Choices::ASSURANCE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -588,9 +579,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("astonish"),
+            Choices::ASTONISH,
             Choice {
-                move_id: String::from("astonish"),
+                move_id: Choices::ASTONISH,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ghost,
@@ -609,9 +600,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("astralbarrage"),
+            Choices::ASTRALBARRAGE,
             Choice {
-                move_id: String::from("astralbarrage"),
+                move_id: Choices::ASTRALBARRAGE,
                 base_power: 120.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ghost,
@@ -624,9 +615,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("attackorder"),
+            Choices::ATTACKORDER,
             Choice {
-                move_id: String::from("attackorder"),
+                move_id: Choices::ATTACKORDER,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Bug,
@@ -639,9 +630,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("attract"),
+            Choices::ATTRACT,
             Choice {
-                move_id: String::from("attract"),
+                move_id: Choices::ATTRACT,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -657,9 +648,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("aurasphere"),
+            Choices::AURASPHERE,
             Choice {
-                move_id: String::from("aurasphere"),
+                move_id: Choices::AURASPHERE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fighting,
@@ -675,9 +666,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("aurawheel"),
+            Choices::AURAWHEEL,
             Choice {
-                move_id: String::from("aurawheel"),
+                move_id: Choices::AURAWHEEL,
                 base_power: 110.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Electric,
@@ -702,9 +693,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("aurorabeam"),
+            Choices::AURORABEAM,
             Choice {
-                move_id: String::from("aurorabeam"),
+                move_id: Choices::AURORABEAM,
                 base_power: 65.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ice,
@@ -729,9 +720,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("auroraveil"),
+            Choices::AURORAVEIL,
             Choice {
-                move_id: String::from("auroraveil"),
+                move_id: Choices::AURORAVEIL,
                 target: MoveTarget::User,
                 move_type: PokemonType::Ice,
                 flags: Flags {
@@ -746,9 +737,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("autotomize"),
+            Choices::AUTOTOMIZE,
             Choice {
-                move_id: String::from("autotomize"),
+                move_id: Choices::AUTOTOMIZE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Steel,
                 flags: Flags {
@@ -770,9 +761,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("avalanche"),
+            Choices::AVALANCHE,
             Choice {
-                move_id: String::from("avalanche"),
+                move_id: Choices::AVALANCHE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 priority: -4,
@@ -787,9 +778,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("axekick"),
+            Choices::AXEKICK,
             Choice {
-                move_id: String::from("axekick"),
+                move_id: Choices::AXEKICK,
                 accuracy: 90.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
@@ -810,9 +801,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("babydolleyes"),
+            Choices::BABYDOLLEYES,
             Choice {
-                move_id: String::from("babydolleyes"),
+                move_id: Choices::BABYDOLLEYES,
                 priority: 1,
                 move_type: PokemonType::Fairy,
                 flags: Flags {
@@ -836,9 +827,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("baddybad"),
+            Choices::BADDYBAD,
             Choice {
-                move_id: String::from("baddybad"),
+                move_id: Choices::BADDYBAD,
                 accuracy: 95.0,
                 base_power: 80.0,
                 category: MoveCategory::Special,
@@ -852,9 +843,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("banefulbunker"),
+            Choices::BANEFULBUNKER,
             Choice {
-                move_id: String::from("banefulbunker"),
+                move_id: Choices::BANEFULBUNKER,
                 priority: 4,
                 target: MoveTarget::User,
                 move_type: PokemonType::Poison,
@@ -869,9 +860,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("barbbarrage"),
+            Choices::BARBBARRAGE,
             Choice {
-                move_id: String::from("barbbarrage"),
+                move_id: Choices::BARBBARRAGE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Poison,
@@ -889,9 +880,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("barrage"),
+            Choices::BARRAGE,
             Choice {
-                move_id: String::from("barrage"),
+                move_id: Choices::BARRAGE,
                 accuracy: 85.0,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
@@ -906,9 +897,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("barrier"),
+            Choices::BARRIER,
             Choice {
-                move_id: String::from("barrier"),
+                move_id: Choices::BARRIER,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -930,9 +921,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("batonpass"),
+            Choices::BATONPASS,
             Choice {
-                move_id: String::from("batonpass"),
+                move_id: Choices::BATONPASS,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -942,9 +933,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("beakblast"),
+            Choices::BEAKBLAST,
             Choice {
-                move_id: String::from("beakblast"),
+                move_id: Choices::BEAKBLAST,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 priority: -3,
@@ -958,9 +949,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("beatup"),
+            Choices::BEATUP,
             Choice {
-                move_id: String::from("beatup"),
+                move_id: Choices::BEATUP,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
                 flags: Flags {
@@ -972,9 +963,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("behemothbash"),
+            Choices::BEHEMOTHBASH,
             Choice {
-                move_id: String::from("behemothbash"),
+                move_id: Choices::BEHEMOTHBASH,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Steel,
@@ -988,9 +979,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("behemothblade"),
+            Choices::BEHEMOTHBLADE,
             Choice {
-                move_id: String::from("behemothblade"),
+                move_id: Choices::BEHEMOTHBLADE,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Steel,
@@ -1004,9 +995,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("belch"),
+            Choices::BELCH,
             Choice {
-                move_id: String::from("belch"),
+                move_id: Choices::BELCH,
                 accuracy: 90.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
@@ -1019,9 +1010,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bellydrum"),
+            Choices::BELLYDRUM,
             Choice {
-                move_id: String::from("bellydrum"),
+                move_id: Choices::BELLYDRUM,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -1047,9 +1038,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bestow"),
+            Choices::BESTOW,
             Choice {
-                move_id: String::from("bestow"),
+                move_id: Choices::BESTOW,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -1059,9 +1050,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bide"),
+            Choices::BIDE,
             Choice {
-                move_id: String::from("bide"),
+                move_id: Choices::BIDE,
                 category: MoveCategory::Physical,
                 priority: 1,
                 target: MoveTarget::User,
@@ -1079,9 +1070,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bind"),
+            Choices::BIND,
             Choice {
-                move_id: String::from("bind"),
+                move_id: Choices::BIND,
                 accuracy: 85.0,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
@@ -1100,9 +1091,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bite"),
+            Choices::BITE,
             Choice {
-                move_id: String::from("bite"),
+                move_id: Choices::BITE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -1122,9 +1113,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bitterblade"),
+            Choices::BITTERBLADE,
             Choice {
-                move_id: String::from("bitterblade"),
+                move_id: Choices::BITTERBLADE,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fire,
@@ -1139,9 +1130,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bittermalice"),
+            Choices::BITTERMALICE,
             Choice {
-                move_id: String::from("bittermalice"),
+                move_id: Choices::BITTERMALICE,
                 base_power: 75.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ghost,
@@ -1166,9 +1157,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("blastburn"),
+            Choices::BLASTBURN,
             Choice {
-                move_id: String::from("blastburn"),
+                move_id: Choices::BLASTBURN,
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
@@ -1183,9 +1174,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("blazekick"),
+            Choices::BLAZEKICK,
             Choice {
-                move_id: String::from("blazekick"),
+                move_id: Choices::BLAZEKICK,
                 accuracy: 90.0,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
@@ -1205,9 +1196,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("blazingtorque"),
+            Choices::BLAZINGTORQUE,
             Choice {
-                move_id: String::from("blazingtorque"),
+                move_id: Choices::BLAZINGTORQUE,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fire,
@@ -1224,9 +1215,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bleakwindstorm"),
+            Choices::BLEAKWINDSTORM,
             Choice {
-                move_id: String::from("bleakwindstorm"),
+                move_id: Choices::BLEAKWINDSTORM,
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
@@ -1252,9 +1243,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("blizzard"),
+            Choices::BLIZZARD,
             Choice {
-                move_id: String::from("blizzard"),
+                move_id: Choices::BLIZZARD,
                 accuracy: 70.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
@@ -1273,9 +1264,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("block"),
+            Choices::BLOCK,
             Choice {
-                move_id: String::from("block"),
+                move_id: Choices::BLOCK,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -1286,9 +1277,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bloodmoon"),
+            Choices::BLOODMOON,
             Choice {
-                move_id: String::from("bloodmoon"),
+                move_id: Choices::BLOODMOON,
                 base_power: 140.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -1301,9 +1292,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("blueflare"),
+            Choices::BLUEFLARE,
             Choice {
-                move_id: String::from("blueflare"),
+                move_id: Choices::BLUEFLARE,
                 accuracy: 85.0,
                 base_power: 130.0,
                 category: MoveCategory::Special,
@@ -1322,9 +1313,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bodypress"),
+            Choices::BODYPRESS,
             Choice {
-                move_id: String::from("bodypress"),
+                move_id: Choices::BODYPRESS,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -1334,22 +1325,13 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        let attacker = state.get_side_immutable(attacking_side_ref).get_active_immutable();
-                        attacking_choice.base_power *= attacker.calculate_boosted_stat(PokemonBoostableStat::Defense) as f32 / attacker.calculate_boosted_stat(PokemonBoostableStat::Attack) as f32;
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("bodyslam"),
+            Choices::BODYSLAM,
             Choice {
-                move_id: String::from("bodyslam"),
+                move_id: Choices::BODYSLAM,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -1369,9 +1351,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("boltbeak"),
+            Choices::BOLTBEAK,
             Choice {
-                move_id: String::from("boltbeak"),
+                move_id: Choices::BOLTBEAK,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Electric,
@@ -1381,23 +1363,13 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        if attacking_choice.first_move {
-                            attacking_choice.base_power *= 2.0;
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("boltstrike"),
+            Choices::BOLTSTRIKE,
             Choice {
-                move_id: String::from("boltstrike"),
+                move_id: Choices::BOLTSTRIKE,
                 accuracy: 85.0,
                 base_power: 130.0,
                 category: MoveCategory::Physical,
@@ -1417,9 +1389,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("boneclub"),
+            Choices::BONECLUB,
             Choice {
-                move_id: String::from("boneclub"),
+                move_id: Choices::BONECLUB,
                 accuracy: 85.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
@@ -1438,9 +1410,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bonemerang"),
+            Choices::BONEMERANG,
             Choice {
-                move_id: String::from("bonemerang"),
+                move_id: Choices::BONEMERANG,
                 accuracy: 90.0,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
@@ -1454,9 +1426,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bonerush"),
+            Choices::BONERUSH,
             Choice {
-                move_id: String::from("bonerush"),
+                move_id: Choices::BONERUSH,
                 accuracy: 90.0,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
@@ -1470,9 +1442,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("boomburst"),
+            Choices::BOOMBURST,
             Choice {
-                move_id: String::from("boomburst"),
+                move_id: Choices::BOOMBURST,
                 base_power: 140.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -1486,9 +1458,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bounce"),
+            Choices::BOUNCE,
             Choice {
-                move_id: String::from("bounce"),
+                move_id: Choices::BOUNCE,
                 accuracy: 85.0,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
@@ -1511,9 +1483,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bouncybubble"),
+            Choices::BOUNCYBUBBLE,
             Choice {
-                move_id: String::from("bouncybubble"),
+                move_id: Choices::BOUNCYBUBBLE,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -1528,9 +1500,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("branchpoke"),
+            Choices::BRANCHPOKE,
             Choice {
-                move_id: String::from("branchpoke"),
+                move_id: Choices::BRANCHPOKE,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -1544,9 +1516,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bravebird"),
+            Choices::BRAVEBIRD,
             Choice {
-                move_id: String::from("bravebird"),
+                move_id: Choices::BRAVEBIRD,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Flying,
@@ -1562,9 +1534,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("breakingswipe"),
+            Choices::BREAKINGSWIPE,
             Choice {
-                move_id: String::from("breakingswipe"),
+                move_id: Choices::BREAKINGSWIPE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dragon,
@@ -1590,9 +1562,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("brickbreak"),
+            Choices::BRICKBREAK,
             Choice {
-                move_id: String::from("brickbreak"),
+                move_id: Choices::BRICKBREAK,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -1606,9 +1578,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("brine"),
+            Choices::BRINE,
             Choice {
-                move_id: String::from("brine"),
+                move_id: Choices::BRINE,
                 base_power: 65.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -1621,9 +1593,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("brutalswing"),
+            Choices::BRUTALSWING,
             Choice {
-                move_id: String::from("brutalswing"),
+                move_id: Choices::BRUTALSWING,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -1637,9 +1609,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bubble"),
+            Choices::BUBBLE,
             Choice {
-                move_id: String::from("bubble"),
+                move_id: Choices::BUBBLE,
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -1664,9 +1636,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bubblebeam"),
+            Choices::BUBBLEBEAM,
             Choice {
-                move_id: String::from("bubblebeam"),
+                move_id: Choices::BUBBLEBEAM,
                 base_power: 65.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -1691,9 +1663,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bugbite"),
+            Choices::BUGBITE,
             Choice {
-                move_id: String::from("bugbite"),
+                move_id: Choices::BUGBITE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Bug,
@@ -1707,9 +1679,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bugbuzz"),
+            Choices::BUGBUZZ,
             Choice {
-                move_id: String::from("bugbuzz"),
+                move_id: Choices::BUGBUZZ,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Bug,
@@ -1735,9 +1707,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bulkup"),
+            Choices::BULKUP,
             Choice {
-                move_id: String::from("bulkup"),
+                move_id: Choices::BULKUP,
                 target: MoveTarget::User,
                 move_type: PokemonType::Fighting,
                 flags: Flags {
@@ -1759,9 +1731,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bulldoze"),
+            Choices::BULLDOZE,
             Choice {
-                move_id: String::from("bulldoze"),
+                move_id: Choices::BULLDOZE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ground,
@@ -1787,9 +1759,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bulletpunch"),
+            Choices::BULLETPUNCH,
             Choice {
-                move_id: String::from("bulletpunch"),
+                move_id: Choices::BULLETPUNCH,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
@@ -1805,9 +1777,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("bulletseed"),
+            Choices::BULLETSEED,
             Choice {
-                move_id: String::from("bulletseed"),
+                move_id: Choices::BULLETSEED,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -1821,9 +1793,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("burningjealousy"),
+            Choices::BURNINGJEALOUSY,
             Choice {
-                move_id: String::from("burningjealousy"),
+                move_id: Choices::BURNINGJEALOUSY,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -1836,9 +1808,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("burnup"),
+            Choices::BURNUP,
             Choice {
-                move_id: String::from("burnup"),
+                move_id: Choices::BURNUP,
                 base_power: 130.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -1852,9 +1824,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("buzzybuzz"),
+            Choices::BUZZYBUZZ,
             Choice {
-                move_id: String::from("buzzybuzz"),
+                move_id: Choices::BUZZYBUZZ,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Electric,
@@ -1872,9 +1844,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("calmmind"),
+            Choices::CALMMIND,
             Choice {
-                move_id: String::from("calmmind"),
+                move_id: Choices::CALMMIND,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -1896,9 +1868,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("camouflage"),
+            Choices::CAMOUFLAGE,
             Choice {
-                move_id: String::from("camouflage"),
+                move_id: Choices::CAMOUFLAGE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -1909,9 +1881,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("captivate"),
+            Choices::CAPTIVATE,
             Choice {
-                move_id: String::from("captivate"),
+                move_id: Choices::CAPTIVATE,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -1934,9 +1906,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("ceaselessedge"),
+            Choices::CEASELESSEDGE,
             Choice {
-                move_id: String::from("ceaselessedge"),
+                move_id: Choices::CEASELESSEDGE,
                 accuracy: 90.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
@@ -1955,9 +1927,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("celebrate"),
+            Choices::CELEBRATE,
             Choice {
-                move_id: String::from("celebrate"),
+                move_id: Choices::CELEBRATE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -1967,9 +1939,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("charge"),
+            Choices::CHARGE,
             Choice {
-                move_id: String::from("charge"),
+                move_id: Choices::CHARGE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Electric,
                 flags: Flags {
@@ -1995,9 +1967,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("chargebeam"),
+            Choices::CHARGEBEAM,
             Choice {
-                move_id: String::from("chargebeam"),
+                move_id: Choices::CHARGEBEAM,
                 accuracy: 90.0,
                 base_power: 50.0,
                 category: MoveCategory::Special,
@@ -2023,9 +1995,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("charm"),
+            Choices::CHARM,
             Choice {
-                move_id: String::from("charm"),
+                move_id: Choices::CHARM,
                 move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
@@ -2048,9 +2020,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("chatter"),
+            Choices::CHATTER,
             Choice {
-                move_id: String::from("chatter"),
+                move_id: Choices::CHATTER,
                 base_power: 65.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Flying,
@@ -2070,9 +2042,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("chillingwater"),
+            Choices::CHILLINGWATER,
             Choice {
-                move_id: String::from("chillingwater"),
+                move_id: Choices::CHILLINGWATER,
                 base_power: 50.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -2097,9 +2069,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("chillyreception"),
+            Choices::CHILLYRECEPTION,
             Choice {
-                move_id: String::from("chillyreception"),
+                move_id: Choices::CHILLYRECEPTION,
                 move_type: PokemonType::Ice,
                 flags: Flags {
                     ..Default::default()
@@ -2108,9 +2080,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("chipaway"),
+            Choices::CHIPAWAY,
             Choice {
-                move_id: String::from("chipaway"),
+                move_id: Choices::CHIPAWAY,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -2124,9 +2096,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("chloroblast"),
+            Choices::CHLOROBLAST,
             Choice {
-                move_id: String::from("chloroblast"),
+                move_id: Choices::CHLOROBLAST,
                 accuracy: 95.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
@@ -2144,9 +2116,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("circlethrow"),
+            Choices::CIRCLETHROW,
             Choice {
-                move_id: String::from("circlethrow"),
+                move_id: Choices::CIRCLETHROW,
                 accuracy: 90.0,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
@@ -2163,9 +2135,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("clamp"),
+            Choices::CLAMP,
             Choice {
-                move_id: String::from("clamp"),
+                move_id: Choices::CLAMP,
                 accuracy: 85.0,
                 base_power: 35.0,
                 category: MoveCategory::Physical,
@@ -2184,9 +2156,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("clangingscales"),
+            Choices::CLANGINGSCALES,
             Choice {
-                move_id: String::from("clangingscales"),
+                move_id: Choices::CLANGINGSCALES,
                 base_power: 110.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Dragon,
@@ -2200,9 +2172,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("clangoroussoul"),
+            Choices::CLANGOROUSSOUL,
             Choice {
-                move_id: String::from("clangoroussoul"),
+                move_id: Choices::CLANGOROUSSOUL,
                 target: MoveTarget::User,
                 move_type: PokemonType::Dragon,
                 flags: Flags {
@@ -2211,38 +2183,13 @@ lazy_static! {
                     sound: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        let attacker = state.get_side_immutable(attacking_side_ref).get_active_immutable();
-                        if attacker.hp > attacker.maxhp / 3 {
-                            attacking_choice.heal = Some(Heal {
-                                target: MoveTarget::User,
-                                amount: -0.33,
-                            });
-                            attacking_choice.boost = Some(Boost {
-                                target: MoveTarget::User,
-                                boosts: StatBoosts {
-                                    attack: 1,
-                                    defense: 1,
-                                    special_attack: 1,
-                                    special_defense: 1,
-                                    speed: 1,
-                                    accuracy: 0,
-                                },
-                            });
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("clearsmog"),
+            Choices::CLEARSMOG,
             Choice {
-                move_id: String::from("clearsmog"),
+                move_id: Choices::CLEARSMOG,
                 base_power: 50.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Poison,
@@ -2255,9 +2202,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("closecombat"),
+            Choices::CLOSECOMBAT,
             Choice {
-                move_id: String::from("closecombat"),
+                move_id: Choices::CLOSECOMBAT,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -2271,9 +2218,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("coaching"),
+            Choices::COACHING,
             Choice {
-                move_id: String::from("coaching"),
+                move_id: Choices::COACHING,
                 target: MoveTarget::User,
                 move_type: PokemonType::Fighting,
                 flags: Flags {
@@ -2294,9 +2241,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("coil"),
+            Choices::COIL,
             Choice {
-                move_id: String::from("coil"),
+                move_id: Choices::COIL,
                 target: MoveTarget::User,
                 move_type: PokemonType::Poison,
                 flags: Flags {
@@ -2318,9 +2265,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("collisioncourse"),
+            Choices::COLLISIONCOURSE,
             Choice {
-                move_id: String::from("collisioncourse"),
+                move_id: Choices::COLLISIONCOURSE,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -2334,9 +2281,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("combattorque"),
+            Choices::COMBATTORQUE,
             Choice {
-                move_id: String::from("combattorque"),
+                move_id: Choices::COMBATTORQUE,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -2353,9 +2300,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("cometpunch"),
+            Choices::COMETPUNCH,
             Choice {
-                move_id: String::from("cometpunch"),
+                move_id: Choices::COMETPUNCH,
                 accuracy: 85.0,
                 base_power: 18.0,
                 category: MoveCategory::Physical,
@@ -2371,9 +2318,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("comeuppance"),
+            Choices::COMEUPPANCE,
             Choice {
-                move_id: String::from("comeuppance"),
+                move_id: Choices::COMEUPPANCE,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
                 flags: Flags {
@@ -2386,9 +2333,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("confide"),
+            Choices::CONFIDE,
             Choice {
-                move_id: String::from("confide"),
+                move_id: Choices::CONFIDE,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -2411,9 +2358,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("confuseray"),
+            Choices::CONFUSERAY,
             Choice {
-                move_id: String::from("confuseray"),
+                move_id: Choices::CONFUSERAY,
                 move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
@@ -2429,9 +2376,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("confusion"),
+            Choices::CONFUSION,
             Choice {
-                move_id: String::from("confusion"),
+                move_id: Choices::CONFUSION,
                 base_power: 50.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -2449,9 +2396,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("constrict"),
+            Choices::CONSTRICT,
             Choice {
-                move_id: String::from("constrict"),
+                move_id: Choices::CONSTRICT,
                 base_power: 10.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -2477,9 +2424,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("conversion"),
+            Choices::CONVERSION,
             Choice {
-                move_id: String::from("conversion"),
+                move_id: Choices::CONVERSION,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -2490,9 +2437,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("conversion2"),
+            Choices::CONVERSION2,
             Choice {
-                move_id: String::from("conversion2"),
+                move_id: Choices::CONVERSION2,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
@@ -2501,9 +2448,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("copycat"),
+            Choices::COPYCAT,
             Choice {
-                move_id: String::from("copycat"),
+                move_id: Choices::COPYCAT,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -2513,9 +2460,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("coreenforcer"),
+            Choices::COREENFORCER,
             Choice {
-                move_id: String::from("coreenforcer"),
+                move_id: Choices::COREENFORCER,
                 base_power: 100.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Dragon,
@@ -2528,9 +2475,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("corrosivegas"),
+            Choices::CORROSIVEGAS,
             Choice {
-                move_id: String::from("corrosivegas"),
+                move_id: Choices::CORROSIVEGAS,
                 move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
@@ -2542,9 +2489,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("cosmicpower"),
+            Choices::COSMICPOWER,
             Choice {
-                move_id: String::from("cosmicpower"),
+                move_id: Choices::COSMICPOWER,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -2566,9 +2513,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("cottonguard"),
+            Choices::COTTONGUARD,
             Choice {
-                move_id: String::from("cottonguard"),
+                move_id: Choices::COTTONGUARD,
                 target: MoveTarget::User,
                 move_type: PokemonType::Grass,
                 flags: Flags {
@@ -2590,9 +2537,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("cottonspore"),
+            Choices::COTTONSPORE,
             Choice {
-                move_id: String::from("cottonspore"),
+                move_id: Choices::COTTONSPORE,
                 move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
@@ -2616,9 +2563,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("counter"),
+            Choices::COUNTER,
             Choice {
-                move_id: String::from("counter"),
+                move_id: Choices::COUNTER,
                 category: MoveCategory::Physical,
                 priority: -5,
                 move_type: PokemonType::Fighting,
@@ -2631,62 +2578,21 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("courtchange"),
+            Choices::COURTCHANGE,
             Choice {
-                move_id: String::from("courtchange"),
+                move_id: Choices::COURTCHANGE,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     ..Default::default()
                 },
-                hazard_clear: Some(|state: &mut State, _: &SideReference, instructions: &mut StateInstructions| {
-                    let mut instruction_list = vec![];
-                    let courtchange_swaps = [
-                        PokemonSideCondition::Stealthrock,
-                        PokemonSideCondition::Spikes,
-                        PokemonSideCondition::ToxicSpikes,
-                        PokemonSideCondition::StickyWeb,
-                        PokemonSideCondition::Reflect,
-                        PokemonSideCondition::LightScreen,
-                        PokemonSideCondition::AuroraVeil,
-                        PokemonSideCondition::Tailwind,
-                    ];
-
-                    for side in [SideReference::SideOne, SideReference::SideTwo] {
-                        for side_condition in courtchange_swaps {
-                            let side_condition_num = state
-                                .get_side_immutable(&side)
-                                .get_side_condition(side_condition);
-                            if side_condition_num > 0 {
-                                instruction_list.push(Instruction::ChangeSideCondition(
-                                    ChangeSideConditionInstruction {
-                                        side_ref: side,
-                                        side_condition: side_condition,
-                                        amount: -1 * side_condition_num,
-                                    },
-                                ));
-                                instruction_list.push(Instruction::ChangeSideCondition(
-                                    ChangeSideConditionInstruction {
-                                        side_ref: side.get_other_side(),
-                                        side_condition: side_condition,
-                                        amount: side_condition_num,
-                                    },
-                                ));
-                            }
-                        }
-                    }
-                    state.apply_instructions(&instruction_list);
-                    for i in instruction_list {
-                        instructions.instruction_list.push(i)
-                    }
-                }),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("covet"),
+            Choices::COVET,
             Choice {
-                move_id: String::from("covet"),
+                move_id: Choices::COVET,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -2700,9 +2606,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("crabhammer"),
+            Choices::CRABHAMMER,
             Choice {
-                move_id: String::from("crabhammer"),
+                move_id: Choices::CRABHAMMER,
                 accuracy: 90.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
@@ -2717,9 +2623,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("craftyshield"),
+            Choices::CRAFTYSHIELD,
             Choice {
-                move_id: String::from("craftyshield"),
+                move_id: Choices::CRAFTYSHIELD,
                 priority: 3,
                 target: MoveTarget::User,
                 move_type: PokemonType::Fairy,
@@ -2734,9 +2640,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("crosschop"),
+            Choices::CROSSCHOP,
             Choice {
-                move_id: String::from("crosschop"),
+                move_id: Choices::CROSSCHOP,
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
@@ -2751,9 +2657,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("crosspoison"),
+            Choices::CROSSPOISON,
             Choice {
-                move_id: String::from("crosspoison"),
+                move_id: Choices::CROSSPOISON,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Poison,
@@ -2772,9 +2678,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("crunch"),
+            Choices::CRUNCH,
             Choice {
-                move_id: String::from("crunch"),
+                move_id: Choices::CRUNCH,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -2801,9 +2707,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("crushclaw"),
+            Choices::CRUSHCLAW,
             Choice {
-                move_id: String::from("crushclaw"),
+                move_id: Choices::CRUSHCLAW,
                 accuracy: 95.0,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
@@ -2830,9 +2736,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("crushgrip"),
+            Choices::CRUSHGRIP,
             Choice {
-                move_id: String::from("crushgrip"),
+                move_id: Choices::CRUSHGRIP,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -2845,9 +2751,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("curse"),
+            Choices::CURSE,
             Choice {
-                move_id: String::from("curse"),
+                move_id: Choices::CURSE,
                 move_type: PokemonType::Ghost,
                 flags: Flags {
                     ..Default::default()
@@ -2871,9 +2777,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("cut"),
+            Choices::CUT,
             Choice {
-                move_id: String::from("cut"),
+                move_id: Choices::CUT,
                 accuracy: 95.0,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
@@ -2888,9 +2794,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("darkestlariat"),
+            Choices::DARKESTLARIAT,
             Choice {
-                move_id: String::from("darkestlariat"),
+                move_id: Choices::DARKESTLARIAT,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -2904,9 +2810,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("darkpulse"),
+            Choices::DARKPULSE,
             Choice {
-                move_id: String::from("darkpulse"),
+                move_id: Choices::DARKPULSE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Dark,
@@ -2926,9 +2832,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("darkvoid"),
+            Choices::DARKVOID,
             Choice {
-                move_id: String::from("darkvoid"),
+                move_id: Choices::DARKVOID,
                 accuracy: 50.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
@@ -2945,9 +2851,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dazzlinggleam"),
+            Choices::DAZZLINGGLEAM,
             Choice {
-                move_id: String::from("dazzlinggleam"),
+                move_id: Choices::DAZZLINGGLEAM,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fairy,
@@ -2960,9 +2866,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("decorate"),
+            Choices::DECORATE,
             Choice {
-                move_id: String::from("decorate"),
+                move_id: Choices::DECORATE,
                 move_type: PokemonType::Fairy,
                 flags: Flags {
                     ..Default::default()
@@ -2982,9 +2888,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("defendorder"),
+            Choices::DEFENDORDER,
             Choice {
-                move_id: String::from("defendorder"),
+                move_id: Choices::DEFENDORDER,
                 target: MoveTarget::User,
                 move_type: PokemonType::Bug,
                 flags: Flags {
@@ -3006,9 +2912,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("defensecurl"),
+            Choices::DEFENSECURL,
             Choice {
-                move_id: String::from("defensecurl"),
+                move_id: Choices::DEFENSECURL,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -3034,9 +2940,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("defog"),
+            Choices::DEFOG,
             Choice {
-                move_id: String::from("defog"),
+                move_id: Choices::DEFOG,
                 move_type: PokemonType::Flying,
                 flags: Flags {
                     mirror: true,
@@ -3055,53 +2961,13 @@ lazy_static! {
                         accuracy: 0,
                     },
                 }),
-                hazard_clear: Some(|state: &mut State, _: &SideReference, instructions: &mut StateInstructions| {
-                    if state.terrain.terrain_type != Terrain::None {
-                        instructions.instruction_list.push(Instruction::ChangeTerrain(ChangeTerrain {
-                            new_terrain: Terrain::None,
-                            new_terrain_turns_remaining: 0,
-                            previous_terrain: state.terrain.terrain_type,
-                            previous_terrain_turns_remaining: state.terrain.turns_remaining,
-                        }));
-                        state.terrain.terrain_type = Terrain::None;
-                        state.terrain.turns_remaining = 0;
-                    }
-                    let side_condition_clears = [
-                        PokemonSideCondition::Stealthrock,
-                        PokemonSideCondition::Spikes,
-                        PokemonSideCondition::ToxicSpikes,
-                        PokemonSideCondition::StickyWeb,
-                        PokemonSideCondition::Reflect,
-                        PokemonSideCondition::LightScreen,
-                        PokemonSideCondition::AuroraVeil,
-                    ];
-
-                    for side in [SideReference::SideOne, SideReference::SideTwo] {
-                        for side_condition in side_condition_clears {
-                            let side_condition_num = state
-                                .get_side_immutable(&side)
-                                .get_side_condition(side_condition);
-                            if side_condition_num > 0 {
-                                let i = Instruction::ChangeSideCondition(
-                                    ChangeSideConditionInstruction {
-                                        side_ref: side,
-                                        side_condition: side_condition,
-                                        amount: -1 * side_condition_num,
-                                    },
-                                );
-                                state.apply_one_instruction(&i);
-                                instructions.instruction_list.push(i)
-                            }
-                        }
-                    }
-                }),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("destinybond"),
+            Choices::DESTINYBOND,
             Choice {
-                move_id: String::from("destinybond"),
+                move_id: Choices::DESTINYBOND,
                 target: MoveTarget::User,
                 move_type: PokemonType::Ghost,
                 flags: Flags {
@@ -3115,9 +2981,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("detect"),
+            Choices::DETECT,
             Choice {
-                move_id: String::from("detect"),
+                move_id: Choices::DETECT,
                 priority: 4,
                 target: MoveTarget::User,
                 move_type: PokemonType::Fighting,
@@ -3132,9 +2998,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("diamondstorm"),
+            Choices::DIAMONDSTORM,
             Choice {
-                move_id: String::from("diamondstorm"),
+                move_id: Choices::DIAMONDSTORM,
                 accuracy: 95.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
@@ -3160,9 +3026,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dig"),
+            Choices::DIG,
             Choice {
-                move_id: String::from("dig"),
+                move_id: Choices::DIG,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ground,
@@ -3178,9 +3044,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("direclaw"),
+            Choices::DIRECLAW,
             Choice {
-                move_id: String::from("direclaw"),
+                move_id: Choices::DIRECLAW,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Poison,
@@ -3194,9 +3060,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("disable"),
+            Choices::DISABLE,
             Choice {
-                move_id: String::from("disable"),
+                move_id: Choices::DISABLE,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -3212,9 +3078,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("disarmingvoice"),
+            Choices::DISARMINGVOICE,
             Choice {
-                move_id: String::from("disarmingvoice"),
+                move_id: Choices::DISARMINGVOICE,
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fairy,
@@ -3228,9 +3094,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("discharge"),
+            Choices::DISCHARGE,
             Choice {
-                move_id: String::from("discharge"),
+                move_id: Choices::DISCHARGE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Electric,
@@ -3248,9 +3114,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dive"),
+            Choices::DIVE,
             Choice {
-                move_id: String::from("dive"),
+                move_id: Choices::DIVE,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Water,
@@ -3266,9 +3132,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dizzypunch"),
+            Choices::DIZZYPUNCH,
             Choice {
-                move_id: String::from("dizzypunch"),
+                move_id: Choices::DIZZYPUNCH,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -3288,9 +3154,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("doodle"),
+            Choices::DOODLE,
             Choice {
-                move_id: String::from("doodle"),
+                move_id: Choices::DOODLE,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
@@ -3299,9 +3165,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("doomdesire"),
+            Choices::DOOMDESIRE,
             Choice {
-                move_id: String::from("doomdesire"),
+                move_id: Choices::DOOMDESIRE,
                 base_power: 140.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Steel,
@@ -3312,9 +3178,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("doubleedge"),
+            Choices::DOUBLEEDGE,
             Choice {
-                move_id: String::from("doubleedge"),
+                move_id: Choices::DOUBLEEDGE,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -3329,9 +3195,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("doublehit"),
+            Choices::DOUBLEHIT,
             Choice {
-                move_id: String::from("doublehit"),
+                move_id: Choices::DOUBLEHIT,
                 accuracy: 90.0,
                 base_power: 35.0,
                 category: MoveCategory::Physical,
@@ -3346,9 +3212,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("doubleironbash"),
+            Choices::DOUBLEIRONBASH,
             Choice {
-                move_id: String::from("doubleironbash"),
+                move_id: Choices::DOUBLEIRONBASH,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Steel,
@@ -3368,9 +3234,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("doublekick"),
+            Choices::DOUBLEKICK,
             Choice {
-                move_id: String::from("doublekick"),
+                move_id: Choices::DOUBLEKICK,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -3384,9 +3250,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("doubleshock"),
+            Choices::DOUBLESHOCK,
             Choice {
-                move_id: String::from("doubleshock"),
+                move_id: Choices::DOUBLESHOCK,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Electric,
@@ -3400,9 +3266,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("doubleslap"),
+            Choices::DOUBLESLAP,
             Choice {
-                move_id: String::from("doubleslap"),
+                move_id: Choices::DOUBLESLAP,
                 accuracy: 85.0,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
@@ -3417,9 +3283,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("doubleteam"),
+            Choices::DOUBLETEAM,
             Choice {
-                move_id: String::from("doubleteam"),
+                move_id: Choices::DOUBLETEAM,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -3441,9 +3307,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dracometeor"),
+            Choices::DRACOMETEOR,
             Choice {
-                move_id: String::from("dracometeor"),
+                move_id: Choices::DRACOMETEOR,
                 accuracy: 90.0,
                 base_power: 130.0,
                 category: MoveCategory::Special,
@@ -3457,9 +3323,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dragonascent"),
+            Choices::DRAGONASCENT,
             Choice {
-                move_id: String::from("dragonascent"),
+                move_id: Choices::DRAGONASCENT,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Flying,
@@ -3474,9 +3340,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dragonbreath"),
+            Choices::DRAGONBREATH,
             Choice {
-                move_id: String::from("dragonbreath"),
+                move_id: Choices::DRAGONBREATH,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Dragon,
@@ -3494,9 +3360,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dragonclaw"),
+            Choices::DRAGONCLAW,
             Choice {
-                move_id: String::from("dragonclaw"),
+                move_id: Choices::DRAGONCLAW,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dragon,
@@ -3510,9 +3376,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dragondance"),
+            Choices::DRAGONDANCE,
             Choice {
-                move_id: String::from("dragondance"),
+                move_id: Choices::DRAGONDANCE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Dragon,
                 flags: Flags {
@@ -3535,9 +3401,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dragondarts"),
+            Choices::DRAGONDARTS,
             Choice {
-                move_id: String::from("dragondarts"),
+                move_id: Choices::DRAGONDARTS,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dragon,
@@ -3550,9 +3416,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dragonenergy"),
+            Choices::DRAGONENERGY,
             Choice {
-                move_id: String::from("dragonenergy"),
+                move_id: Choices::DRAGONENERGY,
                 base_power: 150.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Dragon,
@@ -3565,9 +3431,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dragonhammer"),
+            Choices::DRAGONHAMMER,
             Choice {
-                move_id: String::from("dragonhammer"),
+                move_id: Choices::DRAGONHAMMER,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dragon,
@@ -3581,9 +3447,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dragonpulse"),
+            Choices::DRAGONPULSE,
             Choice {
-                move_id: String::from("dragonpulse"),
+                move_id: Choices::DRAGONPULSE,
                 base_power: 85.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Dragon,
@@ -3598,9 +3464,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dragonrage"),
+            Choices::DRAGONRAGE,
             Choice {
-                move_id: String::from("dragonrage"),
+                move_id: Choices::DRAGONRAGE,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Dragon,
                 flags: Flags {
@@ -3612,9 +3478,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dragonrush"),
+            Choices::DRAGONRUSH,
             Choice {
-                move_id: String::from("dragonrush"),
+                move_id: Choices::DRAGONRUSH,
                 accuracy: 75.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
@@ -3634,9 +3500,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dragontail"),
+            Choices::DRAGONTAIL,
             Choice {
-                move_id: String::from("dragontail"),
+                move_id: Choices::DRAGONTAIL,
                 accuracy: 90.0,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
@@ -3653,9 +3519,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("drainingkiss"),
+            Choices::DRAININGKISS,
             Choice {
-                move_id: String::from("drainingkiss"),
+                move_id: Choices::DRAININGKISS,
                 base_power: 50.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fairy,
@@ -3671,9 +3537,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("drainpunch"),
+            Choices::DRAINPUNCH,
             Choice {
-                move_id: String::from("drainpunch"),
+                move_id: Choices::DRAINPUNCH,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -3690,9 +3556,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dreameater"),
+            Choices::DREAMEATER,
             Choice {
-                move_id: String::from("dreameater"),
+                move_id: Choices::DREAMEATER,
                 base_power: 100.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -3707,9 +3573,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("drillpeck"),
+            Choices::DRILLPECK,
             Choice {
-                move_id: String::from("drillpeck"),
+                move_id: Choices::DRILLPECK,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Flying,
@@ -3724,9 +3590,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("drillrun"),
+            Choices::DRILLRUN,
             Choice {
-                move_id: String::from("drillrun"),
+                move_id: Choices::DRILLRUN,
                 accuracy: 95.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
@@ -3741,9 +3607,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("drumbeating"),
+            Choices::DRUMBEATING,
             Choice {
-                move_id: String::from("drumbeating"),
+                move_id: Choices::DRUMBEATING,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -3768,9 +3634,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dualchop"),
+            Choices::DUALCHOP,
             Choice {
-                move_id: String::from("dualchop"),
+                move_id: Choices::DUALCHOP,
                 accuracy: 90.0,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
@@ -3785,9 +3651,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dualwingbeat"),
+            Choices::DUALWINGBEAT,
             Choice {
-                move_id: String::from("dualwingbeat"),
+                move_id: Choices::DUALWINGBEAT,
                 accuracy: 90.0,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
@@ -3802,9 +3668,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dynamaxcannon"),
+            Choices::DYNAMAXCANNON,
             Choice {
-                move_id: String::from("dynamaxcannon"),
+                move_id: Choices::DYNAMAXCANNON,
                 base_power: 100.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Dragon,
@@ -3816,9 +3682,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("dynamicpunch"),
+            Choices::DYNAMICPUNCH,
             Choice {
-                move_id: String::from("dynamicpunch"),
+                move_id: Choices::DYNAMICPUNCH,
                 accuracy: 50.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
@@ -3839,9 +3705,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("earthpower"),
+            Choices::EARTHPOWER,
             Choice {
-                move_id: String::from("earthpower"),
+                move_id: Choices::EARTHPOWER,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ground,
@@ -3867,9 +3733,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("earthquake"),
+            Choices::EARTHQUAKE,
             Choice {
-                move_id: String::from("earthquake"),
+                move_id: Choices::EARTHQUAKE,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ground,
@@ -3883,9 +3749,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("echoedvoice"),
+            Choices::ECHOEDVOICE,
             Choice {
-                move_id: String::from("echoedvoice"),
+                move_id: Choices::ECHOEDVOICE,
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -3899,9 +3765,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("eerieimpulse"),
+            Choices::EERIEIMPULSE,
             Choice {
-                move_id: String::from("eerieimpulse"),
+                move_id: Choices::EERIEIMPULSE,
                 move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
@@ -3924,9 +3790,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("eeriespell"),
+            Choices::EERIESPELL,
             Choice {
-                move_id: String::from("eeriespell"),
+                move_id: Choices::EERIESPELL,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -3940,9 +3806,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("eggbomb"),
+            Choices::EGGBOMB,
             Choice {
-                move_id: String::from("eggbomb"),
+                move_id: Choices::EGGBOMB,
                 accuracy: 75.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
@@ -3957,9 +3823,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("electricterrain"),
+            Choices::ELECTRICTERRAIN,
             Choice {
-                move_id: String::from("electricterrain"),
+                move_id: Choices::ELECTRICTERRAIN,
                 move_type: PokemonType::Electric,
                 flags: Flags {
                     nonsky: true,
@@ -3969,9 +3835,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("electrify"),
+            Choices::ELECTRIFY,
             Choice {
-                move_id: String::from("electrify"),
+                move_id: Choices::ELECTRIFY,
                 move_type: PokemonType::Electric,
                 flags: Flags {
                     mirror: true,
@@ -3986,9 +3852,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("electroball"),
+            Choices::ELECTROBALL,
             Choice {
-                move_id: String::from("electroball"),
+                move_id: Choices::ELECTROBALL,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Electric,
                 flags: Flags {
@@ -4001,9 +3867,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("electrodrift"),
+            Choices::ELECTRODRIFT,
             Choice {
-                move_id: String::from("electrodrift"),
+                move_id: Choices::ELECTRODRIFT,
                 base_power: 100.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Electric,
@@ -4017,9 +3883,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("electroweb"),
+            Choices::ELECTROWEB,
             Choice {
-                move_id: String::from("electroweb"),
+                move_id: Choices::ELECTROWEB,
                 accuracy: 95.0,
                 base_power: 55.0,
                 category: MoveCategory::Special,
@@ -4045,9 +3911,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("embargo"),
+            Choices::EMBARGO,
             Choice {
-                move_id: String::from("embargo"),
+                move_id: Choices::EMBARGO,
                 move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
@@ -4063,9 +3929,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("ember"),
+            Choices::EMBER,
             Choice {
-                move_id: String::from("ember"),
+                move_id: Choices::EMBER,
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -4083,9 +3949,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("encore"),
+            Choices::ENCORE,
             Choice {
-                move_id: String::from("encore"),
+                move_id: Choices::ENCORE,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -4101,9 +3967,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("endeavor"),
+            Choices::ENDEAVOR,
             Choice {
-                move_id: String::from("endeavor"),
+                move_id: Choices::ENDEAVOR,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -4116,9 +3982,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("endure"),
+            Choices::ENDURE,
             Choice {
-                move_id: String::from("endure"),
+                move_id: Choices::ENDURE,
                 priority: 4,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
@@ -4133,9 +3999,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("energyball"),
+            Choices::ENERGYBALL,
             Choice {
-                move_id: String::from("energyball"),
+                move_id: Choices::ENERGYBALL,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Grass,
@@ -4161,9 +4027,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("entrainment"),
+            Choices::ENTRAINMENT,
             Choice {
-                move_id: String::from("entrainment"),
+                move_id: Choices::ENTRAINMENT,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -4175,9 +4041,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("eruption"),
+            Choices::ERUPTION,
             Choice {
-                move_id: String::from("eruption"),
+                move_id: Choices::ERUPTION,
                 base_power: 150.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -4190,9 +4056,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("esperwing"),
+            Choices::ESPERWING,
             Choice {
-                move_id: String::from("esperwing"),
+                move_id: Choices::ESPERWING,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -4217,9 +4083,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("eternabeam"),
+            Choices::ETERNABEAM,
             Choice {
-                move_id: String::from("eternabeam"),
+                move_id: Choices::ETERNABEAM,
                 accuracy: 90.0,
                 base_power: 160.0,
                 category: MoveCategory::Special,
@@ -4234,9 +4100,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("expandingforce"),
+            Choices::EXPANDINGFORCE,
             Choice {
-                move_id: String::from("expandingforce"),
+                move_id: Choices::EXPANDINGFORCE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -4245,23 +4111,13 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        if state.terrain.terrain_type == Terrain::PsychicTerrain {
-                            attacking_choice.base_power *= 1.5;
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("explosion"),
+            Choices::EXPLOSION,
             Choice {
-                move_id: String::from("explosion"),
+                move_id: Choices::EXPLOSION,
                 base_power: 250.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -4278,9 +4134,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("extrasensory"),
+            Choices::EXTRASENSORY,
             Choice {
-                move_id: String::from("extrasensory"),
+                move_id: Choices::EXTRASENSORY,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -4298,9 +4154,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("extremespeed"),
+            Choices::EXTREMESPEED,
             Choice {
-                move_id: String::from("extremespeed"),
+                move_id: Choices::EXTREMESPEED,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 priority: 2,
@@ -4315,9 +4171,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("facade"),
+            Choices::FACADE,
             Choice {
-                move_id: String::from("facade"),
+                move_id: Choices::FACADE,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -4331,9 +4187,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("fairylock"),
+            Choices::FAIRYLOCK,
             Choice {
-                move_id: String::from("fairylock"),
+                move_id: Choices::FAIRYLOCK,
                 move_type: PokemonType::Fairy,
                 flags: Flags {
                     mirror: true,
@@ -4343,9 +4199,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("fairywind"),
+            Choices::FAIRYWIND,
             Choice {
-                move_id: String::from("fairywind"),
+                move_id: Choices::FAIRYWIND,
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fairy,
@@ -4358,9 +4214,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("fakeout"),
+            Choices::FAKEOUT,
             Choice {
-                move_id: String::from("fakeout"),
+                move_id: Choices::FAKEOUT,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 3,
@@ -4380,9 +4236,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("faketears"),
+            Choices::FAKETEARS,
             Choice {
-                move_id: String::from("faketears"),
+                move_id: Choices::FAKETEARS,
                 move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
@@ -4405,9 +4261,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("falsesurrender"),
+            Choices::FALSESURRENDER,
             Choice {
-                move_id: String::from("falsesurrender"),
+                move_id: Choices::FALSESURRENDER,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -4421,9 +4277,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("falseswipe"),
+            Choices::FALSESWIPE,
             Choice {
-                move_id: String::from("falseswipe"),
+                move_id: Choices::FALSESWIPE,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -4437,9 +4293,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("featherdance"),
+            Choices::FEATHERDANCE,
             Choice {
-                move_id: String::from("featherdance"),
+                move_id: Choices::FEATHERDANCE,
                 move_type: PokemonType::Flying,
                 flags: Flags {
                     dance: true,
@@ -4463,9 +4319,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("feint"),
+            Choices::FEINT,
             Choice {
-                move_id: String::from("feint"),
+                move_id: Choices::FEINT,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
                 priority: 2,
@@ -4478,9 +4334,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("feintattack"),
+            Choices::FEINTATTACK,
             Choice {
-                move_id: String::from("feintattack"),
+                move_id: Choices::FEINTATTACK,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -4494,9 +4350,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("fellstinger"),
+            Choices::FELLSTINGER,
             Choice {
-                move_id: String::from("fellstinger"),
+                move_id: Choices::FELLSTINGER,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Bug,
@@ -4510,9 +4366,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("fierydance"),
+            Choices::FIERYDANCE,
             Choice {
-                move_id: String::from("fierydance"),
+                move_id: Choices::FIERYDANCE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -4538,9 +4394,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("fierywrath"),
+            Choices::FIERYWRATH,
             Choice {
-                move_id: String::from("fierywrath"),
+                move_id: Choices::FIERYWRATH,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Dark,
@@ -4558,47 +4414,22 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("filletaway"),
+            Choices::FILLETAWAY,
             Choice {
-                move_id: String::from("filletaway"),
+                move_id: Choices::FILLETAWAY,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     snatch: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        let attacker = state.get_side_immutable(attacking_side_ref).get_active_immutable();
-                        if attacker.hp > attacker.maxhp / 2 {
-                            attacking_choice.heal = Some(Heal {
-                                target: MoveTarget::User,
-                                amount: -0.5,
-                            });
-                            attacking_choice.boost = Some(Boost {
-                                target: MoveTarget::User,
-                                boosts: StatBoosts {
-                                    attack: 2,
-                                    defense: 0,
-                                    special_attack: 2,
-                                    special_defense: 0,
-                                    speed: 2,
-                                    accuracy: 0,
-                                },
-                            });
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("finalgambit"),
+            Choices::FINALGAMBIT,
             Choice {
-                move_id: String::from("finalgambit"),
+                move_id: Choices::FINALGAMBIT,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fighting,
                 flags: Flags {
@@ -4613,9 +4444,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("fireblast"),
+            Choices::FIREBLAST,
             Choice {
-                move_id: String::from("fireblast"),
+                move_id: Choices::FIREBLAST,
                 accuracy: 85.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
@@ -4634,9 +4465,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("firefang"),
+            Choices::FIREFANG,
             Choice {
-                move_id: String::from("firefang"),
+                move_id: Choices::FIREFANG,
                 accuracy: 95.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
@@ -4664,9 +4495,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("firelash"),
+            Choices::FIRELASH,
             Choice {
-                move_id: String::from("firelash"),
+                move_id: Choices::FIRELASH,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fire,
@@ -4692,9 +4523,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("firepledge"),
+            Choices::FIREPLEDGE,
             Choice {
-                move_id: String::from("firepledge"),
+                move_id: Choices::FIREPLEDGE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -4708,9 +4539,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("firepunch"),
+            Choices::FIREPUNCH,
             Choice {
-                move_id: String::from("firepunch"),
+                move_id: Choices::FIREPUNCH,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fire,
@@ -4730,9 +4561,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("firespin"),
+            Choices::FIRESPIN,
             Choice {
-                move_id: String::from("firespin"),
+                move_id: Choices::FIRESPIN,
                 accuracy: 85.0,
                 base_power: 35.0,
                 category: MoveCategory::Special,
@@ -4750,9 +4581,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("firstimpression"),
+            Choices::FIRSTIMPRESSION,
             Choice {
-                move_id: String::from("firstimpression"),
+                move_id: Choices::FIRSTIMPRESSION,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 priority: 2,
@@ -4767,9 +4598,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("fishiousrend"),
+            Choices::FISHIOUSREND,
             Choice {
-                move_id: String::from("fishiousrend"),
+                move_id: Choices::FISHIOUSREND,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Water,
@@ -4784,9 +4615,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("fissure"),
+            Choices::FISSURE,
             Choice {
-                move_id: String::from("fissure"),
+                move_id: Choices::FISSURE,
                 accuracy: 30.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ground,
@@ -4800,9 +4631,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("flail"),
+            Choices::FLAIL,
             Choice {
-                move_id: String::from("flail"),
+                move_id: Choices::FLAIL,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -4815,9 +4646,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("flameburst"),
+            Choices::FLAMEBURST,
             Choice {
-                move_id: String::from("flameburst"),
+                move_id: Choices::FLAMEBURST,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -4830,9 +4661,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("flamecharge"),
+            Choices::FLAMECHARGE,
             Choice {
-                move_id: String::from("flamecharge"),
+                move_id: Choices::FLAMECHARGE,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fire,
@@ -4858,9 +4689,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("flamethrower"),
+            Choices::FLAMETHROWER,
             Choice {
-                move_id: String::from("flamethrower"),
+                move_id: Choices::FLAMETHROWER,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -4878,9 +4709,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("flamewheel"),
+            Choices::FLAMEWHEEL,
             Choice {
-                move_id: String::from("flamewheel"),
+                move_id: Choices::FLAMEWHEEL,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fire,
@@ -4900,9 +4731,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("flareblitz"),
+            Choices::FLAREBLITZ,
             Choice {
-                move_id: String::from("flareblitz"),
+                move_id: Choices::FLAREBLITZ,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fire,
@@ -4923,9 +4754,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("flash"),
+            Choices::FLASH,
             Choice {
-                move_id: String::from("flash"),
+                move_id: Choices::FLASH,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -4948,9 +4779,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("flashcannon"),
+            Choices::FLASHCANNON,
             Choice {
-                move_id: String::from("flashcannon"),
+                move_id: Choices::FLASHCANNON,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Steel,
@@ -4975,9 +4806,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("flatter"),
+            Choices::FLATTER,
             Choice {
-                move_id: String::from("flatter"),
+                move_id: Choices::FLATTER,
                 move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
@@ -5004,9 +4835,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("fleurcannon"),
+            Choices::FLEURCANNON,
             Choice {
-                move_id: String::from("fleurcannon"),
+                move_id: Choices::FLEURCANNON,
                 accuracy: 90.0,
                 base_power: 130.0,
                 category: MoveCategory::Special,
@@ -5020,9 +4851,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("fling"),
+            Choices::FLING,
             Choice {
-                move_id: String::from("fling"),
+                move_id: Choices::FLING,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
                 flags: Flags {
@@ -5034,9 +4865,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("flipturn"),
+            Choices::FLIPTURN,
             Choice {
-                move_id: String::from("flipturn"),
+                move_id: Choices::FLIPTURN,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Water,
@@ -5050,9 +4881,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("floatyfall"),
+            Choices::FLOATYFALL,
             Choice {
-                move_id: String::from("floatyfall"),
+                move_id: Choices::FLOATYFALL,
                 accuracy: 95.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
@@ -5073,9 +4904,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("floralhealing"),
+            Choices::FLORALHEALING,
             Choice {
-                move_id: String::from("floralhealing"),
+                move_id: Choices::FLORALHEALING,
                 move_type: PokemonType::Fairy,
                 flags: Flags {
                     heal: true,
@@ -5087,9 +4918,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("flowershield"),
+            Choices::FLOWERSHIELD,
             Choice {
-                move_id: String::from("flowershield"),
+                move_id: Choices::FLOWERSHIELD,
                 move_type: PokemonType::Fairy,
                 flags: Flags {
                     distance: true,
@@ -5099,9 +4930,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("flowertrick"),
+            Choices::FLOWERTRICK,
             Choice {
-                move_id: String::from("flowertrick"),
+                move_id: Choices::FLOWERTRICK,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -5114,9 +4945,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("fly"),
+            Choices::FLY,
             Choice {
-                move_id: String::from("fly"),
+                move_id: Choices::FLY,
                 accuracy: 95.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
@@ -5134,9 +4965,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("flyingpress"),
+            Choices::FLYINGPRESS,
             Choice {
-                move_id: String::from("flyingpress"),
+                move_id: Choices::FLYINGPRESS,
                 accuracy: 95.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
@@ -5154,9 +4985,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("focusblast"),
+            Choices::FOCUSBLAST,
             Choice {
-                move_id: String::from("focusblast"),
+                move_id: Choices::FOCUSBLAST,
                 accuracy: 70.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
@@ -5183,9 +5014,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("focusenergy"),
+            Choices::FOCUSENERGY,
             Choice {
-                move_id: String::from("focusenergy"),
+                move_id: Choices::FOCUSENERGY,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -5200,9 +5031,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("focuspunch"),
+            Choices::FOCUSPUNCH,
             Choice {
-                move_id: String::from("focuspunch"),
+                move_id: Choices::FOCUSPUNCH,
                 base_power: 150.0,
                 category: MoveCategory::Physical,
                 priority: -3,
@@ -5217,9 +5048,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("followme"),
+            Choices::FOLLOWME,
             Choice {
-                move_id: String::from("followme"),
+                move_id: Choices::FOLLOWME,
                 priority: 2,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
@@ -5234,9 +5065,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("forcepalm"),
+            Choices::FORCEPALM,
             Choice {
-                move_id: String::from("forcepalm"),
+                move_id: Choices::FORCEPALM,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -5255,9 +5086,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("foresight"),
+            Choices::FORESIGHT,
             Choice {
-                move_id: String::from("foresight"),
+                move_id: Choices::FORESIGHT,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -5273,9 +5104,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("forestscurse"),
+            Choices::FORESTSCURSE,
             Choice {
-                move_id: String::from("forestscurse"),
+                move_id: Choices::FORESTSCURSE,
                 move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
@@ -5287,9 +5118,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("foulplay"),
+            Choices::FOULPLAY,
             Choice {
-                move_id: String::from("foulplay"),
+                move_id: Choices::FOULPLAY,
                 base_power: 95.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -5303,9 +5134,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("freezedry"),
+            Choices::FREEZEDRY,
             Choice {
-                move_id: String::from("freezedry"),
+                move_id: Choices::FREEZEDRY,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ice,
@@ -5323,9 +5154,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("freezeshock"),
+            Choices::FREEZESHOCK,
             Choice {
-                move_id: String::from("freezeshock"),
+                move_id: Choices::FREEZESHOCK,
                 accuracy: 90.0,
                 base_power: 140.0,
                 category: MoveCategory::Physical,
@@ -5345,9 +5176,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("freezingglare"),
+            Choices::FREEZINGGLARE,
             Choice {
-                move_id: String::from("freezingglare"),
+                move_id: Choices::FREEZINGGLARE,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -5365,9 +5196,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("freezyfrost"),
+            Choices::FREEZYFROST,
             Choice {
-                move_id: String::from("freezyfrost"),
+                move_id: Choices::FREEZYFROST,
                 accuracy: 90.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
@@ -5381,9 +5212,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("frenzyplant"),
+            Choices::FRENZYPLANT,
             Choice {
-                move_id: String::from("frenzyplant"),
+                move_id: Choices::FRENZYPLANT,
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
@@ -5399,9 +5230,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("frostbreath"),
+            Choices::FROSTBREATH,
             Choice {
-                move_id: String::from("frostbreath"),
+                move_id: Choices::FROSTBREATH,
                 accuracy: 90.0,
                 base_power: 60.0,
                 category: MoveCategory::Special,
@@ -5415,9 +5246,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("frustration"),
+            Choices::FRUSTRATION,
             Choice {
-                move_id: String::from("frustration"),
+                move_id: Choices::FRUSTRATION,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -5430,9 +5261,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("furyattack"),
+            Choices::FURYATTACK,
             Choice {
-                move_id: String::from("furyattack"),
+                move_id: Choices::FURYATTACK,
                 accuracy: 85.0,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
@@ -5447,9 +5278,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("furycutter"),
+            Choices::FURYCUTTER,
             Choice {
-                move_id: String::from("furycutter"),
+                move_id: Choices::FURYCUTTER,
                 accuracy: 95.0,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
@@ -5464,9 +5295,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("furyswipes"),
+            Choices::FURYSWIPES,
             Choice {
-                move_id: String::from("furyswipes"),
+                move_id: Choices::FURYSWIPES,
                 accuracy: 80.0,
                 base_power: 18.0,
                 category: MoveCategory::Physical,
@@ -5481,9 +5312,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("fusionbolt"),
+            Choices::FUSIONBOLT,
             Choice {
-                move_id: String::from("fusionbolt"),
+                move_id: Choices::FUSIONBOLT,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Electric,
@@ -5496,9 +5327,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("fusionflare"),
+            Choices::FUSIONFLARE,
             Choice {
-                move_id: String::from("fusionflare"),
+                move_id: Choices::FUSIONFLARE,
                 base_power: 100.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -5512,9 +5343,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("futuresight"),
+            Choices::FUTURESIGHT,
             Choice {
-                move_id: String::from("futuresight"),
+                move_id: Choices::FUTURESIGHT,
                 base_power: 120.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -5525,9 +5356,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("gastroacid"),
+            Choices::GASTROACID,
             Choice {
-                move_id: String::from("gastroacid"),
+                move_id: Choices::GASTROACID,
                 move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
@@ -5543,9 +5374,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("geargrind"),
+            Choices::GEARGRIND,
             Choice {
-                move_id: String::from("geargrind"),
+                move_id: Choices::GEARGRIND,
                 accuracy: 85.0,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
@@ -5560,9 +5391,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("gearup"),
+            Choices::GEARUP,
             Choice {
-                move_id: String::from("gearup"),
+                move_id: Choices::GEARUP,
                 target: MoveTarget::User,
                 move_type: PokemonType::Steel,
                 flags: Flags {
@@ -5573,9 +5404,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("geomancy"),
+            Choices::GEOMANCY,
             Choice {
-                move_id: String::from("geomancy"),
+                move_id: Choices::GEOMANCY,
                 target: MoveTarget::User,
                 move_type: PokemonType::Fairy,
                 flags: Flags {
@@ -5598,9 +5429,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("gigadrain"),
+            Choices::GIGADRAIN,
             Choice {
-                move_id: String::from("gigadrain"),
+                move_id: Choices::GIGADRAIN,
                 base_power: 75.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Grass,
@@ -5615,9 +5446,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("gigaimpact"),
+            Choices::GIGAIMPACT,
             Choice {
-                move_id: String::from("gigaimpact"),
+                move_id: Choices::GIGAIMPACT,
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Physical,
@@ -5633,9 +5464,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("gigatonhammer"),
+            Choices::GIGATONHAMMER,
             Choice {
-                move_id: String::from("gigatonhammer"),
+                move_id: Choices::GIGATONHAMMER,
                 base_power: 160.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Steel,
@@ -5648,9 +5479,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("glaciallance"),
+            Choices::GLACIALLANCE,
             Choice {
-                move_id: String::from("glaciallance"),
+                move_id: Choices::GLACIALLANCE,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ice,
@@ -5663,9 +5494,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("glaciate"),
+            Choices::GLACIATE,
             Choice {
-                move_id: String::from("glaciate"),
+                move_id: Choices::GLACIATE,
                 accuracy: 95.0,
                 base_power: 65.0,
                 category: MoveCategory::Special,
@@ -5691,9 +5522,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("glaiverush"),
+            Choices::GLAIVERUSH,
             Choice {
-                move_id: String::from("glaiverush"),
+                move_id: Choices::GLAIVERUSH,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dragon,
@@ -5707,9 +5538,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("glare"),
+            Choices::GLARE,
             Choice {
-                move_id: String::from("glare"),
+                move_id: Choices::GLARE,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Paralyze,
@@ -5725,9 +5556,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("glitzyglow"),
+            Choices::GLITZYGLOW,
             Choice {
-                move_id: String::from("glitzyglow"),
+                move_id: Choices::GLITZYGLOW,
                 accuracy: 95.0,
                 base_power: 80.0,
                 category: MoveCategory::Special,
@@ -5741,9 +5572,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("grassknot"),
+            Choices::GRASSKNOT,
             Choice {
-                move_id: String::from("grassknot"),
+                move_id: Choices::GRASSKNOT,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Grass,
                 flags: Flags {
@@ -5757,9 +5588,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("grasspledge"),
+            Choices::GRASSPLEDGE,
             Choice {
-                move_id: String::from("grasspledge"),
+                move_id: Choices::GRASSPLEDGE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Grass,
@@ -5773,9 +5604,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("grasswhistle"),
+            Choices::GRASSWHISTLE,
             Choice {
-                move_id: String::from("grasswhistle"),
+                move_id: Choices::GRASSWHISTLE,
                 accuracy: 55.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
@@ -5793,9 +5624,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("grassyglide"),
+            Choices::GRASSYGLIDE,
             Choice {
-                move_id: String::from("grassyglide"),
+                move_id: Choices::GRASSYGLIDE,
                 base_power: 55.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -5809,9 +5640,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("grassyterrain"),
+            Choices::GRASSYTERRAIN,
             Choice {
-                move_id: String::from("grassyterrain"),
+                move_id: Choices::GRASSYTERRAIN,
                 move_type: PokemonType::Grass,
                 flags: Flags {
                     nonsky: true,
@@ -5821,9 +5652,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("gravapple"),
+            Choices::GRAVAPPLE,
             Choice {
-                move_id: String::from("gravapple"),
+                move_id: Choices::GRAVAPPLE,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -5848,9 +5679,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("gravity"),
+            Choices::GRAVITY,
             Choice {
-                move_id: String::from("gravity"),
+                move_id: Choices::GRAVITY,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     nonsky: true,
@@ -5860,9 +5691,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("growl"),
+            Choices::GROWL,
             Choice {
-                move_id: String::from("growl"),
+                move_id: Choices::GROWL,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -5886,9 +5717,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("growth"),
+            Choices::GROWTH,
             Choice {
-                move_id: String::from("growth"),
+                move_id: Choices::GROWTH,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -5906,33 +5737,13 @@ lazy_static! {
                         accuracy: 0,
                     },
                 }),
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        if state.weather.weather_type == Weather::Sun {
-                            attacking_choice.boost = Some(Boost {
-                                target: MoveTarget::User,
-                                boosts: StatBoosts {
-                                    attack: 2,
-                                    defense: 0,
-                                    special_attack: 2,
-                                    special_defense: 0,
-                                    speed: 0,
-                                    accuracy: 0,
-                                },
-                            });
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("grudge"),
+            Choices::GRUDGE,
             Choice {
-                move_id: String::from("grudge"),
+                move_id: Choices::GRUDGE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Ghost,
                 flags: Flags {
@@ -5946,9 +5757,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("guardsplit"),
+            Choices::GUARDSPLIT,
             Choice {
-                move_id: String::from("guardsplit"),
+                move_id: Choices::GUARDSPLIT,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     protect: true,
@@ -5958,9 +5769,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("guardswap"),
+            Choices::GUARDSWAP,
             Choice {
-                move_id: String::from("guardswap"),
+                move_id: Choices::GUARDSWAP,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
@@ -5971,9 +5782,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("guillotine"),
+            Choices::GUILLOTINE,
             Choice {
-                move_id: String::from("guillotine"),
+                move_id: Choices::GUILLOTINE,
                 accuracy: 30.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -5987,9 +5798,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("gunkshot"),
+            Choices::GUNKSHOT,
             Choice {
-                move_id: String::from("gunkshot"),
+                move_id: Choices::GUNKSHOT,
                 accuracy: 80.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
@@ -6008,9 +5819,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("gust"),
+            Choices::GUST,
             Choice {
-                move_id: String::from("gust"),
+                move_id: Choices::GUST,
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Flying,
@@ -6024,9 +5835,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("gyroball"),
+            Choices::GYROBALL,
             Choice {
-                move_id: String::from("gyroball"),
+                move_id: Choices::GYROBALL,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Steel,
                 flags: Flags {
@@ -6040,9 +5851,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hail"),
+            Choices::HAIL,
             Choice {
-                move_id: String::from("hail"),
+                move_id: Choices::HAIL,
                 move_type: PokemonType::Ice,
                 flags: Flags {
                     ..Default::default()
@@ -6051,9 +5862,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hammerarm"),
+            Choices::HAMMERARM,
             Choice {
-                move_id: String::from("hammerarm"),
+                move_id: Choices::HAMMERARM,
                 accuracy: 90.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
@@ -6069,9 +5880,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("happyhour"),
+            Choices::HAPPYHOUR,
             Choice {
-                move_id: String::from("happyhour"),
+                move_id: Choices::HAPPYHOUR,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -6081,9 +5892,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("harden"),
+            Choices::HARDEN,
             Choice {
-                move_id: String::from("harden"),
+                move_id: Choices::HARDEN,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -6105,9 +5916,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("haze"),
+            Choices::HAZE,
             Choice {
-                move_id: String::from("haze"),
+                move_id: Choices::HAZE,
                 move_type: PokemonType::Ice,
                 flags: Flags {
                     ..Default::default()
@@ -6116,9 +5927,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("headbutt"),
+            Choices::HEADBUTT,
             Choice {
-                move_id: String::from("headbutt"),
+                move_id: Choices::HEADBUTT,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -6137,9 +5948,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("headcharge"),
+            Choices::HEADCHARGE,
             Choice {
-                move_id: String::from("headcharge"),
+                move_id: Choices::HEADCHARGE,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -6154,9 +5965,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("headlongrush"),
+            Choices::HEADLONGRUSH,
             Choice {
-                move_id: String::from("headlongrush"),
+                move_id: Choices::HEADLONGRUSH,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ground,
@@ -6171,9 +5982,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("headsmash"),
+            Choices::HEADSMASH,
             Choice {
-                move_id: String::from("headsmash"),
+                move_id: Choices::HEADSMASH,
                 accuracy: 80.0,
                 base_power: 150.0,
                 category: MoveCategory::Physical,
@@ -6189,9 +6000,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("healbell"),
+            Choices::HEALBELL,
             Choice {
-                move_id: String::from("healbell"),
+                move_id: Choices::HEALBELL,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -6204,9 +6015,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("healblock"),
+            Choices::HEALBLOCK,
             Choice {
-                move_id: String::from("healblock"),
+                move_id: Choices::HEALBLOCK,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
@@ -6222,9 +6033,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("healingwish"),
+            Choices::HEALINGWISH,
             Choice {
-                move_id: String::from("healingwish"),
+                move_id: Choices::HEALINGWISH,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -6244,9 +6055,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("healorder"),
+            Choices::HEALORDER,
             Choice {
-                move_id: String::from("healorder"),
+                move_id: Choices::HEALORDER,
                 target: MoveTarget::User,
                 move_type: PokemonType::Bug,
                 flags: Flags {
@@ -6262,9 +6073,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("healpulse"),
+            Choices::HEALPULSE,
             Choice {
-                move_id: String::from("healpulse"),
+                move_id: Choices::HEALPULSE,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     distance: true,
@@ -6278,9 +6089,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("heartstamp"),
+            Choices::HEARTSTAMP,
             Choice {
-                move_id: String::from("heartstamp"),
+                move_id: Choices::HEARTSTAMP,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Psychic,
@@ -6299,9 +6110,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("heartswap"),
+            Choices::HEARTSWAP,
             Choice {
-                move_id: String::from("heartswap"),
+                move_id: Choices::HEARTSWAP,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
@@ -6312,9 +6123,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("heatcrash"),
+            Choices::HEATCRASH,
             Choice {
-                move_id: String::from("heatcrash"),
+                move_id: Choices::HEATCRASH,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fire,
                 flags: Flags {
@@ -6328,9 +6139,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("heatwave"),
+            Choices::HEATWAVE,
             Choice {
-                move_id: String::from("heatwave"),
+                move_id: Choices::HEATWAVE,
                 accuracy: 90.0,
                 base_power: 95.0,
                 category: MoveCategory::Special,
@@ -6349,9 +6160,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("heavyslam"),
+            Choices::HEAVYSLAM,
             Choice {
-                move_id: String::from("heavyslam"),
+                move_id: Choices::HEAVYSLAM,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Steel,
                 flags: Flags {
@@ -6365,9 +6176,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("helpinghand"),
+            Choices::HELPINGHAND,
             Choice {
-                move_id: String::from("helpinghand"),
+                move_id: Choices::HELPINGHAND,
                 priority: 5,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
@@ -6382,9 +6193,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hex"),
+            Choices::HEX,
             Choice {
-                move_id: String::from("hex"),
+                move_id: Choices::HEX,
                 base_power: 65.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ghost,
@@ -6393,28 +6204,13 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _,
-                     attacking_side_ref: &SideReference| {
-                        if state
-                            .get_side_immutable(&attacking_side_ref.get_other_side())
-                            .get_active_immutable()
-                            .status
-                            != PokemonStatus::None
-                        {
-                            attacking_choice.base_power *= 2.0;
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("hiddenpower"),
+            Choices::HIDDENPOWER,
             Choice {
-                move_id: String::from("hiddenpower"),
+                move_id: Choices::HIDDENPOWER,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -6427,9 +6223,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerbug60"),
+            Choices::HIDDENPOWERBUG60,
             Choice {
-                move_id: String::from("hiddenpowerbug60"),
+                move_id: Choices::HIDDENPOWERBUG60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Bug,
@@ -6442,9 +6238,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerbug70"),
+            Choices::HIDDENPOWERBUG70,
             Choice {
-                move_id: String::from("hiddenpowerbug70"),
+                move_id: Choices::HIDDENPOWERBUG70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Bug,
@@ -6457,9 +6253,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerdark60"),
+            Choices::HIDDENPOWERDARK60,
             Choice {
-                move_id: String::from("hiddenpowerdark60"),
+                move_id: Choices::HIDDENPOWERDARK60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Dark,
@@ -6472,9 +6268,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerdark70"),
+            Choices::HIDDENPOWERDARK70,
             Choice {
-                move_id: String::from("hiddenpowerdark70"),
+                move_id: Choices::HIDDENPOWERDARK70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Dark,
@@ -6487,9 +6283,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerdragon60"),
+            Choices::HIDDENPOWERDRAGON60,
             Choice {
-                move_id: String::from("hiddenpowerdragon60"),
+                move_id: Choices::HIDDENPOWERDRAGON60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Dragon,
@@ -6502,9 +6298,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerdragon70"),
+            Choices::HIDDENPOWERDRAGON70,
             Choice {
-                move_id: String::from("hiddenpowerdragon70"),
+                move_id: Choices::HIDDENPOWERDRAGON70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Dragon,
@@ -6517,9 +6313,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerelectric60"),
+            Choices::HIDDENPOWERELECTRIC60,
             Choice {
-                move_id: String::from("hiddenpowerelectric60"),
+                move_id: Choices::HIDDENPOWERELECTRIC60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Electric,
@@ -6532,9 +6328,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerelectric70"),
+            Choices::HIDDENPOWERELECTRIC70,
             Choice {
-                move_id: String::from("hiddenpowerelectric70"),
+                move_id: Choices::HIDDENPOWERELECTRIC70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Electric,
@@ -6547,9 +6343,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerfighting60"),
+            Choices::HIDDENPOWERFIGHTING60,
             Choice {
-                move_id: String::from("hiddenpowerfighting60"),
+                move_id: Choices::HIDDENPOWERFIGHTING60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fighting,
@@ -6562,9 +6358,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerfighting70"),
+            Choices::HIDDENPOWERFIGHTING70,
             Choice {
-                move_id: String::from("hiddenpowerfighting70"),
+                move_id: Choices::HIDDENPOWERFIGHTING70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fighting,
@@ -6577,9 +6373,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerfire60"),
+            Choices::HIDDENPOWERFIRE60,
             Choice {
-                move_id: String::from("hiddenpowerfire60"),
+                move_id: Choices::HIDDENPOWERFIRE60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -6592,9 +6388,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerfire70"),
+            Choices::HIDDENPOWERFIRE70,
             Choice {
-                move_id: String::from("hiddenpowerfire70"),
+                move_id: Choices::HIDDENPOWERFIRE70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -6607,9 +6403,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerflying60"),
+            Choices::HIDDENPOWERFLYING60,
             Choice {
-                move_id: String::from("hiddenpowerflying60"),
+                move_id: Choices::HIDDENPOWERFLYING60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Flying,
@@ -6622,9 +6418,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerflying70"),
+            Choices::HIDDENPOWERFLYING70,
             Choice {
-                move_id: String::from("hiddenpowerflying70"),
+                move_id: Choices::HIDDENPOWERFLYING70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Flying,
@@ -6637,9 +6433,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerghost60"),
+            Choices::HIDDENPOWERGHOST60,
             Choice {
-                move_id: String::from("hiddenpowerghost60"),
+                move_id: Choices::HIDDENPOWERGHOST60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ghost,
@@ -6652,9 +6448,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerghost70"),
+            Choices::HIDDENPOWERGHOST70,
             Choice {
-                move_id: String::from("hiddenpowerghost70"),
+                move_id: Choices::HIDDENPOWERGHOST70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ghost,
@@ -6667,9 +6463,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowergrass60"),
+            Choices::HIDDENPOWERGRASS60,
             Choice {
-                move_id: String::from("hiddenpowergrass60"),
+                move_id: Choices::HIDDENPOWERGRASS60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Grass,
@@ -6682,9 +6478,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowergrass70"),
+            Choices::HIDDENPOWERGRASS70,
             Choice {
-                move_id: String::from("hiddenpowergrass70"),
+                move_id: Choices::HIDDENPOWERGRASS70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Grass,
@@ -6697,9 +6493,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerground60"),
+            Choices::HIDDENPOWERGROUND60,
             Choice {
-                move_id: String::from("hiddenpowerground60"),
+                move_id: Choices::HIDDENPOWERGROUND60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ground,
@@ -6712,9 +6508,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerground70"),
+            Choices::HIDDENPOWERGROUND70,
             Choice {
-                move_id: String::from("hiddenpowerground70"),
+                move_id: Choices::HIDDENPOWERGROUND70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ground,
@@ -6727,9 +6523,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerice60"),
+            Choices::HIDDENPOWERICE60,
             Choice {
-                move_id: String::from("hiddenpowerice60"),
+                move_id: Choices::HIDDENPOWERICE60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ice,
@@ -6742,9 +6538,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerice70"),
+            Choices::HIDDENPOWERICE70,
             Choice {
-                move_id: String::from("hiddenpowerice70"),
+                move_id: Choices::HIDDENPOWERICE70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ice,
@@ -6757,9 +6553,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerpoison60"),
+            Choices::HIDDENPOWERPOISON60,
             Choice {
-                move_id: String::from("hiddenpowerpoison60"),
+                move_id: Choices::HIDDENPOWERPOISON60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Poison,
@@ -6772,9 +6568,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerpoison70"),
+            Choices::HIDDENPOWERPOISON70,
             Choice {
-                move_id: String::from("hiddenpowerpoison70"),
+                move_id: Choices::HIDDENPOWERPOISON70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Poison,
@@ -6787,9 +6583,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerpsychic60"),
+            Choices::HIDDENPOWERPSYCHIC60,
             Choice {
-                move_id: String::from("hiddenpowerpsychic60"),
+                move_id: Choices::HIDDENPOWERPSYCHIC60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -6802,9 +6598,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerpsychic70"),
+            Choices::HIDDENPOWERPSYCHIC70,
             Choice {
-                move_id: String::from("hiddenpowerpsychic70"),
+                move_id: Choices::HIDDENPOWERPSYCHIC70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -6817,9 +6613,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerrock60"),
+            Choices::HIDDENPOWERROCK60,
             Choice {
-                move_id: String::from("hiddenpowerrock60"),
+                move_id: Choices::HIDDENPOWERROCK60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Rock,
@@ -6832,9 +6628,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerrock70"),
+            Choices::HIDDENPOWERROCK70,
             Choice {
-                move_id: String::from("hiddenpowerrock70"),
+                move_id: Choices::HIDDENPOWERROCK70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Rock,
@@ -6847,9 +6643,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowersteel60"),
+            Choices::HIDDENPOWERSTEEL60,
             Choice {
-                move_id: String::from("hiddenpowersteel60"),
+                move_id: Choices::HIDDENPOWERSTEEL60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Steel,
@@ -6862,9 +6658,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowersteel70"),
+            Choices::HIDDENPOWERSTEEL70,
             Choice {
-                move_id: String::from("hiddenpowersteel70"),
+                move_id: Choices::HIDDENPOWERSTEEL70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Steel,
@@ -6877,9 +6673,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerwater60"),
+            Choices::HIDDENPOWERWATER60,
             Choice {
-                move_id: String::from("hiddenpowerwater60"),
+                move_id: Choices::HIDDENPOWERWATER60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -6892,9 +6688,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hiddenpowerwater70"),
+            Choices::HIDDENPOWERWATER70,
             Choice {
-                move_id: String::from("hiddenpowerwater70"),
+                move_id: Choices::HIDDENPOWERWATER70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -6907,9 +6703,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("highhorsepower"),
+            Choices::HIGHHORSEPOWER,
             Choice {
-                move_id: String::from("highhorsepower"),
+                move_id: Choices::HIGHHORSEPOWER,
                 accuracy: 95.0,
                 base_power: 95.0,
                 category: MoveCategory::Physical,
@@ -6924,9 +6720,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("highjumpkick"),
+            Choices::HIGHJUMPKICK,
             Choice {
-                move_id: String::from("highjumpkick"),
+                move_id: Choices::HIGHJUMPKICK,
                 accuracy: 90.0,
                 base_power: 130.0,
                 category: MoveCategory::Physical,
@@ -6943,9 +6739,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("holdback"),
+            Choices::HOLDBACK,
             Choice {
-                move_id: String::from("holdback"),
+                move_id: Choices::HOLDBACK,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -6959,9 +6755,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("holdhands"),
+            Choices::HOLDHANDS,
             Choice {
-                move_id: String::from("holdhands"),
+                move_id: Choices::HOLDHANDS,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -6971,9 +6767,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("honeclaws"),
+            Choices::HONECLAWS,
             Choice {
-                move_id: String::from("honeclaws"),
+                move_id: Choices::HONECLAWS,
                 target: MoveTarget::User,
                 move_type: PokemonType::Dark,
                 flags: Flags {
@@ -6995,9 +6791,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hornattack"),
+            Choices::HORNATTACK,
             Choice {
-                move_id: String::from("hornattack"),
+                move_id: Choices::HORNATTACK,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -7011,9 +6807,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("horndrill"),
+            Choices::HORNDRILL,
             Choice {
-                move_id: String::from("horndrill"),
+                move_id: Choices::HORNDRILL,
                 accuracy: 30.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -7027,9 +6823,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hornleech"),
+            Choices::HORNLEECH,
             Choice {
-                move_id: String::from("hornleech"),
+                move_id: Choices::HORNLEECH,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -7045,9 +6841,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("howl"),
+            Choices::HOWL,
             Choice {
-                move_id: String::from("howl"),
+                move_id: Choices::HOWL,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -7070,9 +6866,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hurricane"),
+            Choices::HURRICANE,
             Choice {
-                move_id: String::from("hurricane"),
+                move_id: Choices::HURRICANE,
                 accuracy: 70.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
@@ -7092,9 +6888,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hydrocannon"),
+            Choices::HYDROCANNON,
             Choice {
-                move_id: String::from("hydrocannon"),
+                move_id: Choices::HYDROCANNON,
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
@@ -7109,9 +6905,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hydropump"),
+            Choices::HYDROPUMP,
             Choice {
-                move_id: String::from("hydropump"),
+                move_id: Choices::HYDROPUMP,
                 accuracy: 80.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
@@ -7125,9 +6921,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hydrosteam"),
+            Choices::HYDROSTEAM,
             Choice {
-                move_id: String::from("hydrosteam"),
+                move_id: Choices::HYDROSTEAM,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -7137,23 +6933,13 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _,
-                     attacking_side_ref: &SideReference| {
-                        if state.weather.weather_type == Weather::Sun {
-                            attacking_choice.base_power *= 3.0; // 1.5x for being in sun, 2x for cancelling out rain debuff
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("hyperbeam"),
+            Choices::HYPERBEAM,
             Choice {
-                move_id: String::from("hyperbeam"),
+                move_id: Choices::HYPERBEAM,
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
@@ -7168,9 +6954,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hyperdrill"),
+            Choices::HYPERDRILL,
             Choice {
-                move_id: String::from("hyperdrill"),
+                move_id: Choices::HYPERDRILL,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -7183,9 +6969,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hyperfang"),
+            Choices::HYPERFANG,
             Choice {
-                move_id: String::from("hyperfang"),
+                move_id: Choices::HYPERFANG,
                 accuracy: 90.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
@@ -7206,9 +6992,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hyperspacefury"),
+            Choices::HYPERSPACEFURY,
             Choice {
-                move_id: String::from("hyperspacefury"),
+                move_id: Choices::HYPERSPACEFURY,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -7220,9 +7006,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hyperspacehole"),
+            Choices::HYPERSPACEHOLE,
             Choice {
-                move_id: String::from("hyperspacehole"),
+                move_id: Choices::HYPERSPACEHOLE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -7234,9 +7020,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hypervoice"),
+            Choices::HYPERVOICE,
             Choice {
-                move_id: String::from("hypervoice"),
+                move_id: Choices::HYPERVOICE,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -7250,9 +7036,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("hypnosis"),
+            Choices::HYPNOSIS,
             Choice {
-                move_id: String::from("hypnosis"),
+                move_id: Choices::HYPNOSIS,
                 accuracy: 60.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
@@ -7269,9 +7055,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("iceball"),
+            Choices::ICEBALL,
             Choice {
-                move_id: String::from("iceball"),
+                move_id: Choices::ICEBALL,
                 accuracy: 90.0,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
@@ -7287,9 +7073,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("icebeam"),
+            Choices::ICEBEAM,
             Choice {
-                move_id: String::from("icebeam"),
+                move_id: Choices::ICEBEAM,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ice,
@@ -7307,9 +7093,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("iceburn"),
+            Choices::ICEBURN,
             Choice {
-                move_id: String::from("iceburn"),
+                move_id: Choices::ICEBURN,
                 accuracy: 90.0,
                 base_power: 140.0,
                 category: MoveCategory::Special,
@@ -7329,9 +7115,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("icefang"),
+            Choices::ICEFANG,
             Choice {
-                move_id: String::from("icefang"),
+                move_id: Choices::ICEFANG,
                 accuracy: 95.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
@@ -7359,9 +7145,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("icehammer"),
+            Choices::ICEHAMMER,
             Choice {
-                move_id: String::from("icehammer"),
+                move_id: Choices::ICEHAMMER,
                 accuracy: 90.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
@@ -7377,9 +7163,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("icepunch"),
+            Choices::ICEPUNCH,
             Choice {
-                move_id: String::from("icepunch"),
+                move_id: Choices::ICEPUNCH,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ice,
@@ -7399,9 +7185,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("iceshard"),
+            Choices::ICESHARD,
             Choice {
-                move_id: String::from("iceshard"),
+                move_id: Choices::ICESHARD,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
@@ -7415,9 +7201,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("icespinner"),
+            Choices::ICESPINNER,
             Choice {
-                move_id: String::from("icespinner"),
+                move_id: Choices::ICESPINNER,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ice,
@@ -7431,9 +7217,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("iciclecrash"),
+            Choices::ICICLECRASH,
             Choice {
-                move_id: String::from("iciclecrash"),
+                move_id: Choices::ICICLECRASH,
                 accuracy: 90.0,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
@@ -7452,9 +7238,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("iciclespear"),
+            Choices::ICICLESPEAR,
             Choice {
-                move_id: String::from("iciclespear"),
+                move_id: Choices::ICICLESPEAR,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ice,
@@ -7467,9 +7253,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("icywind"),
+            Choices::ICYWIND,
             Choice {
-                move_id: String::from("icywind"),
+                move_id: Choices::ICYWIND,
                 accuracy: 95.0,
                 base_power: 55.0,
                 category: MoveCategory::Special,
@@ -7495,9 +7281,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("imprison"),
+            Choices::IMPRISON,
             Choice {
-                move_id: String::from("imprison"),
+                move_id: Choices::IMPRISON,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -7512,9 +7298,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("incinerate"),
+            Choices::INCINERATE,
             Choice {
-                move_id: String::from("incinerate"),
+                move_id: Choices::INCINERATE,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -7527,9 +7313,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("infernalparade"),
+            Choices::INFERNALPARADE,
             Choice {
-                move_id: String::from("infernalparade"),
+                move_id: Choices::INFERNALPARADE,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ghost,
@@ -7547,9 +7333,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("inferno"),
+            Choices::INFERNO,
             Choice {
-                move_id: String::from("inferno"),
+                move_id: Choices::INFERNO,
                 accuracy: 50.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
@@ -7568,9 +7354,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("infestation"),
+            Choices::INFESTATION,
             Choice {
-                move_id: String::from("infestation"),
+                move_id: Choices::INFESTATION,
                 base_power: 20.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Bug,
@@ -7588,9 +7374,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("ingrain"),
+            Choices::INGRAIN,
             Choice {
-                move_id: String::from("ingrain"),
+                move_id: Choices::INGRAIN,
                 target: MoveTarget::User,
                 move_type: PokemonType::Grass,
                 flags: Flags {
@@ -7606,9 +7392,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("instruct"),
+            Choices::INSTRUCT,
             Choice {
-                move_id: String::from("instruct"),
+                move_id: Choices::INSTRUCT,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     protect: true,
@@ -7618,9 +7404,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("iondeluge"),
+            Choices::IONDELUGE,
             Choice {
-                move_id: String::from("iondeluge"),
+                move_id: Choices::IONDELUGE,
                 priority: 1,
                 move_type: PokemonType::Electric,
                 flags: Flags {
@@ -7630,9 +7416,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("irondefense"),
+            Choices::IRONDEFENSE,
             Choice {
-                move_id: String::from("irondefense"),
+                move_id: Choices::IRONDEFENSE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Steel,
                 flags: Flags {
@@ -7654,9 +7440,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("ironhead"),
+            Choices::IRONHEAD,
             Choice {
-                move_id: String::from("ironhead"),
+                move_id: Choices::IRONHEAD,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Steel,
@@ -7675,9 +7461,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("irontail"),
+            Choices::IRONTAIL,
             Choice {
-                move_id: String::from("irontail"),
+                move_id: Choices::IRONTAIL,
                 accuracy: 75.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
@@ -7704,9 +7490,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("ivycudgel"),
+            Choices::IVYCUDGEL,
             Choice {
-                move_id: String::from("ivycudgel"),
+                move_id: Choices::IVYCUDGEL,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -7719,9 +7505,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("jawlock"),
+            Choices::JAWLOCK,
             Choice {
-                move_id: String::from("jawlock"),
+                move_id: Choices::JAWLOCK,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -7736,9 +7522,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("jetpunch"),
+            Choices::JETPUNCH,
             Choice {
-                move_id: String::from("jetpunch"),
+                move_id: Choices::JETPUNCH,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 priority: 1,
@@ -7754,9 +7540,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("judgment"),
+            Choices::JUDGMENT,
             Choice {
-                move_id: String::from("judgment"),
+                move_id: Choices::JUDGMENT,
                 base_power: 100.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -7769,9 +7555,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("jumpkick"),
+            Choices::JUMPKICK,
             Choice {
-                move_id: String::from("jumpkick"),
+                move_id: Choices::JUMPKICK,
                 accuracy: 95.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
@@ -7788,9 +7574,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("junglehealing"),
+            Choices::JUNGLEHEALING,
             Choice {
-                move_id: String::from("junglehealing"),
+                move_id: Choices::JUNGLEHEALING,
                 target: MoveTarget::User,
                 move_type: PokemonType::Grass,
                 flags: Flags {
@@ -7805,9 +7591,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("karatechop"),
+            Choices::KARATECHOP,
             Choice {
-                move_id: String::from("karatechop"),
+                move_id: Choices::KARATECHOP,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -7821,9 +7607,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("kinesis"),
+            Choices::KINESIS,
             Choice {
-                move_id: String::from("kinesis"),
+                move_id: Choices::KINESIS,
                 accuracy: 80.0,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -7847,9 +7633,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("kingsshield"),
+            Choices::KINGSSHIELD,
             Choice {
-                move_id: String::from("kingsshield"),
+                move_id: Choices::KINGSSHIELD,
                 priority: 4,
                 target: MoveTarget::User,
                 move_type: PokemonType::Steel,
@@ -7864,9 +7650,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("knockoff"),
+            Choices::KNOCKOFF,
             Choice {
-                move_id: String::from("knockoff"),
+                move_id: Choices::KNOCKOFF,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -7876,29 +7662,13 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
-                after_damage_hit: Some(
-                    |state: &mut State, _: &Choice, attacking_side_reference: &SideReference, instructions: &mut StateInstructions| {
-                        let defending_side =
-                            state.get_side(&attacking_side_reference.get_other_side());
-                        let defender_active = defending_side.get_active();
-                        if defender_active.item_can_be_removed() {
-                            let instruction = Instruction::ChangeItem(ChangeItemInstruction {
-                                side_ref: attacking_side_reference.get_other_side(),
-                                current_item: defender_active.item,
-                                new_item: Items::NONE,
-                            });
-                            instructions.instruction_list.push(instruction);
-                            defender_active.item = Items::NONE;
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("kowtowcleave"),
+            Choices::KOWTOWCLEAVE,
             Choice {
-                move_id: String::from("kowtowcleave"),
+                move_id: Choices::KOWTOWCLEAVE,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -7912,9 +7682,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("landswrath"),
+            Choices::LANDSWRATH,
             Choice {
-                move_id: String::from("landswrath"),
+                move_id: Choices::LANDSWRATH,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ground,
@@ -7928,9 +7698,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("laserfocus"),
+            Choices::LASERFOCUS,
             Choice {
-                move_id: String::from("laserfocus"),
+                move_id: Choices::LASERFOCUS,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -7945,9 +7715,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lashout"),
+            Choices::LASHOUT,
             Choice {
-                move_id: String::from("lashout"),
+                move_id: Choices::LASHOUT,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -7961,9 +7731,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lastresort"),
+            Choices::LASTRESORT,
             Choice {
-                move_id: String::from("lastresort"),
+                move_id: Choices::LASTRESORT,
                 base_power: 140.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -7977,9 +7747,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lastrespects"),
+            Choices::LASTRESPECTS,
             Choice {
-                move_id: String::from("lastrespects"),
+                move_id: Choices::LASTRESPECTS,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ghost,
@@ -7992,9 +7762,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lavaplume"),
+            Choices::LAVAPLUME,
             Choice {
-                move_id: String::from("lavaplume"),
+                move_id: Choices::LAVAPLUME,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -8012,9 +7782,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("leafage"),
+            Choices::LEAFAGE,
             Choice {
-                move_id: String::from("leafage"),
+                move_id: Choices::LEAFAGE,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -8027,9 +7797,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("leafblade"),
+            Choices::LEAFBLADE,
             Choice {
-                move_id: String::from("leafblade"),
+                move_id: Choices::LEAFBLADE,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -8043,9 +7813,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("leafstorm"),
+            Choices::LEAFSTORM,
             Choice {
-                move_id: String::from("leafstorm"),
+                move_id: Choices::LEAFSTORM,
                 accuracy: 90.0,
                 base_power: 130.0,
                 category: MoveCategory::Special,
@@ -8059,9 +7829,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("leaftornado"),
+            Choices::LEAFTORNADO,
             Choice {
-                move_id: String::from("leaftornado"),
+                move_id: Choices::LEAFTORNADO,
                 accuracy: 90.0,
                 base_power: 65.0,
                 category: MoveCategory::Special,
@@ -8087,9 +7857,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("leechlife"),
+            Choices::LEECHLIFE,
             Choice {
-                move_id: String::from("leechlife"),
+                move_id: Choices::LEECHLIFE,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Bug,
@@ -8105,9 +7875,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("leechseed"),
+            Choices::LEECHSEED,
             Choice {
-                move_id: String::from("leechseed"),
+                move_id: Choices::LEECHSEED,
                 accuracy: 90.0,
                 move_type: PokemonType::Grass,
                 flags: Flags {
@@ -8125,9 +7895,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("leer"),
+            Choices::LEER,
             Choice {
-                move_id: String::from("leer"),
+                move_id: Choices::LEER,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -8150,9 +7920,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lick"),
+            Choices::LICK,
             Choice {
-                move_id: String::from("lick"),
+                move_id: Choices::LICK,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ghost,
@@ -8171,9 +7941,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lifedew"),
+            Choices::LIFEDEW,
             Choice {
-                move_id: String::from("lifedew"),
+                move_id: Choices::LIFEDEW,
                 target: MoveTarget::User,
                 move_type: PokemonType::Water,
                 flags: Flags {
@@ -8189,9 +7959,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lightofruin"),
+            Choices::LIGHTOFRUIN,
             Choice {
-                move_id: String::from("lightofruin"),
+                move_id: Choices::LIGHTOFRUIN,
                 accuracy: 90.0,
                 base_power: 140.0,
                 category: MoveCategory::Special,
@@ -8206,9 +7976,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lightscreen"),
+            Choices::LIGHTSCREEN,
             Choice {
-                move_id: String::from("lightscreen"),
+                move_id: Choices::LIGHTSCREEN,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -8223,9 +7993,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("liquidation"),
+            Choices::LIQUIDATION,
             Choice {
-                move_id: String::from("liquidation"),
+                move_id: Choices::LIQUIDATION,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Water,
@@ -8251,9 +8021,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lockon"),
+            Choices::LOCKON,
             Choice {
-                move_id: String::from("lockon"),
+                move_id: Choices::LOCKON,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -8264,9 +8034,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lovelykiss"),
+            Choices::LOVELYKISS,
             Choice {
-                move_id: String::from("lovelykiss"),
+                move_id: Choices::LOVELYKISS,
                 accuracy: 75.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
@@ -8283,9 +8053,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lowkick"),
+            Choices::LOWKICK,
             Choice {
-                move_id: String::from("lowkick"),
+                move_id: Choices::LOWKICK,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
                 flags: Flags {
@@ -8298,9 +8068,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lowsweep"),
+            Choices::LOWSWEEP,
             Choice {
-                move_id: String::from("lowsweep"),
+                move_id: Choices::LOWSWEEP,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -8326,9 +8096,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("luckychant"),
+            Choices::LUCKYCHANT,
             Choice {
-                move_id: String::from("luckychant"),
+                move_id: Choices::LUCKYCHANT,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -8343,9 +8113,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("luminacrash"),
+            Choices::LUMINACRASH,
             Choice {
-                move_id: String::from("luminacrash"),
+                move_id: Choices::LUMINACRASH,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -8370,9 +8140,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lunarblessing"),
+            Choices::LUNARBLESSING,
             Choice {
-                move_id: String::from("lunarblessing"),
+                move_id: Choices::LUNARBLESSING,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -8388,9 +8158,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lunardance"),
+            Choices::LUNARDANCE,
             Choice {
-                move_id: String::from("lunardance"),
+                move_id: Choices::LUNARDANCE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -8403,9 +8173,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lunge"),
+            Choices::LUNGE,
             Choice {
-                move_id: String::from("lunge"),
+                move_id: Choices::LUNGE,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Bug,
@@ -8431,9 +8201,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("lusterpurge"),
+            Choices::LUSTERPURGE,
             Choice {
-                move_id: String::from("lusterpurge"),
+                move_id: Choices::LUSTERPURGE,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -8458,9 +8228,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("machpunch"),
+            Choices::MACHPUNCH,
             Choice {
-                move_id: String::from("machpunch"),
+                move_id: Choices::MACHPUNCH,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
@@ -8476,9 +8246,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("magicalleaf"),
+            Choices::MAGICALLEAF,
             Choice {
-                move_id: String::from("magicalleaf"),
+                move_id: Choices::MAGICALLEAF,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Grass,
@@ -8491,9 +8261,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("magicaltorque"),
+            Choices::MAGICALTORQUE,
             Choice {
-                move_id: String::from("magicaltorque"),
+                move_id: Choices::MAGICALTORQUE,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fairy,
@@ -8510,9 +8280,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("magiccoat"),
+            Choices::MAGICCOAT,
             Choice {
-                move_id: String::from("magiccoat"),
+                move_id: Choices::MAGICCOAT,
                 priority: 4,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
@@ -8527,9 +8297,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("magicpowder"),
+            Choices::MAGICPOWDER,
             Choice {
-                move_id: String::from("magicpowder"),
+                move_id: Choices::MAGICPOWDER,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
@@ -8542,9 +8312,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("magicroom"),
+            Choices::MAGICROOM,
             Choice {
-                move_id: String::from("magicroom"),
+                move_id: Choices::MAGICROOM,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
@@ -8554,9 +8324,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("magmastorm"),
+            Choices::MAGMASTORM,
             Choice {
-                move_id: String::from("magmastorm"),
+                move_id: Choices::MAGMASTORM,
                 accuracy: 75.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
@@ -8574,9 +8344,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("magnetbomb"),
+            Choices::MAGNETBOMB,
             Choice {
-                move_id: String::from("magnetbomb"),
+                move_id: Choices::MAGNETBOMB,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Steel,
@@ -8590,9 +8360,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("magneticflux"),
+            Choices::MAGNETICFLUX,
             Choice {
-                move_id: String::from("magneticflux"),
+                move_id: Choices::MAGNETICFLUX,
                 target: MoveTarget::User,
                 move_type: PokemonType::Electric,
                 flags: Flags {
@@ -8604,9 +8374,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("magnetrise"),
+            Choices::MAGNETRISE,
             Choice {
-                move_id: String::from("magnetrise"),
+                move_id: Choices::MAGNETRISE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Electric,
                 flags: Flags {
@@ -8622,9 +8392,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("magnitude"),
+            Choices::MAGNITUDE,
             Choice {
-                move_id: String::from("magnitude"),
+                move_id: Choices::MAGNITUDE,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ground,
                 flags: Flags {
@@ -8637,9 +8407,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("makeitrain"),
+            Choices::MAKEITRAIN,
             Choice {
-                move_id: String::from("makeitrain"),
+                move_id: Choices::MAKEITRAIN,
                 base_power: 120.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Steel,
@@ -8652,9 +8422,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("matblock"),
+            Choices::MATBLOCK,
             Choice {
-                move_id: String::from("matblock"),
+                move_id: Choices::MATBLOCK,
                 target: MoveTarget::User,
                 move_type: PokemonType::Fighting,
                 flags: Flags {
@@ -8670,9 +8440,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("matchagotcha"),
+            Choices::MATCHAGOTCHA,
             Choice {
-                move_id: String::from("matchagotcha"),
+                move_id: Choices::MATCHAGOTCHA,
                 accuracy: 90.0,
                 base_power: 80.0,
                 category: MoveCategory::Special,
@@ -8693,9 +8463,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("meanlook"),
+            Choices::MEANLOOK,
             Choice {
-                move_id: String::from("meanlook"),
+                move_id: Choices::MEANLOOK,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -8706,9 +8476,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("meditate"),
+            Choices::MEDITATE,
             Choice {
-                move_id: String::from("meditate"),
+                move_id: Choices::MEDITATE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -8730,9 +8500,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mefirst"),
+            Choices::MEFIRST,
             Choice {
-                move_id: String::from("mefirst"),
+                move_id: Choices::MEFIRST,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     protect: true,
@@ -8742,9 +8512,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("megadrain"),
+            Choices::MEGADRAIN,
             Choice {
-                move_id: String::from("megadrain"),
+                move_id: Choices::MEGADRAIN,
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Grass,
@@ -8759,9 +8529,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("megahorn"),
+            Choices::MEGAHORN,
             Choice {
-                move_id: String::from("megahorn"),
+                move_id: Choices::MEGAHORN,
                 accuracy: 85.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
@@ -8776,9 +8546,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("megakick"),
+            Choices::MEGAKICK,
             Choice {
-                move_id: String::from("megakick"),
+                move_id: Choices::MEGAKICK,
                 accuracy: 75.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
@@ -8793,9 +8563,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("megapunch"),
+            Choices::MEGAPUNCH,
             Choice {
-                move_id: String::from("megapunch"),
+                move_id: Choices::MEGAPUNCH,
                 accuracy: 85.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
@@ -8811,9 +8581,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("memento"),
+            Choices::MEMENTO,
             Choice {
-                move_id: String::from("memento"),
+                move_id: Choices::MEMENTO,
                 move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
@@ -8839,9 +8609,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("metalburst"),
+            Choices::METALBURST,
             Choice {
-                move_id: String::from("metalburst"),
+                move_id: Choices::METALBURST,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Steel,
                 flags: Flags {
@@ -8853,9 +8623,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("metalclaw"),
+            Choices::METALCLAW,
             Choice {
-                move_id: String::from("metalclaw"),
+                move_id: Choices::METALCLAW,
                 accuracy: 95.0,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
@@ -8882,9 +8652,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("metalsound"),
+            Choices::METALSOUND,
             Choice {
-                move_id: String::from("metalsound"),
+                move_id: Choices::METALSOUND,
                 accuracy: 85.0,
                 move_type: PokemonType::Steel,
                 flags: Flags {
@@ -8909,9 +8679,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("meteorassault"),
+            Choices::METEORASSAULT,
             Choice {
-                move_id: String::from("meteorassault"),
+                move_id: Choices::METEORASSAULT,
                 base_power: 150.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -8925,9 +8695,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("meteorbeam"),
+            Choices::METEORBEAM,
             Choice {
-                move_id: String::from("meteorbeam"),
+                move_id: Choices::METEORBEAM,
                 accuracy: 90.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
@@ -8942,9 +8712,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("meteormash"),
+            Choices::METEORMASH,
             Choice {
-                move_id: String::from("meteormash"),
+                move_id: Choices::METEORMASH,
                 accuracy: 90.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
@@ -8972,9 +8742,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("metronome"),
+            Choices::METRONOME,
             Choice {
-                move_id: String::from("metronome"),
+                move_id: Choices::METRONOME,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -8984,9 +8754,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("milkdrink"),
+            Choices::MILKDRINK,
             Choice {
-                move_id: String::from("milkdrink"),
+                move_id: Choices::MILKDRINK,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -9002,9 +8772,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mimic"),
+            Choices::MIMIC,
             Choice {
-                move_id: String::from("mimic"),
+                move_id: Choices::MIMIC,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     protect: true,
@@ -9014,9 +8784,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mindblown"),
+            Choices::MINDBLOWN,
             Choice {
-                move_id: String::from("mindblown"),
+                move_id: Choices::MINDBLOWN,
                 base_power: 150.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -9033,9 +8803,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mindreader"),
+            Choices::MINDREADER,
             Choice {
-                move_id: String::from("mindreader"),
+                move_id: Choices::MINDREADER,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -9046,9 +8816,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("minimize"),
+            Choices::MINIMIZE,
             Choice {
-                move_id: String::from("minimize"),
+                move_id: Choices::MINIMIZE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -9074,9 +8844,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("miracleeye"),
+            Choices::MIRACLEEYE,
             Choice {
-                move_id: String::from("miracleeye"),
+                move_id: Choices::MIRACLEEYE,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
@@ -9092,9 +8862,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mirrorcoat"),
+            Choices::MIRRORCOAT,
             Choice {
-                move_id: String::from("mirrorcoat"),
+                move_id: Choices::MIRRORCOAT,
                 category: MoveCategory::Special,
                 priority: -5,
                 move_type: PokemonType::Psychic,
@@ -9106,9 +8876,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mirrormove"),
+            Choices::MIRRORMOVE,
             Choice {
-                move_id: String::from("mirrormove"),
+                move_id: Choices::MIRRORMOVE,
                 move_type: PokemonType::Flying,
                 flags: Flags {
                     ..Default::default()
@@ -9117,9 +8887,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mirrorshot"),
+            Choices::MIRRORSHOT,
             Choice {
-                move_id: String::from("mirrorshot"),
+                move_id: Choices::MIRRORSHOT,
                 accuracy: 85.0,
                 base_power: 65.0,
                 category: MoveCategory::Special,
@@ -9145,9 +8915,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mist"),
+            Choices::MIST,
             Choice {
-                move_id: String::from("mist"),
+                move_id: Choices::MIST,
                 target: MoveTarget::User,
                 move_type: PokemonType::Ice,
                 flags: Flags {
@@ -9162,9 +8932,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mistball"),
+            Choices::MISTBALL,
             Choice {
-                move_id: String::from("mistball"),
+                move_id: Choices::MISTBALL,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -9190,9 +8960,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mistyexplosion"),
+            Choices::MISTYEXPLOSION,
             Choice {
-                move_id: String::from("mistyexplosion"),
+                move_id: Choices::MISTYEXPLOSION,
                 base_power: 100.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fairy,
@@ -9205,23 +8975,13 @@ lazy_static! {
                     target: MoveTarget::User,
                     amount: -1.0,
                 }),
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        if state.terrain.terrain_type == Terrain::MistyTerrain {
-                            attacking_choice.base_power *= 1.5;
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("mistyterrain"),
+            Choices::MISTYTERRAIN,
             Choice {
-                move_id: String::from("mistyterrain"),
+                move_id: Choices::MISTYTERRAIN,
                 move_type: PokemonType::Fairy,
                 flags: Flags {
                     nonsky: true,
@@ -9231,9 +8991,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("moonblast"),
+            Choices::MOONBLAST,
             Choice {
-                move_id: String::from("moonblast"),
+                move_id: Choices::MOONBLAST,
                 base_power: 95.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fairy,
@@ -9258,9 +9018,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("moongeistbeam"),
+            Choices::MOONGEISTBEAM,
             Choice {
-                move_id: String::from("moongeistbeam"),
+                move_id: Choices::MOONGEISTBEAM,
                 base_power: 100.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ghost,
@@ -9273,9 +9033,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("moonlight"),
+            Choices::MOONLIGHT,
             Choice {
-                move_id: String::from("moonlight"),
+                move_id: Choices::MOONLIGHT,
                 target: MoveTarget::User,
                 move_type: PokemonType::Fairy,
                 flags: Flags {
@@ -9291,9 +9051,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("morningsun"),
+            Choices::MORNINGSUN,
             Choice {
-                move_id: String::from("morningsun"),
+                move_id: Choices::MORNINGSUN,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -9305,35 +9065,13 @@ lazy_static! {
                     target: MoveTarget::User,
                     amount: 0.5,
                 }),
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        match state.weather.weather_type {
-                            Weather::Sun => {
-                                attacking_choice.heal = Some(Heal {
-                                    target: MoveTarget::User,
-                                    amount: 0.667,
-                                })
-                            }
-                            Weather::None => {}
-                            _ => {
-                                attacking_choice.heal = Some(Heal {
-                                    target: MoveTarget::User,
-                                    amount: 0.25,
-                                })
-                            }
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("mortalspin"),
+            Choices::MORTALSPIN,
             Choice {
-                move_id: String::from("mortalspin"),
+                move_id: Choices::MORTALSPIN,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Poison,
@@ -9352,9 +9090,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mountaingale"),
+            Choices::MOUNTAINGALE,
             Choice {
-                move_id: String::from("mountaingale"),
+                move_id: Choices::MOUNTAINGALE,
                 accuracy: 85.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
@@ -9373,9 +9111,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mudbomb"),
+            Choices::MUDBOMB,
             Choice {
-                move_id: String::from("mudbomb"),
+                move_id: Choices::MUDBOMB,
                 accuracy: 85.0,
                 base_power: 65.0,
                 category: MoveCategory::Special,
@@ -9402,9 +9140,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("muddywater"),
+            Choices::MUDDYWATER,
             Choice {
-                move_id: String::from("muddywater"),
+                move_id: Choices::MUDDYWATER,
                 accuracy: 85.0,
                 base_power: 90.0,
                 category: MoveCategory::Special,
@@ -9431,9 +9169,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mudshot"),
+            Choices::MUDSHOT,
             Choice {
-                move_id: String::from("mudshot"),
+                move_id: Choices::MUDSHOT,
                 accuracy: 95.0,
                 base_power: 55.0,
                 category: MoveCategory::Special,
@@ -9459,9 +9197,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mudslap"),
+            Choices::MUDSLAP,
             Choice {
-                move_id: String::from("mudslap"),
+                move_id: Choices::MUDSLAP,
                 base_power: 20.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ground,
@@ -9486,9 +9224,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mudsport"),
+            Choices::MUDSPORT,
             Choice {
-                move_id: String::from("mudsport"),
+                move_id: Choices::MUDSPORT,
                 move_type: PokemonType::Ground,
                 flags: Flags {
                     nonsky: true,
@@ -9498,9 +9236,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("multiattack"),
+            Choices::MULTIATTACK,
             Choice {
-                move_id: String::from("multiattack"),
+                move_id: Choices::MULTIATTACK,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -9514,9 +9252,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mysticalfire"),
+            Choices::MYSTICALFIRE,
             Choice {
-                move_id: String::from("mysticalfire"),
+                move_id: Choices::MYSTICALFIRE,
                 base_power: 75.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -9541,9 +9279,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("mysticalpower"),
+            Choices::MYSTICALPOWER,
             Choice {
-                move_id: String::from("mysticalpower"),
+                move_id: Choices::MYSTICALPOWER,
                 accuracy: 90.0,
                 base_power: 70.0,
                 category: MoveCategory::Special,
@@ -9569,9 +9307,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("nastyplot"),
+            Choices::NASTYPLOT,
             Choice {
-                move_id: String::from("nastyplot"),
+                move_id: Choices::NASTYPLOT,
                 target: MoveTarget::User,
                 move_type: PokemonType::Dark,
                 flags: Flags {
@@ -9593,9 +9331,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("naturalgift"),
+            Choices::NATURALGIFT,
             Choice {
-                move_id: String::from("naturalgift"),
+                move_id: Choices::NATURALGIFT,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -9607,9 +9345,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("naturepower"),
+            Choices::NATUREPOWER,
             Choice {
-                move_id: String::from("naturepower"),
+                move_id: Choices::NATUREPOWER,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
@@ -9618,9 +9356,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("naturesmadness"),
+            Choices::NATURESMADNESS,
             Choice {
-                move_id: String::from("naturesmadness"),
+                move_id: Choices::NATURESMADNESS,
                 accuracy: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fairy,
@@ -9633,9 +9371,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("needlearm"),
+            Choices::NEEDLEARM,
             Choice {
-                move_id: String::from("needlearm"),
+                move_id: Choices::NEEDLEARM,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -9654,9 +9392,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("nightdaze"),
+            Choices::NIGHTDAZE,
             Choice {
-                move_id: String::from("nightdaze"),
+                move_id: Choices::NIGHTDAZE,
                 accuracy: 95.0,
                 base_power: 85.0,
                 category: MoveCategory::Special,
@@ -9682,9 +9420,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("nightmare"),
+            Choices::NIGHTMARE,
             Choice {
-                move_id: String::from("nightmare"),
+                move_id: Choices::NIGHTMARE,
                 move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
@@ -9699,9 +9437,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("nightshade"),
+            Choices::NIGHTSHADE,
             Choice {
-                move_id: String::from("nightshade"),
+                move_id: Choices::NIGHTSHADE,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ghost,
                 flags: Flags {
@@ -9713,9 +9451,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("nightslash"),
+            Choices::NIGHTSLASH,
             Choice {
-                move_id: String::from("nightslash"),
+                move_id: Choices::NIGHTSLASH,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -9729,9 +9467,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("nobleroar"),
+            Choices::NOBLEROAR,
             Choice {
-                move_id: String::from("nobleroar"),
+                move_id: Choices::NOBLEROAR,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -9755,9 +9493,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("noretreat"),
+            Choices::NORETREAT,
             Choice {
-                move_id: String::from("noretreat"),
+                move_id: Choices::NORETREAT,
                 target: MoveTarget::User,
                 move_type: PokemonType::Fighting,
                 flags: Flags {
@@ -9779,25 +9517,13 @@ lazy_static! {
                     target: MoveTarget::User,
                     volatile_status: PokemonVolatileStatus::NoRetreat,
                 }),
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        if state.get_side_immutable(attacking_side_ref).get_active_immutable().volatile_statuses.contains(
-                            &PokemonVolatileStatus::NoRetreat,
-                        ) {
-                            attacking_choice.boost = None;
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("nothing"),
+            Choices::NOTHING,
             Choice {
-                move_id: String::from("nothing"),
+                move_id: Choices::NOTHING,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -9808,9 +9534,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("noxioustorque"),
+            Choices::NOXIOUSTORQUE,
             Choice {
-                move_id: String::from("noxioustorque"),
+                move_id: Choices::NOXIOUSTORQUE,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Poison,
@@ -9827,9 +9553,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("nuzzle"),
+            Choices::NUZZLE,
             Choice {
-                move_id: String::from("nuzzle"),
+                move_id: Choices::NUZZLE,
                 base_power: 20.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Electric,
@@ -9848,9 +9574,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("oblivionwing"),
+            Choices::OBLIVIONWING,
             Choice {
-                move_id: String::from("oblivionwing"),
+                move_id: Choices::OBLIVIONWING,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Flying,
@@ -9866,9 +9592,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("obstruct"),
+            Choices::OBSTRUCT,
             Choice {
-                move_id: String::from("obstruct"),
+                move_id: Choices::OBSTRUCT,
                 priority: 4,
                 target: MoveTarget::User,
                 move_type: PokemonType::Dark,
@@ -9883,9 +9609,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("octazooka"),
+            Choices::OCTAZOOKA,
             Choice {
-                move_id: String::from("octazooka"),
+                move_id: Choices::OCTAZOOKA,
                 accuracy: 85.0,
                 base_power: 65.0,
                 category: MoveCategory::Special,
@@ -9912,9 +9638,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("octolock"),
+            Choices::OCTOLOCK,
             Choice {
-                move_id: String::from("octolock"),
+                move_id: Choices::OCTOLOCK,
                 move_type: PokemonType::Fighting,
                 flags: Flags {
                     mirror: true,
@@ -9929,9 +9655,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("odorsleuth"),
+            Choices::ODORSLEUTH,
             Choice {
-                move_id: String::from("odorsleuth"),
+                move_id: Choices::ODORSLEUTH,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -9947,9 +9673,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("ominouswind"),
+            Choices::OMINOUSWIND,
             Choice {
-                move_id: String::from("ominouswind"),
+                move_id: Choices::OMINOUSWIND,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ghost,
@@ -9974,9 +9700,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("orderup"),
+            Choices::ORDERUP,
             Choice {
-                move_id: String::from("orderup"),
+                move_id: Choices::ORDERUP,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dragon,
@@ -9988,9 +9714,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("originpulse"),
+            Choices::ORIGINPULSE,
             Choice {
-                move_id: String::from("originpulse"),
+                move_id: Choices::ORIGINPULSE,
                 accuracy: 85.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
@@ -10005,9 +9731,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("outrage"),
+            Choices::OUTRAGE,
             Choice {
-                move_id: String::from("outrage"),
+                move_id: Choices::OUTRAGE,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dragon,
@@ -10021,9 +9747,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("overdrive"),
+            Choices::OVERDRIVE,
             Choice {
-                move_id: String::from("overdrive"),
+                move_id: Choices::OVERDRIVE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Electric,
@@ -10037,9 +9763,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("overheat"),
+            Choices::OVERHEAT,
             Choice {
-                move_id: String::from("overheat"),
+                move_id: Choices::OVERHEAT,
                 accuracy: 90.0,
                 base_power: 130.0,
                 category: MoveCategory::Special,
@@ -10053,39 +9779,22 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("painsplit"),
+            Choices::PAINSPLIT,
             Choice {
-                move_id: String::from("painsplit"),
+                move_id: Choices::PAINSPLIT,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
                     protect: true,
                     ..Default::default()
                 },
-                move_special_effect: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
-                    let (attacking_side, defending_side) = state.get_both_sides(side_ref);
-                    let target_hp = (attacking_side.get_active_immutable().hp + defending_side.get_active_immutable().hp) / 2;
-
-                    incoming_instructions.instruction_list.push(Instruction::Damage(DamageInstruction {
-                        side_ref: *side_ref,
-                        damage_amount: attacking_side.get_active_immutable().hp - target_hp,
-                    }));
-                    incoming_instructions.instruction_list.push(Instruction::Damage(DamageInstruction {
-                        side_ref: side_ref.get_other_side(),
-                        damage_amount: defending_side.get_active_immutable().hp - target_hp,
-                    }));
-
-                    attacking_side.get_active().hp = target_hp;
-                    defending_side.get_active().hp = target_hp;
-
-                }),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("paleowave"),
+            Choices::PALEOWAVE,
             Choice {
-                move_id: String::from("paleowave"),
+                move_id: Choices::PALEOWAVE,
                 base_power: 85.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Rock,
@@ -10110,9 +9819,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("paraboliccharge"),
+            Choices::PARABOLICCHARGE,
             Choice {
-                move_id: String::from("paraboliccharge"),
+                move_id: Choices::PARABOLICCHARGE,
                 base_power: 65.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Electric,
@@ -10127,9 +9836,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("partingshot"),
+            Choices::PARTINGSHOT,
             Choice {
-                move_id: String::from("partingshot"),
+                move_id: Choices::PARTINGSHOT,
                 move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
@@ -10153,9 +9862,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("payback"),
+            Choices::PAYBACK,
             Choice {
-                move_id: String::from("payback"),
+                move_id: Choices::PAYBACK,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -10169,9 +9878,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("payday"),
+            Choices::PAYDAY,
             Choice {
-                move_id: String::from("payday"),
+                move_id: Choices::PAYDAY,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -10184,9 +9893,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("peck"),
+            Choices::PECK,
             Choice {
-                move_id: String::from("peck"),
+                move_id: Choices::PECK,
                 base_power: 35.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Flying,
@@ -10201,9 +9910,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("perishsong"),
+            Choices::PERISHSONG,
             Choice {
-                move_id: String::from("perishsong"),
+                move_id: Choices::PERISHSONG,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     distance: true,
@@ -10214,9 +9923,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("petalblizzard"),
+            Choices::PETALBLIZZARD,
             Choice {
-                move_id: String::from("petalblizzard"),
+                move_id: Choices::PETALBLIZZARD,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -10229,9 +9938,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("petaldance"),
+            Choices::PETALDANCE,
             Choice {
-                move_id: String::from("petaldance"),
+                move_id: Choices::PETALDANCE,
                 base_power: 120.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Grass,
@@ -10246,9 +9955,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("phantomforce"),
+            Choices::PHANTOMFORCE,
             Choice {
-                move_id: String::from("phantomforce"),
+                move_id: Choices::PHANTOMFORCE,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ghost,
@@ -10262,9 +9971,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("photongeyser"),
+            Choices::PHOTONGEYSER,
             Choice {
-                move_id: String::from("photongeyser"),
+                move_id: Choices::PHOTONGEYSER,
                 base_power: 100.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -10277,9 +9986,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("pikapapow"),
+            Choices::PIKAPAPOW,
             Choice {
-                move_id: String::from("pikapapow"),
+                move_id: Choices::PIKAPAPOW,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Electric,
                 flags: Flags {
@@ -10291,9 +10000,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("pinmissile"),
+            Choices::PINMISSILE,
             Choice {
-                move_id: String::from("pinmissile"),
+                move_id: Choices::PINMISSILE,
                 accuracy: 95.0,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
@@ -10307,9 +10016,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("plasmafists"),
+            Choices::PLASMAFISTS,
             Choice {
-                move_id: String::from("plasmafists"),
+                move_id: Choices::PLASMAFISTS,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Electric,
@@ -10324,9 +10033,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("playnice"),
+            Choices::PLAYNICE,
             Choice {
-                move_id: String::from("playnice"),
+                move_id: Choices::PLAYNICE,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -10348,9 +10057,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("playrough"),
+            Choices::PLAYROUGH,
             Choice {
-                move_id: String::from("playrough"),
+                move_id: Choices::PLAYROUGH,
                 accuracy: 90.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
@@ -10377,9 +10086,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("pluck"),
+            Choices::PLUCK,
             Choice {
-                move_id: String::from("pluck"),
+                move_id: Choices::PLUCK,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Flying,
@@ -10394,9 +10103,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("poisonfang"),
+            Choices::POISONFANG,
             Choice {
-                move_id: String::from("poisonfang"),
+                move_id: Choices::POISONFANG,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Poison,
@@ -10416,9 +10125,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("poisongas"),
+            Choices::POISONGAS,
             Choice {
-                move_id: String::from("poisongas"),
+                move_id: Choices::POISONGAS,
                 accuracy: 90.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
@@ -10435,9 +10144,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("poisonjab"),
+            Choices::POISONJAB,
             Choice {
-                move_id: String::from("poisonjab"),
+                move_id: Choices::POISONJAB,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Poison,
@@ -10456,9 +10165,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("poisonpowder"),
+            Choices::POISONPOWDER,
             Choice {
-                move_id: String::from("poisonpowder"),
+                move_id: Choices::POISONPOWDER,
                 accuracy: 75.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
@@ -10476,9 +10185,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("poisonsting"),
+            Choices::POISONSTING,
             Choice {
-                move_id: String::from("poisonsting"),
+                move_id: Choices::POISONSTING,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Poison,
@@ -10496,9 +10205,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("poisontail"),
+            Choices::POISONTAIL,
             Choice {
-                move_id: String::from("poisontail"),
+                move_id: Choices::POISONTAIL,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Poison,
@@ -10517,9 +10226,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("pollenpuff"),
+            Choices::POLLENPUFF,
             Choice {
-                move_id: String::from("pollenpuff"),
+                move_id: Choices::POLLENPUFF,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Bug,
@@ -10533,9 +10242,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("poltergeist"),
+            Choices::POLTERGEIST,
             Choice {
-                move_id: String::from("poltergeist"),
+                move_id: Choices::POLTERGEIST,
                 accuracy: 90.0,
                 base_power: 110.0,
                 category: MoveCategory::Physical,
@@ -10545,23 +10254,13 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        if state.get_side_immutable(&attacking_side_ref.get_other_side()).get_active_immutable().item == Items::NONE {
-                            attacking_choice.base_power = 0.0;
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("populationbomb"),
+            Choices::POPULATIONBOMB,
             Choice {
-                move_id: String::from("populationbomb"),
+                move_id: Choices::POPULATIONBOMB,
                 accuracy: 90.0,
                 base_power: 20.0,
                 category: MoveCategory::Physical,
@@ -10576,9 +10275,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("pounce"),
+            Choices::POUNCE,
             Choice {
-                move_id: String::from("pounce"),
+                move_id: Choices::POUNCE,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Bug,
@@ -10604,9 +10303,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("pound"),
+            Choices::POUND,
             Choice {
-                move_id: String::from("pound"),
+                move_id: Choices::POUND,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -10620,9 +10319,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("powder"),
+            Choices::POWDER,
             Choice {
-                move_id: String::from("powder"),
+                move_id: Choices::POWDER,
                 priority: 1,
                 move_type: PokemonType::Bug,
                 flags: Flags {
@@ -10640,9 +10339,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("powdersnow"),
+            Choices::POWDERSNOW,
             Choice {
-                move_id: String::from("powdersnow"),
+                move_id: Choices::POWDERSNOW,
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ice,
@@ -10660,9 +10359,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("powergem"),
+            Choices::POWERGEM,
             Choice {
-                move_id: String::from("powergem"),
+                move_id: Choices::POWERGEM,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Rock,
@@ -10675,9 +10374,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("powershift"),
+            Choices::POWERSHIFT,
             Choice {
-                move_id: String::from("powershift"),
+                move_id: Choices::POWERSHIFT,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -10692,9 +10391,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("powersplit"),
+            Choices::POWERSPLIT,
             Choice {
-                move_id: String::from("powersplit"),
+                move_id: Choices::POWERSPLIT,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     protect: true,
@@ -10704,9 +10403,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("powerswap"),
+            Choices::POWERSWAP,
             Choice {
-                move_id: String::from("powerswap"),
+                move_id: Choices::POWERSWAP,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
@@ -10717,9 +10416,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("powertrick"),
+            Choices::POWERTRICK,
             Choice {
-                move_id: String::from("powertrick"),
+                move_id: Choices::POWERTRICK,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -10734,9 +10433,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("powertrip"),
+            Choices::POWERTRIP,
             Choice {
-                move_id: String::from("powertrip"),
+                move_id: Choices::POWERTRIP,
                 base_power: 20.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -10750,9 +10449,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("poweruppunch"),
+            Choices::POWERUPPUNCH,
             Choice {
-                move_id: String::from("poweruppunch"),
+                move_id: Choices::POWERUPPUNCH,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -10779,9 +10478,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("powerwhip"),
+            Choices::POWERWHIP,
             Choice {
-                move_id: String::from("powerwhip"),
+                move_id: Choices::POWERWHIP,
                 accuracy: 85.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
@@ -10796,9 +10495,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("precipiceblades"),
+            Choices::PRECIPICEBLADES,
             Choice {
-                move_id: String::from("precipiceblades"),
+                move_id: Choices::PRECIPICEBLADES,
                 accuracy: 85.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
@@ -10813,9 +10512,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("present"),
+            Choices::PRESENT,
             Choice {
-                move_id: String::from("present"),
+                move_id: Choices::PRESENT,
                 accuracy: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -10828,9 +10527,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("prismaticlaser"),
+            Choices::PRISMATICLASER,
             Choice {
-                move_id: String::from("prismaticlaser"),
+                move_id: Choices::PRISMATICLASER,
                 base_power: 160.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -10844,9 +10543,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("protect"),
+            Choices::PROTECT,
             Choice {
-                move_id: String::from("protect"),
+                move_id: Choices::PROTECT,
                 priority: 4,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
@@ -10857,30 +10556,13 @@ lazy_static! {
                     target: MoveTarget::User,
                     volatile_status: PokemonVolatileStatus::Protect,
                 }),
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _,
-                     attacking_side_ref: &SideReference| {
-                        if state
-                            .get_side_immutable(&attacking_side_ref)
-                            .side_conditions
-                            .protect
-                            > 0
-                        {
-                            // for now, the engine doesn't support consecutive protects
-                            // 2nd protect will always fail
-                            attacking_choice.volatile_status = None;
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("psybeam"),
+            Choices::PSYBEAM,
             Choice {
-                move_id: String::from("psybeam"),
+                move_id: Choices::PSYBEAM,
                 base_power: 65.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -10898,9 +10580,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("psyblade"),
+            Choices::PSYBLADE,
             Choice {
-                move_id: String::from("psyblade"),
+                move_id: Choices::PSYBLADE,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Psychic,
@@ -10910,23 +10592,13 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        if state.terrain.terrain_type == Terrain::ElectricTerrain {
-                            attacking_choice.base_power *= 1.5;
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("psychic"),
+            Choices::PSYCHIC,
             Choice {
-                move_id: String::from("psychic"),
+                move_id: Choices::PSYCHIC,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -10951,9 +10623,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("psychicfangs"),
+            Choices::PSYCHICFANGS,
             Choice {
-                move_id: String::from("psychicfangs"),
+                move_id: Choices::PSYCHICFANGS,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Psychic,
@@ -10968,9 +10640,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("psychicterrain"),
+            Choices::PSYCHICTERRAIN,
             Choice {
-                move_id: String::from("psychicterrain"),
+                move_id: Choices::PSYCHICTERRAIN,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     nonsky: true,
@@ -10980,9 +10652,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("psychoboost"),
+            Choices::PSYCHOBOOST,
             Choice {
-                move_id: String::from("psychoboost"),
+                move_id: Choices::PSYCHOBOOST,
                 accuracy: 90.0,
                 base_power: 140.0,
                 category: MoveCategory::Special,
@@ -10996,9 +10668,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("psychocut"),
+            Choices::PSYCHOCUT,
             Choice {
-                move_id: String::from("psychocut"),
+                move_id: Choices::PSYCHOCUT,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Psychic,
@@ -11011,9 +10683,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("psychoshift"),
+            Choices::PSYCHOSHIFT,
             Choice {
-                move_id: String::from("psychoshift"),
+                move_id: Choices::PSYCHOSHIFT,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
@@ -11024,9 +10696,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("psychup"),
+            Choices::PSYCHUP,
             Choice {
-                move_id: String::from("psychup"),
+                move_id: Choices::PSYCHUP,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
@@ -11035,9 +10707,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("psyshieldbash"),
+            Choices::PSYSHIELDBASH,
             Choice {
-                move_id: String::from("psyshieldbash"),
+                move_id: Choices::PSYSHIELDBASH,
                 accuracy: 90.0,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
@@ -11064,9 +10736,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("psyshock"),
+            Choices::PSYSHOCK,
             Choice {
-                move_id: String::from("psyshock"),
+                move_id: Choices::PSYSHOCK,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -11079,9 +10751,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("psystrike"),
+            Choices::PSYSTRIKE,
             Choice {
-                move_id: String::from("psystrike"),
+                move_id: Choices::PSYSTRIKE,
                 base_power: 100.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -11094,9 +10766,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("psywave"),
+            Choices::PSYWAVE,
             Choice {
-                move_id: String::from("psywave"),
+                move_id: Choices::PSYWAVE,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -11108,9 +10780,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("punishment"),
+            Choices::PUNISHMENT,
             Choice {
-                move_id: String::from("punishment"),
+                move_id: Choices::PUNISHMENT,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
                 flags: Flags {
@@ -11123,9 +10795,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("purify"),
+            Choices::PURIFY,
             Choice {
-                move_id: String::from("purify"),
+                move_id: Choices::PURIFY,
                 move_type: PokemonType::Poison,
                 flags: Flags {
                     heal: true,
@@ -11137,9 +10809,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("pursuit"),
+            Choices::PURSUIT,
             Choice {
-                move_id: String::from("pursuit"),
+                move_id: Choices::PURSUIT,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -11149,23 +10821,13 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        if defender_choice.category == MoveCategory::Switch {
-                            attacking_choice.base_power *= 2.0;
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("pyroball"),
+            Choices::PYROBALL,
             Choice {
-                move_id: String::from("pyroball"),
+                move_id: Choices::PYROBALL,
                 accuracy: 90.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
@@ -11186,9 +10848,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("quash"),
+            Choices::QUASH,
             Choice {
-                move_id: String::from("quash"),
+                move_id: Choices::QUASH,
                 move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
@@ -11199,9 +10861,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("quickattack"),
+            Choices::QUICKATTACK,
             Choice {
-                move_id: String::from("quickattack"),
+                move_id: Choices::QUICKATTACK,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
@@ -11216,9 +10878,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("quickguard"),
+            Choices::QUICKGUARD,
             Choice {
-                move_id: String::from("quickguard"),
+                move_id: Choices::QUICKGUARD,
                 priority: 3,
                 target: MoveTarget::User,
                 move_type: PokemonType::Fighting,
@@ -11234,9 +10896,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("quiverdance"),
+            Choices::QUIVERDANCE,
             Choice {
-                move_id: String::from("quiverdance"),
+                move_id: Choices::QUIVERDANCE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Bug,
                 flags: Flags {
@@ -11259,9 +10921,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("rage"),
+            Choices::RAGE,
             Choice {
-                move_id: String::from("rage"),
+                move_id: Choices::RAGE,
                 base_power: 20.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -11275,9 +10937,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("ragefist"),
+            Choices::RAGEFIST,
             Choice {
-                move_id: String::from("ragefist"),
+                move_id: Choices::RAGEFIST,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ghost,
@@ -11292,9 +10954,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("ragepowder"),
+            Choices::RAGEPOWDER,
             Choice {
-                move_id: String::from("ragepowder"),
+                move_id: Choices::RAGEPOWDER,
                 priority: 2,
                 target: MoveTarget::User,
                 move_type: PokemonType::Bug,
@@ -11310,9 +10972,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("ragingbull"),
+            Choices::RAGINGBULL,
             Choice {
-                move_id: String::from("ragingbull"),
+                move_id: Choices::RAGINGBULL,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -11326,9 +10988,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("ragingfury"),
+            Choices::RAGINGFURY,
             Choice {
-                move_id: String::from("ragingfury"),
+                move_id: Choices::RAGINGFURY,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fire,
@@ -11341,9 +11003,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("raindance"),
+            Choices::RAINDANCE,
             Choice {
-                move_id: String::from("raindance"),
+                move_id: Choices::RAINDANCE,
                 move_type: PokemonType::Water,
                 flags: Flags {
                     ..Default::default()
@@ -11352,9 +11014,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("rapidspin"),
+            Choices::RAPIDSPIN,
             Choice {
-                move_id: String::from("rapidspin"),
+                move_id: Choices::RAPIDSPIN,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -11376,56 +11038,13 @@ lazy_static! {
                         accuracy: 0,
                     }),
                 }]),
-                hazard_clear: Some(|state: &mut State, side_ref: &SideReference, instructions: &mut StateInstructions| {
-                    let attacking_side = state.get_side(side_ref);
-                    if attacking_side.side_conditions.stealth_rock > 0 {
-                        instructions.instruction_list.push(Instruction::ChangeSideCondition(
-                            ChangeSideConditionInstruction {
-                                side_ref: *side_ref,
-                                side_condition: PokemonSideCondition::Stealthrock,
-                                amount: -1 * attacking_side.side_conditions.stealth_rock,
-                            },
-                        ));
-                        attacking_side.side_conditions.stealth_rock = 0;
-                    }
-                    if attacking_side.side_conditions.spikes > 0 {
-                        instructions.instruction_list.push(Instruction::ChangeSideCondition(
-                            ChangeSideConditionInstruction {
-                                side_ref: *side_ref,
-                                side_condition: PokemonSideCondition::Spikes,
-                                amount: -1 * attacking_side.side_conditions.spikes,
-                            },
-                        ));
-                        attacking_side.side_conditions.spikes = 0;
-                    }
-                    if attacking_side.side_conditions.toxic_spikes > 0 {
-                        instructions.instruction_list.push(Instruction::ChangeSideCondition(
-                            ChangeSideConditionInstruction {
-                                side_ref: *side_ref,
-                                side_condition: PokemonSideCondition::ToxicSpikes,
-                                amount: -1 * attacking_side.side_conditions.toxic_spikes,
-                            },
-                        ));
-                        attacking_side.side_conditions.toxic_spikes = 0;
-                    }
-                    if attacking_side.side_conditions.sticky_web > 0 {
-                        instructions.instruction_list.push(Instruction::ChangeSideCondition(
-                            ChangeSideConditionInstruction {
-                                side_ref: *side_ref,
-                                side_condition: PokemonSideCondition::StickyWeb,
-                                amount: -1 * attacking_side.side_conditions.sticky_web,
-                            },
-                        ));
-                        attacking_side.side_conditions.sticky_web = 0;
-                    }
-                }),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("razorleaf"),
+            Choices::RAZORLEAF,
             Choice {
-                move_id: String::from("razorleaf"),
+                move_id: Choices::RAZORLEAF,
                 accuracy: 95.0,
                 base_power: 55.0,
                 category: MoveCategory::Physical,
@@ -11439,9 +11058,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("razorshell"),
+            Choices::RAZORSHELL,
             Choice {
-                move_id: String::from("razorshell"),
+                move_id: Choices::RAZORSHELL,
                 accuracy: 95.0,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
@@ -11468,9 +11087,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("razorwind"),
+            Choices::RAZORWIND,
             Choice {
-                move_id: String::from("razorwind"),
+                move_id: Choices::RAZORWIND,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -11484,9 +11103,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("recharge"),
+            Choices::RECHARGE,
             Choice {
-                move_id: String::from("recharge"),
+                move_id: Choices::RECHARGE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -11496,9 +11115,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("recover"),
+            Choices::RECOVER,
             Choice {
-                move_id: String::from("recover"),
+                move_id: Choices::RECOVER,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -11514,9 +11133,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("recycle"),
+            Choices::RECYCLE,
             Choice {
-                move_id: String::from("recycle"),
+                move_id: Choices::RECYCLE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -11527,9 +11146,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("reflect"),
+            Choices::REFLECT,
             Choice {
-                move_id: String::from("reflect"),
+                move_id: Choices::REFLECT,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -11544,9 +11163,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("reflecttype"),
+            Choices::REFLECTTYPE,
             Choice {
-                move_id: String::from("reflecttype"),
+                move_id: Choices::REFLECTTYPE,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     protect: true,
@@ -11556,9 +11175,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("refresh"),
+            Choices::REFRESH,
             Choice {
-                move_id: String::from("refresh"),
+                move_id: Choices::REFRESH,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -11569,9 +11188,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("relicsong"),
+            Choices::RELICSONG,
             Choice {
-                move_id: String::from("relicsong"),
+                move_id: Choices::RELICSONG,
                 base_power: 75.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -11590,9 +11209,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("rest"),
+            Choices::REST,
             Choice {
-                move_id: String::from("rest"),
+                move_id: Choices::REST,
                 status: Some(Status {
                     target: MoveTarget::User,
                     status: PokemonStatus::Sleep,
@@ -11612,9 +11231,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("retaliate"),
+            Choices::RETALIATE,
             Choice {
-                move_id: String::from("retaliate"),
+                move_id: Choices::RETALIATE,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -11628,9 +11247,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("return"),
+            Choices::RETURN,
             Choice {
-                move_id: String::from("return"),
+                move_id: Choices::RETURN,
                 base_power: 102.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -11644,9 +11263,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("return102"),
+            Choices::RETURN102,
             Choice {
-                move_id: String::from("return102"),
+                move_id: Choices::RETURN102,
                 base_power: 102.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -11660,9 +11279,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("revelationdance"),
+            Choices::REVELATIONDANCE,
             Choice {
-                move_id: String::from("revelationdance"),
+                move_id: Choices::REVELATIONDANCE,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -11672,21 +11291,13 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        attacking_choice.move_type = state.get_side_immutable(attacking_side_ref).get_active_immutable().types.0;
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("revenge"),
+            Choices::REVENGE,
             Choice {
-                move_id: String::from("revenge"),
+                move_id: Choices::REVENGE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 priority: -4,
@@ -11701,9 +11312,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("reversal"),
+            Choices::REVERSAL,
             Choice {
-                move_id: String::from("reversal"),
+                move_id: Choices::REVERSAL,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
                 flags: Flags {
@@ -11716,9 +11327,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("revivalblessing"),
+            Choices::REVIVALBLESSING,
             Choice {
-                move_id: String::from("revivalblessing"),
+                move_id: Choices::REVIVALBLESSING,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -11728,9 +11339,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("risingvoltage"),
+            Choices::RISINGVOLTAGE,
             Choice {
-                move_id: String::from("risingvoltage"),
+                move_id: Choices::RISINGVOLTAGE,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Electric,
@@ -11739,23 +11350,13 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        if state.terrain.terrain_type == Terrain::ElectricTerrain {
-                            attacking_choice.base_power *= 1.5;
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("roar"),
+            Choices::ROAR,
             Choice {
-                move_id: String::from("roar"),
+                move_id: Choices::ROAR,
                 priority: -6,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -11769,9 +11370,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("roaroftime"),
+            Choices::ROAROFTIME,
             Choice {
-                move_id: String::from("roaroftime"),
+                move_id: Choices::ROAROFTIME,
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
@@ -11786,9 +11387,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("rockblast"),
+            Choices::ROCKBLAST,
             Choice {
-                move_id: String::from("rockblast"),
+                move_id: Choices::ROCKBLAST,
                 accuracy: 90.0,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
@@ -11803,9 +11404,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("rockclimb"),
+            Choices::ROCKCLIMB,
             Choice {
-                move_id: String::from("rockclimb"),
+                move_id: Choices::ROCKCLIMB,
                 accuracy: 85.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
@@ -11825,9 +11426,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("rockpolish"),
+            Choices::ROCKPOLISH,
             Choice {
-                move_id: String::from("rockpolish"),
+                move_id: Choices::ROCKPOLISH,
                 target: MoveTarget::User,
                 move_type: PokemonType::Rock,
                 flags: Flags {
@@ -11849,9 +11450,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("rockslide"),
+            Choices::ROCKSLIDE,
             Choice {
-                move_id: String::from("rockslide"),
+                move_id: Choices::ROCKSLIDE,
                 accuracy: 90.0,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
@@ -11870,9 +11471,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("rocksmash"),
+            Choices::ROCKSMASH,
             Choice {
-                move_id: String::from("rocksmash"),
+                move_id: Choices::ROCKSMASH,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -11898,9 +11499,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("rockthrow"),
+            Choices::ROCKTHROW,
             Choice {
-                move_id: String::from("rockthrow"),
+                move_id: Choices::ROCKTHROW,
                 accuracy: 90.0,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
@@ -11914,9 +11515,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("rocktomb"),
+            Choices::ROCKTOMB,
             Choice {
-                move_id: String::from("rocktomb"),
+                move_id: Choices::ROCKTOMB,
                 accuracy: 95.0,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
@@ -11942,9 +11543,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("rockwrecker"),
+            Choices::ROCKWRECKER,
             Choice {
-                move_id: String::from("rockwrecker"),
+                move_id: Choices::ROCKWRECKER,
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Physical,
@@ -11960,9 +11561,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("roleplay"),
+            Choices::ROLEPLAY,
             Choice {
-                move_id: String::from("roleplay"),
+                move_id: Choices::ROLEPLAY,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     ..Default::default()
@@ -11971,9 +11572,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("rollingkick"),
+            Choices::ROLLINGKICK,
             Choice {
-                move_id: String::from("rollingkick"),
+                move_id: Choices::ROLLINGKICK,
                 accuracy: 85.0,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
@@ -11993,9 +11594,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("rollout"),
+            Choices::ROLLOUT,
             Choice {
-                move_id: String::from("rollout"),
+                move_id: Choices::ROLLOUT,
                 accuracy: 90.0,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
@@ -12010,9 +11611,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("roost"),
+            Choices::ROOST,
             Choice {
-                move_id: String::from("roost"),
+                move_id: Choices::ROOST,
                 target: MoveTarget::User,
                 move_type: PokemonType::Flying,
                 flags: Flags {
@@ -12032,9 +11633,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("rototiller"),
+            Choices::ROTOTILLER,
             Choice {
-                move_id: String::from("rototiller"),
+                move_id: Choices::ROTOTILLER,
                 move_type: PokemonType::Ground,
                 flags: Flags {
                     distance: true,
@@ -12045,9 +11646,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("round"),
+            Choices::ROUND,
             Choice {
-                move_id: String::from("round"),
+                move_id: Choices::ROUND,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -12061,9 +11662,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("ruination"),
+            Choices::RUINATION,
             Choice {
-                move_id: String::from("ruination"),
+                move_id: Choices::RUINATION,
                 accuracy: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Dark,
@@ -12076,9 +11677,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sacredfire"),
+            Choices::SACREDFIRE,
             Choice {
-                move_id: String::from("sacredfire"),
+                move_id: Choices::SACREDFIRE,
                 accuracy: 95.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
@@ -12098,9 +11699,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sacredsword"),
+            Choices::SACREDSWORD,
             Choice {
-                move_id: String::from("sacredsword"),
+                move_id: Choices::SACREDSWORD,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -12114,9 +11715,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("safeguard"),
+            Choices::SAFEGUARD,
             Choice {
-                move_id: String::from("safeguard"),
+                move_id: Choices::SAFEGUARD,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -12131,9 +11732,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("saltcure"),
+            Choices::SALTCURE,
             Choice {
-                move_id: String::from("saltcure"),
+                move_id: Choices::SALTCURE,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Rock,
@@ -12150,9 +11751,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sandattack"),
+            Choices::SANDATTACK,
             Choice {
-                move_id: String::from("sandattack"),
+                move_id: Choices::SANDATTACK,
                 move_type: PokemonType::Ground,
                 flags: Flags {
                     mirror: true,
@@ -12175,9 +11776,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sandsearstorm"),
+            Choices::SANDSEARSTORM,
             Choice {
-                move_id: String::from("sandsearstorm"),
+                move_id: Choices::SANDSEARSTORM,
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
@@ -12196,9 +11797,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sandstorm"),
+            Choices::SANDSTORM,
             Choice {
-                move_id: String::from("sandstorm"),
+                move_id: Choices::SANDSTORM,
                 move_type: PokemonType::Rock,
                 flags: Flags {
                     ..Default::default()
@@ -12207,9 +11808,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sandtomb"),
+            Choices::SANDTOMB,
             Choice {
-                move_id: String::from("sandtomb"),
+                move_id: Choices::SANDTOMB,
                 accuracy: 85.0,
                 base_power: 35.0,
                 category: MoveCategory::Physical,
@@ -12227,9 +11828,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sappyseed"),
+            Choices::SAPPYSEED,
             Choice {
-                move_id: String::from("sappyseed"),
+                move_id: Choices::SAPPYSEED,
                 accuracy: 90.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
@@ -12244,9 +11845,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("scald"),
+            Choices::SCALD,
             Choice {
-                move_id: String::from("scald"),
+                move_id: Choices::SCALD,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -12265,9 +11866,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("scaleshot"),
+            Choices::SCALESHOT,
             Choice {
-                move_id: String::from("scaleshot"),
+                move_id: Choices::SCALESHOT,
                 accuracy: 90.0,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
@@ -12281,9 +11882,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("scaryface"),
+            Choices::SCARYFACE,
             Choice {
-                move_id: String::from("scaryface"),
+                move_id: Choices::SCARYFACE,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -12306,9 +11907,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("scorchingsands"),
+            Choices::SCORCHINGSANDS,
             Choice {
-                move_id: String::from("scorchingsands"),
+                move_id: Choices::SCORCHINGSANDS,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ground,
@@ -12327,9 +11928,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("scratch"),
+            Choices::SCRATCH,
             Choice {
-                move_id: String::from("scratch"),
+                move_id: Choices::SCRATCH,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -12343,9 +11944,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("screech"),
+            Choices::SCREECH,
             Choice {
-                move_id: String::from("screech"),
+                move_id: Choices::SCREECH,
                 accuracy: 85.0,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -12370,9 +11971,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("searingshot"),
+            Choices::SEARINGSHOT,
             Choice {
-                move_id: String::from("searingshot"),
+                move_id: Choices::SEARINGSHOT,
                 base_power: 100.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -12391,9 +11992,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("secretpower"),
+            Choices::SECRETPOWER,
             Choice {
-                move_id: String::from("secretpower"),
+                move_id: Choices::SECRETPOWER,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -12411,9 +12012,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("secretsword"),
+            Choices::SECRETSWORD,
             Choice {
-                move_id: String::from("secretsword"),
+                move_id: Choices::SECRETSWORD,
                 base_power: 85.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fighting,
@@ -12426,9 +12027,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("seedbomb"),
+            Choices::SEEDBOMB,
             Choice {
-                move_id: String::from("seedbomb"),
+                move_id: Choices::SEEDBOMB,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -12442,9 +12043,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("seedflare"),
+            Choices::SEEDFLARE,
             Choice {
-                move_id: String::from("seedflare"),
+                move_id: Choices::SEEDFLARE,
                 accuracy: 85.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
@@ -12470,9 +12071,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("seismictoss"),
+            Choices::SEISMICTOSS,
             Choice {
-                move_id: String::from("seismictoss"),
+                move_id: Choices::SEISMICTOSS,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
                 flags: Flags {
@@ -12486,9 +12087,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("selfdestruct"),
+            Choices::SELFDESTRUCT,
             Choice {
-                move_id: String::from("selfdestruct"),
+                move_id: Choices::SELFDESTRUCT,
                 base_power: 200.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -12505,9 +12106,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("shadowball"),
+            Choices::SHADOWBALL,
             Choice {
-                move_id: String::from("shadowball"),
+                move_id: Choices::SHADOWBALL,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ghost,
@@ -12533,9 +12134,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("shadowbone"),
+            Choices::SHADOWBONE,
             Choice {
-                move_id: String::from("shadowbone"),
+                move_id: Choices::SHADOWBONE,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ghost,
@@ -12560,9 +12161,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("shadowclaw"),
+            Choices::SHADOWCLAW,
             Choice {
-                move_id: String::from("shadowclaw"),
+                move_id: Choices::SHADOWCLAW,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ghost,
@@ -12576,9 +12177,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("shadowforce"),
+            Choices::SHADOWFORCE,
             Choice {
-                move_id: String::from("shadowforce"),
+                move_id: Choices::SHADOWFORCE,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ghost,
@@ -12592,9 +12193,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("shadowpunch"),
+            Choices::SHADOWPUNCH,
             Choice {
-                move_id: String::from("shadowpunch"),
+                move_id: Choices::SHADOWPUNCH,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ghost,
@@ -12609,9 +12210,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("shadowsneak"),
+            Choices::SHADOWSNEAK,
             Choice {
-                move_id: String::from("shadowsneak"),
+                move_id: Choices::SHADOWSNEAK,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
@@ -12626,9 +12227,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("shadowstrike"),
+            Choices::SHADOWSTRIKE,
             Choice {
-                move_id: String::from("shadowstrike"),
+                move_id: Choices::SHADOWSTRIKE,
                 accuracy: 95.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
@@ -12655,9 +12256,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sharpen"),
+            Choices::SHARPEN,
             Choice {
-                move_id: String::from("sharpen"),
+                move_id: Choices::SHARPEN,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -12679,9 +12280,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("shedtail"),
+            Choices::SHEDTAIL,
             Choice {
-                move_id: String::from("shedtail"),
+                move_id: Choices::SHEDTAIL,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -12695,9 +12296,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sheercold"),
+            Choices::SHEERCOLD,
             Choice {
-                move_id: String::from("sheercold"),
+                move_id: Choices::SHEERCOLD,
                 accuracy: 30.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Ice,
@@ -12710,9 +12311,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("shellsidearm"),
+            Choices::SHELLSIDEARM,
             Choice {
-                move_id: String::from("shellsidearm"),
+                move_id: Choices::SHELLSIDEARM,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Poison,
@@ -12730,9 +12331,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("shellsmash"),
+            Choices::SHELLSMASH,
             Choice {
-                move_id: String::from("shellsmash"),
+                move_id: Choices::SHELLSMASH,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -12754,9 +12355,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("shelltrap"),
+            Choices::SHELLTRAP,
             Choice {
-                move_id: String::from("shelltrap"),
+                move_id: Choices::SHELLTRAP,
                 base_power: 150.0,
                 category: MoveCategory::Special,
                 priority: -3,
@@ -12769,9 +12370,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("shelter"),
+            Choices::SHELTER,
             Choice {
-                move_id: String::from("shelter"),
+                move_id: Choices::SHELTER,
                 target: MoveTarget::User,
                 move_type: PokemonType::Steel,
                 flags: Flags {
@@ -12793,9 +12394,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("shiftgear"),
+            Choices::SHIFTGEAR,
             Choice {
-                move_id: String::from("shiftgear"),
+                move_id: Choices::SHIFTGEAR,
                 target: MoveTarget::User,
                 move_type: PokemonType::Steel,
                 flags: Flags {
@@ -12817,9 +12418,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("shockwave"),
+            Choices::SHOCKWAVE,
             Choice {
-                move_id: String::from("shockwave"),
+                move_id: Choices::SHOCKWAVE,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Electric,
@@ -12832,9 +12433,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("shoreup"),
+            Choices::SHOREUP,
             Choice {
-                move_id: String::from("shoreup"),
+                move_id: Choices::SHOREUP,
                 target: MoveTarget::User,
                 move_type: PokemonType::Ground,
                 flags: Flags {
@@ -12846,26 +12447,13 @@ lazy_static! {
                     target: MoveTarget::User,
                     amount: 0.5,
                 }),
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        if state.weather.weather_type == Weather::Sand {
-                            attacking_choice.heal = Some(Heal {
-                                target: MoveTarget::User,
-                                amount: 0.667,
-                            });
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("signalbeam"),
+            Choices::SIGNALBEAM,
             Choice {
-                move_id: String::from("signalbeam"),
+                move_id: Choices::SIGNALBEAM,
                 base_power: 75.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Bug,
@@ -12883,9 +12471,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("silktrap"),
+            Choices::SILKTRAP,
             Choice {
-                move_id: String::from("silktrap"),
+                move_id: Choices::SILKTRAP,
                 priority: 4,
                 target: MoveTarget::User,
                 move_type: PokemonType::Bug,
@@ -12900,9 +12488,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("silverwind"),
+            Choices::SILVERWIND,
             Choice {
-                move_id: String::from("silverwind"),
+                move_id: Choices::SILVERWIND,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Bug,
@@ -12927,9 +12515,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("simplebeam"),
+            Choices::SIMPLEBEAM,
             Choice {
-                move_id: String::from("simplebeam"),
+                move_id: Choices::SIMPLEBEAM,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -12941,9 +12529,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sing"),
+            Choices::SING,
             Choice {
-                move_id: String::from("sing"),
+                move_id: Choices::SING,
                 accuracy: 55.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
@@ -12961,9 +12549,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sizzlyslide"),
+            Choices::SIZZLYSLIDE,
             Choice {
-                move_id: String::from("sizzlyslide"),
+                move_id: Choices::SIZZLYSLIDE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fire,
@@ -12983,9 +12571,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sketch"),
+            Choices::SKETCH,
             Choice {
-                move_id: String::from("sketch"),
+                move_id: Choices::SKETCH,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
@@ -12994,9 +12582,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("skillswap"),
+            Choices::SKILLSWAP,
             Choice {
-                move_id: String::from("skillswap"),
+                move_id: Choices::SKILLSWAP,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
@@ -13007,9 +12595,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("skittersmack"),
+            Choices::SKITTERSMACK,
             Choice {
-                move_id: String::from("skittersmack"),
+                move_id: Choices::SKITTERSMACK,
                 accuracy: 90.0,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
@@ -13036,9 +12624,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("skullbash"),
+            Choices::SKULLBASH,
             Choice {
-                move_id: String::from("skullbash"),
+                move_id: Choices::SKULLBASH,
                 base_power: 130.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -13053,9 +12641,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("skyattack"),
+            Choices::SKYATTACK,
             Choice {
-                move_id: String::from("skyattack"),
+                move_id: Choices::SKYATTACK,
                 accuracy: 90.0,
                 base_power: 140.0,
                 category: MoveCategory::Physical,
@@ -13076,9 +12664,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("skydrop"),
+            Choices::SKYDROP,
             Choice {
-                move_id: String::from("skydrop"),
+                move_id: Choices::SKYDROP,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Flying,
@@ -13095,9 +12683,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("skyuppercut"),
+            Choices::SKYUPPERCUT,
             Choice {
-                move_id: String::from("skyuppercut"),
+                move_id: Choices::SKYUPPERCUT,
                 accuracy: 90.0,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
@@ -13113,9 +12701,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("slackoff"),
+            Choices::SLACKOFF,
             Choice {
-                move_id: String::from("slackoff"),
+                move_id: Choices::SLACKOFF,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -13131,9 +12719,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("slam"),
+            Choices::SLAM,
             Choice {
-                move_id: String::from("slam"),
+                move_id: Choices::SLAM,
                 accuracy: 75.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
@@ -13149,9 +12737,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("slash"),
+            Choices::SLASH,
             Choice {
-                move_id: String::from("slash"),
+                move_id: Choices::SLASH,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -13165,9 +12753,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sleeppowder"),
+            Choices::SLEEPPOWDER,
             Choice {
-                move_id: String::from("sleeppowder"),
+                move_id: Choices::SLEEPPOWDER,
                 accuracy: 75.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
@@ -13185,9 +12773,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sleeptalk"),
+            Choices::SLEEPTALK,
             Choice {
-                move_id: String::from("sleeptalk"),
+                move_id: Choices::SLEEPTALK,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -13197,9 +12785,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sludge"),
+            Choices::SLUDGE,
             Choice {
-                move_id: String::from("sludge"),
+                move_id: Choices::SLUDGE,
                 base_power: 65.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Poison,
@@ -13217,9 +12805,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sludgebomb"),
+            Choices::SLUDGEBOMB,
             Choice {
-                move_id: String::from("sludgebomb"),
+                move_id: Choices::SLUDGEBOMB,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Poison,
@@ -13238,9 +12826,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sludgewave"),
+            Choices::SLUDGEWAVE,
             Choice {
-                move_id: String::from("sludgewave"),
+                move_id: Choices::SLUDGEWAVE,
                 base_power: 95.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Poison,
@@ -13258,9 +12846,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("smackdown"),
+            Choices::SMACKDOWN,
             Choice {
-                move_id: String::from("smackdown"),
+                move_id: Choices::SMACKDOWN,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Rock,
@@ -13278,9 +12866,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("smartstrike"),
+            Choices::SMARTSTRIKE,
             Choice {
-                move_id: String::from("smartstrike"),
+                move_id: Choices::SMARTSTRIKE,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Steel,
@@ -13294,9 +12882,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("smellingsalts"),
+            Choices::SMELLINGSALTS,
             Choice {
-                move_id: String::from("smellingsalts"),
+                move_id: Choices::SMELLINGSALTS,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -13310,9 +12898,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("smog"),
+            Choices::SMOG,
             Choice {
-                move_id: String::from("smog"),
+                move_id: Choices::SMOG,
                 accuracy: 70.0,
                 base_power: 30.0,
                 category: MoveCategory::Special,
@@ -13331,9 +12919,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("smokescreen"),
+            Choices::SMOKESCREEN,
             Choice {
-                move_id: String::from("smokescreen"),
+                move_id: Choices::SMOKESCREEN,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -13356,9 +12944,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("snaptrap"),
+            Choices::SNAPTRAP,
             Choice {
-                move_id: String::from("snaptrap"),
+                move_id: Choices::SNAPTRAP,
                 base_power: 35.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -13376,9 +12964,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("snarl"),
+            Choices::SNARL,
             Choice {
-                move_id: String::from("snarl"),
+                move_id: Choices::SNARL,
                 accuracy: 95.0,
                 base_power: 55.0,
                 category: MoveCategory::Special,
@@ -13405,9 +12993,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("snatch"),
+            Choices::SNATCH,
             Choice {
-                move_id: String::from("snatch"),
+                move_id: Choices::SNATCH,
                 priority: 4,
                 target: MoveTarget::User,
                 move_type: PokemonType::Dark,
@@ -13422,9 +13010,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("snipeshot"),
+            Choices::SNIPESHOT,
             Choice {
-                move_id: String::from("snipeshot"),
+                move_id: Choices::SNIPESHOT,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -13437,9 +13025,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("snore"),
+            Choices::SNORE,
             Choice {
-                move_id: String::from("snore"),
+                move_id: Choices::SNORE,
                 base_power: 50.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -13458,9 +13046,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("snowscape"),
+            Choices::SNOWSCAPE,
             Choice {
-                move_id: String::from("snowscape"),
+                move_id: Choices::SNOWSCAPE,
                 move_type: PokemonType::Ice,
                 flags: Flags {
                     ..Default::default()
@@ -13469,9 +13057,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("soak"),
+            Choices::SOAK,
             Choice {
-                move_id: String::from("soak"),
+                move_id: Choices::SOAK,
                 move_type: PokemonType::Water,
                 flags: Flags {
                     mirror: true,
@@ -13483,9 +13071,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("softboiled"),
+            Choices::SOFTBOILED,
             Choice {
-                move_id: String::from("softboiled"),
+                move_id: Choices::SOFTBOILED,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -13501,9 +13089,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("solarbeam"),
+            Choices::SOLARBEAM,
             Choice {
-                move_id: String::from("solarbeam"),
+                move_id: Choices::SOLARBEAM,
                 base_power: 120.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Grass,
@@ -13517,9 +13105,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("solarblade"),
+            Choices::SOLARBLADE,
             Choice {
-                move_id: String::from("solarblade"),
+                move_id: Choices::SOLARBLADE,
                 base_power: 125.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -13534,9 +13122,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sonicboom"),
+            Choices::SONICBOOM,
             Choice {
-                move_id: String::from("sonicboom"),
+                move_id: Choices::SONICBOOM,
                 accuracy: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -13549,9 +13137,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("spacialrend"),
+            Choices::SPACIALREND,
             Choice {
-                move_id: String::from("spacialrend"),
+                move_id: Choices::SPACIALREND,
                 accuracy: 95.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
@@ -13565,9 +13153,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("spark"),
+            Choices::SPARK,
             Choice {
-                move_id: String::from("spark"),
+                move_id: Choices::SPARK,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Electric,
@@ -13586,9 +13174,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sparklingaria"),
+            Choices::SPARKLINGARIA,
             Choice {
-                move_id: String::from("sparklingaria"),
+                move_id: Choices::SPARKLINGARIA,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -13607,9 +13195,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sparklyswirl"),
+            Choices::SPARKLYSWIRL,
             Choice {
-                move_id: String::from("sparklyswirl"),
+                move_id: Choices::SPARKLYSWIRL,
                 accuracy: 85.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
@@ -13623,9 +13211,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("spectralthief"),
+            Choices::SPECTRALTHIEF,
             Choice {
-                move_id: String::from("spectralthief"),
+                move_id: Choices::SPECTRALTHIEF,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ghost,
@@ -13639,9 +13227,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("speedswap"),
+            Choices::SPEEDSWAP,
             Choice {
-                move_id: String::from("speedswap"),
+                move_id: Choices::SPEEDSWAP,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
@@ -13652,9 +13240,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("spicyextract"),
+            Choices::SPICYEXTRACT,
             Choice {
-                move_id: String::from("spicyextract"),
+                move_id: Choices::SPICYEXTRACT,
                 move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
@@ -13677,9 +13265,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("spiderweb"),
+            Choices::SPIDERWEB,
             Choice {
-                move_id: String::from("spiderweb"),
+                move_id: Choices::SPIDERWEB,
                 move_type: PokemonType::Bug,
                 flags: Flags {
                     mirror: true,
@@ -13691,9 +13279,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("spikecannon"),
+            Choices::SPIKECANNON,
             Choice {
-                move_id: String::from("spikecannon"),
+                move_id: Choices::SPIKECANNON,
                 base_power: 20.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -13706,9 +13294,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("spikes"),
+            Choices::SPIKES,
             Choice {
-                move_id: String::from("spikes"),
+                move_id: Choices::SPIKES,
                 move_type: PokemonType::Ground,
                 flags: Flags {
                     nonsky: true,
@@ -13723,9 +13311,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("spikyshield"),
+            Choices::SPIKYSHIELD,
             Choice {
-                move_id: String::from("spikyshield"),
+                move_id: Choices::SPIKYSHIELD,
                 priority: 4,
                 target: MoveTarget::User,
                 move_type: PokemonType::Grass,
@@ -13740,9 +13328,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("spinout"),
+            Choices::SPINOUT,
             Choice {
-                move_id: String::from("spinout"),
+                move_id: Choices::SPINOUT,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Steel,
@@ -13756,9 +13344,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("spiritbreak"),
+            Choices::SPIRITBREAK,
             Choice {
-                move_id: String::from("spiritbreak"),
+                move_id: Choices::SPIRITBREAK,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fairy,
@@ -13784,9 +13372,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("spiritshackle"),
+            Choices::SPIRITSHACKLE,
             Choice {
-                move_id: String::from("spiritshackle"),
+                move_id: Choices::SPIRITSHACKLE,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ghost,
@@ -13799,9 +13387,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("spite"),
+            Choices::SPITE,
             Choice {
-                move_id: String::from("spite"),
+                move_id: Choices::SPITE,
                 move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
@@ -13813,9 +13401,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("spitup"),
+            Choices::SPITUP,
             Choice {
-                move_id: String::from("spitup"),
+                move_id: Choices::SPITUP,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -13826,9 +13414,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("splash"),
+            Choices::SPLASH,
             Choice {
-                move_id: String::from("splash"),
+                move_id: Choices::SPLASH,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -13839,9 +13427,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("splishysplash"),
+            Choices::SPLISHYSPLASH,
             Choice {
-                move_id: String::from("splishysplash"),
+                move_id: Choices::SPLISHYSPLASH,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -13859,9 +13447,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("spore"),
+            Choices::SPORE,
             Choice {
-                move_id: String::from("spore"),
+                move_id: Choices::SPORE,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Sleep,
@@ -13878,9 +13466,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("spotlight"),
+            Choices::SPOTLIGHT,
             Choice {
-                move_id: String::from("spotlight"),
+                move_id: Choices::SPOTLIGHT,
                 priority: 3,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -13896,9 +13484,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("springtidestorm"),
+            Choices::SPRINGTIDESTORM,
             Choice {
-                move_id: String::from("springtidestorm"),
+                move_id: Choices::SPRINGTIDESTORM,
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
@@ -13924,9 +13512,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("stealthrock"),
+            Choices::STEALTHROCK,
             Choice {
-                move_id: String::from("stealthrock"),
+                move_id: Choices::STEALTHROCK,
                 move_type: PokemonType::Rock,
                 flags: Flags {
                     reflectable: true,
@@ -13940,9 +13528,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("steameruption"),
+            Choices::STEAMERUPTION,
             Choice {
-                move_id: String::from("steameruption"),
+                move_id: Choices::STEAMERUPTION,
                 accuracy: 95.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
@@ -13962,9 +13550,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("steamroller"),
+            Choices::STEAMROLLER,
             Choice {
-                move_id: String::from("steamroller"),
+                move_id: Choices::STEAMROLLER,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Bug,
@@ -13983,9 +13571,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("steelbeam"),
+            Choices::STEELBEAM,
             Choice {
-                move_id: String::from("steelbeam"),
+                move_id: Choices::STEELBEAM,
                 accuracy: 95.0,
                 base_power: 140.0,
                 category: MoveCategory::Special,
@@ -14003,9 +13591,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("steelroller"),
+            Choices::STEELROLLER,
             Choice {
-                move_id: String::from("steelroller"),
+                move_id: Choices::STEELROLLER,
                 base_power: 130.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Steel,
@@ -14015,23 +13603,13 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        if state.terrain.terrain_type == Terrain::None {
-                            attacking_choice.base_power = 0.0;
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("steelwing"),
+            Choices::STEELWING,
             Choice {
-                move_id: String::from("steelwing"),
+                move_id: Choices::STEELWING,
                 accuracy: 90.0,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
@@ -14058,9 +13636,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("stickyweb"),
+            Choices::STICKYWEB,
             Choice {
-                move_id: String::from("stickyweb"),
+                move_id: Choices::STICKYWEB,
                 move_type: PokemonType::Bug,
                 flags: Flags {
                     reflectable: true,
@@ -14074,9 +13652,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("stockpile"),
+            Choices::STOCKPILE,
             Choice {
-                move_id: String::from("stockpile"),
+                move_id: Choices::STOCKPILE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -14091,9 +13669,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("stomp"),
+            Choices::STOMP,
             Choice {
-                move_id: String::from("stomp"),
+                move_id: Choices::STOMP,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -14113,9 +13691,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("stompingtantrum"),
+            Choices::STOMPINGTANTRUM,
             Choice {
-                move_id: String::from("stompingtantrum"),
+                move_id: Choices::STOMPINGTANTRUM,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ground,
@@ -14129,9 +13707,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("stoneaxe"),
+            Choices::STONEAXE,
             Choice {
-                move_id: String::from("stoneaxe"),
+                move_id: Choices::STONEAXE,
                 accuracy: 90.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
@@ -14150,9 +13728,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("stoneedge"),
+            Choices::STONEEDGE,
             Choice {
-                move_id: String::from("stoneedge"),
+                move_id: Choices::STONEEDGE,
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
@@ -14166,9 +13744,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("storedpower"),
+            Choices::STOREDPOWER,
             Choice {
-                move_id: String::from("storedpower"),
+                move_id: Choices::STOREDPOWER,
                 base_power: 20.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -14181,9 +13759,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("stormthrow"),
+            Choices::STORMTHROW,
             Choice {
-                move_id: String::from("stormthrow"),
+                move_id: Choices::STORMTHROW,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -14197,9 +13775,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("strangesteam"),
+            Choices::STRANGESTEAM,
             Choice {
-                move_id: String::from("strangesteam"),
+                move_id: Choices::STRANGESTEAM,
                 accuracy: 95.0,
                 base_power: 90.0,
                 category: MoveCategory::Special,
@@ -14218,9 +13796,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("strength"),
+            Choices::STRENGTH,
             Choice {
-                move_id: String::from("strength"),
+                move_id: Choices::STRENGTH,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -14234,9 +13812,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("strengthsap"),
+            Choices::STRENGTHSAP,
             Choice {
-                move_id: String::from("strengthsap"),
+                move_id: Choices::STRENGTHSAP,
                 move_type: PokemonType::Grass,
                 flags: Flags {
                     heal: true,
@@ -14245,39 +13823,13 @@ lazy_static! {
                     reflectable: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        attacking_choice.boost = Some(Boost {
-                            target: MoveTarget::Opponent,
-                            boosts: StatBoosts {
-                                attack: -1,
-                                defense: 0,
-                                special_attack: 0,
-                                special_defense: 0,
-                                speed: 0,
-                                accuracy: 0,
-                            },
-                        });
-                        let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
-                        let defender_attack = defending_side.get_active_immutable().calculate_boosted_stat(PokemonBoostableStat::Attack);
-                        let attacker_maxhp = attacking_side.get_active_immutable().maxhp;
-                        attacking_choice.heal = Some(Heal {
-                            target: MoveTarget::User,
-                            amount: defender_attack as f32 / attacker_maxhp as f32,
-                        });
-
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("stringshot"),
+            Choices::STRINGSHOT,
             Choice {
-                move_id: String::from("stringshot"),
+                move_id: Choices::STRINGSHOT,
                 accuracy: 95.0,
                 move_type: PokemonType::Bug,
                 flags: Flags {
@@ -14301,9 +13853,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("struggle"),
+            Choices::STRUGGLE,
             Choice {
-                move_id: String::from("struggle"),
+                move_id: Choices::STRUGGLE,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -14316,9 +13868,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("strugglebug"),
+            Choices::STRUGGLEBUG,
             Choice {
-                move_id: String::from("strugglebug"),
+                move_id: Choices::STRUGGLEBUG,
                 base_power: 50.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Bug,
@@ -14343,9 +13895,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("stuffcheeks"),
+            Choices::STUFFCHEEKS,
             Choice {
-                move_id: String::from("stuffcheeks"),
+                move_id: Choices::STUFFCHEEKS,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -14356,9 +13908,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("stunspore"),
+            Choices::STUNSPORE,
             Choice {
-                move_id: String::from("stunspore"),
+                move_id: Choices::STUNSPORE,
                 accuracy: 75.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
@@ -14376,9 +13928,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("submission"),
+            Choices::SUBMISSION,
             Choice {
-                move_id: String::from("submission"),
+                move_id: Choices::SUBMISSION,
                 accuracy: 80.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
@@ -14394,9 +13946,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("substitute"),
+            Choices::SUBSTITUTE,
             Choice {
-                move_id: String::from("substitute"),
+                move_id: Choices::SUBSTITUTE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -14408,38 +13960,13 @@ lazy_static! {
                     target: MoveTarget::User,
                     volatile_status: PokemonVolatileStatus::Substitute,
                 }),
-                move_special_effect: Some(|state: &mut State, side_ref: &SideReference, incoming_instructions: &mut StateInstructions| {
-                    let active_pkmn = state.get_side(side_ref).get_active();
-                    let sub_target_health = active_pkmn.maxhp / 4;
-                    if active_pkmn.hp > sub_target_health {
-                        let damage_instruction = Instruction::Damage(DamageInstruction {
-                            side_ref: side_ref.clone(),
-                            damage_amount: sub_target_health,
-                        });
-                        let set_sub_health_instruction = Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
-                            side_ref: side_ref.clone(),
-                            new_health: sub_target_health,
-                            old_health: active_pkmn.substitute_health,
-                        });
-                        let apply_vs_instruction = Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                            side_ref: side_ref.clone(),
-                            volatile_status: PokemonVolatileStatus::Substitute
-                        });
-                        active_pkmn.hp -= sub_target_health;
-                        active_pkmn.substitute_health = sub_target_health;
-                        active_pkmn.volatile_statuses.insert(PokemonVolatileStatus::Substitute);
-                        incoming_instructions.instruction_list.push(damage_instruction);
-                        incoming_instructions.instruction_list.push(set_sub_health_instruction);
-                        incoming_instructions.instruction_list.push(apply_vs_instruction);
-                    }
-                }),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("suckerpunch"),
+            Choices::SUCKERPUNCH,
             Choice {
-                move_id: String::from("suckerpunch"),
+                move_id: Choices::SUCKERPUNCH,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 priority: 1,
@@ -14454,9 +13981,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sunnyday"),
+            Choices::SUNNYDAY,
             Choice {
-                move_id: String::from("sunnyday"),
+                move_id: Choices::SUNNYDAY,
                 move_type: PokemonType::Fire,
                 flags: Flags {
                     ..Default::default()
@@ -14465,9 +13992,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sunsteelstrike"),
+            Choices::SUNSTEELSTRIKE,
             Choice {
-                move_id: String::from("sunsteelstrike"),
+                move_id: Choices::SUNSTEELSTRIKE,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Steel,
@@ -14481,9 +14008,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("superfang"),
+            Choices::SUPERFANG,
             Choice {
-                move_id: String::from("superfang"),
+                move_id: Choices::SUPERFANG,
                 accuracy: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -14497,9 +14024,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("superpower"),
+            Choices::SUPERPOWER,
             Choice {
-                move_id: String::from("superpower"),
+                move_id: Choices::SUPERPOWER,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -14513,9 +14040,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("supersonic"),
+            Choices::SUPERSONIC,
             Choice {
-                move_id: String::from("supersonic"),
+                move_id: Choices::SUPERSONIC,
                 accuracy: 55.0,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -14533,9 +14060,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("surf"),
+            Choices::SURF,
             Choice {
-                move_id: String::from("surf"),
+                move_id: Choices::SURF,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -14549,9 +14076,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("surgingstrikes"),
+            Choices::SURGINGSTRIKES,
             Choice {
-                move_id: String::from("surgingstrikes"),
+                move_id: Choices::SURGINGSTRIKES,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Water,
@@ -14566,9 +14093,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("swagger"),
+            Choices::SWAGGER,
             Choice {
-                move_id: String::from("swagger"),
+                move_id: Choices::SWAGGER,
                 accuracy: 85.0,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -14596,9 +14123,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("swallow"),
+            Choices::SWALLOW,
             Choice {
-                move_id: String::from("swallow"),
+                move_id: Choices::SWALLOW,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -14610,9 +14137,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sweetkiss"),
+            Choices::SWEETKISS,
             Choice {
-                move_id: String::from("sweetkiss"),
+                move_id: Choices::SWEETKISS,
                 accuracy: 75.0,
                 move_type: PokemonType::Fairy,
                 flags: Flags {
@@ -14629,9 +14156,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("sweetscent"),
+            Choices::SWEETSCENT,
             Choice {
-                move_id: String::from("sweetscent"),
+                move_id: Choices::SWEETSCENT,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -14654,9 +14181,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("swift"),
+            Choices::SWIFT,
             Choice {
-                move_id: String::from("swift"),
+                move_id: Choices::SWIFT,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -14669,9 +14196,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("switcheroo"),
+            Choices::SWITCHEROO,
             Choice {
-                move_id: String::from("switcheroo"),
+                move_id: Choices::SWITCHEROO,
                 move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
@@ -14682,9 +14209,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("swordsdance"),
+            Choices::SWORDSDANCE,
             Choice {
-                move_id: String::from("swordsdance"),
+                move_id: Choices::SWORDSDANCE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -14707,9 +14234,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("synchronoise"),
+            Choices::SYNCHRONOISE,
             Choice {
-                move_id: String::from("synchronoise"),
+                move_id: Choices::SYNCHRONOISE,
                 base_power: 120.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -14722,9 +14249,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("synthesis"),
+            Choices::SYNTHESIS,
             Choice {
-                move_id: String::from("synthesis"),
+                move_id: Choices::SYNTHESIS,
                 target: MoveTarget::User,
                 move_type: PokemonType::Grass,
                 flags: Flags {
@@ -14740,9 +14267,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("syrupbomb"),
+            Choices::SYRUPBOMB,
             Choice {
-                move_id: String::from("syrupbomb"),
+                move_id: Choices::SYRUPBOMB,
                 accuracy: 85.0,
                 base_power: 60.0,
                 category: MoveCategory::Special,
@@ -14762,9 +14289,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("tackle"),
+            Choices::TACKLE,
             Choice {
-                move_id: String::from("tackle"),
+                move_id: Choices::TACKLE,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -14778,9 +14305,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("tailglow"),
+            Choices::TAILGLOW,
             Choice {
-                move_id: String::from("tailglow"),
+                move_id: Choices::TAILGLOW,
                 target: MoveTarget::User,
                 move_type: PokemonType::Bug,
                 flags: Flags {
@@ -14802,9 +14329,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("tailslap"),
+            Choices::TAILSLAP,
             Choice {
-                move_id: String::from("tailslap"),
+                move_id: Choices::TAILSLAP,
                 accuracy: 85.0,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
@@ -14819,9 +14346,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("tailwhip"),
+            Choices::TAILWHIP,
             Choice {
-                move_id: String::from("tailwhip"),
+                move_id: Choices::TAILWHIP,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -14844,9 +14371,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("tailwind"),
+            Choices::TAILWIND,
             Choice {
-                move_id: String::from("tailwind"),
+                move_id: Choices::TAILWIND,
                 target: MoveTarget::User,
                 move_type: PokemonType::Flying,
                 flags: Flags {
@@ -14861,9 +14388,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("takedown"),
+            Choices::TAKEDOWN,
             Choice {
-                move_id: String::from("takedown"),
+                move_id: Choices::TAKEDOWN,
                 accuracy: 85.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
@@ -14879,9 +14406,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("takeheart"),
+            Choices::TAKEHEART,
             Choice {
-                move_id: String::from("takeheart"),
+                move_id: Choices::TAKEHEART,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -14892,9 +14419,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("tarshot"),
+            Choices::TARSHOT,
             Choice {
-                move_id: String::from("tarshot"),
+                move_id: Choices::TARSHOT,
                 move_type: PokemonType::Rock,
                 flags: Flags {
                     mirror: true,
@@ -14921,9 +14448,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("taunt"),
+            Choices::TAUNT,
             Choice {
-                move_id: String::from("taunt"),
+                move_id: Choices::TAUNT,
                 move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
@@ -14939,9 +14466,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("tearfullook"),
+            Choices::TEARFULLOOK,
             Choice {
-                move_id: String::from("tearfullook"),
+                move_id: Choices::TEARFULLOOK,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -14963,9 +14490,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("teatime"),
+            Choices::TEATIME,
             Choice {
-                move_id: String::from("teatime"),
+                move_id: Choices::TEATIME,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
@@ -14974,9 +14501,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("technoblast"),
+            Choices::TECHNOBLAST,
             Choice {
-                move_id: String::from("technoblast"),
+                move_id: Choices::TECHNOBLAST,
                 base_power: 120.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -14989,9 +14516,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("teeterdance"),
+            Choices::TEETERDANCE,
             Choice {
-                move_id: String::from("teeterdance"),
+                move_id: Choices::TEETERDANCE,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     dance: true,
@@ -15007,9 +14534,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("telekinesis"),
+            Choices::TELEKINESIS,
             Choice {
-                move_id: String::from("telekinesis"),
+                move_id: Choices::TELEKINESIS,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     gravity: true,
@@ -15026,9 +14553,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("teleport"),
+            Choices::TELEPORT,
             Choice {
-                move_id: String::from("teleport"),
+                move_id: Choices::TELEPORT,
                 priority: -6,
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
@@ -15039,9 +14566,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("terablast"),
+            Choices::TERABLAST,
             Choice {
-                move_id: String::from("terablast"),
+                move_id: Choices::TERABLAST,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -15054,9 +14581,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("terrainpulse"),
+            Choices::TERRAINPULSE,
             Choice {
-                move_id: String::from("terrainpulse"),
+                move_id: Choices::TERRAINPULSE,
                 base_power: 50.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -15066,39 +14593,13 @@ lazy_static! {
                     pulse: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        match state.terrain.terrain_type {
-                            Terrain::ElectricTerrain => {
-                                attacking_choice.move_type = PokemonType::Electric;
-                                attacking_choice.base_power *= 2.0;
-                            }
-                            Terrain::GrassyTerrain => {
-                                attacking_choice.move_type = PokemonType::Grass;
-                                attacking_choice.base_power *= 2.0;
-                            }
-                            Terrain::MistyTerrain => {
-                                attacking_choice.move_type = PokemonType::Fairy;
-                                attacking_choice.base_power *= 2.0;
-                            }
-                            Terrain::PsychicTerrain => {
-                                attacking_choice.move_type = PokemonType::Psychic;
-                                attacking_choice.base_power *= 2.0;
-                            }
-                            Terrain::None => {}
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("thief"),
+            Choices::THIEF,
             Choice {
-                move_id: String::from("thief"),
+                move_id: Choices::THIEF,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -15112,9 +14613,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("thousandarrows"),
+            Choices::THOUSANDARROWS,
             Choice {
-                move_id: String::from("thousandarrows"),
+                move_id: Choices::THOUSANDARROWS,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ground,
@@ -15132,9 +14633,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("thousandwaves"),
+            Choices::THOUSANDWAVES,
             Choice {
-                move_id: String::from("thousandwaves"),
+                move_id: Choices::THOUSANDWAVES,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Ground,
@@ -15148,9 +14649,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("thrash"),
+            Choices::THRASH,
             Choice {
-                move_id: String::from("thrash"),
+                move_id: Choices::THRASH,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -15164,9 +14665,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("throatchop"),
+            Choices::THROATCHOP,
             Choice {
-                move_id: String::from("throatchop"),
+                move_id: Choices::THROATCHOP,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -15184,9 +14685,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("thunder"),
+            Choices::THUNDER,
             Choice {
-                move_id: String::from("thunder"),
+                move_id: Choices::THUNDER,
                 accuracy: 70.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
@@ -15205,9 +14706,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("thunderbolt"),
+            Choices::THUNDERBOLT,
             Choice {
-                move_id: String::from("thunderbolt"),
+                move_id: Choices::THUNDERBOLT,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Electric,
@@ -15225,9 +14726,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("thundercage"),
+            Choices::THUNDERCAGE,
             Choice {
-                move_id: String::from("thundercage"),
+                move_id: Choices::THUNDERCAGE,
                 accuracy: 90.0,
                 base_power: 80.0,
                 category: MoveCategory::Special,
@@ -15245,9 +14746,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("thunderfang"),
+            Choices::THUNDERFANG,
             Choice {
-                move_id: String::from("thunderfang"),
+                move_id: Choices::THUNDERFANG,
                 accuracy: 95.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
@@ -15275,9 +14776,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("thunderouskick"),
+            Choices::THUNDEROUSKICK,
             Choice {
-                move_id: String::from("thunderouskick"),
+                move_id: Choices::THUNDEROUSKICK,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -15303,9 +14804,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("thunderpunch"),
+            Choices::THUNDERPUNCH,
             Choice {
-                move_id: String::from("thunderpunch"),
+                move_id: Choices::THUNDERPUNCH,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Electric,
@@ -15325,9 +14826,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("thundershock"),
+            Choices::THUNDERSHOCK,
             Choice {
-                move_id: String::from("thundershock"),
+                move_id: Choices::THUNDERSHOCK,
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Electric,
@@ -15345,9 +14846,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("thunderwave"),
+            Choices::THUNDERWAVE,
             Choice {
-                move_id: String::from("thunderwave"),
+                move_id: Choices::THUNDERWAVE,
                 accuracy: 90.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
@@ -15364,9 +14865,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("tickle"),
+            Choices::TICKLE,
             Choice {
-                move_id: String::from("tickle"),
+                move_id: Choices::TICKLE,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -15389,9 +14890,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("tidyup"),
+            Choices::TIDYUP,
             Choice {
-                move_id: String::from("tidyup"),
+                move_id: Choices::TIDYUP,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -15412,9 +14913,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("topsyturvy"),
+            Choices::TOPSYTURVY,
             Choice {
-                move_id: String::from("topsyturvy"),
+                move_id: Choices::TOPSYTURVY,
                 move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
@@ -15426,9 +14927,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("torchsong"),
+            Choices::TORCHSONG,
             Choice {
-                move_id: String::from("torchsong"),
+                move_id: Choices::TORCHSONG,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Fire,
@@ -15454,9 +14955,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("torment"),
+            Choices::TORMENT,
             Choice {
-                move_id: String::from("torment"),
+                move_id: Choices::TORMENT,
                 move_type: PokemonType::Dark,
                 flags: Flags {
                     mirror: true,
@@ -15472,9 +14973,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("toxic"),
+            Choices::TOXIC,
             Choice {
-                move_id: String::from("toxic"),
+                move_id: Choices::TOXIC,
                 accuracy: 90.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
@@ -15487,23 +14988,13 @@ lazy_static! {
                     reflectable: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        if state.get_side_immutable(attacking_side_ref).get_active_immutable().has_type(&PokemonType::Poison) {
-                            attacking_choice.accuracy = 100.0;
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("toxicspikes"),
+            Choices::TOXICSPIKES,
             Choice {
-                move_id: String::from("toxicspikes"),
+                move_id: Choices::TOXICSPIKES,
                 move_type: PokemonType::Poison,
                 flags: Flags {
                     nonsky: true,
@@ -15518,9 +15009,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("toxicthread"),
+            Choices::TOXICTHREAD,
             Choice {
-                move_id: String::from("toxicthread"),
+                move_id: Choices::TOXICTHREAD,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
                     status: PokemonStatus::Poison,
@@ -15547,9 +15038,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("trailblaze"),
+            Choices::TRAILBLAZE,
             Choice {
-                move_id: String::from("trailblaze"),
+                move_id: Choices::TRAILBLAZE,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -15575,9 +15066,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("transform"),
+            Choices::TRANSFORM,
             Choice {
-                move_id: String::from("transform"),
+                move_id: Choices::TRANSFORM,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     ..Default::default()
@@ -15586,9 +15077,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("triattack"),
+            Choices::TRIATTACK,
             Choice {
-                move_id: String::from("triattack"),
+                move_id: Choices::TRIATTACK,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -15601,9 +15092,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("trick"),
+            Choices::TRICK,
             Choice {
-                move_id: String::from("trick"),
+                move_id: Choices::TRICK,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
@@ -15614,9 +15105,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("trickortreat"),
+            Choices::TRICKORTREAT,
             Choice {
-                move_id: String::from("trickortreat"),
+                move_id: Choices::TRICKORTREAT,
                 move_type: PokemonType::Ghost,
                 flags: Flags {
                     mirror: true,
@@ -15628,9 +15119,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("trickroom"),
+            Choices::TRICKROOM,
             Choice {
-                move_id: String::from("trickroom"),
+                move_id: Choices::TRICKROOM,
                 priority: -7,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -15641,9 +15132,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("triplearrows"),
+            Choices::TRIPLEARROWS,
             Choice {
-                move_id: String::from("triplearrows"),
+                move_id: Choices::TRIPLEARROWS,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -15656,9 +15147,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("tripleaxel"),
+            Choices::TRIPLEAXEL,
             Choice {
-                move_id: String::from("tripleaxel"),
+                move_id: Choices::TRIPLEAXEL,
                 accuracy: 90.0,
                 base_power: 20.0,
                 category: MoveCategory::Physical,
@@ -15673,9 +15164,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("tripledive"),
+            Choices::TRIPLEDIVE,
             Choice {
-                move_id: String::from("tripledive"),
+                move_id: Choices::TRIPLEDIVE,
                 accuracy: 95.0,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
@@ -15690,9 +15181,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("triplekick"),
+            Choices::TRIPLEKICK,
             Choice {
-                move_id: String::from("triplekick"),
+                move_id: Choices::TRIPLEKICK,
                 accuracy: 90.0,
                 base_power: 10.0,
                 category: MoveCategory::Physical,
@@ -15707,9 +15198,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("tropkick"),
+            Choices::TROPKICK,
             Choice {
-                move_id: String::from("tropkick"),
+                move_id: Choices::TROPKICK,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -15735,9 +15226,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("trumpcard"),
+            Choices::TRUMPCARD,
             Choice {
-                move_id: String::from("trumpcard"),
+                move_id: Choices::TRUMPCARD,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -15750,9 +15241,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("twinbeam"),
+            Choices::TWINBEAM,
             Choice {
-                move_id: String::from("twinbeam"),
+                move_id: Choices::TWINBEAM,
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
@@ -15765,9 +15256,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("twineedle"),
+            Choices::TWINEEDLE,
             Choice {
-                move_id: String::from("twineedle"),
+                move_id: Choices::TWINEEDLE,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Bug,
@@ -15785,9 +15276,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("twister"),
+            Choices::TWISTER,
             Choice {
-                move_id: String::from("twister"),
+                move_id: Choices::TWISTER,
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Dragon,
@@ -15805,9 +15296,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("uproar"),
+            Choices::UPROAR,
             Choice {
-                move_id: String::from("uproar"),
+                move_id: Choices::UPROAR,
                 base_power: 90.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -15821,9 +15312,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("uturn"),
+            Choices::UTURN,
             Choice {
-                move_id: String::from("uturn"),
+                move_id: Choices::UTURN,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Bug,
@@ -15837,9 +15328,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("vacuumwave"),
+            Choices::VACUUMWAVE,
             Choice {
-                move_id: String::from("vacuumwave"),
+                move_id: Choices::VACUUMWAVE,
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 priority: 1,
@@ -15853,9 +15344,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("vcreate"),
+            Choices::VCREATE,
             Choice {
-                move_id: String::from("vcreate"),
+                move_id: Choices::VCREATE,
                 accuracy: 95.0,
                 base_power: 180.0,
                 category: MoveCategory::Physical,
@@ -15870,9 +15361,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("veeveevolley"),
+            Choices::VEEVEEVOLLEY,
             Choice {
-                move_id: String::from("veeveevolley"),
+                move_id: Choices::VEEVEEVOLLEY,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -15885,9 +15376,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("venomdrench"),
+            Choices::VENOMDRENCH,
             Choice {
-                move_id: String::from("venomdrench"),
+                move_id: Choices::VENOMDRENCH,
                 move_type: PokemonType::Poison,
                 flags: Flags {
                     mirror: true,
@@ -15899,9 +15390,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("venoshock"),
+            Choices::VENOSHOCK,
             Choice {
-                move_id: String::from("venoshock"),
+                move_id: Choices::VENOSHOCK,
                 base_power: 65.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Poison,
@@ -15914,9 +15405,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("victorydance"),
+            Choices::VICTORYDANCE,
             Choice {
-                move_id: String::from("victorydance"),
+                move_id: Choices::VICTORYDANCE,
                 target: MoveTarget::User,
                 move_type: PokemonType::Fighting,
                 flags: Flags {
@@ -15939,9 +15430,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("vinewhip"),
+            Choices::VINEWHIP,
             Choice {
-                move_id: String::from("vinewhip"),
+                move_id: Choices::VINEWHIP,
                 base_power: 45.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -15955,9 +15446,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("visegrip"),
+            Choices::VISEGRIP,
             Choice {
-                move_id: String::from("visegrip"),
+                move_id: Choices::VISEGRIP,
                 base_power: 55.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Normal,
@@ -15971,9 +15462,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("vitalthrow"),
+            Choices::VITALTHROW,
             Choice {
-                move_id: String::from("vitalthrow"),
+                move_id: Choices::VITALTHROW,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 priority: -1,
@@ -15988,9 +15479,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("voltswitch"),
+            Choices::VOLTSWITCH,
             Choice {
-                move_id: String::from("voltswitch"),
+                move_id: Choices::VOLTSWITCH,
                 base_power: 70.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Electric,
@@ -16003,9 +15494,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("volttackle"),
+            Choices::VOLTTACKLE,
             Choice {
-                move_id: String::from("volttackle"),
+                move_id: Choices::VOLTTACKLE,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Electric,
@@ -16025,9 +15516,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("wakeupslap"),
+            Choices::WAKEUPSLAP,
             Choice {
-                move_id: String::from("wakeupslap"),
+                move_id: Choices::WAKEUPSLAP,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
@@ -16041,9 +15532,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("waterfall"),
+            Choices::WATERFALL,
             Choice {
-                move_id: String::from("waterfall"),
+                move_id: Choices::WATERFALL,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Water,
@@ -16062,9 +15553,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("watergun"),
+            Choices::WATERGUN,
             Choice {
-                move_id: String::from("watergun"),
+                move_id: Choices::WATERGUN,
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -16077,9 +15568,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("waterpledge"),
+            Choices::WATERPLEDGE,
             Choice {
-                move_id: String::from("waterpledge"),
+                move_id: Choices::WATERPLEDGE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -16093,9 +15584,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("waterpulse"),
+            Choices::WATERPULSE,
             Choice {
-                move_id: String::from("waterpulse"),
+                move_id: Choices::WATERPULSE,
                 base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -16115,9 +15606,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("watershuriken"),
+            Choices::WATERSHURIKEN,
             Choice {
-                move_id: String::from("watershuriken"),
+                move_id: Choices::WATERSHURIKEN,
                 base_power: 15.0,
                 category: MoveCategory::Special,
                 priority: 1,
@@ -16131,9 +15622,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("watersport"),
+            Choices::WATERSPORT,
             Choice {
-                move_id: String::from("watersport"),
+                move_id: Choices::WATERSPORT,
                 move_type: PokemonType::Water,
                 flags: Flags {
                     nonsky: true,
@@ -16143,9 +15634,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("waterspout"),
+            Choices::WATERSPOUT,
             Choice {
-                move_id: String::from("waterspout"),
+                move_id: Choices::WATERSPOUT,
                 base_power: 150.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Water,
@@ -16158,9 +15649,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("wavecrash"),
+            Choices::WAVECRASH,
             Choice {
-                move_id: String::from("wavecrash"),
+                move_id: Choices::WAVECRASH,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Water,
@@ -16175,9 +15666,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("weatherball"),
+            Choices::WEATHERBALL,
             Choice {
-                move_id: String::from("weatherball"),
+                move_id: Choices::WEATHERBALL,
                 base_power: 50.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
@@ -16187,39 +15678,13 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
-                modify_move: Some(
-                    |state: &State,
-                     attacking_choice: &mut Choice,
-                     _defender_choice: &Choice,
-                     attacking_side_ref: &SideReference| {
-                        match state.weather.weather_type {
-                            Weather::Sun | Weather::HarshSun => {
-                                attacking_choice.base_power = 100.0;
-                                attacking_choice.move_type = PokemonType::Fire;
-                            }
-                            Weather::Rain | Weather::HeavyRain => {
-                                attacking_choice.base_power = 100.0;
-                                attacking_choice.move_type = PokemonType::Water;
-                            }
-                            Weather::Sand => {
-                                attacking_choice.base_power = 100.0;
-                                attacking_choice.move_type = PokemonType::Rock;
-                            }
-                            Weather::Hail => {
-                                attacking_choice.base_power = 100.0;
-                                attacking_choice.move_type = PokemonType::Ice;
-                            }
-                            Weather::None => {}
-                        }
-                    },
-                ),
                 ..Default::default()
             },
         );
         moves.insert(
-            String::from("whirlpool"),
+            Choices::WHIRLPOOL,
             Choice {
-                move_id: String::from("whirlpool"),
+                move_id: Choices::WHIRLPOOL,
                 accuracy: 85.0,
                 base_power: 35.0,
                 category: MoveCategory::Special,
@@ -16237,9 +15702,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("whirlwind"),
+            Choices::WHIRLWIND,
             Choice {
-                move_id: String::from("whirlwind"),
+                move_id: Choices::WHIRLWIND,
                 priority: -6,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -16252,9 +15717,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("wickedblow"),
+            Choices::WICKEDBLOW,
             Choice {
-                move_id: String::from("wickedblow"),
+                move_id: Choices::WICKEDBLOW,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -16269,9 +15734,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("wickedtorque"),
+            Choices::WICKEDTORQUE,
             Choice {
-                move_id: String::from("wickedtorque"),
+                move_id: Choices::WICKEDTORQUE,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Dark,
@@ -16288,9 +15753,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("wideguard"),
+            Choices::WIDEGUARD,
             Choice {
-                move_id: String::from("wideguard"),
+                move_id: Choices::WIDEGUARD,
                 priority: 3,
                 target: MoveTarget::User,
                 move_type: PokemonType::Rock,
@@ -16306,9 +15771,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("wildboltstorm"),
+            Choices::WILDBOLTSTORM,
             Choice {
-                move_id: String::from("wildboltstorm"),
+                move_id: Choices::WILDBOLTSTORM,
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
@@ -16327,9 +15792,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("wildcharge"),
+            Choices::WILDCHARGE,
             Choice {
-                move_id: String::from("wildcharge"),
+                move_id: Choices::WILDCHARGE,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Electric,
@@ -16344,9 +15809,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("willowisp"),
+            Choices::WILLOWISP,
             Choice {
-                move_id: String::from("willowisp"),
+                move_id: Choices::WILLOWISP,
                 accuracy: 85.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
@@ -16363,9 +15828,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("wingattack"),
+            Choices::WINGATTACK,
             Choice {
-                move_id: String::from("wingattack"),
+                move_id: Choices::WINGATTACK,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Flying,
@@ -16380,9 +15845,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("wish"),
+            Choices::WISH,
             Choice {
-                move_id: String::from("wish"),
+                move_id: Choices::WISH,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -16394,9 +15859,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("withdraw"),
+            Choices::WITHDRAW,
             Choice {
-                move_id: String::from("withdraw"),
+                move_id: Choices::WITHDRAW,
                 target: MoveTarget::User,
                 move_type: PokemonType::Water,
                 flags: Flags {
@@ -16418,9 +15883,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("wonderroom"),
+            Choices::WONDERROOM,
             Choice {
-                move_id: String::from("wonderroom"),
+                move_id: Choices::WONDERROOM,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     mirror: true,
@@ -16430,9 +15895,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("woodhammer"),
+            Choices::WOODHAMMER,
             Choice {
-                move_id: String::from("woodhammer"),
+                move_id: Choices::WOODHAMMER,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Grass,
@@ -16447,9 +15912,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("workup"),
+            Choices::WORKUP,
             Choice {
-                move_id: String::from("workup"),
+                move_id: Choices::WORKUP,
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -16471,9 +15936,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("worryseed"),
+            Choices::WORRYSEED,
             Choice {
-                move_id: String::from("worryseed"),
+                move_id: Choices::WORRYSEED,
                 move_type: PokemonType::Grass,
                 flags: Flags {
                     mirror: true,
@@ -16485,9 +15950,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("wrap"),
+            Choices::WRAP,
             Choice {
-                move_id: String::from("wrap"),
+                move_id: Choices::WRAP,
                 accuracy: 90.0,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
@@ -16506,9 +15971,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("wringout"),
+            Choices::WRINGOUT,
             Choice {
-                move_id: String::from("wringout"),
+                move_id: Choices::WRINGOUT,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -16521,9 +15986,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("xscissor"),
+            Choices::XSCISSOR,
             Choice {
-                move_id: String::from("xscissor"),
+                move_id: Choices::XSCISSOR,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Bug,
@@ -16537,9 +16002,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("yawn"),
+            Choices::YAWN,
             Choice {
-                move_id: String::from("yawn"),
+                move_id: Choices::YAWN,
                 move_type: PokemonType::Normal,
                 flags: Flags {
                     mirror: true,
@@ -16555,9 +16020,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("zapcannon"),
+            Choices::ZAPCANNON,
             Choice {
-                move_id: String::from("zapcannon"),
+                move_id: Choices::ZAPCANNON,
                 accuracy: 50.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
@@ -16577,9 +16042,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("zenheadbutt"),
+            Choices::ZENHEADBUTT,
             Choice {
-                move_id: String::from("zenheadbutt"),
+                move_id: Choices::ZENHEADBUTT,
                 accuracy: 90.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
@@ -16599,9 +16064,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("zingzap"),
+            Choices::ZINGZAP,
             Choice {
-                move_id: String::from("zingzap"),
+                move_id: Choices::ZINGZAP,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Electric,
@@ -16620,9 +16085,9 @@ lazy_static! {
             },
         );
         moves.insert(
-            String::from("zippyzap"),
+            Choices::ZIPPYZAP,
             Choice {
-                move_id: String::from("zippyzap"),
+                move_id: Choices::ZIPPYZAP,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 priority: 2,
@@ -16789,10 +16254,884 @@ pub enum Effect {
     RemoveItem,
 }
 
+#[derive(Eq, PartialEq, Debug, Hash, Copy, Clone)]
+pub enum Choices {
+    NONE,
+    ABSORB,
+    ACCELEROCK,
+    ACID,
+    ACIDARMOR,
+    ACIDSPRAY,
+    ACROBATICS,
+    ACUPRESSURE,
+    AERIALACE,
+    AEROBLAST,
+    AFTERYOU,
+    AGILITY,
+    AIRCUTTER,
+    AIRSLASH,
+    ALLYSWITCH,
+    AMNESIA,
+    ANCHORSHOT,
+    ANCIENTPOWER,
+    APPLEACID,
+    AQUACUTTER,
+    AQUAJET,
+    AQUARING,
+    AQUASTEP,
+    AQUATAIL,
+    ARMORCANNON,
+    ARMTHRUST,
+    AROMATHERAPY,
+    AROMATICMIST,
+    ASSIST,
+    ASSURANCE,
+    ASTONISH,
+    ASTRALBARRAGE,
+    ATTACKORDER,
+    ATTRACT,
+    AURASPHERE,
+    AURAWHEEL,
+    AURORABEAM,
+    AURORAVEIL,
+    AUTOTOMIZE,
+    AVALANCHE,
+    AXEKICK,
+    BABYDOLLEYES,
+    BADDYBAD,
+    BANEFULBUNKER,
+    BARBBARRAGE,
+    BARRAGE,
+    BARRIER,
+    BATONPASS,
+    BEAKBLAST,
+    BEATUP,
+    BEHEMOTHBASH,
+    BEHEMOTHBLADE,
+    BELCH,
+    BELLYDRUM,
+    BESTOW,
+    BIDE,
+    BIND,
+    BITE,
+    BITTERBLADE,
+    BITTERMALICE,
+    BLASTBURN,
+    BLAZEKICK,
+    BLAZINGTORQUE,
+    BLEAKWINDSTORM,
+    BLIZZARD,
+    BLOCK,
+    BLOODMOON,
+    BLUEFLARE,
+    BODYPRESS,
+    BODYSLAM,
+    BOLTBEAK,
+    BOLTSTRIKE,
+    BONECLUB,
+    BONEMERANG,
+    BONERUSH,
+    BOOMBURST,
+    BOUNCE,
+    BOUNCYBUBBLE,
+    BRANCHPOKE,
+    BRAVEBIRD,
+    BREAKINGSWIPE,
+    BRICKBREAK,
+    BRINE,
+    BRUTALSWING,
+    BUBBLE,
+    BUBBLEBEAM,
+    BUGBITE,
+    BUGBUZZ,
+    BULKUP,
+    BULLDOZE,
+    BULLETPUNCH,
+    BULLETSEED,
+    BURNINGJEALOUSY,
+    BURNUP,
+    BUZZYBUZZ,
+    CALMMIND,
+    CAMOUFLAGE,
+    CAPTIVATE,
+    CEASELESSEDGE,
+    CELEBRATE,
+    CHARGE,
+    CHARGEBEAM,
+    CHARM,
+    CHATTER,
+    CHILLINGWATER,
+    CHILLYRECEPTION,
+    CHIPAWAY,
+    CHLOROBLAST,
+    CIRCLETHROW,
+    CLAMP,
+    CLANGINGSCALES,
+    CLANGOROUSSOUL,
+    CLEARSMOG,
+    CLOSECOMBAT,
+    COACHING,
+    COIL,
+    COLLISIONCOURSE,
+    COMBATTORQUE,
+    COMETPUNCH,
+    COMEUPPANCE,
+    CONFIDE,
+    CONFUSERAY,
+    CONFUSION,
+    CONSTRICT,
+    CONVERSION,
+    CONVERSION2,
+    COPYCAT,
+    COREENFORCER,
+    CORROSIVEGAS,
+    COSMICPOWER,
+    COTTONGUARD,
+    COTTONSPORE,
+    COUNTER,
+    COURTCHANGE,
+    COVET,
+    CRABHAMMER,
+    CRAFTYSHIELD,
+    CROSSCHOP,
+    CROSSPOISON,
+    CRUNCH,
+    CRUSHCLAW,
+    CRUSHGRIP,
+    CURSE,
+    CUT,
+    DARKESTLARIAT,
+    DARKPULSE,
+    DARKVOID,
+    DAZZLINGGLEAM,
+    DECORATE,
+    DEFENDORDER,
+    DEFENSECURL,
+    DEFOG,
+    DESTINYBOND,
+    DETECT,
+    DIAMONDSTORM,
+    DIG,
+    DIRECLAW,
+    DISABLE,
+    DISARMINGVOICE,
+    DISCHARGE,
+    DIVE,
+    DIZZYPUNCH,
+    DOODLE,
+    DOOMDESIRE,
+    DOUBLEEDGE,
+    DOUBLEHIT,
+    DOUBLEIRONBASH,
+    DOUBLEKICK,
+    DOUBLESHOCK,
+    DOUBLESLAP,
+    DOUBLETEAM,
+    DRACOMETEOR,
+    DRAGONASCENT,
+    DRAGONBREATH,
+    DRAGONCLAW,
+    DRAGONDANCE,
+    DRAGONDARTS,
+    DRAGONENERGY,
+    DRAGONHAMMER,
+    DRAGONPULSE,
+    DRAGONRAGE,
+    DRAGONRUSH,
+    DRAGONTAIL,
+    DRAININGKISS,
+    DRAINPUNCH,
+    DREAMEATER,
+    DRILLPECK,
+    DRILLRUN,
+    DRUMBEATING,
+    DUALCHOP,
+    DUALWINGBEAT,
+    DYNAMAXCANNON,
+    DYNAMICPUNCH,
+    EARTHPOWER,
+    EARTHQUAKE,
+    ECHOEDVOICE,
+    EERIEIMPULSE,
+    EERIESPELL,
+    EGGBOMB,
+    ELECTRICTERRAIN,
+    ELECTRIFY,
+    ELECTROBALL,
+    ELECTRODRIFT,
+    ELECTROWEB,
+    EMBARGO,
+    EMBER,
+    ENCORE,
+    ENDEAVOR,
+    ENDURE,
+    ENERGYBALL,
+    ENTRAINMENT,
+    ERUPTION,
+    ESPERWING,
+    ETERNABEAM,
+    EXPANDINGFORCE,
+    EXPLOSION,
+    EXTRASENSORY,
+    EXTREMESPEED,
+    FACADE,
+    FAIRYLOCK,
+    FAIRYWIND,
+    FAKEOUT,
+    FAKETEARS,
+    FALSESURRENDER,
+    FALSESWIPE,
+    FEATHERDANCE,
+    FEINT,
+    FEINTATTACK,
+    FELLSTINGER,
+    FIERYDANCE,
+    FIERYWRATH,
+    FILLETAWAY,
+    FINALGAMBIT,
+    FIREBLAST,
+    FIREFANG,
+    FIRELASH,
+    FIREPLEDGE,
+    FIREPUNCH,
+    FIRESPIN,
+    FIRSTIMPRESSION,
+    FISHIOUSREND,
+    FISSURE,
+    FLAIL,
+    FLAMEBURST,
+    FLAMECHARGE,
+    FLAMETHROWER,
+    FLAMEWHEEL,
+    FLAREBLITZ,
+    FLASH,
+    FLASHCANNON,
+    FLATTER,
+    FLEURCANNON,
+    FLING,
+    FLIPTURN,
+    FLOATYFALL,
+    FLORALHEALING,
+    FLOWERSHIELD,
+    FLOWERTRICK,
+    FLY,
+    FLYINGPRESS,
+    FOCUSBLAST,
+    FOCUSENERGY,
+    FOCUSPUNCH,
+    FOLLOWME,
+    FORCEPALM,
+    FORESIGHT,
+    FORESTSCURSE,
+    FOULPLAY,
+    FREEZEDRY,
+    FREEZESHOCK,
+    FREEZINGGLARE,
+    FREEZYFROST,
+    FRENZYPLANT,
+    FROSTBREATH,
+    FRUSTRATION,
+    FURYATTACK,
+    FURYCUTTER,
+    FURYSWIPES,
+    FUSIONBOLT,
+    FUSIONFLARE,
+    FUTURESIGHT,
+    GASTROACID,
+    GEARGRIND,
+    GEARUP,
+    GEOMANCY,
+    GIGADRAIN,
+    GIGAIMPACT,
+    GIGATONHAMMER,
+    GLACIALLANCE,
+    GLACIATE,
+    GLAIVERUSH,
+    GLARE,
+    GLITZYGLOW,
+    GRASSKNOT,
+    GRASSPLEDGE,
+    GRASSWHISTLE,
+    GRASSYGLIDE,
+    GRASSYTERRAIN,
+    GRAVAPPLE,
+    GRAVITY,
+    GROWL,
+    GROWTH,
+    GRUDGE,
+    GUARDSPLIT,
+    GUARDSWAP,
+    GUILLOTINE,
+    GUNKSHOT,
+    GUST,
+    GYROBALL,
+    HAIL,
+    HAMMERARM,
+    HAPPYHOUR,
+    HARDEN,
+    HAZE,
+    HEADBUTT,
+    HEADCHARGE,
+    HEADLONGRUSH,
+    HEADSMASH,
+    HEALBELL,
+    HEALBLOCK,
+    HEALINGWISH,
+    HEALORDER,
+    HEALPULSE,
+    HEARTSTAMP,
+    HEARTSWAP,
+    HEATCRASH,
+    HEATWAVE,
+    HEAVYSLAM,
+    HELPINGHAND,
+    HEX,
+    HIDDENPOWER,
+    HIDDENPOWERBUG60,
+    HIDDENPOWERBUG70,
+    HIDDENPOWERDARK60,
+    HIDDENPOWERDARK70,
+    HIDDENPOWERDRAGON60,
+    HIDDENPOWERDRAGON70,
+    HIDDENPOWERELECTRIC60,
+    HIDDENPOWERELECTRIC70,
+    HIDDENPOWERFIGHTING60,
+    HIDDENPOWERFIGHTING70,
+    HIDDENPOWERFIRE60,
+    HIDDENPOWERFIRE70,
+    HIDDENPOWERFLYING60,
+    HIDDENPOWERFLYING70,
+    HIDDENPOWERGHOST60,
+    HIDDENPOWERGHOST70,
+    HIDDENPOWERGRASS60,
+    HIDDENPOWERGRASS70,
+    HIDDENPOWERGROUND60,
+    HIDDENPOWERGROUND70,
+    HIDDENPOWERICE60,
+    HIDDENPOWERICE70,
+    HIDDENPOWERPOISON60,
+    HIDDENPOWERPOISON70,
+    HIDDENPOWERPSYCHIC60,
+    HIDDENPOWERPSYCHIC70,
+    HIDDENPOWERROCK60,
+    HIDDENPOWERROCK70,
+    HIDDENPOWERSTEEL60,
+    HIDDENPOWERSTEEL70,
+    HIDDENPOWERWATER60,
+    HIDDENPOWERWATER70,
+    HIGHHORSEPOWER,
+    HIGHJUMPKICK,
+    HOLDBACK,
+    HOLDHANDS,
+    HONECLAWS,
+    HORNATTACK,
+    HORNDRILL,
+    HORNLEECH,
+    HOWL,
+    HURRICANE,
+    HYDROCANNON,
+    HYDROPUMP,
+    HYDROSTEAM,
+    HYPERBEAM,
+    HYPERDRILL,
+    HYPERFANG,
+    HYPERSPACEFURY,
+    HYPERSPACEHOLE,
+    HYPERVOICE,
+    HYPNOSIS,
+    ICEBALL,
+    ICEBEAM,
+    ICEBURN,
+    ICEFANG,
+    ICEHAMMER,
+    ICEPUNCH,
+    ICESHARD,
+    ICESPINNER,
+    ICICLECRASH,
+    ICICLESPEAR,
+    ICYWIND,
+    IMPRISON,
+    INCINERATE,
+    INFERNALPARADE,
+    INFERNO,
+    INFESTATION,
+    INGRAIN,
+    INSTRUCT,
+    IONDELUGE,
+    IRONDEFENSE,
+    IRONHEAD,
+    IRONTAIL,
+    IVYCUDGEL,
+    JAWLOCK,
+    JETPUNCH,
+    JUDGMENT,
+    JUMPKICK,
+    JUNGLEHEALING,
+    KARATECHOP,
+    KINESIS,
+    KINGSSHIELD,
+    KNOCKOFF,
+    KOWTOWCLEAVE,
+    LANDSWRATH,
+    LASERFOCUS,
+    LASHOUT,
+    LASTRESORT,
+    LASTRESPECTS,
+    LAVAPLUME,
+    LEAFAGE,
+    LEAFBLADE,
+    LEAFSTORM,
+    LEAFTORNADO,
+    LEECHLIFE,
+    LEECHSEED,
+    LEER,
+    LICK,
+    LIFEDEW,
+    LIGHTOFRUIN,
+    LIGHTSCREEN,
+    LIQUIDATION,
+    LOCKON,
+    LOVELYKISS,
+    LOWKICK,
+    LOWSWEEP,
+    LUCKYCHANT,
+    LUMINACRASH,
+    LUNARBLESSING,
+    LUNARDANCE,
+    LUNGE,
+    LUSTERPURGE,
+    MACHPUNCH,
+    MAGICALLEAF,
+    MAGICALTORQUE,
+    MAGICCOAT,
+    MAGICPOWDER,
+    MAGICROOM,
+    MAGMASTORM,
+    MAGNETBOMB,
+    MAGNETICFLUX,
+    MAGNETRISE,
+    MAGNITUDE,
+    MAKEITRAIN,
+    MATBLOCK,
+    MATCHAGOTCHA,
+    MEANLOOK,
+    MEDITATE,
+    MEFIRST,
+    MEGADRAIN,
+    MEGAHORN,
+    MEGAKICK,
+    MEGAPUNCH,
+    MEMENTO,
+    METALBURST,
+    METALCLAW,
+    METALSOUND,
+    METEORASSAULT,
+    METEORBEAM,
+    METEORMASH,
+    METRONOME,
+    MILKDRINK,
+    MIMIC,
+    MINDBLOWN,
+    MINDREADER,
+    MINIMIZE,
+    MIRACLEEYE,
+    MIRRORCOAT,
+    MIRRORMOVE,
+    MIRRORSHOT,
+    MIST,
+    MISTBALL,
+    MISTYEXPLOSION,
+    MISTYTERRAIN,
+    MOONBLAST,
+    MOONGEISTBEAM,
+    MOONLIGHT,
+    MORNINGSUN,
+    MORTALSPIN,
+    MOUNTAINGALE,
+    MUDBOMB,
+    MUDDYWATER,
+    MUDSHOT,
+    MUDSLAP,
+    MUDSPORT,
+    MULTIATTACK,
+    MYSTICALFIRE,
+    MYSTICALPOWER,
+    NASTYPLOT,
+    NATURALGIFT,
+    NATUREPOWER,
+    NATURESMADNESS,
+    NEEDLEARM,
+    NIGHTDAZE,
+    NIGHTMARE,
+    NIGHTSHADE,
+    NIGHTSLASH,
+    NOBLEROAR,
+    NORETREAT,
+    NOTHING,
+    NOXIOUSTORQUE,
+    NUZZLE,
+    OBLIVIONWING,
+    OBSTRUCT,
+    OCTAZOOKA,
+    OCTOLOCK,
+    ODORSLEUTH,
+    OMINOUSWIND,
+    ORDERUP,
+    ORIGINPULSE,
+    OUTRAGE,
+    OVERDRIVE,
+    OVERHEAT,
+    PAINSPLIT,
+    PALEOWAVE,
+    PARABOLICCHARGE,
+    PARTINGSHOT,
+    PAYBACK,
+    PAYDAY,
+    PECK,
+    PERISHSONG,
+    PETALBLIZZARD,
+    PETALDANCE,
+    PHANTOMFORCE,
+    PHOTONGEYSER,
+    PIKAPAPOW,
+    PINMISSILE,
+    PLASMAFISTS,
+    PLAYNICE,
+    PLAYROUGH,
+    PLUCK,
+    POISONFANG,
+    POISONGAS,
+    POISONJAB,
+    POISONPOWDER,
+    POISONSTING,
+    POISONTAIL,
+    POLLENPUFF,
+    POLTERGEIST,
+    POPULATIONBOMB,
+    POUNCE,
+    POUND,
+    POWDER,
+    POWDERSNOW,
+    POWERGEM,
+    POWERSHIFT,
+    POWERSPLIT,
+    POWERSWAP,
+    POWERTRICK,
+    POWERTRIP,
+    POWERUPPUNCH,
+    POWERWHIP,
+    PRECIPICEBLADES,
+    PRESENT,
+    PRISMATICLASER,
+    PROTECT,
+    PSYBEAM,
+    PSYBLADE,
+    PSYCHIC,
+    PSYCHICFANGS,
+    PSYCHICTERRAIN,
+    PSYCHOBOOST,
+    PSYCHOCUT,
+    PSYCHOSHIFT,
+    PSYCHUP,
+    PSYSHIELDBASH,
+    PSYSHOCK,
+    PSYSTRIKE,
+    PSYWAVE,
+    PUNISHMENT,
+    PURIFY,
+    PURSUIT,
+    PYROBALL,
+    QUASH,
+    QUICKATTACK,
+    QUICKGUARD,
+    QUIVERDANCE,
+    RAGE,
+    RAGEFIST,
+    RAGEPOWDER,
+    RAGINGBULL,
+    RAGINGFURY,
+    RAINDANCE,
+    RAPIDSPIN,
+    RAZORLEAF,
+    RAZORSHELL,
+    RAZORWIND,
+    RECHARGE,
+    RECOVER,
+    RECYCLE,
+    REFLECT,
+    REFLECTTYPE,
+    REFRESH,
+    RELICSONG,
+    REST,
+    RETALIATE,
+    RETURN,
+    RETURN102,
+    REVELATIONDANCE,
+    REVENGE,
+    REVERSAL,
+    REVIVALBLESSING,
+    RISINGVOLTAGE,
+    ROAR,
+    ROAROFTIME,
+    ROCKBLAST,
+    ROCKCLIMB,
+    ROCKPOLISH,
+    ROCKSLIDE,
+    ROCKSMASH,
+    ROCKTHROW,
+    ROCKTOMB,
+    ROCKWRECKER,
+    ROLEPLAY,
+    ROLLINGKICK,
+    ROLLOUT,
+    ROOST,
+    ROTOTILLER,
+    ROUND,
+    RUINATION,
+    SACREDFIRE,
+    SACREDSWORD,
+    SAFEGUARD,
+    SALTCURE,
+    SANDATTACK,
+    SANDSEARSTORM,
+    SANDSTORM,
+    SANDTOMB,
+    SAPPYSEED,
+    SCALD,
+    SCALESHOT,
+    SCARYFACE,
+    SCORCHINGSANDS,
+    SCRATCH,
+    SCREECH,
+    SEARINGSHOT,
+    SECRETPOWER,
+    SECRETSWORD,
+    SEEDBOMB,
+    SEEDFLARE,
+    SEISMICTOSS,
+    SELFDESTRUCT,
+    SHADOWBALL,
+    SHADOWBONE,
+    SHADOWCLAW,
+    SHADOWFORCE,
+    SHADOWPUNCH,
+    SHADOWSNEAK,
+    SHADOWSTRIKE,
+    SHARPEN,
+    SHEDTAIL,
+    SHEERCOLD,
+    SHELLSIDEARM,
+    SHELLSMASH,
+    SHELLTRAP,
+    SHELTER,
+    SHIFTGEAR,
+    SHOCKWAVE,
+    SHOREUP,
+    SIGNALBEAM,
+    SILKTRAP,
+    SILVERWIND,
+    SIMPLEBEAM,
+    SING,
+    SIZZLYSLIDE,
+    SKETCH,
+    SKILLSWAP,
+    SKITTERSMACK,
+    SKULLBASH,
+    SKYATTACK,
+    SKYDROP,
+    SKYUPPERCUT,
+    SLACKOFF,
+    SLAM,
+    SLASH,
+    SLEEPPOWDER,
+    SLEEPTALK,
+    SLUDGE,
+    SLUDGEBOMB,
+    SLUDGEWAVE,
+    SMACKDOWN,
+    SMARTSTRIKE,
+    SMELLINGSALTS,
+    SMOG,
+    SMOKESCREEN,
+    SNAPTRAP,
+    SNARL,
+    SNATCH,
+    SNIPESHOT,
+    SNORE,
+    SNOWSCAPE,
+    SOAK,
+    SOFTBOILED,
+    SOLARBEAM,
+    SOLARBLADE,
+    SONICBOOM,
+    SPACIALREND,
+    SPARK,
+    SPARKLINGARIA,
+    SPARKLYSWIRL,
+    SPECTRALTHIEF,
+    SPEEDSWAP,
+    SPICYEXTRACT,
+    SPIDERWEB,
+    SPIKECANNON,
+    SPIKES,
+    SPIKYSHIELD,
+    SPINOUT,
+    SPIRITBREAK,
+    SPIRITSHACKLE,
+    SPITE,
+    SPITUP,
+    SPLASH,
+    SPLISHYSPLASH,
+    SPORE,
+    SPOTLIGHT,
+    SPRINGTIDESTORM,
+    STEALTHROCK,
+    STEAMERUPTION,
+    STEAMROLLER,
+    STEELBEAM,
+    STEELROLLER,
+    STEELWING,
+    STICKYWEB,
+    STOCKPILE,
+    STOMP,
+    STOMPINGTANTRUM,
+    STONEAXE,
+    STONEEDGE,
+    STOREDPOWER,
+    STORMTHROW,
+    STRANGESTEAM,
+    STRENGTH,
+    STRENGTHSAP,
+    STRINGSHOT,
+    STRUGGLE,
+    STRUGGLEBUG,
+    STUFFCHEEKS,
+    STUNSPORE,
+    SUBMISSION,
+    SUBSTITUTE,
+    SUCKERPUNCH,
+    SUNNYDAY,
+    SUNSTEELSTRIKE,
+    SUPERFANG,
+    SUPERPOWER,
+    SUPERSONIC,
+    SURF,
+    SURGINGSTRIKES,
+    SWAGGER,
+    SWALLOW,
+    SWEETKISS,
+    SWEETSCENT,
+    SWIFT,
+    SWITCHEROO,
+    SWORDSDANCE,
+    SYNCHRONOISE,
+    SYNTHESIS,
+    SYRUPBOMB,
+    TACKLE,
+    TAILGLOW,
+    TAILSLAP,
+    TAILWHIP,
+    TAILWIND,
+    TAKEDOWN,
+    TAKEHEART,
+    TARSHOT,
+    TAUNT,
+    TEARFULLOOK,
+    TEATIME,
+    TECHNOBLAST,
+    TEETERDANCE,
+    TELEKINESIS,
+    TELEPORT,
+    TERABLAST,
+    TERRAINPULSE,
+    THIEF,
+    THOUSANDARROWS,
+    THOUSANDWAVES,
+    THRASH,
+    THROATCHOP,
+    THUNDER,
+    THUNDERBOLT,
+    THUNDERCAGE,
+    THUNDERFANG,
+    THUNDEROUSKICK,
+    THUNDERPUNCH,
+    THUNDERSHOCK,
+    THUNDERWAVE,
+    TICKLE,
+    TIDYUP,
+    TOPSYTURVY,
+    TORCHSONG,
+    TORMENT,
+    TOXIC,
+    TOXICSPIKES,
+    TOXICTHREAD,
+    TRAILBLAZE,
+    TRANSFORM,
+    TRIATTACK,
+    TRICK,
+    TRICKORTREAT,
+    TRICKROOM,
+    TRIPLEARROWS,
+    TRIPLEAXEL,
+    TRIPLEDIVE,
+    TRIPLEKICK,
+    TROPKICK,
+    TRUMPCARD,
+    TWINBEAM,
+    TWINEEDLE,
+    TWISTER,
+    UPROAR,
+    UTURN,
+    VACUUMWAVE,
+    VCREATE,
+    VEEVEEVOLLEY,
+    VENOMDRENCH,
+    VENOSHOCK,
+    VICTORYDANCE,
+    VINEWHIP,
+    VISEGRIP,
+    VITALTHROW,
+    VOLTSWITCH,
+    VOLTTACKLE,
+    WAKEUPSLAP,
+    WATERFALL,
+    WATERGUN,
+    WATERPLEDGE,
+    WATERPULSE,
+    WATERSHURIKEN,
+    WATERSPORT,
+    WATERSPOUT,
+    WAVECRASH,
+    WEATHERBALL,
+    WHIRLPOOL,
+    WHIRLWIND,
+    WICKEDBLOW,
+    WICKEDTORQUE,
+    WIDEGUARD,
+    WILDBOLTSTORM,
+    WILDCHARGE,
+    WILLOWISP,
+    WINGATTACK,
+    WISH,
+    WITHDRAW,
+    WONDERROOM,
+    WOODHAMMER,
+    WORKUP,
+    WORRYSEED,
+    WRAP,
+    WRINGOUT,
+    XSCISSOR,
+    YAWN,
+    ZAPCANNON,
+    ZENHEADBUTT,
+    ZINGZAP,
+    ZIPPYZAP,
+}
+
 #[derive(Clone)]
 pub struct Choice {
     // Basic move information
-    pub move_id: String, // in the case of category::Switch, this is not used
+    pub move_id: Choices, // in the case of category::Switch, this is not used
     pub switch_id: PokemonIndex,
     pub move_type: PokemonType,
     pub accuracy: f32,
@@ -16813,16 +17152,11 @@ pub struct Choice {
     pub target: MoveTarget,
 
     pub first_move: bool,
-
-    pub modify_move: Option<ModifyChoiceFn>,
-    pub after_damage_hit: Option<AfterDamageHitFn>,
-    pub hazard_clear: Option<HazardClearFn>,
-    pub move_special_effect: Option<MoveSpecialEffectFn>,
 }
 
 impl fmt::Debug for Choice {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Choice: {}", self.move_id)
+        write!(f, "Choice: {:?}", self.move_id)
     }
 }
 
@@ -16869,7 +17203,7 @@ impl Choice {
 impl Default for Choice {
     fn default() -> Choice {
         return Choice {
-            move_id: "".to_string(),
+            move_id: Choices::NONE,
             switch_id: PokemonIndex::P0,
             move_type: PokemonType::Normal,
             accuracy: 100.0,
@@ -16890,10 +17224,6 @@ impl Default for Choice {
             secondaries: None,
             target: MoveTarget::Opponent,
             first_move: true,
-            modify_move: None,
-            after_damage_hit: None,
-            hazard_clear: None,
-            move_special_effect: None,
         };
     }
 }

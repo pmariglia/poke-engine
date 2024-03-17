@@ -1,4 +1,5 @@
 use crate::abilities::Abilities;
+use crate::choices::Choices;
 use crate::{
     choices::{Choice, MoveCategory},
     state::{
@@ -148,7 +149,7 @@ fn volatile_status_modifier(
         match vs {
             PokemonVolatileStatus::MagnetRise
                 if choice.move_type == PokemonType::Ground
-                    && choice.move_id.as_str() != "thousandarrows" =>
+                    && choice.move_id != Choices::THOUSANDARROWS =>
             {
                 return 0.0;
             }
@@ -336,7 +337,7 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.move_id = "tackle".to_string();
+        choice.move_id = Choices::TACKLE;
         choice.move_type = PokemonType::Typeless;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Physical;
@@ -358,7 +359,7 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.move_id = "protect".to_string();
+        choice.move_id = Choices::PROTECT;
         choice.category = MoveCategory::Status;
 
         let dmg = calculate_damage(
@@ -377,7 +378,7 @@ mod tests {
         let mut choice = Choice {
             ..Default::default()
         };
-        choice.move_id = "tackle".to_string();
+        choice.move_id = Choices::TACKLE;
         choice.move_type = PokemonType::Typeless;
         choice.base_power = 0.0;
         choice.category = MoveCategory::Physical;
@@ -399,7 +400,7 @@ mod tests {
             ..Default::default()
         };
         state.side_one.get_active().attack_boost = 1;
-        choice.move_id = "tackle".to_string();
+        choice.move_id = Choices::TACKLE;
         choice.move_type = PokemonType::Typeless;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Physical;
@@ -422,7 +423,7 @@ mod tests {
         };
         state.side_one.get_active().attack_boost = 1;
         state.side_two.get_active().ability = Abilities::UNAWARE;
-        choice.move_id = "tackle".to_string();
+        choice.move_id = Choices::TACKLE;
         choice.move_type = PokemonType::Typeless;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Physical;
@@ -445,7 +446,7 @@ mod tests {
         };
 
         state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Typeless);
-        choice.move_id = "watergun".to_string();
+        choice.move_id = Choices::WATERGUN;
         choice.move_type = PokemonType::Water;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Special;
@@ -467,7 +468,7 @@ mod tests {
         };
 
         state.side_two.get_active().types = (PokemonType::Water, PokemonType::Typeless);
-        choice.move_id = "watergun".to_string();
+        choice.move_id = Choices::WATERGUN;
         choice.move_type = PokemonType::Water;
         choice.base_power = 40.0;
         choice.category = MoveCategory::Special;
@@ -617,7 +618,7 @@ mod tests {
                     state.side_one.get_active().volatile_statuses = HashSet::from_iter(attacking_volatile_status);
                     state.side_two.get_active().volatile_statuses = HashSet::from_iter(defending_volatile_status);
 
-                    choice.move_id = move_name.to_string();
+                    choice.move_id = move_name;
                     choice.category = MoveCategory::Physical;
                     choice.move_type = move_type;
                     choice.base_power = 40.0;
@@ -633,56 +634,56 @@ mod tests {
             vec![PokemonVolatileStatus::FlashFire],
             vec![],
             PokemonType::Fire,
-            "",
+            Choices::NONE,
             48
         ),
         test_flashfire_does_not_boost_normal_move: (
             vec![PokemonVolatileStatus::FlashFire],
             vec![],
             PokemonType::Typeless,
-            "",
+            Choices::NONE,
             32
         ),
         test_magnetrise_makes_pkmn_immune_to_ground_move: (
             vec![],
             vec![PokemonVolatileStatus::MagnetRise],
             PokemonType::Ground,
-            "",
+            Choices::NONE,
             0
         ),
         test_thousandarrows_can_hit_magnetrise_pokemon: (
             vec![],
             vec![PokemonVolatileStatus::MagnetRise],
             PokemonType::Ground,
-            "thousandarrows",
+            Choices::THOUSANDARROWS,
             32
         ),
         test_tarshot_boosts_fire_move: (
             vec![],
             vec![PokemonVolatileStatus::TarShot],
             PokemonType::Fire,
-            "",
+            Choices::NONE,
             64
         ),
         test_tarshot_and_flashfire_together: (
             vec![PokemonVolatileStatus::FlashFire],
             vec![PokemonVolatileStatus::TarShot],
             PokemonType::Fire,
-            "",
+            Choices::NONE,
             97
         ),
         test_glaiverush_doubles_damage_against: (
             vec![],
             vec![PokemonVolatileStatus::GlaiveRush],
             PokemonType::Normal,
-            "",
+            Choices::NONE,
             97
         ),
         test_phantomforce_on_defender_causes_0_damage: (
             vec![],
             vec![PokemonVolatileStatus::PhantomForce],
             PokemonType::Normal,
-            "",
+            Choices::NONE,
             0
         ),
     }

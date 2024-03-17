@@ -1,5 +1,5 @@
 use crate::abilities::Abilities;
-use crate::choices::{Choice, SideCondition, MOVES};
+use crate::choices::{Choice, Choices, SideCondition, MOVES};
 use core::panic;
 use std::collections::HashSet;
 use std::ops::{Index, IndexMut};
@@ -413,7 +413,7 @@ impl<'a> IntoIterator for &'a PokemonMoves {
 
 #[derive(Debug)]
 pub struct Move {
-    pub id: String,
+    pub id: Choices,
     pub disabled: bool,
     pub pp: i8,
     pub choice: Choice,
@@ -422,7 +422,7 @@ pub struct Move {
 impl Default for Move {
     fn default() -> Move {
         return Move {
-            id: "".to_string(),
+            id: Choices::NONE,
             disabled: false,
             pp: 32,
             choice: Choice::default(),
@@ -459,7 +459,7 @@ pub struct Pokemon {
 }
 
 impl Pokemon {
-    pub fn replace_move(&mut self, move_index: PokemonMoveIndex, new_move_name: String) {
+    pub fn replace_move(&mut self, move_index: PokemonMoveIndex, new_move_name: Choices) {
         self.moves[move_index].choice = MOVES.get(&new_move_name).unwrap().to_owned();
         self.moves[move_index].id = new_move_name;
     }

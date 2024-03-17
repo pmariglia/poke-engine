@@ -1,5 +1,5 @@
 use poke_engine::abilities::Abilities;
-use poke_engine::choices::{Heal, MOVES};
+use poke_engine::choices::{Choices, Heal, MOVES};
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
@@ -16,8 +16,8 @@ use poke_engine::state::{
 
 fn set_moves_on_pkmn_and_call_generate_instructions(
     state: &mut State,
-    move_one: String,
-    move_two: String,
+    move_one: Choices,
+    move_two: Choices,
 ) -> Vec<StateInstructions> {
     state
         .side_one
@@ -72,8 +72,8 @@ fn test_basic_move_pair_instruction_generation() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("tackle"),
+        Choices::TACKLE,
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -99,8 +99,8 @@ fn test_move_pair_instruction_generation_where_first_move_branches() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("playrough"),
-        String::from("tackle"),
+        Choices::PLAYROUGH,
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![
@@ -154,8 +154,8 @@ fn test_move_pair_instruction_generation_where_second_move_branches() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("playrough"),
-        String::from("tackle"),
+        Choices::PLAYROUGH,
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![
@@ -208,8 +208,8 @@ fn test_basic_flinching_functionality() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("ironhead"),
-        String::from("tackle"),
+        Choices::IRONHEAD,
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![
@@ -254,8 +254,8 @@ fn test_flinching_first_and_second_move() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("ironhead"),
-        String::from("ironhead"),
+        Choices::IRONHEAD,
+        Choices::IRONHEAD,
     );
 
     let expected_instructions = vec![
@@ -300,8 +300,8 @@ fn test_flinching_on_move_that_can_miss() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("airslash"),
-        String::from("tackle"),
+        Choices::AIRSLASH,
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![
@@ -352,8 +352,8 @@ fn test_using_protect_against_damaging_move() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("protect"),
-        String::from("tackle"),
+        Choices::PROTECT,
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -383,8 +383,8 @@ fn test_self_boosting_move_against_protect() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("protect"),
-        String::from("swordsdance"),
+        Choices::PROTECT,
+        Choices::SWORDSDANCE,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -419,8 +419,8 @@ fn test_crash_move_into_protect() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("protect"),
-        String::from("jumpkick"),
+        Choices::PROTECT,
+        Choices::JUMPKICK,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -454,8 +454,8 @@ fn test_protect_stops_secondaries() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("protect"),
-        String::from("ironhead"),
+        Choices::PROTECT,
+        Choices::IRONHEAD,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -486,8 +486,8 @@ fn test_protect_stops_after_damage_hit_callback() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("protect"),
-        String::from("knockoff"),
+        Choices::PROTECT,
+        Choices::KNOCKOFF,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -517,8 +517,8 @@ fn test_move_that_goes_through_protect() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("protect"),
-        String::from("feint"),
+        Choices::PROTECT,
+        Choices::FEINT,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -552,8 +552,8 @@ fn test_using_spikyshield_against_contact_move() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("spikyshield"),
-        String::from("tackle"),
+        Choices::SPIKYSHIELD,
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -588,8 +588,8 @@ fn test_spikyshield_recoil_does_not_overkill() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("spikyshield"),
-        String::from("tackle"),
+        Choices::SPIKYSHIELD,
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -625,8 +625,8 @@ fn test_moxie_boost() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -652,8 +652,8 @@ fn test_spikyshield_does_not_activate_on_non_contact_move() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("spikyshield"),
-        String::from("watergun"),
+        Choices::SPIKYSHIELD,
+        Choices::WATERGUN,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -683,8 +683,8 @@ fn test_banefulbunker_poisons() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("banefulbunker"),
-        String::from("tackle"),
+        Choices::BANEFULBUNKER,
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -725,8 +725,8 @@ fn test_banefulbunker_cannot_poison_already_statused_target() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("banefulbunker"),
-        String::from("tackle"),
+        Choices::BANEFULBUNKER,
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -760,8 +760,8 @@ fn test_silktrap() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("silktrap"),
-        String::from("tackle"),
+        Choices::SILKTRAP,
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -797,8 +797,8 @@ fn test_protect_side_condition_is_removed() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("splash"),
-        String::from("splash"),
+        Choices::SPLASH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -821,8 +821,8 @@ fn test_protect_for_second_turn_in_a_row() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("protect"),
-        String::from("tackle"),
+        Choices::PROTECT,
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -848,8 +848,8 @@ fn test_double_protect() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("protect"),
-        String::from("protect"),
+        Choices::PROTECT,
+        Choices::PROTECT,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -880,8 +880,8 @@ fn test_basic_substitute_usage() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("substitute"),
-        String::from("tackle"),
+        Choices::SUBSTITUTE,
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -920,8 +920,8 @@ fn test_substitute_does_not_let_secondary_status_effect_happen() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("substitute"),
-        String::from("firepunch"),
+        Choices::SUBSTITUTE,
+        Choices::FIREPUNCH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -960,8 +960,8 @@ fn test_secondary_on_self_works_against_substitute() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("substitute"),
-        String::from("poweruppunch"),
+        Choices::SUBSTITUTE,
+        Choices::POWERUPPUNCH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1005,8 +1005,8 @@ fn test_move_goes_through_substitute() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("substitute"),
-        String::from("boomburst"),
+        Choices::SUBSTITUTE,
+        Choices::BOOMBURST,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1042,8 +1042,8 @@ fn test_infiltrator_goes_through_substitute() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("substitute"),
-        String::from("tackle"),
+        Choices::SUBSTITUTE,
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1084,8 +1084,8 @@ fn test_using_protect_with_a_substitute() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("protect"),
-        String::from("tackle"),
+        Choices::PROTECT,
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1122,8 +1122,8 @@ fn test_drag_move_against_substitute() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("splash"),
-        String::from("dragontail"),
+        Choices::SPLASH,
+        Choices::DRAGONTAIL,
     );
 
     let expected_instructions = vec![
@@ -1155,8 +1155,8 @@ fn test_suctioncups() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("dragontail"),
-        String::from("splash"),
+        Choices::DRAGONTAIL,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![
@@ -1182,8 +1182,8 @@ fn test_tanglinghair() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1216,8 +1216,8 @@ fn test_whirlwind_move_against_substitute() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("splash"),
-        String::from("whirlwind"),
+        Choices::SPLASH,
+        Choices::WHIRLWIND,
     );
 
     let expected_instructions = vec![
@@ -1308,8 +1308,8 @@ fn test_drag_move_against_protect_and_substitute() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("protect"),
-        String::from("dragontail"),
+        Choices::PROTECT,
+        Choices::DRAGONTAIL,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1341,8 +1341,8 @@ fn test_rockyhelmet_damage_taken() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1368,8 +1368,8 @@ fn test_roughskin_damage_taken() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1397,8 +1397,8 @@ fn test_rockyhelmet_does_not_overkill() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1422,7 +1422,7 @@ fn test_choiceband_locking() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::ChoiceBand;
     state.side_one.get_active().moves[PokemonMoveIndex::M0] = Move {
-        id: "willowisp".to_string(),
+        id: Choices::WILLOWISP,
         disabled: false,
         pp: 35,
         ..Default::default()
@@ -1430,8 +1430,8 @@ fn test_choiceband_locking() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("willowisp"),
-        String::from("splash"),
+        Choices::WILLOWISP,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![
@@ -1493,7 +1493,7 @@ fn test_locked_moves_unlock_on_switchout() {
     state
         .side_two
         .get_active()
-        .replace_move(PokemonMoveIndex::M0, String::from("splash"));
+        .replace_move(PokemonMoveIndex::M0, Choices::SPLASH);
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
@@ -1535,8 +1535,8 @@ fn test_fighting_move_with_blackbelt() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("drainpunch"),
-        String::from("splash"),
+        Choices::DRAINPUNCH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1558,8 +1558,8 @@ fn test_expert_belt_boost() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("drainpunch"),
-        String::from("splash"),
+        Choices::DRAINPUNCH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1581,8 +1581,8 @@ fn test_hydrosteam() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("hydrosteam"),
-        String::from("splash"),
+        Choices::HYDROSTEAM,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1602,8 +1602,8 @@ fn test_weatherball_in_sun() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("weatherball"),
-        String::from("splash"),
+        Choices::WEATHERBALL,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1623,8 +1623,8 @@ fn test_terrainpulse() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("terrainpulse"),
-        String::from("splash"),
+        Choices::TERRAINPULSE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1644,8 +1644,8 @@ fn test_growth_in_sun() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("growth"),
-        String::from("splash"),
+        Choices::GROWTH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1677,8 +1677,8 @@ fn test_noretreat_with_vs_already() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("noretreat"),
-        String::from("splash"),
+        Choices::NORETREAT,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1696,8 +1696,8 @@ fn test_poltergeist() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("poltergeist"),
-        String::from("splash"),
+        Choices::POLTERGEIST,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![
@@ -1724,8 +1724,8 @@ fn test_shoreup_in_sand() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("shoreup"),
-        String::from("splash"),
+        Choices::SHOREUP,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1756,8 +1756,8 @@ fn test_morningsun_in_rain() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("morningsun"),
-        String::from("splash"),
+        Choices::MORNINGSUN,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1778,8 +1778,8 @@ fn test_morningsun_in_sun() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("morningsun"),
-        String::from("splash"),
+        Choices::MORNINGSUN,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1800,8 +1800,8 @@ fn test_bodypress() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("bodypress"),
-        String::from("splash"),
+        Choices::BODYPRESS,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1822,8 +1822,8 @@ fn test_filletaway() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("filletaway"),
-        String::from("splash"),
+        Choices::FILLETAWAY,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1860,8 +1860,8 @@ fn test_filletaway_lowhp() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("filletaway"),
-        String::from("splash"),
+        Choices::FILLETAWAY,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1877,8 +1877,8 @@ fn test_clangoroussoul() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("clangoroussoul"),
-        String::from("splash"),
+        Choices::CLANGOROUSSOUL,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1925,8 +1925,8 @@ fn test_boltbeak() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("boltbeak"),
-        String::from("splash"),
+        Choices::BOLTBEAK,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1947,8 +1947,8 @@ fn test_painsplit() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("painsplit"),
-        String::from("splash"),
+        Choices::PAINSPLIT,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -1975,8 +1975,8 @@ fn test_strengthsap() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("strengthsap"),
-        String::from("splash"),
+        Choices::STRENGTHSAP,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2003,8 +2003,8 @@ fn test_poisontype_using_toxic() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("toxic"),
-        String::from("splash"),
+        Choices::TOXIC,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2034,10 +2034,10 @@ fn test_poisontype_using_toxic() {
 fn test_pursuit() {
     let mut state = State::default();
     state.side_one.get_active().moves.m0 = Move {
-        id: "pursuit".to_string(),
+        id: Choices::PURSUIT,
         disabled: false,
         pp: 35,
-        choice: MOVES.get("pursuit").unwrap().to_owned(),
+        choice: MOVES.get(&Choices::PURSUIT).unwrap().to_owned(),
     };
 
     let vec_of_instructions = generate_instructions_from_move_pair(
@@ -2070,8 +2070,8 @@ fn test_clangoroussoul_missing() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("clangoroussoul"),
-        String::from("splash"),
+        Choices::CLANGOROUSSOUL,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2089,8 +2089,8 @@ fn test_poltergeist_missing() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("poltergeist"),
-        String::from("splash"),
+        Choices::POLTERGEIST,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2110,8 +2110,8 @@ fn test_expert_belt_does_not_boost() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("drainpunch"),
-        String::from("splash"),
+        Choices::DRAINPUNCH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2131,8 +2131,8 @@ fn test_lifeorb_boost_and_recoil() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2159,8 +2159,8 @@ fn test_shellbell_drain() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2186,8 +2186,8 @@ fn test_absorbbulb() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        Choices::WATERGUN,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2220,8 +2220,8 @@ fn test_leafguard() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("spore"),
-        String::from("splash"),
+        Choices::SPORE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2238,8 +2238,8 @@ fn test_basic_levitate() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("earthquake"),
-        String::from("splash"),
+        Choices::EARTHQUAKE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2256,8 +2256,8 @@ fn test_lightning_rod() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("thundershock"),
-        String::from("splash"),
+        Choices::THUNDERSHOCK,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2278,8 +2278,8 @@ fn test_motor_drive() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("thundershock"),
-        String::from("splash"),
+        Choices::THUNDERSHOCK,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2301,8 +2301,8 @@ fn test_lightning_rod_versus_status_move() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("thunderwave"),
-        String::from("splash"),
+        Choices::THUNDERWAVE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2323,8 +2323,8 @@ fn test_liquidooze() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("absorb"),
-        String::from("splash"),
+        Choices::ABSORB,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2350,8 +2350,8 @@ fn test_magicbounce_with_side_condition() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("stealthrock"),
-        String::from("splash"),
+        Choices::STEALTHROCK,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2375,8 +2375,8 @@ fn test_magicbounce_with_side_condition_that_is_already_up() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("stealthrock"),
-        String::from("splash"),
+        Choices::STEALTHROCK,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2393,8 +2393,8 @@ fn test_magicbounce_with_status() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("willowisp"),
-        String::from("splash"),
+        Choices::WILLOWISP,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![
@@ -2429,8 +2429,8 @@ fn test_marvelscale() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2450,8 +2450,8 @@ fn test_multiscale() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2471,8 +2471,8 @@ fn test_overcoat_vs_powder_move() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("spore"),
-        String::from("splash"),
+        Choices::SPORE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2490,8 +2490,8 @@ fn test_overcoat_vs_weather_damage() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("splash"),
-        String::from("splash"),
+        Choices::SPLASH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2511,8 +2511,8 @@ fn test_poisonpoint() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![
@@ -2932,8 +2932,8 @@ fn test_ground_move_versus_airballoon() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("earthquake"),
-        String::from("splash"),
+        Choices::EARTHQUAKE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2950,8 +2950,8 @@ fn test_non_ground_move_versus_airballoon() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -2978,8 +2978,8 @@ fn test_assaultvest() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        Choices::WATERGUN,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3002,8 +3002,8 @@ fn test_weaknesspolicy() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        Choices::WATERGUN,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3044,8 +3044,8 @@ fn test_weaknesspolicy_does_not_overboost() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        Choices::WATERGUN,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3085,7 +3085,7 @@ fn test_switching_in_with_grassyseed_in_grassy_terrain() {
     state
         .side_one
         .get_active()
-        .replace_move(PokemonMoveIndex::M0, String::from("splash"));
+        .replace_move(PokemonMoveIndex::M0, Choices::SPLASH);
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
@@ -3127,7 +3127,7 @@ fn test_contrary_with_seed() {
     state
         .side_one
         .get_active()
-        .replace_move(PokemonMoveIndex::M0, String::from("splash"));
+        .replace_move(PokemonMoveIndex::M0, Choices::SPLASH);
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
@@ -3165,8 +3165,8 @@ fn test_contrary() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("swordsdance"),
-        String::from("splash"),
+        Choices::SWORDSDANCE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3187,8 +3187,8 @@ fn test_contrary_with_secondary() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("poweruppunch"),
-        String::from("splash"),
+        Choices::POWERUPPUNCH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3215,8 +3215,8 @@ fn test_shielddust_doesnt_stop_self_secondary() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("poweruppunch"),
-        String::from("splash"),
+        Choices::POWERUPPUNCH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3243,8 +3243,8 @@ fn test_stamina() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3271,8 +3271,8 @@ fn test_steamengine() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        Choices::WATERGUN,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3299,8 +3299,8 @@ fn test_stormdrain() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        Choices::WATERGUN,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3321,8 +3321,8 @@ fn test_shielddust_stops_secondary_against_opponent() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("thunderpunch"),
-        String::from("splash"),
+        Choices::THUNDERPUNCH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3342,8 +3342,8 @@ fn test_throatspray_with_move_that_can_miss() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("grasswhistle"),
-        String::from("splash"),
+        Choices::GRASSWHISTLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![
@@ -3383,8 +3383,8 @@ fn test_adaptability() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3404,8 +3404,8 @@ fn test_poisontouch_with_poisonjab() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("poisonjab"),
-        String::from("splash"),
+        Choices::POISONJAB,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![
@@ -3446,8 +3446,8 @@ fn test_serenegrace_with_secondary() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("poisonjab"),
-        String::from("splash"),
+        Choices::POISONJAB,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![
@@ -3488,8 +3488,8 @@ fn test_technician() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3509,8 +3509,8 @@ fn test_unseenfist() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("protect"),
+        Choices::TACKLE,
+        Choices::PROTECT,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3545,8 +3545,8 @@ fn test_ironbarbs() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3572,8 +3572,8 @@ fn test_rattled() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("feintattack"),
-        String::from("splash"),
+        Choices::FEINTATTACK,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3600,8 +3600,8 @@ fn test_taunt_into_aromaveil() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("taunt"),
-        String::from("splash"),
+        Choices::TAUNT,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3618,8 +3618,8 @@ fn test_explosion_into_damp() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("explosion"),
-        String::from("splash"),
+        Choices::EXPLOSION,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3637,8 +3637,8 @@ fn test_waterabsorb() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        Choices::WATERGUN,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3659,8 +3659,8 @@ fn test_voltabsorb() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("thundershock"),
-        String::from("splash"),
+        Choices::THUNDERSHOCK,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3680,8 +3680,8 @@ fn test_watercompaction() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        Choices::WATERGUN,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3708,8 +3708,8 @@ fn test_weakarmor() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3741,8 +3741,8 @@ fn test_wonderguard() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3759,8 +3759,8 @@ fn test_wonderguard_against_spore() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("spore"),
-        String::from("splash"),
+        Choices::SPORE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3782,8 +3782,8 @@ fn test_wonderguard_against_willowisp() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("willowisp"),
-        String::from("splash"),
+        Choices::WILLOWISP,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![
@@ -3817,8 +3817,8 @@ fn test_wonderskin_against_willowisp() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("willowisp"),
-        String::from("splash"),
+        Choices::WILLOWISP,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![
@@ -3853,8 +3853,8 @@ fn test_dryskin_does_not_overheal() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        Choices::WATERGUN,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3877,8 +3877,8 @@ fn test_dryskin_in_rain() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("splash"),
-        String::from("splash"),
+        Choices::SPLASH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3900,8 +3900,8 @@ fn test_hydration_end_of_turn() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("splash"),
-        String::from("splash"),
+        Choices::SPLASH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3930,8 +3930,8 @@ fn test_icebody_no_heal() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("splash"),
-        String::from("splash"),
+        Choices::SPLASH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3953,8 +3953,8 @@ fn test_icebody_heal() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("splash"),
-        String::from("splash"),
+        Choices::SPLASH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -3982,8 +3982,8 @@ fn test_raindish_heal() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("splash"),
-        String::from("splash"),
+        Choices::SPLASH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -4005,8 +4005,8 @@ fn test_solarpower_damage() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("splash"),
-        String::from("splash"),
+        Choices::SPLASH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -4027,8 +4027,8 @@ fn test_baddreams() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("splash"),
-        String::from("splash"),
+        Choices::SPLASH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![
@@ -4061,8 +4061,8 @@ fn test_baddreams_does_not_overkill() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("splash"),
-        String::from("splash"),
+        Choices::SPLASH,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![
@@ -4094,8 +4094,8 @@ fn test_filter() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        Choices::WATERGUN,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -4116,8 +4116,8 @@ fn test_prismarmor() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("watergun"),
-        String::from("splash"),
+        Choices::WATERGUN,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -4137,8 +4137,8 @@ fn test_effectspore() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("tackle"),
-        String::from("splash"),
+        Choices::TACKLE,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![
@@ -4210,8 +4210,8 @@ fn test_flashfire() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("ember"),
-        String::from("splash"),
+        Choices::EMBER,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -4233,8 +4233,8 @@ fn test_hypercutter() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("aurorabeam"),
-        String::from("splash"),
+        Choices::AURORABEAM,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -4255,8 +4255,8 @@ fn test_innerfocus() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        String::from("ironhead"),
-        String::from("splash"),
+        Choices::IRONHEAD,
+        Choices::SPLASH,
     );
 
     let expected_instructions = vec![StateInstructions {

@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 use std::cmp;
 
-use crate::choices::{Choice, Effect, MoveCategory, MoveTarget, Secondary, StatBoosts};
+use crate::choices::{Choice, Choices, Effect, MoveCategory, MoveTarget, Secondary, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::{get_boost_instruction, immune_to_status};
 use crate::instruction::{
@@ -67,7 +67,7 @@ pub enum Items {
 fn get_choice_move_disable_instructions(
     pkmn: &Pokemon,
     side_ref: &SideReference,
-    move_name: &String,
+    move_name: &Choices,
 ) -> Vec<Instruction> {
     let mut moves_to_disable = vec![];
     let mut iter = pkmn.moves.into_iter();
@@ -302,7 +302,7 @@ pub fn item_modify_attack_against(
         }
         Items::AirBalloon => {
             if attacking_choice.move_type == PokemonType::Ground
-                && attacking_choice.move_id != "thousandarrows"
+                && attacking_choice.move_id != Choices::THOUSANDARROWS
             {
                 attacking_choice.base_power = 0.0;
             } else {

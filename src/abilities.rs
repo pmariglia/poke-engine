@@ -2,7 +2,8 @@
 use std::cmp;
 
 use crate::choices::{
-    Boost, Choice, Effect, Heal, MoveCategory, MoveTarget, Secondary, StatBoosts, VolatileStatus,
+    Boost, Choice, Choices, Effect, Heal, MoveCategory, MoveTarget, Secondary, StatBoosts,
+    VolatileStatus,
 };
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::get_boost_instruction;
@@ -1349,7 +1350,7 @@ pub fn ability_modify_attack_against(
         Abilities::LEVITATE => {
             if attacker_choice.move_type == PokemonType::Ground
                 && attacker_choice.target == MoveTarget::Opponent
-                && attacker_choice.move_id != "thousandarrows"
+                && attacker_choice.move_id != Choices::THOUSANDARROWS
             {
                 attacker_choice.base_power = 0.0;
             }
@@ -1578,8 +1579,13 @@ pub fn ability_modify_attack_against(
             }
         }
         Abilities::DAMP => {
-            if ["selfdestruct", "explosion", "mindblown", "mistyexplosion"]
-                .contains(&attacker_choice.move_id.as_str())
+            if [
+                Choices::SELFDESTRUCT,
+                Choices::EXPLOSION,
+                Choices::MINDBLOWN,
+                Choices::MISTYEXPLOSION,
+            ]
+            .contains(&attacker_choice.move_id)
             {
                 attacker_choice.accuracy = 0.0;
                 attacker_choice.heal = None;
