@@ -271,6 +271,26 @@ pub fn modify_choice(
                 attacker_choice.remove_all_effects();
             }
         }
+        Choices::ELECTROBALL => {
+            let attacker_speed = attacking_side
+                .get_active_immutable()
+                .calculate_boosted_stat(PokemonBoostableStat::Speed);
+            let defender_speed = defending_side
+                .get_active_immutable()
+                .calculate_boosted_stat(PokemonBoostableStat::Speed);
+            let speed_ratio = attacker_speed as f32 / defender_speed as f32;
+            if speed_ratio >= 4.0 {
+                attacker_choice.base_power = 150.0;
+            } else if speed_ratio >= 3.0 {
+                attacker_choice.base_power = 120.0;
+            } else if speed_ratio >= 2.0 {
+                attacker_choice.base_power = 80.0;
+            } else if speed_ratio >= 1.0 {
+                attacker_choice.base_power = 60.0;
+            } else {
+                attacker_choice.base_power = 40.0;
+            }
+        }
         _ => {}
     }
 }
