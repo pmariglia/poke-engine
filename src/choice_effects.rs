@@ -671,7 +671,7 @@ pub fn choice_special_effect(
                 state.weather.turns_remaining = 5;
             }
         }
-        Choices::RAINDANCE => {
+        Choices::SANDSTORM => {
             if state.weather.weather_type != Weather::Sand {
                 instructions
                     .instruction_list
