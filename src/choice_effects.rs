@@ -27,7 +27,7 @@ pub fn modify_choice(
                 attacker.calculate_boosted_stat(PokemonBoostableStat::Defense) as f32
                     / attacker.calculate_boosted_stat(PokemonBoostableStat::Attack) as f32;
         }
-        Choices::BOLTBEAK => {
+        Choices::BOLTBEAK | Choices::FISHIOUSREND => {
             if attacker_choice.first_move {
                 attacker_choice.base_power *= 2.0;
             }
@@ -107,7 +107,7 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 1.5;
             }
         }
-        Choices::MORNINGSUN => match state.weather.weather_type {
+        Choices::MORNINGSUN | Choices::MOONLIGHT | Choices::SYNTHESIS => match state.weather.weather_type {
             Weather::Sun => {
                 attacker_choice.heal = Some(Heal {
                     target: MoveTarget::User,
@@ -253,7 +253,7 @@ pub fn modify_choice(
                 attacker_choice.accuracy = 100.0;
             }
         }
-        Choices::HURRICANE => {
+        Choices::HURRICANE | Choices::THUNDER => {
             if state.weather.weather_type == Weather::Rain
                 || state.weather.weather_type == Weather::HeavyRain
             {
@@ -323,7 +323,7 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 2.0;
             }
         }
-        Choices::PSYSHOCK => {
+        Choices::PSYSHOCK | Choices::SECRETSWORD | Choices::PSYSTRIKE => {
             let defender = defending_side.get_active_immutable();
             let defender_defense = defender.calculate_boosted_stat(PokemonBoostableStat::Defense);
             let defender_special_defense =
@@ -367,7 +367,7 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 4.0; // 2x for being super effective, 2x for nullifying water resistance
             }
         }
-        Choices::ERUPTION => {
+        Choices::ERUPTION | Choices::WATERSPOUT => {
             let attacker = attacking_side.get_active_immutable();
             let hp_ratio = attacker.hp as f32 / attacker.maxhp as f32;
             attacker_choice.base_power *= hp_ratio;
