@@ -2008,12 +2008,12 @@ fn test_solarbeam_not_in_sun() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+        instruction_list: vec![Instruction::ApplyVolatileStatus(
+            ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::SolarBeam,
-            }),
-        ],
+            },
+        )],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -2021,7 +2021,11 @@ fn test_solarbeam_not_in_sun() {
 #[test]
 fn test_solarbeam_with_active_volatile_status() {
     let mut state = State::default();
-    state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::SolarBeam);
+    state
+        .side_one
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::SolarBeam);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2059,12 +2063,10 @@ fn test_solarbeam_in_sun() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 94,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 94,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -2082,12 +2084,10 @@ fn test_focuspunch_after_getting_hit() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideOne,
-                damage_amount: 48,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 48,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -2105,12 +2105,10 @@ fn test_focuspunch_after_not_getting_hit() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 100,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 100,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

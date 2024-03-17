@@ -3,7 +3,10 @@ use crate::abilities::{
     ability_modify_attack_against, ability_modify_attack_being_used, ability_on_switch_in,
     ability_on_switch_out, Abilities,
 };
-use crate::choice_effects::{charge_choice_to_volatile, choice_after_damage_hit, choice_hazard_clear, choice_special_effect, modify_choice};
+use crate::choice_effects::{
+    charge_choice_to_volatile, choice_after_damage_hit, choice_hazard_clear, choice_special_effect,
+    modify_choice,
+};
 use crate::choices::{
     Boost, Choices, Effect, Heal, MoveTarget, Secondary, SideCondition, StatBoosts, Status,
     VolatileStatus,
@@ -871,7 +874,10 @@ fn update_choice(
     // Update Choice for `charge` moves
     if attacker_choice.flags.charge {
         let charge_volatile_status = charge_choice_to_volatile(&attacker_choice.move_id);
-        if !attacking_pokemon.volatile_statuses.contains(&charge_volatile_status) {
+        if !attacking_pokemon
+            .volatile_statuses
+            .contains(&charge_volatile_status)
+        {
             attacker_choice.remove_all_effects();
             attacker_choice.volatile_status = Some(VolatileStatus {
                 target: MoveTarget::User,
