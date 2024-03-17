@@ -1,6 +1,7 @@
 use crate::choices::{
     Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts, VolatileStatus,
 };
+use crate::damage_calc::type_effectiveness_modifier;
 use crate::instruction::{
     ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction,
     ChangeTerrain, DamageInstruction, Instruction, SetSubstituteHealthInstruction,
@@ -11,8 +12,6 @@ use crate::state::{
     PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus,
     SideReference, State, Terrain, Weather,
 };
-use std::cmp;
-use crate::damage_calc::type_effectiveness_modifier;
 
 pub fn modify_choice(
     state: &State,
@@ -380,7 +379,8 @@ pub fn modify_choice(
         }
         Choices::COLLISIONCOURSE => {
             let defender_active = defending_side.get_active_immutable();
-            if type_effectiveness_modifier(&attacker_choice.move_type, &defender_active.types) > 1.0 {
+            if type_effectiveness_modifier(&attacker_choice.move_type, &defender_active.types) > 1.0
+            {
                 attacker_choice.base_power *= 1.3;
             }
         }
