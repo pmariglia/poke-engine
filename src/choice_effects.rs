@@ -12,6 +12,7 @@ use crate::state::{
     SideReference, State, Terrain, Weather,
 };
 use std::cmp;
+use crate::damage_calc::type_effectiveness_modifier;
 
 pub fn modify_choice(
     state: &State,
@@ -375,6 +376,12 @@ pub fn modify_choice(
         Choices::SUCKERPUNCH => {
             if !attacker_choice.first_move || defender_choice.category == MoveCategory::Status {
                 attacker_choice.base_power = 0.0;
+            }
+        }
+        Choices::COLLISIONCOURSE => {
+            let defender_active = defending_side.get_active_immutable();
+            if type_effectiveness_modifier(&attacker_choice.move_type, &defender_active.types) > 1.0 {
+                attacker_choice.base_power *= 1.3;
             }
         }
         _ => {}
