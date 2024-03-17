@@ -2162,14 +2162,12 @@ fn test_sunnyday() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::ChangeWeather(ChangeWeather {
-                new_weather: Weather::Sun,
-                new_weather_turns_remaining: 5,
-                previous_weather: Weather::None,
-                previous_weather_turns_remaining: 0,
-            })
-        ],
+        instruction_list: vec![Instruction::ChangeWeather(ChangeWeather {
+            new_weather: Weather::Sun,
+            new_weather_turns_remaining: 5,
+            previous_weather: Weather::None,
+            previous_weather_turns_remaining: 0,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

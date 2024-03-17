@@ -2,7 +2,11 @@ use crate::choices::{
     Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts, VolatileStatus,
 };
 use crate::damage_calc::type_effectiveness_modifier;
-use crate::instruction::{ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, Instruction, SetSubstituteHealthInstruction, StateInstructions};
+use crate::instruction::{
+    ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction,
+    ChangeTerrain, ChangeWeather, DamageInstruction, Instruction, SetSubstituteHealthInstruction,
+    StateInstructions,
+};
 use crate::items::Items;
 use crate::state::{
     PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus,
@@ -103,21 +107,23 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 1.5;
             }
         }
-        Choices::MORNINGSUN | Choices::MOONLIGHT | Choices::SYNTHESIS => match state.weather.weather_type {
-            Weather::Sun => {
-                attacker_choice.heal = Some(Heal {
-                    target: MoveTarget::User,
-                    amount: 0.667,
-                })
+        Choices::MORNINGSUN | Choices::MOONLIGHT | Choices::SYNTHESIS => {
+            match state.weather.weather_type {
+                Weather::Sun => {
+                    attacker_choice.heal = Some(Heal {
+                        target: MoveTarget::User,
+                        amount: 0.667,
+                    })
+                }
+                Weather::None => {}
+                _ => {
+                    attacker_choice.heal = Some(Heal {
+                        target: MoveTarget::User,
+                        amount: 0.25,
+                    })
+                }
             }
-            Weather::None => {}
-            _ => {
-                attacker_choice.heal = Some(Heal {
-                    target: MoveTarget::User,
-                    amount: 0.25,
-                })
-            }
-        },
+        }
         Choices::NORETREAT => {
             if attacking_side
                 .get_active_immutable()
