@@ -614,7 +614,7 @@ pub fn choice_special_effect(
                 instructions.instruction_list.push(apply_vs_instruction);
             }
         }
-        Choices::TRICK => {
+        Choices::TRICK | Choices::SWITCHEROO => {
             let attacker = attacking_side.get_active();
             let defender = defending_side.get_active();
             let attacker_item = attacker.item;
