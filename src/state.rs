@@ -1,5 +1,5 @@
 use crate::abilities::Abilities;
-use crate::choices::{Choice, Choices, SideCondition, MOVES};
+use crate::choices::{Choice, Choices, MOVES};
 use core::panic;
 use std::collections::HashSet;
 use std::ops::{Index, IndexMut};

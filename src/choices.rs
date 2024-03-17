@@ -1,12 +1,5 @@
-use crate::instruction::ChangeSideConditionInstruction;
-use crate::instruction::DamageInstruction;
-use crate::instruction::Instruction;
-use crate::instruction::SetSubstituteHealthInstruction;
-use crate::instruction::{ApplyVolatileStatusInstruction, StateInstructions};
 use crate::state::PokemonType;
 use crate::state::PokemonVolatileStatus;
-use crate::state::SideReference;
-use crate::state::State;
 use crate::state::{PokemonBoostableStat, PokemonSideCondition};
 use crate::state::{PokemonIndex, PokemonStatus};
 use lazy_static::lazy_static;

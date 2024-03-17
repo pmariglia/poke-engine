@@ -1045,11 +1045,10 @@ pub fn generate_instructions_from_move(
         let volatile_status = charge_choice_to_volatile(&choice.move_id);
         if attacker.volatile_statuses.contains(&volatile_status) {
             choice.flags.charge = false;
-            let instruction =
-                Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
-                    side_ref: attacking_side,
-                    volatile_status: volatile_status,
-                });
+            let instruction = Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: attacking_side,
+                volatile_status: volatile_status,
+            });
             incoming_instructions.instruction_list.push(instruction);
             attacker.volatile_statuses.remove(&volatile_status);
         }
@@ -1405,8 +1404,10 @@ fn add_end_of_turn_instructions(
                 if active_pkmn.ability == Abilities::HEATPROOF {
                     damage_factor /= 2.0;
                 }
-                let mut damage_amount =
-                    cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
+                let damage_amount = cmp::min(
+                    (active_pkmn.maxhp as f32 * damage_factor) as i16,
+                    active_pkmn.hp,
+                );
                 let burn_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
                     damage_amount: damage_amount,

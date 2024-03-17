@@ -1,11 +1,9 @@
-use crate::choices::{
-    Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts, VolatileStatus,
-};
+use crate::choices::{Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::instruction::{
     ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction,
-    ChangeTerrain, ChangeWeather, DamageInstruction, Instruction, RemoveVolatileStatusInstruction,
-    SetSubstituteHealthInstruction, StateInstructions,
+    ChangeTerrain, ChangeWeather, DamageInstruction, Instruction, SetSubstituteHealthInstruction,
+    StateInstructions,
 };
 use crate::items::Items;
 use crate::state::{
