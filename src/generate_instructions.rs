@@ -1,4 +1,4 @@
-use crate::abilities::Abilities;
+use crate::abilities::{Abilities, ability_after_damage_hit, ability_before_move, ability_end_of_turn, ability_modify_attack_against, ability_modify_attack_being_used, ability_on_switch_in, ability_on_switch_out};
 use crate::choices::{
     Boost, Effect, Heal, MoveTarget, Secondary, SideCondition, StatBoosts, Status, VolatileStatus,
 };
@@ -12,7 +12,6 @@ use crate::state::{
     MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonType, Terrain,
 };
 use crate::{
-    abilities::ability_from_index,
     choices::{Choice, MoveCategory},
     damage_calc::{calculate_damage, type_effectiveness_modifier, DamageRolls},
     instruction::{
@@ -48,16 +47,7 @@ fn generate_instructions_from_switch(
         &mut incoming_instructions.instruction_list,
     );
 
-    if let Some(on_switch_out_fn) = ability_from_index(
-        &state
-            .get_side_immutable(&switching_side_ref)
-            .get_active_immutable()
-            .ability,
-    )
-    .on_switch_out
-    {
-        on_switch_out_fn(state, &switching_side_ref, incoming_instructions);
-    }
+    ability_on_switch_out(state, &switching_side_ref, incoming_instructions);
 
     let switch_instruction = Instruction::Switch(SwitchInstruction {
         side_ref: switching_side_ref,
@@ -166,13 +156,7 @@ fn generate_instructions_from_switch(
         }
     }
 
-    let switching_side = state.get_side_immutable(&switching_side_ref);
-    if let Some(on_switch_in_fn) =
-        ability_from_index(&switching_side.get_active_immutable().ability).on_switch_in
-    {
-        on_switch_in_fn(state, &switching_side_ref, incoming_instructions);
-    }
-
+    ability_on_switch_in(state, &switching_side_ref, incoming_instructions);
     item_on_switch_in(
         state,
         &switching_side_ref,
@@ -755,19 +739,13 @@ fn generate_instructions_from_damage(
                 .instruction_list
                 .push(damage_instruction);
 
-            let attacking_side = state.get_side_immutable(attacking_side_ref);
-            let attacking_pokemon = attacking_side.get_active_immutable();
-            if let Some(after_damage_hit_fn) =
-                ability_from_index(&attacking_pokemon.ability).after_damage_hit
-            {
-                after_damage_hit_fn(
-                    &mut state,
-                    &choice,
-                    attacking_side_ref,
-                    damage_dealt,
-                    &mut incoming_instructions,
-                );
-            };
+            ability_after_damage_hit(
+                &mut state,
+                choice,
+                attacking_side_ref,
+                damage_dealt,
+                &mut incoming_instructions,
+            );
         }
 
         let attacking_pokemon = state.get_side(attacking_side_ref).get_active();
@@ -865,14 +843,7 @@ fn before_move(
     attacking_side: &SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
-    let attacking_pokemon = state
-        .get_side_immutable(attacking_side)
-        .get_active_immutable();
-
-    if let Some(before_move_fn) = ability_from_index(&attacking_pokemon.ability).before_move {
-        before_move_fn(state, choice, attacking_side, incoming_instructions);
-    };
-
+    ability_before_move(state, choice, attacking_side, incoming_instructions);
     item_before_move(state, choice, attacking_side, incoming_instructions);
 }
 
@@ -894,17 +865,8 @@ fn update_choice(
         None => {}
     }
 
-    if let Some(modify_move_fn) =
-        ability_from_index(&attacking_pokemon.ability).modify_attack_being_used
-    {
-        modify_move_fn(state, attacker_choice, defender_choice, attacking_side)
-    };
-
-    if let Some(modify_move_fn) =
-        ability_from_index(&defending_pokemon.ability).modify_attack_against
-    {
-        modify_move_fn(state, attacker_choice, defender_choice, attacking_side)
-    };
+    ability_modify_attack_being_used(state, attacker_choice, defender_choice, attacking_side);
+    ability_modify_attack_against(state, attacker_choice, defender_choice, attacking_side);
 
     item_modify_attack_being_used(state, attacker_choice, attacking_side);
     item_modify_attack_against(state, attacker_choice, attacking_side);
@@ -1493,12 +1455,8 @@ fn add_end_of_turn_instructions(
         }
 
         item_end_of_turn(state, side_ref, &mut incoming_instructions);
+        ability_end_of_turn(state, side_ref, &mut incoming_instructions);
 
-        let side = state.get_side_immutable(side_ref);
-        let active_pkmn = side.get_active_immutable();
-        if let Some(end_of_turn_fn) = ability_from_index(&active_pkmn.ability).end_of_turn {
-            end_of_turn_fn(state, side_ref, &mut incoming_instructions);
-        }
     }
 
     // leechseed sap

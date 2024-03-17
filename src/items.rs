@@ -1,8 +1,6 @@
 #![allow(unused_variables)]
 use std::cmp;
 
-use lazy_static::lazy_static;
-
 use crate::choices::{Choice, Effect, MoveCategory, MoveTarget, Secondary, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::{get_boost_instruction, immune_to_status};
