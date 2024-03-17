@@ -367,6 +367,11 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 4.0; // 2x for being super effective, 2x for nullifying water resistance
             }
         }
+        Choices::ERUPTION => {
+            let attacker = attacking_side.get_active_immutable();
+            let hp_ratio = attacker.hp as f32 / attacker.maxhp as f32;
+            attacker_choice.base_power *= hp_ratio;
+        }
         _ => {}
     }
 }
