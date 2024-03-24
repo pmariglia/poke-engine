@@ -63,6 +63,7 @@ pub enum Instruction {
     SetSubstituteHealth(SetSubstituteHealthInstruction),
     SetSideOneMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
+    ToggleTrickRoom,
     ToggleSideOneSwitchOutMove,
     ToggleSideTwoSwitchOutMove,
 }

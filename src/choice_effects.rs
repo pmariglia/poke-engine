@@ -563,6 +563,10 @@ pub fn choice_special_effect(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
     match choice.move_id {
+        Choices::TRICKROOM => {
+            state.trick_room = !state.trick_room;
+            instructions.instruction_list.push(Instruction::ToggleTrickRoom);
+        }
         Choices::PAINSPLIT => {
             let target_hp = (attacking_side.get_active_immutable().hp
                 + defending_side.get_active_immutable().hp)

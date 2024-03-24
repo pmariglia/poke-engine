@@ -1342,6 +1342,10 @@ impl State {
         self.get_side(side_reference).get_active().substitute_health = amount;
     }
 
+    fn toggle_trickroom(&mut self) {
+        self.trick_room = !self.trick_room;
+    }
+
     pub fn apply_instructions(&mut self, instructions: &Vec<Instruction>) {
         for i in instructions {
             self.apply_one_instruction(i)
@@ -1412,6 +1416,7 @@ impl State {
             Instruction::SetSubstituteHealth(instruction) => {
                 self.set_substitute_health(&instruction.side_ref, instruction.new_health);
             }
+            Instruction::ToggleTrickRoom => self.toggle_trickroom(),
             Instruction::ToggleSideOneSwitchOutMove => self.side_one.toggle_switch_out_move(),
             Instruction::ToggleSideTwoSwitchOutMove => self.side_two.toggle_switch_out_move(),
             Instruction::SetSideOneMoveSecondSwitchOutMove(instruction) => {
@@ -1491,6 +1496,7 @@ impl State {
             Instruction::SetSubstituteHealth(instruction) => {
                 self.set_substitute_health(&instruction.side_ref, instruction.old_health);
             }
+            Instruction::ToggleTrickRoom => self.toggle_trickroom(),
             Instruction::ToggleSideOneSwitchOutMove => self.side_one.toggle_switch_out_move(),
             Instruction::ToggleSideTwoSwitchOutMove => self.side_two.toggle_switch_out_move(),
             Instruction::SetSideOneMoveSecondSwitchOutMove(instruction) => {
