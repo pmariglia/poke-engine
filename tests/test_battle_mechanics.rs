@@ -1693,6 +1693,36 @@ fn test_faster_uturn() {
 }
 
 #[test]
+fn test_faster_uturn_knocking_out_opponent() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state.side_two.get_active().speed = 100;
+    state.side_two.get_active().hp = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::UTURN,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 1,
+            }),
+            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
+                new_choice: Choices::TACKLE,
+                previous_choice: Choices::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_faster_uturn_with_opponent_move() {
     let mut state = State::default();
     state.side_one.get_active().speed = 150;
@@ -1847,15 +1877,16 @@ fn test_switch_out_move_does_not_trigger_if_voltswitch_missed() {
 }
 
 #[test]
-fn test_switch_out_move_flag_is_unset_after_next_move() {
+fn test_switchout_flag_where_faster_switchout_move_knocked_out_opponent() {
     let mut state = State::default();
     state.side_one.switch_out_move_triggered = true;
     state.side_two.switch_out_move_second_saved_move = Choices::TACKLE;
+    state.side_two.get_active().hp = 0;
     state.side_two.get_active().moves[PokemonMoveIndex::M0] = Move {
         id: Choices::TACKLE,
         disabled: false,
         pp: 35,
-        ..Default::default()
+        choice: MOVES.get(&Choices::TACKLE).unwrap().clone(),
     };
 
     let vec_of_instructions = generate_instructions_from_move_pair(
@@ -1872,6 +1903,69 @@ fn test_switch_out_move_flag_is_unset_after_next_move() {
                 side_ref: SideReference::SideOne,
                 previous_index: PokemonIndex::P0,
                 next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_switchout_flag_where_slower_switchout_move_knocked_out_opponent() {
+    let mut state = State::default();
+    state.side_one.switch_out_move_triggered = true;
+    state.side_two.switch_out_move_second_saved_move = Choices::NONE;
+    state.side_two.get_active().hp = 0;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_switch_out_move_flag_is_unset_after_next_move() {
+    let mut state = State::default();
+    state.side_one.switch_out_move_triggered = true;
+    state.side_two.switch_out_move_second_saved_move = Choices::TACKLE;
+    state.side_two.get_active().moves[PokemonMoveIndex::M0] = Move {
+        id: Choices::TACKLE,
+        disabled: false,
+        pp: 35,
+        choice: MOVES.get(&Choices::TACKLE).unwrap().clone(),
+    };
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
             }),
         ],
     }];
