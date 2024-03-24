@@ -8,8 +8,8 @@ use crate::choice_effects::{
     modify_choice,
 };
 use crate::choices::{
-    Boost, Choices, Effect, Heal, MoveTarget, Secondary, SideCondition, StatBoosts, Status,
-    VolatileStatus,
+    Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, SideCondition, StatBoosts,
+    Status, VolatileStatus,
 };
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
@@ -329,6 +329,7 @@ fn get_instructions_from_status_effects(
     status: &Status,
     attacking_side_reference: &SideReference,
     incoming_instructions: &mut StateInstructions,
+    hit_sub: bool
 ) {
     let target_side_ref: SideReference;
     match status.target {
@@ -336,7 +337,7 @@ fn get_instructions_from_status_effects(
         MoveTarget::User => target_side_ref = *attacking_side_reference,
     }
 
-    if immune_to_status(state, &status.target, &target_side_ref, &status.status) {
+    if hit_sub || immune_to_status(state, &status.target, &target_side_ref, &status.status) {
         return;
     }
 
@@ -436,6 +437,7 @@ fn get_instructions_from_secondaries(
     secondaries: &Vec<Secondary>,
     side_reference: &SideReference,
     incoming_instructions: StateInstructions,
+    hit_sub: bool,
 ) -> Vec<StateInstructions> {
     let mut return_instruction_list = Vec::with_capacity(16);
     return_instruction_list.push(incoming_instructions);
@@ -491,6 +493,7 @@ fn get_instructions_from_secondaries(
                             },
                             side_reference,
                             &mut secondary_hit_instructions,
+                            hit_sub,
                         );
                     }
                     Effect::Heal(heal_amount) => {
@@ -671,12 +674,13 @@ fn generate_instructions_from_damage(
     calculated_damage: i16,
     attacking_side_ref: &SideReference,
     mut incoming_instructions: &mut StateInstructions,
-) {
+) -> bool {
     /*
     TODO:
         - arbitrary other after_move as well from the old engine (triggers on hit OR miss)
             - dig/dive/bounce/fly volatilestatus
     */
+    let mut hit_sub = false;
     let attacking_side = state.get_side(attacking_side_ref);
     let attacking_pokemon = attacking_side.get_active();
 
@@ -693,7 +697,7 @@ fn generate_instructions_from_damage(
                 .instruction_list
                 .push(crash_instruction);
         }
-        return;
+        return hit_sub;
     }
 
     let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
@@ -719,6 +723,24 @@ fn generate_instructions_from_damage(
             incoming_instructions
                 .instruction_list
                 .push(substitute_instruction);
+
+            if defending_pokemon
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::Substitute)
+                && defending_pokemon.substitute_health == 0
+            {
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::RemoveVolatileStatus(
+                        RemoveVolatileStatusInstruction {
+                            side_ref: attacking_side_ref.get_other_side(),
+                            volatile_status: PokemonVolatileStatus::Substitute,
+                        },
+                    ));
+                defending_pokemon.volatile_statuses.remove(&PokemonVolatileStatus::Substitute);
+            }
+
+            hit_sub = true;
         } else {
             damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
             if defending_pokemon.ability == Abilities::STURDY
@@ -782,6 +804,7 @@ fn generate_instructions_from_damage(
             &mut incoming_instructions,
         );
     }
+    return hit_sub;
 }
 
 fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideReference) -> bool {
@@ -1081,47 +1104,74 @@ pub fn generate_instructions_from_move(
         &mut incoming_instructions,
         &mut final_instructions,
     );
-    if let Some(damages_dealt) = damage {
-        generate_instructions_from_damage(
-            state,
-            &choice,
-            damages_dealt,
-            &attacking_side,
-            &mut incoming_instructions,
-        );
+
+    // start multi-hit
+    let hit_count;
+    match choice.multi_hit() {
+        MultiHitMove::None => {
+            hit_count = 1;
+        }
+        MultiHitMove::DoubleHit => {
+            hit_count = 2;
+        }
+        MultiHitMove::TripleHit => {
+            hit_count = 3;
+        }
+        MultiHitMove::TwoToFiveHits => {
+            hit_count = 3; // too lazy to implement branching here. Average is 3.2 so this is a fine approximation
+        }
     }
-    if let Some(side_condition) = &choice.side_condition {
-        generate_instructions_from_side_conditions(
-            state,
-            side_condition,
-            &attacking_side,
-            &mut incoming_instructions,
-        );
-    }
-    choice_hazard_clear(state, &choice, &attacking_side, &mut incoming_instructions);
-    if let Some(volatile_status) = &choice.volatile_status {
-        get_instructions_from_volatile_statuses(
-            state,
-            &choice,
-            volatile_status,
-            &attacking_side,
-            &mut incoming_instructions,
-        );
-    }
-    if let Some(status) = &choice.status {
-        get_instructions_from_status_effects(
-            state,
-            status,
-            &attacking_side,
-            &mut incoming_instructions,
-        );
-    }
+    let mut hit_sub: bool = false;
+    for _ in 0..hit_count {
+        if let Some(damages_dealt) = damage {
+            hit_sub = generate_instructions_from_damage(
+                state,
+                &choice,
+                damages_dealt,
+                &attacking_side,
+                &mut incoming_instructions,
+            );
+        }
+        if let Some(side_condition) = &choice.side_condition {
+            generate_instructions_from_side_conditions(
+                state,
+                side_condition,
+                &attacking_side,
+                &mut incoming_instructions,
+            );
+        }
+        choice_hazard_clear(state, &choice, &attacking_side, &mut incoming_instructions);
+        if let Some(volatile_status) = &choice.volatile_status {
+            get_instructions_from_volatile_statuses(
+                state,
+                &choice,
+                volatile_status,
+                &attacking_side,
+                &mut incoming_instructions,
+            );
+        }
+        if let Some(status) = &choice.status {
+            get_instructions_from_status_effects(
+                state,
+                status,
+                &attacking_side,
+                &mut incoming_instructions,
+                hit_sub,
+            );
+        }
+        if let Some(heal) = &choice.heal {
+            get_instructions_from_heal(state, heal, &attacking_side, &mut incoming_instructions);
+        }
+    } // end multi-hit
+    // this is wrong, but I am deciding it is good enough for this engine (for now)
+    // each multi-hit move should trigger a chance for a secondary effect,
+    // but the way this engine was structured makes it difficult to implement
+    // without some performance hits.
+
     if let Some(boost) = &choice.boost {
         get_instructions_from_boosts(state, boost, &attacking_side, &mut incoming_instructions);
     }
-    if let Some(heal) = &choice.heal {
-        get_instructions_from_heal(state, heal, &attacking_side, &mut incoming_instructions);
-    }
+
     if choice.flags.drag {
         get_instructions_from_drag(
             state,
@@ -1141,50 +1191,10 @@ pub fn generate_instructions_from_move(
             secondaries_vec,
             &attacking_side,
             incoming_instructions,
+            hit_sub
         );
-
-        for mut instruction in instructions_vec_after_secondaries {
-            state.apply_instructions(&instruction.instruction_list);
-
-            let defending_pokemon = state
-                .get_side_immutable(&attacking_side.get_other_side())
-                .get_active_immutable();
-            if defending_pokemon
-                .volatile_statuses
-                .contains(&PokemonVolatileStatus::Substitute)
-                && defending_pokemon.substitute_health == 0
-            {
-                instruction
-                    .instruction_list
-                    .push(Instruction::RemoveVolatileStatus(
-                        RemoveVolatileStatusInstruction {
-                            side_ref: attacking_side.get_other_side(),
-                            volatile_status: PokemonVolatileStatus::Substitute,
-                        },
-                    ))
-            }
-            state.reverse_instructions(&instruction.instruction_list);
-            final_instructions.push(instruction);
-        }
+        final_instructions.extend(instructions_vec_after_secondaries);
     } else {
-        let defending_pokemon = state
-            .get_side_immutable(&attacking_side.get_other_side())
-            .get_active_immutable();
-        if defending_pokemon
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::Substitute)
-            && defending_pokemon.substitute_health == 0
-        {
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::RemoveVolatileStatus(
-                    RemoveVolatileStatusInstruction {
-                        side_ref: attacking_side.get_other_side(),
-                        volatile_status: PokemonVolatileStatus::Substitute,
-                    },
-                ))
-        }
-
         state.reverse_instructions(&incoming_instructions.instruction_list);
         final_instructions.push(incoming_instructions);
     }

@@ -11871,6 +11871,17 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                boost: Some(Boost {
+                    target: MoveTarget::User,
+                    boosts: StatBoosts {
+                        attack: 0,
+                        defense: -1,
+                        special_attack: 0,
+                        special_defense: 0,
+                        speed: 1,
+                        accuracy: 0,
+                    },
+                }),
                 ..Default::default()
             },
         );
@@ -16247,6 +16258,19 @@ pub enum Effect {
     RemoveItem,
 }
 
+pub enum MultiHitMove {
+    None,
+    DoubleHit,
+    TripleHit,
+    TwoToFiveHits,
+}
+
+pub enum MultiAccuracyMove {
+    None,
+    TripleHit,
+    TenHits,
+}
+
 #[derive(Eq, PartialEq, Debug, Hash, Copy, Clone)]
 pub enum Choices {
     NONE,
@@ -17154,6 +17178,47 @@ impl fmt::Debug for Choice {
 }
 
 impl Choice {
+    pub fn multi_accuracy(&self) -> MultiAccuracyMove {
+        match self.move_id {
+            Choices::TRIPLEAXEL => MultiAccuracyMove::TripleHit,
+            Choices::TRIPLEKICK => MultiAccuracyMove::TripleHit,
+            Choices::POPULATIONBOMB => MultiAccuracyMove::TenHits,
+            _ => MultiAccuracyMove::None,
+        }
+    }
+    pub fn multi_hit(&self) -> MultiHitMove {
+        match self.move_id {
+            Choices::ARMTHRUST => MultiHitMove::TwoToFiveHits,
+            Choices::BARRAGE => MultiHitMove::TwoToFiveHits,
+            Choices::BONEMERANG => MultiHitMove::DoubleHit,
+            Choices::BONERUSH => MultiHitMove::TwoToFiveHits,
+            Choices::BULLETSEED => MultiHitMove::TwoToFiveHits,
+            Choices::COMETPUNCH => MultiHitMove::TwoToFiveHits,
+            Choices::DOUBLEHIT => MultiHitMove::DoubleHit,
+            Choices::DOUBLEIRONBASH => MultiHitMove::DoubleHit,
+            Choices::DOUBLEKICK => MultiHitMove::DoubleHit,
+            Choices::DOUBLESLAP => MultiHitMove::TwoToFiveHits,
+            Choices::DRAGONDARTS => MultiHitMove::DoubleHit,
+            Choices::DUALCHOP => MultiHitMove::DoubleHit,
+            Choices::DUALWINGBEAT => MultiHitMove::DoubleHit,
+            Choices::FURYATTACK => MultiHitMove::TwoToFiveHits,
+            Choices::FURYSWIPES => MultiHitMove::TwoToFiveHits,
+            Choices::GEARGRIND => MultiHitMove::DoubleHit,
+            Choices::ICICLESPEAR => MultiHitMove::TwoToFiveHits,
+            Choices::PINMISSILE => MultiHitMove::TwoToFiveHits,
+            Choices::ROCKBLAST => MultiHitMove::TwoToFiveHits,
+            Choices::SCALESHOT => MultiHitMove::TwoToFiveHits,
+            Choices::SPIKECANNON => MultiHitMove::TwoToFiveHits,
+            Choices::SURGINGSTRIKES => MultiHitMove::TripleHit,
+            Choices::TAILSLAP => MultiHitMove::TwoToFiveHits,
+            Choices::TRIPLEDIVE => MultiHitMove::TripleHit,
+            Choices::TWINBEAM => MultiHitMove::DoubleHit,
+            Choices::TWINEEDLE => MultiHitMove::DoubleHit,
+            Choices::WATERSHURIKEN => MultiHitMove::TwoToFiveHits,
+            _ => MultiHitMove::None,
+        }
+    }
+
     pub fn add_or_create_secondaries(&mut self, secondary: Secondary) {
         if let Some(secondaries) = &mut self.secondaries {
             secondaries.push(secondary);

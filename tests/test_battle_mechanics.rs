@@ -1,5 +1,6 @@
 use poke_engine::abilities::Abilities;
 use poke_engine::choices::{Choices, Heal, MOVES};
+use poke_engine::choices::Effect::Boost;
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
@@ -984,14 +985,14 @@ fn test_secondary_on_self_works_against_substitute() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 25,
             }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::Substitute,
+            }),
             Instruction::Boost(BoostInstruction {
                 side_ref: SideReference::SideTwo,
                 stat: PokemonBoostableStat::Attack,
                 amount: 1,
-            }),
-            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
-                side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Substitute,
             }),
         ],
     }];
@@ -1829,6 +1830,10 @@ fn test_filletaway() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: -50,
+            }),
             Instruction::Boost(BoostInstruction {
                 side_ref: SideReference::SideOne,
                 stat: PokemonBoostableStat::Attack,
@@ -1843,10 +1848,6 @@ fn test_filletaway() {
                 side_ref: SideReference::SideOne,
                 stat: PokemonBoostableStat::Speed,
                 amount: 2,
-            }),
-            Instruction::Heal(HealInstruction {
-                side_ref: SideReference::SideOne,
-                heal_amount: -50,
             }),
         ],
     }];
@@ -1884,6 +1885,10 @@ fn test_clangoroussoul() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: -33,
+            }),
             Instruction::Boost(BoostInstruction {
                 side_ref: SideReference::SideOne,
                 stat: PokemonBoostableStat::Attack,
@@ -1908,10 +1913,6 @@ fn test_clangoroussoul() {
                 side_ref: SideReference::SideOne,
                 stat: PokemonBoostableStat::Speed,
                 amount: 1,
-            }),
-            Instruction::Heal(HealInstruction {
-                side_ref: SideReference::SideOne,
-                heal_amount: -33,
             }),
         ],
     }];
@@ -1982,14 +1983,14 @@ fn test_strengthsap() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 100,
+            }),
             Instruction::Boost(BoostInstruction {
                 side_ref: SideReference::SideTwo,
                 stat: PokemonBoostableStat::Attack,
                 amount: -1,
-            }),
-            Instruction::Heal(HealInstruction {
-                side_ref: SideReference::SideOne,
-                heal_amount: 100,
             }),
         ],
     }];
@@ -2394,6 +2395,194 @@ fn test_expert_belt_does_not_boost() {
             damage_amount: 60,
         })],
     }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_basic_multi_hit_move() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DRAGONDARTS,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 40,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 40,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_multi_hit_move_where_first_hit_breaks_substitute() {
+    let mut state = State::default();
+    state.side_two.get_active().substitute_health = 10;
+    state
+        .side_two
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::Substitute);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DRAGONDARTS,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DamageSubstitute(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 10,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Substitute,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 40,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_contact_multi_hit_move_versus_rockyhelmet() {
+    let mut state = State::default();
+    state.side_two.get_active().item = Items::RockyHelmet;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SURGINGSTRIKES,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 21,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 21,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 21,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: -16,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_triple_multihit_move_versus_substitute_and_rockyhelmet() {
+    let mut state = State::default();
+    state.side_two.get_active().item = Items::RockyHelmet;
+    state.side_two.get_active().substitute_health = 25;
+    state
+        .side_two
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::Substitute);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SURGINGSTRIKES,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DamageSubstitute(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 21,
+            }),
+            Instruction::DamageSubstitute(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 4,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Substitute,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 21,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: -16,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_scaleshot_only_boosts_once() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SCALESHOT,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 10.000002,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 90.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 21,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 21,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 21,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Defense,
+                    amount: -1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: 1,
+                }),
+            ],
+        },
+    ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
