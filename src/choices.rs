@@ -17178,6 +17178,19 @@ impl fmt::Debug for Choice {
 }
 
 impl Choice {
+    pub fn switch_out_move(&self) -> bool {
+        match self.move_id {
+            Choices::UTURN
+            | Choices::PARTINGSHOT
+            | Choices::FLIPTURN
+            | Choices::VOLTSWITCH
+            | Choices::TELEPORT
+            | Choices::CHILLYRECEPTION
+            | Choices::BATONPASS => true,
+            _ => false,
+        }
+    }
+
     pub fn multi_accuracy(&self) -> MultiAccuracyMove {
         match self.move_id {
             Choices::TRIPLEAXEL => MultiAccuracyMove::TripleHit,

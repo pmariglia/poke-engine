@@ -1,3 +1,4 @@
+use crate::choices::Choices;
 use crate::items::Items;
 use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
@@ -60,6 +61,16 @@ pub enum Instruction {
     DecrementWish(DecrementWishInstruction),
     DamageSubstitute(DamageInstruction),
     SetSubstituteHealth(SetSubstituteHealthInstruction),
+    SetSideOneMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
+    SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
+    ToggleSideOneSwitchOutMove,
+    ToggleSideTwoSwitchOutMove,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct SetSecondMoveSwitchOutMoveInstruction {
+    pub new_choice: Choices,
+    pub previous_choice: Choices,
 }
 
 #[derive(Debug, PartialEq, Clone)]

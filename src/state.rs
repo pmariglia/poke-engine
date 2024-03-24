@@ -29,7 +29,7 @@ fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
     };
 }
 
-#[derive(PartialEq, Eq, Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum MoveChoice {
     Move(PokemonMoveIndex),
     Switch(PokemonIndex),
@@ -483,6 +483,15 @@ impl Pokemon {
         }
     }
 
+    pub fn add_move_from_choice(&self, vec: &mut Vec<MoveChoice>, choice: Choices) {
+        let mut iter = self.moves.into_iter();
+        while let Some(p) = iter.next() {
+            if p.id == choice {
+                vec.push(MoveChoice::Move(iter.pokemon_move_index));
+            }
+        }
+    }
+
     pub fn get_pkmn_boost_enum_pairs(&self) -> [(PokemonBoostableStat, i8); 7] {
         return [
             (PokemonBoostableStat::Attack, self.attack_boost),
@@ -754,9 +763,14 @@ pub struct Side {
     pub pokemon: SidePokemon,
     pub side_conditions: SideConditions,
     pub wish: (i8, i16),
+    pub switch_out_move_triggered: bool,
+    pub switch_out_move_second_saved_move: Choices,
 }
 
 impl Side {
+    fn toggle_switch_out_move(&mut self) {
+        self.switch_out_move_triggered = !self.switch_out_move_triggered;
+    }
     pub fn add_switches(&self, vec: &mut Vec<MoveChoice>) {
         let mut iter = self.pokemon.into_iter();
         while let Some(p) = iter.next() {
@@ -874,6 +888,8 @@ impl Default for Side {
                 ..Default::default()
             },
             wish: (0, 0),
+            switch_out_move_triggered: false,
+            switch_out_move_second_saved_move: Choices::NONE,
         }
     }
 }
@@ -922,6 +938,32 @@ impl State {
     pub fn get_all_options(&self) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
         let mut side_one_options: Vec<MoveChoice> = Vec::with_capacity(9);
         let mut side_two_options: Vec<MoveChoice> = Vec::with_capacity(9);
+
+        if self.side_one.switch_out_move_triggered {
+            self.side_one.add_switches(&mut side_one_options);
+            if self.side_two.switch_out_move_second_saved_move == Choices::NONE {
+                side_two_options.push(MoveChoice::None);
+            } else {
+                self.side_two.get_active_immutable().add_move_from_choice(
+                    &mut side_two_options,
+                    self.side_two.switch_out_move_second_saved_move,
+                );
+            }
+            return (side_one_options, side_two_options);
+        }
+
+        if self.side_two.switch_out_move_triggered {
+            self.side_two.add_switches(&mut side_two_options);
+            if self.side_one.switch_out_move_second_saved_move == Choices::NONE {
+                side_one_options.push(MoveChoice::None);
+            } else {
+                self.side_one.get_active_immutable().add_move_from_choice(
+                    &mut side_one_options,
+                    self.side_one.switch_out_move_second_saved_move,
+                );
+            }
+            return (side_one_options, side_two_options);
+        }
 
         let side_one_force_switch = self.side_one.get_active_immutable().hp <= 0;
         let side_two_force_switch = self.side_two.get_active_immutable().hp <= 0;
@@ -1370,6 +1412,14 @@ impl State {
             Instruction::SetSubstituteHealth(instruction) => {
                 self.set_substitute_health(&instruction.side_ref, instruction.new_health);
             }
+            Instruction::ToggleSideOneSwitchOutMove => self.side_one.toggle_switch_out_move(),
+            Instruction::ToggleSideTwoSwitchOutMove => self.side_two.toggle_switch_out_move(),
+            Instruction::SetSideOneMoveSecondSwitchOutMove(instruction) => {
+                self.side_one.switch_out_move_second_saved_move = instruction.new_choice;
+            }
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(instruction) => {
+                self.side_two.switch_out_move_second_saved_move = instruction.new_choice;
+            }
         }
     }
 
@@ -1440,6 +1490,14 @@ impl State {
             }
             Instruction::SetSubstituteHealth(instruction) => {
                 self.set_substitute_health(&instruction.side_ref, instruction.old_health);
+            }
+            Instruction::ToggleSideOneSwitchOutMove => self.side_one.toggle_switch_out_move(),
+            Instruction::ToggleSideTwoSwitchOutMove => self.side_two.toggle_switch_out_move(),
+            Instruction::SetSideOneMoveSecondSwitchOutMove(instruction) => {
+                self.side_one.switch_out_move_second_saved_move = instruction.previous_choice;
+            }
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(instruction) => {
+                self.side_two.switch_out_move_second_saved_move = instruction.previous_choice;
             }
         }
     }

@@ -1,19 +1,15 @@
 use poke_engine::abilities::Abilities;
-use poke_engine::choices::Effect::Boost;
-use poke_engine::choices::{Choices, Heal, MOVES};
+use poke_engine::choices::{Choices, MOVES};
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather,
     DamageInstruction, DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction,
-    RemoveVolatileStatusInstruction, SetSubstituteHealthInstruction, StateInstructions,
-    SwitchInstruction,
+    RemoveVolatileStatusInstruction, SetSecondMoveSwitchOutMoveInstruction,
+    SetSubstituteHealthInstruction, StateInstructions, SwitchInstruction,
 };
 use poke_engine::items::Items;
-use poke_engine::state::{
-    Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
-    PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather,
-};
+use poke_engine::state::{Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, StateWeather, Terrain, Weather};
 
 fn set_moves_on_pkmn_and_call_generate_instructions(
     state: &mut State,
@@ -1665,6 +1661,357 @@ fn test_growth_in_sun() {
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_faster_uturn() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state.side_two.get_active().speed = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::UTURN,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 55,
+            }),
+            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
+                new_choice: Choices::SPLASH,
+                previous_choice: Choices::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_faster_uturn_with_opponent_move() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state.side_two.get_active().speed = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::UTURN,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 55,
+            }),
+            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
+                new_choice: Choices::TACKLE,
+                previous_choice: Choices::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_slower_uturn_with_opponent_move() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 100;
+    state.side_two.get_active().speed = 150;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::UTURN,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 55,
+            }),
+            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
+                new_choice: Choices::NONE,
+                previous_choice: Choices::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_switch_out_move_does_not_trigger_end_of_turn() {
+    let mut state = State::default();
+    state.weather.weather_type = Weather::Sand; // would normally cause damage to both sides
+    state.weather.turns_remaining = 5;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::UTURN,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 55,
+            }),
+            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
+                new_choice: Choices::NONE,
+                previous_choice: Choices::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_switch_out_move_does_not_trigger_if_user_is_last_alive_pkmn() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state.side_two.get_active().speed = 100;
+
+    state.side_one.pokemon[PokemonIndex::P1].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P2].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P3].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P4].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P5].hp = 0;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::UTURN,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 55,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_switch_out_move_does_not_trigger_if_voltswitch_missed() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state.side_two.get_active().speed = 100;
+    state.side_two.get_active().types.1 = PokemonType::Ground;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::VOLTSWITCH,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_switch_out_move_flag_is_unset_after_next_move() {
+    let mut state = State::default();
+    state.side_one.switch_out_move_triggered = true;
+    state.side_two.switch_out_move_second_saved_move = Choices::TACKLE;
+    state.side_two.get_active().moves[PokemonMoveIndex::M0] = Move {
+        id: Choices::TACKLE,
+        disabled: false,
+        pp: 35,
+        ..Default::default()
+    };
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_end_of_turn_triggered_when_switchout_flag_is_removed() {
+    let mut state = State::default();
+    state.weather = StateWeather {
+        weather_type: Weather::Sand,
+        turns_remaining: 5,
+    };
+    state.side_one.switch_out_move_triggered = true;
+    state.side_two.switch_out_move_second_saved_move = Choices::TACKLE;
+    state.side_two.get_active().moves[PokemonMoveIndex::M0] = Move {
+        id: Choices::TACKLE,
+        disabled: false,
+        pp: 35,
+        choice: MOVES.get(&Choices::TACKLE).unwrap().clone(),
+    };
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_end_of_turn_triggered_when_switchout_flag_is_removed_and_other_side_did_nothing() {
+    let mut state = State::default();
+    state.weather = StateWeather {
+        weather_type: Weather::Sand,
+        turns_remaining: 5,
+    };
+    state.side_one.switch_out_move_triggered = true;
+    state.side_two.switch_out_move_second_saved_move = Choices::NONE;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_turn_after_switch_out_move_other_side_does_nothing() {
+    let mut state = State::default();
+    state.side_one.switch_out_move_triggered = true;
+    state.side_two.switch_out_move_second_saved_move = Choices::NONE;
+
+    let (side_one_moves, side_two_moves) = state.get_all_options();
+
+    assert_eq!(
+        vec![
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_one_moves
+    );
+
+    assert_eq!(vec![MoveChoice::None], side_two_moves);
+}
+
+#[test]
+fn test_turn_after_switch_out_move_other_side_has_forced_move() {
+    let mut state = State::default();
+    state.side_one.switch_out_move_triggered = true;
+    state.side_two.switch_out_move_second_saved_move = Choices::TACKLE;
+    state.side_two.get_active().moves[PokemonMoveIndex::M0] = Move {
+        id: Choices::TACKLE,
+        disabled: false,
+        pp: 35,
+        ..Default::default()
+    };
+
+    let (side_one_moves, side_two_moves) = state.get_all_options();
+
+    assert_eq!(
+        vec![
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_one_moves
+    );
+
+    assert_eq!(vec![MoveChoice::Move(PokemonMoveIndex::M0)], side_two_moves);
 }
 
 #[test]

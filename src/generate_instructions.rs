@@ -14,7 +14,7 @@ use crate::choices::{
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, DecrementWishInstruction, HealInstruction,
-    RemoveVolatileStatusInstruction,
+    RemoveVolatileStatusInstruction, SetSecondMoveSwitchOutMoveInstruction,
 };
 use crate::items::{
     item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
@@ -41,6 +41,19 @@ fn generate_instructions_from_switch(
     incoming_instructions: &mut StateInstructions,
 ) {
     state.apply_instructions(&incoming_instructions.instruction_list);
+
+    let side = state.get_side(&switching_side_ref);
+    if side.switch_out_move_triggered {
+        side.switch_out_move_triggered = false;
+        match switching_side_ref {
+            SideReference::SideOne => {
+                incoming_instructions.instruction_list.push(Instruction::ToggleSideOneSwitchOutMove);
+            }
+            SideReference::SideTwo => {
+                incoming_instructions.instruction_list.push(Instruction::ToggleSideTwoSwitchOutMove);
+            }
+        }
+    }
 
     state.re_enable_disabled_moves(
         &switching_side_ref,
@@ -1020,12 +1033,6 @@ fn generate_instructions_from_existing_status_conditions(
     }
 }
 
-// Interpreting the function arguments/return-value:
-//
-// This function takes in a mutable StateInstruction,
-// and returns a Vector of StateInstructions, which
-// represent all the possible branches that can be taken
-// given that move being used
 pub fn generate_instructions_from_move(
     state: &mut State,
     choice: &mut Choice,
@@ -1052,6 +1059,19 @@ pub fn generate_instructions_from_move(
     }
 
     state.apply_instructions(&incoming_instructions.instruction_list);
+
+    if !choice.first_move
+        && state
+            .get_side(&attacking_side.get_other_side())
+            .switch_out_move_triggered
+    {
+        state
+            .get_side(&attacking_side)
+            .switch_out_move_second_saved_move = choice.move_id;
+        state.reverse_instructions(&incoming_instructions.instruction_list);
+        final_instructions.push(incoming_instructions);
+        return;
+    }
 
     if state
         .get_side_immutable(&attacking_side)
@@ -1124,7 +1144,7 @@ pub fn generate_instructions_from_move(
                 if state.get_side(&attacking_side).get_active().ability == Abilities::SKILLLINK {
                     5
                 } else {
-                    3  // too lazy to implement branching here. Average is 3.2 so this is a fine approximation
+                    3 // too lazy to implement branching here. Average is 3.2 so this is a fine approximation
                 };
         }
     }
@@ -1188,6 +1208,76 @@ pub fn generate_instructions_from_move(
         );
         combine_duplicate_instructions(&mut final_instructions);
         return;
+    }
+
+    // Only entered if the move causes a switch-out
+    // U-turn, Volt Switch, Baton Pass, etc.
+    // This deals with a bunch of flags that are required for the next turn to run properly
+    if choice.switch_out_move() {
+        match attacking_side {
+            SideReference::SideOne => {
+                if state.side_one.num_alive_pkmn() > 1 {
+                    state.side_one.switch_out_move_triggered =
+                        !state.side_one.switch_out_move_triggered;
+                    incoming_instructions
+                        .instruction_list
+                        .push(Instruction::ToggleSideOneSwitchOutMove);
+
+                    if choice.first_move {
+                        incoming_instructions.instruction_list.push(
+                            Instruction::SetSideTwoMoveSecondSwitchOutMove(
+                                SetSecondMoveSwitchOutMoveInstruction {
+                                    new_choice: defender_choice.move_id,
+                                    previous_choice: state.side_two.switch_out_move_second_saved_move,
+                                },
+                            ),
+                        );
+                        state.side_two.switch_out_move_second_saved_move = defender_choice.move_id;
+                    } else {
+                        incoming_instructions.instruction_list.push(
+                            Instruction::SetSideTwoMoveSecondSwitchOutMove(
+                                SetSecondMoveSwitchOutMoveInstruction {
+                                    new_choice: Choices::NONE,
+                                    previous_choice: state.side_two.switch_out_move_second_saved_move,
+                                },
+                            ),
+                        );
+                        state.side_two.switch_out_move_second_saved_move = defender_choice.move_id;
+                    }
+                }
+            }
+            SideReference::SideTwo => {
+                if state.side_two.num_alive_pkmn() > 1 {
+                    state.side_two.switch_out_move_triggered =
+                        !state.side_two.switch_out_move_triggered;
+                    incoming_instructions
+                        .instruction_list
+                        .push(Instruction::ToggleSideTwoSwitchOutMove);
+
+                    if choice.first_move {
+                        incoming_instructions.instruction_list.push(
+                            Instruction::SetSideOneMoveSecondSwitchOutMove(
+                                SetSecondMoveSwitchOutMoveInstruction {
+                                    new_choice: defender_choice.move_id,
+                                    previous_choice: state.side_one.switch_out_move_second_saved_move,
+                                },
+                            ),
+                        );
+                        state.side_one.switch_out_move_second_saved_move = defender_choice.move_id;
+                    } else {
+                        incoming_instructions.instruction_list.push(
+                            Instruction::SetSideOneMoveSecondSwitchOutMove(
+                                SetSecondMoveSwitchOutMoveInstruction {
+                                    new_choice: Choices::NONE,
+                                    previous_choice: state.side_one.switch_out_move_second_saved_move,
+                                },
+                            ),
+                        );
+                        state.side_one.switch_out_move_second_saved_move = defender_choice.move_id;
+                    }
+                }
+            }
+        }
     }
 
     if let Some(secondaries_vec) = &choice.secondaries {
@@ -1335,6 +1425,10 @@ fn add_end_of_turn_instructions(
     */
 
     state.apply_instructions(&incoming_instructions.instruction_list);
+    if state.side_one.switch_out_move_triggered || state.side_two.switch_out_move_triggered {
+        state.reverse_instructions(&incoming_instructions.instruction_list);
+        return;
+    }
 
     let sides = [first_move_side, &first_move_side.get_other_side()];
 
