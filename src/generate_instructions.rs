@@ -329,7 +329,7 @@ fn get_instructions_from_status_effects(
     status: &Status,
     attacking_side_reference: &SideReference,
     incoming_instructions: &mut StateInstructions,
-    hit_sub: bool
+    hit_sub: bool,
 ) {
     let target_side_ref: SideReference;
     match status.target {
@@ -737,7 +737,9 @@ fn generate_instructions_from_damage(
                             volatile_status: PokemonVolatileStatus::Substitute,
                         },
                     ));
-                defending_pokemon.volatile_statuses.remove(&PokemonVolatileStatus::Substitute);
+                defending_pokemon
+                    .volatile_statuses
+                    .remove(&PokemonVolatileStatus::Substitute);
             }
 
             hit_sub = true;
@@ -1118,7 +1120,12 @@ pub fn generate_instructions_from_move(
             hit_count = 3;
         }
         MultiHitMove::TwoToFiveHits => {
-            hit_count = 3; // too lazy to implement branching here. Average is 3.2 so this is a fine approximation
+            hit_count =
+                if state.get_side(&attacking_side).get_active().ability == Abilities::SKILLLINK {
+                    5
+                } else {
+                    3  // too lazy to implement branching here. Average is 3.2 so this is a fine approximation
+                };
         }
     }
     let mut hit_sub: bool = false;
@@ -1163,10 +1170,10 @@ pub fn generate_instructions_from_move(
             get_instructions_from_heal(state, heal, &attacking_side, &mut incoming_instructions);
         }
     } // end multi-hit
-    // this is wrong, but I am deciding it is good enough for this engine (for now)
-    // each multi-hit move should trigger a chance for a secondary effect,
-    // but the way this engine was structured makes it difficult to implement
-    // without some performance hits.
+      // this is wrong, but I am deciding it is good enough for this engine (for now)
+      // each multi-hit move should trigger a chance for a secondary effect,
+      // but the way this engine was structured makes it difficult to implement
+      // without some performance hits.
 
     if let Some(boost) = &choice.boost {
         get_instructions_from_boosts(state, boost, &attacking_side, &mut incoming_instructions);
@@ -1191,7 +1198,7 @@ pub fn generate_instructions_from_move(
             secondaries_vec,
             &attacking_side,
             incoming_instructions,
-            hit_sub
+            hit_sub,
         );
         final_instructions.extend(instructions_vec_after_secondaries);
     } else {
