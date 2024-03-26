@@ -2,37 +2,70 @@
 
 use poke_engine::choices::{Choices, MOVES};
 use poke_engine::search::expectiminimax_search;
-use poke_engine::state::{Move, PokemonIndex, PokemonMoves, State};
+use poke_engine::state::{Move, Pokemon, PokemonIndex, PokemonMoveIndex, PokemonMoves, Side, State};
 use std::mem;
 use std::process::exit;
 
 extern crate lazy_static;
 
 fn main() {
-    // println!("Choice: {}", mem::size_of::<Choice>());
-    // println!("move id: {}", mem::size_of::<String>());
-    // println!("PokemonIndex: {}", mem::size_of::<PokemonIndex>());
-    // println!("PokemonType: {}", mem::size_of::<PokemonType>());
-    // println!("accuracy: {}", mem::size_of::<f32>());
-    // println!("MoveCategory: {}", mem::size_of::<MoveCategory>());
-    // println!("base_power: {}", mem::size_of::<f32>());
-    // println!("boost: {}", mem::size_of::<Option<Boost>>());
-    // println!("priority: {}", mem::size_of::<i8>());
-    // println!("flags: {}", mem::size_of::<Flags>());
-    // println!("drain: {}", mem::size_of::<Option<f32>>());
-    // println!("recoil: {}", mem::size_of::<Option<f32>>());
-    // println!("Heal: {}", mem::size_of::<Option<Heal>>());
-    // println!("Status: {}", mem::size_of::<Option<Status>>());
-    // println!("Volatilestatus: {}", mem::size_of::<Option<VolatileStatus>>());
-    // println!("SideCondition: {}", mem::size_of::<Option<SideCondition>>());
-    // println!("Option<Vec<Secondary>>: {}", mem::size_of::<Option<Vec<Secondary>>>());
-    // println!("ModifyChoiceFn: {}", mem::size_of::<Option<ModifyChoiceFn>>());
-    // println!("AfterDamageHitFn: {}", mem::size_of::<Option<AfterDamageHitFn>>());
-    // println!("HazardClearFn: {}", mem::size_of::<Option<HazardClearFn>>());
-    // println!("MoveSPecialEffectFn: {}", mem::size_of::<Option<MoveSpecialEffectFn>>());
-    // exit(1);
+    println!("{:?}", Choices::NONE);
 
-    let mut state: State = State::default();
+    println!("{:?}", State::deserialize(
+        "id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
+        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        -\
+        id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
+        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        -\
+        id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
+        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        -\
+        id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
+        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        -\
+        id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
+        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        -\
+        id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
+        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        -\
+        1\
+        -\
+        1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;0\
+        -15-150\
+        -true-TACKLE\
+        /\
+        id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
+        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        -\
+        id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
+        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        -\
+        id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
+        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        -\
+        id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
+        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        -\
+        id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
+        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        -\
+        id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
+        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        -\
+        1\
+        -\
+        1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;0\
+        -15-150\
+        -true-TACKLE\
+        /\
+        Rain;5\
+        /\
+        ElectricTerrain;4\
+        /\
+        true"
+    ))
 
     // state.side_one.pokemon[PokemonIndex::P0].moves = PokemonMoves {
     //     m0: Move {
@@ -89,8 +122,8 @@ fn main() {
     // };
 
     // println!("{:?}", state);
-    let (side_one_options, side_two_options) = state.get_all_options();
+    // let (side_one_options, side_two_options) = state.get_all_options();
 
-    let _result = expectiminimax_search(&mut state, 3, side_one_options, side_two_options, false);
+    // let _result = expectiminimax_search(&mut state, 3, side_one_options, side_two_options, false);
     // println!("{:?}", state);
 }
