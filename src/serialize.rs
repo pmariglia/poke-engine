@@ -4,7 +4,7 @@ use std::str::FromStr;
 use crate::abilities::Abilities;
 use crate::choices::{Choices, MOVES, SideCondition};
 use crate::items::Items;
-use crate::state::{Move, Pokemon, PokemonIndex, PokemonMoves, PokemonNatures, PokemonStatus, PokemonType, PokemonVolatileStatus, Side, SideConditions, SidePokemon, State, StateTerrain, StateWeather, Terrain, Weather};
+use crate::state::{Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoveIndex, PokemonMoves, PokemonNatures, PokemonStatus, PokemonType, PokemonVolatileStatus, Side, SideConditions, SidePokemon, State, StateTerrain, StateWeather, Terrain, Weather};
 
 impl FromStr for Choices {
     type Err = ();
@@ -1266,6 +1266,41 @@ impl Move {
     }
 }
 
+impl MoveChoice {
+    pub fn deserialize(serialized: &str) -> MoveChoice {
+        let mut chars = serialized.chars();
+
+        let char1 = chars.next().unwrap();
+
+        match char1 {
+            'm' => {
+                let char2 = chars.next().unwrap();
+                return MoveChoice::Move(PokemonMoveIndex::deserialize(&char2.to_string()));
+            },
+            's' => {
+                let char2 = chars.next().unwrap();
+                return MoveChoice::Switch(PokemonIndex::deserialize(&char2.to_string()));
+            },
+            'n' => {
+                return MoveChoice::None;
+            },
+            _ => panic!("Invalid move choice: {}", serialized),
+        }
+    }
+}
+
+impl PokemonMoveIndex {
+    pub fn deserialize(serialized: &str) -> PokemonMoveIndex {
+        return match serialized {
+            "0" => PokemonMoveIndex::M0,
+            "1" => PokemonMoveIndex::M1,
+            "2" => PokemonMoveIndex::M2,
+            "3" => PokemonMoveIndex::M3,
+            _ => panic!("Invalid move index: {}", serialized),
+        }
+    }
+}
+
 impl PokemonType {
     pub fn deserialize(input: &str) -> PokemonType {
         match input {
@@ -1426,7 +1461,7 @@ impl PokemonVolatileStatus {
             "Unburden" => PokemonVolatileStatus::Unburden,
             "Uproar" => PokemonVolatileStatus::Uproar,
             "Yawn" => PokemonVolatileStatus::Yawn,
-            _ => panic!("Invalid nature: {}", input),
+            _ => panic!("Invalid volatilestatus: {}", input),
         }
     }
 }
@@ -1436,8 +1471,10 @@ impl Pokemon {
         let split: Vec<&str> = serialized.split(",").collect();
 
         let mut vs_hashset = HashSet::new();
-        for item in split[23].split(":") {
-            vs_hashset.insert(PokemonVolatileStatus::deserialize(item));
+        if split[23] != "" {
+            for item in split[23].split(":") {
+                vs_hashset.insert(PokemonVolatileStatus::deserialize(item));
+            }
         }
 
         return Pokemon {

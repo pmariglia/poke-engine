@@ -5,66 +5,69 @@ use poke_engine::search::expectiminimax_search;
 use poke_engine::state::{Move, Pokemon, PokemonIndex, PokemonMoveIndex, PokemonMoves, Side, State};
 use std::mem;
 use std::process::exit;
+use poke_engine::io::command_loop;
 
 extern crate lazy_static;
 
 fn main() {
-    println!("{:?}", Choices::NONE);
+
+    command_loop();
+    exit(1);
 
     println!("{:?}", State::deserialize(
-        "id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
-        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        "charmander,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
+        None,25,Serious,,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
         -\
         id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
-        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        None,25,Serious,,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
         -\
         id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
-        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        None,25,Serious,,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
         -\
         id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
-        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        None,25,Serious,,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
         -\
         id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
-        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        None,25,Serious,,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
         -\
         id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
-        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        None,25,Serious,,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
         -\
         1\
         -\
-        1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;0\
-        -15-150\
+        0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0\
+        -0-0\
         -true-TACKLE\
         /\
-        id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
-        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        squirtle,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
+        None,25,Serious,,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
         -\
         id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
-        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        None,25,Serious,,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
         -\
         id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
-        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        None,25,Serious,,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
         -\
         id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
-        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        None,25,Serious,,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
         -\
         id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
-        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        None,25,Serious,,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
         -\
         id,100,Normal,Typeless,100,100,INTIMIDATE,LEFTOVERS,100,100,100,100,100,1,1,1,1,1,1,1,\
-        Sleep,25,Brave,Roost:Attract:LeechSeed,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
+        None,25,Serious,,TACKLE;false;32,EARTHQUAKE;false;32,ZAPCANNON;false;32,LEECHSEED;false;32\
         -\
         1\
         -\
-        1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;0\
-        -15-150\
+        0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0\
+        -0-0\
         -true-TACKLE\
         /\
-        Rain;5\
+        None;5\
         /\
-        ElectricTerrain;4\
+        None;4\
         /\
-        true"
+        false"
     ))
 
     // state.side_one.pokemon[PokemonIndex::P0].moves = PokemonMoves {

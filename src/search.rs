@@ -13,7 +13,7 @@ const _WIN_BONUS: f32 = 1000.0;
 
 pub fn expectiminimax_search(
     state: &mut State,
-    depth: u8,
+    depth: i8,
     side_one_options: Vec<MoveChoice>,
     side_two_options: Vec<MoveChoice>,
     ab_prune: bool,
