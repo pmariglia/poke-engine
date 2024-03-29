@@ -56,16 +56,18 @@ pub fn expectiminimax_search(
                     let (next_turn_side_one_options, next_turn_side_two_options) =
                         state.get_all_options();
 
+                    let next_turn_side_one_options_len = next_turn_side_one_options.len();
+                    let next_turn_side_two_options_len = next_turn_side_two_options.len();
                     let (_, safest) = pick_safest(
-                        next_turn_side_one_options.len(),
-                        next_turn_side_two_options.len(),
-                        expectiminimax_search(
+                        &expectiminimax_search(
                             state,
                             depth - 1,
                             next_turn_side_one_options,
                             next_turn_side_two_options,
                             ab_prune,
-                        )
+                        ),
+                        next_turn_side_one_options_len,
+                        next_turn_side_two_options_len,
                     );
                     score += instruction.percentage * safest / 100.0;
 
@@ -94,7 +96,7 @@ pub fn expectiminimax_search(
 //     return s1_index * s2_len + s2_index;
 // }
 
-pub fn pick_safest(num_s1_moves: usize, num_s2_moves: usize, score_lookup: Vec<f32>) -> (usize, f32) {
+pub fn pick_safest(score_lookup: &Vec<f32>, num_s1_moves: usize, num_s2_moves: usize) -> (usize, f32) {
     let mut best_worst_case = f32::MIN;
     let mut best_worst_case_s1_index = 0;
     let mut vec_index = 0;

@@ -4,7 +4,7 @@ use clap::Parser;
 use crate::choices::Choices;
 use crate::generate_instructions::generate_instructions_from_move_pair;
 use crate::instruction::{Instruction, StateInstructions};
-use crate::search::expectiminimax_search;
+use crate::search::{expectiminimax_search, pick_safest};
 use crate::state::{MoveChoice, Pokemon, State};
 
 struct IOData {
@@ -37,7 +37,29 @@ impl Pokemon {
     }
 }
 
+fn pprint_expectiminimax_result(result: Vec<f32>, s1_options: Vec<MoveChoice>, s2_options: Vec<MoveChoice>, safest_choice: (usize, f32)) {
+    let s1_len = s1_options.len();
+    let s2_len = s2_options.len();
 
+    print!("{: <12}", " ");
+
+    for s2_move in s2_options.iter() {
+        let s2_move_str = format!("{:?}", s2_move);
+        print!("{: >12}", s2_move_str);
+    }
+    print!("\n");
+
+    for i in 0..s1_len {
+        let s1_move_str = format!("{:?}", s1_options[i]);
+        print!("\n{:<12}", s1_move_str);
+        for j in 0..s2_len {
+            let index = i * s2_len + j;
+            print!("{number:>11.2} ", number=result[index]);
+        }
+        print!("\n");
+    }
+    print!("\n\nSafest Choice: {:?}, {}\n", s1_options[safest_choice.0], safest_choice.1);
+}
 
 pub fn command_loop() {
     let args = Cli::parse();
@@ -78,7 +100,9 @@ pub fn command_loop() {
                     }
                 }
                 println!("{:?}", io_data.state);
-
+            }
+            "serialize" | "ser" => {
+                println!("{}", io_data.state.serialize());
             }
             "matchup" | "m" => {
                 let p1_active = io_data.state.side_one.get_active_immutable();
@@ -145,12 +169,21 @@ pub fn command_loop() {
             "expectiminimax" | "e" => {
                 match args.next() {
                     Some(s) => {
+                        let mut ab_prune = false;
+                        match args.next() {
+                            Some(s) => ab_prune = s.parse::<bool>().unwrap(),
+                            None => {}
+                        }
                         let depth = s.parse::<i8>().unwrap();
                         let (side_one_options, side_two_options) = io_data.state.get_all_options();
                         let start_time = std::time::Instant::now();
-                        let _result = expectiminimax_search(&mut io_data.state, depth, side_one_options, side_two_options, false);
+                        let result = expectiminimax_search(&mut io_data.state, depth, side_one_options.clone(), side_two_options.clone(), ab_prune);
                         let elapsed = start_time.elapsed();
-                        println!("Took: {:?}", elapsed);
+
+                        let safest_choice = pick_safest(&result, side_one_options.len(), side_two_options.len());
+
+                        pprint_expectiminimax_result(result, side_one_options, side_two_options, safest_choice);
+                        println!("\nTook: {:?}", elapsed);
                     }
                     None => {
                         println!("Usage: expectiminimax <depth>");

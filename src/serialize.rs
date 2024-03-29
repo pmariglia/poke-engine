@@ -1302,6 +1302,10 @@ impl PokemonMoveIndex {
 }
 
 impl PokemonType {
+    pub fn serialize(&self) -> String {
+        return format!("{:?}", self);
+    }
+
     pub fn deserialize(input: &str) -> PokemonType {
         match input {
             "Normal" => PokemonType::Normal,
@@ -1329,6 +1333,10 @@ impl PokemonType {
 }
 
 impl PokemonStatus {
+    pub fn serialize(&self) -> String {
+        return format!("{:?}", self);
+    }
+
     pub fn deserialize(input: &str) -> PokemonStatus {
         match input {
             "None" => PokemonStatus::None,
@@ -1344,6 +1352,10 @@ impl PokemonStatus {
 }
 
 impl PokemonNatures {
+    pub fn serialize(&self) -> String {
+        return format!("{:?}", self);
+    }
+
     pub fn deserialize(input: &str) -> PokemonNatures {
         match input {
             "Lonely" => PokemonNatures::Lonely,
@@ -1377,6 +1389,10 @@ impl PokemonNatures {
 }
 
 impl PokemonVolatileStatus {
+    pub fn serialize(&self) -> String {
+        return format!("{:?}", self);
+    }
+
     pub fn deserialize(input: &str) -> PokemonVolatileStatus {
         match input {
             "AquaRing" => PokemonVolatileStatus::AquaRing,
@@ -1467,6 +1483,46 @@ impl PokemonVolatileStatus {
 }
 
 impl Pokemon {
+    pub fn serialize(&self) -> String {
+        let mut vs_string = String::new();
+        for vs in &self.volatile_statuses {
+            vs_string.push_str(&vs.serialize());
+            vs_string.push_str(":");
+        }
+
+        return format!(
+            "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
+            self.id,
+            self.level,
+            self.types.0.serialize(),
+            self.types.1.serialize(),
+            self.hp,
+            self.maxhp,
+            self.ability.to_string(),
+            self.item.to_string(),
+            self.attack,
+            self.defense,
+            self.special_attack,
+            self.special_defense,
+            self.speed,
+            self.attack_boost,
+            self.defense_boost,
+            self.special_attack_boost,
+            self.special_defense_boost,
+            self.speed_boost,
+            self.accuracy_boost,
+            self.evasion_boost,
+            self.status.serialize(),
+            self.substitute_health,
+            self.nature.serialize(),
+            vs_string,
+            self.moves.m0.serialize(),
+            self.moves.m1.serialize(),
+            self.moves.m2.serialize(),
+            self.moves.m3.serialize(),
+        );
+    }
+
     pub fn deserialize(serialized: &str) -> Pokemon {
         let split: Vec<&str> = serialized.split(",").collect();
 
@@ -1512,6 +1568,17 @@ impl Pokemon {
 }
 
 impl PokemonIndex {
+    pub fn serialize(&self) -> String {
+        match self {
+            PokemonIndex::P0 => "0".to_string(),
+            PokemonIndex::P1 => "1".to_string(),
+            PokemonIndex::P2 => "2".to_string(),
+            PokemonIndex::P3 => "3".to_string(),
+            PokemonIndex::P4 => "4".to_string(),
+            PokemonIndex::P5 => "5".to_string(),
+        }
+    }
+
     pub fn deserialize(serialized: &str) -> PokemonIndex {
         match serialized {
             "0" => PokemonIndex::P0,
@@ -1526,6 +1593,30 @@ impl PokemonIndex {
 }
 
 impl SideConditions {
+    pub fn serialize(&self) -> String {
+        return format!(
+            "{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{}",
+            self.aurora_veil,
+            self.crafty_shield,
+            self.healing_wish,
+            self.light_screen,
+            self.lucky_chant,
+            self.lunar_dance,
+            self.mat_block,
+            self.mist,
+            self.protect,
+            self.quick_guard,
+            self.reflect,
+            self.safeguard,
+            self.spikes,
+            self.stealth_rock,
+            self.sticky_web,
+            self.tailwind,
+            self.toxic_count,
+            self.toxic_spikes,
+            self.wide_guard,
+        );
+    }
     pub fn deserialize(serialized: &str) -> SideConditions {
         let split: Vec<&str> = serialized.split(";").collect();
         return SideConditions {
@@ -1553,6 +1644,23 @@ impl SideConditions {
 }
 
 impl Side {
+    pub fn serialize(&self) -> String {
+        return format!(
+            "{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}",
+            self.pokemon.p0.serialize(),
+            self.pokemon.p1.serialize(),
+            self.pokemon.p2.serialize(),
+            self.pokemon.p3.serialize(),
+            self.pokemon.p4.serialize(),
+            self.pokemon.p5.serialize(),
+            self.active_index.serialize(),
+            self.side_conditions.serialize(),
+            self.wish.0,
+            self.wish.1,
+            self.switch_out_move_triggered,
+            self.switch_out_move_second_saved_move.to_string(),
+        );
+    }
     pub fn deserialize(serialized: &str) -> Side {
         let split: Vec<&str> = serialized.split("-").collect();
         return Side {
@@ -1589,6 +1697,9 @@ impl Weather {
 }
 
 impl StateWeather {
+    pub fn serialize(&self) -> String {
+        return format!("{:?};{}", self.weather_type, self.turns_remaining);
+    }
     pub fn deserialize(serialized: &str) -> StateWeather {
         let split: Vec<&str> = serialized.split(";").collect();
         return StateWeather {
@@ -1612,6 +1723,9 @@ impl Terrain {
 }
 
 impl StateTerrain {
+    pub fn serialize(&self) -> String {
+        return format!("{:?};{}", self.terrain_type, self.turns_remaining);
+    }
     pub fn deserialize(serialized: &str) -> StateTerrain {
         let split: Vec<&str> = serialized.split(";").collect();
         return StateTerrain {
@@ -1622,6 +1736,17 @@ impl StateTerrain {
 }
 
 impl State {
+    pub fn serialize(&self) -> String {
+        return format!(
+            "{}/{}/{}/{}/{}",
+            self.side_one.serialize(),
+            self.side_two.serialize(),
+            self.weather.serialize(),
+            self.terrain.serialize(),
+            self.trick_room
+        );
+    }
+
     pub fn deserialize(serialized: &str) -> State {
         let split: Vec<&str> = serialized.split("/").collect();
         return State {
