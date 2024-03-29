@@ -10,3 +10,4 @@ pub mod serialize;
 pub mod search;
 pub mod state;
 pub mod io;
+pub mod evaluate;
