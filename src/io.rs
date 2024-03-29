@@ -22,6 +22,12 @@ struct Cli {
     #[clap(short, long, default_value_t = false)]
     expectiminimax: bool,
 
+    #[clap(short, long, default_value_t = false)]
+    iterative_deepening: bool,
+
+    #[clap(short, long, default_value_t = 5)]
+    max_search_time: u64,
+
     #[clap(short, long, default_value_t = 2)]
     depth: i8,
 
@@ -96,14 +102,26 @@ pub fn main() {
     }
 
     if args.expectiminimax {
-        let (side_one_options, side_two_options) = io_data.state.get_all_options();
-        let result = expectiminimax_search(
-            &mut io_data.state,
-            args.depth,
-            side_one_options.clone(),
-            side_two_options.clone(),
-            args.ab_prune,
-        );
+        let (mut side_one_options, mut side_two_options) = io_data.state.get_all_options();
+        let mut result;
+        if args.iterative_deepening {
+            (side_one_options, side_two_options, result) = iterative_deepen_expectiminimax(
+                &mut io_data.state,
+                args.depth,
+                side_one_options.clone(),
+                side_two_options.clone(),
+                args.ab_prune,
+                std::time::Duration::from_secs(args.max_search_time),
+            );
+        } else {
+            result = expectiminimax_search(
+                &mut io_data.state,
+                args.depth,
+                side_one_options.clone(),
+                side_two_options.clone(),
+                args.ab_prune,
+            );
+        }
 
         let safest = pick_safest(&result, side_one_options.len(), side_two_options.len());
 
