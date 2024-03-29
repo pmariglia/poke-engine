@@ -1,14 +1,6 @@
 use crate::generate_instructions::generate_instructions_from_move_pair;
-use crate::state::{MoveChoice, Pokemon, State};
-use std::collections::HashMap;
+use crate::state::{MoveChoice, State};
 use crate::evaluate::evaluate;
-
-/*
-TODO:
-- evaluation fn
-- pick_safest fn
-- alpha beta pruning
-*/
 
 const _WIN_BONUS: f32 = 1000.0;
 
@@ -92,10 +84,6 @@ pub fn expectiminimax_search(
     return score_lookup;
 }
 
-// fn get_vec_index(s1_index: usize, s2_index: usize, s2_len: usize) -> usize {
-//     return s1_index * s2_len + s2_index;
-// }
-
 pub fn pick_safest(score_lookup: &Vec<f32>, num_s1_moves: usize, num_s2_moves: usize) -> (usize, f32) {
     let mut best_worst_case = f32::MIN;
     let mut best_worst_case_s1_index = 0;
@@ -117,4 +105,59 @@ pub fn pick_safest(score_lookup: &Vec<f32>, num_s1_moves: usize, num_s2_moves: u
     }
 
     return (best_worst_case_s1_index, best_worst_case)
+}
+
+fn re_order_moves_for_iterative_deepening(
+    last_search_result: &Vec<f32>,
+    side_one_options: Vec<MoveChoice>,
+    side_two_options: Vec<MoveChoice>,
+) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
+    let num_s1_moves = side_one_options.len();
+    let num_s2_moves = side_two_options.len();
+    let mut worst_case_s1_scores: Vec<(MoveChoice, f32)> = vec![];
+    let mut vec_index = 0;
+
+    for s1_index in 0..num_s1_moves {
+        let mut worst_case_this_row = f32::MAX;
+        for _ in 0..num_s2_moves {
+            let score = last_search_result[vec_index];
+            vec_index += 1;
+            if score < worst_case_this_row {
+                worst_case_this_row = score;
+            }
+        }
+        worst_case_s1_scores.push((side_one_options[s1_index].clone(), worst_case_this_row));
+    }
+
+    worst_case_s1_scores.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+    let new_s1_vec = worst_case_s1_scores.iter().map(|x| x.0.clone()).collect();
+
+    return (new_s1_vec, side_two_options);
+}
+
+pub fn iterative_deepen_expectiminimax(
+    state: &mut State,
+    depth: i8,
+    side_one_options: Vec<MoveChoice>,
+    side_two_options: Vec<MoveChoice>,
+    ab_prune: bool,
+    max_time: std::time::Duration,
+) -> (Vec<MoveChoice>, Vec<MoveChoice>, Vec<f32>) {
+    let mut result = Vec::new();
+    let mut re_ordered_s1_options = side_one_options.clone();
+    let mut re_ordered_s2_options = side_two_options.clone();
+
+    let start_time = std::time::Instant::now();
+    result = expectiminimax_search(state, 1, side_one_options, side_two_options, ab_prune);
+
+    for i in 2..depth+1 {
+        let elapsed = start_time.elapsed();
+        if elapsed > max_time {
+            break;
+        }
+        (re_ordered_s1_options, re_ordered_s2_options) = re_order_moves_for_iterative_deepening(&result, re_ordered_s1_options, re_ordered_s2_options);
+        result = expectiminimax_search(state, i, re_ordered_s1_options.clone(), re_ordered_s2_options.clone(), ab_prune);
+    }
+
+    return (re_ordered_s1_options, re_ordered_s2_options, result);
 }

@@ -5,7 +5,7 @@ use clap::Parser;
 use crate::choices::Choices;
 use crate::generate_instructions::generate_instructions_from_move_pair;
 use crate::instruction::{Instruction, StateInstructions};
-use crate::search::{expectiminimax_search, pick_safest};
+use crate::search::{expectiminimax_search, iterative_deepen_expectiminimax, pick_safest};
 use crate::state::{MoveChoice, Pokemon, State};
 
 struct IOData {
@@ -47,7 +47,7 @@ impl Pokemon {
     }
 }
 
-fn pprint_expectiminimax_result(result: Vec<f32>, s1_options: Vec<MoveChoice>, s2_options: Vec<MoveChoice>, safest_choice: (usize, f32)) {
+fn pprint_expectiminimax_result(result: &Vec<f32>, s1_options: &Vec<MoveChoice>, s2_options: &Vec<MoveChoice>, safest_choice: &(usize, f32)) {
     let s1_len = s1_options.len();
     let s2_len = s2_options.len();
 
@@ -162,6 +162,29 @@ pub fn command_loop(mut io_data: IOData) {
             "instructions" | "i" => {
                 println!("{:?}", io_data.last_instructions_generated);
             }
+            "iterative-deepening" | "id" => {
+                match args.next() {
+                    Some(s) => {
+                        let ab_prune = true;
+                        let depth = s.parse::<i8>().unwrap();
+
+                        let (side_one_options, side_two_options) = io_data.state.get_all_options();
+
+                        let start_time = std::time::Instant::now();
+                        let (s1_moves, s2_moves, result) = iterative_deepen_expectiminimax(&mut io_data.state, depth, side_one_options.clone(), side_two_options.clone(), ab_prune, std::time::Duration::from_secs(5));
+                        let elapsed = start_time.elapsed();
+
+                        let safest_choice = pick_safest(&result, s1_moves.len(), s2_moves.len());
+
+                        pprint_expectiminimax_result(&result, &s1_moves, &s2_moves, &safest_choice);
+                        println!("\nTook: {:?}", elapsed);
+                    }
+                    None => {
+                        println!("Usage: iterative-deepening <depth> <ab_prune=false>");
+                        continue;
+                    }
+                }
+            }
             "apply" | "a" => {
                 match args.next() {
                     Some(s) => {
@@ -206,12 +229,11 @@ pub fn command_loop(mut io_data: IOData) {
                         let elapsed = start_time.elapsed();
 
                         let safest_choice = pick_safest(&result, side_one_options.len(), side_two_options.len());
-
-                        pprint_expectiminimax_result(result, side_one_options, side_two_options, safest_choice);
+                        pprint_expectiminimax_result(&result, &side_one_options, &side_two_options, &safest_choice);
                         println!("\nTook: {:?}", elapsed);
                     }
                     None => {
-                        println!("Usage: expectiminimax <depth>");
+                        println!("Usage: expectiminimax <depth> <ab_prune=false>");
                         continue;
                     }
                 }
