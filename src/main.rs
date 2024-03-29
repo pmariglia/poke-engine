@@ -5,13 +5,13 @@ use poke_engine::search::{expectiminimax_search, pick_safest};
 use poke_engine::state::{Move, Pokemon, PokemonIndex, PokemonMoveIndex, PokemonMoves, Side, State};
 use std::mem;
 use std::process::exit;
-use poke_engine::io::command_loop;
+use poke_engine::io;
 
 extern crate lazy_static;
 
 fn main() {
 
-    command_loop();
+    io::main();
     exit(1);
 
     let mut state = State::deserialize(

@@ -1,5 +1,6 @@
 use std::io;
 use std::io::Write;
+use std::process::exit;
 use clap::Parser;
 use crate::choices::Choices;
 use crate::generate_instructions::generate_instructions_from_move_pair;
@@ -16,7 +17,16 @@ struct IOData {
 #[derive(Parser)]
 struct Cli {
     #[clap(short, long, default_value = "")]
-    state: String
+    state: String,
+
+    #[clap(short, long, default_value_t = false)]
+    expectiminimax: bool,
+
+    #[clap(short, long, default_value_t = 2)]
+    depth: i8,
+
+    #[clap(short, long, default_value_t = false)]
+    ab_prune: bool,
 }
 
 impl Default for IOData {
@@ -61,7 +71,7 @@ fn pprint_expectiminimax_result(result: Vec<f32>, s1_options: Vec<MoveChoice>, s
     print!("\n\nSafest Choice: {:?}, {}\n", s1_options[safest_choice.0], safest_choice.1);
 }
 
-pub fn command_loop() {
+pub fn main() {
     let args = Cli::parse();
     let mut io_data = IOData::default();
 
@@ -69,6 +79,21 @@ pub fn command_loop() {
         let state = State::deserialize(args.state.as_str());
         io_data.state = state;
     }
+
+    if args.expectiminimax {
+        let (side_one_options, side_two_options) = io_data.state.get_all_options();
+        let result = expectiminimax_search(&mut io_data.state, args.depth, side_one_options.clone(), side_two_options.clone(), args.ab_prune);
+
+        let safest = pick_safest(&result, side_one_options.len(), side_two_options.len());
+
+        println!("{:?}: {}", side_one_options[safest.0], safest.1);
+        exit(1);
+    }
+
+    command_loop(io_data);
+}
+
+pub fn command_loop(mut io_data: IOData) {
     loop {
         print!("> ");
         io::stdout().flush();
