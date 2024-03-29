@@ -1,6 +1,6 @@
 #![allow(dead_code)]
-use std::process::exit;
 use poke_engine::io;
+use std::process::exit;
 
 extern crate lazy_static;
 

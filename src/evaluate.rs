@@ -47,7 +47,6 @@ const STEALTH_ROCK: f32 = -10.0;
 const SPIKES: f32 = -7.0;
 const TOXIC_SPIKES: f32 = -7.0;
 
-
 fn evaluate_burned(pokemon: &Pokemon) -> f32 {
     // burn is not as punishing in certain situations
 
@@ -70,9 +69,8 @@ fn evaluate_burned(pokemon: &Pokemon) -> f32 {
         multiplier /= 2.0;
     }
 
-    return multiplier * POKEMON_BURNED
+    return multiplier * POKEMON_BURNED;
 }
-
 
 fn get_boost_multiplier(boost: i8) -> f32 {
     match boost {
@@ -91,9 +89,7 @@ fn get_boost_multiplier(boost: i8) -> f32 {
         -6 => return POKEMON_BOOST_MULTIPLIER_NEG_6,
         _ => return panic!("Invalid boost value: {}", boost),
     }
-
 }
-
 
 fn evaluate_pokemon(pokemon: &Pokemon) -> f32 {
     let mut score = 0.0;
@@ -156,9 +152,11 @@ pub fn evaluate(state: &State) -> f32 {
     score += state.side_one.side_conditions.aurora_veil as f32 * AURORA_VEIL;
     score += state.side_one.side_conditions.safeguard as f32 * SAFE_GUARD;
     score += state.side_one.side_conditions.tailwind as f32 * TAILWIND;
-    score += state.side_one.side_conditions.stealth_rock as f32 * STEALTH_ROCK * side_one_alive_count;
+    score +=
+        state.side_one.side_conditions.stealth_rock as f32 * STEALTH_ROCK * side_one_alive_count;
     score += state.side_one.side_conditions.spikes as f32 * SPIKES * side_one_alive_count;
-    score += state.side_one.side_conditions.toxic_spikes as f32 * TOXIC_SPIKES * side_one_alive_count;
+    score +=
+        state.side_one.side_conditions.toxic_spikes as f32 * TOXIC_SPIKES * side_one_alive_count;
 
     score -= state.side_two.side_conditions.reflect as f32 * REFLECT;
     score -= state.side_two.side_conditions.light_screen as f32 * LIGHT_SCREEN;
@@ -166,9 +164,11 @@ pub fn evaluate(state: &State) -> f32 {
     score -= state.side_two.side_conditions.aurora_veil as f32 * AURORA_VEIL;
     score -= state.side_two.side_conditions.safeguard as f32 * SAFE_GUARD;
     score -= state.side_two.side_conditions.tailwind as f32 * TAILWIND;
-    score -= state.side_two.side_conditions.stealth_rock as f32 * STEALTH_ROCK * side_two_alive_count;
+    score -=
+        state.side_two.side_conditions.stealth_rock as f32 * STEALTH_ROCK * side_two_alive_count;
     score -= state.side_two.side_conditions.spikes as f32 * SPIKES * side_two_alive_count;
-    score -= state.side_two.side_conditions.toxic_spikes as f32 * TOXIC_SPIKES * side_two_alive_count;
+    score -=
+        state.side_two.side_conditions.toxic_spikes as f32 * TOXIC_SPIKES * side_two_alive_count;
 
-    return score
+    return score;
 }

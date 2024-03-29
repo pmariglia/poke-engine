@@ -1,10 +1,14 @@
+use crate::abilities::Abilities;
+use crate::choices::{Choices, SideCondition, MOVES};
+use crate::items::Items;
+use crate::state::{
+    Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoveIndex, PokemonMoves, PokemonNatures,
+    PokemonStatus, PokemonType, PokemonVolatileStatus, Side, SideConditions, SidePokemon, State,
+    StateTerrain, StateWeather, Terrain, Weather,
+};
 use std::collections::HashSet;
 use std::fmt;
 use std::str::FromStr;
-use crate::abilities::Abilities;
-use crate::choices::{Choices, MOVES, SideCondition};
-use crate::items::Items;
-use crate::state::{Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoveIndex, PokemonMoves, PokemonNatures, PokemonStatus, PokemonType, PokemonVolatileStatus, Side, SideConditions, SidePokemon, State, StateTerrain, StateWeather, Terrain, Weather};
 
 impl FromStr for Choices {
     type Err = ();
@@ -1247,13 +1251,9 @@ impl fmt::Display for Items {
     }
 }
 
-
 impl Move {
     pub fn serialize(&self) -> String {
-        return format!(
-            "{:?};{};{}",
-            self.id, self.disabled, self.pp
-        );
+        return format!("{:?};{};{}", self.id, self.disabled, self.pp);
     }
     pub fn deserialize(serialized: &str) -> Move {
         let split: Vec<&str> = serialized.split(";").collect();
@@ -1261,7 +1261,10 @@ impl Move {
             id: Choices::from_str(split[0]).unwrap(),
             disabled: split[1].parse::<bool>().unwrap(),
             pp: split[2].parse::<i8>().unwrap(),
-            choice: MOVES.get(&Choices::from_str(split[0]).unwrap()).unwrap().to_owned(),
+            choice: MOVES
+                .get(&Choices::from_str(split[0]).unwrap())
+                .unwrap()
+                .to_owned(),
         };
     }
 }
@@ -1276,14 +1279,14 @@ impl MoveChoice {
             'm' => {
                 let char2 = chars.next().unwrap();
                 return MoveChoice::Move(PokemonMoveIndex::deserialize(&char2.to_string()));
-            },
+            }
             's' => {
                 let char2 = chars.next().unwrap();
                 return MoveChoice::Switch(PokemonIndex::deserialize(&char2.to_string()));
-            },
+            }
             'n' => {
                 return MoveChoice::None;
-            },
+            }
             _ => panic!("Invalid move choice: {}", serialized),
         }
     }
@@ -1297,7 +1300,7 @@ impl PokemonMoveIndex {
             "2" => PokemonMoveIndex::M2,
             "3" => PokemonMoveIndex::M3,
             _ => panic!("Invalid move index: {}", serialized),
-        }
+        };
     }
 }
 
@@ -1536,7 +1539,10 @@ impl Pokemon {
         return Pokemon {
             id: split[0].to_string(),
             level: split[1].parse::<i8>().unwrap(),
-            types: (PokemonType::deserialize(split[2]), PokemonType::deserialize(split[3])),
+            types: (
+                PokemonType::deserialize(split[2]),
+                PokemonType::deserialize(split[3]),
+            ),
             hp: split[4].parse::<i16>().unwrap(),
             maxhp: split[5].parse::<i16>().unwrap(),
             ability: Abilities::from_str(split[6]).unwrap(),
@@ -1639,7 +1645,7 @@ impl SideConditions {
             toxic_count: split[16].parse::<i8>().unwrap(),
             toxic_spikes: split[17].parse::<i8>().unwrap(),
             wide_guard: split[18].parse::<i8>().unwrap(),
-        }
+        };
     }
 }
 
@@ -1674,10 +1680,13 @@ impl Side {
                 p5: Pokemon::deserialize(split[5]),
             },
             side_conditions: SideConditions::deserialize(split[7]),
-            wish: (split[8].parse::<i8>().unwrap(), split[9].parse::<i16>().unwrap()),
+            wish: (
+                split[8].parse::<i8>().unwrap(),
+                split[9].parse::<i16>().unwrap(),
+            ),
             switch_out_move_triggered: split[10].parse::<bool>().unwrap(),
             switch_out_move_second_saved_move: Choices::from_str(split[11]).unwrap(),
-        }
+        };
     }
 }
 
@@ -1705,7 +1714,7 @@ impl StateWeather {
         return StateWeather {
             weather_type: Weather::from_str(split[0]).unwrap(),
             turns_remaining: split[1].parse::<i8>().unwrap(),
-        }
+        };
     }
 }
 
@@ -1731,7 +1740,7 @@ impl StateTerrain {
         return StateTerrain {
             terrain_type: Terrain::from_str(split[0]).unwrap(),
             turns_remaining: split[1].parse::<i8>().unwrap(),
-        }
+        };
     }
 }
 
@@ -1755,6 +1764,6 @@ impl State {
             weather: StateWeather::deserialize(split[2]),
             terrain: StateTerrain::deserialize(split[3]),
             trick_room: split[4].parse::<bool>().unwrap(),
-        }
+        };
     }
 }

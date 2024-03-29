@@ -9,7 +9,11 @@ use poke_engine::instruction::{
     SetSubstituteHealthInstruction, StateInstructions, SwitchInstruction,
 };
 use poke_engine::items::Items;
-use poke_engine::state::{Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, StateWeather, Terrain, Weather};
+use poke_engine::state::{
+    Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
+    PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, StateWeather, Terrain,
+    Weather,
+};
 
 fn set_moves_on_pkmn_and_call_generate_instructions(
     state: &mut State,
@@ -1866,12 +1870,10 @@ fn test_switch_out_move_does_not_trigger_if_voltswitch_missed() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideOne,
-                damage_amount: 48,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 48,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -2393,9 +2395,7 @@ fn test_trickroom() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::ToggleTrickRoom,
-        ],
+        instruction_list: vec![Instruction::ToggleTrickRoom],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -2413,9 +2413,7 @@ fn test_undo_trickroom() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::ToggleTrickRoom,
-        ],
+        instruction_list: vec![Instruction::ToggleTrickRoom],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

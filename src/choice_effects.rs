@@ -565,7 +565,9 @@ pub fn choice_special_effect(
     match choice.move_id {
         Choices::TRICKROOM => {
             state.trick_room = !state.trick_room;
-            instructions.instruction_list.push(Instruction::ToggleTrickRoom);
+            instructions
+                .instruction_list
+                .push(Instruction::ToggleTrickRoom);
         }
         Choices::PAINSPLIT => {
             let target_hp = (attacking_side.get_active_immutable().hp

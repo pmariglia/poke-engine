@@ -1,6 +1,6 @@
+use crate::evaluate::evaluate;
 use crate::generate_instructions::generate_instructions_from_move_pair;
 use crate::state::{MoveChoice, State};
-use crate::evaluate::evaluate;
 
 const _WIN_BONUS: f32 = 1000.0;
 
@@ -84,7 +84,11 @@ pub fn expectiminimax_search(
     return score_lookup;
 }
 
-pub fn pick_safest(score_lookup: &Vec<f32>, num_s1_moves: usize, num_s2_moves: usize) -> (usize, f32) {
+pub fn pick_safest(
+    score_lookup: &Vec<f32>,
+    num_s1_moves: usize,
+    num_s2_moves: usize,
+) -> (usize, f32) {
     let mut best_worst_case = f32::MIN;
     let mut best_worst_case_s1_index = 0;
     let mut vec_index = 0;
@@ -104,7 +108,7 @@ pub fn pick_safest(score_lookup: &Vec<f32>, num_s1_moves: usize, num_s2_moves: u
         }
     }
 
-    return (best_worst_case_s1_index, best_worst_case)
+    return (best_worst_case_s1_index, best_worst_case);
 }
 
 fn re_order_moves_for_iterative_deepening(
@@ -150,13 +154,23 @@ pub fn iterative_deepen_expectiminimax(
     let start_time = std::time::Instant::now();
     result = expectiminimax_search(state, 1, side_one_options, side_two_options, ab_prune);
 
-    for i in 2..depth+1 {
+    for i in 2..depth + 1 {
         let elapsed = start_time.elapsed();
         if elapsed > max_time {
             break;
         }
-        (re_ordered_s1_options, re_ordered_s2_options) = re_order_moves_for_iterative_deepening(&result, re_ordered_s1_options, re_ordered_s2_options);
-        result = expectiminimax_search(state, i, re_ordered_s1_options.clone(), re_ordered_s2_options.clone(), ab_prune);
+        (re_ordered_s1_options, re_ordered_s2_options) = re_order_moves_for_iterative_deepening(
+            &result,
+            re_ordered_s1_options,
+            re_ordered_s2_options,
+        );
+        result = expectiminimax_search(
+            state,
+            i,
+            re_ordered_s1_options.clone(),
+            re_ordered_s2_options.clone(),
+            ab_prune,
+        );
     }
 
     return (re_ordered_s1_options, re_ordered_s2_options, result);

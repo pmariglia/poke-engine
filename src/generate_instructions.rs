@@ -47,10 +47,14 @@ fn generate_instructions_from_switch(
         side.switch_out_move_triggered = false;
         match switching_side_ref {
             SideReference::SideOne => {
-                incoming_instructions.instruction_list.push(Instruction::ToggleSideOneSwitchOutMove);
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::ToggleSideOneSwitchOutMove);
             }
             SideReference::SideTwo => {
-                incoming_instructions.instruction_list.push(Instruction::ToggleSideTwoSwitchOutMove);
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::ToggleSideTwoSwitchOutMove);
             }
         }
     }
@@ -1228,7 +1232,9 @@ pub fn generate_instructions_from_move(
                             Instruction::SetSideTwoMoveSecondSwitchOutMove(
                                 SetSecondMoveSwitchOutMoveInstruction {
                                     new_choice: defender_choice.move_id,
-                                    previous_choice: state.side_two.switch_out_move_second_saved_move,
+                                    previous_choice: state
+                                        .side_two
+                                        .switch_out_move_second_saved_move,
                                 },
                             ),
                         );
@@ -1238,7 +1244,9 @@ pub fn generate_instructions_from_move(
                             Instruction::SetSideTwoMoveSecondSwitchOutMove(
                                 SetSecondMoveSwitchOutMoveInstruction {
                                     new_choice: Choices::NONE,
-                                    previous_choice: state.side_two.switch_out_move_second_saved_move,
+                                    previous_choice: state
+                                        .side_two
+                                        .switch_out_move_second_saved_move,
                                 },
                             ),
                         );
@@ -1259,7 +1267,9 @@ pub fn generate_instructions_from_move(
                             Instruction::SetSideOneMoveSecondSwitchOutMove(
                                 SetSecondMoveSwitchOutMoveInstruction {
                                     new_choice: defender_choice.move_id,
-                                    previous_choice: state.side_one.switch_out_move_second_saved_move,
+                                    previous_choice: state
+                                        .side_one
+                                        .switch_out_move_second_saved_move,
                                 },
                             ),
                         );
@@ -1269,7 +1279,9 @@ pub fn generate_instructions_from_move(
                             Instruction::SetSideOneMoveSecondSwitchOutMove(
                                 SetSecondMoveSwitchOutMoveInstruction {
                                     new_choice: Choices::NONE,
-                                    previous_choice: state.side_one.switch_out_move_second_saved_move,
+                                    previous_choice: state
+                                        .side_one
+                                        .switch_out_move_second_saved_move,
                                 },
                             ),
                         );
