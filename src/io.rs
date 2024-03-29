@@ -1,15 +1,22 @@
 use std::io;
 use std::io::Write;
+use clap::Parser;
 use crate::choices::Choices;
 use crate::generate_instructions::generate_instructions_from_move_pair;
 use crate::instruction::{Instruction, StateInstructions};
 use crate::search::expectiminimax_search;
-use crate::state::{Move, MoveChoice, Pokemon, State};
+use crate::state::{MoveChoice, Pokemon, State};
 
 struct IOData {
     state: State,
     instruction_list: Vec<Vec<Instruction>>,
     last_instructions_generated: Vec<StateInstructions>
+}
+
+#[derive(Parser)]
+struct Cli {
+    #[clap(short, long, default_value = "")]
+    state: String
 }
 
 impl Default for IOData {
@@ -30,8 +37,16 @@ impl Pokemon {
     }
 }
 
+
+
 pub fn command_loop() {
+    let args = Cli::parse();
     let mut io_data = IOData::default();
+
+    if args.state != "" {
+        let state = State::deserialize(args.state.as_str());
+        io_data.state = state;
+    }
     loop {
         print!("> ");
         io::stdout().flush();

@@ -9,6 +9,7 @@ edition = "2018"
 debug = 1
 
 [dependencies]
+clap = { version = "4.5.4", features = ["derive"] }
 
 lazy_static = "1.4.0"
 serde = { version = "1.0.197", features = ["derive"] }
