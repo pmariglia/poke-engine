@@ -87,7 +87,7 @@ fn get_boost_multiplier(boost: i8) -> f32 {
         -4 => return POKEMON_BOOST_MULTIPLIER_NEG_4,
         -5 => return POKEMON_BOOST_MULTIPLIER_NEG_5,
         -6 => return POKEMON_BOOST_MULTIPLIER_NEG_6,
-        _ => return panic!("Invalid boost value: {}", boost),
+        _ => panic!("Invalid boost value: {}", boost),
     }
 }
 

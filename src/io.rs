@@ -125,7 +125,23 @@ pub fn main() {
 
         let safest = pick_safest(&result, side_one_options.len(), side_two_options.len());
 
-        println!("{:?}: {}", side_one_options[safest.0], safest.1);
+        let side = io_data.state.side_one;
+        let move_choice = side_one_options[safest.0];
+
+        println!("choice id: {:?}", move_choice);
+        match move_choice {
+            MoveChoice::Move(index) => {
+                println!("choice name: {:?}", side.get_active_immutable().moves[index].id);
+            }
+            MoveChoice::Switch(index) => {
+                println!("choice: switch {:?}", side.pokemon[index].id);
+            }
+            MoveChoice::None => {
+                println!("no move");
+            }
+        }
+        println!("evaluation: {}", safest.1);
+
         exit(1);
     }
 

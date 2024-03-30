@@ -17,7 +17,9 @@ pub fn expectiminimax_search(
 
     let battle_is_over = state.battle_is_over();
     if battle_is_over != 0.0 {
-        evaluate(state) * 100.0;
+        for _ in 0..(num_s1_moves * num_s2_moves) {
+            score_lookup.push(evaluate(state) * 100.0 * battle_is_over);
+        }
         return score_lookup;
     }
 
