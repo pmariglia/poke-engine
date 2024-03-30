@@ -13,7 +13,7 @@ use std::str::FromStr;
 impl FromStr for Choices {
     type Err = ();
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        match input {
+        match input.to_uppercase().as_str() {
             "NONE" => Ok(Choices::NONE),
             "ABSORB" => Ok(Choices::ABSORB),
             "ACCELEROCK" => Ok(Choices::ACCELEROCK),
@@ -899,7 +899,7 @@ impl FromStr for Abilities {
     type Err = ();
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        match input {
+        match input.to_uppercase().as_str() {
             "RIPEN" => Ok(Abilities::RIPEN),
             "TANGLEDFEET" => Ok(Abilities::TANGLEDFEET),
             "DRAGONSMAW" => Ok(Abilities::DRAGONSMAW),
@@ -1191,7 +1191,7 @@ impl FromStr for Items {
     type Err = ();
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        match input {
+        match input.to_uppercase().as_str() {
             "NONE" => Ok(Items::NONE),
             "ABSORBBULB" => Ok(Items::ABSORBBULB),
             "AIRBALLOON" => Ok(Items::AIRBALLOON),
@@ -1310,26 +1310,26 @@ impl PokemonType {
     }
 
     pub fn deserialize(input: &str) -> PokemonType {
-        match input {
-            "Normal" => PokemonType::Normal,
-            "Fire" => PokemonType::Fire,
-            "Water" => PokemonType::Water,
-            "Electric" => PokemonType::Electric,
-            "Grass" => PokemonType::Grass,
-            "Ice" => PokemonType::Ice,
-            "Fighting" => PokemonType::Fighting,
-            "Poison" => PokemonType::Poison,
-            "Ground" => PokemonType::Ground,
-            "Flying" => PokemonType::Flying,
-            "Psychic" => PokemonType::Psychic,
-            "Bug" => PokemonType::Bug,
-            "Rock" => PokemonType::Rock,
-            "Ghost" => PokemonType::Ghost,
-            "Dragon" => PokemonType::Dragon,
-            "Dark" => PokemonType::Dark,
-            "Steel" => PokemonType::Steel,
-            "Fairy" => PokemonType::Fairy,
-            "Typeless" => PokemonType::Typeless,
+        match input.to_lowercase().as_str() {
+            "normal" => PokemonType::Normal,
+            "fire" => PokemonType::Fire,
+            "water" => PokemonType::Water,
+            "electric" => PokemonType::Electric,
+            "grass" => PokemonType::Grass,
+            "ice" => PokemonType::Ice,
+            "fighting" => PokemonType::Fighting,
+            "poison" => PokemonType::Poison,
+            "ground" => PokemonType::Ground,
+            "flying" => PokemonType::Flying,
+            "psychic" => PokemonType::Psychic,
+            "bug" => PokemonType::Bug,
+            "rock" => PokemonType::Rock,
+            "ghost" => PokemonType::Ghost,
+            "dragon" => PokemonType::Dragon,
+            "dark" => PokemonType::Dark,
+            "steel" => PokemonType::Steel,
+            "fairy" => PokemonType::Fairy,
+            "typeless" => PokemonType::Typeless,
             _ => panic!("Invalid type: {}", input),
         }
     }
@@ -1341,14 +1341,14 @@ impl PokemonStatus {
     }
 
     pub fn deserialize(input: &str) -> PokemonStatus {
-        match input {
-            "None" => PokemonStatus::None,
-            "Burn" => PokemonStatus::Burn,
-            "Sleep" => PokemonStatus::Sleep,
-            "Freeze" => PokemonStatus::Freeze,
-            "Paralyze" => PokemonStatus::Paralyze,
-            "Poison" => PokemonStatus::Poison,
-            "Toxic" => PokemonStatus::Toxic,
+        match input.to_lowercase().as_str() {
+            "none" => PokemonStatus::None,
+            "burn" => PokemonStatus::Burn,
+            "sleep" => PokemonStatus::Sleep,
+            "freeze" => PokemonStatus::Freeze,
+            "paralyze" => PokemonStatus::Paralyze,
+            "poison" => PokemonStatus::Poison,
+            "toxic" => PokemonStatus::Toxic,
             _ => panic!("Invalid status: {}", input),
         }
     }
@@ -1360,32 +1360,32 @@ impl PokemonNatures {
     }
 
     pub fn deserialize(input: &str) -> PokemonNatures {
-        match input {
-            "Lonely" => PokemonNatures::Lonely,
-            "Adamant" => PokemonNatures::Adamant,
-            "Naughty" => PokemonNatures::Naughty,
-            "Brave" => PokemonNatures::Brave,
-            "Bold" => PokemonNatures::Bold,
-            "Impish" => PokemonNatures::Impish,
-            "Lax" => PokemonNatures::Lax,
-            "Relaxed" => PokemonNatures::Relaxed,
-            "Modest" => PokemonNatures::Modest,
-            "Mild" => PokemonNatures::Mild,
-            "Rash" => PokemonNatures::Rash,
-            "Quiet" => PokemonNatures::Quiet,
-            "Calm" => PokemonNatures::Calm,
-            "Gentle" => PokemonNatures::Gentle,
-            "Careful" => PokemonNatures::Careful,
-            "Sassy" => PokemonNatures::Sassy,
-            "Timid" => PokemonNatures::Timid,
-            "Hasty" => PokemonNatures::Hasty,
-            "Jolly" => PokemonNatures::Jolly,
-            "Naive" => PokemonNatures::Naive,
-            "Hardy" => PokemonNatures::Hardy,
-            "Docile" => PokemonNatures::Docile,
-            "Bashful" => PokemonNatures::Bashful,
-            "Quirky" => PokemonNatures::Quirky,
-            "Serious" => PokemonNatures::Serious,
+        match input.to_lowercase().as_str() {
+            "lonely" => PokemonNatures::Lonely,
+            "adamant" => PokemonNatures::Adamant,
+            "naughty" => PokemonNatures::Naughty,
+            "brave" => PokemonNatures::Brave,
+            "bold" => PokemonNatures::Bold,
+            "impish" => PokemonNatures::Impish,
+            "lax" => PokemonNatures::Lax,
+            "relaxed" => PokemonNatures::Relaxed,
+            "modest" => PokemonNatures::Modest,
+            "mild" => PokemonNatures::Mild,
+            "rash" => PokemonNatures::Rash,
+            "quiet" => PokemonNatures::Quiet,
+            "calm" => PokemonNatures::Calm,
+            "gentle" => PokemonNatures::Gentle,
+            "careful" => PokemonNatures::Careful,
+            "sassy" => PokemonNatures::Sassy,
+            "timid" => PokemonNatures::Timid,
+            "hasty" => PokemonNatures::Hasty,
+            "jolly" => PokemonNatures::Jolly,
+            "naive" => PokemonNatures::Naive,
+            "hardy" => PokemonNatures::Hardy,
+            "docile" => PokemonNatures::Docile,
+            "bashful" => PokemonNatures::Bashful,
+            "quirky" => PokemonNatures::Quirky,
+            "serious" => PokemonNatures::Serious,
             _ => panic!("Invalid nature: {}", input),
         }
     }
@@ -1397,90 +1397,90 @@ impl PokemonVolatileStatus {
     }
 
     pub fn deserialize(input: &str) -> PokemonVolatileStatus {
-        match input {
-            "AquaRing" => PokemonVolatileStatus::AquaRing,
-            "Attract" => PokemonVolatileStatus::Attract,
-            "Autotomize" => PokemonVolatileStatus::Autotomize,
-            "BanefulBunker" => PokemonVolatileStatus::BanefulBunker,
-            "Bide" => PokemonVolatileStatus::Bide,
-            "Bounce" => PokemonVolatileStatus::Bounce,
-            "Charge" => PokemonVolatileStatus::Charge,
-            "Confusion" => PokemonVolatileStatus::Confusion,
-            "Curse" => PokemonVolatileStatus::Curse,
-            "DefenseCurl" => PokemonVolatileStatus::DefenseCurl,
-            "DestinyBond" => PokemonVolatileStatus::DestinyBond,
-            "Dig" => PokemonVolatileStatus::Dig,
-            "Disable" => PokemonVolatileStatus::Disable,
-            "Dive" => PokemonVolatileStatus::Dive,
-            "Electrify" => PokemonVolatileStatus::Electrify,
-            "Embargo" => PokemonVolatileStatus::Embargo,
-            "Encore" => PokemonVolatileStatus::Encore,
-            "Endure" => PokemonVolatileStatus::Endure,
-            "FlashFire" => PokemonVolatileStatus::FlashFire,
-            "Flinch" => PokemonVolatileStatus::Flinch,
-            "Fly" => PokemonVolatileStatus::Fly,
-            "Focusenergy" => PokemonVolatileStatus::Focusenergy,
-            "FollowMe" => PokemonVolatileStatus::FollowMe,
-            "Foresight" => PokemonVolatileStatus::Foresight,
-            "Freezeshock" => PokemonVolatileStatus::Freezeshock,
-            "GastroAcid" => PokemonVolatileStatus::GastroAcid,
-            "Geomancy" => PokemonVolatileStatus::Geomancy,
-            "GlaiveRush" => PokemonVolatileStatus::GlaiveRush,
-            "Grudge" => PokemonVolatileStatus::Grudge,
-            "HealBlock" => PokemonVolatileStatus::HealBlock,
-            "HelpingHand" => PokemonVolatileStatus::HelpingHand,
-            "IceBurn" => PokemonVolatileStatus::IceBurn,
-            "Imprison" => PokemonVolatileStatus::Imprison,
-            "Ingrain" => PokemonVolatileStatus::Ingrain,
-            "KingsShield" => PokemonVolatileStatus::KingsShield,
-            "LaserFocus" => PokemonVolatileStatus::LaserFocus,
-            "LeechSeed" => PokemonVolatileStatus::LeechSeed,
-            "LockedMove" => PokemonVolatileStatus::LockedMove,
-            "MagicCoat" => PokemonVolatileStatus::MagicCoat,
-            "MagnetRise" => PokemonVolatileStatus::MagnetRise,
-            "MaxGuard" => PokemonVolatileStatus::MaxGuard,
-            "MeteorBeam" => PokemonVolatileStatus::MeteorBeam,
-            "Minimize" => PokemonVolatileStatus::Minimize,
-            "MiracleEye" => PokemonVolatileStatus::MiracleEye,
-            "MustRecharge" => PokemonVolatileStatus::MustRecharge,
-            "Nightmare" => PokemonVolatileStatus::Nightmare,
-            "NoRetreat" => PokemonVolatileStatus::NoRetreat,
-            "Octolock" => PokemonVolatileStatus::Octolock,
-            "PartiallyTrapped" => PokemonVolatileStatus::PartiallyTrapped,
-            "PhantomForce" => PokemonVolatileStatus::PhantomForce,
-            "Powder" => PokemonVolatileStatus::Powder,
-            "PowerShift" => PokemonVolatileStatus::PowerShift,
-            "PowerTrick" => PokemonVolatileStatus::PowerTrick,
-            "Protect" => PokemonVolatileStatus::Protect,
-            "Rage" => PokemonVolatileStatus::Rage,
-            "RagePowder" => PokemonVolatileStatus::RagePowder,
-            "RazorWind" => PokemonVolatileStatus::RazorWind,
-            "Roost" => PokemonVolatileStatus::Roost,
-            "SaltCure" => PokemonVolatileStatus::SaltCure,
-            "ShadowForce" => PokemonVolatileStatus::ShadowForce,
-            "SkullBash" => PokemonVolatileStatus::SkullBash,
-            "SkyAttack" => PokemonVolatileStatus::SkyAttack,
-            "SkyDrop" => PokemonVolatileStatus::SkyDrop,
-            "SilkTrap" => PokemonVolatileStatus::SilkTrap,
-            "SmackDown" => PokemonVolatileStatus::SmackDown,
-            "Snatch" => PokemonVolatileStatus::Snatch,
-            "SolarBeam" => PokemonVolatileStatus::SolarBeam,
-            "SolarBlade" => PokemonVolatileStatus::SolarBlade,
-            "SparklingAria" => PokemonVolatileStatus::SparklingAria,
-            "SpikyShield" => PokemonVolatileStatus::SpikyShield,
-            "Spotlight" => PokemonVolatileStatus::Spotlight,
-            "StockPile" => PokemonVolatileStatus::StockPile,
-            "Substitute" => PokemonVolatileStatus::Substitute,
-            "SyrupBomb" => PokemonVolatileStatus::SyrupBomb,
-            "TarShot" => PokemonVolatileStatus::TarShot,
-            "Taunt" => PokemonVolatileStatus::Taunt,
-            "Telekinesis" => PokemonVolatileStatus::Telekinesis,
-            "ThroatChop" => PokemonVolatileStatus::ThroatChop,
-            "Torment" => PokemonVolatileStatus::Torment,
-            "Unburden" => PokemonVolatileStatus::Unburden,
-            "Uproar" => PokemonVolatileStatus::Uproar,
-            "Yawn" => PokemonVolatileStatus::Yawn,
-            _ => panic!("Invalid volatilestatus: {}", input),
+        match input.to_lowercase().as_str() {
+            "aquaring" => PokemonVolatileStatus::AquaRing,
+            "attract" => PokemonVolatileStatus::Attract,
+            "autotomize" => PokemonVolatileStatus::Autotomize,
+            "banefulbunker" => PokemonVolatileStatus::BanefulBunker,
+            "bide" => PokemonVolatileStatus::Bide,
+            "bounce" => PokemonVolatileStatus::Bounce,
+            "charge" => PokemonVolatileStatus::Charge,
+            "confusion" => PokemonVolatileStatus::Confusion,
+            "curse" => PokemonVolatileStatus::Curse,
+            "defensecurl" => PokemonVolatileStatus::DefenseCurl,
+            "destinybond" => PokemonVolatileStatus::DestinyBond,
+            "dig" => PokemonVolatileStatus::Dig,
+            "disable" => PokemonVolatileStatus::Disable,
+            "dive" => PokemonVolatileStatus::Dive,
+            "electrify" => PokemonVolatileStatus::Electrify,
+            "embargo" => PokemonVolatileStatus::Embargo,
+            "encore" => PokemonVolatileStatus::Encore,
+            "endure" => PokemonVolatileStatus::Endure,
+            "flashfire" => PokemonVolatileStatus::FlashFire,
+            "flinch" => PokemonVolatileStatus::Flinch,
+            "fly" => PokemonVolatileStatus::Fly,
+            "focusenergy" => PokemonVolatileStatus::Focusenergy,
+            "followme" => PokemonVolatileStatus::FollowMe,
+            "foresight" => PokemonVolatileStatus::Foresight,
+            "freezeshock" => PokemonVolatileStatus::Freezeshock,
+            "gastroacid" => PokemonVolatileStatus::GastroAcid,
+            "geomancy" => PokemonVolatileStatus::Geomancy,
+            "glaiverush" => PokemonVolatileStatus::GlaiveRush,
+            "grudge" => PokemonVolatileStatus::Grudge,
+            "healblock" => PokemonVolatileStatus::HealBlock,
+            "helpinghand" => PokemonVolatileStatus::HelpingHand,
+            "iceburn" => PokemonVolatileStatus::IceBurn,
+            "imprison" => PokemonVolatileStatus::Imprison,
+            "ingrain" => PokemonVolatileStatus::Ingrain,
+            "kingsshield" => PokemonVolatileStatus::KingsShield,
+            "laserfocus" => PokemonVolatileStatus::LaserFocus,
+            "leechseed" => PokemonVolatileStatus::LeechSeed,
+            "lockedmove" => PokemonVolatileStatus::LockedMove,
+            "magiccoat" => PokemonVolatileStatus::MagicCoat,
+            "magnetrise" => PokemonVolatileStatus::MagnetRise,
+            "maxguard" => PokemonVolatileStatus::MaxGuard,
+            "meteorbeam" => PokemonVolatileStatus::MeteorBeam,
+            "minimize" => PokemonVolatileStatus::Minimize,
+            "miracleeye" => PokemonVolatileStatus::MiracleEye,
+            "mustrecharge" => PokemonVolatileStatus::MustRecharge,
+            "nightmare" => PokemonVolatileStatus::Nightmare,
+            "noretreat" => PokemonVolatileStatus::NoRetreat,
+            "octolock" => PokemonVolatileStatus::Octolock,
+            "partiallytrapped" => PokemonVolatileStatus::PartiallyTrapped,
+            "phantomforce" => PokemonVolatileStatus::PhantomForce,
+            "powder" => PokemonVolatileStatus::Powder,
+            "powershift" => PokemonVolatileStatus::PowerShift,
+            "powertrick" => PokemonVolatileStatus::PowerTrick,
+            "protect" => PokemonVolatileStatus::Protect,
+            "rage" => PokemonVolatileStatus::Rage,
+            "ragepowder" => PokemonVolatileStatus::RagePowder,
+            "razorwind" => PokemonVolatileStatus::RazorWind,
+            "roost" => PokemonVolatileStatus::Roost,
+            "saltcure" => PokemonVolatileStatus::SaltCure,
+            "shadowforce" => PokemonVolatileStatus::ShadowForce,
+            "skullbash" => PokemonVolatileStatus::SkullBash,
+            "skyattack" => PokemonVolatileStatus::SkyAttack,
+            "skydrop" => PokemonVolatileStatus::SkyDrop,
+            "silktrap" => PokemonVolatileStatus::SilkTrap,
+            "smackdown" => PokemonVolatileStatus::SmackDown,
+            "snatch" => PokemonVolatileStatus::Snatch,
+            "solarbeam" => PokemonVolatileStatus::SolarBeam,
+            "solarblade" => PokemonVolatileStatus::SolarBlade,
+            "sparklingaria" => PokemonVolatileStatus::SparklingAria,
+            "spikyshield" => PokemonVolatileStatus::SpikyShield,
+            "spotlight" => PokemonVolatileStatus::Spotlight,
+            "stockpile" => PokemonVolatileStatus::StockPile,
+            "substitute" => PokemonVolatileStatus::Substitute,
+            "syrupbomb" => PokemonVolatileStatus::SyrupBomb,
+            "tarshot" => PokemonVolatileStatus::TarShot,
+            "taunt" => PokemonVolatileStatus::Taunt,
+            "telekinesis" => PokemonVolatileStatus::Telekinesis,
+            "throatchop" => PokemonVolatileStatus::ThroatChop,
+            "torment" => PokemonVolatileStatus::Torment,
+            "unburden" => PokemonVolatileStatus::Unburden,
+            "uproar" => PokemonVolatileStatus::Uproar,
+            "yawn" => PokemonVolatileStatus::Yawn,
+            _ => PokemonVolatileStatus::None,
         }
     }
 }
@@ -1652,7 +1652,7 @@ impl SideConditions {
 impl Side {
     pub fn serialize(&self) -> String {
         return format!(
-            "{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}",
+            "{}={}={}={}={}={}={}={}={}={}={}={}",
             self.pokemon.p0.serialize(),
             self.pokemon.p1.serialize(),
             self.pokemon.p2.serialize(),
@@ -1668,7 +1668,7 @@ impl Side {
         );
     }
     pub fn deserialize(serialized: &str) -> Side {
-        let split: Vec<&str> = serialized.split("-").collect();
+        let split: Vec<&str> = serialized.split("=").collect();
         return Side {
             active_index: PokemonIndex::deserialize(split[6]),
             pokemon: SidePokemon {
@@ -1692,14 +1692,14 @@ impl Side {
 
 impl Weather {
     pub fn from_str(input: &str) -> Result<Weather, ()> {
-        match input {
-            "None" => Ok(Weather::None),
-            "Rain" => Ok(Weather::Rain),
-            "Sun" => Ok(Weather::Sun),
-            "Sand" => Ok(Weather::Sand),
-            "Hail" => Ok(Weather::Hail),
-            "HarshSun" => Ok(Weather::HarshSun),
-            "HeavyRain" => Ok(Weather::HeavyRain),
+        match input.to_lowercase().as_str() {
+            "none" => Ok(Weather::None),
+            "rain" => Ok(Weather::Rain),
+            "sun" => Ok(Weather::Sun),
+            "sand" => Ok(Weather::Sand),
+            "hail" => Ok(Weather::Hail),
+            "harshsun" => Ok(Weather::HarshSun),
+            "heavyrain" => Ok(Weather::HeavyRain),
             _ => Err(()),
         }
     }
@@ -1720,12 +1720,12 @@ impl StateWeather {
 
 impl Terrain {
     pub fn from_str(input: &str) -> Result<Terrain, ()> {
-        match input {
-            "None" => Ok(Terrain::None),
-            "ElectricTerrain" => Ok(Terrain::ElectricTerrain),
-            "GrassyTerrain" => Ok(Terrain::GrassyTerrain),
-            "MistyTerrain" => Ok(Terrain::MistyTerrain),
-            "PsychicTerrain" => Ok(Terrain::PsychicTerrain),
+        match input.to_lowercase().as_str() {
+            "none" => Ok(Terrain::None),
+            "electricterrain" => Ok(Terrain::ElectricTerrain),
+            "grassyterrain" => Ok(Terrain::GrassyTerrain),
+            "mistyterrain" => Ok(Terrain::MistyTerrain),
+            "psychicterrain" => Ok(Terrain::PsychicTerrain),
             _ => Err(()),
         }
     }

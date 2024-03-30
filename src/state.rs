@@ -49,6 +49,7 @@ pub enum PokemonStatus {
 
 #[derive(PartialEq, Eq, Hash, Debug, Copy, Clone)]
 pub enum PokemonVolatileStatus {
+    None,
     AquaRing,
     Attract,
     Autotomize,

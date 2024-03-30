@@ -134,7 +134,7 @@ pub fn main() {
                 println!("choice name: {:?}", side.get_active_immutable().moves[index].id);
             }
             MoveChoice::Switch(index) => {
-                println!("choice: switch {:?}", side.pokemon[index].id);
+                println!("choice: switch {}", side.pokemon[index].id);
             }
             MoveChoice::None => {
                 println!("no move");
