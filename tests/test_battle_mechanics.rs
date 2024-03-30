@@ -1338,7 +1338,7 @@ fn test_drag_move_against_protect_and_substitute() {
 fn test_rockyhelmet_damage_taken() {
     let mut state = State::default();
     state.side_one.get_active().speed = 150;
-    state.side_two.get_active().item = Items::RockyHelmet;
+    state.side_two.get_active().item = Items::ROCKYHELMET;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -1394,7 +1394,7 @@ fn test_rockyhelmet_does_not_overkill() {
     let mut state = State::default();
     state.side_one.get_active().speed = 150;
     state.side_one.get_active().hp = 1;
-    state.side_two.get_active().item = Items::RockyHelmet;
+    state.side_two.get_active().item = Items::ROCKYHELMET;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -1421,7 +1421,7 @@ fn test_rockyhelmet_does_not_overkill() {
 #[test]
 fn test_choiceband_locking() {
     let mut state = State::default();
-    state.side_one.get_active().item = Items::ChoiceBand;
+    state.side_one.get_active().item = Items::CHOICEBAND;
     state.side_one.get_active().moves[PokemonMoveIndex::M0] = Move {
         id: Choices::WILLOWISP,
         disabled: false,
@@ -1532,7 +1532,7 @@ fn test_fighting_move_with_blackbelt() {
     let mut state = State::default();
     state.side_two.get_active().hp = 300;
     state.side_two.get_active().maxhp = 300;
-    state.side_one.get_active().item = Items::BlackBelt;
+    state.side_one.get_active().item = Items::BLACKBELT;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -1555,7 +1555,7 @@ fn test_expert_belt_boost() {
     let mut state = State::default();
     state.side_two.get_active().hp = 300;
     state.side_two.get_active().maxhp = 300;
-    state.side_one.get_active().item = Items::ExpertBelt;
+    state.side_one.get_active().item = Items::EXPERTBELT;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2136,7 +2136,7 @@ fn test_noretreat_with_vs_already() {
 fn test_poltergeist() {
     let mut state = State::default();
     state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Dragon);
-    state.side_two.get_active().item = Items::BlunderPolicy;
+    state.side_two.get_active().item = Items::BLUNDERPOLICY;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2552,8 +2552,8 @@ fn test_solarbeam_in_sun() {
 #[test]
 fn test_trick() {
     let mut state = State::default();
-    state.side_one.get_active().item = Items::SilverPowder;
-    state.side_two.get_active().item = Items::ExpertBelt;
+    state.side_one.get_active().item = Items::SILVERPOWDER;
+    state.side_two.get_active().item = Items::EXPERTBELT;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2566,13 +2566,13 @@ fn test_trick() {
         instruction_list: vec![
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideOne,
-                current_item: Items::SilverPowder,
-                new_item: Items::ExpertBelt,
+                current_item: Items::SILVERPOWDER,
+                new_item: Items::EXPERTBELT,
             }),
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideTwo,
-                current_item: Items::ExpertBelt,
-                new_item: Items::SilverPowder,
+                current_item: Items::EXPERTBELT,
+                new_item: Items::SILVERPOWDER,
             }),
         ],
     }];
@@ -2582,7 +2582,7 @@ fn test_trick() {
 #[test]
 fn test_trick_with_one_side_having_no_item() {
     let mut state = State::default();
-    state.side_one.get_active().item = Items::SilverPowder;
+    state.side_one.get_active().item = Items::SILVERPOWDER;
     state.side_two.get_active().item = Items::NONE;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -2596,13 +2596,13 @@ fn test_trick_with_one_side_having_no_item() {
         instruction_list: vec![
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideOne,
-                current_item: Items::SilverPowder,
+                current_item: Items::SILVERPOWDER,
                 new_item: Items::NONE,
             }),
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideTwo,
                 current_item: Items::NONE,
-                new_item: Items::SilverPowder,
+                new_item: Items::SILVERPOWDER,
             }),
         ],
     }];
@@ -2858,7 +2858,7 @@ fn test_expert_belt_does_not_boost() {
     state.side_two.get_active().hp = 300;
     state.side_two.get_active().maxhp = 300;
     state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Dragon);
-    state.side_one.get_active().item = Items::ExpertBelt;
+    state.side_one.get_active().item = Items::EXPERTBELT;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2941,7 +2941,7 @@ fn test_multi_hit_move_where_first_hit_breaks_substitute() {
 #[test]
 fn test_contact_multi_hit_move_versus_rockyhelmet() {
     let mut state = State::default();
-    state.side_two.get_active().item = Items::RockyHelmet;
+    state.side_two.get_active().item = Items::ROCKYHELMET;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2976,7 +2976,7 @@ fn test_contact_multi_hit_move_versus_rockyhelmet() {
 #[test]
 fn test_skilllink_always_has_5_hits() {
     let mut state = State::default();
-    state.side_two.get_active().item = Items::RockyHelmet;
+    state.side_two.get_active().item = Items::ROCKYHELMET;
     state.side_one.get_active().ability = Abilities::SKILLLINK;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -3022,7 +3022,7 @@ fn test_skilllink_always_has_5_hits() {
 #[test]
 fn test_triple_multihit_move_versus_substitute_and_rockyhelmet() {
     let mut state = State::default();
-    state.side_two.get_active().item = Items::RockyHelmet;
+    state.side_two.get_active().item = Items::ROCKYHELMET;
     state.side_two.get_active().substitute_health = 25;
     state
         .side_two
@@ -3113,7 +3113,7 @@ fn test_scaleshot_only_boosts_once() {
 #[test]
 fn test_lifeorb_boost_and_recoil() {
     let mut state = State::default();
-    state.side_one.get_active().item = Items::LifeOrb;
+    state.side_one.get_active().item = Items::LIFEORB;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -3141,7 +3141,7 @@ fn test_lifeorb_boost_and_recoil() {
 fn test_shellbell_drain() {
     let mut state = State::default();
     state.side_one.get_active().hp = 50;
-    state.side_one.get_active().item = Items::ShellBell;
+    state.side_one.get_active().item = Items::SHELLBELL;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -3168,7 +3168,7 @@ fn test_shellbell_drain() {
 #[test]
 fn test_absorbbulb() {
     let mut state = State::default();
-    state.side_two.get_active().item = Items::AbsorbBulb;
+    state.side_two.get_active().item = Items::ABSORBBULB;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -3190,7 +3190,7 @@ fn test_absorbbulb() {
             }),
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideTwo,
-                current_item: Items::AbsorbBulb,
+                current_item: Items::ABSORBBULB,
                 new_item: Items::NONE,
             }),
         ],
@@ -3914,7 +3914,7 @@ fn test_intimidate() {
 #[test]
 fn test_ground_move_versus_airballoon() {
     let mut state = State::default();
-    state.side_two.get_active().item = Items::AirBalloon;
+    state.side_two.get_active().item = Items::AIRBALLOON;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -3932,7 +3932,7 @@ fn test_ground_move_versus_airballoon() {
 #[test]
 fn test_non_ground_move_versus_airballoon() {
     let mut state = State::default();
-    state.side_two.get_active().item = Items::AirBalloon;
+    state.side_two.get_active().item = Items::AIRBALLOON;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -3949,7 +3949,7 @@ fn test_non_ground_move_versus_airballoon() {
             }),
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideTwo,
-                current_item: Items::AirBalloon,
+                current_item: Items::AIRBALLOON,
                 new_item: Items::NONE,
             }),
         ],
@@ -3960,7 +3960,7 @@ fn test_non_ground_move_versus_airballoon() {
 #[test]
 fn test_assaultvest() {
     let mut state = State::default();
-    state.side_two.get_active().item = Items::AssaultVest;
+    state.side_two.get_active().item = Items::ASSAULTVEST;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -3981,7 +3981,7 @@ fn test_assaultvest() {
 #[test]
 fn test_weaknesspolicy() {
     let mut state = State::default();
-    state.side_two.get_active().item = Items::WeaknessPolicy;
+    state.side_two.get_active().item = Items::WEAKNESSPOLICY;
     state.side_two.get_active().hp = 200;
     state.side_two.get_active().maxhp = 200;
     state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Normal);
@@ -4011,7 +4011,7 @@ fn test_weaknesspolicy() {
             }),
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideTwo,
-                current_item: Items::WeaknessPolicy,
+                current_item: Items::WEAKNESSPOLICY,
                 new_item: Items::NONE,
             }),
         ],
@@ -4022,7 +4022,7 @@ fn test_weaknesspolicy() {
 #[test]
 fn test_weaknesspolicy_does_not_overboost() {
     let mut state = State::default();
-    state.side_two.get_active().item = Items::WeaknessPolicy;
+    state.side_two.get_active().item = Items::WEAKNESSPOLICY;
     state.side_two.get_active().hp = 200;
     state.side_two.get_active().maxhp = 200;
     state.side_two.get_active().attack_boost = 5;
@@ -4053,7 +4053,7 @@ fn test_weaknesspolicy_does_not_overboost() {
             }),
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideTwo,
-                current_item: Items::WeaknessPolicy,
+                current_item: Items::WEAKNESSPOLICY,
                 new_item: Items::NONE,
             }),
         ],
@@ -4064,7 +4064,7 @@ fn test_weaknesspolicy_does_not_overboost() {
 #[test]
 fn test_switching_in_with_grassyseed_in_grassy_terrain() {
     let mut state = State::default();
-    state.side_two.pokemon[PokemonIndex::P1].item = Items::GrassySeed;
+    state.side_two.pokemon[PokemonIndex::P1].item = Items::GRASSYSEED;
     state.terrain.terrain_type = Terrain::GrassyTerrain;
     state.terrain.turns_remaining = 3;
 
@@ -4094,7 +4094,7 @@ fn test_switching_in_with_grassyseed_in_grassy_terrain() {
             }),
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideTwo,
-                current_item: Items::GrassySeed,
+                current_item: Items::GRASSYSEED,
                 new_item: Items::NONE,
             }),
         ],
@@ -4105,7 +4105,7 @@ fn test_switching_in_with_grassyseed_in_grassy_terrain() {
 #[test]
 fn test_contrary_with_seed() {
     let mut state = State::default();
-    state.side_two.pokemon[PokemonIndex::P1].item = Items::PsychicSeed;
+    state.side_two.pokemon[PokemonIndex::P1].item = Items::PSYCHICSEED;
     state.side_two.pokemon[PokemonIndex::P1].ability = Abilities::CONTRARY;
     state.terrain.terrain_type = Terrain::PsychicTerrain;
     state.terrain.turns_remaining = 3;
@@ -4136,7 +4136,7 @@ fn test_contrary_with_seed() {
             }),
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideTwo,
-                current_item: Items::PsychicSeed,
+                current_item: Items::PSYCHICSEED,
                 new_item: Items::NONE,
             }),
         ],
@@ -4324,7 +4324,7 @@ fn test_shielddust_stops_secondary_against_opponent() {
 #[test]
 fn test_throatspray_with_move_that_can_miss() {
     let mut state = State::default();
-    state.side_one.get_active().item = Items::ThroatSpray;
+    state.side_one.get_active().item = Items::THROATSPRAY;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -4353,7 +4353,7 @@ fn test_throatspray_with_move_that_can_miss() {
                 }),
                 Instruction::ChangeItem(ChangeItemInstruction {
                     side_ref: SideReference::SideOne,
-                    current_item: Items::ThroatSpray,
+                    current_item: Items::THROATSPRAY,
                     new_item: Items::NONE,
                 }),
             ],

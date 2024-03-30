@@ -536,7 +536,7 @@ impl Pokemon {
     pub fn is_grounded(&self) -> bool {
         if self.has_type(&PokemonType::Flying)
             || self.ability == Abilities::LEVITATE
-            || self.item == Items::AirBalloon
+            || self.item == Items::AIRBALLOON
         {
             return false;
         }
@@ -599,7 +599,7 @@ impl Pokemon {
             Abilities::FULLMETALBODY,
         ]
         .contains(&self.ability)
-            || ([Items::ClearAmulet].contains(&self.item))
+            || ([Items::CLEARAMULET].contains(&self.item))
         {
             return true;
         }
@@ -1171,7 +1171,7 @@ impl State {
                 .get_side_immutable(attacking_side_ref)
                 .get_active_immutable()
                 .item
-                == Items::ProtectivePads
+                == Items::PROTECTIVEPADS
             {
                 return false;
             }
