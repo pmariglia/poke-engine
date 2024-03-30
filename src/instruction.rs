@@ -64,8 +64,8 @@ pub enum Instruction {
     SetSideOneMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     ToggleTrickRoom,
-    ToggleSideOneSwitchOutMove,
-    ToggleSideTwoSwitchOutMove,
+    ToggleSideOneForceSwitch,
+    ToggleSideTwoForceSwitch,
 }
 
 #[derive(Debug, PartialEq, Clone)]

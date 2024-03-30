@@ -1686,7 +1686,7 @@ fn test_faster_uturn() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 55,
             }),
-            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::ToggleSideOneForceSwitch,
             Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
                 new_choice: Choices::SPLASH,
                 previous_choice: Choices::NONE,
@@ -1716,7 +1716,7 @@ fn test_faster_uturn_knocking_out_opponent() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 1,
             }),
-            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::ToggleSideOneForceSwitch,
             Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
                 new_choice: Choices::TACKLE,
                 previous_choice: Choices::NONE,
@@ -1745,7 +1745,7 @@ fn test_faster_uturn_with_opponent_move() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 55,
             }),
-            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::ToggleSideOneForceSwitch,
             Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
                 new_choice: Choices::TACKLE,
                 previous_choice: Choices::NONE,
@@ -1778,7 +1778,7 @@ fn test_slower_uturn_with_opponent_move() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 55,
             }),
-            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::ToggleSideOneForceSwitch,
             Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
                 new_choice: Choices::NONE,
                 previous_choice: Choices::NONE,
@@ -1811,7 +1811,7 @@ fn test_switch_out_move_does_not_trigger_end_of_turn() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 55,
             }),
-            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::ToggleSideOneForceSwitch,
             Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
                 new_choice: Choices::NONE,
                 previous_choice: Choices::NONE,
@@ -1881,7 +1881,7 @@ fn test_switch_out_move_does_not_trigger_if_voltswitch_missed() {
 #[test]
 fn test_switchout_flag_where_faster_switchout_move_knocked_out_opponent() {
     let mut state = State::default();
-    state.side_one.switch_out_move_triggered = true;
+    state.side_one.force_switch = true;
     state.side_two.switch_out_move_second_saved_move = Choices::TACKLE;
     state.side_two.get_active().hp = 0;
     state.side_two.get_active().moves[PokemonMoveIndex::M0] = Move {
@@ -1900,7 +1900,7 @@ fn test_switchout_flag_where_faster_switchout_move_knocked_out_opponent() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::ToggleSideOneForceSwitch,
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
                 previous_index: PokemonIndex::P0,
@@ -1914,7 +1914,7 @@ fn test_switchout_flag_where_faster_switchout_move_knocked_out_opponent() {
 #[test]
 fn test_switchout_flag_where_slower_switchout_move_knocked_out_opponent() {
     let mut state = State::default();
-    state.side_one.switch_out_move_triggered = true;
+    state.side_one.force_switch = true;
     state.side_two.switch_out_move_second_saved_move = Choices::NONE;
     state.side_two.get_active().hp = 0;
 
@@ -1927,7 +1927,7 @@ fn test_switchout_flag_where_slower_switchout_move_knocked_out_opponent() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::ToggleSideOneForceSwitch,
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
                 previous_index: PokemonIndex::P0,
@@ -1941,7 +1941,7 @@ fn test_switchout_flag_where_slower_switchout_move_knocked_out_opponent() {
 #[test]
 fn test_switch_out_move_flag_is_unset_after_next_move() {
     let mut state = State::default();
-    state.side_one.switch_out_move_triggered = true;
+    state.side_one.force_switch = true;
     state.side_two.switch_out_move_second_saved_move = Choices::TACKLE;
     state.side_two.get_active().moves[PokemonMoveIndex::M0] = Move {
         id: Choices::TACKLE,
@@ -1959,7 +1959,7 @@ fn test_switch_out_move_flag_is_unset_after_next_move() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::ToggleSideOneForceSwitch,
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
                 previous_index: PokemonIndex::P0,
@@ -1981,7 +1981,7 @@ fn test_end_of_turn_triggered_when_switchout_flag_is_removed() {
         weather_type: Weather::Sand,
         turns_remaining: 5,
     };
-    state.side_one.switch_out_move_triggered = true;
+    state.side_one.force_switch = true;
     state.side_two.switch_out_move_second_saved_move = Choices::TACKLE;
     state.side_two.get_active().moves[PokemonMoveIndex::M0] = Move {
         id: Choices::TACKLE,
@@ -1999,7 +1999,7 @@ fn test_end_of_turn_triggered_when_switchout_flag_is_removed() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::ToggleSideOneForceSwitch,
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
                 previous_index: PokemonIndex::P0,
@@ -2029,7 +2029,7 @@ fn test_end_of_turn_triggered_when_switchout_flag_is_removed_and_other_side_did_
         weather_type: Weather::Sand,
         turns_remaining: 5,
     };
-    state.side_one.switch_out_move_triggered = true;
+    state.side_one.force_switch = true;
     state.side_two.switch_out_move_second_saved_move = Choices::NONE;
 
     let vec_of_instructions = generate_instructions_from_move_pair(
@@ -2041,7 +2041,7 @@ fn test_end_of_turn_triggered_when_switchout_flag_is_removed_and_other_side_did_
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::ToggleSideOneSwitchOutMove,
+            Instruction::ToggleSideOneForceSwitch,
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
                 previous_index: PokemonIndex::P0,
@@ -2063,7 +2063,7 @@ fn test_end_of_turn_triggered_when_switchout_flag_is_removed_and_other_side_did_
 #[test]
 fn test_turn_after_switch_out_move_other_side_does_nothing() {
     let mut state = State::default();
-    state.side_one.switch_out_move_triggered = true;
+    state.side_one.force_switch = true;
     state.side_two.switch_out_move_second_saved_move = Choices::NONE;
 
     let (side_one_moves, side_two_moves) = state.get_all_options();
@@ -2085,7 +2085,7 @@ fn test_turn_after_switch_out_move_other_side_does_nothing() {
 #[test]
 fn test_turn_after_switch_out_move_other_side_has_forced_move() {
     let mut state = State::default();
-    state.side_one.switch_out_move_triggered = true;
+    state.side_one.force_switch = true;
     state.side_two.switch_out_move_second_saved_move = Choices::TACKLE;
     state.side_two.get_active().moves[PokemonMoveIndex::M0] = Move {
         id: Choices::TACKLE,

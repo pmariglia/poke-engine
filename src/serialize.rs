@@ -1663,7 +1663,7 @@ impl Side {
             self.side_conditions.serialize(),
             self.wish.0,
             self.wish.1,
-            self.switch_out_move_triggered,
+            self.force_switch,
             self.switch_out_move_second_saved_move.to_string(),
         );
     }
@@ -1684,7 +1684,7 @@ impl Side {
                 split[8].parse::<i8>().unwrap(),
                 split[9].parse::<i16>().unwrap(),
             ),
-            switch_out_move_triggered: split[10].parse::<bool>().unwrap(),
+            force_switch: split[10].parse::<bool>().unwrap(),
             switch_out_move_second_saved_move: Choices::from_str(split[11]).unwrap(),
         };
     }

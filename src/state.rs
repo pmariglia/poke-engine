@@ -764,13 +764,13 @@ pub struct Side {
     pub pokemon: SidePokemon,
     pub side_conditions: SideConditions,
     pub wish: (i8, i16),
-    pub switch_out_move_triggered: bool,
+    pub force_switch: bool,
     pub switch_out_move_second_saved_move: Choices,
 }
 
 impl Side {
-    fn toggle_switch_out_move(&mut self) {
-        self.switch_out_move_triggered = !self.switch_out_move_triggered;
+    fn toggle_force_switch(&mut self) {
+        self.force_switch = !self.force_switch;
     }
     pub fn add_switches(&self, vec: &mut Vec<MoveChoice>) {
         let mut iter = self.pokemon.into_iter();
@@ -889,7 +889,7 @@ impl Default for Side {
                 ..Default::default()
             },
             wish: (0, 0),
-            switch_out_move_triggered: false,
+            force_switch: false,
             switch_out_move_second_saved_move: Choices::NONE,
         }
     }
@@ -940,7 +940,7 @@ impl State {
         let mut side_one_options: Vec<MoveChoice> = Vec::with_capacity(9);
         let mut side_two_options: Vec<MoveChoice> = Vec::with_capacity(9);
 
-        if self.side_one.switch_out_move_triggered {
+        if self.side_one.force_switch {
             self.side_one.add_switches(&mut side_one_options);
             if self.side_two.switch_out_move_second_saved_move == Choices::NONE {
                 side_two_options.push(MoveChoice::None);
@@ -953,7 +953,7 @@ impl State {
             return (side_one_options, side_two_options);
         }
 
-        if self.side_two.switch_out_move_triggered {
+        if self.side_two.force_switch {
             self.side_two.add_switches(&mut side_two_options);
             if self.side_one.switch_out_move_second_saved_move == Choices::NONE {
                 side_one_options.push(MoveChoice::None);
@@ -1418,8 +1418,8 @@ impl State {
                 self.set_substitute_health(&instruction.side_ref, instruction.new_health);
             }
             Instruction::ToggleTrickRoom => self.toggle_trickroom(),
-            Instruction::ToggleSideOneSwitchOutMove => self.side_one.toggle_switch_out_move(),
-            Instruction::ToggleSideTwoSwitchOutMove => self.side_two.toggle_switch_out_move(),
+            Instruction::ToggleSideOneForceSwitch => self.side_one.toggle_force_switch(),
+            Instruction::ToggleSideTwoForceSwitch => self.side_two.toggle_force_switch(),
             Instruction::SetSideOneMoveSecondSwitchOutMove(instruction) => {
                 self.side_one.switch_out_move_second_saved_move = instruction.new_choice;
             }
@@ -1498,8 +1498,8 @@ impl State {
                 self.set_substitute_health(&instruction.side_ref, instruction.old_health);
             }
             Instruction::ToggleTrickRoom => self.toggle_trickroom(),
-            Instruction::ToggleSideOneSwitchOutMove => self.side_one.toggle_switch_out_move(),
-            Instruction::ToggleSideTwoSwitchOutMove => self.side_two.toggle_switch_out_move(),
+            Instruction::ToggleSideOneForceSwitch => self.side_one.toggle_force_switch(),
+            Instruction::ToggleSideTwoForceSwitch => self.side_two.toggle_force_switch(),
             Instruction::SetSideOneMoveSecondSwitchOutMove(instruction) => {
                 self.side_one.switch_out_move_second_saved_move = instruction.previous_choice;
             }
