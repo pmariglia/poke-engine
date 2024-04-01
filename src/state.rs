@@ -765,6 +765,7 @@ pub struct Side {
     pub side_conditions: SideConditions,
     pub wish: (i8, i16),
     pub force_switch: bool,
+    pub trapped: bool,
     pub switch_out_move_second_saved_move: Choices,
 }
 
@@ -778,6 +779,9 @@ impl Side {
             if p.hp > 0 && iter.pokemon_index != self.active_index {
                 vec.push(MoveChoice::Switch(iter.pokemon_index));
             }
+        }
+        if vec.len() == 0 {
+            vec.push(MoveChoice::None);
         }
     }
 
@@ -890,6 +894,7 @@ impl Default for Side {
             },
             wish: (0, 0),
             force_switch: false,
+            trapped: false,
             switch_out_move_second_saved_move: Choices::NONE,
         }
     }
@@ -988,12 +993,18 @@ impl State {
         self.side_one
             .get_active_immutable()
             .add_available_moves(&mut side_one_options);
-        self.side_one.add_switches(&mut side_one_options);
+
+        if !self.side_one.trapped {
+            self.side_one.add_switches(&mut side_one_options);
+        }
 
         self.side_two
             .get_active_immutable()
             .add_available_moves(&mut side_two_options);
-        self.side_two.add_switches(&mut side_two_options);
+
+        if !self.side_two.trapped {
+            self.side_two.add_switches(&mut side_two_options);
+        }
 
         return (side_one_options, side_two_options);
     }

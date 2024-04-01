@@ -2,7 +2,7 @@ use crate::evaluate::evaluate;
 use crate::generate_instructions::generate_instructions_from_move_pair;
 use crate::state::{MoveChoice, State};
 
-const _WIN_BONUS: f32 = 1000.0;
+const WIN_BONUS: f32 = 1000.0;
 
 pub fn expectiminimax_search(
     state: &mut State,
@@ -18,7 +18,7 @@ pub fn expectiminimax_search(
     let battle_is_over = state.battle_is_over();
     if battle_is_over != 0.0 {
         for _ in 0..(num_s1_moves * num_s2_moves) {
-            score_lookup.push(evaluate(state) * 100.0 * battle_is_over);
+            score_lookup.push(evaluate(state) + (battle_is_over * WIN_BONUS*(depth + 1) as f32));
         }
         return score_lookup;
     }
@@ -153,12 +153,12 @@ pub fn iterative_deepen_expectiminimax(
     let mut re_ordered_s1_options = side_one_options.clone();
     let mut re_ordered_s2_options = side_two_options.clone();
 
-    let start_time = std::time::Instant::now();
+    let mut start_time = std::time::Instant::now();
     result = expectiminimax_search(state, 1, side_one_options, side_two_options, ab_prune);
+    let mut elapsed = start_time.elapsed();
 
     for i in 2..depth + 1 {
-        let elapsed = start_time.elapsed();
-        if elapsed > max_time {
+        if elapsed > std::time::Duration::from_millis(300) {
             break;
         }
         (re_ordered_s1_options, re_ordered_s2_options) = re_order_moves_for_iterative_deepening(
@@ -166,6 +166,7 @@ pub fn iterative_deepen_expectiminimax(
             re_ordered_s1_options,
             re_ordered_s2_options,
         );
+        start_time = std::time::Instant::now();
         result = expectiminimax_search(
             state,
             i,
@@ -173,6 +174,8 @@ pub fn iterative_deepen_expectiminimax(
             re_ordered_s2_options.clone(),
             ab_prune,
         );
+        elapsed = start_time.elapsed();
+
     }
 
     return (re_ordered_s1_options, re_ordered_s2_options, result);
