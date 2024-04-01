@@ -6,11 +6,12 @@ const WIN_BONUS: f32 = 1000.0;
 
 pub fn expectiminimax_search(
     state: &mut State,
-    depth: i8,
+    mut depth: i8,
     side_one_options: Vec<MoveChoice>,
     side_two_options: Vec<MoveChoice>,
     ab_prune: bool,
 ) -> Vec<f32> {
+    depth -= 1;
     let num_s1_moves = side_one_options.len();
     let num_s2_moves = side_two_options.len();
     let mut score_lookup: Vec<f32> = Vec::with_capacity(num_s1_moves * num_s2_moves);
@@ -18,7 +19,7 @@ pub fn expectiminimax_search(
     let battle_is_over = state.battle_is_over();
     if battle_is_over != 0.0 {
         for _ in 0..(num_s1_moves * num_s2_moves) {
-            score_lookup.push(evaluate(state) + (battle_is_over * WIN_BONUS * (depth + 1) as f32));
+            score_lookup.push(evaluate(state) + (battle_is_over * WIN_BONUS * depth as f32));
         }
         return score_lookup;
     }
@@ -55,7 +56,7 @@ pub fn expectiminimax_search(
                     let (_, safest) = pick_safest(
                         &expectiminimax_search(
                             state,
-                            depth - 1,
+                            depth,
                             next_turn_side_one_options,
                             next_turn_side_two_options,
                             ab_prune,
@@ -158,9 +159,6 @@ pub fn iterative_deepen_expectiminimax(
     let mut elapsed = start_time.elapsed();
 
     for i in 2..depth + 1 {
-        if elapsed > std::time::Duration::from_millis(300) {
-            break;
-        }
         (re_ordered_s1_options, re_ordered_s2_options) = re_order_moves_for_iterative_deepening(
             &result,
             re_ordered_s1_options,
@@ -175,6 +173,9 @@ pub fn iterative_deepen_expectiminimax(
             ab_prune,
         );
         elapsed = start_time.elapsed();
+        if elapsed > std::time::Duration::from_millis(300) {
+            break;
+        }
     }
 
     return (re_ordered_s1_options, re_ordered_s2_options, result);
