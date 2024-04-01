@@ -134,7 +134,7 @@ fn generate_instructions_from_switch(
                 &switching_side_ref,
                 &switching_side_ref,
             ) {
-                side.get_active().speed_boost -= 1;
+                state.apply_one_instruction(&sticky_web_instruction);
                 incoming_instructions
                     .instruction_list
                     .push(sticky_web_instruction);
