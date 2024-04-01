@@ -538,7 +538,7 @@ pub fn ability_on_switch_in(
     match active_pkmn.ability {
         Abilities::INTREPIDSWORD => {
             // no need to check for boost at +6 because we are switching in
-            active_pkmn.attack += 1;
+            active_pkmn.attack_boost += 1;
             instructions
                 .instruction_list
                 .push(Instruction::Boost(BoostInstruction {
