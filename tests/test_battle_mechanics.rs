@@ -4598,6 +4598,30 @@ fn test_taunt_into_aromaveil() {
 }
 
 #[test]
+fn test_taunt_into_glare() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 105;
+    state.side_two.get_active().speed = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TAUNT,
+        Choices::GLARE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Taunt,
+            })
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_explosion_into_damp() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::DAMP;

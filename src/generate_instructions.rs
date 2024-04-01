@@ -845,7 +845,7 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
         .contains(&PokemonVolatileStatus::Taunt)
         && matches!(
             choice.category,
-            MoveCategory::Physical | MoveCategory::Special
+            MoveCategory::Status
         )
     {
         return true;
@@ -3924,7 +3924,7 @@ mod tests {
     #[test]
     fn test_taunted_pokemon_cannot_use_status_move() {
         let mut state: State = State::default();
-        let mut choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        let mut choice = MOVES.get(&Choices::GLARE).unwrap().to_owned();
         state
             .side_one
             .get_active()
@@ -3952,7 +3952,7 @@ mod tests {
             .volatile_statuses
             .insert(PokemonVolatileStatus::Taunt);
 
-        let mut choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        let mut choice = MOVES.get(&Choices::GLARE).unwrap().to_owned();
         choice.first_move = false;
 
         let mut incoming_instructions = StateInstructions::default();
