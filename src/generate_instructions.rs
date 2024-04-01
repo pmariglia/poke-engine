@@ -1221,8 +1221,7 @@ pub fn generate_instructions_from_move(
         match attacking_side {
             SideReference::SideOne => {
                 if state.side_one.num_alive_pkmn() > 1 {
-                    state.side_one.force_switch =
-                        !state.side_one.force_switch;
+                    state.side_one.force_switch = !state.side_one.force_switch;
                     incoming_instructions
                         .instruction_list
                         .push(Instruction::ToggleSideOneForceSwitch);
@@ -1256,8 +1255,7 @@ pub fn generate_instructions_from_move(
             }
             SideReference::SideTwo => {
                 if state.side_two.num_alive_pkmn() > 1 {
-                    state.side_two.force_switch =
-                        !state.side_two.force_switch;
+                    state.side_two.force_switch = !state.side_two.force_switch;
                     incoming_instructions
                         .instruction_list
                         .push(Instruction::ToggleSideTwoForceSwitch);

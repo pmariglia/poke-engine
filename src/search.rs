@@ -18,7 +18,7 @@ pub fn expectiminimax_search(
     let battle_is_over = state.battle_is_over();
     if battle_is_over != 0.0 {
         for _ in 0..(num_s1_moves * num_s2_moves) {
-            score_lookup.push(evaluate(state) + (battle_is_over * WIN_BONUS*(depth + 1) as f32));
+            score_lookup.push(evaluate(state) + (battle_is_over * WIN_BONUS * (depth + 1) as f32));
         }
         return score_lookup;
     }
@@ -175,7 +175,6 @@ pub fn iterative_deepen_expectiminimax(
             ab_prune,
         );
         elapsed = start_time.elapsed();
-
     }
 
     return (re_ordered_s1_options, re_ordered_s2_options, result);
