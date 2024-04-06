@@ -2667,6 +2667,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "gen9")]
     fn test_basic_status_move() {
         let mut state: State = State::default();
         let mut choice = MOVES.get(&Choices::GLARE).unwrap().to_owned();
@@ -4431,6 +4432,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "gen9")]
     fn test_knockoff_removing_item() {
         let mut state: State = State::default();
         let mut choice = MOVES.get(&Choices::KNOCKOFF).unwrap().to_owned();

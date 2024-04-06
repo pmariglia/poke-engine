@@ -1419,6 +1419,7 @@ fn test_rockyhelmet_does_not_overkill() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_choiceband_locking() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::CHOICEBAND;
@@ -2720,6 +2721,7 @@ fn test_focuspunch_after_not_getting_hit() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_blizzard_in_hail() {
     let mut state = State::default();
     state.weather.weather_type = Weather::Hail;
@@ -3400,6 +3402,7 @@ fn test_magicbounce_with_side_condition_that_is_already_up() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_magicbounce_with_status() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::MAGICBOUNCE;
@@ -5090,6 +5093,7 @@ fn test_wonderguard_against_spore() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_wonderguard_against_willowisp() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::WONDERGUARD;
