@@ -2,8 +2,6 @@ use crate::evaluate::evaluate;
 use crate::generate_instructions::generate_instructions_from_move_pair;
 use crate::state::{MoveChoice, State};
 
-const WIN_BONUS: f32 = 1000.0;
-
 pub fn expectiminimax_search(
     state: &mut State,
     mut depth: i8,
@@ -19,7 +17,7 @@ pub fn expectiminimax_search(
     let battle_is_over = state.battle_is_over();
     if battle_is_over != 0.0 {
         for _ in 0..(num_s1_moves * num_s2_moves) {
-            score_lookup.push(evaluate(state) + (battle_is_over * WIN_BONUS * depth as f32));
+            score_lookup.push(evaluate(state) + (battle_is_over * depth as f32));
         }
         return score_lookup;
     }
