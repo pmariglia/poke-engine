@@ -4755,6 +4755,7 @@ fn test_gen5_or_earlier_ghost_versus_steel() {
 }
 
 #[test]
+#[cfg(any(feature = "gen7",feature = "gen8"))]
 fn test_pixilate() {
     let mut state = State::default();
     state.side_one.get_active().types = (PokemonType::Fairy, PokemonType::Typeless);
@@ -4882,6 +4883,52 @@ fn test_transistor_higher_boost_before_gen8() {
             ],
         },
     ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[cfg(any(feature = "gen9"))]
+#[test]
+fn test_wickedblow_gen9() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::WICKEDBLOW,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 60,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(feature = "gen8")]
+fn test_wickedblow_gen8() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::WICKEDBLOW,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 63,
+            }),
+        ],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 

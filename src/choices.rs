@@ -6,14 +6,6 @@ use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::fmt;
 
-#[derive(Debug, PartialEq, Clone)]
-pub enum MoveCategory {
-    Physical,
-    Special,
-    Status,
-    Switch,
-}
-
 lazy_static! {
     pub static ref MOVES: HashMap<Choices, Choice> = {
         let mut moves: HashMap<Choices, Choice> = HashMap::new();
@@ -5471,21 +5463,40 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        moves.insert(
-            Choices::GLACIALLANCE,
-            Choice {
-                move_id: Choices::GLACIALLANCE,
-                base_power: 120.0,
-                category: MoveCategory::Physical,
-                move_type: PokemonType::Ice,
-                flags: Flags {
-                    mirror: true,
-                    protect: true,
+
+        if cfg!(feature = "gen9") {
+            moves.insert(
+                Choices::GLACIALLANCE,
+                Choice {
+                    move_id: Choices::GLACIALLANCE,
+                    base_power: 120.0,
+                    category: MoveCategory::Physical,
+                    move_type: PokemonType::Ice,
+                    flags: Flags {
+                        mirror: true,
+                        protect: true,
+                        ..Default::default()
+                    },
                     ..Default::default()
                 },
-                ..Default::default()
-            },
-        );
+            );
+        } else {
+            moves.insert(
+                Choices::GLACIALLANCE,
+                Choice {
+                    move_id: Choices::GLACIALLANCE,
+                    base_power: 130.0,
+                    category: MoveCategory::Physical,
+                    move_type: PokemonType::Ice,
+                    flags: Flags {
+                        mirror: true,
+                        protect: true,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+            );
+        }
         moves.insert(
             Choices::GLACIATE,
             Choice {
@@ -5616,22 +5627,42 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        moves.insert(
-            Choices::GRASSYGLIDE,
-            Choice {
-                move_id: Choices::GRASSYGLIDE,
-                base_power: 55.0,
-                category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
-                flags: Flags {
-                    contact: true,
-                    mirror: true,
-                    protect: true,
+
+        if cfg!(feature = "gen9") {
+            moves.insert(
+                Choices::GRASSYGLIDE,
+                Choice {
+                    move_id: Choices::GRASSYGLIDE,
+                    base_power: 55.0,
+                    category: MoveCategory::Physical,
+                    move_type: PokemonType::Grass,
+                    flags: Flags {
+                        contact: true,
+                        mirror: true,
+                        protect: true,
+                        ..Default::default()
+                    },
                     ..Default::default()
                 },
-                ..Default::default()
-            },
-        );
+            );
+        } else {
+            moves.insert(
+                Choices::GRASSYGLIDE,
+                Choice {
+                    move_id: Choices::GRASSYGLIDE,
+                    base_power: 70.0,
+                    category: MoveCategory::Physical,
+                    move_type: PokemonType::Grass,
+                    flags: Flags {
+                        contact: true,
+                        mirror: true,
+                        protect: true,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+            );
+        }
         moves.insert(
             Choices::GRASSYTERRAIN,
             Choice {
@@ -15720,23 +15751,45 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        moves.insert(
-            Choices::WICKEDBLOW,
-            Choice {
-                move_id: Choices::WICKEDBLOW,
-                base_power: 75.0,
-                category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
-                flags: Flags {
-                    contact: true,
-                    mirror: true,
-                    protect: true,
-                    punch: true,
+
+        if cfg!(feature = "gen9") {
+            moves.insert(
+                Choices::WICKEDBLOW,
+                Choice {
+                    move_id: Choices::WICKEDBLOW,
+                    base_power: 75.0,
+                    category: MoveCategory::Physical,
+                    move_type: PokemonType::Dark,
+                    flags: Flags {
+                        contact: true,
+                        mirror: true,
+                        protect: true,
+                        punch: true,
+                        ..Default::default()
+                    },
                     ..Default::default()
                 },
-                ..Default::default()
-            },
-        );
+            );
+        } else {
+            moves.insert(
+                Choices::WICKEDBLOW,
+                Choice {
+                    move_id: Choices::WICKEDBLOW,
+                    base_power: 80.0,
+                    category: MoveCategory::Physical,
+                    move_type: PokemonType::Dark,
+                    flags: Flags {
+                        contact: true,
+                        mirror: true,
+                        protect: true,
+                        punch: true,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+            );
+        }
+
         moves.insert(
             Choices::WICKEDTORQUE,
             Choice {
@@ -16120,6 +16173,14 @@ lazy_static! {
 
         moves
     };
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum MoveCategory {
+    Physical,
+    Special,
+    Status,
+    Switch,
 }
 
 #[derive(PartialEq, Debug, Clone)]
