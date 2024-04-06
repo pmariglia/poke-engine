@@ -374,17 +374,17 @@ fn get_instructions_from_status_effects(
         .push(status_hit_instruction);
 }
 
-pub fn get_boost_amount(pkmn: &Pokemon, boost: &PokemonBoostableStat, amount: &i8) -> i8 {
+pub fn get_boost_amount(pkmn: &Pokemon, boost: &PokemonBoostableStat, amount: i8) -> i8 {
     /*
     returns that amount that can actually be applied from the attempted boost amount
         e.g. using swordsdance at +5 attack would result in a +1 boost instead of +2
     */
     let current_boost = pkmn.get_boost_from_boost_enum(boost);
 
-    if amount > &0 {
-        return cmp::min(6 - current_boost, *amount);
-    } else if amount < &0 {
-        return cmp::max(-6 - current_boost, *amount);
+    if amount > 0 {
+        return cmp::min(6 - current_boost, amount);
+    } else if amount < 0 {
+        return cmp::max(-6 - current_boost, amount);
     }
     return 0;
 }
@@ -401,19 +401,22 @@ pub fn get_boost_instruction(
     Returns that boost instruction, if applicable
     */
 
-    let mut boost_amount = get_boost_amount(target_pkmn, &stat, boost);
-    if boost_amount != 0
+    if boost != &0
         && !(target_side_ref != attacking_side_ref
             && target_pkmn.immune_to_stats_lowered_by_opponent(&stat))
     {
+        let mut boost_amount = *boost;
         if target_pkmn.ability == Abilities::CONTRARY {
             boost_amount *= -1;
         }
-        return Some(Instruction::Boost(BoostInstruction {
-            side_ref: *target_side_ref,
-            stat: *stat,
-            amount: boost_amount,
-        }));
+        boost_amount = get_boost_amount(target_pkmn, &stat, boost_amount);
+        if boost_amount != 0 {
+            return Some(Instruction::Boost(BoostInstruction {
+                side_ref: *target_side_ref,
+                stat: *stat,
+                amount: boost_amount,
+            }));
+        }
     }
     return None;
 }

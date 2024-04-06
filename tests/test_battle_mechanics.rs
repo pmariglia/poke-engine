@@ -4145,6 +4145,25 @@ fn test_contrary_with_seed() {
 }
 
 #[test]
+fn test_contrary_when_pre_swapped_boost_goes_above_max() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::CONTRARY;
+    state.side_two.get_active().attack_boost = 6;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::CHARM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_contrary() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::CONTRARY;
