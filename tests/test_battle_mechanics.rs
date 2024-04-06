@@ -4712,6 +4712,79 @@ fn test_watercompaction() {
 }
 
 #[test]
+#[cfg(feature = "gen_5_or_earlier_typechart")]
+fn test_gen5_or_earlier_ghost_versus_steel() {
+    let mut state = State::default();
+    state.side_two.get_active().types = (PokemonType::Steel, PokemonType::Typeless);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::HEX,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 25,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_pixilate() {
+    let mut state = State::default();
+    state.side_one.get_active().types = (PokemonType::Fairy, PokemonType::Typeless);
+    state.side_one.get_active().ability = Abilities::PIXILATE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 58,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(feature = "gen6")]
+fn test_pixilate_gen6() {
+    let mut state = State::default();
+    state.side_one.get_active().types = (PokemonType::Fairy, PokemonType::Typeless);
+    state.side_one.get_active().ability = Abilities::PIXILATE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 61,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_weakarmor() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::WEAKARMOR;

@@ -1019,10 +1019,18 @@ pub fn ability_modify_attack_being_used(
                 attacker_choice.base_power *= 1.5;
             };
         }
+        #[cfg(any(feature = "gen9",feature = "gen8",feature = "gen7"))]
         Abilities::PIXILATE => {
             if attacker_choice.move_type == PokemonType::Normal {
                 attacker_choice.move_type = PokemonType::Fairy;
                 attacker_choice.base_power *= 1.2;
+            }
+        }
+        #[cfg(any(feature = "gen6",feature = "gen5",feature = "gen4"))]
+        Abilities::PIXILATE => {
+            if attacker_choice.move_type == PokemonType::Normal {
+                attacker_choice.move_type = PokemonType::Fairy;
+                attacker_choice.base_power *= 1.3;
             }
         }
         Abilities::DEFEATIST => {
