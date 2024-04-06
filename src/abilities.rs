@@ -841,10 +841,18 @@ pub fn ability_modify_attack_being_used(
                 attacker_choice.base_power *= 1.2;
             }
         }
+        #[cfg(any(feature = "gen9",feature = "gen8",feature = "gen7"))]
         Abilities::AERILATE => {
             if attacker_choice.move_type == PokemonType::Normal {
                 attacker_choice.move_type = PokemonType::Flying;
                 attacker_choice.base_power *= 1.2;
+            }
+        }
+        #[cfg(any(feature = "gen6",feature = "gen5",feature = "gen4"))]
+        Abilities::AERILATE => {
+            if attacker_choice.move_type == PokemonType::Normal {
+                attacker_choice.move_type = PokemonType::Flying;
+                attacker_choice.base_power *= 1.3;
             }
         }
         Abilities::NEUROFORCE => {
@@ -866,10 +874,18 @@ pub fn ability_modify_attack_being_used(
                 attacker_choice.base_power *= 1.5;
             }
         }
+        #[cfg(any(feature = "gen9",feature = "gen8",feature = "gen7"))]
         Abilities::REFRIGERATE => {
             if attacker_choice.move_type == PokemonType::Normal {
                 attacker_choice.move_type = PokemonType::Ice;
                 attacker_choice.base_power *= 1.2;
+            }
+        }
+        #[cfg(any(feature = "gen6",feature = "gen5",feature = "gen4"))]
+        Abilities::REFRIGERATE => {
+            if attacker_choice.move_type == PokemonType::Normal {
+                attacker_choice.move_type = PokemonType::Ice;
+                attacker_choice.base_power *= 1.3;
             }
         }
         Abilities::SUPREMEOVERLORD => {
@@ -1217,6 +1233,7 @@ pub fn ability_modify_attack_against(
                 });
             }
         }
+        #[cfg(any(feature = "gen9",feature = "gen8",feature = "gen7"))]
         Abilities::WEAKARMOR => {
             if attacker_choice.category == MoveCategory::Physical {
                 attacker_choice.add_or_create_secondaries(Secondary {
@@ -1228,6 +1245,23 @@ pub fn ability_modify_attack_against(
                         special_attack: 0,
                         special_defense: 0,
                         speed: 2,
+                        accuracy: 0,
+                    }),
+                });
+            }
+        }
+        #[cfg(any(feature = "gen6",feature = "gen5",feature = "gen4"))]
+        Abilities::WEAKARMOR => {
+            if attacker_choice.category == MoveCategory::Physical {
+                attacker_choice.add_or_create_secondaries(Secondary {
+                    chance: 100.0,
+                    target: MoveTarget::Opponent,
+                    effect: Effect::Boost(StatBoosts {
+                        attack: 0,
+                        defense: -1,
+                        special_attack: 0,
+                        special_defense: 0,
+                        speed: 1,
                         accuracy: 0,
                     }),
                 });

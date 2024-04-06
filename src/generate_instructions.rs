@@ -2695,6 +2695,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "gen9")]
     fn test_status_move_that_can_miss() {
         let mut state: State = State::default();
         let mut choice = MOVES.get(&Choices::THUNDERWAVE).unwrap().to_owned();
@@ -3624,7 +3625,6 @@ mod tests {
                 }),
             ],
         }];
-
         assert_eq!(instructions, expected_instructions)
     }
 

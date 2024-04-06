@@ -15,14 +15,12 @@ lazy_static = "1.4.0"
 serde = { version = "1.0.197", features = ["derive"] }
 
 [features]
-gen_5_or_earlier_typechart = []
-gen_6_or_later_typechart = []
 
-gen4 = ["gen_5_or_earlier_typechart"]
-gen5 = ["gen_5_or_earlier_typechart"]
-gen6 = ["gen_6_or_later_typechart"]
-gen7 = ["gen_6_or_later_typechart"]
-gen8 = ["gen_6_or_later_typechart"]
-gen9 = ["gen_6_or_later_typechart"]
+gen4 = []
+gen5 = []
+gen6 = []
+gen7 = []
+gen8 = []
+gen9 = []
 
 default = ["gen9"]

@@ -5015,6 +5015,7 @@ fn test_gen9_rapidspin_boosts_speed() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_weakarmor() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::WEAKARMOR;
