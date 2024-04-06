@@ -4804,6 +4804,88 @@ fn test_pixilate_gen6() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
+fn test_transistor() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::TRANSISTOR;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::THUNDERSHOCK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 90.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 41,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 10.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 41,
+                }),
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    pokemon_index: PokemonIndex::P0,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Paralyze,
+                })
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(feature = "gen8",feature = "gen7",feature = "gen6",feature = "gen5",feature = "gen4"))]
+fn test_transistor_higher_boost_before_gen8() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::TRANSISTOR;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::THUNDERSHOCK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 90.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 10.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                }),
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    pokemon_index: PokemonIndex::P0,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Paralyze,
+                })
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_weakarmor() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::WEAKARMOR;
