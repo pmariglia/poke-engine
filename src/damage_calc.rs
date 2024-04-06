@@ -7,6 +7,7 @@ use crate::{
         SideReference, State, Weather,
     },
 };
+use crate::state::Terrain;
 
 #[rustfmt::skip]
 #[cfg(feature = "gen_6_or_later_typechart")]
@@ -92,6 +93,8 @@ fn type_enum_to_type_matchup_int(type_enum: &PokemonType) -> usize {
     }
 }
 
+
+
 pub fn type_effectiveness_modifier(
     attacking_type: &PokemonType,
     defending_types: &(PokemonType, PokemonType),
@@ -156,6 +159,56 @@ fn burn_modifier(
     }
 
     return 1.0;
+}
+
+fn terrain_modifier(
+    terrain: &Terrain,
+    attacker: &Pokemon,
+    defender: &Pokemon,
+    choice: &Choice
+) -> f32 {
+
+    #[cfg(any(feature = "gen9",feature = "gen8"))]
+    let terrain_boost = 1.3;
+
+    #[cfg(any(feature = "gen7",feature = "gen6",feature = "gen5",feature = "gen4"))]
+    let terrain_boost = 1.5;
+
+    return match terrain {
+        Terrain::ElectricTerrain => {
+            if choice.move_type == PokemonType::Electric && attacker.is_grounded() {
+                terrain_boost
+            } else {
+                1.0
+            }
+        },
+        Terrain::GrassyTerrain => {
+            if choice.move_type == PokemonType::Grass && attacker.is_grounded() {
+                terrain_boost
+            } else if choice.move_id == Choices::EARTHQUAKE {
+                0.5
+            } else {
+                1.0
+            }
+        },
+        Terrain::MistyTerrain => {
+            if choice.move_type == PokemonType::Dragon && defender.is_grounded() {
+                0.5
+            } else {
+                1.0
+            }
+        },
+        Terrain::PsychicTerrain => {
+            if choice.move_type == PokemonType::Psychic && attacker.is_grounded() {
+                terrain_boost
+            } else if choice.priority > 0 && defender.is_grounded() {
+                0.5
+            } else {
+                1.0
+            }
+        },
+        Terrain::None => 1.0,
+    }
 }
 
 fn volatile_status_modifier(
@@ -328,6 +381,12 @@ pub fn calculate_damage(
         &choice,
         attacking_side.get_active_immutable(),
         defending_side.get_active_immutable(),
+    );
+    damage_modifier *= terrain_modifier(
+        &state.terrain.terrain_type,
+        attacking_side.get_active_immutable(),
+        defending_side.get_active_immutable(),
+        &choice,
     );
 
     if attacking_side.get_active_immutable().ability != Abilities::INFILTRATOR {

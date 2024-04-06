@@ -9259,22 +9259,42 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        moves.insert(
-            Choices::MULTIATTACK,
-            Choice {
-                move_id: Choices::MULTIATTACK,
-                base_power: 120.0,
-                category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
-                flags: Flags {
-                    contact: true,
-                    mirror: true,
-                    protect: true,
+
+        if cfg!(feature = "gen9") || cfg!(feature = "gen8") {
+            moves.insert(
+                Choices::MULTIATTACK,
+                Choice {
+                    move_id: Choices::MULTIATTACK,
+                    base_power: 120.0,
+                    category: MoveCategory::Physical,
+                    move_type: PokemonType::Normal,
+                    flags: Flags {
+                        contact: true,
+                        mirror: true,
+                        protect: true,
+                        ..Default::default()
+                    },
                     ..Default::default()
                 },
-                ..Default::default()
-            },
-        );
+            );
+        } else {
+            moves.insert(
+                Choices::MULTIATTACK,
+                Choice {
+                    move_id: Choices::MULTIATTACK,
+                    base_power: 90.0,
+                    category: MoveCategory::Physical,
+                    move_type: PokemonType::Normal,
+                    flags: Flags {
+                        contact: true,
+                        mirror: true,
+                        protect: true,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+            );
+        }
         moves.insert(
             Choices::MYSTICALFIRE,
             Choice {
@@ -11037,34 +11057,55 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        moves.insert(
-            Choices::RAPIDSPIN,
-            Choice {
-                move_id: Choices::RAPIDSPIN,
-                base_power: 50.0,
-                category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
-                flags: Flags {
-                    contact: true,
-                    mirror: true,
-                    protect: true,
+
+        if cfg!(feature = "gen9") || cfg!(feature = "gen8") {
+            moves.insert(
+                Choices::RAPIDSPIN,
+                Choice {
+                    move_id: Choices::RAPIDSPIN,
+                    base_power: 50.0,
+                    category: MoveCategory::Physical,
+                    move_type: PokemonType::Normal,
+                    flags: Flags {
+                        contact: true,
+                        mirror: true,
+                        protect: true,
+                        ..Default::default()
+                    },
+                    secondaries: Some(vec![Secondary {
+                        chance: 100.0,
+                        target: MoveTarget::User,
+                        effect: Effect::Boost(StatBoosts {
+                            attack: 0,
+                            defense: 0,
+                            special_attack: 0,
+                            special_defense: 0,
+                            speed: 1,
+                            accuracy: 0,
+                        }),
+                    }]),
                     ..Default::default()
                 },
-                secondaries: Some(vec![Secondary {
-                    chance: 100.0,
-                    target: MoveTarget::User,
-                    effect: Effect::Boost(StatBoosts {
-                        attack: 0,
-                        defense: 0,
-                        special_attack: 0,
-                        special_defense: 0,
-                        speed: 1,
-                        accuracy: 0,
-                    }),
-                }]),
-                ..Default::default()
-            },
-        );
+            );
+        } else {
+            moves.insert(
+                Choices::RAPIDSPIN,
+                Choice {
+                    move_id: Choices::RAPIDSPIN,
+                    base_power: 20.0,
+                    category: MoveCategory::Physical,
+                    move_type: PokemonType::Normal,
+                    flags: Flags {
+                        contact: true,
+                        mirror: true,
+                        protect: true,
+                        ..Default::default()
+                    },
+                    secondaries: None,
+                    ..Default::default()
+                },
+            );
+        }
         moves.insert(
             Choices::RAZORLEAF,
             Choice {
@@ -14587,19 +14628,38 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        moves.insert(
-            Choices::TELEPORT,
-            Choice {
-                move_id: Choices::TELEPORT,
-                priority: -6,
-                target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
-                flags: Flags {
+
+        if cfg!(feature = "gen9") || cfg!(feature = "gen8") {
+            moves.insert(
+                Choices::TELEPORT,
+                Choice {
+                    move_id: Choices::TELEPORT,
+                    priority: -6,
+                    target: MoveTarget::User,
+                    move_type: PokemonType::Psychic,
+                    flags: Flags {
+                        ..Default::default()
+                    },
                     ..Default::default()
                 },
-                ..Default::default()
-            },
-        );
+            );
+        } else {
+            moves.insert(
+                Choices::TELEPORT,
+                Choice {
+                    move_id: Choices::TELEPORT,
+                    priority: 0,
+                    target: MoveTarget::User,
+                    move_type: PokemonType::Psychic,
+                    flags: Flags {
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+            );
+        }
+
+
         moves.insert(
             Choices::TERABLAST,
             Choice {

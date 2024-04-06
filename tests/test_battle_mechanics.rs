@@ -1618,9 +1618,12 @@ fn test_weatherball_in_sun() {
 }
 
 #[test]
-fn test_terrainpulse() {
+#[cfg(any(feature = "gen9"))]
+fn test_terrainpulse_gen9() {
     let mut state = State::default();
     state.terrain.terrain_type = Terrain::ElectricTerrain;
+    state.side_two.get_active().maxhp = 300;
+    state.side_two.get_active().hp = 300;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -1632,7 +1635,31 @@ fn test_terrainpulse() {
         percentage: 100.0,
         instruction_list: vec![Instruction::Damage(DamageInstruction {
             side_ref: SideReference::SideTwo,
-            damage_amount: 79,
+            damage_amount: 102,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(feature = "gen7"))]
+fn test_terrainpulse_gen7() {
+    let mut state = State::default();
+    state.terrain.terrain_type = Terrain::ElectricTerrain;
+    state.side_two.get_active().maxhp = 300;
+    state.side_two.get_active().hp = 300;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TERRAINPULSE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 119,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -4929,6 +4956,61 @@ fn test_wickedblow_gen8() {
             }),
         ],
     }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(feature = "gen7")]
+fn test_gen7_rapidspin_does_not_boost_speed() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::RAPIDSPIN,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 24,
+                }),
+            ],
+        }
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(feature = "gen9")]
+fn test_gen9_rapidspin_boosts_speed() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::RAPIDSPIN,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 61,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: 1,
+                }),
+            ],
+        }
+    ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 

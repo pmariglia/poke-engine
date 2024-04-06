@@ -3629,6 +3629,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(any(feature = "gen8", feature = "gen9"))]
     fn test_rapidspin_clears_hazards() {
         let mut state: State = State::default();
         state.side_one.side_conditions.stealth_rock = 1;
@@ -3669,6 +3670,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(any(feature = "gen8", feature = "gen9"))]
     fn test_rapidspin_clears_multiple_hazards() {
         let mut state: State = State::default();
         state.side_one.side_conditions.stealth_rock = 1;
@@ -3727,6 +3729,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(any(feature = "gen8", feature = "gen9"))]
     fn test_rapidspin_does_not_clear_opponent_hazards() {
         let mut state: State = State::default();
         state.side_two.side_conditions.stealth_rock = 1;
