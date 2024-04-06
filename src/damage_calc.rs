@@ -1,5 +1,6 @@
 use crate::abilities::Abilities;
 use crate::choices::Choices;
+use crate::state::Terrain;
 use crate::{
     choices::{Choice, MoveCategory},
     state::{
@@ -7,7 +8,6 @@ use crate::{
         SideReference, State, Weather,
     },
 };
-use crate::state::Terrain;
 
 #[rustfmt::skip]
 #[cfg(any(feature = "gen9",feature = "gen8",feature = "gen7",feature = "gen6"))]
@@ -33,7 +33,6 @@ const TYPE_MATCHUP_DAMAGE_MULTIPICATION: [[f32; 19]; 19] = [
 /* 17 */ [1.0, 0.5, 1.0, 1.0, 1.0, 1.0, 2.0, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 0.5, 1.0, 1.0],
 /* 18 */ [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 ];
-
 
 #[rustfmt::skip]
 #[cfg(any(feature = "gen5",feature = "gen4"))]
@@ -92,8 +91,6 @@ fn type_enum_to_type_matchup_int(type_enum: &PokemonType) -> usize {
         PokemonType::Typeless => 18,
     }
 }
-
-
 
 pub fn type_effectiveness_modifier(
     attacking_type: &PokemonType,
@@ -165,13 +162,12 @@ fn terrain_modifier(
     terrain: &Terrain,
     attacker: &Pokemon,
     defender: &Pokemon,
-    choice: &Choice
+    choice: &Choice,
 ) -> f32 {
-
-    #[cfg(any(feature = "gen9",feature = "gen8"))]
+    #[cfg(any(feature = "gen9", feature = "gen8"))]
     let terrain_boost = 1.3;
 
-    #[cfg(any(feature = "gen7",feature = "gen6",feature = "gen5",feature = "gen4"))]
+    #[cfg(any(feature = "gen7", feature = "gen6", feature = "gen5", feature = "gen4"))]
     let terrain_boost = 1.5;
 
     return match terrain {
@@ -181,7 +177,7 @@ fn terrain_modifier(
             } else {
                 1.0
             }
-        },
+        }
         Terrain::GrassyTerrain => {
             if choice.move_type == PokemonType::Grass && attacker.is_grounded() {
                 terrain_boost
@@ -190,14 +186,14 @@ fn terrain_modifier(
             } else {
                 1.0
             }
-        },
+        }
         Terrain::MistyTerrain => {
             if choice.move_type == PokemonType::Dragon && defender.is_grounded() {
                 0.5
             } else {
                 1.0
             }
-        },
+        }
         Terrain::PsychicTerrain => {
             if choice.move_type == PokemonType::Psychic && attacker.is_grounded() {
                 terrain_boost
@@ -206,9 +202,9 @@ fn terrain_modifier(
             } else {
                 1.0
             }
-        },
+        }
         Terrain::None => 1.0,
-    }
+    };
 }
 
 fn volatile_status_modifier(

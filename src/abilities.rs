@@ -841,14 +841,14 @@ pub fn ability_modify_attack_being_used(
                 attacker_choice.base_power *= 1.2;
             }
         }
-        #[cfg(any(feature = "gen9",feature = "gen8",feature = "gen7"))]
+        #[cfg(any(feature = "gen9", feature = "gen8", feature = "gen7"))]
         Abilities::AERILATE => {
             if attacker_choice.move_type == PokemonType::Normal {
                 attacker_choice.move_type = PokemonType::Flying;
                 attacker_choice.base_power *= 1.2;
             }
         }
-        #[cfg(any(feature = "gen6",feature = "gen5",feature = "gen4"))]
+        #[cfg(any(feature = "gen6", feature = "gen5", feature = "gen4"))]
         Abilities::AERILATE => {
             if attacker_choice.move_type == PokemonType::Normal {
                 attacker_choice.move_type = PokemonType::Flying;
@@ -874,14 +874,14 @@ pub fn ability_modify_attack_being_used(
                 attacker_choice.base_power *= 1.5;
             }
         }
-        #[cfg(any(feature = "gen9",feature = "gen8",feature = "gen7"))]
+        #[cfg(any(feature = "gen9", feature = "gen8", feature = "gen7"))]
         Abilities::REFRIGERATE => {
             if attacker_choice.move_type == PokemonType::Normal {
                 attacker_choice.move_type = PokemonType::Ice;
                 attacker_choice.base_power *= 1.2;
             }
         }
-        #[cfg(any(feature = "gen6",feature = "gen5",feature = "gen4"))]
+        #[cfg(any(feature = "gen6", feature = "gen5", feature = "gen4"))]
         Abilities::REFRIGERATE => {
             if attacker_choice.move_type == PokemonType::Normal {
                 attacker_choice.move_type = PokemonType::Ice;
@@ -984,7 +984,13 @@ pub fn ability_modify_attack_being_used(
                 attacker_choice.base_power *= 1.5;
             }
         }
-        #[cfg(any(feature = "gen8",feature = "gen7",feature = "gen6",feature = "gen5",feature = "gen4"))]
+        #[cfg(any(
+            feature = "gen8",
+            feature = "gen7",
+            feature = "gen6",
+            feature = "gen5",
+            feature = "gen4"
+        ))]
         Abilities::TRANSISTOR => {
             if attacker_choice.move_type == PokemonType::Electric {
                 attacker_choice.base_power *= 1.5;
@@ -1042,14 +1048,14 @@ pub fn ability_modify_attack_being_used(
                 attacker_choice.base_power *= 1.5;
             };
         }
-        #[cfg(any(feature = "gen9",feature = "gen8",feature = "gen7"))]
+        #[cfg(any(feature = "gen9", feature = "gen8", feature = "gen7"))]
         Abilities::PIXILATE => {
             if attacker_choice.move_type == PokemonType::Normal {
                 attacker_choice.move_type = PokemonType::Fairy;
                 attacker_choice.base_power *= 1.2;
             }
         }
-        #[cfg(any(feature = "gen6",feature = "gen5",feature = "gen4"))]
+        #[cfg(any(feature = "gen6", feature = "gen5", feature = "gen4"))]
         Abilities::PIXILATE => {
             if attacker_choice.move_type == PokemonType::Normal {
                 attacker_choice.move_type = PokemonType::Fairy;
@@ -1233,7 +1239,7 @@ pub fn ability_modify_attack_against(
                 });
             }
         }
-        #[cfg(any(feature = "gen9",feature = "gen8",feature = "gen7"))]
+        #[cfg(any(feature = "gen9", feature = "gen8", feature = "gen7"))]
         Abilities::WEAKARMOR => {
             if attacker_choice.category == MoveCategory::Physical {
                 attacker_choice.add_or_create_secondaries(Secondary {
@@ -1250,7 +1256,7 @@ pub fn ability_modify_attack_against(
                 });
             }
         }
-        #[cfg(any(feature = "gen6",feature = "gen5",feature = "gen4"))]
+        #[cfg(any(feature = "gen6", feature = "gen5", feature = "gen4"))]
         Abilities::WEAKARMOR => {
             if attacker_choice.category == MoveCategory::Physical {
                 attacker_choice.add_or_create_secondaries(Secondary {

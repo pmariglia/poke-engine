@@ -846,10 +846,7 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
     if attacking_pkmn
         .volatile_statuses
         .contains(&PokemonVolatileStatus::Taunt)
-        && matches!(
-            choice.category,
-            MoveCategory::Status
-        )
+        && matches!(choice.category, MoveCategory::Status)
     {
         return true;
     } else if attacking_pkmn

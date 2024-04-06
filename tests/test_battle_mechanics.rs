@@ -513,6 +513,7 @@ fn test_protect_stops_after_damage_hit_callback() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_move_that_goes_through_protect() {
     let mut state = State::default();
 
@@ -1529,6 +1530,7 @@ fn test_locked_moves_unlock_on_switchout() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_fighting_move_with_blackbelt() {
     let mut state = State::default();
     state.side_two.get_active().hp = 300;
@@ -1552,6 +1554,7 @@ fn test_fighting_move_with_blackbelt() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_expert_belt_boost() {
     let mut state = State::default();
     state.side_two.get_active().hp = 300;
@@ -2882,6 +2885,7 @@ fn test_poltergeist_missing() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_expert_belt_does_not_boost() {
     let mut state = State::default();
     state.side_two.get_active().hp = 300;
@@ -3003,6 +3007,7 @@ fn test_contact_multi_hit_move_versus_rockyhelmet() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_skilllink_always_has_5_hits() {
     let mut state = State::default();
     state.side_two.get_active().item = Items::ROCKYHELMET;
@@ -4660,12 +4665,12 @@ fn test_taunt_into_glare() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+        instruction_list: vec![Instruction::ApplyVolatileStatus(
+            ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
                 volatile_status: PokemonVolatileStatus::Taunt,
-            })
-        ],
+            },
+        )],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -4766,26 +4771,21 @@ fn test_gen5_or_earlier_ghost_versus_steel() {
     let mut state = State::default();
     state.side_two.get_active().types = (PokemonType::Steel, PokemonType::Typeless);
 
-    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
-        &mut state,
-        Choices::HEX,
-        Choices::SPLASH,
-    );
+    let vec_of_instructions =
+        set_moves_on_pkmn_and_call_generate_instructions(&mut state, Choices::HEX, Choices::SPLASH);
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 25,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 25,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
-#[cfg(any(feature = "gen7",feature = "gen8"))]
+#[cfg(any(feature = "gen7", feature = "gen8"))]
 fn test_pixilate() {
     let mut state = State::default();
     state.side_one.get_active().types = (PokemonType::Fairy, PokemonType::Typeless);
@@ -4799,12 +4799,10 @@ fn test_pixilate() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 58,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 58,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -4824,12 +4822,10 @@ fn test_pixilate_gen6() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 61,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 61,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -4849,12 +4845,10 @@ fn test_transistor() {
     let expected_instructions = vec![
         StateInstructions {
             percentage: 90.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 41,
-                }),
-            ],
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 41,
+            })],
         },
         StateInstructions {
             percentage: 10.0,
@@ -4868,7 +4862,7 @@ fn test_transistor() {
                     pokemon_index: PokemonIndex::P0,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Paralyze,
-                })
+                }),
             ],
         },
     ];
@@ -4876,7 +4870,13 @@ fn test_transistor() {
 }
 
 #[test]
-#[cfg(any(feature = "gen8",feature = "gen7",feature = "gen6",feature = "gen5",feature = "gen4"))]
+#[cfg(any(
+    feature = "gen8",
+    feature = "gen7",
+    feature = "gen6",
+    feature = "gen5",
+    feature = "gen4"
+))]
 fn test_transistor_higher_boost_before_gen8() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::TRANSISTOR;
@@ -4890,12 +4890,10 @@ fn test_transistor_higher_boost_before_gen8() {
     let expected_instructions = vec![
         StateInstructions {
             percentage: 90.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 48,
-                }),
-            ],
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            })],
         },
         StateInstructions {
             percentage: 10.0,
@@ -4909,7 +4907,7 @@ fn test_transistor_higher_boost_before_gen8() {
                     pokemon_index: PokemonIndex::P0,
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Paralyze,
-                })
+                }),
             ],
         },
     ];
@@ -4929,12 +4927,10 @@ fn test_wickedblow_gen9() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 60,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 60,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -4952,12 +4948,10 @@ fn test_wickedblow_gen8() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 63,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 63,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -4973,17 +4967,13 @@ fn test_gen7_rapidspin_does_not_boost_speed() {
         Choices::SPLASH,
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 24,
-                }),
-            ],
-        }
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 24,
+        })],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -4998,22 +4988,20 @@ fn test_gen9_rapidspin_boosts_speed() {
         Choices::SPLASH,
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 61,
-                }),
-                Instruction::Boost(BoostInstruction {
-                    side_ref: SideReference::SideOne,
-                    stat: PokemonBoostableStat::Speed,
-                    amount: 1,
-                }),
-            ],
-        }
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 61,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Speed,
+                amount: 1,
+            }),
+        ],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 

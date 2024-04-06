@@ -18,7 +18,6 @@ macro_rules! assert_unique_feature {
 
 assert_unique_feature!("gen4", "gen5", "gen6", "gen7", "gen8", "gen9");
 
-
 fn main() {
     io::main();
     exit(1);
