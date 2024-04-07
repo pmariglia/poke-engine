@@ -53,6 +53,7 @@ pub enum Items {
     SILKSCARF,
     SILVERPOWDER,
     SOFTSAND,
+    SOULDEW,
     THROATSPRAY,
     TOXICORB,
     TWISTEDSPOON,
@@ -508,6 +509,24 @@ pub fn item_modify_attack_being_used(
         Items::SOFTSAND => {
             if attacking_choice.move_type == PokemonType::Ground {
                 attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::SOULDEW => {
+            if attacking_side.get_active_immutable().id == "latios"
+                || attacking_side.get_active_immutable().id == "latias"
+            {
+                #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
+                if attacking_choice.category == MoveCategory::Special
+                {
+                    attacking_choice.base_power *= 1.5;
+                }
+
+                #[cfg(not(any(feature = "gen4", feature = "gen5", feature = "gen6")))]
+                if attacking_choice.move_type == PokemonType::Dragon
+                    || attacking_choice.move_type == PokemonType::Psychic
+                {
+                    attacking_choice.base_power *= 1.2;
+                }
             }
         }
         Items::THROATSPRAY => {

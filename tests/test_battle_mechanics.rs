@@ -3157,6 +3157,56 @@ fn test_contact_multi_hit_move_versus_rockyhelmet() {
 }
 
 #[test]
+#[cfg(any(feature = "gen7", feature = "gen8", feature = "gen9"))]
+fn test_souldew_20_percent_boost_on_dragon_move() {
+    let mut state = State::default();
+    state.side_one.get_active().id = String::from("latios");
+    state.side_one.get_active().item = Items::SOULDEW;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DRAGONPULSE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 80,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
+fn test_earlier_gen_souldew_50_percent_boost_on_any_special_move() {
+    let mut state = State::default();
+    state.side_one.get_active().id = String::from("latios");
+    state.side_one.get_active().item = Items::SOULDEW;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::WATERGUN,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 #[cfg(feature = "gen9")]
 fn test_skilllink_always_has_5_hits() {
     let mut state = State::default();
