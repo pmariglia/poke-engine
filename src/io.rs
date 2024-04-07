@@ -191,12 +191,27 @@ pub fn command_loop(mut io_data: IOData) {
                 let p1_active = io_data.state.side_one.get_active_immutable();
                 let p2_active = io_data.state.side_two.get_active_immutable();
                 let (side_one_options, side_two_options) = io_data.state.get_all_options();
+
+                let mut side_one_switches = io_data.state.side_one.get_alive_pkmn_indices();
+                let mut side_one_switch_pkmn = vec![];
+                for s in side_one_switches.iter() {
+                    side_one_switch_pkmn.push(&io_data.state.side_one.pokemon[*s].id);
+                }
+
+                let mut side_two_switches = io_data.state.side_two.get_alive_pkmn_indices();
+                let mut side_two_switch_pkmn = vec![];
+                for s in side_two_switches.iter() {
+                    side_two_switch_pkmn.push(&io_data.state.side_two.pokemon[*s].id);
+                }
+
                 println!(
-                    "{}\nAvailable Choices: {:?}\n\nvs\n\n{}\nAvailable Choices: {:?}\n",
+                    "{}\nSwitches: {:?}\nAvailable Choices: {:?}\n\nvs\n\n{}\nSwitches: {:?}\nAvailable Choices: {:?}\n",
                     p1_active.io_print(),
+                    side_one_switch_pkmn,
                     side_one_options,
                     p2_active.io_print(),
-                    side_two_options
+                    side_two_switches,
+                    side_two_switch_pkmn
                 );
             }
             "generate-instructions" | "g" => {
