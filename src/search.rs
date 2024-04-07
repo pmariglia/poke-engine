@@ -157,13 +157,14 @@ pub fn iterative_deepen_expectiminimax(
     let mut elapsed = start_time.elapsed();
 
     let mut i = 1;
-    while i < depth+1 {
+    while i < depth {
         (re_ordered_s1_options, re_ordered_s2_options) = re_order_moves_for_iterative_deepening(
             &result,
             re_ordered_s1_options,
             re_ordered_s2_options,
         );
         start_time = std::time::Instant::now();
+        i += 1;
         result = expectiminimax_search(
             state,
             i,
@@ -172,7 +173,6 @@ pub fn iterative_deepen_expectiminimax(
             ab_prune,
         );
         elapsed = start_time.elapsed();
-        i += 1;
         if elapsed > std::time::Duration::from_millis(300) {
             break;
         }
