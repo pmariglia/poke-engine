@@ -210,8 +210,8 @@ pub fn command_loop(mut io_data: IOData) {
                     side_one_switch_pkmn,
                     side_one_options,
                     p2_active.io_print(),
-                    side_two_switches,
-                    side_two_switch_pkmn
+                    side_two_switch_pkmn,
+                    side_two_options
                 );
             }
             "generate-instructions" | "g" => {
