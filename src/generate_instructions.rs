@@ -1365,9 +1365,16 @@ fn get_effective_speed(state: &State, side_reference: &SideReference) -> i16 {
         boosted_speed *= 1.5
     }
 
+    #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
     if active_pkmn.status == PokemonStatus::Paralyze && active_pkmn.ability != Abilities::QUICKFEET
     {
-        boosted_speed *= 1.5
+        boosted_speed *= 0.25;
+    }
+
+    #[cfg(not(any(feature = "gen4", feature = "gen5", feature = "gen6")))]
+    if active_pkmn.status == PokemonStatus::Paralyze && active_pkmn.ability != Abilities::QUICKFEET
+    {
+        boosted_speed *= 0.50;
     }
 
     return boosted_speed as i16;
@@ -5817,6 +5824,44 @@ mod tests {
             true,
             side_one_moves_first(&state, &side_one_choice, &side_two_choice)
         )
+    }
+
+    #[test]
+    fn test_paralysis_reduces_effective_speed() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        let side_two_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+
+        state.side_one.get_active().status = PokemonStatus::Paralyze;
+        state.side_one.get_active().speed = 101;
+        state.side_two.get_active().speed = 100;
+
+        assert_eq!(
+            false,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
+    }
+
+    #[test]
+    #[cfg(any(feature = "gen7", feature = "gen8", feature = "gen9"))]
+    fn test_later_gen_speed_cutting_in_half() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        state.side_one.get_active().status = PokemonStatus::Paralyze;
+        state.side_one.get_active().speed = 100;
+
+        assert_eq!(50, get_effective_speed(&state, &SideReference::SideOne))
+    }
+
+    #[test]
+    #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
+    fn test_earlier_gen_speed_cutting_by_75_percent() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        state.side_one.get_active().status = PokemonStatus::Paralyze;
+        state.side_one.get_active().speed = 100;
+
+        assert_eq!(25, get_effective_speed(&state, &SideReference::SideOne))
     }
 
     #[test]
