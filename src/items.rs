@@ -440,12 +440,14 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::LIFEORB => {
-            attacking_choice.base_power *= 1.3;
-            attacking_choice.add_or_create_secondaries(Secondary {
-                chance: 100.0,
-                effect: Effect::Heal(-0.1),
-                target: MoveTarget::User,
-            });
+            if attacking_choice.category != MoveCategory::Status {
+                attacking_choice.base_power *= 1.3;
+                attacking_choice.add_or_create_secondaries(Secondary {
+                    chance: 100.0,
+                    effect: Effect::Heal(-0.1),
+                    target: MoveTarget::User,
+                });
+            }
         }
         Items::METALCOAT => {
             if attacking_choice.move_type == PokemonType::Steel {
