@@ -3396,6 +3396,31 @@ fn test_lifeorb_on_non_damaging_move() {
 }
 
 #[test]
+fn test_refresh_curing_status() {
+    let mut state = State::default();
+    state.side_one.get_active().status = PokemonStatus::Burn;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::REFRESH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::Burn,
+                new_status: PokemonStatus::None,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_shellbell_drain() {
     let mut state = State::default();
     state.side_one.get_active().hp = 50;

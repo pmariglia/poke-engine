@@ -1,6 +1,6 @@
 use crate::choices::{Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
-use crate::instruction::{ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, Instruction, SetSubstituteHealthInstruction, SetWishInstruction, StateInstructions};
+use crate::instruction::{ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, Instruction, SetSubstituteHealthInstruction, SetWishInstruction, StateInstructions};
 use crate::items::Items;
 use crate::state::{
     PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus,
@@ -569,6 +569,21 @@ pub fn choice_special_effect(
                         previous_wish_amount: 0,
                     }));
                 attacking_side.wish = (2, attacking_side.get_active_immutable().maxhp / 2);
+            }
+            }
+        Choices::REFRESH => {
+            let active_index = attacking_side.active_index;
+            let active_pkmn = attacking_side.get_active();
+            if active_pkmn.status != PokemonStatus::None {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeStatus(ChangeStatusInstruction {
+                        side_ref: *attacking_side_ref,
+                        pokemon_index: active_index,
+                        old_status: active_pkmn.status,
+                        new_status: PokemonStatus::None,
+                    }));
+                active_pkmn.status = PokemonStatus::None;
             }
         },
         Choices::TRICKROOM => {
