@@ -1535,7 +1535,14 @@ fn add_end_of_turn_instructions(
 
         match active_pkmn.status {
             PokemonStatus::Burn => {
+
+                #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
+                let mut damage_factor = 0.125;
+
+                #[cfg(not(any(feature = "gen4", feature = "gen5", feature = "gen6")))]
                 let mut damage_factor = 0.0625;
+
+
                 if active_pkmn.ability == Abilities::HEATPROOF {
                     damage_factor /= 2.0;
                 }
@@ -6650,6 +6657,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(any(feature = "gen9", feature = "gen8", feature = "gen7"))]
     fn test_end_of_turn_burn_damage() {
         let mut state = State::default();
         state.side_one.get_active().status = PokemonStatus::Burn;
@@ -6668,6 +6676,32 @@ mod tests {
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
                 damage_amount: 6,
+            })],
+        };
+
+        assert_eq!(expected_instructions, incoming_instructions)
+    }
+
+    #[test]
+    #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
+    fn test_early_generation_burn_one_eigth() {
+        let mut state = State::default();
+        state.side_one.get_active().status = PokemonStatus::Burn;
+
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
+            &mut state,
+            &mut incoming_instructions,
+            &MOVES.get(&Choices::TACKLE).unwrap().to_owned(),
+            &MOVES.get(&Choices::TACKLE).unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 12,
             })],
         };
 
