@@ -1487,14 +1487,20 @@ fn add_end_of_turn_instructions(
     for side_ref in sides {
         let side = state.get_side(side_ref);
         let side_wish = side.wish;
-        let active_pkmn = side.get_active_immutable();
+        let active_pkmn = side.get_active();
 
         if side_wish.0 > 0 {
             let decrement_wish_instruction = Instruction::DecrementWish(DecrementWishInstruction {
                 side_ref: *side_ref,
             });
             if side_wish.0 == 1 && 0 < active_pkmn.hp && active_pkmn.hp < active_pkmn.maxhp {
+
+                #[cfg(not(feature = "gen4"))]
                 let heal_amount = cmp::min(active_pkmn.maxhp - active_pkmn.hp, side_wish.1);
+
+                #[cfg(feature = "gen4")]
+                let heal_amount = cmp::min(active_pkmn.maxhp - active_pkmn.hp, active_pkmn.maxhp / 2);
+
                 let wish_heal_instruction = Instruction::Heal(HealInstruction {
                     side_ref: *side_ref,
                     heal_amount: heal_amount,
@@ -1502,6 +1508,7 @@ fn add_end_of_turn_instructions(
                 incoming_instructions
                     .instruction_list
                     .push(wish_heal_instruction);
+                active_pkmn.hp += heal_amount;
             }
             side.wish.0 -= 1;
             incoming_instructions
@@ -6006,6 +6013,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(not(feature = "gen4"))]
     fn test_wished_pokemon_gets_healed() {
         let mut state = State::default();
         state.side_one.wish = (1, 5);

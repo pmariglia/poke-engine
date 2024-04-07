@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+GENERATION="gen${1}"
+echo "building: $GENERATION"
+cargo build --release --no-default-features --features $GENERATION

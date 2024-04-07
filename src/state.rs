@@ -1334,6 +1334,16 @@ impl State {
         self.get_side(side_reference).get_active().moves[move_index].disabled = true;
     }
 
+    fn set_wish(&mut self, side_reference: &SideReference, amount: i16) {
+        self.get_side(side_reference).wish.0 = 2;
+        self.get_side(side_reference).wish.1 = amount;
+    }
+
+    fn unset_wish(&mut self, side_reference: &SideReference, previous_wish_amount: i16) {
+        self.get_side(side_reference).wish.0 = 0;
+        self.get_side(side_reference).wish.1 = previous_wish_amount;
+    }
+
     fn increment_wish(&mut self, side_reference: &SideReference) {
         self.get_side(side_reference).wish.0 += 1;
     }
@@ -1416,8 +1426,8 @@ impl State {
             Instruction::DisableMove(instruction) => {
                 self.disable_move(&instruction.side_ref, instruction.move_index)
             }
-            Instruction::IncrementWish(instruction) => {
-                self.increment_wish(&instruction.side_ref);
+            Instruction::SetWish(instruction) => {
+                self.set_wish(&instruction.side_ref, instruction.wish_amount);
             }
             Instruction::DecrementWish(instruction) => {
                 self.decrement_wish(&instruction.side_ref);
@@ -1500,7 +1510,7 @@ impl State {
             Instruction::ChangeItem(instruction) => {
                 self.change_item(&instruction.side_ref, instruction.current_item)
             }
-            Instruction::IncrementWish(instruction) => self.decrement_wish(&instruction.side_ref),
+            Instruction::SetWish(instruction) => self.unset_wish(&instruction.side_ref, instruction.previous_wish_amount),
             Instruction::DecrementWish(instruction) => self.increment_wish(&instruction.side_ref),
             Instruction::DamageSubstitute(instruction) => {
                 self.heal_substitute(&instruction.side_ref, instruction.damage_amount);

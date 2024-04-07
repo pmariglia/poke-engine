@@ -1,13 +1,7 @@
 use poke_engine::abilities::Abilities;
 use poke_engine::choices::{Choices, MOVES};
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
-use poke_engine::instruction::{
-    ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather,
-    DamageInstruction, DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction,
-    RemoveVolatileStatusInstruction, SetSecondMoveSwitchOutMoveInstruction,
-    SetSubstituteHealthInstruction, StateInstructions, SwitchInstruction,
-};
+use poke_engine::instruction::{ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, DecrementWishInstruction, DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction, SetSecondMoveSwitchOutMoveInstruction, SetSubstituteHealthInstruction, SetWishInstruction, StateInstructions, SwitchInstruction};
 use poke_engine::items::Items;
 use poke_engine::state::{
     Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
@@ -2427,6 +2421,162 @@ fn test_trickroom() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![Instruction::ToggleTrickRoom],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_using_wish() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::WISH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::SetWish(SetWishInstruction {
+                side_ref: SideReference::SideOne,
+                wish_amount: state.side_one.get_active().maxhp / 2,
+                previous_wish_amount: 0,
+            }),
+            Instruction::DecrementWish(DecrementWishInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_cannot_use_wish_when_already_active() {
+    let mut state = State::default();
+    state.side_one.wish = (2, 50);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::WISH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DecrementWish(DecrementWishInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(not(feature = "gen4"))]
+fn test_wish_healing_end_of_turn() {
+    let mut state = State::default();
+    state.side_one.wish = (1, 50);
+    state.side_one.get_active().hp = 1;
+    state.side_one.get_active().maxhp = 400;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 50,
+            }),
+            Instruction::DecrementWish(DecrementWishInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_wish_does_not_overheal() {
+    let mut state = State::default();
+    state.side_one.wish = (1, 50);
+    state.side_one.get_active().hp = 75;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 25,
+            }),
+            Instruction::DecrementWish(DecrementWishInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_wish_does_not_produce_heal_instruction_when_at_maxhp() {
+    let mut state = State::default();
+    state.side_one.wish = (1, 50);
+    state.side_one.get_active().hp = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DecrementWish(DecrementWishInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(feature = "gen4")]
+fn test_wish_in_gen4_uses_target_pkmn_maxhp() {
+    let mut state = State::default();
+    state.side_one.wish = (1, 100);
+    state.side_one.get_active().hp = 1;
+    state.side_one.get_active().maxhp = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 50,
+            }),
+            Instruction::DecrementWish(DecrementWishInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+        ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

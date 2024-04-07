@@ -57,7 +57,7 @@ pub enum Instruction {
     ChangeItem(ChangeItemInstruction),
     DisableMove(DisableMoveInstruction),
     EnableMove(EnableMoveInstruction),
-    IncrementWish(IncrementWishInstruction),
+    SetWish(SetWishInstruction),
     DecrementWish(DecrementWishInstruction),
     DamageSubstitute(DamageInstruction),
     SetSubstituteHealth(SetSubstituteHealthInstruction),
@@ -75,8 +75,10 @@ pub struct SetSecondMoveSwitchOutMoveInstruction {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct IncrementWishInstruction {
+pub struct SetWishInstruction {
     pub side_ref: SideReference,
+    pub wish_amount: i16,
+    pub previous_wish_amount: i16,
 }
 
 #[derive(Debug, PartialEq, Clone)]
