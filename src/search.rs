@@ -147,7 +147,7 @@ pub fn iterative_deepen_expectiminimax(
     side_two_options: Vec<MoveChoice>,
     ab_prune: bool,
     max_time: std::time::Duration,
-) -> (Vec<MoveChoice>, Vec<MoveChoice>, Vec<f32>) {
+) -> (Vec<MoveChoice>, Vec<MoveChoice>, Vec<f32>, i8) {
     let mut result = Vec::new();
     let mut re_ordered_s1_options = side_one_options.clone();
     let mut re_ordered_s2_options = side_two_options.clone();
@@ -156,7 +156,8 @@ pub fn iterative_deepen_expectiminimax(
     result = expectiminimax_search(state, 1, side_one_options, side_two_options, ab_prune);
     let mut elapsed = start_time.elapsed();
 
-    for i in 2..depth + 1 {
+    let mut i = 1;
+    while i < depth+1 {
         (re_ordered_s1_options, re_ordered_s2_options) = re_order_moves_for_iterative_deepening(
             &result,
             re_ordered_s1_options,
@@ -171,10 +172,11 @@ pub fn iterative_deepen_expectiminimax(
             ab_prune,
         );
         elapsed = start_time.elapsed();
+        i += 1;
         if elapsed > std::time::Duration::from_millis(300) {
             break;
         }
     }
 
-    return (re_ordered_s1_options, re_ordered_s2_options, result);
+    return (re_ordered_s1_options, re_ordered_s2_options, result, i);
 }

@@ -105,7 +105,7 @@ pub fn main() {
         let (mut side_one_options, mut side_two_options) = io_data.state.get_all_options();
         let mut result;
         if args.iterative_deepening {
-            (side_one_options, side_two_options, result) = iterative_deepen_expectiminimax(
+            (side_one_options, side_two_options, result, _) = iterative_deepen_expectiminimax(
                 &mut io_data.state,
                 args.depth,
                 side_one_options.clone(),
@@ -250,7 +250,7 @@ pub fn command_loop(mut io_data: IOData) {
                     let (side_one_options, side_two_options) = io_data.state.get_all_options();
 
                     let start_time = std::time::Instant::now();
-                    let (s1_moves, s2_moves, result) = iterative_deepen_expectiminimax(
+                    let (s1_moves, s2_moves, result, depth_searched) = iterative_deepen_expectiminimax(
                         &mut io_data.state,
                         depth,
                         side_one_options.clone(),
@@ -264,6 +264,7 @@ pub fn command_loop(mut io_data: IOData) {
 
                     pprint_expectiminimax_result(&result, &s1_moves, &s2_moves, &safest_choice);
                     println!("\nTook: {:?}", elapsed);
+                    println!("Depth Searched: {}", depth_searched);
                 }
                 None => {
                     println!("Usage: iterative-deepening <depth> <ab_prune=false>");
