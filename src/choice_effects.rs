@@ -592,6 +592,20 @@ pub fn choice_special_effect(
                 .instruction_list
                 .push(Instruction::ToggleTrickRoom);
         }
+        Choices::SUPERFANG => {
+            let target_pkmn = defending_side.get_active();
+            if target_pkmn.hp == 1 {
+                return;
+            }
+            let target_hp = target_pkmn.hp / 2;
+            instructions
+                .instruction_list
+                .push(Instruction::Damage(DamageInstruction {
+                    side_ref: attacking_side_ref.get_other_side(),
+                    damage_amount: target_pkmn.hp - target_hp,
+                }));
+            target_pkmn.hp = target_hp;
+        }
         Choices::PAINSPLIT => {
             let target_hp = (attacking_side.get_active_immutable().hp
                 + defending_side.get_active_immutable().hp)
