@@ -52,7 +52,7 @@ fn evaluate_burned(pokemon: &Pokemon) -> f32 {
 
     // guts, marvel scale, quick feet will result in a positive evaluation
     match pokemon.ability {
-        Abilities::GUTS | Abilities::MARVELSCALE | Abilities::QUICKFEET => return -2.0,
+        Abilities::GUTS | Abilities::MARVELSCALE | Abilities::QUICKFEET => return -2.0 * POKEMON_BURNED,
         _ => {}
     }
 
