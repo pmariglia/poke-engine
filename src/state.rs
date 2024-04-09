@@ -770,6 +770,14 @@ pub struct Side {
 }
 
 impl Side {
+    pub fn has_sleeping_pkmn(&self) -> bool {
+        for p in self.pokemon.into_iter() {
+            if p.status == PokemonStatus::Sleep {
+                return true;
+            }
+        }
+        return false;
+    }
     fn toggle_force_switch(&mut self) {
         self.force_switch = !self.force_switch;
     }
@@ -1510,7 +1518,9 @@ impl State {
             Instruction::ChangeItem(instruction) => {
                 self.change_item(&instruction.side_ref, instruction.current_item)
             }
-            Instruction::SetWish(instruction) => self.unset_wish(&instruction.side_ref, instruction.previous_wish_amount),
+            Instruction::SetWish(instruction) => {
+                self.unset_wish(&instruction.side_ref, instruction.previous_wish_amount)
+            }
             Instruction::DecrementWish(instruction) => self.increment_wish(&instruction.side_ref),
             Instruction::DamageSubstitute(instruction) => {
                 self.heal_substitute(&instruction.side_ref, instruction.damage_amount);

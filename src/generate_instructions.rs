@@ -280,9 +280,8 @@ pub fn immune_to_status(
     target_side_ref: &SideReference,
     status: &PokemonStatus,
 ) -> bool {
-    let target_pkmn = state
-        .get_side_immutable(target_side_ref)
-        .get_active_immutable();
+    let target_side = state.get_side_immutable(target_side_ref);
+    let target_pkmn = target_side.get_active_immutable();
 
     // General Status Immunity
     match target_pkmn.ability {
@@ -325,7 +324,7 @@ pub fn immune_to_status(
                         Abilities::VITALSPIRIT,
                     ]
                     .contains(&target_pkmn.ability)
-                    || sleep_clause_activated()
+                    || (status_target == &MoveTarget::Opponent && target_side.has_sleeping_pkmn())
             }
             PokemonStatus::Paralyze => {
                 target_pkmn.has_type(&PokemonType::Electric)
@@ -1501,12 +1500,12 @@ fn add_end_of_turn_instructions(
                 side_ref: *side_ref,
             });
             if side_wish.0 == 1 && 0 < active_pkmn.hp && active_pkmn.hp < active_pkmn.maxhp {
-
                 #[cfg(not(feature = "gen4"))]
                 let heal_amount = cmp::min(active_pkmn.maxhp - active_pkmn.hp, side_wish.1);
 
                 #[cfg(feature = "gen4")]
-                let heal_amount = cmp::min(active_pkmn.maxhp - active_pkmn.hp, active_pkmn.maxhp / 2);
+                let heal_amount =
+                    cmp::min(active_pkmn.maxhp - active_pkmn.hp, active_pkmn.maxhp / 2);
 
                 let wish_heal_instruction = Instruction::Heal(HealInstruction {
                     side_ref: *side_ref,
@@ -1535,13 +1534,11 @@ fn add_end_of_turn_instructions(
 
         match active_pkmn.status {
             PokemonStatus::Burn => {
-
                 #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
                 let mut damage_factor = 0.125;
 
                 #[cfg(not(any(feature = "gen4", feature = "gen5", feature = "gen6")))]
                 let mut damage_factor = 0.0625;
-
 
                 if active_pkmn.ability == Abilities::HEATPROOF {
                     damage_factor /= 2.0;

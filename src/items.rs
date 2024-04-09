@@ -518,8 +518,7 @@ pub fn item_modify_attack_being_used(
                 || attacking_side.get_active_immutable().id == "latias"
             {
                 #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
-                if attacking_choice.category == MoveCategory::Special
-                {
+                if attacking_choice.category == MoveCategory::Special {
                     attacking_choice.base_power *= 1.5;
                 }
 

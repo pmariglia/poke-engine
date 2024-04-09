@@ -1,7 +1,14 @@
 use poke_engine::abilities::Abilities;
 use poke_engine::choices::{Choices, MOVES};
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
-use poke_engine::instruction::{ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, DecrementWishInstruction, DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction, SetSecondMoveSwitchOutMoveInstruction, SetSubstituteHealthInstruction, SetWishInstruction, StateInstructions, SwitchInstruction};
+use poke_engine::instruction::{
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
+    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather,
+    DamageInstruction, DecrementWishInstruction, DisableMoveInstruction, EnableMoveInstruction,
+    HealInstruction, Instruction, RemoveVolatileStatusInstruction,
+    SetSecondMoveSwitchOutMoveInstruction, SetSubstituteHealthInstruction, SetWishInstruction,
+    StateInstructions, SwitchInstruction,
+};
 use poke_engine::items::Items;
 use poke_engine::state::{
     Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
@@ -2464,11 +2471,9 @@ fn test_cannot_use_wish_when_already_active() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::DecrementWish(DecrementWishInstruction {
-                side_ref: SideReference::SideOne,
-            }),
-        ],
+        instruction_list: vec![Instruction::DecrementWish(DecrementWishInstruction {
+            side_ref: SideReference::SideOne,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -2543,11 +2548,9 @@ fn test_wish_does_not_produce_heal_instruction_when_at_maxhp() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::DecrementWish(DecrementWishInstruction {
-                side_ref: SideReference::SideOne,
-            }),
-        ],
+        instruction_list: vec![Instruction::DecrementWish(DecrementWishInstruction {
+            side_ref: SideReference::SideOne,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -2640,12 +2643,10 @@ fn test_superfang() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 30,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 30,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -2664,6 +2665,78 @@ fn test_superfang_at_1hp() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_basic_spore() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPORE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::None,
+                new_status: PokemonStatus::Sleep,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_sleep_clause_prevents_sleep_move_used_on_opponent() {
+    let mut state = State::default();
+    state.side_two.pokemon[PokemonIndex::P1].status = PokemonStatus::Sleep;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPORE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_rest_can_be_used_if_sleep_clause_would_activate() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].status = PokemonStatus::Sleep;
+    state.side_one.get_active().hp = 50;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::REST,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::None,
+                new_status: PokemonStatus::Sleep,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 50,
+            }),
+        ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -3212,12 +3285,10 @@ fn test_souldew_20_percent_boost_on_dragon_move() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 80,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 80,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -3237,12 +3308,10 @@ fn test_earlier_gen_souldew_50_percent_boost_on_any_special_move() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 48,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 48,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -3425,13 +3494,11 @@ fn test_lifeorb_on_non_damaging_move() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Boost(BoostInstruction {
-                side_ref: SideReference::SideOne,
-                stat: PokemonBoostableStat::SpecialAttack,
-                amount: 2,
-            }),
-        ],
+        instruction_list: vec![Instruction::Boost(BoostInstruction {
+            side_ref: SideReference::SideOne,
+            stat: PokemonBoostableStat::SpecialAttack,
+            amount: 2,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -3449,14 +3516,12 @@ fn test_refresh_curing_status() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::Burn,
-                new_status: PokemonStatus::None,
-            }),
-        ],
+        instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+            side_ref: SideReference::SideOne,
+            pokemon_index: PokemonIndex::P0,
+            old_status: PokemonStatus::Burn,
+            new_status: PokemonStatus::None,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

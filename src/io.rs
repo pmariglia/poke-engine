@@ -250,14 +250,15 @@ pub fn command_loop(mut io_data: IOData) {
                     let (side_one_options, side_two_options) = io_data.state.get_all_options();
 
                     let start_time = std::time::Instant::now();
-                    let (s1_moves, s2_moves, result, depth_searched) = iterative_deepen_expectiminimax(
-                        &mut io_data.state,
-                        depth,
-                        side_one_options.clone(),
-                        side_two_options.clone(),
-                        ab_prune,
-                        std::time::Duration::from_secs(5),
-                    );
+                    let (s1_moves, s2_moves, result, depth_searched) =
+                        iterative_deepen_expectiminimax(
+                            &mut io_data.state,
+                            depth,
+                            side_one_options.clone(),
+                            side_two_options.clone(),
+                            ab_prune,
+                            std::time::Duration::from_secs(5),
+                        );
                     let elapsed = start_time.elapsed();
 
                     let safest_choice = pick_safest(&result, s1_moves.len(), s2_moves.len());
