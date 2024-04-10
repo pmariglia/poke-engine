@@ -94,9 +94,9 @@ fn generate_instructions_from_switch(
         if side.side_conditions.stealth_rock == 1 {
             let switched_in_pkmn = side.get_active();
             let multiplier =
-                type_effectiveness_modifier(&PokemonType::Rock, &switched_in_pkmn.types) as i16;
+                type_effectiveness_modifier(&PokemonType::Rock, &switched_in_pkmn.types);
 
-            let dmg_amount = cmp::min(switched_in_pkmn.maxhp * multiplier / 8, switched_in_pkmn.hp);
+            let dmg_amount = cmp::min((switched_in_pkmn.maxhp as f32 * multiplier / 8.0) as i16, switched_in_pkmn.hp);
             let stealth_rock_dmg_instruction = Instruction::Damage(DamageInstruction {
                 side_ref: switching_side_ref,
                 damage_amount: dmg_amount,
@@ -5130,6 +5130,43 @@ mod tests {
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideOne,
                     damage_amount: state.side_one.get_active().hp / 8,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            &mut incoming_instructions,
+        );
+
+        assert_eq!(expected_instructions, incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_into_resisted_stealthrock() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.stealth_rock = 1;
+        state.side_one.pokemon[PokemonIndex::P1].types = (PokemonType::Ground, PokemonType::Normal);
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = PokemonIndex::P1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: state.side_one.get_active().hp / 16,
                 }),
             ],
             ..Default::default()
