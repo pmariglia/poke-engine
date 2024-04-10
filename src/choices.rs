@@ -4710,7 +4710,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100.0,
+                    chance: 0.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
@@ -5169,7 +5169,7 @@ lazy_static! {
             Choices::FIRSTIMPRESSION,
             Choice {
                 move_id: Choices::FIRSTIMPRESSION,
-                base_power: 90.0,
+                base_power: 0.0,
                 category: MoveCategory::Physical,
                 priority: 2,
                 move_type: PokemonType::Bug,
