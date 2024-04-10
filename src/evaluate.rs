@@ -144,6 +144,9 @@ pub fn evaluate(state: &State) -> f32 {
             side_two_alive_count += 1.0;
             score -= evaluate_pokemon(pkmn);
         }
+        else if pkmn.level == 1 {  // hack for randombattle where pokemon are not revealed
+            side_two_alive_count += 1.0;
+        }
     }
 
     score += state.side_one.side_conditions.reflect as f32 * REFLECT;
