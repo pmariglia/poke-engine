@@ -685,9 +685,9 @@ impl<'a> IntoIterator for &'a SidePokemon {
 }
 
 pub struct SidePokemonIterator<'a> {
-    side_pokemon: &'a SidePokemon,
-    pokemon_index: PokemonIndex,
-    index: usize,
+    pub side_pokemon: &'a SidePokemon,
+    pub pokemon_index: PokemonIndex,
+    pub index: usize,
 }
 
 impl<'a> Iterator for SidePokemonIterator<'a> {

@@ -59,6 +59,23 @@ impl Side {
             }
         }
     }
+
+    fn string_to_movechoice(&self, s: &str) -> Option<MoveChoice> {
+        let s = s.to_lowercase();
+        let mut pkmn_iter = self.pokemon.into_iter();
+        while let Some(pkmn) = pkmn_iter.next() {
+            if pkmn.id.to_lowercase() == s && pkmn_iter.pokemon_index != self.active_index {
+                return Some(MoveChoice::Switch(pkmn_iter.pokemon_index));
+            }
+        }
+        let mut move_iter = self.get_active_immutable().moves.into_iter();
+        while let Some(mv) = move_iter.next() {
+            if format!("{:?}", mv.id).to_lowercase() == s {
+                return Some(MoveChoice::Move(move_iter.pokemon_move_index));
+            }
+        }
+        return None
+    }
 }
 
 impl Pokemon {
@@ -243,7 +260,15 @@ pub fn command_loop(mut io_data: IOData) {
                 let (s1_move, s2_move);
                 match args.next() {
                     Some(s) => {
-                        s1_move = MoveChoice::deserialize(s);
+                        match io_data.state.side_one.string_to_movechoice(s) {
+                            Some(m) => {
+                                s1_move = m;
+                            }
+                            None => {
+                                println!("Invalid move choice for side one: {}", s);
+                                continue;
+                            }
+                        }
                     }
                     None => {
                         println!("Usage: generate-instructions <side-1 move> <side-2 move>");
@@ -252,7 +277,15 @@ pub fn command_loop(mut io_data: IOData) {
                 }
                 match args.next() {
                     Some(s) => {
-                        s2_move = MoveChoice::deserialize(s);
+                        match io_data.state.side_two.string_to_movechoice(s) {
+                            Some(m) => {
+                                s2_move = m;
+                            }
+                            None => {
+                                println!("Invalid move choice for side two: {}", s);
+                                continue;
+                            }
+                        }
                     }
                     None => {
                         println!("Usage: generate-instructions <side-1 choice> <side-2 choice>");
