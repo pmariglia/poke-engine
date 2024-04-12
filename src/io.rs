@@ -2,7 +2,7 @@ use crate::choices::Choices;
 use crate::generate_instructions::generate_instructions_from_move_pair;
 use crate::instruction::{Instruction, StateInstructions};
 use crate::search::{expectiminimax_search, iterative_deepen_expectiminimax, pick_safest};
-use crate::state::{MoveChoice, Pokemon, State};
+use crate::state::{MoveChoice, Pokemon, Side, State};
 use clap::Parser;
 use std::io;
 use std::io::Write;
@@ -45,16 +45,35 @@ impl Default for IOData {
     }
 }
 
+impl Side {
+    fn option_to_string(&self, option: &MoveChoice) -> String {
+        match option {
+            MoveChoice::Move(index) => {
+                return format!("{}", self.get_active_immutable().moves[*index].id);
+            }
+            MoveChoice::Switch(index) => {
+                return format!("{}", self.pokemon[*index].id);
+            }
+            MoveChoice::None => {
+                return "No Move".to_string();
+            }
+        }
+    }
+}
+
 impl Pokemon {
     fn io_print(&self) -> String {
-        let moves: Vec<Choices> = self.moves.into_iter().map(|m| m.id).collect();
+        let moves: Vec<String> = self.moves.into_iter().map(|m| format!("{:?}", m.id).to_lowercase()).collect();
         return format!(
-            "Name: {}\nHP: {}/{}\nStatus: {:?}\nBoosts: {:?}\nMoves: {:?}",
+            "Active: {}\nHP: {}/{}\nStatus: {:?}\nAbility: {:?}\nItem: {:?}\nBoosts: {:?}\nVolatiles: {:?}\nMoves: {:?}",
             self.id,
             self.hp,
             self.maxhp,
             self.status,
+            self.ability,
+            self.item,
             self.get_pkmn_boost_enum_pairs(),
+            self.volatile_statuses,
             moves
         );
     }
@@ -192,26 +211,32 @@ pub fn command_loop(mut io_data: IOData) {
                 let p2_active = io_data.state.side_two.get_active_immutable();
                 let (side_one_options, side_two_options) = io_data.state.get_all_options();
 
-                let mut side_one_switches = io_data.state.side_one.get_alive_pkmn_indices();
                 let mut side_one_switch_pkmn = vec![];
-                for s in side_one_switches.iter() {
-                    side_one_switch_pkmn.push(&io_data.state.side_one.pokemon[*s].id);
+                for pkmn in io_data.state.side_one.pokemon.into_iter() {
+                    side_one_switch_pkmn.push(format!("{}: {}/{}", &pkmn.id, pkmn.hp, pkmn.maxhp));
+                }
+                let mut side_one_choices = vec![];
+                for option in side_one_options {
+                    side_one_choices.push(format!("{:?}", io_data.state.side_one.option_to_string(&option)).to_lowercase());
                 }
 
-                let mut side_two_switches = io_data.state.side_two.get_alive_pkmn_indices();
                 let mut side_two_switch_pkmn = vec![];
-                for s in side_two_switches.iter() {
-                    side_two_switch_pkmn.push(&io_data.state.side_two.pokemon[*s].id);
+                for pkmn in io_data.state.side_two.pokemon.into_iter() {
+                    side_two_switch_pkmn.push(format!("{}: {}/{}", &pkmn.id, pkmn.hp, pkmn.maxhp));
+                }
+                let mut side_two_choices = vec![];
+                for option in side_two_options {
+                    side_two_choices.push(format!("{:?}", io_data.state.side_two.option_to_string(&option)).to_lowercase());
                 }
 
                 println!(
-                    "{}\nSwitches: {:?}\nAvailable Choices: {:?}\n\nvs\n\n{}\nSwitches: {:?}\nAvailable Choices: {:?}\n",
+                    "{}\nPokemon: {:?}\nAvailable Choices: [{}]\n\nvs\n\n{}\nPokemon: {:?}\nAvailable Choices: [{}]\n",
                     p1_active.io_print(),
                     side_one_switch_pkmn,
-                    side_one_options,
+                    side_one_choices.join(", "),
                     p2_active.io_print(),
                     side_two_switch_pkmn,
-                    side_two_options
+                    side_two_choices.join(", "),
                 );
             }
             "generate-instructions" | "g" => {
@@ -230,7 +255,7 @@ pub fn command_loop(mut io_data: IOData) {
                         s2_move = MoveChoice::deserialize(s);
                     }
                     None => {
-                        println!("Usage: generate-instructions <side-1 move> <side-2 move>");
+                        println!("Usage: generate-instructions <side-1 choice> <side-2 choice>");
                         continue;
                     }
                 }
