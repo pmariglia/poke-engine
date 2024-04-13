@@ -25,6 +25,9 @@ struct Cli {
     #[clap(short, long, default_value_t = false)]
     iterative_deepening: bool,
 
+    #[clap(short, long, default_value_t = false)]
+    matrix: bool,
+
     #[clap(short, long, default_value_t = 5)]
     max_search_time: u64,
 
@@ -180,6 +183,10 @@ pub fn main() {
             }
         }
         println!("evaluation: {}", safest.1);
+        if args.matrix {
+            let joined: String = result.iter().map(|&id| id.to_string()).collect::<Vec<String>>().join(",");
+            println!("matrix: {}", joined);
+        }
 
         exit(1);
     }
