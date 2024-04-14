@@ -7,6 +7,7 @@ use clap::Parser;
 use std::io;
 use std::io::Write;
 use std::process::exit;
+use crate::evaluate::evaluate;
 
 struct IOData {
     state: State,
@@ -77,6 +78,11 @@ impl Side {
                 return Some(MoveChoice::Move(move_iter.pokemon_move_index));
             }
         }
+
+        if s == "none" {
+            return Some(MoveChoice::None);
+        }
+
         return None;
     }
 }
@@ -351,6 +357,9 @@ pub fn command_loop(mut io_data: IOData) {
             }
             "instructions" | "i" => {
                 println!("{:?}", io_data.last_instructions_generated);
+            }
+            "evaluate" | "ev" => {
+                println!("Evaluation: {}", evaluate(&io_data.state));
             }
             "iterative-deepening" | "id" => match args.next() {
                 Some(s) => {
