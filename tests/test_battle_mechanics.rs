@@ -3079,6 +3079,45 @@ fn test_poisontype_using_toxic() {
 }
 
 #[test]
+fn test_toxic_into_shedinja() {
+    // makes sure that toxic always does at least 1 damage
+    let mut state = State::default();
+    state.side_one.get_active().types.0 = PokemonType::Poison;
+    state.side_two.get_active().id = "shedinja".to_string();
+    state.side_two.get_active().hp = 1;
+    state.side_two.get_active().maxhp = 1;
+    state.side_two.get_active().ability = Abilities::WONDERGUARD;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TOXIC,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::None,
+                new_status: PokemonStatus::Toxic,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 1,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideTwo,
+                side_condition: PokemonSideCondition::ToxicCount,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_pursuit() {
     let mut state = State::default();
     state.side_one.get_active().moves.m0 = Move {

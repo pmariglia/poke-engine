@@ -1583,10 +1583,10 @@ fn add_end_of_turn_instructions(
             }
             PokemonStatus::Toxic if active_pkmn.ability != Abilities::POISONHEAL => {
                 let toxic_multiplier = (1.0 / 16.0) * toxic_count + (1.0 / 16.0);
-                let damage_amount = cmp::min(
+                let damage_amount = cmp::max(cmp::min(
                     (active_pkmn.maxhp as f32 * toxic_multiplier) as i16,
                     active_pkmn.hp,
-                );
+                ), 1);
                 let toxic_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
                     damage_amount,
