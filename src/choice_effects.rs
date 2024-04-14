@@ -100,6 +100,9 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 3.0; // 1.5x for being in sun, 2x for cancelling out rain debuff
             }
         }
+        Choices::JUDGMENT => {
+            attacker_choice.move_type = attacking_side.get_active_immutable().types.0;
+        }
         Choices::MISTYEXPLOSION => {
             if state.terrain.terrain_type == Terrain::MistyTerrain {
                 attacker_choice.base_power *= 1.5;
