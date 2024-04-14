@@ -1065,6 +1065,11 @@ pub fn generate_instructions_from_move(
         return;
     }
 
+    if choice.move_id == Choices::NONE {
+        final_instructions.push(incoming_instructions);
+        return;
+    }
+
     // TODO: test first-turn dragontail missing - it should not trigger this early return
     if !choice.first_move && defender_choice.flags.drag {
         final_instructions.push(incoming_instructions);
