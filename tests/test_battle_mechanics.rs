@@ -2681,14 +2681,12 @@ fn test_basic_spore() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideTwo,
-                pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::None,
-                new_status: PokemonStatus::Sleep,
-            }),
-        ],
+        instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+            side_ref: SideReference::SideTwo,
+            pokemon_index: PokemonIndex::P0,
+            old_status: PokemonStatus::None,
+            new_status: PokemonStatus::Sleep,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

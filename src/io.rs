@@ -77,13 +77,17 @@ impl Side {
                 return Some(MoveChoice::Move(move_iter.pokemon_move_index));
             }
         }
-        return None
+        return None;
     }
 }
 
 impl Pokemon {
     fn io_print(&self) -> String {
-        let moves: Vec<String> = self.moves.into_iter().map(|m| format!("{:?}", m.id).to_lowercase()).collect();
+        let moves: Vec<String> = self
+            .moves
+            .into_iter()
+            .map(|m| format!("{:?}", m.id).to_lowercase())
+            .collect();
         return format!(
             "Active: {}\nHP: {}/{}\nStatus: {:?}\nAbility: {:?}\nItem: {:?}\nBoosts: {:?}\nVolatiles: {:?}\nMoves: {:?}",
             self.id,
@@ -148,11 +152,19 @@ fn pprint_expectiminimax_result(
     match s1_options[safest_choice.0] {
         MoveChoice::Move(m) => {
             let move_id = state.side_one.get_active_immutable().moves[m].id;
-            print!("\nSafest Choice: {}, {}\n", move_id.to_string().to_lowercase(), safest_choice.1);
+            print!(
+                "\nSafest Choice: {}, {}\n",
+                move_id.to_string().to_lowercase(),
+                safest_choice.1
+            );
         }
         MoveChoice::Switch(s) => {
             let pkmn_id = &state.side_one.pokemon[s].id;
-            print!("\nSafest Choice: Switch {}, {}\n", pkmn_id.to_lowercase(), safest_choice.1);
+            print!(
+                "\nSafest Choice: Switch {}, {}\n",
+                pkmn_id.to_lowercase(),
+                safest_choice.1
+            );
         }
         MoveChoice::None => println!("No Move"),
     }
@@ -211,7 +223,11 @@ pub fn main() {
         }
         println!("evaluation: {}", safest.1);
         if args.matrix {
-            let joined: String = result.iter().map(|&id| id.to_string()).collect::<Vec<String>>().join(",");
+            let joined: String = result
+                .iter()
+                .map(|&id| id.to_string())
+                .collect::<Vec<String>>()
+                .join(",");
             println!("matrix: {}", joined);
         }
 
@@ -268,7 +284,10 @@ pub fn command_loop(mut io_data: IOData) {
                 }
                 let mut side_one_choices = vec![];
                 for option in side_one_options {
-                    side_one_choices.push(format!("{:?}", io_data.state.side_one.option_to_string(&option)).to_lowercase());
+                    side_one_choices.push(
+                        format!("{:?}", io_data.state.side_one.option_to_string(&option))
+                            .to_lowercase(),
+                    );
                 }
 
                 let mut side_two_switch_pkmn = vec![];
@@ -277,7 +296,10 @@ pub fn command_loop(mut io_data: IOData) {
                 }
                 let mut side_two_choices = vec![];
                 for option in side_two_options {
-                    side_two_choices.push(format!("{:?}", io_data.state.side_two.option_to_string(&option)).to_lowercase());
+                    side_two_choices.push(
+                        format!("{:?}", io_data.state.side_two.option_to_string(&option))
+                            .to_lowercase(),
+                    );
                 }
 
                 println!(
@@ -293,34 +315,30 @@ pub fn command_loop(mut io_data: IOData) {
             "generate-instructions" | "g" => {
                 let (s1_move, s2_move);
                 match args.next() {
-                    Some(s) => {
-                        match io_data.state.side_one.string_to_movechoice(s) {
-                            Some(m) => {
-                                s1_move = m;
-                            }
-                            None => {
-                                println!("Invalid move choice for side one: {}", s);
-                                continue;
-                            }
+                    Some(s) => match io_data.state.side_one.string_to_movechoice(s) {
+                        Some(m) => {
+                            s1_move = m;
                         }
-                    }
+                        None => {
+                            println!("Invalid move choice for side one: {}", s);
+                            continue;
+                        }
+                    },
                     None => {
                         println!("Usage: generate-instructions <side-1 move> <side-2 move>");
                         continue;
                     }
                 }
                 match args.next() {
-                    Some(s) => {
-                        match io_data.state.side_two.string_to_movechoice(s) {
-                            Some(m) => {
-                                s2_move = m;
-                            }
-                            None => {
-                                println!("Invalid move choice for side two: {}", s);
-                                continue;
-                            }
+                    Some(s) => match io_data.state.side_two.string_to_movechoice(s) {
+                        Some(m) => {
+                            s2_move = m;
                         }
-                    }
+                        None => {
+                            println!("Invalid move choice for side two: {}", s);
+                            continue;
+                        }
+                    },
                     None => {
                         println!("Usage: generate-instructions <side-1 choice> <side-2 choice>");
                         continue;
@@ -355,7 +373,13 @@ pub fn command_loop(mut io_data: IOData) {
 
                     let safest_choice = pick_safest(&result, s1_moves.len(), s2_moves.len());
 
-                    pprint_expectiminimax_result(&result, &s1_moves, &s2_moves, &safest_choice, &io_data.state);
+                    pprint_expectiminimax_result(
+                        &result,
+                        &s1_moves,
+                        &s2_moves,
+                        &safest_choice,
+                        &io_data.state,
+                    );
                     println!("Took: {:?}", elapsed);
                     println!("Depth Searched: {}", depth_searched);
                 }

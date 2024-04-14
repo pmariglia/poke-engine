@@ -96,7 +96,10 @@ fn generate_instructions_from_switch(
             let multiplier =
                 type_effectiveness_modifier(&PokemonType::Rock, &switched_in_pkmn.types);
 
-            let dmg_amount = cmp::min((switched_in_pkmn.maxhp as f32 * multiplier / 8.0) as i16, switched_in_pkmn.hp);
+            let dmg_amount = cmp::min(
+                (switched_in_pkmn.maxhp as f32 * multiplier / 8.0) as i16,
+                switched_in_pkmn.hp,
+            );
             let stealth_rock_dmg_instruction = Instruction::Damage(DamageInstruction {
                 side_ref: switching_side_ref,
                 damage_amount: dmg_amount,
@@ -1583,10 +1586,13 @@ fn add_end_of_turn_instructions(
             }
             PokemonStatus::Toxic if active_pkmn.ability != Abilities::POISONHEAL => {
                 let toxic_multiplier = (1.0 / 16.0) * toxic_count + (1.0 / 16.0);
-                let damage_amount = cmp::max(cmp::min(
-                    (active_pkmn.maxhp as f32 * toxic_multiplier) as i16,
-                    active_pkmn.hp,
-                ), 1);
+                let damage_amount = cmp::max(
+                    cmp::min(
+                        (active_pkmn.maxhp as f32 * toxic_multiplier) as i16,
+                        active_pkmn.hp,
+                    ),
+                    1,
+                );
                 let toxic_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
                     damage_amount,
@@ -3716,12 +3722,10 @@ mod tests {
             &mut instructions,
         );
 
-        let expected_instructions = vec![
-            StateInstructions {
-                percentage: 100.0,
-                instruction_list: vec![],
-            }
-        ];
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        }];
         assert_eq!(instructions, expected_instructions)
     }
 
@@ -3742,12 +3746,10 @@ mod tests {
             &mut instructions,
         );
 
-        let expected_instructions = vec![
-            StateInstructions {
-                percentage: 100.0,
-                instruction_list: vec![],
-            }
-        ];
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        }];
         assert_eq!(instructions, expected_instructions)
     }
 

@@ -52,7 +52,9 @@ fn evaluate_burned(pokemon: &Pokemon) -> f32 {
 
     // guts, marvel scale, quick feet will result in a positive evaluation
     match pokemon.ability {
-        Abilities::GUTS | Abilities::MARVELSCALE | Abilities::QUICKFEET => return -2.0 * POKEMON_BURNED,
+        Abilities::GUTS | Abilities::MARVELSCALE | Abilities::QUICKFEET => {
+            return -2.0 * POKEMON_BURNED
+        }
         _ => {}
     }
 
@@ -143,8 +145,8 @@ pub fn evaluate(state: &State) -> f32 {
             // the pokemon are not revealed
             side_two_alive_count += 1.0;
             score -= evaluate_pokemon(pkmn);
-        }
-        else if pkmn.level == 1 {  // hack for randombattle where pokemon are not revealed
+        } else if pkmn.level == 1 {
+            // hack for randombattle where pokemon are not revealed
             side_two_alive_count += 1.0;
         }
     }
