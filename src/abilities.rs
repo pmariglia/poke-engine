@@ -1433,7 +1433,7 @@ pub fn ability_modify_attack_against(
         }
         Abilities::FLASHFIRE => {
             if attacker_choice.move_type == PokemonType::Fire {
-                attacker_choice.base_power = 0.0;
+                attacker_choice.remove_all_effects();
                 attacker_choice.volatile_status = Some(VolatileStatus {
                     target: MoveTarget::Opponent,
                     volatile_status: PokemonVolatileStatus::FlashFire,

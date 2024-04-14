@@ -19523,6 +19523,7 @@ impl Choice {
         // Crash is not removed
 
         self.base_power = 0.0;
+        self.category = MoveCategory::Status;
         self.accuracy = 100.0;
         self.flags.drag = false;
         self.heal = None;

@@ -593,6 +593,7 @@ fn check_move_hit_or_miss(
     state: &mut State,
     choice: &Choice,
     attacking_side_ref: &SideReference,
+    damage: Option<i16>,
     incoming_instructions: &mut StateInstructions,
     frozen_instructions: &mut Vec<StateInstructions>,
 ) {
@@ -607,7 +608,10 @@ fn check_move_hit_or_miss(
     let attacking_side = state.get_side_immutable(attacking_side_ref);
     let attacking_pokemon = attacking_side.get_active_immutable();
 
-    let percent_hit = choice.accuracy / 100.0;
+    let mut percent_hit = choice.accuracy / 100.0;
+    if Some(0) == damage {
+        percent_hit = 0.0;
+    }
 
     if percent_hit < 1.0 {
         let mut move_missed_instruction = incoming_instructions.clone();
@@ -943,6 +947,9 @@ fn update_choice(
         && attacker_choice.flags.protect
     {
         attacker_choice.remove_effects_for_protect();
+        if attacker_choice.crash.is_some() {
+            attacker_choice.accuracy = 0.0;
+        }
 
         if defending_pokemon
             .volatile_statuses
@@ -1126,9 +1133,15 @@ pub fn generate_instructions_from_move(
         state,
         &choice,
         &attacking_side,
+        damage,
         &mut incoming_instructions,
         &mut final_instructions,
     );
+
+    if incoming_instructions.percentage == 0.0 {
+        state.reverse_instructions(&incoming_instructions.instruction_list);
+        return;
+    }
 
     // start multi-hit
     let hit_count;
@@ -3682,6 +3695,59 @@ mod tests {
             ],
         }];
 
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_missing_rapidspin_does_not_clear_hazards() {
+        let mut state: State = State::default();
+        state.side_two.get_active().types = (PokemonType::Ghost, PokemonType::Normal);
+        state.side_one.side_conditions.stealth_rock = 1;
+
+        let mut choice = MOVES.get(&Choices::RAPIDSPIN).unwrap().to_owned();
+
+        let mut instructions = vec![];
+        generate_instructions_from_move(
+            &mut state,
+            &mut choice,
+            &MOVES.get(&Choices::TACKLE).unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+            &mut instructions,
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 100.0,
+                instruction_list: vec![],
+            }
+        ];
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_acid_into_steel_type() {
+        let mut state: State = State::default();
+        state.side_two.get_active().types = (PokemonType::Steel, PokemonType::Normal);
+
+        let mut choice = MOVES.get(&Choices::ACID).unwrap().to_owned();
+
+        let mut instructions = vec![];
+        generate_instructions_from_move(
+            &mut state,
+            &mut choice,
+            &MOVES.get(&Choices::TACKLE).unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+            &mut instructions,
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 100.0,
+                instruction_list: vec![],
+            }
+        ];
         assert_eq!(instructions, expected_instructions)
     }
 
