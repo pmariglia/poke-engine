@@ -104,6 +104,7 @@ fn pprint_expectiminimax_result(
     s1_options: &Vec<MoveChoice>,
     s2_options: &Vec<MoveChoice>,
     safest_choice: &(usize, f32),
+    state: &State,
 ) {
     let s1_len = s1_options.len();
     let s2_len = s2_options.len();
@@ -111,24 +112,50 @@ fn pprint_expectiminimax_result(
     print!("{: <12}", " ");
 
     for s2_move in s2_options.iter() {
-        let s2_move_str = format!("{:?}", s2_move);
-        print!("{: >12}", s2_move_str);
+        match s2_move {
+            MoveChoice::Move(m) => {
+                let s2_move_str = format!("{}", state.side_two.get_active_immutable().moves[*m].id);
+                print!("{: >12}", s2_move_str.to_lowercase());
+            }
+            MoveChoice::Switch(s) => {
+                let s2_move_str = format!("{}", state.side_two.pokemon[*s].id.to_lowercase());
+                print!("{: >12}", s2_move_str);
+            }
+            MoveChoice::None => {}
+        }
     }
     print!("\n");
 
     for i in 0..s1_len {
-        let s1_move_str = format!("{:?}", s1_options[i]);
-        print!("\n{:<12}", s1_move_str);
+        let s1_move_str = s1_options[i];
+        match s1_move_str {
+            MoveChoice::Move(m) => {
+                let move_id = state.side_one.get_active_immutable().moves[m].id;
+                print!("{:<12}", move_id.to_string().to_lowercase());
+            }
+            MoveChoice::Switch(s) => {
+                let pkmn_id = &state.side_one.pokemon[s].id;
+                print!("{:<12}", pkmn_id.to_lowercase());
+            }
+            MoveChoice::None => {}
+        }
         for j in 0..s2_len {
             let index = i * s2_len + j;
             print!("{number:>11.2} ", number = result[index]);
         }
         print!("\n");
     }
-    print!(
-        "\n\nSafest Choice: {:?}, {}\n",
-        s1_options[safest_choice.0], safest_choice.1
-    );
+    match s1_options[safest_choice.0] {
+        MoveChoice::Move(m) => {
+            let move_id = state.side_one.get_active_immutable().moves[m].id;
+            print!("\nSafest Choice: {}, {}\n", move_id.to_string().to_lowercase(), safest_choice.1);
+        }
+        MoveChoice::Switch(s) => {
+            let pkmn_id = &state.side_one.pokemon[s].id;
+            print!("\nSafest Choice: Switch {}, {}\n", pkmn_id.to_lowercase(), safest_choice.1);
+        }
+        MoveChoice::None => println!("No Move"),
+    }
 }
 
 pub fn main() {
@@ -328,8 +355,8 @@ pub fn command_loop(mut io_data: IOData) {
 
                     let safest_choice = pick_safest(&result, s1_moves.len(), s2_moves.len());
 
-                    pprint_expectiminimax_result(&result, &s1_moves, &s2_moves, &safest_choice);
-                    println!("\nTook: {:?}", elapsed);
+                    pprint_expectiminimax_result(&result, &s1_moves, &s2_moves, &safest_choice, &io_data.state);
+                    println!("Took: {:?}", elapsed);
                     println!("Depth Searched: {}", depth_searched);
                 }
                 None => {
@@ -392,6 +419,7 @@ pub fn command_loop(mut io_data: IOData) {
                         &side_one_options,
                         &side_two_options,
                         &safest_choice,
+                        &io_data.state,
                     );
                     println!("\nTook: {:?}", elapsed);
                 }
