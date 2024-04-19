@@ -1,4 +1,4 @@
-use crate::choices::Choices;
+use crate::evaluate::evaluate;
 use crate::generate_instructions::generate_instructions_from_move_pair;
 use crate::instruction::{Instruction, StateInstructions};
 use crate::search::{expectiminimax_search, iterative_deepen_expectiminimax, pick_safest};
@@ -7,7 +7,6 @@ use clap::Parser;
 use std::io;
 use std::io::Write;
 use std::process::exit;
-use crate::evaluate::evaluate;
 
 struct IOData {
     state: State,
@@ -20,23 +19,43 @@ struct Cli {
     #[clap(short, long, default_value = "")]
     state: String,
 
-    #[clap(short, long, default_value_t = false)]
-    expectiminimax: bool,
+    #[clap(subcommand)]
+    subcmd: Option<SubCommand>,
+}
 
-    #[clap(short, long, default_value_t = false)]
-    iterative_deepening: bool,
+#[derive(Parser)]
+enum SubCommand {
+    Expectiminimax(Expectiminimax),
+    IterativeDeepening(IterativeDeepening),
+}
 
-    #[clap(short, long, default_value_t = false)]
-    matrix: bool,
-
-    #[clap(short, long, default_value_t = 5)]
-    max_search_time: u64,
-
-    #[clap(short, long, default_value_t = 2)]
-    depth: i8,
+#[derive(Parser)]
+struct Expectiminimax {
+    #[clap(short, long, required = true)]
+    state: String,
 
     #[clap(short, long, default_value_t = false)]
     ab_prune: bool,
+
+    #[clap(short, long, default_value_t = 2)]
+    depth: i8,
+}
+
+#[derive(Parser)]
+struct IterativeDeepening {
+    #[clap(short, long, required = true)]
+    state: String,
+
+    #[clap(short, long, default_value_t = 5)]
+    time_to_search_seconds: u64,
+
+    #[clap(
+        short,
+        long,
+        default_value_t = 2,
+        conflicts_with = "time_to_search_seconds"
+    )]
+    depth: i8,
 }
 
 impl Default for IOData {
@@ -185,62 +204,63 @@ pub fn main() {
         io_data.state = state;
     }
 
-    if args.expectiminimax {
-        let (mut side_one_options, mut side_two_options) = io_data.state.get_all_options();
-        let mut result;
-        if args.iterative_deepening {
-            (side_one_options, side_two_options, result, _) = iterative_deepen_expectiminimax(
-                &mut io_data.state,
-                args.depth,
-                side_one_options.clone(),
-                side_two_options.clone(),
-                args.ab_prune,
-                std::time::Duration::from_secs(args.max_search_time),
-            );
-        } else {
-            result = expectiminimax_search(
-                &mut io_data.state,
-                args.depth,
-                side_one_options.clone(),
-                side_two_options.clone(),
-                args.ab_prune,
-            );
+    let mut result;
+    let mut state;
+    let mut side_one_options;
+    let mut side_two_options;
+    match args.subcmd {
+        None => {
+            command_loop(io_data);
+            exit(0);
         }
-
-        let safest = pick_safest(&result, side_one_options.len(), side_two_options.len());
-
-        let side = io_data.state.side_one;
-        let move_choice = side_one_options[safest.0];
-
-        println!("choice id: {:?}", move_choice);
-        match move_choice {
-            MoveChoice::Move(index) => {
-                println!(
-                    "choice name: {:?}",
-                    side.get_active_immutable().moves[index].id
+        Some(subcmd) => match subcmd {
+            SubCommand::Expectiminimax(expectiminimax) => {
+                state = State::deserialize(expectiminimax.state.as_str());
+                (side_one_options, side_two_options) = state.get_all_options();
+                result = expectiminimax_search(
+                    &mut state,
+                    expectiminimax.depth,
+                    side_one_options.clone(),
+                    side_two_options.clone(),
+                    expectiminimax.ab_prune,
                 );
             }
-            MoveChoice::Switch(index) => {
-                println!("choice: switch {}", side.pokemon[index].id);
+            SubCommand::IterativeDeepening(iterative_deepending) => {
+                state = State::deserialize(iterative_deepending.state.as_str());
+                (side_one_options, side_two_options) = state.get_all_options();
+                (side_one_options, side_two_options, result, _) = iterative_deepen_expectiminimax(
+                    &mut state,
+                    iterative_deepending.depth,
+                    side_one_options.clone(),
+                    side_two_options.clone(),
+                    std::time::Duration::from_secs(iterative_deepending.time_to_search_seconds),
+                );
             }
-            MoveChoice::None => {
-                println!("no move");
-            }
-        }
-        println!("evaluation: {}", safest.1);
-        if args.matrix {
-            let joined: String = result
-                .iter()
-                .map(|&id| id.to_string())
-                .collect::<Vec<String>>()
-                .join(",");
-            println!("matrix: {}", joined);
-        }
-
-        exit(1);
+        },
     }
 
-    command_loop(io_data);
+    let safest = pick_safest(&result, side_one_options.len(), side_two_options.len());
+    let side = state.side_one;
+    let move_choice = side_one_options[safest.0];
+
+    println!("choice id: {:?}", move_choice);
+    match move_choice {
+        MoveChoice::Move(index) => {
+            println!(
+                "choice name: {:?}",
+                side.get_active_immutable().moves[index].id
+            );
+        }
+        MoveChoice::Switch(index) => {
+            println!("choice: switch {}", side.pokemon[index].id);
+        }
+        MoveChoice::None => {
+            println!("no move");
+        }
+    }
+    println!("evaluation: {}", safest.1);
+
+    exit(1);
 }
 
 pub fn command_loop(mut io_data: IOData) {
@@ -363,9 +383,7 @@ pub fn command_loop(mut io_data: IOData) {
             }
             "iterative-deepening" | "id" => match args.next() {
                 Some(s) => {
-                    let ab_prune = true;
                     let depth = s.parse::<i8>().unwrap();
-
                     let (side_one_options, side_two_options) = io_data.state.get_all_options();
 
                     let start_time = std::time::Instant::now();
@@ -375,7 +393,6 @@ pub fn command_loop(mut io_data: IOData) {
                             depth,
                             side_one_options.clone(),
                             side_two_options.clone(),
-                            ab_prune,
                             std::time::Duration::from_secs(5),
                         );
                     let elapsed = start_time.elapsed();
