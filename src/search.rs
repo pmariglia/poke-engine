@@ -1,6 +1,15 @@
 use crate::evaluate::evaluate;
 use crate::generate_instructions::generate_instructions_from_move_pair;
 use crate::state::{MoveChoice, State};
+use std::sync::mpsc::{channel, Receiver, Sender};
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::Duration;
+
+enum IterativeDeependingThreadMessage {
+    Start((State, Vec<MoveChoice>, Vec<MoveChoice>)),
+    Stop((Vec<MoveChoice>, Vec<MoveChoice>, Vec<f32>, i8)),
+}
 
 pub fn expectiminimax_search(
     state: &mut State,
@@ -8,11 +17,19 @@ pub fn expectiminimax_search(
     side_one_options: Vec<MoveChoice>,
     side_two_options: Vec<MoveChoice>,
     ab_prune: bool,
+    mtx: &Arc<Mutex<bool>>,
 ) -> Vec<f32> {
     depth -= 1;
     let num_s1_moves = side_one_options.len();
     let num_s2_moves = side_two_options.len();
     let mut score_lookup: Vec<f32> = Vec::with_capacity(num_s1_moves * num_s2_moves);
+
+    if *mtx.lock().unwrap() == false {
+        for _ in 0..(num_s1_moves * num_s2_moves) {
+            score_lookup.push(0.0);
+        }
+        return score_lookup;
+    }
 
     let battle_is_over = state.battle_is_over();
     if battle_is_over != 0.0 {
@@ -58,6 +75,7 @@ pub fn expectiminimax_search(
                             next_turn_side_one_options,
                             next_turn_side_two_options,
                             ab_prune,
+                            &mtx,
                         ),
                         next_turn_side_one_options_len,
                         next_turn_side_two_options_len,
@@ -142,40 +160,80 @@ fn re_order_moves_for_iterative_deepening(
 
 pub fn iterative_deepen_expectiminimax(
     state: &mut State,
-    depth: i8,
     side_one_options: Vec<MoveChoice>,
     side_two_options: Vec<MoveChoice>,
-    max_time: std::time::Duration,
+    max_time: Duration,
 ) -> (Vec<MoveChoice>, Vec<MoveChoice>, Vec<f32>, i8) {
     let mut result = Vec::new();
-    let mut re_ordered_s1_options = side_one_options.clone();
-    let mut re_ordered_s2_options = side_two_options.clone();
+    let mut state_clone = state.clone();
 
-    let mut start_time = std::time::Instant::now();
-    result = expectiminimax_search(state, 1, side_one_options, side_two_options, true);
-    let mut elapsed = start_time.elapsed();
-
+    result = expectiminimax_search(
+        state,
+        1,
+        side_one_options.clone(),
+        side_two_options.clone(),
+        true,
+        &Arc::new(Mutex::new(true)),
+    );
+    let (mut re_ordered_s1_options, mut re_ordered_s2_options) = re_order_moves_for_iterative_deepening(
+        &result,
+        side_one_options,
+        side_two_options,
+    );
     let mut i = 1;
-    while i < depth {
-        (re_ordered_s1_options, re_ordered_s2_options) = re_order_moves_for_iterative_deepening(
-            &result,
-            re_ordered_s1_options,
-            re_ordered_s2_options,
-        );
-        start_time = std::time::Instant::now();
-        i += 1;
-        result = expectiminimax_search(
-            state,
-            i,
-            re_ordered_s1_options.clone(),
-            re_ordered_s2_options.clone(),
-            true,
-        );
-        elapsed = start_time.elapsed();
-        if elapsed > std::time::Duration::from_millis(300) {
-            break;
-        }
-    }
+    let running = Arc::new(Mutex::new(true));
+    let running_clone = Arc::clone(&running);
 
-    return (re_ordered_s1_options, re_ordered_s2_options, result, i);
+    let (sender, receiver): (
+        Sender<IterativeDeependingThreadMessage>,
+        Receiver<IterativeDeependingThreadMessage>,
+    ) = channel();
+
+    let handle = thread::spawn(move || {
+        let mut previous_turn_s1_options = re_ordered_s1_options.clone();
+        let mut previous_turn_s2_options = re_ordered_s2_options.clone();
+        loop {
+            let previous_result = result;
+            i += 1;
+            result = expectiminimax_search(
+                &mut state_clone,
+                i,
+                re_ordered_s1_options.clone(),
+                re_ordered_s2_options.clone(),
+                true,
+                &running_clone,
+            );
+
+            // when we are told to stop, return the *previous* result.
+            // the current result will be invalid
+            if *running_clone.lock().unwrap() == false {
+                sender
+                    .send(IterativeDeependingThreadMessage::Stop((
+                        previous_turn_s1_options,
+                        previous_turn_s2_options,
+                        previous_result,
+                        i - 1,
+                    )))
+                    .unwrap();
+                break;
+            }
+            previous_turn_s1_options = re_ordered_s1_options.clone();
+            previous_turn_s2_options = re_ordered_s2_options.clone();
+            (re_ordered_s1_options, re_ordered_s2_options) = re_order_moves_for_iterative_deepening(
+                &result,
+                re_ordered_s1_options,
+                re_ordered_s2_options,
+            );
+        }
+    });
+
+    thread::sleep(max_time);
+    *running.lock().unwrap() = false;
+    match receiver.recv() {
+        Ok(IterativeDeependingThreadMessage::Stop(result)) => {
+            handle.join().unwrap();
+            return result;
+        }
+        _ => panic!("Failed to receive stop message"),
+    }
 }

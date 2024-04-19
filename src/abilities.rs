@@ -15,7 +15,7 @@ use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Terr
 use crate::state::{PokemonStatus, State};
 use crate::state::{PokemonVolatileStatus, SideReference, Weather};
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum Abilities {
     RIPEN,
     TANGLEDFEET,

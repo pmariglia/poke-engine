@@ -7,6 +7,7 @@ use clap::Parser;
 use std::io;
 use std::io::Write;
 use std::process::exit;
+use std::sync::{Arc, Mutex};
 
 struct IOData {
     state: State,
@@ -46,16 +47,8 @@ struct IterativeDeepening {
     #[clap(short, long, required = true)]
     state: String,
 
-    #[clap(short, long, default_value_t = 5)]
-    time_to_search_seconds: u64,
-
-    #[clap(
-        short,
-        long,
-        default_value_t = 2,
-        conflicts_with = "time_to_search_seconds"
-    )]
-    depth: i8,
+    #[clap(short, long, default_value_t = 5000)]
+    time_to_search_ms: u64,
 }
 
 impl Default for IOData {
@@ -223,6 +216,7 @@ pub fn main() {
                     side_one_options.clone(),
                     side_two_options.clone(),
                     expectiminimax.ab_prune,
+                    &Arc::new(Mutex::new(true)),
                 );
             }
             SubCommand::IterativeDeepening(iterative_deepending) => {
@@ -230,10 +224,9 @@ pub fn main() {
                 (side_one_options, side_two_options) = state.get_all_options();
                 (side_one_options, side_two_options, result, _) = iterative_deepen_expectiminimax(
                     &mut state,
-                    iterative_deepending.depth,
                     side_one_options.clone(),
                     side_two_options.clone(),
-                    std::time::Duration::from_secs(iterative_deepending.time_to_search_seconds),
+                    std::time::Duration::from_millis(iterative_deepending.time_to_search_ms),
                 );
             }
         },
@@ -383,17 +376,16 @@ pub fn command_loop(mut io_data: IOData) {
             }
             "iterative-deepening" | "id" => match args.next() {
                 Some(s) => {
-                    let depth = s.parse::<i8>().unwrap();
+                    let max_time_ms = s.parse::<u64>().unwrap();
                     let (side_one_options, side_two_options) = io_data.state.get_all_options();
 
                     let start_time = std::time::Instant::now();
                     let (s1_moves, s2_moves, result, depth_searched) =
                         iterative_deepen_expectiminimax(
                             &mut io_data.state,
-                            depth,
                             side_one_options.clone(),
                             side_two_options.clone(),
-                            std::time::Duration::from_secs(5),
+                            std::time::Duration::from_millis(max_time_ms),
                         );
                     let elapsed = start_time.elapsed();
 
@@ -459,6 +451,7 @@ pub fn command_loop(mut io_data: IOData) {
                         side_one_options.clone(),
                         side_two_options.clone(),
                         ab_prune,
+                        &Arc::new(Mutex::new(true)),
                     );
                     let elapsed = start_time.elapsed();
 

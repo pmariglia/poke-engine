@@ -183,7 +183,7 @@ pub enum Weather {
     HeavyRain,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct StateWeather {
     pub weather_type: Weather,
     pub turns_remaining: i8,
@@ -198,7 +198,7 @@ pub enum Terrain {
     GrassyTerrain,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct StateTerrain {
     pub terrain_type: Terrain,
     pub turns_remaining: i8,
@@ -269,7 +269,7 @@ pub enum PokemonBoostableStat {
     Accuracy,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct SideConditions {
     pub aurora_veil: i8,
     pub crafty_shield: i8,
@@ -326,7 +326,7 @@ pub enum PokemonMoveIndex {
     M3,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PokemonMoves {
     pub m0: Move,
     pub m1: Move,
@@ -422,7 +422,7 @@ impl<'a> IntoIterator for &'a PokemonMoves {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Move {
     pub id: Choices,
     pub disabled: bool,
@@ -441,7 +441,7 @@ impl Default for Move {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Pokemon {
     pub id: String,
     pub level: i8,
@@ -661,7 +661,7 @@ pub enum PokemonIndex {
     P5,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SidePokemon {
     pub p0: Pokemon,
     pub p1: Pokemon,
@@ -758,7 +758,7 @@ impl IndexMut<PokemonIndex> for SidePokemon {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Side {
     pub active_index: PokemonIndex,
     pub pokemon: SidePokemon,
@@ -908,7 +908,7 @@ impl Default for Side {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct State {
     pub side_one: Side,
     pub side_two: Side,
