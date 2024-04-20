@@ -1,3 +1,4 @@
+use std::cmp;
 use crate::choices::{Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::instruction::{
@@ -612,6 +613,23 @@ pub fn choice_special_effect(
                     damage_amount: target_pkmn.hp - target_hp,
                 }));
             target_pkmn.hp = target_hp;
+        }
+        Choices::SEISMICTOSS => {
+            let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
+            let attacker_level = attacking_side.get_active_immutable().level;
+            let defender_active = defending_side.get_active();
+            if type_effectiveness_modifier(&PokemonType::Normal, &defender_active.types) == 0.0 {
+                return;
+            }
+
+            let damage_amount = cmp::min(attacker_level as i16, defender_active.hp);
+            instructions
+                .instruction_list
+                .push(Instruction::Damage(DamageInstruction {
+                    side_ref: attacking_side_ref.get_other_side(),
+                    damage_amount: damage_amount,
+                }));
+            defender_active.hp -= damage_amount;
         }
         Choices::PAINSPLIT => {
             let target_hp = (attacking_side.get_active_immutable().hp
