@@ -673,6 +673,32 @@ pub fn choice_special_effect(
                 }));
             defender.hp -= damage_amount;
         }
+        Choices::FINALGAMBIT => {
+            let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
+            let attacker = attacking_side.get_active();
+            let defender = defending_side.get_active();
+
+            if type_effectiveness_modifier(&PokemonType::Normal, &defender.types) == 0.0 {
+                return;
+            }
+
+            let damage_amount = attacker.hp;
+            instructions
+                .instruction_list
+                .push(Instruction::Damage(DamageInstruction {
+                    side_ref: attacking_side_ref.get_other_side(),
+                    damage_amount: damage_amount,
+                }));
+            defender.hp -= damage_amount;
+
+            instructions
+                .instruction_list
+                .push(Instruction::Damage(DamageInstruction {
+                    side_ref: *attacking_side_ref,
+                    damage_amount: attacker.hp,
+                }));
+            attacker.hp = 0;
+        }
         Choices::PAINSPLIT => {
             let target_hp = (attacking_side.get_active_immutable().hp
                 + defending_side.get_active_immutable().hp)

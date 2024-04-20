@@ -4955,10 +4955,6 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
-                heal: Some(Heal {
-                    target: MoveTarget::User,
-                    amount: -1.0,
-                }),
                 ..Default::default()
             },
         );
