@@ -465,6 +465,9 @@ fn get_instructions_from_secondaries(
     return_instruction_list.push(incoming_instructions);
 
     for secondary in secondaries {
+        if secondary.target == MoveTarget::Opponent && hit_sub {
+            continue;
+        }
         let secondary_percent_hit = secondary.chance / 100.0;
 
         let mut i = 0;
