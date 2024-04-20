@@ -1873,7 +1873,7 @@ pub fn generate_instructions_from_move_pair(
             let state_instruction = state_instructions_vec.remove(0);
             generate_instructions_from_move(
                 state,
-                &mut side_two_choice,
+                &mut side_two_choice.clone(),
                 &side_one_choice,
                 SideReference::SideTwo,
                 state_instruction,
@@ -1898,7 +1898,7 @@ pub fn generate_instructions_from_move_pair(
             let state_instruction = state_instructions_vec.remove(0);
             generate_instructions_from_move(
                 state,
-                &mut side_one_choice,
+                &mut side_one_choice.clone(),
                 &side_two_choice,
                 SideReference::SideOne,
                 state_instruction,

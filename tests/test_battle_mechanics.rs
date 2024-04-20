@@ -3262,6 +3262,68 @@ fn test_poisontype_using_toxic() {
 }
 
 #[test]
+fn test_scenario_where_choice_gets_updated_on_second_move_that_has_branched_on_first_turn() {
+    /*
+    There was a bug that caused the choice to get incorrectly updated twice when
+    the first move branched into a second move that caused the choice to update.
+    */
+    let mut state = State::default();
+    state.side_two.get_active().speed = 150;
+    state.side_one.get_active().item = Items::LIFEORB;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DARKPULSE,
+        Choices::TOXIC,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 10.000002,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 82,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: -10,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 90.0,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Toxic,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 82,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: -10,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 6,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::ToxicCount,
+                    amount: 1,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_toxic_into_shedinja() {
     // makes sure that toxic always does at least 1 damage
     let mut state = State::default();
