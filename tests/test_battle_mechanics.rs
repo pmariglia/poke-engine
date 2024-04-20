@@ -2732,6 +2732,25 @@ fn test_superfang_at_1hp() {
 }
 
 #[test]
+fn test_superfang_versus_ghost_type() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 1;
+    state.side_two.get_active().types.0 = PokemonType::Ghost;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SUPERFANG,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_basic_spore() {
     let mut state = State::default();
 

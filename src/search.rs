@@ -175,11 +175,8 @@ pub fn iterative_deepen_expectiminimax(
         true,
         &Arc::new(Mutex::new(true)),
     );
-    let (mut re_ordered_s1_options, mut re_ordered_s2_options) = re_order_moves_for_iterative_deepening(
-        &result,
-        side_one_options,
-        side_two_options,
-    );
+    let (mut re_ordered_s1_options, mut re_ordered_s2_options) =
+        re_order_moves_for_iterative_deepening(&result, side_one_options, side_two_options);
     let mut i = 1;
     let running = Arc::new(Mutex::new(true));
     let running_clone = Arc::clone(&running);
