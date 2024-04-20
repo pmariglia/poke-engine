@@ -379,6 +379,16 @@ pub fn item_modify_attack_against(
                 });
             }
         }
+        Items::SOULDEW => {
+            if defending_side.get_active_immutable().id == "latios"
+                || defending_side.get_active_immutable().id == "latias"
+            {
+                #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
+                if attacking_choice.category == MoveCategory::Special {
+                    attacking_choice.base_power /= 1.5;
+                }
+            }
+        }
         _ => {}
     }
 }
