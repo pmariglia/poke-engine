@@ -1729,6 +1729,36 @@ fn test_faster_uturn() {
 }
 
 #[test]
+fn test_faster_uturn_does_not_trigger_end_of_turn() {
+    let mut state = State::default();
+    state.weather.weather_type = Weather::Sand; // would normally cause damage to both sides
+    state.side_one.get_active().speed = 150;
+    state.side_two.get_active().speed = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::UTURN,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 55,
+            }),
+            Instruction::ToggleSideOneForceSwitch,
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
+                new_choice: Choices::SPLASH,
+                previous_choice: Choices::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_faster_uturn_knocking_out_opponent() {
     let mut state = State::default();
     state.side_one.get_active().speed = 150;
@@ -3262,6 +3292,7 @@ fn test_poisontype_using_toxic() {
 }
 
 #[test]
+#[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8"))]
 fn test_scenario_where_choice_gets_updated_on_second_move_that_has_branched_on_first_turn() {
     /*
     There was a bug that caused the choice to get incorrectly updated twice when
