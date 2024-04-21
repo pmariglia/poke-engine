@@ -1,5 +1,5 @@
 use poke_engine::abilities::Abilities;
-use poke_engine::choices::{Choices, MOVES};
+use poke_engine::choices::{Boost, Choices, MOVES};
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
@@ -968,33 +968,74 @@ fn test_side_one_using_unboosting_move_versus_substitute() {
         Choices::SUBSTITUTE,
     );
 
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 25,
+            }),
+            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                side_ref: SideReference::SideTwo,
+                new_health: 25,
+                old_health: 0,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Substitute,
+            }),
+            Instruction::DamageSubstitute(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 25,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Substitute,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_vcreate_unboosts_only_on_hit() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::VCREATE,
+        Choices::SPLASH,
+    );
+
     let expected_instructions = vec![
         StateInstructions {
-            percentage: 100.0,
+            percentage: 5.000001,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 95.0,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
-                    damage_amount: 25,
+                    damage_amount: 100,
                 }),
-                Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
-                    side_ref: SideReference::SideTwo,
-                    new_health: 25,
-                    old_health: 0,
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Defense,
+                    amount: -1,
                 }),
-                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                    side_ref: SideReference::SideTwo,
-                    volatile_status: PokemonVolatileStatus::Substitute,
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::SpecialDefense,
+                    amount: -1,
                 }),
-                Instruction::DamageSubstitute(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 25,
-                }),
-                Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
-                    side_ref: SideReference::SideTwo,
-                    volatile_status: PokemonVolatileStatus::Substitute,
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: -1,
                 }),
             ],
-        }
+        },
     ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

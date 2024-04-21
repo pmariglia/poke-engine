@@ -2395,6 +2395,17 @@ lazy_static! {
                     sound: true,
                     ..Default::default()
                 },
+                boost: Some(Boost {
+                    target: MoveTarget::User,
+                    boosts: StatBoosts {
+                        attack: 0,
+                        defense: -1,
+                        special_attack: 0,
+                        special_defense: 0,
+                        speed: 0,
+                        accuracy: 0,
+                    },
+                }),
                 ..Default::default()
             },
         );
@@ -2441,6 +2452,17 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                boost: Some(Boost {
+                        target: MoveTarget::User,
+                        boosts: StatBoosts {
+                            attack: 0,
+                            defense: -1,
+                            special_attack: 0,
+                            special_defense: -1,
+                            speed: 0,
+                            accuracy: 0,
+                        },
+                    }),
                 ..Default::default()
             },
         );
@@ -3710,6 +3732,17 @@ lazy_static! {
                         protect: true,
                         ..Default::default()
                     },
+                    boost: Some(Boost {
+                        target: MoveTarget::User,
+                        boosts: StatBoosts {
+                            attack: 0,
+                            defense: 0,
+                            special_attack: -2,
+                            special_defense: 0,
+                            speed: 0,
+                            accuracy: 0,
+                        },
+                    }),
                     ..Default::default()
                 },
             );
@@ -3727,6 +3760,17 @@ lazy_static! {
                         protect: true,
                         ..Default::default()
                     },
+                    boost: Some(Boost {
+                        target: MoveTarget::User,
+                        boosts: StatBoosts {
+                            attack: 0,
+                            defense: 0,
+                            special_attack: -2,
+                            special_defense: 0,
+                            speed: 0,
+                            accuracy: 0,
+                        },
+                    }),
                     ..Default::default()
                 },
             );
@@ -3745,6 +3789,17 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                boost: Some(Boost {
+                        target: MoveTarget::User,
+                        boosts: StatBoosts {
+                            attack: 0,
+                            defense: -1,
+                            special_attack: 0,
+                            special_defense: -1,
+                            speed: 0,
+                            accuracy: 0,
+                        },
+                    }),
                 ..Default::default()
             },
         );
@@ -5473,6 +5528,17 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                boost: Some(Boost {
+                    target: MoveTarget::User,
+                    boosts: StatBoosts {
+                        attack: 0,
+                        defense: 0,
+                        special_attack: -2,
+                        special_defense: 0,
+                        speed: 0,
+                        accuracy: 0,
+                    },
+                }),
                 ..Default::default()
             },
         );
@@ -6757,6 +6823,17 @@ lazy_static! {
                     punch: true,
                     ..Default::default()
                 },
+                boost: Some(Boost {
+                    target: MoveTarget::User,
+                    boosts: StatBoosts {
+                        attack: 0,
+                        defense: 0,
+                        special_attack: 0,
+                        special_defense: 0,
+                        speed: -1,
+                        accuracy: 0,
+                    },
+                }),
                 ..Default::default()
             },
         );
@@ -6859,6 +6936,17 @@ lazy_static! {
                     punch: true,
                     ..Default::default()
                 },
+                boost: Some(Boost {
+                    target: MoveTarget::User,
+                    boosts: StatBoosts {
+                        attack: 0,
+                        defense: -1,
+                        special_attack: 0,
+                        special_defense: -1,
+                        speed: 0,
+                        accuracy: 0,
+                    },
+                }),
                 ..Default::default()
             },
         );
@@ -7991,6 +8079,17 @@ lazy_static! {
                     mirror: true,
                     ..Default::default()
                 },
+                boost: Some(Boost {
+                    target: MoveTarget::User,
+                    boosts: StatBoosts {
+                        attack: 0,
+                        defense: -1,
+                        special_attack: 0,
+                        special_defense: 0,
+                        speed: 0,
+                        accuracy: 0,
+                    },
+                }),
                 ..Default::default()
             },
         );
@@ -8171,6 +8270,17 @@ lazy_static! {
                     punch: true,
                     ..Default::default()
                 },
+                boost: Some(Boost {
+                    target: MoveTarget::User,
+                    boosts: StatBoosts {
+                        attack: 0,
+                        defense: 0,
+                        special_attack: 0,
+                        special_defense: 0,
+                        speed: -1,
+                        accuracy: 0,
+                    },
+                }),
                 ..Default::default()
             },
         );
@@ -9687,6 +9797,17 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                boost: Some(Boost {
+                    target: MoveTarget::User,
+                    boosts: StatBoosts {
+                        attack: 0,
+                        defense: 0,
+                        special_attack: -1,
+                        special_defense: 0,
+                        speed: 0,
+                        accuracy: 0,
+                    },
+                }),
                 ..Default::default()
             },
         );
@@ -11159,6 +11280,17 @@ lazy_static! {
                         protect: true,
                         ..Default::default()
                     },
+                    boost: Some(Boost {
+                    target: MoveTarget::User,
+                    boosts: StatBoosts {
+                        attack: 0,
+                        defense: 0,
+                        special_attack: -2,
+                        special_defense: 0,
+                        speed: 0,
+                        accuracy: 0,
+                    },
+                }),
                     ..Default::default()
                 },
             );
@@ -11176,6 +11308,17 @@ lazy_static! {
                         protect: true,
                         ..Default::default()
                     },
+                    boost: Some(Boost {
+                        target: MoveTarget::User,
+                        boosts: StatBoosts {
+                            attack: 0,
+                            defense: 0,
+                            special_attack: -2,
+                            special_defense: 0,
+                            speed: 0,
+                            accuracy: 0,
+                        },
+                    }),
                     ..Default::default()
                 },
             );
@@ -12210,6 +12353,17 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                boost: Some(Boost {
+                    target: MoveTarget::User,
+                    boosts: StatBoosts {
+                        attack: 0,
+                        defense: 0,
+                        special_attack: -2,
+                        special_defense: 0,
+                        speed: 0,
+                        accuracy: 0,
+                    },
+                }),
                 ..Default::default()
             },
         );
@@ -15143,6 +15297,17 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                boost: Some(Boost {
+                    target: MoveTarget::User,
+                    boosts: StatBoosts {
+                        attack: 0,
+                        defense: 0,
+                        special_attack: 0,
+                        special_defense: 0,
+                        speed: -2,
+                        accuracy: 0,
+                    },
+                }),
                 ..Default::default()
             },
         );
@@ -15908,6 +16073,17 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                boost: Some(Boost {
+                    target: MoveTarget::User,
+                    boosts: StatBoosts {
+                        attack: -1,
+                        defense: -1,
+                        special_attack: 0,
+                        special_defense: 0,
+                        speed: 0,
+                        accuracy: 0,
+                    },
+                }),
                 ..Default::default()
             },
         );
@@ -17484,6 +17660,17 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                boost: Some(Boost {
+                    target: MoveTarget::User,
+                    boosts: StatBoosts {
+                        attack: 0,
+                        defense: -1,
+                        special_attack: 0,
+                        special_defense: -1,
+                        speed: -1,
+                        accuracy: 0,
+                    },
+                }),
                 ..Default::default()
             },
         );
