@@ -677,29 +677,29 @@ impl Iterator for PokemonIndexIterator {
             0 => {
                 self.index += 1;
                 Some(PokemonIndex::P0)
-            },
+            }
             1 => {
                 self.index += 1;
                 Some(PokemonIndex::P1)
-            },
+            }
             2 => {
                 self.index += 1;
                 Some(PokemonIndex::P2)
-            },
+            }
             3 => {
                 self.index += 1;
                 Some(PokemonIndex::P3)
-            },
+            }
             4 => {
                 self.index += 1;
                 Some(PokemonIndex::P4)
-            },
+            }
             5 => {
                 self.index += 1;
                 Some(PokemonIndex::P5)
-            },
+            }
             _ => None,
-        }
+        };
     }
 }
 

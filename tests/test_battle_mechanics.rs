@@ -858,14 +858,12 @@ fn test_basic_healbell() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::Poison,
-                new_status: PokemonStatus::None,
-            }),
-        ],
+        instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+            side_ref: SideReference::SideOne,
+            pokemon_index: PokemonIndex::P0,
+            old_status: PokemonStatus::Poison,
+            new_status: PokemonStatus::None,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

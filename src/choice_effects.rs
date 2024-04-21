@@ -6,7 +6,10 @@ use crate::instruction::{
     SetSubstituteHealthInstruction, SetWishInstruction, StateInstructions,
 };
 use crate::items::Items;
-use crate::state::{pokemon_index_iter, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather};
+use crate::state::{
+    pokemon_index_iter, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonStatus,
+    PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather,
+};
 use std::cmp;
 
 pub fn modify_choice(
