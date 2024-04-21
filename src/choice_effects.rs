@@ -6,10 +6,7 @@ use crate::instruction::{
     SetSubstituteHealthInstruction, SetWishInstruction, StateInstructions,
 };
 use crate::items::Items;
-use crate::state::{
-    PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus,
-    SideReference, State, Terrain, Weather,
-};
+use crate::state::{pokemon_index_iter, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather};
 use std::cmp;
 
 pub fn modify_choice(
@@ -592,6 +589,21 @@ pub fn choice_special_effect(
                         new_status: PokemonStatus::None,
                     }));
                 active_pkmn.status = PokemonStatus::None;
+            }
+        }
+        Choices::HEALBELL | Choices::AROMATHERAPY => {
+            for pkmn_index in pokemon_index_iter() {
+                if attacking_side.pokemon[pkmn_index].status != PokemonStatus::None {
+                    instructions
+                        .instruction_list
+                        .push(Instruction::ChangeStatus(ChangeStatusInstruction {
+                            side_ref: *attacking_side_ref,
+                            pokemon_index: pkmn_index,
+                            old_status: attacking_side.pokemon[pkmn_index].status,
+                            new_status: PokemonStatus::None,
+                        }));
+                    attacking_side.pokemon[pkmn_index].status = PokemonStatus::None;
+                }
             }
         }
         Choices::TRICKROOM => {

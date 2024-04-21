@@ -846,6 +846,77 @@ fn test_protect_for_second_turn_in_a_row() {
 }
 
 #[test]
+fn test_basic_healbell() {
+    let mut state = State::default();
+    state.side_one.get_active().status = PokemonStatus::Poison;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::HEALBELL,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::Poison,
+                new_status: PokemonStatus::None,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_healbell_with_multiple_reserves_statused() {
+    let mut state = State::default();
+    state.side_one.get_active().status = PokemonStatus::Poison;
+    state.side_one.pokemon[PokemonIndex::P1].status = PokemonStatus::Burn;
+    state.side_one.pokemon[PokemonIndex::P3].status = PokemonStatus::Sleep;
+    state.side_one.pokemon[PokemonIndex::P5].status = PokemonStatus::Toxic;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::HEALBELL,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::Poison,
+                new_status: PokemonStatus::None,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P1,
+                old_status: PokemonStatus::Burn,
+                new_status: PokemonStatus::None,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P3,
+                old_status: PokemonStatus::Sleep,
+                new_status: PokemonStatus::None,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P5,
+                old_status: PokemonStatus::Toxic,
+                new_status: PokemonStatus::None,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_double_protect() {
     let mut state = State::default();
 
