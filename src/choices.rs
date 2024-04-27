@@ -11247,6 +11247,10 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                volatile_status: Some(VolatileStatus {
+                    target: MoveTarget::User,
+                    volatile_status: PokemonVolatileStatus::LockedMove,
+                }),
                 ..Default::default()
             },
         );
@@ -11517,6 +11521,10 @@ lazy_static! {
                         protect: true,
                         ..Default::default()
                     },
+                    volatile_status: Some(VolatileStatus {
+                        target: MoveTarget::User,
+                        volatile_status: PokemonVolatileStatus::LockedMove,
+                    }),
                     ..Default::default()
                 },
             );
@@ -11535,6 +11543,10 @@ lazy_static! {
                         protect: true,
                         ..Default::default()
                     },
+                    volatile_status: Some(VolatileStatus {
+                        target: MoveTarget::User,
+                        volatile_status: PokemonVolatileStatus::LockedMove,
+                    }),
                     ..Default::default()
                 },
             );
@@ -12734,6 +12746,10 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                volatile_status: Some(VolatileStatus {
+                    target: MoveTarget::User,
+                    volatile_status: PokemonVolatileStatus::LockedMove,
+                }),
                 ..Default::default()
             },
         );
@@ -16836,6 +16852,10 @@ lazy_static! {
                         protect: true,
                         ..Default::default()
                     },
+                    volatile_status: Some(VolatileStatus {
+                        target: MoveTarget::User,
+                        volatile_status: PokemonVolatileStatus::LockedMove,
+                    }),
                     ..Default::default()
                 },
             );
@@ -16853,6 +16873,10 @@ lazy_static! {
                         protect: true,
                         ..Default::default()
                     },
+                    volatile_status: Some(VolatileStatus {
+                        target: MoveTarget::User,
+                        volatile_status: PokemonVolatileStatus::LockedMove,
+                    }),
                     ..Default::default()
                 },
             );

@@ -807,7 +807,7 @@ pub struct Side {
     pub side_conditions: SideConditions,
     pub wish: (i8, i16),
     pub force_switch: bool,
-    pub trapped: bool,
+    pub force_trapped: bool,
     pub switch_out_move_second_saved_move: Choices,
 }
 
@@ -833,6 +833,29 @@ impl Side {
         if vec.len() == 0 {
             vec.push(MoveChoice::None);
         }
+    }
+
+    pub fn trapped(&self, opponent_active: &Pokemon) -> bool {
+        let active_pkmn = self.get_active_immutable();
+        if active_pkmn.item == Items::SHEDSHELL || active_pkmn.has_type(&PokemonType::Ghost) {
+            return false;
+        }
+        else if active_pkmn.volatile_statuses.contains(&PokemonVolatileStatus::PartiallyTrapped) {
+            return true;
+        }
+        else if active_pkmn.volatile_statuses.contains(&PokemonVolatileStatus::LockedMove) {
+            return true;
+        }
+        else if opponent_active.ability == Abilities::SHADOWTAG {
+            return true;
+        }
+        else if opponent_active.ability == Abilities::ARENATRAP && active_pkmn.is_grounded() {
+            return true
+        }
+        else if opponent_active.ability == Abilities::MAGNETPULL && active_pkmn.has_type(&PokemonType::Steel) {
+            return true;
+        }
+        return false;
     }
 
     pub fn get_active(&mut self) -> &mut Pokemon {
@@ -944,7 +967,7 @@ impl Default for Side {
             },
             wish: (0, 0),
             force_switch: false,
-            trapped: false,
+            force_trapped: false,
             switch_out_move_second_saved_move: Choices::NONE,
         }
     }
@@ -995,6 +1018,9 @@ impl State {
         let mut side_one_options: Vec<MoveChoice> = Vec::with_capacity(9);
         let mut side_two_options: Vec<MoveChoice> = Vec::with_capacity(9);
 
+        let side_one_active = self.side_one.get_active_immutable();
+        let side_two_active = self.side_two.get_active_immutable();
+
         if self.side_one.force_switch {
             self.side_one.add_switches(&mut side_one_options);
             if self.side_two.switch_out_move_second_saved_move == Choices::NONE {
@@ -1044,7 +1070,7 @@ impl State {
             .get_active_immutable()
             .add_available_moves(&mut side_one_options);
 
-        if !self.side_one.trapped {
+        if !self.side_one.trapped(side_two_active) {
             self.side_one.add_switches(&mut side_one_options);
         }
 
@@ -1052,7 +1078,7 @@ impl State {
             .get_active_immutable()
             .add_available_moves(&mut side_two_options);
 
-        if !self.side_two.trapped {
+        if !self.side_two.trapped(side_one_active) {
             self.side_two.add_switches(&mut side_two_options);
         }
 

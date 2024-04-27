@@ -1686,7 +1686,7 @@ impl Side {
             ),
             force_switch: split[10].parse::<bool>().unwrap(),
             switch_out_move_second_saved_move: Choices::from_str(split[11]).unwrap(),
-            trapped: split[12].parse::<bool>().unwrap(),
+            force_trapped: split[12].parse::<bool>().unwrap(),
         };
     }
 }

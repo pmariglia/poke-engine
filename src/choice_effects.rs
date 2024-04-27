@@ -5,7 +5,7 @@ use crate::instruction::{
     ChangeStatusInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, Instruction,
     SetSubstituteHealthInstruction, SetWishInstruction, StateInstructions,
 };
-use crate::items::Items;
+use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::state::{
     pokemon_index_iter, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonStatus,
     PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather,
@@ -413,6 +413,30 @@ pub fn choice_after_damage_hit(
             }
         }
         _ => {}
+    }
+}
+
+pub fn choice_before_move(
+    state: &mut State,
+    choice: &Choice,
+    attacking_side_ref: &SideReference,
+    instructions: &mut StateInstructions,
+) {
+    let (attacking_side, _) = state.get_both_sides(attacking_side_ref);
+    if let Some(choice_volatile_status) = &choice.volatile_status {
+        if choice_volatile_status.volatile_status == PokemonVolatileStatus::LockedMove
+            && choice_volatile_status.target == MoveTarget::User
+        {
+            let ins = get_choice_move_disable_instructions(
+                attacking_side.get_active_immutable(),
+                attacking_side_ref,
+                &choice.move_id,
+            );
+            for i in ins {
+                state.apply_one_instruction(&i);
+                instructions.instruction_list.push(i);
+            }
+        }
     }
 }
 

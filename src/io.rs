@@ -121,6 +121,31 @@ impl Pokemon {
     }
 }
 
+fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
+    /*
+    Check the externally provided `force_trapped` flag on the Side struct to
+    determine if the player is forced to stay in.
+    */
+    let (mut s1_options, mut s2_options) = state.get_all_options();
+
+    if state.side_one.force_trapped {
+        s1_options.retain(|x| match x {
+            MoveChoice::Move(_) => true,
+            MoveChoice::Switch(_) => false,
+            MoveChoice::None => true,
+        });
+    }
+    if state.side_two.force_trapped {
+        s2_options.retain(|x| match x {
+            MoveChoice::Move(_) => true,
+            MoveChoice::Switch(_) => false,
+            MoveChoice::None => true,
+        });
+    }
+
+    return (s1_options, s2_options);
+}
+
 fn pprint_expectiminimax_result(
     result: &Vec<f32>,
     s1_options: &Vec<MoveChoice>,
@@ -209,7 +234,7 @@ pub fn main() {
         Some(subcmd) => match subcmd {
             SubCommand::Expectiminimax(expectiminimax) => {
                 state = State::deserialize(expectiminimax.state.as_str());
-                (side_one_options, side_two_options) = state.get_all_options();
+                (side_one_options, side_two_options) = io_get_all_options(&state);
                 result = expectiminimax_search(
                     &mut state,
                     expectiminimax.depth,
@@ -221,7 +246,7 @@ pub fn main() {
             }
             SubCommand::IterativeDeepening(iterative_deepending) => {
                 state = State::deserialize(iterative_deepending.state.as_str());
-                (side_one_options, side_two_options) = state.get_all_options();
+                (side_one_options, side_two_options) = io_get_all_options(&state);
                 (side_one_options, side_two_options, result, _) = iterative_deepen_expectiminimax(
                     &mut state,
                     side_one_options.clone(),
@@ -295,7 +320,7 @@ pub fn command_loop(mut io_data: IOData) {
             "matchup" | "m" => {
                 let p1_active = io_data.state.side_one.get_active_immutable();
                 let p2_active = io_data.state.side_two.get_active_immutable();
-                let (side_one_options, side_two_options) = io_data.state.get_all_options();
+                let (side_one_options, side_two_options) = io_get_all_options(&io_data.state);
 
                 let mut side_one_switch_pkmn = vec![];
                 for pkmn in io_data.state.side_one.pokemon.into_iter() {
@@ -377,7 +402,7 @@ pub fn command_loop(mut io_data: IOData) {
             "iterative-deepening" | "id" => match args.next() {
                 Some(s) => {
                     let max_time_ms = s.parse::<u64>().unwrap();
-                    let (side_one_options, side_two_options) = io_data.state.get_all_options();
+                    let (side_one_options, side_two_options) = io_get_all_options(&io_data.state);
 
                     let start_time = std::time::Instant::now();
                     let (s1_moves, s2_moves, result, depth_searched) =
@@ -443,7 +468,7 @@ pub fn command_loop(mut io_data: IOData) {
                         None => {}
                     }
                     let depth = s.parse::<i8>().unwrap();
-                    let (side_one_options, side_two_options) = io_data.state.get_all_options();
+                    let (side_one_options, side_two_options) = io_get_all_options(&io_data.state);
                     let start_time = std::time::Instant::now();
                     let result = expectiminimax_search(
                         &mut io_data.state,

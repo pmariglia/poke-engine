@@ -846,6 +846,50 @@ fn test_protect_for_second_turn_in_a_row() {
 }
 
 #[test]
+fn test_outrage_locking() {
+    let mut state = State::default();
+    state.side_one.get_active().moves[PokemonMoveIndex::M0] = Move {
+        id: Choices::OUTRAGE,
+        disabled: false,
+        pp: 16,
+        choice: MOVES.get(&Choices::OUTRAGE).unwrap().clone(),
+    };
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::OUTRAGE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DisableMove(DisableMoveInstruction {
+                side_ref: SideReference::SideOne,
+                move_index: PokemonMoveIndex::M1,
+            }),
+            Instruction::DisableMove(DisableMoveInstruction {
+                side_ref: SideReference::SideOne,
+                move_index: PokemonMoveIndex::M2,
+            }),
+            Instruction::DisableMove(DisableMoveInstruction {
+                side_ref: SideReference::SideOne,
+                move_index: PokemonMoveIndex::M3,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 94,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::LockedMove,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_basic_healbell() {
     let mut state = State::default();
     state.side_one.get_active().status = PokemonStatus::Poison;
@@ -2361,6 +2405,23 @@ fn test_turn_after_switch_out_move_other_side_does_nothing() {
     );
 
     assert_eq!(vec![MoveChoice::None], side_two_moves);
+}
+
+#[test]
+fn test_lockedmove_prevents_switches() {
+    let mut state = State::default();
+    state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::LockedMove);
+
+    let (side_one_moves, _) = state.get_all_options();
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+        ],
+        side_one_moves
+    );
 }
 
 #[test]

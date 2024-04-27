@@ -4,8 +4,8 @@ use crate::abilities::{
     ability_on_switch_out, Abilities,
 };
 use crate::choice_effects::{
-    charge_choice_to_volatile, choice_after_damage_hit, choice_hazard_clear, choice_special_effect,
-    modify_choice,
+    charge_choice_to_volatile, choice_after_damage_hit, choice_before_move, choice_hazard_clear,
+    choice_special_effect, modify_choice,
 };
 use crate::choices::{
     Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, SideCondition, StatBoosts,
@@ -890,6 +890,7 @@ fn before_move(
 ) {
     ability_before_move(state, choice, attacking_side, incoming_instructions);
     item_before_move(state, choice, attacking_side, incoming_instructions);
+    choice_before_move(state, choice, attacking_side, incoming_instructions);
 }
 
 // Updates the attacker's Choice based on some special effects

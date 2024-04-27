@@ -64,9 +64,10 @@ pub enum Items {
     HEAVYDUTYBOOTS,
     CLEARAMULET,
     PROTECTIVEPADS,
+    SHEDSHELL,
 }
 
-fn get_choice_move_disable_instructions(
+pub fn get_choice_move_disable_instructions(
     pkmn: &Pokemon,
     side_ref: &SideReference,
     move_name: &Choices,
