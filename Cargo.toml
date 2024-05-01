@@ -15,7 +15,7 @@ lazy_static = "1.4.0"
 serde = { version = "1.0.197", features = ["derive"] }
 
 [features]
-
+remove_low_chance_instructions = []
 gen4 = []
 gen5 = []
 gen6 = []
@@ -23,4 +23,4 @@ gen7 = []
 gen8 = []
 gen9 = []
 
-default = ["gen9"]
+default = ["gen4"]

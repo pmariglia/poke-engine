@@ -1923,7 +1923,25 @@ pub fn generate_instructions_from_move_pair(
             );
         }
     }
+
+    #[cfg(feature = "remove_low_chance_instructions")]
+    remove_low_chance_instructions(&mut state_instructions_vec, 20.0);
+
     return state_instructions_vec;
+}
+
+fn remove_low_chance_instructions(instructions: &mut Vec<StateInstructions>, threshold: f32) {
+    let mut percentage_sum = 100.0;
+    instructions.retain(|instruction| {
+        if instruction.percentage < threshold {
+            percentage_sum -= instruction.percentage;
+            return false;
+        }
+        true
+    });
+    for instruction in instructions.iter_mut() {
+        instruction.percentage = instruction.percentage * 100.0 / percentage_sum;
+    }
 }
 
 #[cfg(test)]
@@ -1940,6 +1958,102 @@ mod tests {
         Move, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonMoves, SideReference,
         State, Terrain,
     };
+
+    #[test]
+    fn test_remove_low_chance_instructions() {
+        let mut instructions = vec![
+            StateInstructions {
+                percentage: 10.0,
+                instruction_list: vec![],
+            },
+            StateInstructions {
+                percentage: 20.0,
+                instruction_list: vec![],
+            },
+            StateInstructions {
+                percentage: 30.0,
+                instruction_list: vec![],
+            },
+            StateInstructions {
+                percentage: 40.0,
+                instruction_list: vec![],
+            },
+        ];
+        remove_low_chance_instructions(&mut instructions, 20.0);
+        assert_eq!(
+            instructions,
+            vec![
+                StateInstructions {
+                    percentage: 22.222221,
+                    instruction_list: vec![]
+                },
+                StateInstructions {
+                    percentage: 33.333332,
+                    instruction_list: vec![]
+                },
+                StateInstructions {
+                    percentage: 44.444443,
+                    instruction_list: vec![]
+                }
+            ]
+        )
+    }
+
+    #[test]
+    fn test_remove_low_chance_nodes_basic_case() {
+        let mut instructions = vec![
+            StateInstructions {
+                percentage: 100.0,
+                instruction_list: vec![],
+            },
+        ];
+        remove_low_chance_instructions(&mut instructions, 20.0);
+        assert_eq!(
+            instructions,
+            vec![
+                StateInstructions {
+                    percentage: 100.0,
+                    instruction_list: vec![]
+                },
+            ]
+        )
+    }
+
+    #[test]
+    fn test_remove_low_chance_nodes_multiple_removals() {
+        let mut instructions = vec![
+            StateInstructions {
+                percentage: 10.0,
+                instruction_list: vec![],
+            },
+            StateInstructions {
+                percentage: 10.0,
+                instruction_list: vec![],
+            },
+            StateInstructions {
+                percentage: 40.0,
+                instruction_list: vec![],
+            },
+            StateInstructions {
+                percentage: 40.0,
+                instruction_list: vec![],
+            },
+        ];
+        remove_low_chance_instructions(&mut instructions, 20.0);
+        assert_eq!(
+            instructions,
+            vec![
+                StateInstructions {
+                    percentage: 50.0,
+                    instruction_list: vec![]
+                },
+                StateInstructions {
+                    percentage: 50.0,
+                    instruction_list: vec![]
+                },
+            ]
+        )
+    }
 
     #[test]
     fn test_drag_move_as_second_move_exits_early_if_opponent_used_drag_move() {
