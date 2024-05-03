@@ -1652,7 +1652,7 @@ impl SideConditions {
 impl Side {
     pub fn serialize(&self) -> String {
         return format!(
-            "{}={}={}={}={}={}={}={}={}={}={}={}",
+            "{}={}={}={}={}={}={}={}={}={}={}={}={}",
             self.pokemon.p0.serialize(),
             self.pokemon.p1.serialize(),
             self.pokemon.p2.serialize(),
@@ -1665,6 +1665,7 @@ impl Side {
             self.wish.1,
             self.force_switch,
             self.switch_out_move_second_saved_move.to_string(),
+            self.force_trapped,
         );
     }
     pub fn deserialize(serialized: &str) -> Side {
