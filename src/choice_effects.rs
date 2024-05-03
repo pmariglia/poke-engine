@@ -760,6 +760,9 @@ pub fn choice_special_effect(
         }
         Choices::SUBSTITUTE => {
             let active_pkmn = attacking_side.get_active();
+            if active_pkmn.volatile_statuses.contains(&PokemonVolatileStatus::Substitute) {
+                return;
+            }
             let sub_target_health = active_pkmn.maxhp / 4;
             if active_pkmn.hp > sub_target_health {
                 let damage_instruction = Instruction::Damage(DamageInstruction {

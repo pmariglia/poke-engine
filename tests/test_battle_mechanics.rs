@@ -9,6 +9,7 @@ use poke_engine::instruction::{
     SetSecondMoveSwitchOutMoveInstruction, SetSubstituteHealthInstruction, SetWishInstruction,
     StateInstructions, SwitchInstruction,
 };
+use poke_engine::instruction::Instruction::{DamageSubstitute, RemoveVolatileStatus};
 use poke_engine::items::Items;
 use poke_engine::state::{
     Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
@@ -1021,6 +1022,52 @@ fn test_basic_substitute_usage() {
                 damage_amount: 25,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::Substitute,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_using_substitute_when_it_is_already_up() {
+    let mut state = State::default();
+    state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::Substitute);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SUBSTITUTE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_taking_damage_with_0_hp_sub_but_with_vs() {
+    let mut state = State::default();
+    state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::Substitute);
+    state.side_one.get_active().substitute_health = 0;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            DamageSubstitute(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 0,
+            }),
+            RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::Substitute,
             }),
