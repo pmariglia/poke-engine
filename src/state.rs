@@ -348,21 +348,6 @@ impl Index<PokemonMoveIndex> for PokemonMoves {
     }
 }
 
-/*
-impl IndexMut<PokemonIndex> for SidePokemon {
-    fn index_mut(&mut self, index: PokemonIndex) -> &mut Self::Output {
-        match index {
-            PokemonIndex::P0 => &mut self.p0,
-            PokemonIndex::P1 => &mut self.p1,
-            PokemonIndex::P2 => &mut self.p2,
-            PokemonIndex::P3 => &mut self.p3,
-            PokemonIndex::P4 => &mut self.p4,
-            PokemonIndex::P5 => &mut self.p5,
-        }
-    }
-}
-*/
-
 impl IndexMut<PokemonMoveIndex> for PokemonMoves {
     fn index_mut(&mut self, index: PokemonMoveIndex) -> &mut Self::Output {
         match index {
