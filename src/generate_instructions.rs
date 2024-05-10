@@ -1381,6 +1381,10 @@ fn get_effective_speed(state: &State, side_reference: &SideReference) -> i16 {
         _ => {}
     }
 
+    if active_pkmn.volatile_statuses.contains(&PokemonVolatileStatus::SlowStart) {
+        boosted_speed *= 0.5;
+    }
+
     if side.side_conditions.tailwind > 0 {
         boosted_speed *= 2.0
     }
@@ -6040,6 +6044,20 @@ mod tests {
 
         assert_eq!(
             false,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
+    }
+    #[test]
+    fn test_slowstart_halves_effective_speed() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        let side_two_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        state.side_one.get_active().speed = 100;
+        state.side_two.get_active().speed = 101;
+        state.side_two.get_active().volatile_statuses.insert(PokemonVolatileStatus::SlowStart);
+
+        assert_eq!(
+            true,
             side_one_moves_first(&state, &side_one_choice, &side_two_choice)
         )
     }

@@ -114,6 +114,7 @@ pub enum PokemonVolatileStatus {
     SkyAttack,
     SkyDrop,
     SilkTrap,
+    SlowStart,
     SmackDown,
     Snatch,
     SolarBeam,

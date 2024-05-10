@@ -218,6 +218,9 @@ fn volatile_status_modifier(
             PokemonVolatileStatus::FlashFire if choice.move_type == PokemonType::Fire => {
                 modifier *= 1.5;
             }
+            PokemonVolatileStatus::SlowStart if choice.category == MoveCategory::Physical => {
+                modifier *= 0.5;
+            }
             _ => {}
         }
     }
@@ -747,6 +750,13 @@ mod tests {
             PokemonType::Fire,
             Choices::NONE,
             64
+        ),
+        test_slowstart_halves_move: (
+            vec![PokemonVolatileStatus::SlowStart],
+            vec![],
+            PokemonType::Normal,
+            Choices::NONE,
+            24
         ),
         test_tarshot_and_flashfire_together: (
             vec![PokemonVolatileStatus::FlashFire],

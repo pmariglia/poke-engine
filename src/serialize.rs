@@ -1462,6 +1462,7 @@ impl PokemonVolatileStatus {
             "skyattack" => PokemonVolatileStatus::SkyAttack,
             "skydrop" => PokemonVolatileStatus::SkyDrop,
             "silktrap" => PokemonVolatileStatus::SilkTrap,
+            "slowstart" => PokemonVolatileStatus::SlowStart,
             "smackdown" => PokemonVolatileStatus::SmackDown,
             "snatch" => PokemonVolatileStatus::Snatch,
             "solarbeam" => PokemonVolatileStatus::SolarBeam,
