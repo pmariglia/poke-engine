@@ -209,7 +209,7 @@ fn generate_instructions_from_side_conditions(
     let max_layers;
     match side_condition.condition {
         PokemonSideCondition::Spikes => max_layers = 3,
-        PokemonSideCondition::ToxicSpikes => max_layers = 3,
+        PokemonSideCondition::ToxicSpikes => max_layers = 2,
         PokemonSideCondition::AuroraVeil => {
             max_layers = if state.weather.weather_type == Weather::Hail {
                 1
