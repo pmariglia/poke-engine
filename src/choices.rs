@@ -16439,30 +16439,57 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        moves.insert(
-            Choices::TAILGLOW,
-            Choice {
-                move_id: Choices::TAILGLOW,
-                target: MoveTarget::User,
-                move_type: PokemonType::Bug,
-                flags: Flags {
-                    snatch: true,
+        if cfg!(feature = "gen4") {
+            moves.insert(
+                Choices::TAILGLOW,
+                Choice {
+                    move_id: Choices::TAILGLOW,
+                    target: MoveTarget::User,
+                    move_type: PokemonType::Bug,
+                    flags: Flags {
+                        snatch: true,
+                        ..Default::default()
+                    },
+                    boost: Some(Boost {
+                        target: MoveTarget::User,
+                        boosts: StatBoosts {
+                            attack: 0,
+                            defense: 0,
+                            special_attack: 2,
+                            special_defense: 0,
+                            speed: 0,
+                            accuracy: 0,
+                        },
+                    }),
                     ..Default::default()
                 },
-                boost: Some(Boost {
+            );
+        } else {
+            moves.insert(
+                Choices::TAILGLOW,
+                Choice {
+                    move_id: Choices::TAILGLOW,
                     target: MoveTarget::User,
-                    boosts: StatBoosts {
-                        attack: 0,
-                        defense: 0,
-                        special_attack: 3,
-                        special_defense: 0,
-                        speed: 0,
-                        accuracy: 0,
+                    move_type: PokemonType::Bug,
+                    flags: Flags {
+                        snatch: true,
+                        ..Default::default()
                     },
-                }),
-                ..Default::default()
-            },
-        );
+                    boost: Some(Boost {
+                        target: MoveTarget::User,
+                        boosts: StatBoosts {
+                            attack: 0,
+                            defense: 0,
+                            special_attack: 3,
+                            special_defense: 0,
+                            speed: 0,
+                            accuracy: 0,
+                        },
+                    }),
+                    ..Default::default()
+                },
+            );
+        }
         moves.insert(
             Choices::TAILSLAP,
             Choice {
