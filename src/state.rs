@@ -325,6 +325,8 @@ pub enum PokemonMoveIndex {
     M1,
     M2,
     M3,
+    M4,
+    M5,
 }
 
 #[derive(Debug, Clone)]
@@ -333,6 +335,8 @@ pub struct PokemonMoves {
     pub m1: Move,
     pub m2: Move,
     pub m3: Move,
+    pub m4: Move,
+    pub m5: Move
 }
 
 impl Index<PokemonMoveIndex> for PokemonMoves {
@@ -344,6 +348,8 @@ impl Index<PokemonMoveIndex> for PokemonMoves {
             PokemonMoveIndex::M1 => &self.m1,
             PokemonMoveIndex::M2 => &self.m2,
             PokemonMoveIndex::M3 => &self.m3,
+            PokemonMoveIndex::M4 => &self.m4,
+            PokemonMoveIndex::M5 => &self.m5,
         }
     }
 }
@@ -355,6 +361,8 @@ impl IndexMut<PokemonMoveIndex> for PokemonMoves {
             PokemonMoveIndex::M1 => &mut self.m1,
             PokemonMoveIndex::M2 => &mut self.m2,
             PokemonMoveIndex::M3 => &mut self.m3,
+            PokemonMoveIndex::M4 => &mut self.m4,
+            PokemonMoveIndex::M5 => &mut self.m5,
         }
     }
 }
@@ -389,6 +397,16 @@ impl<'a> Iterator for PokemonMoveIterator<'a> {
                 self.index += 1;
                 self.pokemon_move_index = PokemonMoveIndex::M3;
                 Some(&self.pokemon_move.m3)
+            }
+            4 => {
+                self.index += 1;
+                self.pokemon_move_index = PokemonMoveIndex::M4;
+                Some(&self.pokemon_move.m4)
+            }
+            5 => {
+                self.index += 1;
+                self.pokemon_move_index = PokemonMoveIndex::M5;
+                Some(&self.pokemon_move.m5)
             }
             _ => return None,
         };
@@ -465,6 +483,9 @@ impl Pokemon {
         let mut iter = self.moves.into_iter();
         while let Some(p) = iter.next() {
             if !p.disabled {
+                if (iter.pokemon_move_index == PokemonMoveIndex::M4 || iter.pokemon_move_index == PokemonMoveIndex::M5) && p.id == Choices::NONE {
+                    break;
+                }
                 vec.push(MoveChoice::Move(iter.pokemon_move_index));
             }
         }
@@ -632,6 +653,8 @@ impl Default for Pokemon {
                 m1: Default::default(),
                 m2: Default::default(),
                 m3: Default::default(),
+                m4: Default::default(),
+                m5: Default::default(),
             },
         };
     }

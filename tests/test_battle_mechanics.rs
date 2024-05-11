@@ -877,6 +877,14 @@ fn test_outrage_locking() {
                 side_ref: SideReference::SideOne,
                 move_index: PokemonMoveIndex::M3,
             }),
+            Instruction::DisableMove(DisableMoveInstruction {
+                side_ref: SideReference::SideOne,
+                move_index: PokemonMoveIndex::M4,
+            }),
+            Instruction::DisableMove(DisableMoveInstruction {
+                side_ref: SideReference::SideOne,
+                move_index: PokemonMoveIndex::M5,
+            }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 94,

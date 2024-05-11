@@ -1495,7 +1495,7 @@ impl Pokemon {
         }
 
         return format!(
-            "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
+            "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
             self.id,
             self.level,
             self.types.0.serialize(),
@@ -1524,6 +1524,8 @@ impl Pokemon {
             self.moves.m1.serialize(),
             self.moves.m2.serialize(),
             self.moves.m3.serialize(),
+            self.moves.m4.serialize(),
+            self.moves.m5.serialize(),
         );
     }
 
@@ -1569,6 +1571,8 @@ impl Pokemon {
                 m1: Move::deserialize(split[25]),
                 m2: Move::deserialize(split[26]),
                 m3: Move::deserialize(split[27]),
+                m4: Move::deserialize(split[28]),
+                m5: Move::deserialize(split[29]),
             },
         };
     }
