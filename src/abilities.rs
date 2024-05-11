@@ -512,16 +512,19 @@ pub fn ability_end_of_turn(
             }
         }
         Abilities::HYDRATION => {
-            let attacker_status = active_pkmn.status;
-            if attacker_status != PokemonStatus::None {
-                active_pkmn.status = PokemonStatus::None;
+            if active_pkmn.status != PokemonStatus::None && (state.weather.weather_type == Weather::Rain || state.weather.weather_type == Weather::HeavyRain) {
+                let attacking_side = state.get_side(side_ref);
+                let active_index = attacking_side.active_index;
+                let active_pkmn = attacking_side.get_active();
+
                 let ins = Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: *side_ref,
-                    pokemon_index: state.get_side_immutable(side_ref).active_index,
-                    old_status: attacker_status,
+                    pokemon_index: active_index,
+                    old_status: active_pkmn.status,
                     new_status: PokemonStatus::None,
                 });
                 instructions.instruction_list.push(ins);
+                active_pkmn.status = PokemonStatus::None;
             }
         }
         _ => {}
