@@ -1231,6 +1231,7 @@ impl FromStr for Items {
             "SILVERPOWDER" => Ok(Items::SILVERPOWDER),
             "SOFTSAND" => Ok(Items::SOFTSAND),
             "THROATSPRAY" => Ok(Items::THROATSPRAY),
+            "THICKCLUB" => Ok(Items::THICKCLUB),
             "TOXICORB" => Ok(Items::TOXICORB),
             "TWISTEDSPOON" => Ok(Items::TWISTEDSPOON),
             "WAVEINCENSE" => Ok(Items::WAVEINCENSE),

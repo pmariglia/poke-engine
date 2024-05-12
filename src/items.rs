@@ -55,6 +55,7 @@ pub enum Items {
     SOFTSAND,
     SOULDEW,
     THROATSPRAY,
+    THICKCLUB,
     TOXICORB,
     TWISTEDSPOON,
     WAVEINCENSE,
@@ -560,6 +561,14 @@ pub fn item_modify_attack_being_used(
                     effect: Effect::RemoveItem,
                     target: MoveTarget::User,
                 });
+            }
+        }
+        Items::THICKCLUB => {
+            match attacking_side.get_active_immutable().id.as_str() {
+                "cubone" | "marowak" | "marowakalola" => {
+                    attacking_choice.base_power *= 2.0;
+                }
+                _ => {}
             }
         }
         Items::TWISTEDSPOON => {
