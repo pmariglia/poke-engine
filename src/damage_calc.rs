@@ -310,40 +310,34 @@ pub fn calculate_damage(
     _damage_rolls: DamageRolls,
 ) -> Option<i16> {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(&attacking_side);
+    let attacker = attacking_side.get_active_immutable();
+    let defender = defending_side.get_active_immutable();
 
     let attacking_stat;
     let defending_stat;
     match choice.category {
         MoveCategory::Physical => {
-            if defending_side.get_active_immutable().ability == Abilities::UNAWARE {
-                attacking_stat = attacking_side.get_active_immutable().attack;
+            if defender.ability == Abilities::UNAWARE {
+                attacking_stat = attacker.attack;
             } else {
-                attacking_stat = attacking_side
-                    .get_active_immutable()
-                    .calculate_boosted_stat(PokemonBoostableStat::Attack);
+                attacking_stat = attacker.calculate_boosted_stat(PokemonBoostableStat::Attack);
             }
-            if attacking_side.get_active_immutable().ability == Abilities::UNAWARE {
-                defending_stat = defending_side.get_active_immutable().defense;
+            if attacker.ability == Abilities::UNAWARE {
+                defending_stat = defender.defense;
             } else {
-                defending_stat = defending_side
-                    .get_active_immutable()
-                    .calculate_boosted_stat(PokemonBoostableStat::Defense);
+                defending_stat = defender.calculate_boosted_stat(PokemonBoostableStat::Defense);
             }
         }
         MoveCategory::Special => {
-            if defending_side.get_active_immutable().ability == Abilities::UNAWARE {
-                attacking_stat = attacking_side.get_active_immutable().special_attack;
+            if defender.ability == Abilities::UNAWARE {
+                attacking_stat = attacker.special_attack;
             } else {
-                attacking_stat = attacking_side
-                    .get_active_immutable()
-                    .calculate_boosted_stat(PokemonBoostableStat::SpecialAttack);
+                attacking_stat = attacker.calculate_boosted_stat(PokemonBoostableStat::SpecialAttack);
             }
-            if attacking_side.get_active_immutable().ability == Abilities::UNAWARE {
-                defending_stat = defending_side.get_active_immutable().special_defense;
+            if attacker.ability == Abilities::UNAWARE {
+                defending_stat = defender.special_defense;
             } else {
-                defending_stat = defending_side
-                    .get_active_immutable()
-                    .calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
+                defending_stat = defender.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
             }
         }
         _ => return None,
@@ -354,7 +348,7 @@ pub fn calculate_damage(
     }
 
     let mut damage: f32;
-    damage = 2.0 * attacking_side.get_active_immutable().level as f32;
+    damage = 2.0 * attacker.level as f32;
     damage = damage.floor() / 5.0;
     damage = damage.floor() + 2.0;
     damage = damage.floor() * choice.base_power;
@@ -365,30 +359,30 @@ pub fn calculate_damage(
     let mut damage_modifier = 1.0;
     damage_modifier *= type_effectiveness_modifier(
         &choice.move_type,
-        &defending_side.get_active_immutable().types,
+        &defender.types,
     );
     damage_modifier *= weather_modifier(&choice.move_type, &state.weather.weather_type);
     damage_modifier *= stab_modifier(
         &choice.move_type,
-        &attacking_side.get_active_immutable().types,
+        &attacker.types,
     );
     damage_modifier *= burn_modifier(
         &choice.category,
-        &attacking_side.get_active_immutable().status,
+        &attacker.status,
     );
     damage_modifier *= volatile_status_modifier(
         &choice,
-        attacking_side.get_active_immutable(),
-        defending_side.get_active_immutable(),
+        attacker,
+        defender,
     );
     damage_modifier *= terrain_modifier(
         &state.terrain.terrain_type,
-        attacking_side.get_active_immutable(),
-        defending_side.get_active_immutable(),
+        attacker,
+        defender,
         &choice,
     );
 
-    if attacking_side.get_active_immutable().ability != Abilities::INFILTRATOR {
+    if attacker.ability != Abilities::INFILTRATOR {
         if defending_side.side_conditions.aurora_veil > 0 {
             damage_modifier *= 0.5
         } else if defending_side.side_conditions.reflect > 0

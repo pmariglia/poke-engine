@@ -1772,6 +1772,14 @@ fn test_choiceband_locking() {
                     side_ref: SideReference::SideOne,
                     move_index: PokemonMoveIndex::M3,
                 }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M4,
+                }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M5,
+                }),
             ],
         },
         StateInstructions {
@@ -1788,6 +1796,14 @@ fn test_choiceband_locking() {
                 Instruction::DisableMove(DisableMoveInstruction {
                     side_ref: SideReference::SideOne,
                     move_index: PokemonMoveIndex::M3,
+                }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M4,
+                }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M5,
                 }),
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
