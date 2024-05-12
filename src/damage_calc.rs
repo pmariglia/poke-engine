@@ -356,10 +356,20 @@ pub fn calculate_damage(
     damage = damage.floor() / 50.0;
     damage = damage.floor() + 2.0;
 
+    let mut defender_types = defender.types;
+    if defender.volatile_statuses.contains(&PokemonVolatileStatus::Roost) {
+        if defender_types.0 == PokemonType::Flying {
+            defender_types = (PokemonType::Typeless, defender_types.1);
+        }
+        if defender_types.1 == PokemonType::Flying {
+            defender_types = (defender_types.0, PokemonType::Typeless);
+        }
+    }
+
     let mut damage_modifier = 1.0;
     damage_modifier *= type_effectiveness_modifier(
         &choice.move_type,
-        &defender.types,
+        &defender_types,
     );
     damage_modifier *= weather_modifier(&choice.move_type, &state.weather.weather_type);
     damage_modifier *= stab_modifier(

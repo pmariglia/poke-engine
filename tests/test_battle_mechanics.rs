@@ -1821,6 +1821,40 @@ fn test_choiceband_locking() {
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
+
+#[test]
+fn test_earthquake_hits_roosted_flying_type() {
+    let mut state = State::default();
+    state.side_two.get_active().types = (PokemonType::Flying, PokemonType::Normal);
+    state.side_two.get_active().speed = 101;
+    state.side_one.get_active().speed = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::EARTHQUAKE,
+        Choices::ROOST,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Roost,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 79,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Roost,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
 #[test]
 fn test_locked_moves_unlock_on_switchout() {
     let mut state = State::default();
