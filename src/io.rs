@@ -213,6 +213,61 @@ fn pprint_expectiminimax_result(
     }
 }
 
+fn get_move_id_from_movechoice(side: &Side, move_choice: &MoveChoice) -> String {
+    return match move_choice {
+        MoveChoice::Move(index) => {
+            format!("{}", side.get_active_immutable().moves[*index].id).to_lowercase()
+        }
+        MoveChoice::Switch(index) => {
+            format!("switch {}", side.pokemon[*index].id).to_lowercase()
+        }
+        MoveChoice::None => {
+            "No Move".to_string()
+        }
+    }
+}
+
+fn print_subcommand_result(result: &Vec<f32>, side_one_options: &Vec<MoveChoice>, side_two_options: &Vec<MoveChoice>, state: &State) {
+    let safest = pick_safest(&result, side_one_options.len(), side_two_options.len());
+    let move_choice = side_one_options[safest.0];
+
+    let joined_side_one_options = side_one_options
+        .iter()
+        .map(|x| format!("{}", get_move_id_from_movechoice(&state.side_one, x)))
+        .collect::<Vec<String>>()
+        .join(",");
+    println!("side one options: {}", joined_side_one_options);
+
+    let joined_side_two_options = side_two_options
+        .iter()
+        .map(|x| format!("{}", get_move_id_from_movechoice(&state.side_two, x)))
+        .collect::<Vec<String>>()
+        .join(",");
+    println!("side two options: {}", joined_side_two_options);
+
+    let joined = result
+        .iter()
+        .map(|x| format!("{:.2}", x))
+        .collect::<Vec<String>>()
+        .join(",");
+    println!("matrix: {}", joined);
+    match move_choice {
+        MoveChoice::Move(_) => {
+            println!(
+                "choice: {}",
+                get_move_id_from_movechoice(&state.side_one, &move_choice)
+            );
+        }
+        MoveChoice::Switch(_) => {
+            println!("choice: switch {}", get_move_id_from_movechoice(&state.side_one, &move_choice));
+        }
+        MoveChoice::None => {
+            println!("no move");
+        }
+    }
+    println!("evaluation: {}", safest.1);
+}
+
 pub fn main() {
     let args = Cli::parse();
     let mut io_data = IOData::default();
@@ -257,28 +312,9 @@ pub fn main() {
         },
     }
 
-    let safest = pick_safest(&result, side_one_options.len(), side_two_options.len());
-    let side = state.side_one;
-    let move_choice = side_one_options[safest.0];
+    print_subcommand_result(&result, &side_one_options, &side_two_options, &state);
 
-    println!("choice id: {:?}", move_choice);
-    match move_choice {
-        MoveChoice::Move(index) => {
-            println!(
-                "choice name: {:?}",
-                side.get_active_immutable().moves[index].id
-            );
-        }
-        MoveChoice::Switch(index) => {
-            println!("choice: switch {}", side.pokemon[index].id);
-        }
-        MoveChoice::None => {
-            println!("no move");
-        }
-    }
-    println!("evaluation: {}", safest.1);
-
-    exit(1);
+    exit(0);
 }
 
 pub fn command_loop(mut io_data: IOData) {

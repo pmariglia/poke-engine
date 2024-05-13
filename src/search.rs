@@ -74,7 +74,7 @@ pub fn expectiminimax_search(
                             depth,
                             next_turn_side_one_options,
                             next_turn_side_two_options,
-                            ab_prune,
+                            true,  // until there is something better than `pick_safest` for evaluating a sub-game, there is no point in this being anything other than `true`
                             &mtx,
                         ),
                         next_turn_side_one_options_len,
