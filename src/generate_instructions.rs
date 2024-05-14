@@ -1643,8 +1643,10 @@ fn add_end_of_turn_instructions(
 
     // leechseed sap
     for side_ref in sides {
-        let active_pkmn = state.get_side(side_ref).get_active();
-        if active_pkmn.hp == 0 || active_pkmn.ability == Abilities::MAGICGUARD {
+        let (leechseed_side, other_side) = state.get_both_sides(side_ref);
+        let active_pkmn = leechseed_side.get_active();
+        let other_active_pkmn = other_side.get_active();
+        if active_pkmn.hp == 0 || other_active_pkmn.hp == 0 || active_pkmn.ability == Abilities::MAGICGUARD {
             continue;
         }
 
@@ -1660,7 +1662,6 @@ fn add_end_of_turn_instructions(
             active_pkmn.hp -= health_sapped;
             incoming_instructions.instruction_list.push(damage_ins);
 
-            let other_active_pkmn = state.get_side(&side_ref.get_other_side()).get_active();
             let health_recovered = cmp::min(
                 health_sapped,
                 other_active_pkmn.maxhp - other_active_pkmn.hp,

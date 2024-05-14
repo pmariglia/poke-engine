@@ -3369,6 +3369,31 @@ fn test_strengthsap() {
 }
 
 #[test]
+fn test_leechseed_does_not_trigger_if_receiving_side_fainted_this_turn() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 5;
+    state.side_two.get_active().hp = 50;
+    state.side_two.get_active().volatile_statuses.insert(PokemonVolatileStatus::LeechSeed);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 5,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_solarbeam_not_in_sun() {
     let mut state = State::default();
 
