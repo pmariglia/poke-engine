@@ -2491,6 +2491,169 @@ fn test_end_of_turn_triggered_when_switchout_flag_is_removed_and_other_side_did_
 }
 
 #[test]
+fn test_pkmn_is_not_trapped_if_it_has_fainted() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::ARENATRAP;
+    state.side_two.get_active().hp = 0;
+
+    let (side_one_moves, side_two_moves) = state.get_all_options();
+
+    assert_eq!(
+        vec![
+            MoveChoice::None
+        ],
+        side_one_moves
+    );
+
+    assert_eq!(vec![
+        MoveChoice::Switch(PokemonIndex::P1),
+        MoveChoice::Switch(PokemonIndex::P2),
+        MoveChoice::Switch(PokemonIndex::P3),
+        MoveChoice::Switch(PokemonIndex::P4),
+        MoveChoice::Switch(PokemonIndex::P5),
+    ], side_two_moves);
+}
+
+#[test]
+fn test_arenatrap_traps_opponent() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::ARENATRAP;
+
+    let (side_one_moves, side_two_moves) = state.get_all_options();
+
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_one_moves
+    );
+
+    // no switches allowed
+    assert_eq!(vec![
+        MoveChoice::Move(PokemonMoveIndex::M0),
+        MoveChoice::Move(PokemonMoveIndex::M1),
+        MoveChoice::Move(PokemonMoveIndex::M2),
+        MoveChoice::Move(PokemonMoveIndex::M3),
+    ], side_two_moves);
+}
+
+#[test]
+fn test_arenatrap_does_not_trap_flying() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::ARENATRAP;
+    state.side_two.get_active().types.1 = PokemonType::Flying;
+
+    let (side_one_moves, side_two_moves) = state.get_all_options();
+
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_one_moves
+    );
+
+    assert_eq!(vec![
+        MoveChoice::Move(PokemonMoveIndex::M0),
+        MoveChoice::Move(PokemonMoveIndex::M1),
+        MoveChoice::Move(PokemonMoveIndex::M2),
+        MoveChoice::Move(PokemonMoveIndex::M3),
+        MoveChoice::Switch(PokemonIndex::P1),
+        MoveChoice::Switch(PokemonIndex::P2),
+        MoveChoice::Switch(PokemonIndex::P3),
+        MoveChoice::Switch(PokemonIndex::P4),
+        MoveChoice::Switch(PokemonIndex::P5),
+    ], side_two_moves);
+}
+
+#[test]
+fn test_arenatrap_does_not_trap_ghost() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::ARENATRAP;
+    state.side_two.get_active().types.1 = PokemonType::Ghost;
+
+    let (side_one_moves, side_two_moves) = state.get_all_options();
+
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_one_moves
+    );
+
+    assert_eq!(vec![
+        MoveChoice::Move(PokemonMoveIndex::M0),
+        MoveChoice::Move(PokemonMoveIndex::M1),
+        MoveChoice::Move(PokemonMoveIndex::M2),
+        MoveChoice::Move(PokemonMoveIndex::M3),
+        MoveChoice::Switch(PokemonIndex::P1),
+        MoveChoice::Switch(PokemonIndex::P2),
+        MoveChoice::Switch(PokemonIndex::P3),
+        MoveChoice::Switch(PokemonIndex::P4),
+        MoveChoice::Switch(PokemonIndex::P5),
+    ], side_two_moves);
+}
+
+#[test]
+fn test_arenatrap_does_not_trap_shedshell() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::ARENATRAP;
+    state.side_two.get_active().item = Items::SHEDSHELL;
+
+    let (side_one_moves, side_two_moves) = state.get_all_options();
+
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_one_moves
+    );
+
+    assert_eq!(vec![
+        MoveChoice::Move(PokemonMoveIndex::M0),
+        MoveChoice::Move(PokemonMoveIndex::M1),
+        MoveChoice::Move(PokemonMoveIndex::M2),
+        MoveChoice::Move(PokemonMoveIndex::M3),
+        MoveChoice::Switch(PokemonIndex::P1),
+        MoveChoice::Switch(PokemonIndex::P2),
+        MoveChoice::Switch(PokemonIndex::P3),
+        MoveChoice::Switch(PokemonIndex::P4),
+        MoveChoice::Switch(PokemonIndex::P5),
+    ], side_two_moves);
+}
+
+#[test]
 fn test_turn_after_switch_out_move_other_side_does_nothing() {
     let mut state = State::default();
     state.side_one.force_switch = true;
