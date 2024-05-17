@@ -1,6 +1,6 @@
 use crate::choices::Choices;
 use crate::items::Items;
-use crate::state::PokemonVolatileStatus;
+use crate::state::{PokemonVolatileStatus};
 use crate::state::SideReference;
 use crate::state::Terrain;
 use crate::state::Weather;
@@ -60,12 +60,27 @@ pub enum Instruction {
     SetWish(SetWishInstruction),
     DecrementWish(DecrementWishInstruction),
     DamageSubstitute(DamageInstruction),
+    DecrementRestTurns(DecrementRestTurnsInstruction),
+    SetRestTurns(SetRestTurnsInstruction),
     SetSubstituteHealth(SetSubstituteHealthInstruction),
     SetSideOneMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     ToggleTrickRoom,
     ToggleSideOneForceSwitch,
     ToggleSideTwoForceSwitch,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct DecrementRestTurnsInstruction {
+    pub side_ref: SideReference,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct SetRestTurnsInstruction {
+    pub side_ref: SideReference,
+    pub pokemon_index: PokemonIndex,
+    pub new_turns: i8,
+    pub previous_turns: i8,
 }
 
 #[derive(Debug, PartialEq, Clone)]

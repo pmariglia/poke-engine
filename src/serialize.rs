@@ -1565,6 +1565,7 @@ impl Pokemon {
             evasion_boost: split[19].parse::<i8>().unwrap(),
             status: PokemonStatus::deserialize(split[20]),
             substitute_health: split[21].parse::<i16>().unwrap(),
+            rest_turns: 0,
             nature: PokemonNatures::deserialize(split[22]),
             volatile_statuses: vs_hashset,
             moves: PokemonMoves {

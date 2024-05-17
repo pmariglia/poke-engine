@@ -3077,7 +3077,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 boost: Some(Boost {
-                    target: MoveTarget::Opponent,
+                    target: MoveTarget::User,
                     boosts: StatBoosts {
                         attack: 1,
                         defense: 1,
@@ -3088,7 +3088,7 @@ lazy_static! {
                     },
                 }),
                 volatile_status: Some(VolatileStatus {
-                    target: MoveTarget::Opponent,
+                    target: MoveTarget::User,
                     volatile_status: PokemonVolatileStatus::Curse,
                 }),
                 ..Default::default()
@@ -12984,10 +12984,7 @@ lazy_static! {
             Choices::REST,
             Choice {
                 move_id: Choices::REST,
-                status: Some(Status {
-                    target: MoveTarget::User,
-                    status: PokemonStatus::Sleep,
-                }),
+                status: None,  // Rest implemented in choice_special_effect()
                 target: MoveTarget::User,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -12995,10 +12992,7 @@ lazy_static! {
                     snatch: true,
                     ..Default::default()
                 },
-                heal: Some(Heal {
-                    target: MoveTarget::User,
-                    amount: 1.0,
-                }),
+                heal: None,  // Rest implemented in choice_special_effect()
                 ..Default::default()
             },
         );
@@ -19707,6 +19701,7 @@ pub struct Choice {
     pub target: MoveTarget,
 
     pub first_move: bool,
+    pub sleep_talk_move: bool,
 }
 
 impl fmt::Debug for Choice {
@@ -19834,6 +19829,7 @@ impl Default for Choice {
             secondaries: None,
             target: MoveTarget::Opponent,
             first_move: true,
+            sleep_talk_move: false,
         };
     }
 }

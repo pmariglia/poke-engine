@@ -467,6 +467,7 @@ pub struct Pokemon {
     pub accuracy_boost: i8,
     pub evasion_boost: i8,
     pub status: PokemonStatus,
+    pub rest_turns: i8,
     pub substitute_health: i16,
     pub nature: PokemonNatures,
     pub volatile_statuses: HashSet<PokemonVolatileStatus>,
@@ -474,6 +475,15 @@ pub struct Pokemon {
 }
 
 impl Pokemon {
+    pub fn get_sleep_talk_choices(&self) -> Vec<Choice> {
+        let mut vec = Vec::with_capacity(4);
+        for p in self.moves.into_iter() {
+            if p.id != Choices::SLEEPTALK && p.id != Choices::NONE {
+                vec.push(p.choice.clone());
+            }
+        }
+        return vec;
+    }
     pub fn replace_move(&mut self, move_index: PokemonMoveIndex, new_move_name: Choices) {
         self.moves[move_index].choice = MOVES.get(&new_move_name).unwrap().to_owned();
         self.moves[move_index].id = new_move_name;
@@ -646,6 +656,7 @@ impl Default for Pokemon {
             evasion_boost: 0,
             status: PokemonStatus::None,
             substitute_health: 0,
+            rest_turns: 0,
             nature: PokemonNatures::Serious,
             volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
             moves: PokemonMoves {
@@ -1449,6 +1460,18 @@ impl State {
         self.get_side(side_reference).get_active().substitute_health = amount;
     }
 
+    fn decrement_rest_turn(&mut self, side_reference: &SideReference) {
+        self.get_side(side_reference).get_active().rest_turns -= 1;
+    }
+
+    fn increment_rest_turn(&mut self, side_reference: &SideReference) {
+        self.get_side(side_reference).get_active().rest_turns += 1;
+    }
+
+    fn set_rest_turn(&mut self, side_reference: &SideReference, pokemon_index: PokemonIndex, amount: i8) {
+        self.get_side(side_reference).pokemon[pokemon_index].rest_turns = amount;
+    }
+
     fn toggle_trickroom(&mut self) {
         self.trick_room = !self.trick_room;
     }
@@ -1522,6 +1545,12 @@ impl State {
             }
             Instruction::SetSubstituteHealth(instruction) => {
                 self.set_substitute_health(&instruction.side_ref, instruction.new_health);
+            }
+            Instruction::SetRestTurns(instruction) => {
+                self.set_rest_turn(&instruction.side_ref, instruction.pokemon_index, instruction.new_turns);
+            }
+            Instruction::DecrementRestTurns(instruction) => {
+                self.decrement_rest_turn(&instruction.side_ref);
             }
             Instruction::ToggleTrickRoom => self.toggle_trickroom(),
             Instruction::ToggleSideOneForceSwitch => self.side_one.toggle_force_switch(),
@@ -1604,6 +1633,12 @@ impl State {
             }
             Instruction::SetSubstituteHealth(instruction) => {
                 self.set_substitute_health(&instruction.side_ref, instruction.old_health);
+            }
+            Instruction::SetRestTurns(instruction) => {
+                self.set_rest_turn(&instruction.side_ref, instruction.pokemon_index, instruction.previous_turns);
+            }
+            Instruction::DecrementRestTurns(instruction) => {
+                self.increment_rest_turn(&instruction.side_ref);
             }
             Instruction::ToggleTrickRoom => self.toggle_trickroom(),
             Instruction::ToggleSideOneForceSwitch => self.side_one.toggle_force_switch(),

@@ -1,21 +1,10 @@
 use poke_engine::abilities::Abilities;
 use poke_engine::choices::{Boost, Choices, MOVES};
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
-use poke_engine::instruction::{
-    ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather,
-    DamageInstruction, DecrementWishInstruction, DisableMoveInstruction, EnableMoveInstruction,
-    HealInstruction, Instruction, RemoveVolatileStatusInstruction,
-    SetSecondMoveSwitchOutMoveInstruction, SetSubstituteHealthInstruction, SetWishInstruction,
-    StateInstructions, SwitchInstruction,
-};
+use poke_engine::instruction::{ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, DecrementRestTurnsInstruction, DecrementWishInstruction, DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction, SetRestTurnsInstruction, SetSecondMoveSwitchOutMoveInstruction, SetSubstituteHealthInstruction, SetWishInstruction, StateInstructions, SwitchInstruction};
 use poke_engine::instruction::Instruction::{DamageSubstitute, RemoveVolatileStatus};
 use poke_engine::items::Items;
-use poke_engine::state::{
-    Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
-    PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, StateWeather, Terrain,
-    Weather,
-};
+use poke_engine::state::{Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonMoves, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, StateWeather, Terrain, Weather};
 
 fn set_moves_on_pkmn_and_call_generate_instructions(
     state: &mut State,
@@ -955,6 +944,59 @@ fn test_healbell_with_multiple_reserves_statused() {
                 pokemon_index: PokemonIndex::P3,
                 old_status: PokemonStatus::Sleep,
                 new_status: PokemonStatus::None,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P5,
+                old_status: PokemonStatus::Toxic,
+                new_status: PokemonStatus::None,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_healbell_when_one_reserve_was_rested() {
+    let mut state = State::default();
+    state.side_one.get_active().status = PokemonStatus::Poison;
+    state.side_one.pokemon[PokemonIndex::P1].status = PokemonStatus::Burn;
+    state.side_one.pokemon[PokemonIndex::P3].status = PokemonStatus::Sleep;
+    state.side_one.pokemon[PokemonIndex::P3].rest_turns = 3;
+    state.side_one.pokemon[PokemonIndex::P5].status = PokemonStatus::Toxic;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::HEALBELL,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::Poison,
+                new_status: PokemonStatus::None,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P1,
+                old_status: PokemonStatus::Burn,
+                new_status: PokemonStatus::None,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P3,
+                old_status: PokemonStatus::Sleep,
+                new_status: PokemonStatus::None,
+            }),
+            Instruction::SetRestTurns(SetRestTurnsInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P3,
+                new_turns: 0,
+                previous_turns: 3,
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
@@ -3492,6 +3534,12 @@ fn test_rest_can_be_used_if_sleep_clause_would_activate() {
                 pokemon_index: PokemonIndex::P0,
                 old_status: PokemonStatus::None,
                 new_status: PokemonStatus::Sleep,
+            }),
+            Instruction::SetRestTurns(SetRestTurnsInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                new_turns: 3,
+                previous_turns: 0,
             }),
             Instruction::Heal(HealInstruction {
                 side_ref: SideReference::SideOne,
@@ -6494,6 +6542,84 @@ fn test_hydration_end_of_turn() {
 }
 
 #[test]
+fn test_using_rest_with_existing_status_condition_and_hydration() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::HYDRATION;
+    state.side_one.get_active().status = PokemonStatus::Burn;
+    state.side_one.get_active().hp = 50;
+    state.side_one.get_active().rest_turns = 0;
+    state.weather.weather_type = Weather::Rain;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::REST,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::Burn,
+                new_status: PokemonStatus::Sleep,
+            }),
+            Instruction::SetRestTurns(SetRestTurnsInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                new_turns: 3,
+                previous_turns: 0,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 50,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::Sleep,
+                new_status: PokemonStatus::None,
+            }),
+            Instruction::SetRestTurns(SetRestTurnsInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                new_turns: 0,
+                previous_turns: 3,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_being_knocked_out_before_using_rest() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::HYDRATION;
+    state.side_one.get_active().status = PokemonStatus::Burn;
+    state.side_one.get_active().hp = 1;
+    state.side_one.get_active().rest_turns = 0;
+    state.weather.weather_type = Weather::Rain;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::REST,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_hydration_without_weather() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::HYDRATION;
@@ -6642,6 +6768,133 @@ fn test_baddreams() {
                 old_status: PokemonStatus::Sleep,
                 new_status: PokemonStatus::None,
             })],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_freeze_chance_to_thaw() {
+    let mut state = State::default();
+    state.side_two.get_active().status = PokemonStatus::Freeze;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 80.0,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 20.0,
+            instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::Freeze,
+                new_status: PokemonStatus::None,
+            })],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_sleeptalk_when_asleep_and_rest_turns_active() {
+    let mut state = State::default();
+    state.side_one.get_active().status = PokemonStatus::Sleep;
+    state.side_one.get_active().rest_turns = 3;
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::TACKLE);
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::REST);
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M1, Choices::SLEEPTALK);
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M2, Choices::TACKLE);
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M3, Choices::CURSE);
+    let before_state_string = format!("{:?}", state);
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+    let after_state_string = format!("{:?}", state);
+    assert_eq!(before_state_string, after_state_string);
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 33.333336,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 48,
+                }),
+                Instruction::DecrementRestTurns(DecrementRestTurnsInstruction {
+                    side_ref: SideReference::SideOne,
+                })
+            ],
+        },
+        StateInstructions {
+            percentage: 33.333336,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 48,
+                }),
+                Instruction::DecrementRestTurns(DecrementRestTurnsInstruction {
+                    side_ref: SideReference::SideOne,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 33.333336,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 48,
+                }),
+                Instruction::DecrementRestTurns(DecrementRestTurnsInstruction {
+                    side_ref: SideReference::SideOne,
+                }),
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::Curse,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Attack,
+                    amount: 1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Defense,
+                    amount: 1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: -1,
+                }),
+            ],
         },
     ];
     assert_eq!(expected_instructions, vec_of_instructions);

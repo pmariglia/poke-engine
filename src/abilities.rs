@@ -6,7 +6,7 @@ use crate::choices::{
     VolatileStatus,
 };
 use crate::damage_calc::type_effectiveness_modifier;
-use crate::generate_instructions::get_boost_instruction;
+use crate::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
 use crate::instruction::{
     BoostInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain,
     ChangeType, ChangeWeather, DamageInstruction, HealInstruction, Instruction, StateInstructions,
@@ -517,14 +517,12 @@ pub fn ability_end_of_turn(
                 let active_index = attacking_side.active_index;
                 let active_pkmn = attacking_side.get_active();
 
-                let ins = Instruction::ChangeStatus(ChangeStatusInstruction {
-                    side_ref: *side_ref,
-                    pokemon_index: active_index,
-                    old_status: active_pkmn.status,
-                    new_status: PokemonStatus::None,
-                });
-                instructions.instruction_list.push(ins);
-                active_pkmn.status = PokemonStatus::None;
+                add_remove_status_instructions(
+                    instructions,
+                    active_index,
+                    *side_ref,
+                    attacking_side
+                );
             }
         }
         _ => {}
