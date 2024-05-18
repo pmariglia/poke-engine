@@ -17,6 +17,7 @@ pub enum Items {
     NONE,
     UNKNOWNITEM,
     ABSORBBULB,
+    ADAMANTORB,
     AIRBALLOON,
     ASSAULTVEST,
     BLACKBELT,
@@ -37,6 +38,7 @@ pub enum Items {
     GRASSYSEED,
     LEFTOVERS,
     LIFEORB,
+    LUSTROUSORB,
     METALCOAT,
     MISTYSEED,
     MUSCLEBAND,
@@ -54,6 +56,7 @@ pub enum Items {
     SILVERPOWDER,
     SOFTSAND,
     SOULDEW,
+    GRISEOUSORB,
     THROATSPRAY,
     THICKCLUB,
     TOXICORB,
@@ -537,6 +540,36 @@ pub fn item_modify_attack_being_used(
                 #[cfg(not(any(feature = "gen4", feature = "gen5", feature = "gen6")))]
                 if attacking_choice.move_type == PokemonType::Dragon
                     || attacking_choice.move_type == PokemonType::Psychic
+                {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }
+        }
+        Items::GRISEOUSORB => {
+            if attacking_side.get_active_immutable().id == "giratina"
+            {
+                if attacking_choice.move_type == PokemonType::Dragon
+                    || attacking_choice.move_type == PokemonType::Ghost
+                {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }
+        }
+        Items::LUSTROUSORB => {
+            if attacking_side.get_active_immutable().id == "palkia"
+            {
+                if attacking_choice.move_type == PokemonType::Dragon
+                    || attacking_choice.move_type == PokemonType::Ghost
+                {
+                    attacking_choice.base_power *= 1.2;
+                }
+            }
+        }
+        Items::ADAMANTORB => {
+            if attacking_side.get_active_immutable().id == "dialga"
+            {
+                if attacking_choice.move_type == PokemonType::Dragon
+                    || attacking_choice.move_type == PokemonType::Steel
                 {
                     attacking_choice.base_power *= 1.2;
                 }

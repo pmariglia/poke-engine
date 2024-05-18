@@ -1194,6 +1194,7 @@ impl FromStr for Items {
         match input.to_uppercase().as_str() {
             "NONE" => Ok(Items::NONE),
             "ABSORBBULB" => Ok(Items::ABSORBBULB),
+            "ADAMANTORB" => Ok(Items::ADAMANTORB),
             "AIRBALLOON" => Ok(Items::AIRBALLOON),
             "ASSAULTVEST" => Ok(Items::ASSAULTVEST),
             "BLACKBELT" => Ok(Items::BLACKBELT),
@@ -1214,6 +1215,7 @@ impl FromStr for Items {
             "GRASSYSEED" => Ok(Items::GRASSYSEED),
             "LEFTOVERS" => Ok(Items::LEFTOVERS),
             "LIFEORB" => Ok(Items::LIFEORB),
+            "LUSTROUSORB" => Ok(Items::LUSTROUSORB),
             "METALCOAT" => Ok(Items::METALCOAT),
             "MISTYSEED" => Ok(Items::MISTYSEED),
             "MUSCLEBAND" => Ok(Items::MUSCLEBAND),
@@ -1230,6 +1232,8 @@ impl FromStr for Items {
             "SILKSCARF" => Ok(Items::SILKSCARF),
             "SILVERPOWDER" => Ok(Items::SILVERPOWDER),
             "SOFTSAND" => Ok(Items::SOFTSAND),
+            "GRISEOUSORB" => Ok(Items::GRISEOUSORB),
+            "SOULDEW" => Ok(Items::SOULDEW),
             "THROATSPRAY" => Ok(Items::THROATSPRAY),
             "THICKCLUB" => Ok(Items::THICKCLUB),
             "TOXICORB" => Ok(Items::TOXICORB),
@@ -1241,6 +1245,7 @@ impl FromStr for Items {
             "HEAVYDUTYBOOTS" => Ok(Items::HEAVYDUTYBOOTS),
             "CLEARAMULET" => Ok(Items::CLEARAMULET),
             "PROTECTIVEPADS" => Ok(Items::PROTECTIVEPADS),
+            "SHEDSHELL" => Ok(Items::SHEDSHELL),
             _ => Ok(Items::UNKNOWNITEM),
         }
     }
