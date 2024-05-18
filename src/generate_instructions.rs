@@ -354,10 +354,18 @@ pub fn immune_to_status(
                     .contains(&target_pkmn.ability)
                     || (status_target == &MoveTarget::Opponent && target_side.has_sleeping_pkmn())  // sleep clause
             }
+
+            #[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
             PokemonStatus::Paralyze => {
                 target_pkmn.has_type(&PokemonType::Electric)
                     || target_pkmn.ability == Abilities::LIMBER
             }
+
+            #[cfg(any(feature = "gen4", feature = "gen5"))]
+            PokemonStatus::Paralyze => {
+                target_pkmn.ability == Abilities::LIMBER
+            }
+
             PokemonStatus::Poison | PokemonStatus::Toxic => {
                 target_pkmn.has_type(&PokemonType::Poison)
                     || target_pkmn.has_type(&PokemonType::Steel)
@@ -1207,6 +1215,11 @@ pub fn generate_instructions_from_move(
                 &mut final_instructions,
             );
         }
+        return;
+    }
+    else if attacker.status == PokemonStatus::Sleep && !choice.sleep_talk_move {
+        state.reverse_instructions(&incoming_instructions.instruction_list);
+        final_instructions.push(incoming_instructions);
         return;
     }
 

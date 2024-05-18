@@ -625,18 +625,19 @@ pub fn choice_special_effect(
             }
         }
         Choices::REST => {
+            let active_index = attacking_side.active_index;
             let active_pkmn = attacking_side.get_active();
             if active_pkmn.status != PokemonStatus::Sleep {
                 let heal_amount = active_pkmn.maxhp - active_pkmn.hp;
                 instructions.instruction_list.push(Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: *attacking_side_ref,
-                    pokemon_index: PokemonIndex::P0,
+                    pokemon_index: active_index,
                     old_status: active_pkmn.status,
                     new_status: PokemonStatus::Sleep,
                 }));
                 instructions.instruction_list.push(Instruction::SetRestTurns(SetRestTurnsInstruction {
                     side_ref: *attacking_side_ref,
-                    pokemon_index: PokemonIndex::P0,
+                    pokemon_index: active_index,
                     new_turns: 3,
                     previous_turns: active_pkmn.rest_turns,
                 }));

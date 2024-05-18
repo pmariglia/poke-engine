@@ -1496,7 +1496,7 @@ impl Pokemon {
         }
 
         return format!(
-            "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
+            "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
             self.id,
             self.level,
             self.types.0.serialize(),
@@ -1519,6 +1519,7 @@ impl Pokemon {
             self.evasion_boost,
             self.status.serialize(),
             self.substitute_health,
+            self.rest_turns,
             self.nature.serialize(),
             vs_string,
             self.moves.m0.serialize(),
@@ -1534,8 +1535,8 @@ impl Pokemon {
         let split: Vec<&str> = serialized.split(",").collect();
 
         let mut vs_hashset = HashSet::new();
-        if split[23] != "" {
-            for item in split[23].split(":") {
+        if split[24] != "" {
+            for item in split[24].split(":") {
                 vs_hashset.insert(PokemonVolatileStatus::deserialize(item));
             }
         }
@@ -1565,16 +1566,16 @@ impl Pokemon {
             evasion_boost: split[19].parse::<i8>().unwrap(),
             status: PokemonStatus::deserialize(split[20]),
             substitute_health: split[21].parse::<i16>().unwrap(),
-            rest_turns: 0,
-            nature: PokemonNatures::deserialize(split[22]),
+            rest_turns: split[22].parse::<i8>().unwrap(),
+            nature: PokemonNatures::deserialize(split[23]),
             volatile_statuses: vs_hashset,
             moves: PokemonMoves {
-                m0: Move::deserialize(split[24]),
-                m1: Move::deserialize(split[25]),
-                m2: Move::deserialize(split[26]),
-                m3: Move::deserialize(split[27]),
-                m4: Move::deserialize(split[28]),
-                m5: Move::deserialize(split[29]),
+                m0: Move::deserialize(split[25]),
+                m1: Move::deserialize(split[26]),
+                m2: Move::deserialize(split[27]),
+                m3: Move::deserialize(split[28]),
+                m4: Move::deserialize(split[29]),
+                m5: Move::deserialize(split[30]),
             },
         };
     }

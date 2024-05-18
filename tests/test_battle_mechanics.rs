@@ -5989,6 +5989,57 @@ fn test_taunt_into_glare() {
 }
 
 #[test]
+#[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
+fn test_glare_into_electric_type() {
+    let mut state = State::default();
+    state.side_two.get_active().types.1 = PokemonType::Electric;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::GLARE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(feature = "gen4"))]
+fn test_gen4_glare_into_electric_type() {
+    let mut state = State::default();
+    state.side_two.get_active().types.1 = PokemonType::Electric;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::GLARE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 25.0,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 75.0,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    pokemon_index: PokemonIndex::P0,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Paralyze,
+                })
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_explosion_into_damp() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::DAMP;
