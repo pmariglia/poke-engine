@@ -218,16 +218,17 @@ fn get_move_id_from_movechoice(side: &Side, move_choice: &MoveChoice) -> String 
         MoveChoice::Move(index) => {
             format!("{}", side.get_active_immutable().moves[*index].id).to_lowercase()
         }
-        MoveChoice::Switch(index) => {
-            format!("switch {}", side.pokemon[*index].id).to_lowercase()
-        }
-        MoveChoice::None => {
-            "No Move".to_string()
-        }
-    }
+        MoveChoice::Switch(index) => format!("switch {}", side.pokemon[*index].id).to_lowercase(),
+        MoveChoice::None => "No Move".to_string(),
+    };
 }
 
-fn print_subcommand_result(result: &Vec<f32>, side_one_options: &Vec<MoveChoice>, side_two_options: &Vec<MoveChoice>, state: &State) {
+fn print_subcommand_result(
+    result: &Vec<f32>,
+    side_one_options: &Vec<MoveChoice>,
+    side_two_options: &Vec<MoveChoice>,
+    state: &State,
+) {
     let safest = pick_safest(&result, side_one_options.len(), side_two_options.len());
     let move_choice = side_one_options[safest.0];
 
@@ -259,7 +260,10 @@ fn print_subcommand_result(result: &Vec<f32>, side_one_options: &Vec<MoveChoice>
             );
         }
         MoveChoice::Switch(_) => {
-            println!("choice: switch {}", get_move_id_from_movechoice(&state.side_one, &move_choice));
+            println!(
+                "choice: switch {}",
+                get_move_id_from_movechoice(&state.side_one, &move_choice)
+            );
         }
         MoveChoice::None => {
             println!("no move");

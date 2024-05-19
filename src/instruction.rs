@@ -1,6 +1,6 @@
 use crate::choices::Choices;
 use crate::items::Items;
-use crate::state::{PokemonVolatileStatus};
+use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
 use crate::state::Terrain;
 use crate::state::Weather;

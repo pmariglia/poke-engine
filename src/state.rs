@@ -336,7 +336,7 @@ pub struct PokemonMoves {
     pub m2: Move,
     pub m3: Move,
     pub m4: Move,
-    pub m5: Move
+    pub m5: Move,
 }
 
 impl Index<PokemonMoveIndex> for PokemonMoves {
@@ -493,7 +493,10 @@ impl Pokemon {
         let mut iter = self.moves.into_iter();
         while let Some(p) = iter.next() {
             if !p.disabled {
-                if (iter.pokemon_move_index == PokemonMoveIndex::M4 || iter.pokemon_move_index == PokemonMoveIndex::M5) && p.id == Choices::NONE {
+                if (iter.pokemon_move_index == PokemonMoveIndex::M4
+                    || iter.pokemon_move_index == PokemonMoveIndex::M5)
+                    && p.id == Choices::NONE
+                {
                     break;
                 }
                 vec.push(MoveChoice::Move(iter.pokemon_move_index));
@@ -859,20 +862,23 @@ impl Side {
         let active_pkmn = self.get_active_immutable();
         if active_pkmn.item == Items::SHEDSHELL || active_pkmn.has_type(&PokemonType::Ghost) {
             return false;
-        }
-        else if active_pkmn.volatile_statuses.contains(&PokemonVolatileStatus::PartiallyTrapped) {
+        } else if active_pkmn
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::PartiallyTrapped)
+        {
             return true;
-        }
-        else if active_pkmn.volatile_statuses.contains(&PokemonVolatileStatus::LockedMove) {
+        } else if active_pkmn
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::LockedMove)
+        {
             return true;
-        }
-        else if opponent_active.ability == Abilities::SHADOWTAG {
+        } else if opponent_active.ability == Abilities::SHADOWTAG {
             return true;
-        }
-        else if opponent_active.ability == Abilities::ARENATRAP && active_pkmn.is_grounded() {
-            return true
-        }
-        else if opponent_active.ability == Abilities::MAGNETPULL && active_pkmn.has_type(&PokemonType::Steel) {
+        } else if opponent_active.ability == Abilities::ARENATRAP && active_pkmn.is_grounded() {
+            return true;
+        } else if opponent_active.ability == Abilities::MAGNETPULL
+            && active_pkmn.has_type(&PokemonType::Steel)
+        {
             return true;
         }
         return false;
@@ -1468,7 +1474,12 @@ impl State {
         self.get_side(side_reference).get_active().rest_turns += 1;
     }
 
-    fn set_rest_turn(&mut self, side_reference: &SideReference, pokemon_index: PokemonIndex, amount: i8) {
+    fn set_rest_turn(
+        &mut self,
+        side_reference: &SideReference,
+        pokemon_index: PokemonIndex,
+        amount: i8,
+    ) {
         self.get_side(side_reference).pokemon[pokemon_index].rest_turns = amount;
     }
 
@@ -1547,7 +1558,11 @@ impl State {
                 self.set_substitute_health(&instruction.side_ref, instruction.new_health);
             }
             Instruction::SetRestTurns(instruction) => {
-                self.set_rest_turn(&instruction.side_ref, instruction.pokemon_index, instruction.new_turns);
+                self.set_rest_turn(
+                    &instruction.side_ref,
+                    instruction.pokemon_index,
+                    instruction.new_turns,
+                );
             }
             Instruction::DecrementRestTurns(instruction) => {
                 self.decrement_rest_turn(&instruction.side_ref);
@@ -1635,7 +1650,11 @@ impl State {
                 self.set_substitute_health(&instruction.side_ref, instruction.old_health);
             }
             Instruction::SetRestTurns(instruction) => {
-                self.set_rest_turn(&instruction.side_ref, instruction.pokemon_index, instruction.previous_turns);
+                self.set_rest_turn(
+                    &instruction.side_ref,
+                    instruction.pokemon_index,
+                    instruction.previous_turns,
+                );
             }
             Instruction::DecrementRestTurns(instruction) => {
                 self.increment_rest_turn(&instruction.side_ref);

@@ -1,13 +1,18 @@
 use crate::choices::{Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
-use crate::instruction::{ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, HealInstruction, Instruction, SetRestTurnsInstruction, SetSubstituteHealthInstruction, SetWishInstruction, StateInstructions};
+use crate::generate_instructions::add_remove_status_instructions;
+use crate::instruction::{
+    ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction,
+    ChangeStatusInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, HealInstruction,
+    Instruction, SetRestTurnsInstruction, SetSubstituteHealthInstruction, SetWishInstruction,
+    StateInstructions,
+};
 use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::state::{
     pokemon_index_iter, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonStatus,
     PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather,
 };
 use std::cmp;
-use crate::generate_instructions::add_remove_status_instructions;
 
 pub fn modify_choice(
     state: &State,
@@ -608,7 +613,7 @@ pub fn choice_special_effect(
                     instructions,
                     active_index,
                     *attacking_side_ref,
-                    attacking_side
+                    attacking_side,
                 );
             }
         }
@@ -619,7 +624,7 @@ pub fn choice_special_effect(
                         instructions,
                         pkmn_index,
                         *attacking_side_ref,
-                        attacking_side
+                        attacking_side,
                     );
                 }
             }
@@ -629,22 +634,28 @@ pub fn choice_special_effect(
             let active_pkmn = attacking_side.get_active();
             if active_pkmn.status != PokemonStatus::Sleep {
                 let heal_amount = active_pkmn.maxhp - active_pkmn.hp;
-                instructions.instruction_list.push(Instruction::ChangeStatus(ChangeStatusInstruction {
-                    side_ref: *attacking_side_ref,
-                    pokemon_index: active_index,
-                    old_status: active_pkmn.status,
-                    new_status: PokemonStatus::Sleep,
-                }));
-                instructions.instruction_list.push(Instruction::SetRestTurns(SetRestTurnsInstruction {
-                    side_ref: *attacking_side_ref,
-                    pokemon_index: active_index,
-                    new_turns: 3,
-                    previous_turns: active_pkmn.rest_turns,
-                }));
-                instructions.instruction_list.push(Instruction::Heal(HealInstruction {
-                    side_ref: *attacking_side_ref,
-                    heal_amount: heal_amount,
-                }));
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeStatus(ChangeStatusInstruction {
+                        side_ref: *attacking_side_ref,
+                        pokemon_index: active_index,
+                        old_status: active_pkmn.status,
+                        new_status: PokemonStatus::Sleep,
+                    }));
+                instructions
+                    .instruction_list
+                    .push(Instruction::SetRestTurns(SetRestTurnsInstruction {
+                        side_ref: *attacking_side_ref,
+                        pokemon_index: active_index,
+                        new_turns: 3,
+                        previous_turns: active_pkmn.rest_turns,
+                    }));
+                instructions
+                    .instruction_list
+                    .push(Instruction::Heal(HealInstruction {
+                        side_ref: *attacking_side_ref,
+                        heal_amount: heal_amount,
+                    }));
                 active_pkmn.hp = active_pkmn.maxhp;
                 active_pkmn.status = PokemonStatus::Sleep;
                 active_pkmn.rest_turns = 3;
@@ -777,7 +788,10 @@ pub fn choice_special_effect(
         }
         Choices::SUBSTITUTE => {
             let active_pkmn = attacking_side.get_active();
-            if active_pkmn.volatile_statuses.contains(&PokemonVolatileStatus::Substitute) {
+            if active_pkmn
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::Substitute)
+            {
                 return;
             }
             let sub_target_health = active_pkmn.maxhp / 4;

@@ -512,7 +512,10 @@ pub fn ability_end_of_turn(
             }
         }
         Abilities::HYDRATION => {
-            if active_pkmn.status != PokemonStatus::None && (state.weather.weather_type == Weather::Rain || state.weather.weather_type == Weather::HeavyRain) {
+            if active_pkmn.status != PokemonStatus::None
+                && (state.weather.weather_type == Weather::Rain
+                    || state.weather.weather_type == Weather::HeavyRain)
+            {
                 let attacking_side = state.get_side(side_ref);
                 let active_index = attacking_side.active_index;
                 let active_pkmn = attacking_side.get_active();
@@ -521,7 +524,7 @@ pub fn ability_end_of_turn(
                     instructions,
                     active_index,
                     *side_ref,
-                    attacking_side
+                    attacking_side,
                 );
             }
         }

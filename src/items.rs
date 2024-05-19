@@ -546,8 +546,7 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::GRISEOUSORB => {
-            if attacking_side.get_active_immutable().id == "giratina"
-            {
+            if attacking_side.get_active_immutable().id == "giratina" {
                 if attacking_choice.move_type == PokemonType::Dragon
                     || attacking_choice.move_type == PokemonType::Ghost
                 {
@@ -556,8 +555,7 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::LUSTROUSORB => {
-            if attacking_side.get_active_immutable().id == "palkia"
-            {
+            if attacking_side.get_active_immutable().id == "palkia" {
                 if attacking_choice.move_type == PokemonType::Dragon
                     || attacking_choice.move_type == PokemonType::Ghost
                 {
@@ -566,8 +564,7 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::ADAMANTORB => {
-            if attacking_side.get_active_immutable().id == "dialga"
-            {
+            if attacking_side.get_active_immutable().id == "dialga" {
                 if attacking_choice.move_type == PokemonType::Dragon
                     || attacking_choice.move_type == PokemonType::Steel
                 {
@@ -596,14 +593,12 @@ pub fn item_modify_attack_being_used(
                 });
             }
         }
-        Items::THICKCLUB => {
-            match attacking_side.get_active_immutable().id.as_str() {
-                "cubone" | "marowak" | "marowakalola" => {
-                    attacking_choice.base_power *= 2.0;
-                }
-                _ => {}
+        Items::THICKCLUB => match attacking_side.get_active_immutable().id.as_str() {
+            "cubone" | "marowak" | "marowakalola" => {
+                attacking_choice.base_power *= 2.0;
             }
-        }
+            _ => {}
+        },
         Items::TWISTEDSPOON => {
             if attacking_choice.move_type == PokemonType::Psychic {
                 attacking_choice.base_power *= 1.2;

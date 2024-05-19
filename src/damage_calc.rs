@@ -332,12 +332,14 @@ pub fn calculate_damage(
             if defender.ability == Abilities::UNAWARE {
                 attacking_stat = attacker.special_attack;
             } else {
-                attacking_stat = attacker.calculate_boosted_stat(PokemonBoostableStat::SpecialAttack);
+                attacking_stat =
+                    attacker.calculate_boosted_stat(PokemonBoostableStat::SpecialAttack);
             }
             if attacker.ability == Abilities::UNAWARE {
                 defending_stat = defender.special_defense;
             } else {
-                defending_stat = defender.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
+                defending_stat =
+                    defender.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
             }
         }
         _ => return None,
@@ -357,7 +359,10 @@ pub fn calculate_damage(
     damage = damage.floor() + 2.0;
 
     let mut defender_types = defender.types;
-    if defender.volatile_statuses.contains(&PokemonVolatileStatus::Roost) {
+    if defender
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::Roost)
+    {
         if defender_types.0 == PokemonType::Flying {
             defender_types = (PokemonType::Typeless, defender_types.1);
         }
@@ -367,30 +372,12 @@ pub fn calculate_damage(
     }
 
     let mut damage_modifier = 1.0;
-    damage_modifier *= type_effectiveness_modifier(
-        &choice.move_type,
-        &defender_types,
-    );
+    damage_modifier *= type_effectiveness_modifier(&choice.move_type, &defender_types);
     damage_modifier *= weather_modifier(&choice.move_type, &state.weather.weather_type);
-    damage_modifier *= stab_modifier(
-        &choice.move_type,
-        &attacker.types,
-    );
-    damage_modifier *= burn_modifier(
-        &choice.category,
-        &attacker.status,
-    );
-    damage_modifier *= volatile_status_modifier(
-        &choice,
-        attacker,
-        defender,
-    );
-    damage_modifier *= terrain_modifier(
-        &state.terrain.terrain_type,
-        attacker,
-        defender,
-        &choice,
-    );
+    damage_modifier *= stab_modifier(&choice.move_type, &attacker.types);
+    damage_modifier *= burn_modifier(&choice.category, &attacker.status);
+    damage_modifier *= volatile_status_modifier(&choice, attacker, defender);
+    damage_modifier *= terrain_modifier(&state.terrain.terrain_type, attacker, defender, &choice);
 
     if attacker.ability != Abilities::INFILTRATOR {
         if defending_side.side_conditions.aurora_veil > 0 {
