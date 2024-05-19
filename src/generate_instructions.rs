@@ -501,7 +501,7 @@ fn get_instructions_from_secondaries(
         if secondary.target == MoveTarget::Opponent && hit_sub {
             continue;
         }
-        let secondary_percent_hit = secondary.chance / 100.0;
+        let secondary_percent_hit = (secondary.chance / 100.0).min(1.0);
 
         let mut i = 0;
         while i < return_instruction_list.len() {
@@ -647,7 +647,7 @@ fn check_move_hit_or_miss(
     let attacking_side = state.get_side_immutable(attacking_side_ref);
     let attacking_pokemon = attacking_side.get_active_immutable();
 
-    let mut percent_hit = choice.accuracy / 100.0;
+    let mut percent_hit = (choice.accuracy / 100.0).min(1.0);
     if Some(0) == damage {
         percent_hit = 0.0;
     }
@@ -765,7 +765,7 @@ fn generate_instructions_from_damage(
     let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
     let attacking_pokemon = attacking_side.get_active();
     let defending_pokemon = defending_side.get_active();
-    let percent_hit = choice.accuracy / 100.0;
+    let percent_hit = (choice.accuracy / 100.0).min(1.0);
 
     if percent_hit > 0.0 {
         let mut damage_dealt;
