@@ -826,6 +826,7 @@ impl IndexMut<PokemonIndex> for SidePokemon {
 #[derive(Debug, Clone)]
 pub struct Side {
     pub active_index: PokemonIndex,
+    pub baton_passing: bool,
     pub pokemon: SidePokemon,
     pub side_conditions: SideConditions,
     pub wish: (i8, i16),
@@ -968,6 +969,7 @@ impl Default for Side {
     fn default() -> Side {
         Side {
             active_index: PokemonIndex::P0,
+            baton_passing: false,
             pokemon: SidePokemon {
                 p0: Pokemon {
                     ..Pokemon::default()
@@ -1576,6 +1578,14 @@ impl State {
             Instruction::SetSideTwoMoveSecondSwitchOutMove(instruction) => {
                 self.side_two.switch_out_move_second_saved_move = instruction.new_choice;
             }
+            Instruction::ToggleBatonPassing(instruction) => match instruction.side_ref {
+                SideReference::SideOne => {
+                    self.side_one.baton_passing = !self.side_one.baton_passing
+                }
+                SideReference::SideTwo => {
+                    self.side_two.baton_passing = !self.side_two.baton_passing
+                }
+            },
         }
     }
 
@@ -1668,6 +1678,14 @@ impl State {
             Instruction::SetSideTwoMoveSecondSwitchOutMove(instruction) => {
                 self.side_two.switch_out_move_second_saved_move = instruction.previous_choice;
             }
+            Instruction::ToggleBatonPassing(instruction) => match instruction.side_ref {
+                SideReference::SideOne => {
+                    self.side_one.baton_passing = !self.side_one.baton_passing
+                }
+                SideReference::SideTwo => {
+                    self.side_two.baton_passing = !self.side_two.baton_passing
+                }
+            },
         }
     }
 }

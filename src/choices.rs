@@ -1,5 +1,5 @@
-use crate::state::PokemonType;
 use crate::state::PokemonVolatileStatus;
+use crate::state::{Pokemon, PokemonType};
 use crate::state::{PokemonBoostableStat, PokemonSideCondition};
 use crate::state::{PokemonIndex, PokemonStatus};
 use lazy_static::lazy_static;
@@ -18700,6 +18700,19 @@ pub struct StatBoosts {
     pub accuracy: i8,
 }
 
+impl Default for StatBoosts {
+    fn default() -> StatBoosts {
+        return StatBoosts {
+            attack: 0,
+            defense: 0,
+            special_attack: 0,
+            special_defense: 0,
+            speed: 0,
+            accuracy: 0,
+        };
+    }
+}
+
 impl StatBoosts {
     pub fn get_as_pokemon_boostable(&self) -> [(PokemonBoostableStat, i8); 6] {
         return [
@@ -18710,6 +18723,14 @@ impl StatBoosts {
             (PokemonBoostableStat::Speed, self.speed),
             (PokemonBoostableStat::Accuracy, self.accuracy),
         ];
+    }
+    pub fn update_from_pkmn_boosts(&mut self, pkmn: &Pokemon) {
+        self.attack = pkmn.attack_boost;
+        self.defense = pkmn.defense_boost;
+        self.special_attack = pkmn.special_attack_boost;
+        self.special_defense = pkmn.special_defense_boost;
+        self.speed = pkmn.speed_boost;
+        self.accuracy = pkmn.accuracy_boost;
     }
 }
 

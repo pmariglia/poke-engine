@@ -65,9 +65,15 @@ pub enum Instruction {
     SetSubstituteHealth(SetSubstituteHealthInstruction),
     SetSideOneMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
+    ToggleBatonPassing(ToggleBatonPassingInstruction),
     ToggleTrickRoom,
     ToggleSideOneForceSwitch,
     ToggleSideTwoForceSwitch,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ToggleBatonPassingInstruction {
+    pub side_ref: SideReference,
 }
 
 #[derive(Debug, PartialEq, Clone)]

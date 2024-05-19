@@ -15,7 +15,8 @@ use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, DecrementRestTurnsInstruction, DecrementWishInstruction,
     HealInstruction, RemoveVolatileStatusInstruction, SetRestTurnsInstruction,
-    SetSecondMoveSwitchOutMoveInstruction,
+    SetSecondMoveSwitchOutMoveInstruction, SetSubstituteHealthInstruction,
+    ToggleBatonPassingInstruction,
 };
 use crate::items::{
     item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
@@ -61,6 +62,50 @@ fn generate_instructions_from_switch(
         }
     }
 
+    let mut passed_boosts = StatBoosts::default();
+    let mut pass_substitute = false;
+    let mut pass_substitute_hp = 0;
+    let mut pass_leechseed = false;
+    if side.baton_passing {
+        side.baton_passing = false;
+        match switching_side_ref {
+            SideReference::SideOne => {
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::ToggleBatonPassing(
+                        ToggleBatonPassingInstruction {
+                            side_ref: SideReference::SideOne,
+                        },
+                    ));
+            }
+            SideReference::SideTwo => {
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::ToggleBatonPassing(
+                        ToggleBatonPassingInstruction {
+                            side_ref: SideReference::SideTwo,
+                        },
+                    ));
+            }
+        }
+
+        let active_pkmn = side.get_active_immutable();
+        passed_boosts.update_from_pkmn_boosts(&active_pkmn);
+        if active_pkmn
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::Substitute)
+        {
+            pass_substitute = true;
+            pass_substitute_hp = active_pkmn.substitute_health;
+        }
+        if active_pkmn
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::LeechSeed)
+        {
+            pass_leechseed = true;
+        }
+    }
+
     state.re_enable_disabled_moves(
         &switching_side_ref,
         &mut incoming_instructions.instruction_list,
@@ -88,9 +133,71 @@ fn generate_instructions_from_switch(
 
     let side = state.get_side(&switching_side_ref);
     side.active_index = new_pokemon_index;
+    let active_pkmn = side.get_active();
     incoming_instructions
         .instruction_list
         .push(switch_instruction);
+
+    if pass_substitute {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::ApplyVolatileStatus(
+                ApplyVolatileStatusInstruction {
+                    side_ref: switching_side_ref,
+                    volatile_status: PokemonVolatileStatus::Substitute,
+                },
+            ));
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::SetSubstituteHealth(
+                SetSubstituteHealthInstruction {
+                    side_ref: switching_side_ref,
+                    new_health: pass_substitute_hp,
+                    old_health: active_pkmn.substitute_health,
+                },
+            ));
+        active_pkmn
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::Substitute);
+        active_pkmn.substitute_health = pass_substitute_hp;
+    }
+
+    if pass_leechseed {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::ApplyVolatileStatus(
+                ApplyVolatileStatusInstruction {
+                    side_ref: switching_side_ref,
+                    volatile_status: PokemonVolatileStatus::LeechSeed,
+                },
+            ));
+        active_pkmn
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::LeechSeed);
+    }
+
+    for (stat, boost) in passed_boosts.get_as_pokemon_boostable().iter() {
+        if boost == &0 {
+            continue;
+        }
+        // no need to check if a boost can be applied because these are baton-passed
+        match stat {
+            PokemonBoostableStat::Attack => active_pkmn.attack_boost = *boost,
+            PokemonBoostableStat::Defense => active_pkmn.defense_boost = *boost,
+            PokemonBoostableStat::SpecialAttack => active_pkmn.special_attack_boost = *boost,
+            PokemonBoostableStat::SpecialDefense => active_pkmn.special_defense_boost = *boost,
+            PokemonBoostableStat::Speed => active_pkmn.speed_boost = *boost,
+            PokemonBoostableStat::Accuracy => active_pkmn.accuracy_boost = *boost,
+            PokemonBoostableStat::Evasion => active_pkmn.evasion_boost = *boost,
+        }
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::Boost(BoostInstruction {
+                side_ref: switching_side_ref,
+                stat: *stat,
+                amount: *boost,
+            }));
+    }
 
     if side.get_active_immutable().item != Items::HEAVYDUTYBOOTS {
         if side.side_conditions.stealth_rock == 1 {
@@ -1357,6 +1464,14 @@ pub fn generate_instructions_from_move(
         match attacking_side {
             SideReference::SideOne => {
                 if state.side_one.num_alive_pkmn() > 1 {
+                    if choice.move_id == Choices::BATONPASS {
+                        state.side_one.baton_passing = !state.side_one.baton_passing;
+                        incoming_instructions.instruction_list.push(
+                            Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
+                                side_ref: SideReference::SideOne,
+                            }),
+                        );
+                    }
                     state.side_one.force_switch = !state.side_one.force_switch;
                     incoming_instructions
                         .instruction_list
@@ -1391,6 +1506,14 @@ pub fn generate_instructions_from_move(
             }
             SideReference::SideTwo => {
                 if state.side_two.num_alive_pkmn() > 1 {
+                    if choice.move_id == Choices::BATONPASS {
+                        state.side_two.baton_passing = !state.side_two.baton_passing;
+                        incoming_instructions.instruction_list.push(
+                            Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
+                                side_ref: SideReference::SideTwo,
+                            }),
+                        );
+                    }
                     state.side_two.force_switch = !state.side_two.force_switch;
                     incoming_instructions
                         .instruction_list

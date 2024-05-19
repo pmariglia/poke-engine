@@ -9,7 +9,7 @@ use poke_engine::instruction::{
     DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction,
     RemoveVolatileStatusInstruction, SetRestTurnsInstruction,
     SetSecondMoveSwitchOutMoveInstruction, SetSubstituteHealthInstruction, SetWishInstruction,
-    StateInstructions, SwitchInstruction,
+    StateInstructions, SwitchInstruction, ToggleBatonPassingInstruction,
 };
 use poke_engine::items::Items;
 use poke_engine::state::{
@@ -2149,6 +2149,275 @@ fn test_growth_in_sun() {
                 side_ref: SideReference::SideOne,
                 stat: PokemonBoostableStat::SpecialAttack,
                 amount: 2,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_batonpass_with_boosts() {
+    let mut state = State::default();
+    state.side_one.get_active().attack_boost = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::BATONPASS,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+            Instruction::ToggleSideOneForceSwitch,
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
+                new_choice: Choices::NONE,
+                previous_choice: Choices::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_switching_from_batonpass_with_boosts() {
+    let mut state = State::default();
+    state.side_one.get_active().attack_boost = 5;
+    state.side_one.get_active().speed_boost = 5;
+    state.side_one.force_switch = true;
+    state.side_one.baton_passing = true;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleSideOneForceSwitch,
+            Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: -5,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Speed,
+                amount: -5,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 5,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Speed,
+                amount: 5,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_batonpass_with_leechseed() {
+    let mut state = State::default();
+    state
+        .side_one
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::LeechSeed);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::BATONPASS,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+            Instruction::ToggleSideOneForceSwitch,
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
+                new_choice: Choices::NONE,
+                previous_choice: Choices::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_switching_from_batonpass_with_leechseed() {
+    let mut state = State::default();
+    state
+        .side_one
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::LeechSeed);
+    state.side_one.force_switch = true;
+    state.side_one.baton_passing = true;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleSideOneForceSwitch,
+            Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::LeechSeed,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::LeechSeed,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_non_baton_pass_switching_with_leechseed() {
+    let mut state = State::default();
+    state
+        .side_one
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::LeechSeed);
+    state.side_one.force_switch = true;
+    state.side_one.baton_passing = false;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleSideOneForceSwitch,
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::LeechSeed,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_switching_from_batonpass_with_sub() {
+    let mut state = State::default();
+    state
+        .side_one
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::Substitute);
+    state.side_one.get_active().substitute_health = 25;
+    state.side_one.force_switch = true;
+    state.side_one.baton_passing = true;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleSideOneForceSwitch,
+            Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::Substitute,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::Substitute,
+            }),
+            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                side_ref: SideReference::SideOne,
+                new_health: 25,
+                old_health: 0,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_non_baton_pass_switching_with_sub() {
+    let mut state = State::default();
+    state
+        .side_one
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::LeechSeed);
+    state.side_one.force_switch = true;
+    state.side_one.baton_passing = false;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleSideOneForceSwitch,
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::LeechSeed,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
             }),
         ],
     }];
