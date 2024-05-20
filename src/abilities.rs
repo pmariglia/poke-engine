@@ -672,23 +672,27 @@ pub fn ability_on_switch_in(
             if defending_pkmn.calculate_boosted_stat(PokemonBoostableStat::Defense)
                 < defending_pkmn.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense)
             {
-                instructions
-                    .instruction_list
-                    .push(Instruction::Boost(BoostInstruction {
-                        side_ref: side_ref.clone(),
-                        stat: PokemonBoostableStat::Attack,
-                        amount: 1,
-                    }));
-                active_pkmn.attack_boost += 1;
+                if let Some(boost_instruction) = get_boost_instruction(
+                    active_pkmn,
+                    &PokemonBoostableStat::Attack,
+                    &1,
+                    side_ref,
+                    side_ref,
+                ) {
+                    state.apply_one_instruction(&boost_instruction);
+                    instructions.instruction_list.push(boost_instruction);
+                }
             } else {
-                instructions
-                    .instruction_list
-                    .push(Instruction::Boost(BoostInstruction {
-                        side_ref: side_ref.clone(),
-                        stat: PokemonBoostableStat::SpecialAttack,
-                        amount: 1,
-                    }));
-                active_pkmn.special_attack_boost += 1;
+                if let Some(boost_instruction) = get_boost_instruction(
+                    active_pkmn,
+                    &PokemonBoostableStat::SpecialAttack,
+                    &1,
+                    side_ref,
+                    side_ref,
+                ) {
+                    state.apply_one_instruction(&boost_instruction);
+                    instructions.instruction_list.push(boost_instruction);
+                }
             }
         }
         Abilities::PRIMORDIALSEA => {

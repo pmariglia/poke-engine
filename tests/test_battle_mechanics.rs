@@ -5463,6 +5463,47 @@ fn test_download_for_defense() {
 }
 
 #[test]
+fn test_download_for_defense_when_switching_in_with_baton_boosted_max_attack() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::DOWNLOAD;
+    state.side_one.get_active().attack_boost = 6;
+    state.side_one.baton_passing = true;
+    state.side_two.get_active().defense = 100;
+    state.side_two.get_active().special_defense = 150;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: -6,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_download_for_special_defense() {
     let mut state = State::default();
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::DOWNLOAD;
