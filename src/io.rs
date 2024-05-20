@@ -137,7 +137,10 @@ fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
     }
     if state.side_one.slow_uturn_move {
         s1_options.clear();
-        state.side_one.get_active_immutable().add_available_moves(&mut s1_options);
+        state
+            .side_one
+            .get_active_immutable()
+            .add_available_moves(&mut s1_options, &state.side_one.last_used_move);
     }
 
     if state.side_two.force_trapped {
@@ -149,7 +152,10 @@ fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
     }
     if state.side_two.slow_uturn_move {
         s2_options.clear();
-        state.side_two.get_active_immutable().add_available_moves(&mut s2_options);
+        state
+            .side_two
+            .get_active_immutable()
+            .add_available_moves(&mut s2_options, &state.side_two.last_used_move);
     }
 
     return (s1_options, s2_options);

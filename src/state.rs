@@ -30,6 +30,12 @@ fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
 }
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
+pub enum LastUsedMove {
+    Move(Choices),
+    Switch(PokemonIndex),
+}
+
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum MoveChoice {
     Move(PokemonMoveIndex),
     Switch(PokemonIndex),
@@ -489,8 +495,11 @@ impl Pokemon {
         self.moves[move_index].id = new_move_name;
     }
 
-    pub fn add_available_moves(&self, vec: &mut Vec<MoveChoice>) {
+    pub fn add_available_moves(&self, vec: &mut Vec<MoveChoice>, last_used_move: &LastUsedMove) {
         let mut iter = self.moves.into_iter();
+        let encored = self
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::Encore);
         while let Some(p) = iter.next() {
             if !p.disabled {
                 if (iter.pokemon_move_index == PokemonMoveIndex::M4
@@ -498,6 +507,19 @@ impl Pokemon {
                     && p.id == Choices::NONE
                 {
                     break;
+                }
+
+                if encored {
+                    match last_used_move {
+                        LastUsedMove::Move(last_used_move) => {
+                            if last_used_move != &p.id {
+                                continue;
+                            }
+                        }
+                        LastUsedMove::Switch(_) => {
+                            panic!("Got LastUsedMove::Switch when encored?!")
+                        }
+                    }
                 }
                 vec.push(MoveChoice::Move(iter.pokemon_move_index));
             }
@@ -833,6 +855,7 @@ pub struct Side {
     pub force_switch: bool,
     pub force_trapped: bool,
     pub slow_uturn_move: bool,
+    pub last_used_move: LastUsedMove,
     pub switch_out_move_second_saved_move: Choices,
 }
 
@@ -998,6 +1021,7 @@ impl Default for Side {
             force_switch: false,
             slow_uturn_move: false,
             force_trapped: false,
+            last_used_move: LastUsedMove::Move(Choices::NONE),
             switch_out_move_second_saved_move: Choices::NONE,
         }
     }
@@ -1098,7 +1122,7 @@ impl State {
 
         self.side_one
             .get_active_immutable()
-            .add_available_moves(&mut side_one_options);
+            .add_available_moves(&mut side_one_options, &self.side_one.last_used_move);
 
         if !self.side_one.trapped(side_two_active) {
             self.side_one.add_switches(&mut side_one_options);
@@ -1106,7 +1130,7 @@ impl State {
 
         self.side_two
             .get_active_immutable()
-            .add_available_moves(&mut side_two_options);
+            .add_available_moves(&mut side_two_options, &self.side_two.last_used_move);
 
         if !self.side_two.trapped(side_one_active) {
             self.side_two.add_switches(&mut side_two_options);
@@ -1491,6 +1515,13 @@ impl State {
         self.trick_room = !self.trick_room;
     }
 
+    fn set_last_used_move(&mut self, side_reference: &SideReference, last_used_move: LastUsedMove) {
+        match side_reference {
+            SideReference::SideOne => self.side_one.last_used_move = last_used_move,
+            SideReference::SideTwo => self.side_two.last_used_move = last_used_move,
+        }
+    }
+
     pub fn apply_instructions(&mut self, instructions: &Vec<Instruction>) {
         for i in instructions {
             self.apply_one_instruction(i)
@@ -1588,6 +1619,9 @@ impl State {
                     self.side_two.baton_passing = !self.side_two.baton_passing
                 }
             },
+            Instruction::SetLastUsedMove(instruction) => {
+                self.set_last_used_move(&instruction.side_ref, instruction.last_used_move)
+            }
         }
     }
 
@@ -1688,6 +1722,9 @@ impl State {
                     self.side_two.baton_passing = !self.side_two.baton_passing
                 }
             },
+            Instruction::SetLastUsedMove(instruction) => {
+                self.set_last_used_move(&instruction.side_ref, instruction.previous_last_used_move)
+            }
         }
     }
 }

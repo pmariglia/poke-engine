@@ -4750,13 +4750,11 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        // Made this move do nothing since the bot might try to use it
-        // Undo this when first-turn-moves can be identified
         moves.insert(
             Choices::FAKEOUT,
             Choice {
                 move_id: Choices::FAKEOUT,
-                base_power: 0.0,
+                base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 3,
                 move_type: PokemonType::Normal,
@@ -4767,7 +4765,7 @@ lazy_static! {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 0.0,
+                    chance: 100.0,
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),

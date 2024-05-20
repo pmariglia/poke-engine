@@ -2,9 +2,21 @@ use poke_engine::abilities::Abilities;
 use poke_engine::choices::{Choices, MOVES};
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::Instruction::{DamageSubstitute, RemoveVolatileStatus};
-use poke_engine::instruction::{ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, DecrementRestTurnsInstruction, DecrementWishInstruction, DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction, SetLastUsedMoveInstruction, SetRestTurnsInstruction, SetSecondMoveSwitchOutMoveInstruction, SetSubstituteHealthInstruction, SetWishInstruction, StateInstructions, SwitchInstruction, ToggleBatonPassingInstruction};
+use poke_engine::instruction::{
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
+    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather,
+    DamageInstruction, DecrementRestTurnsInstruction, DecrementWishInstruction,
+    DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction,
+    RemoveVolatileStatusInstruction, SetLastUsedMoveInstruction, SetRestTurnsInstruction,
+    SetSecondMoveSwitchOutMoveInstruction, SetSubstituteHealthInstruction, SetWishInstruction,
+    StateInstructions, SwitchInstruction, ToggleBatonPassingInstruction,
+};
 use poke_engine::items::Items;
-use poke_engine::state::{Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, StateWeather, Terrain, Weather};
+use poke_engine::state::{
+    Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
+    PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, StateWeather, Terrain,
+    Weather,
+};
 
 fn set_moves_on_pkmn_and_call_generate_instructions(
     state: &mut State,

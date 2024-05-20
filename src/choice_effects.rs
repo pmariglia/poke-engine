@@ -9,8 +9,8 @@ use crate::instruction::{
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::state::{
-    pokemon_index_iter, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonStatus,
-    PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather,
+    pokemon_index_iter, LastUsedMove, PokemonBoostableStat, PokemonSideCondition,
+    PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather,
 };
 use std::cmp;
 
@@ -78,6 +78,10 @@ pub fn modify_choice(
                 });
             }
         }
+        Choices::FAKEOUT => match attacking_side.last_used_move {
+            LastUsedMove::Move(_) => attacker_choice.remove_all_effects(),
+            _ => {}
+        },
         Choices::GROWTH => {
             if state.weather.weather_type == Weather::Sun {
                 attacker_choice.boost = Some(Boost {

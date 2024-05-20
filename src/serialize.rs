@@ -2,9 +2,9 @@ use crate::abilities::Abilities;
 use crate::choices::{Choices, SideCondition, MOVES};
 use crate::items::Items;
 use crate::state::{
-    Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoveIndex, PokemonMoves, PokemonNatures,
-    PokemonStatus, PokemonType, PokemonVolatileStatus, Side, SideConditions, SidePokemon, State,
-    StateTerrain, StateWeather, Terrain, Weather,
+    LastUsedMove, Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoveIndex, PokemonMoves,
+    PokemonNatures, PokemonStatus, PokemonType, PokemonVolatileStatus, Side, SideConditions,
+    SidePokemon, State, StateTerrain, StateWeather, Terrain, Weather,
 };
 use std::collections::HashSet;
 use std::fmt;
@@ -1586,6 +1586,23 @@ impl Pokemon {
     }
 }
 
+impl LastUsedMove {
+    fn serialize(&self) -> String {
+        return match self {
+            LastUsedMove::Move(move_name) => format!("move:{}", move_name),
+            LastUsedMove::Switch(pkmn_index) => format!("switch:{}", pkmn_index.serialize()),
+        };
+    }
+    fn deserialize(serialized: &str) -> LastUsedMove {
+        let split: Vec<&str> = serialized.split(":").collect();
+        match split[0] {
+            "move" => return LastUsedMove::Move(Choices::from_str(split[1]).unwrap()),
+            "switch" => return LastUsedMove::Switch(PokemonIndex::deserialize(split[1])),
+            _ => panic!("Invalid LastUsedMove: {}", serialized),
+        }
+    }
+}
+
 impl PokemonIndex {
     pub fn serialize(&self) -> String {
         match self {
@@ -1665,7 +1682,7 @@ impl SideConditions {
 impl Side {
     pub fn serialize(&self) -> String {
         return format!(
-            "{}={}={}={}={}={}={}={}={}={}={}={}={}={}={}",
+            "{}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}",
             self.pokemon.p0.serialize(),
             self.pokemon.p1.serialize(),
             self.pokemon.p2.serialize(),
@@ -1680,6 +1697,7 @@ impl Side {
             self.switch_out_move_second_saved_move.to_string(),
             self.baton_passing,
             self.force_trapped,
+            self.last_used_move.serialize(),
             self.slow_uturn_move,
         );
     }
@@ -1704,7 +1722,8 @@ impl Side {
             switch_out_move_second_saved_move: Choices::from_str(split[11]).unwrap(),
             baton_passing: split[12].parse::<bool>().unwrap(),
             force_trapped: split[13].parse::<bool>().unwrap(),
-            slow_uturn_move: split[14].parse::<bool>().unwrap(),
+            last_used_move: LastUsedMove::deserialize(split[14]),
+            slow_uturn_move: split[15].parse::<bool>().unwrap(),
         };
     }
 }

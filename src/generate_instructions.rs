@@ -9,13 +9,13 @@ use crate::choice_effects::{
 };
 use crate::choices::{
     Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, SideCondition, StatBoosts,
-    Status, VolatileStatus,
+    Status, VolatileStatus, MOVES,
 };
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, DecrementRestTurnsInstruction, DecrementWishInstruction,
-    HealInstruction, RemoveVolatileStatusInstruction, SetRestTurnsInstruction,
-    SetSecondMoveSwitchOutMoveInstruction, SetSubstituteHealthInstruction,
+    HealInstruction, RemoveVolatileStatusInstruction, SetLastUsedMoveInstruction,
+    SetRestTurnsInstruction, SetSecondMoveSwitchOutMoveInstruction, SetSubstituteHealthInstruction,
     ToggleBatonPassingInstruction,
 };
 use crate::items::{
@@ -23,8 +23,8 @@ use crate::items::{
     item_on_switch_in, Items,
 };
 use crate::state::{
-    MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
-    PokemonType, Side, Terrain,
+    LastUsedMove, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
+    PokemonSideCondition, PokemonType, Side, Terrain,
 };
 use crate::{
     choices::{Choice, MoveCategory},
@@ -36,6 +36,53 @@ use crate::{
     state::{Pokemon, PokemonStatus, PokemonVolatileStatus, SideReference, State, Weather},
 };
 use std::cmp;
+
+fn set_last_used_move_as_switch(
+    side: &mut Side,
+    new_pokemon_index: PokemonIndex,
+    switching_side_ref: SideReference,
+    incoming_instructions: &mut StateInstructions,
+) {
+    incoming_instructions
+        .instruction_list
+        .push(Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
+            side_ref: switching_side_ref,
+            last_used_move: LastUsedMove::Switch(new_pokemon_index),
+            previous_last_used_move: side.last_used_move,
+        }));
+    side.last_used_move = LastUsedMove::Switch(new_pokemon_index);
+}
+
+fn set_last_used_move_as_move(
+    side: &mut Side,
+    used_move: Choices,
+    switching_side_ref: SideReference,
+    incoming_instructions: &mut StateInstructions,
+) {
+    if side
+        .get_active_immutable()
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::Flinch)
+    {
+        return;
+    }
+    match side.last_used_move {
+        LastUsedMove::Move(last_used_move) => {
+            if last_used_move == used_move {
+                return;
+            }
+        }
+        LastUsedMove::Switch(_) => {}
+    }
+    incoming_instructions
+        .instruction_list
+        .push(Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
+            side_ref: switching_side_ref,
+            last_used_move: LastUsedMove::Move(used_move),
+            previous_last_used_move: side.last_used_move,
+        }));
+    side.last_used_move = LastUsedMove::Move(used_move);
+}
 
 fn generate_instructions_from_switch(
     state: &mut State,
@@ -198,6 +245,14 @@ fn generate_instructions_from_switch(
                 amount: *boost,
             }));
     }
+
+    #[cfg(feature = "last_used_move")]
+    set_last_used_move_as_switch(
+        side,
+        new_pokemon_index,
+        switching_side_ref,
+        incoming_instructions,
+    );
 
     if side.get_active_immutable().item != Items::HEAVYDUTYBOOTS {
         if side.side_conditions.stealth_rock == 1 {
@@ -1029,6 +1084,14 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
             .has_type(&PokemonType::Grass)
     {
         return true;
+    } else if choice.move_id == Choices::ENCORE {
+        return match state
+            .get_side_immutable(&attacking_side_ref.get_other_side())
+            .last_used_move
+        {
+            LastUsedMove::Move(_) => false,
+            LastUsedMove::Switch(_) => true,
+        };
     }
 
     return false;
@@ -1272,6 +1335,22 @@ pub fn generate_instructions_from_move(
 
     state.apply_instructions(&incoming_instructions.instruction_list);
 
+    let side = state.get_side_immutable(&attacking_side);
+    if side
+        .get_active_immutable()
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::Encore)
+    {
+        match side.last_used_move {
+            LastUsedMove::Move(last_used_move) => {
+                if choice.move_id != last_used_move {
+                    *choice = MOVES.get(&last_used_move).unwrap().clone()
+                }
+            }
+            LastUsedMove::Switch(_) => panic!("Encore should not be active after a switch"),
+        }
+    }
+
     if !choice.first_move
         && state
             .get_side(&attacking_side.get_other_side())
@@ -1317,6 +1396,14 @@ pub fn generate_instructions_from_move(
         state.reverse_instructions(&incoming_instructions.instruction_list);
         return;
     }
+
+    #[cfg(feature = "last_used_move")]
+    set_last_used_move_as_move(
+        state.get_side(&attacking_side),
+        choice.move_id,
+        attacking_side,
+        &mut incoming_instructions,
+    );
 
     if !choice.sleep_talk_move {
         generate_instructions_from_existing_status_conditions(

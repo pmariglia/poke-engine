@@ -1,9 +1,9 @@
 use crate::choices::Choices;
 use crate::items::Items;
-use crate::state::PokemonVolatileStatus;
 use crate::state::SideReference;
 use crate::state::Terrain;
 use crate::state::Weather;
+use crate::state::{LastUsedMove, PokemonVolatileStatus};
 use crate::state::{PokemonBoostableStat, PokemonType};
 use crate::state::{PokemonIndex, PokemonSideCondition};
 use crate::state::{PokemonMoveIndex, PokemonStatus};
@@ -66,9 +66,17 @@ pub enum Instruction {
     SetSideOneMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     ToggleBatonPassing(ToggleBatonPassingInstruction),
+    SetLastUsedMove(SetLastUsedMoveInstruction),
     ToggleTrickRoom,
     ToggleSideOneForceSwitch,
     ToggleSideTwoForceSwitch,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct SetLastUsedMoveInstruction {
+    pub side_ref: SideReference,
+    pub last_used_move: LastUsedMove,
+    pub previous_last_used_move: LastUsedMove,
 }
 
 #[derive(Debug, PartialEq, Clone)]
