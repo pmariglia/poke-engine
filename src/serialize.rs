@@ -1665,7 +1665,7 @@ impl SideConditions {
 impl Side {
     pub fn serialize(&self) -> String {
         return format!(
-            "{}={}={}={}={}={}={}={}={}={}={}={}={}={}",
+            "{}={}={}={}={}={}={}={}={}={}={}={}={}={}={}",
             self.pokemon.p0.serialize(),
             self.pokemon.p1.serialize(),
             self.pokemon.p2.serialize(),
@@ -1680,6 +1680,7 @@ impl Side {
             self.switch_out_move_second_saved_move.to_string(),
             self.baton_passing,
             self.force_trapped,
+            self.slow_uturn_move,
         );
     }
     pub fn deserialize(serialized: &str) -> Side {
@@ -1703,6 +1704,7 @@ impl Side {
             switch_out_move_second_saved_move: Choices::from_str(split[11]).unwrap(),
             baton_passing: split[12].parse::<bool>().unwrap(),
             force_trapped: split[13].parse::<bool>().unwrap(),
+            slow_uturn_move: split[14].parse::<bool>().unwrap(),
         };
     }
 }

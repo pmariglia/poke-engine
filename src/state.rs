@@ -832,6 +832,7 @@ pub struct Side {
     pub wish: (i8, i16),
     pub force_switch: bool,
     pub force_trapped: bool,
+    pub slow_uturn_move: bool,
     pub switch_out_move_second_saved_move: Choices,
 }
 
@@ -995,6 +996,7 @@ impl Default for Side {
             },
             wish: (0, 0),
             force_switch: false,
+            slow_uturn_move: false,
             force_trapped: false,
             switch_out_move_second_saved_move: Choices::NONE,
         }

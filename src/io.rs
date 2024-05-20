@@ -135,12 +135,21 @@ fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
             MoveChoice::None => true,
         });
     }
+    if state.side_one.slow_uturn_move {
+        s1_options.clear();
+        state.side_one.get_active_immutable().add_available_moves(&mut s1_options);
+    }
+
     if state.side_two.force_trapped {
         s2_options.retain(|x| match x {
             MoveChoice::Move(_) => true,
             MoveChoice::Switch(_) => false,
             MoveChoice::None => true,
         });
+    }
+    if state.side_two.slow_uturn_move {
+        s2_options.clear();
+        state.side_two.get_active_immutable().add_available_moves(&mut s2_options);
     }
 
     return (s1_options, s2_options);
