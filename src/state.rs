@@ -517,7 +517,9 @@ impl Pokemon {
                             }
                         }
                         LastUsedMove::Switch(_) => {
-                            panic!("Got LastUsedMove::Switch when encored?!")
+                            // there are some situations where you switched out and got encored into
+                            // a move from a different pokemon, because you also have that move
+                            // just assume nothing is locked in this case
                         }
                     }
                 }
