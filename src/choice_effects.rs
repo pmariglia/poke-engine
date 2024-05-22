@@ -9,8 +9,8 @@ use crate::instruction::{
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::state::{
-    pokemon_index_iter, LastUsedMove, PokemonBoostableStat, PokemonSideCondition,
-    PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather,
+    pokemon_index_iter, LastUsedMove, PokemonBoostableStat, PokemonSideCondition, PokemonStatus,
+    PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather,
 };
 use std::cmp;
 
