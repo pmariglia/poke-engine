@@ -1138,6 +1138,13 @@ impl State {
             self.side_two.add_switches(&mut side_two_options);
         }
 
+        if side_one_options.len() == 0 {
+            side_one_options.push(MoveChoice::None);
+        }
+        if side_two_options.len() == 0 {
+            side_two_options.push(MoveChoice::None);
+        }
+
         return (side_one_options, side_two_options);
     }
 
