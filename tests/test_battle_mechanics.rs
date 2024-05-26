@@ -1,5 +1,5 @@
 use poke_engine::abilities::Abilities;
-use poke_engine::choices::{Choices, MOVES};
+use poke_engine::choices::{Boost, Choices, MOVES};
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::Instruction::{DamageSubstitute, RemoveVolatileStatus};
 use poke_engine::instruction::{
@@ -1792,6 +1792,93 @@ fn test_roughskin_damage_taken() {
             Instruction::Heal(HealInstruction {
                 side_ref: SideReference::SideOne,
                 heal_amount: -12,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_chopleberry_damage_reduction() {
+    let mut state = State::default();
+    state.side_two.get_active().item = Items::CHOPLEBERRY;
+    state.side_two.get_active().types = (PokemonType::Normal, PokemonType::Typeless);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::POWERUPPUNCH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideTwo,
+                current_item: Items::CHOPLEBERRY,
+                new_item: Items::NONE,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 33,  // 64 damage normally
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_chopleberry_damage_reduction_does_not_happen_on_water_move() {
+    let mut state = State::default();
+    state.side_two.get_active().item = Items::CHOPLEBERRY;
+    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Normal);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::WATERGUN,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 64,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_chopleberry_damage_reduction_does_not_happen_if_not_supereffective() {
+    let mut state = State::default();
+    state.side_two.get_active().item = Items::CHOPLEBERRY;
+    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Typeless);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::POWERUPPUNCH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 32,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 1,
             }),
         ],
     }];

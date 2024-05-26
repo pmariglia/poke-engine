@@ -20,14 +20,20 @@ pub enum Items {
     ADAMANTORB,
     AIRBALLOON,
     ASSAULTVEST,
+    BABIRIBERRY,
     BLACKBELT,
     BLACKSLUDGE,
     BLACKGLASSES,
     CELLBATTERY,
     CHARCOAL,
+    CHARTIBERRY,
+    CHILANBERRY,
     CHOICEBAND,
     CHOICESPECS,
     CHOICESCARF,
+    CHOPLEBERRY,
+    COBABERRY,
+    COLBURBERRY,
     DRAGONFANG,
     DREADPLATE,
     ELECTRICSEED,
@@ -36,6 +42,9 @@ pub enum Items {
     FAIRYFEATHER,
     FLAMEORB,
     GRASSYSEED,
+    HABANBERRY,
+    KASIBBERRY,
+    KEBIABERRY,
     LEFTOVERS,
     LIFEORB,
     LUSTROUSORB,
@@ -44,23 +53,31 @@ pub enum Items {
     MUSCLEBAND,
     MYSTICWATER,
     NEVERMELTICE,
+    OCCABERRY,
     ODDINCENSE,
+    PASSHOBERRY,
+    PAYAPABERRY,
     POISONBARB,
     PSYCHICSEED,
     PUNCHINGGLOVE,
+    RINDOBERRY,
+    ROSELIBERRY,
     ROCKYHELMET,
     SEAINCENSE,
     SHARPBEAK,
     SHELLBELL,
+    SHUCABERRY,
     SILKSCARF,
     SILVERPOWDER,
     SOFTSAND,
     SOULDEW,
     GRISEOUSORB,
+    TANGABERRY,
     THROATSPRAY,
     THICKCLUB,
     TOXICORB,
     TWISTEDSPOON,
+    WACANBERRY,
     WAVEINCENSE,
     WEAKNESSPOLICY,
     WISEGLASSES,
@@ -69,6 +86,7 @@ pub enum Items {
     CLEARAMULET,
     PROTECTIVEPADS,
     SHEDSHELL,
+    YACHEBERRY,
 }
 
 pub fn get_choice_move_disable_instructions(
@@ -89,13 +107,189 @@ pub fn get_choice_move_disable_instructions(
     return moves_to_disable;
 }
 
+fn damage_reduction_berry(
+    defending_pkmn: &mut Pokemon,
+    attacking_side_ref: &SideReference,
+    choice: &mut Choice,
+    berry: Items,
+    pkmn_type: &PokemonType,
+    instructions: &mut StateInstructions,
+) {
+    if &choice.move_type == pkmn_type && type_effectiveness_modifier(pkmn_type, &defending_pkmn.types) > 1.0 {
+        instructions.instruction_list.push(
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: attacking_side_ref.get_other_side(),
+                current_item: berry,
+                new_item: Items::NONE,
+            }),
+        );
+        defending_pkmn.item = Items::NONE;
+        choice.base_power /= 2.0;
+    }
+}
+
 pub fn item_before_move(
     state: &mut State,
-    choice: &Choice,
+    choice: &mut Choice,
     side_ref: &SideReference,
     instructions: &mut StateInstructions,
 ) {
-    let active_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
+    let (attacking_side, defending_side) = state.get_both_sides(side_ref);
+    let active_pkmn = attacking_side.get_active();
+    let defending_pkmn = defending_side.get_active();
+    match defending_pkmn.item {
+        Items::CHOPLEBERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::CHOPLEBERRY,
+            &PokemonType::Fighting,
+            instructions,
+        ),
+        Items::BABIRIBERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::BABIRIBERRY,
+            &PokemonType::Steel,
+            instructions,
+        ),
+        Items::CHARTIBERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::CHARTIBERRY,
+            &PokemonType::Rock,
+            instructions,
+        ),
+        Items::CHILANBERRY => {
+            // no type effectiveness check for chilan
+            if &choice.move_type == &PokemonType::Normal {
+                instructions.instruction_list.push(
+                    Instruction::ChangeItem(ChangeItemInstruction {
+                        side_ref: side_ref.get_other_side(),
+                        current_item: Items::CHILANBERRY,
+                        new_item: Items::NONE,
+                    }),
+                );
+                defending_pkmn.item = Items::NONE;
+                choice.base_power /= 2.0;
+            }
+        }
+        Items::COBABERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::COBABERRY,
+            &PokemonType::Flying,
+            instructions,
+        ),
+        Items::COLBURBERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::COLBURBERRY,
+            &PokemonType::Dark,
+            instructions,
+        ),
+        Items::HABANBERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::HABANBERRY,
+            &PokemonType::Dragon,
+            instructions,
+        ),
+        Items::KASIBBERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::KASIBBERRY,
+            &PokemonType::Ghost,
+            instructions,
+        ),
+        Items::KEBIABERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::KEBIABERRY,
+            &PokemonType::Poison,
+            instructions,
+        ),
+        Items::OCCABERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::OCCABERRY,
+            &PokemonType::Fire,
+            instructions,
+        ),
+        Items::PASSHOBERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::PASSHOBERRY,
+            &PokemonType::Water,
+            instructions,
+        ),
+        Items::PAYAPABERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::PAYAPABERRY,
+            &PokemonType::Psychic,
+            instructions,
+        ),
+        Items::RINDOBERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::RINDOBERRY,
+            &PokemonType::Grass,
+            instructions,
+        ),
+        Items::ROSELIBERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::ROSELIBERRY,
+            &PokemonType::Fairy,
+            instructions,
+        ),
+        Items::SHUCABERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::SHUCABERRY,
+            &PokemonType::Ground,
+            instructions,
+        ),
+        Items::TANGABERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::TANGABERRY,
+            &PokemonType::Bug,
+            instructions,
+        ),
+        Items::WACANBERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::WACANBERRY,
+            &PokemonType::Electric,
+            instructions,
+        ),
+        Items::YACHEBERRY => damage_reduction_berry(
+            defending_pkmn,
+            side_ref,
+            choice,
+            Items::YACHEBERRY,
+            &PokemonType::Ice,
+            instructions,
+        ),
+        _ => {}
+    }
     match active_pkmn.item {
         Items::CHOICESPECS | Items::CHOICEBAND | Items::CHOICESCARF => {
             let ins = get_choice_move_disable_instructions(active_pkmn, side_ref, &choice.move_id);

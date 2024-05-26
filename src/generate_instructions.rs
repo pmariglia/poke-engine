@@ -1099,7 +1099,7 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
 
 fn before_move(
     state: &mut State,
-    choice: &Choice,
+    choice: &mut Choice,
     attacking_side: &SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
@@ -1391,7 +1391,7 @@ pub fn generate_instructions_from_move(
     }
 
     update_choice(state, choice, defender_choice, &attacking_side);
-    before_move(state, &choice, &attacking_side, &mut incoming_instructions);
+    before_move(state, choice, &attacking_side, &mut incoming_instructions);
     if incoming_instructions.percentage == 0.0 {
         state.reverse_instructions(&incoming_instructions.instruction_list);
         return;
