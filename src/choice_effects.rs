@@ -424,17 +424,28 @@ pub fn choice_after_damage_hit(
 
 pub fn choice_before_move(
     state: &mut State,
-    choice: &Choice,
+    choice: &mut Choice,
     attacking_side_ref: &SideReference,
     instructions: &mut StateInstructions,
 ) {
     let (attacking_side, _) = state.get_both_sides(attacking_side_ref);
+    let attacker = attacking_side.get_active();
+    if choice.flags.charge && attacker.item == Items::POWERHERB && choice.move_id != Choices::SKYDROP {
+        let instruction = Instruction::ChangeItem(ChangeItemInstruction {
+            side_ref: *attacking_side_ref,
+            current_item: Items::POWERHERB,
+            new_item: Items::NONE,
+        });
+        attacker.item = Items::NONE;
+        choice.flags.charge = false;
+        instructions.instruction_list.push(instruction);
+    }
     if let Some(choice_volatile_status) = &choice.volatile_status {
         if choice_volatile_status.volatile_status == PokemonVolatileStatus::LockedMove
             && choice_volatile_status.target == MoveTarget::User
         {
             let ins = get_choice_move_disable_instructions(
-                attacking_side.get_active_immutable(),
+                attacker,
                 attacking_side_ref,
                 &choice.move_id,
             );

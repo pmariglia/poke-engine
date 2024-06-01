@@ -1390,8 +1390,8 @@ pub fn generate_instructions_from_move(
         }
     }
 
-    update_choice(state, choice, defender_choice, &attacking_side);
     before_move(state, choice, &attacking_side, &mut incoming_instructions);
+    update_choice(state, choice, defender_choice, &attacking_side);
     if incoming_instructions.percentage == 0.0 {
         state.reverse_instructions(&incoming_instructions.instruction_list);
         return;

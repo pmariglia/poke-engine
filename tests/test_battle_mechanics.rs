@@ -4076,6 +4076,37 @@ fn test_solarbeam_with_active_volatile_status() {
 }
 
 #[test]
+fn test_solarbeam_with_powerherb() {
+    let mut state = State::default();
+    state
+        .side_one
+        .get_active()
+        .item = Items::POWERHERB;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SOLARBEAM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::POWERHERB,
+                new_item: Items::NONE,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 94,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_solarbeam_in_sun() {
     let mut state = State::default();
     state.weather.weather_type = Weather::Sun;
