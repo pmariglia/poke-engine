@@ -1785,12 +1785,13 @@ impl StateTerrain {
 impl State {
     pub fn serialize(&self) -> String {
         return format!(
-            "{}/{}/{}/{}/{}",
+            "{}/{}/{}/{}/{}/{}",
             self.side_one.serialize(),
             self.side_two.serialize(),
             self.weather.serialize(),
             self.terrain.serialize(),
-            self.trick_room
+            self.trick_room,
+            self.team_preview
         );
     }
 
@@ -1802,6 +1803,7 @@ impl State {
             weather: StateWeather::deserialize(split[2]),
             terrain: StateTerrain::deserialize(split[3]),
             trick_room: split[4].parse::<bool>().unwrap(),
+            team_preview: split[5].parse::<bool>().unwrap(),
         };
     }
 }

@@ -1036,6 +1036,7 @@ pub struct State {
     pub weather: StateWeather,
     pub terrain: StateTerrain,
     pub trick_room: bool,
+    pub team_preview: bool,
 }
 
 impl Default for State {
@@ -1052,6 +1053,7 @@ impl Default for State {
                 turns_remaining: 0,
             },
             trick_room: false,
+            team_preview: false,
         }
     }
 }

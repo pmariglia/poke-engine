@@ -122,10 +122,21 @@ impl Pokemon {
 }
 
 fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
-    /*
-    Check the externally provided `force_trapped` flag on the Side struct to
-    determine if the player is forced to stay in.
-    */
+    if state.team_preview {
+        let mut s1_options = Vec::with_capacity(6);
+        let mut s2_options = Vec::with_capacity(6);
+
+        let mut pkmn_iter = state.side_one.pokemon.into_iter();
+        while let Some(_) = pkmn_iter.next() {
+            s1_options.push(MoveChoice::Switch(pkmn_iter.pokemon_index));
+        }
+        let mut pkmn_iter = state.side_two.pokemon.into_iter();
+        while let Some(_) = pkmn_iter.next() {
+            s2_options.push(MoveChoice::Switch(pkmn_iter.pokemon_index));
+        }
+        return (s1_options, s2_options);
+    }
+
     let (mut s1_options, mut s2_options) = state.get_all_options();
 
     if state.side_one.force_trapped {
