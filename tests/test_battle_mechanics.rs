@@ -7019,6 +7019,36 @@ fn test_dryskin_in_rain() {
 }
 
 #[test]
+fn test_shedskin_end_of_turn() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::SHEDSKIN;
+    state.side_two.get_active().status = PokemonStatus::Poison;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 12,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::Poison,
+                new_status: PokemonStatus::None,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_hydration_end_of_turn() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::HYDRATION;
@@ -7057,6 +7087,56 @@ fn test_using_rest_with_existing_status_condition_and_hydration() {
     state.side_one.get_active().hp = 50;
     state.side_one.get_active().rest_turns = 0;
     state.weather.weather_type = Weather::Rain;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::REST,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::Burn,
+                new_status: PokemonStatus::Sleep,
+            }),
+            Instruction::SetRestTurns(SetRestTurnsInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                new_turns: 3,
+                previous_turns: 0,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 50,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::Sleep,
+                new_status: PokemonStatus::None,
+            }),
+            Instruction::SetRestTurns(SetRestTurnsInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                new_turns: 0,
+                previous_turns: 3,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_using_rest_with_existing_status_condition_and_shedskin() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::SHEDSKIN;
+    state.side_one.get_active().status = PokemonStatus::Burn;
+    state.side_one.get_active().hp = 50;
+    state.side_one.get_active().rest_turns = 0;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
