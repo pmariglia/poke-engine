@@ -1897,9 +1897,12 @@ fn add_end_of_turn_instructions(
                 if active_pkmn.ability == Abilities::HEATPROOF {
                     damage_factor /= 2.0;
                 }
-                let damage_amount = cmp::min(
-                    (active_pkmn.maxhp as f32 * damage_factor) as i16,
-                    active_pkmn.hp,
+                let damage_amount = cmp::max(
+                    cmp::min(
+                        (active_pkmn.maxhp as f32 * damage_factor) as i16,
+                        active_pkmn.hp,
+                    ),
+                    1
                 );
                 let burn_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
@@ -1911,8 +1914,11 @@ fn add_end_of_turn_instructions(
                     .push(burn_damage_instruction);
             }
             PokemonStatus::Poison if active_pkmn.ability != Abilities::POISONHEAL => {
-                let damage_amount =
-                    cmp::min((active_pkmn.maxhp as f32 * 0.125) as i16, active_pkmn.hp);
+                let damage_amount = cmp::max(
+                    1,
+                    cmp::min((active_pkmn.maxhp as f32 * 0.125) as i16, active_pkmn.hp)
+                );
+
                 let poison_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: *side_ref,
                     damage_amount: damage_amount,

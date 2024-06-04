@@ -6969,6 +6969,105 @@ fn test_wonderguard_against_willowisp() {
 }
 
 #[test]
+#[cfg(feature = "gen4")]
+fn test_wonderguard_1_hp_against_willowisp() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 1;
+    state.side_two.get_active().maxhp = 1;
+    state.side_two.get_active().ability = Abilities::WONDERGUARD;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::WILLOWISP,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 25.0,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 75.0,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    pokemon_index: PokemonIndex::P0,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Burn,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 1,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_wonderguard_1hp_against_poison() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 1;
+    state.side_two.get_active().maxhp = 1;
+    state.side_two.get_active().ability = Abilities::WONDERGUARD;
+    state.side_two.get_active().status = PokemonStatus::Poison;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 1,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_wonderguard_1hp_against_toxic() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 1;
+    state.side_two.get_active().maxhp = 1;
+    state.side_two.get_active().ability = Abilities::WONDERGUARD;
+    state.side_two.get_active().status = PokemonStatus::Toxic;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 1,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideTwo,
+                    side_condition: PokemonSideCondition::ToxicCount,
+                    amount: 1,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_wonderskin_against_poisonpowder() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::WONDERSKIN;
