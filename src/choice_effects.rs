@@ -430,7 +430,10 @@ pub fn choice_before_move(
 ) {
     let (attacking_side, _) = state.get_both_sides(attacking_side_ref);
     let attacker = attacking_side.get_active();
-    if choice.flags.charge && attacker.item == Items::POWERHERB && choice.move_id != Choices::SKYDROP {
+    if choice.flags.charge
+        && attacker.item == Items::POWERHERB
+        && choice.move_id != Choices::SKYDROP
+    {
         let instruction = Instruction::ChangeItem(ChangeItemInstruction {
             side_ref: *attacking_side_ref,
             current_item: Items::POWERHERB,
@@ -444,11 +447,8 @@ pub fn choice_before_move(
         if choice_volatile_status.volatile_status == PokemonVolatileStatus::LockedMove
             && choice_volatile_status.target == MoveTarget::User
         {
-            let ins = get_choice_move_disable_instructions(
-                attacker,
-                attacking_side_ref,
-                &choice.move_id,
-            );
+            let ins =
+                get_choice_move_disable_instructions(attacker, attacking_side_ref, &choice.move_id);
             for i in ins {
                 state.apply_one_instruction(&i);
                 instructions.instruction_list.push(i);

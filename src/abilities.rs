@@ -531,8 +531,7 @@ pub fn ability_end_of_turn(
         // Shed skin only has a 1/3 chance of activating at the end of the turn
         // but I'm not going to branch on that here
         Abilities::SHEDSKIN => {
-            if active_pkmn.status != PokemonStatus::None
-            {
+            if active_pkmn.status != PokemonStatus::None {
                 let attacking_side = state.get_side(side_ref);
                 let active_index = attacking_side.active_index;
                 let active_pkmn = attacking_side.get_active();

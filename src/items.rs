@@ -116,14 +116,16 @@ fn damage_reduction_berry(
     pkmn_type: &PokemonType,
     instructions: &mut StateInstructions,
 ) {
-    if &choice.move_type == pkmn_type && type_effectiveness_modifier(pkmn_type, &defending_pkmn.types) > 1.0 {
-        instructions.instruction_list.push(
-            Instruction::ChangeItem(ChangeItemInstruction {
+    if &choice.move_type == pkmn_type
+        && type_effectiveness_modifier(pkmn_type, &defending_pkmn.types) > 1.0
+    {
+        instructions
+            .instruction_list
+            .push(Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: attacking_side_ref.get_other_side(),
                 current_item: berry,
                 new_item: Items::NONE,
-            }),
-        );
+            }));
         defending_pkmn.item = Items::NONE;
         choice.base_power /= 2.0;
     }
@@ -166,13 +168,13 @@ pub fn item_before_move(
         Items::CHILANBERRY => {
             // no type effectiveness check for chilan
             if &choice.move_type == &PokemonType::Normal {
-                instructions.instruction_list.push(
-                    Instruction::ChangeItem(ChangeItemInstruction {
+                instructions.instruction_list.push(Instruction::ChangeItem(
+                    ChangeItemInstruction {
                         side_ref: side_ref.get_other_side(),
                         current_item: Items::CHILANBERRY,
                         new_item: Items::NONE,
-                    }),
-                );
+                    },
+                ));
                 defending_pkmn.item = Items::NONE;
                 choice.base_power /= 2.0;
             }

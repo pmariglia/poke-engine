@@ -1820,7 +1820,7 @@ fn test_chopleberry_damage_reduction() {
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
-                damage_amount: 33,  // 64 damage normally
+                damage_amount: 33, // 64 damage normally
             }),
             Instruction::Boost(BoostInstruction {
                 side_ref: SideReference::SideOne,
@@ -1846,12 +1846,10 @@ fn test_chopleberry_damage_reduction_does_not_happen_on_water_move() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 64,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 64,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -4078,10 +4076,7 @@ fn test_solarbeam_with_active_volatile_status() {
 #[test]
 fn test_solarbeam_with_powerherb() {
     let mut state = State::default();
-    state
-        .side_one
-        .get_active()
-        .item = Items::POWERHERB;
+    state.side_one.get_active().item = Items::POWERHERB;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -7020,17 +7015,13 @@ fn test_wonderguard_1hp_against_poison() {
         Choices::SPLASH,
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 1,
-                }),
-            ],
-        },
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 1,
+        })],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -7048,22 +7039,20 @@ fn test_wonderguard_1hp_against_toxic() {
         Choices::SPLASH,
     );
 
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 1,
-                }),
-                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
-                    side_ref: SideReference::SideTwo,
-                    side_condition: PokemonSideCondition::ToxicCount,
-                    amount: 1,
-                }),
-            ],
-        },
-    ];
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 1,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideTwo,
+                side_condition: PokemonSideCondition::ToxicCount,
+                amount: 1,
+            }),
+        ],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
