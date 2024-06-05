@@ -1301,6 +1301,36 @@ fn generate_instructions_from_existing_status_conditions(
         }
         _ => {}
     }
+
+    let attacker_active = attacking_side.get_active();
+    if attacker_active.volatile_statuses.contains(&PokemonVolatileStatus::Confusion) {
+        let mut hit_yourself_instruction = incoming_instructions.clone();
+        hit_yourself_instruction.update_percentage(0.50);
+
+        let attacking_stat = attacker_active.calculate_boosted_stat(PokemonBoostableStat::Attack);
+        let defending_stat = attacker_active.calculate_boosted_stat(PokemonBoostableStat::Defense);
+
+        let mut damage_dealt = 2.0 * attacker_active.level as f32;
+        damage_dealt = damage_dealt.floor() / 5.0;
+        damage_dealt = damage_dealt.floor() + 2.0;
+        damage_dealt = damage_dealt.floor() * 40.0;
+        damage_dealt = damage_dealt * attacking_stat as f32 / defending_stat as f32;
+        damage_dealt = damage_dealt.floor() / 50.0;
+        damage_dealt = damage_dealt.floor() + 2.0;
+
+        let damage_dealt = cmp::min(damage_dealt as i16, attacker_active.hp);
+        let damage_instruction = Instruction::Damage(DamageInstruction {
+            side_ref: *attacking_side_ref,
+            damage_amount: damage_dealt,
+        });
+        attacker_active.hp -= damage_dealt;
+        hit_yourself_instruction.instruction_list.push(damage_instruction);
+
+        final_instructions.push(hit_yourself_instruction);
+
+        incoming_instructions.update_percentage(0.50);
+    }
+
 }
 
 pub fn generate_instructions_from_move(
@@ -6326,6 +6356,137 @@ mod tests {
     }
 
     #[test]
+    fn test_confused_pokemon_with_no_prior_instructions() {
+        let mut state = State::default();
+        state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::Confusion);
+        let mut incoming_instructions = StateInstructions::default();
+
+        let expected_instructions = StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![],
+        };
+
+        let expected_frozen_instructions = &mut vec![StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 35,
+                }),
+            ],
+        }];
+
+        let frozen_instructions = &mut vec![];
+
+        generate_instructions_from_existing_status_conditions(
+            &mut state,
+            &SideReference::SideOne,
+            &mut incoming_instructions,
+            frozen_instructions,
+        );
+
+        assert_eq!(expected_instructions, incoming_instructions);
+        assert_eq!(expected_frozen_instructions, frozen_instructions);
+    }
+
+    #[test]
+    fn test_confused_pokemon_with_prior_instruction() {
+        let mut state = State::default();
+        state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::Confusion);
+        let mut incoming_instructions = StateInstructions::default();
+        incoming_instructions.instruction_list = vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 1,
+        })];
+
+
+        let expected_instructions = StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 1,
+                })
+            ],
+        };
+
+        let expected_frozen_instructions = &mut vec![StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 1,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 35,
+                }),
+            ],
+        }];
+
+        let frozen_instructions = &mut vec![];
+
+        generate_instructions_from_existing_status_conditions(
+            &mut state,
+            &SideReference::SideOne,
+            &mut incoming_instructions,
+            frozen_instructions,
+        );
+
+        assert_eq!(expected_instructions, incoming_instructions);
+        assert_eq!(expected_frozen_instructions, frozen_instructions);
+    }
+
+    #[test]
+    fn test_confused_pokemon_with_prior_instruction_does_not_overkill() {
+        let mut state = State::default();
+        state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::Confusion);
+        let mut incoming_instructions = StateInstructions::default();
+        state.side_one.get_active().hp = 2;
+        incoming_instructions.instruction_list = vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 1,
+        })];
+
+
+        let expected_instructions = StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 1,
+                })
+            ],
+        };
+
+        let expected_frozen_instructions = &mut vec![StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 1,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 2,
+                }),
+            ],
+        }];
+
+        let frozen_instructions = &mut vec![];
+
+        generate_instructions_from_existing_status_conditions(
+            &mut state,
+            &SideReference::SideOne,
+            &mut incoming_instructions,
+            frozen_instructions,
+        );
+
+        assert_eq!(expected_instructions, incoming_instructions);
+        assert_eq!(expected_frozen_instructions, frozen_instructions);
+    }
+
+    #[test]
     fn test_frozen_pokemon_with_no_prior_instructions() {
         let mut state = State::default();
         state.side_one.get_active().status = PokemonStatus::Freeze;
@@ -6379,6 +6540,60 @@ mod tests {
             percentage: 67.0,
             instruction_list: vec![],
         }];
+
+        let frozen_instructions = &mut vec![];
+
+        generate_instructions_from_existing_status_conditions(
+            &mut state,
+            &SideReference::SideOne,
+            &mut incoming_instructions,
+            frozen_instructions,
+        );
+
+        assert_eq!(expected_instructions, incoming_instructions);
+        assert_eq!(expected_frozen_instructions, frozen_instructions);
+    }
+
+    #[test]
+    fn test_asleep_and_confused() {
+        let mut state = State::default();
+        state.side_one.get_active().status = PokemonStatus::Sleep;
+        state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::Confusion);
+        let mut incoming_instructions = StateInstructions::default();
+
+        let expected_instructions = StateInstructions {
+            percentage: 16.5,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: state.side_one.active_index,
+                    old_status: PokemonStatus::Sleep,
+                    new_status: PokemonStatus::None,
+                })
+            ],
+        };
+
+        let expected_frozen_instructions = &mut vec![
+            StateInstructions {
+                percentage: 67.0,
+                instruction_list: vec![],
+            },
+            StateInstructions {
+                percentage: 16.5,
+                instruction_list: vec![
+                    Instruction::ChangeStatus(ChangeStatusInstruction {
+                        side_ref: SideReference::SideOne,
+                        pokemon_index: state.side_one.active_index,
+                        old_status: PokemonStatus::Sleep,
+                        new_status: PokemonStatus::None,
+                    }),
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideOne,
+                        damage_amount: 35,
+                    }),
+                ],
+            },
+        ];
 
         let frozen_instructions = &mut vec![];
 
