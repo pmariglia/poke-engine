@@ -1316,17 +1316,19 @@ fn generate_instructions_from_existing_status_conditions(
         let mut damage_dealt = 2.0 * attacker_active.level as f32;
         damage_dealt = damage_dealt.floor() / 5.0;
         damage_dealt = damage_dealt.floor() + 2.0;
-        damage_dealt = damage_dealt.floor() * 40.0;
+        damage_dealt = damage_dealt.floor() * 40.0;  // 40 is the base power of confusion damage
         damage_dealt = damage_dealt * attacking_stat as f32 / defending_stat as f32;
         damage_dealt = damage_dealt.floor() / 50.0;
         damage_dealt = damage_dealt.floor() + 2.0;
+        if attacker_active.status == PokemonStatus::Burn {
+            damage_dealt /= 2.0;
+        }
 
         let damage_dealt = cmp::min(damage_dealt as i16, attacker_active.hp);
         let damage_instruction = Instruction::Damage(DamageInstruction {
             side_ref: *attacking_side_ref,
             damage_amount: damage_dealt,
         });
-        attacker_active.hp -= damage_dealt;
         hit_yourself_instruction
             .instruction_list
             .push(damage_instruction);
