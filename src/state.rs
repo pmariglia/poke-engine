@@ -887,16 +887,14 @@ impl Side {
 
     pub fn trapped(&self, opponent_active: &Pokemon) -> bool {
         let active_pkmn = self.get_active_immutable();
+        if active_pkmn.volatile_statuses.contains(&PokemonVolatileStatus::LockedMove) {
+            return true;
+        }
         if active_pkmn.item == Items::SHEDSHELL || active_pkmn.has_type(&PokemonType::Ghost) {
             return false;
         } else if active_pkmn
             .volatile_statuses
             .contains(&PokemonVolatileStatus::PartiallyTrapped)
-        {
-            return true;
-        } else if active_pkmn
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::LockedMove)
         {
             return true;
         } else if opponent_active.ability == Abilities::SHADOWTAG {
