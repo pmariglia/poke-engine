@@ -285,7 +285,15 @@ pub fn modify_choice(
             }
         }
         Choices::FOCUSPUNCH => {
-            if attacker_choice.first_move || defender_choice.category != MoveCategory::Status {
+            if attacker_choice.first_move {
+                attacker_choice.remove_all_effects();
+                return;
+            }
+            if (defending_side.damage_dealt.move_category == MoveCategory::Physical
+                || defending_side.damage_dealt.move_category == MoveCategory::Special)
+                && !defending_side.damage_dealt.hit_substitute
+                && defending_side.damage_dealt.damage > 0
+            {
                 attacker_choice.remove_all_effects();
             }
         }
@@ -608,6 +616,48 @@ pub fn choice_special_effect(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
     match choice.move_id {
+        Choices::COUNTER => {
+            if defending_side.damage_dealt.move_category == MoveCategory::Physical
+                && !defending_side
+                    .get_active_immutable()
+                    .has_type(&PokemonType::Fighting)
+            {
+                let damage_amount = cmp::min(
+                    defending_side.damage_dealt.damage * 2,
+                    defending_side.get_active_immutable().hp,
+                );
+                if damage_amount > 0 {
+                    instructions
+                        .instruction_list
+                        .push(Instruction::Damage(DamageInstruction {
+                            side_ref: attacking_side_ref.get_other_side(),
+                            damage_amount: damage_amount,
+                        }));
+                    defending_side.get_active().hp -= damage_amount;
+                }
+            }
+        }
+        Choices::MIRRORCOAT => {
+            if defending_side.damage_dealt.move_category == MoveCategory::Special
+                && !defending_side
+                    .get_active_immutable()
+                    .has_type(&PokemonType::Dark)
+            {
+                let damage_amount = cmp::min(
+                    defending_side.damage_dealt.damage * 2,
+                    defending_side.get_active_immutable().hp,
+                );
+                if damage_amount > 0 {
+                    instructions
+                        .instruction_list
+                        .push(Instruction::Damage(DamageInstruction {
+                            side_ref: attacking_side_ref.get_other_side(),
+                            damage_amount: damage_amount,
+                        }));
+                    defending_side.get_active().hp -= damage_amount;
+                }
+            }
+        }
         Choices::WISH => {
             if attacking_side.wish.0 == 0 {
                 instructions

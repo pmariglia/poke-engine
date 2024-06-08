@@ -14,9 +14,9 @@ use crate::choices::{
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, DecrementRestTurnsInstruction, DecrementWishInstruction,
-    HealInstruction, RemoveVolatileStatusInstruction, SetLastUsedMoveInstruction,
-    SetRestTurnsInstruction, SetSecondMoveSwitchOutMoveInstruction, SetSubstituteHealthInstruction,
-    ToggleBatonPassingInstruction,
+    HealInstruction, RemoveVolatileStatusInstruction, SetDamageDealtInstruction,
+    SetLastUsedMoveInstruction, SetRestTurnsInstruction, SetSecondMoveSwitchOutMoveInstruction,
+    SetSubstituteHealthInstruction, ToggleBatonPassingInstruction,
 };
 use crate::items::{
     item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
@@ -904,6 +904,48 @@ fn get_instructions_from_drag(
     }
 }
 
+fn reset_damage_dealt(
+    side: &Side,
+    side_reference: &SideReference,
+    incoming_instructions: &mut StateInstructions
+) {
+    if side.damage_dealt.damage != 0 || side.damage_dealt.move_category != MoveCategory::Physical || side.damage_dealt.hit_substitute {
+        incoming_instructions.instruction_list.push(Instruction::SetDamageDealt(SetDamageDealtInstruction {
+            side_ref: *side_reference,
+            damage: 0,
+            previous_damage: side.damage_dealt.damage,
+            move_category: MoveCategory::Physical,
+            previous_move_category: side.damage_dealt.move_category,
+            hit_substitute: false,
+            previous_hit_substitute: side.damage_dealt.hit_substitute,
+        }));
+    }
+}
+
+fn set_damage_dealt(
+    attacking_side: &mut Side,
+    attacking_side_ref: &SideReference,
+    damage_dealt: i16,
+    choice: &Choice,
+    hit_substitute: bool,
+    incoming_instructions: &mut StateInstructions,
+) {
+    incoming_instructions
+        .instruction_list
+        .push(Instruction::SetDamageDealt(SetDamageDealtInstruction {
+            side_ref: *attacking_side_ref,
+            damage: damage_dealt,
+            previous_damage: attacking_side.damage_dealt.damage,
+            move_category: choice.category,
+            previous_move_category: attacking_side.damage_dealt.move_category,
+            hit_substitute: hit_substitute,
+            previous_hit_substitute: attacking_side.damage_dealt.hit_substitute,
+        }));
+    attacking_side.damage_dealt.damage = damage_dealt;
+    attacking_side.damage_dealt.move_category = choice.category;
+    attacking_side.damage_dealt.hit_substitute = false;
+}
+
 fn generate_instructions_from_damage(
     mut state: &mut State,
     choice: &Choice,
@@ -960,6 +1002,30 @@ fn generate_instructions_from_damage(
                 .instruction_list
                 .push(substitute_instruction);
 
+            #[cfg(feature = "damage_dealt")]
+            set_damage_dealt(
+                attacking_side,
+                attacking_side_ref,
+                damage_dealt,
+                choice,
+                true,
+                &mut incoming_instructions,
+            );
+            // incoming_instructions.instruction_list.push(
+            //     Instruction::SetDamageDealt(SetDamageDealtInstruction {
+            //         side_ref: *attacking_side_ref,
+            //         damage: damage_dealt,
+            //         previous_damage: attacking_side.damage_dealt.damage,
+            //         move_category: choice.category,
+            //         previous_move_category: attacking_side.damage_dealt.move_category,
+            //         hit_substitute: true,
+            //         previous_hit_substitute: attacking_side.damage_dealt.hit_substitute,
+            //     }),
+            // );
+            // attacking_side.damage_dealt.damage = damage_dealt;
+            // attacking_side.damage_dealt.move_category = choice.category;
+            // attacking_side.damage_dealt.hit_substitute = true;
+
             if defending_pokemon
                 .volatile_statuses
                 .contains(&PokemonVolatileStatus::Substitute)
@@ -980,11 +1046,16 @@ fn generate_instructions_from_damage(
 
             hit_sub = true;
         } else {
+            let mut knocked_out = false;
             damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
             if defending_pokemon.ability == Abilities::STURDY
                 && defending_pokemon.maxhp == defending_pokemon.hp
             {
                 damage_dealt -= 1;
+            }
+
+            if damage_dealt >= defending_pokemon.hp {
+                knocked_out = true;
             }
 
             let damage_instruction = Instruction::Damage(DamageInstruction {
@@ -995,6 +1066,45 @@ fn generate_instructions_from_damage(
             incoming_instructions
                 .instruction_list
                 .push(damage_instruction);
+
+            if knocked_out
+                && defending_pokemon
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::DestinyBond)
+            {
+                let damage_instruction = Instruction::Damage(DamageInstruction {
+                    side_ref: *attacking_side_ref,
+                    damage_amount: attacking_pokemon.hp,
+                });
+                attacking_pokemon.hp = 0;
+                incoming_instructions
+                    .instruction_list
+                    .push(damage_instruction);
+            }
+
+            #[cfg(feature = "damage_dealt")]
+            set_damage_dealt(
+                attacking_side,
+                attacking_side_ref,
+                damage_dealt,
+                choice,
+                false,
+                &mut incoming_instructions,
+            );
+            // incoming_instructions.instruction_list.push(
+            //     Instruction::SetDamageDealt(SetDamageDealtInstruction {
+            //         side_ref: *attacking_side_ref,
+            //         damage: damage_dealt,
+            //         previous_damage: attacking_side.damage_dealt.damage,
+            //         move_category: choice.category,
+            //         previous_move_category: attacking_side.damage_dealt.move_category,
+            //         hit_substitute: false,
+            //         previous_hit_substitute: attacking_side.damage_dealt.hit_substitute,
+            //     }),
+            // );
+            // attacking_side.damage_dealt.damage = damage_dealt;
+            // attacking_side.damage_dealt.move_category = choice.category;
+            // attacking_side.damage_dealt.hit_substitute = false;
 
             ability_after_damage_hit(
                 &mut state,
@@ -1316,7 +1426,7 @@ fn generate_instructions_from_existing_status_conditions(
         let mut damage_dealt = 2.0 * attacker_active.level as f32;
         damage_dealt = damage_dealt.floor() / 5.0;
         damage_dealt = damage_dealt.floor() + 2.0;
-        damage_dealt = damage_dealt.floor() * 40.0;  // 40 is the base power of confusion damage
+        damage_dealt = damage_dealt.floor() * 40.0; // 40 is the base power of confusion damage
         damage_dealt = damage_dealt * attacking_stat as f32 / defending_stat as f32;
         damage_dealt = damage_dealt.floor() / 50.0;
         damage_dealt = damage_dealt.floor() + 2.0;
@@ -1347,6 +1457,11 @@ pub fn generate_instructions_from_move(
     mut incoming_instructions: StateInstructions,
     mut final_instructions: &mut Vec<StateInstructions>,
 ) {
+    let side = state.get_side(&attacking_side);
+
+    #[cfg(feature = "damage_dealt")]
+    reset_damage_dealt(side, &attacking_side, &mut incoming_instructions);
+
     if choice.category == MoveCategory::Switch {
         generate_instructions_from_switch(
             state,
@@ -1807,14 +1922,25 @@ fn side_one_moves_first(state: &State, side_one_choice: &Choice, side_two_choice
     let side_two_effective_priority =
         get_effective_priority(&state, &SideReference::SideTwo, &side_two_choice);
 
-    return if side_one_effective_priority == side_two_effective_priority {
+    let side_one_active = state.side_one.get_active_immutable();
+    let side_two_active = state.side_two.get_active_immutable();
+    if side_one_effective_priority == side_two_effective_priority {
+        if side_one_active.item == Items::CUSTAPBERRY
+            && side_one_active.hp < side_one_active.maxhp / 4
+        {
+            return true;
+        } else if side_two_active.item == Items::CUSTAPBERRY
+            && side_two_active.hp < side_two_active.maxhp / 4
+        {
+            return false;
+        }
         match state.trick_room {
-            true => side_one_effective_speed < side_two_effective_speed,
+            true => return side_one_effective_speed < side_two_effective_speed,
             false => side_one_effective_speed > side_two_effective_speed,
         }
     } else {
-        side_one_effective_priority > side_two_effective_priority
-    };
+        return side_one_effective_priority > side_two_effective_priority;
+    }
 }
 
 fn add_end_of_turn_instructions(
@@ -2084,6 +2210,22 @@ fn add_end_of_turn_instructions(
                     RemoveVolatileStatusInstruction {
                         side_ref: *side_ref,
                         volatile_status: PokemonVolatileStatus::Roost,
+                    },
+                ));
+        }
+        if active_pkmn
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::DestinyBond)
+        {
+            active_pkmn
+                .volatile_statuses
+                .remove(&PokemonVolatileStatus::DestinyBond);
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::RemoveVolatileStatus(
+                    RemoveVolatileStatusInstruction {
+                        side_ref: *side_ref,
+                        volatile_status: PokemonVolatileStatus::DestinyBond,
                     },
                 ));
         }
@@ -2560,6 +2702,39 @@ mod tests {
                     amount: 1,
                 },
             )],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_custap_berry_consumed_when_less_than_25_percent_hp() {
+        let mut state: State = State::default();
+        state.side_one.get_active().item = Items::CUSTAPBERRY;
+        state.side_one.get_active().hp = 24;
+        let mut choice = MOVES.get(&Choices::AURORAVEIL).unwrap().to_owned();
+
+        let mut instructions = vec![];
+        generate_instructions_from_move(
+            &mut state,
+            &mut choice,
+            &MOVES.get(&Choices::TACKLE).unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+            &mut instructions,
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::ChangeItem(
+                    ChangeItemInstruction {
+                        side_ref: SideReference::SideOne,
+                        current_item: Items::CUSTAPBERRY,
+                        new_item: Items::NONE,
+                    },
+                )
+            ],
         };
 
         assert_eq!(instructions, vec![expected_instructions])
@@ -6744,6 +6919,54 @@ mod tests {
             side_one_moves_first(&state, &side_one_choice, &side_two_choice)
         )
     }
+
+    #[test]
+    fn test_custap_berry_when_less_than_25_percent_activates() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        let side_two_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        state.side_one.get_active().item = Items::CUSTAPBERRY;
+        state.side_one.get_active().hp = 24;
+        state.side_one.get_active().speed = 100;
+        state.side_two.get_active().speed = 101;
+
+        assert_eq!(
+            true,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
+    }
+
+    #[test]
+    fn test_custap_berry_when_greater_than_25_percent_does_not_activate() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        let side_two_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        state.side_one.get_active().item = Items::CUSTAPBERRY;
+        state.side_one.get_active().speed = 100;
+        state.side_two.get_active().speed = 101;
+
+        assert_eq!(
+            false,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
+    }
+
+    #[test]
+    fn test_custap_berry_does_not_matter_when_opponent_uses_increased_priority_move() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        let side_two_choice = MOVES.get(&Choices::QUICKATTACK).unwrap().to_owned();
+        state.side_one.get_active().item = Items::CUSTAPBERRY;
+        state.side_one.get_active().hp = 24;
+        state.side_one.get_active().speed = 100;
+        state.side_two.get_active().speed = 101;
+
+        assert_eq!(
+            false,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
+    }
+
     #[test]
     fn test_slowstart_halves_effective_speed() {
         let mut state = State::default();

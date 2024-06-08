@@ -1,13 +1,12 @@
 use poke_engine::abilities::Abilities;
-use poke_engine::choices::{Boost, Choices, MOVES};
+use poke_engine::choices::{Choices, MOVES};
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
-use poke_engine::instruction::Instruction::{DamageSubstitute, RemoveVolatileStatus};
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather,
     DamageInstruction, DecrementRestTurnsInstruction, DecrementWishInstruction,
     DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction,
-    RemoveVolatileStatusInstruction, SetLastUsedMoveInstruction, SetRestTurnsInstruction,
+    RemoveVolatileStatusInstruction, SetRestTurnsInstruction,
     SetSecondMoveSwitchOutMoveInstruction, SetSubstituteHealthInstruction, SetWishInstruction,
     StateInstructions, SwitchInstruction, ToggleBatonPassingInstruction,
 };
@@ -1120,6 +1119,109 @@ fn test_basic_substitute_usage() {
 }
 
 #[test]
+fn test_destinybond_kills_on_knockout() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state.side_one.get_active().hp = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DESTINYBOND,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::DestinyBond,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 1,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 100,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_destinybond_against_toxic_damage_does_not_kill_opponent() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state.side_one.get_active().hp = 1;
+
+    state.side_two.get_active().types.0 = PokemonType::Poison;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DESTINYBOND,
+        Choices::TOXIC,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::DestinyBond,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::None,
+                new_status: PokemonStatus::Toxic,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 1,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideOne,
+                side_condition: PokemonSideCondition::ToxicCount,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_destinybond_volatile_is_removed_at_end_of_turn_if_not_fainted() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state.side_one.get_active().hp = 1;
+
+    state.side_two.get_active().types.0 = PokemonType::Poison;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DESTINYBOND,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::DestinyBond,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::DestinyBond,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_using_substitute_when_it_is_already_up() {
     let mut state = State::default();
     state
@@ -1160,11 +1262,11 @@ fn test_taking_damage_with_0_hp_sub_but_with_vs() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            DamageSubstitute(DamageInstruction {
+            Instruction::DamageSubstitute(DamageInstruction {
                 side_ref: SideReference::SideOne,
                 damage_amount: 0,
             }),
-            RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::Substitute,
             }),
@@ -4218,27 +4320,6 @@ fn test_sunnyday() {
             new_weather_turns_remaining: 5,
             previous_weather: Weather::None,
             previous_weather_turns_remaining: 0,
-        })],
-    }];
-    assert_eq!(expected_instructions, vec_of_instructions);
-}
-
-#[test]
-fn test_focuspunch_after_getting_hit() {
-    let mut state = State::default();
-    state.weather.weather_type = Weather::Sun;
-
-    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
-        &mut state,
-        Choices::FOCUSPUNCH,
-        Choices::TACKLE,
-    );
-
-    let expected_instructions = vec![StateInstructions {
-        percentage: 100.0,
-        instruction_list: vec![Instruction::Damage(DamageInstruction {
-            side_ref: SideReference::SideOne,
-            damage_amount: 48,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);

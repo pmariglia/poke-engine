@@ -1,4 +1,4 @@
-use crate::choices::Choices;
+use crate::choices::{Choices, MoveCategory};
 use crate::items::Items;
 use crate::state::SideReference;
 use crate::state::Terrain;
@@ -67,9 +67,21 @@ pub enum Instruction {
     SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     ToggleBatonPassing(ToggleBatonPassingInstruction),
     SetLastUsedMove(SetLastUsedMoveInstruction),
+    SetDamageDealt(SetDamageDealtInstruction),
     ToggleTrickRoom,
     ToggleSideOneForceSwitch,
     ToggleSideTwoForceSwitch,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct SetDamageDealtInstruction {
+    pub side_ref: SideReference,
+    pub damage: i16,
+    pub previous_damage: i16,
+    pub move_category: MoveCategory,
+    pub previous_move_category: MoveCategory,
+    pub hit_substitute: bool,
+    pub previous_hit_substitute: bool,
 }
 
 #[derive(Debug, PartialEq, Clone)]

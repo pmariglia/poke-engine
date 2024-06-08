@@ -18644,7 +18644,7 @@ lazy_static! {
     };
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum MoveCategory {
     Physical,
     Special,

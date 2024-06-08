@@ -1,5 +1,5 @@
 use crate::abilities::Abilities;
-use crate::choices::{Choice, Choices, MOVES};
+use crate::choices::{Choice, Choices, MoveCategory, MOVES};
 use core::panic;
 use std::collections::HashSet;
 use std::ops::{Index, IndexMut};
@@ -27,6 +27,23 @@ fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
         6 => stat_value * 8 / 2,
         _ => panic!("Invalid boost number"),
     };
+}
+
+#[derive(Debug, Clone)]
+pub struct DamageDealt {
+    pub damage: i16,
+    pub move_category: MoveCategory,
+    pub hit_substitute: bool,
+}
+
+impl Default for DamageDealt {
+    fn default() -> DamageDealt {
+        return DamageDealt {
+            damage: 0,
+            move_category: MoveCategory::Physical,
+            hit_substitute: false,
+        };
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
@@ -858,6 +875,7 @@ pub struct Side {
     pub force_trapped: bool,
     pub slow_uturn_move: bool,
     pub last_used_move: LastUsedMove,
+    pub damage_dealt: DamageDealt,
     pub switch_out_move_second_saved_move: Choices,
 }
 
@@ -887,7 +905,10 @@ impl Side {
 
     pub fn trapped(&self, opponent_active: &Pokemon) -> bool {
         let active_pkmn = self.get_active_immutable();
-        if active_pkmn.volatile_statuses.contains(&PokemonVolatileStatus::LockedMove) {
+        if active_pkmn
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::LockedMove)
+        {
             return true;
         }
         if active_pkmn.item == Items::SHEDSHELL || active_pkmn.has_type(&PokemonType::Ghost) {
@@ -1022,6 +1043,7 @@ impl Default for Side {
             slow_uturn_move: false,
             force_trapped: false,
             last_used_move: LastUsedMove::Move(Choices::NONE),
+            damage_dealt: DamageDealt::default(),
             switch_out_move_second_saved_move: Choices::NONE,
         }
     }
@@ -1531,6 +1553,19 @@ impl State {
         }
     }
 
+    fn set_damage_dealt(
+        &mut self,
+        side_reference: &SideReference,
+        damage_amount: i16,
+        move_category: MoveCategory,
+        hit_substitute: bool,
+    ) {
+        let side = self.get_side(side_reference);
+        side.damage_dealt.damage = damage_amount;
+        side.damage_dealt.move_category = move_category;
+        side.damage_dealt.hit_substitute = hit_substitute;
+    }
+
     pub fn apply_instructions(&mut self, instructions: &Vec<Instruction>) {
         for i in instructions {
             self.apply_one_instruction(i)
@@ -1631,6 +1666,12 @@ impl State {
             Instruction::SetLastUsedMove(instruction) => {
                 self.set_last_used_move(&instruction.side_ref, instruction.last_used_move)
             }
+            Instruction::SetDamageDealt(instruction) => self.set_damage_dealt(
+                &instruction.side_ref,
+                instruction.damage,
+                instruction.move_category,
+                instruction.hit_substitute,
+            ),
         }
     }
 
@@ -1734,6 +1775,12 @@ impl State {
             Instruction::SetLastUsedMove(instruction) => {
                 self.set_last_used_move(&instruction.side_ref, instruction.previous_last_used_move)
             }
+            Instruction::SetDamageDealt(instruction) => self.set_damage_dealt(
+                &instruction.side_ref,
+                instruction.previous_damage,
+                instruction.previous_move_category,
+                instruction.previous_hit_substitute,
+            ),
         }
     }
 }

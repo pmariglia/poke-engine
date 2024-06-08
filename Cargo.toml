@@ -17,6 +17,7 @@ serde = { version = "1.0.197", features = ["derive"] }
 [features]
 remove_low_chance_instructions = []
 last_used_move = []
+damage_dealt = []
 gen4 = []
 gen5 = []
 gen6 = []

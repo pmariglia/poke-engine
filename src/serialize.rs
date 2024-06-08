@@ -2,9 +2,9 @@ use crate::abilities::Abilities;
 use crate::choices::{Choices, MOVES};
 use crate::items::Items;
 use crate::state::{
-    LastUsedMove, Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoveIndex, PokemonMoves,
-    PokemonNatures, PokemonStatus, PokemonType, PokemonVolatileStatus, Side, SideConditions,
-    SidePokemon, State, StateTerrain, StateWeather, Terrain, Weather,
+    DamageDealt, LastUsedMove, Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoveIndex,
+    PokemonMoves, PokemonNatures, PokemonStatus, PokemonType, PokemonVolatileStatus, Side,
+    SideConditions, SidePokemon, State, StateTerrain, StateWeather, Terrain, Weather,
 };
 use std::collections::HashSet;
 use std::fmt;
@@ -1212,6 +1212,7 @@ impl FromStr for Items {
             "CHOPLEBERRY" => Ok(Items::CHOPLEBERRY),
             "COBABERRY" => Ok(Items::COBABERRY),
             "COLBURBERRY" => Ok(Items::COLBURBERRY),
+            "CUSTAPBERRY" => Ok(Items::CUSTAPBERRY),
             "DRAGONFANG" => Ok(Items::DRAGONFANG),
             "DREADPLATE" => Ok(Items::DREADPLATE),
             "ELECTRICSEED" => Ok(Items::ELECTRICSEED),
@@ -1743,6 +1744,7 @@ impl Side {
             baton_passing: split[12].parse::<bool>().unwrap(),
             force_trapped: split[13].parse::<bool>().unwrap(),
             last_used_move: LastUsedMove::deserialize(split[14]),
+            damage_dealt: DamageDealt::default(),
             slow_uturn_move: split[15].parse::<bool>().unwrap(),
         };
     }
