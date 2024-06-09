@@ -1011,20 +1011,6 @@ fn generate_instructions_from_damage(
                 true,
                 &mut incoming_instructions,
             );
-            // incoming_instructions.instruction_list.push(
-            //     Instruction::SetDamageDealt(SetDamageDealtInstruction {
-            //         side_ref: *attacking_side_ref,
-            //         damage: damage_dealt,
-            //         previous_damage: attacking_side.damage_dealt.damage,
-            //         move_category: choice.category,
-            //         previous_move_category: attacking_side.damage_dealt.move_category,
-            //         hit_substitute: true,
-            //         previous_hit_substitute: attacking_side.damage_dealt.hit_substitute,
-            //     }),
-            // );
-            // attacking_side.damage_dealt.damage = damage_dealt;
-            // attacking_side.damage_dealt.move_category = choice.category;
-            // attacking_side.damage_dealt.hit_substitute = true;
 
             if defending_pokemon
                 .volatile_statuses
@@ -1091,20 +1077,6 @@ fn generate_instructions_from_damage(
                 false,
                 &mut incoming_instructions,
             );
-            // incoming_instructions.instruction_list.push(
-            //     Instruction::SetDamageDealt(SetDamageDealtInstruction {
-            //         side_ref: *attacking_side_ref,
-            //         damage: damage_dealt,
-            //         previous_damage: attacking_side.damage_dealt.damage,
-            //         move_category: choice.category,
-            //         previous_move_category: attacking_side.damage_dealt.move_category,
-            //         hit_substitute: false,
-            //         previous_hit_substitute: attacking_side.damage_dealt.hit_substitute,
-            //     }),
-            // );
-            // attacking_side.damage_dealt.damage = damage_dealt;
-            // attacking_side.damage_dealt.move_category = choice.category;
-            // attacking_side.damage_dealt.hit_substitute = false;
 
             ability_after_damage_hit(
                 &mut state,
