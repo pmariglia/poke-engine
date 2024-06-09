@@ -926,6 +926,25 @@ fn test_outrage_locking() {
 }
 
 #[test]
+fn test_judgement_typechange_with_arceus_multitype() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::SPOOKYPLATE;
+    state.side_two.get_active().types.0 = PokemonType::Normal;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::JUDGMENT,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_basic_healbell() {
     let mut state = State::default();
     state.side_one.get_active().status = PokemonStatus::Poison;

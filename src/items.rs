@@ -24,6 +24,7 @@ pub enum Items {
     BLACKBELT,
     BLACKSLUDGE,
     BLACKGLASSES,
+    BLANKPLATE,
     CELLBATTERY,
     CHARCOAL,
     CHARTIBERRY,
@@ -37,10 +38,12 @@ pub enum Items {
     CUSTAPBERRY,
     DRAGONFANG,
     DREADPLATE,
+    EARTHPLATE,
     ELECTRICSEED,
     EXPERTBELT,
     EVIOLITE,
     FAIRYFEATHER,
+    FISTPLATE,
     FLAMEORB,
     GRASSYSEED,
     HABANBERRY,
@@ -71,6 +74,7 @@ pub enum Items {
     SHUCABERRY,
     SILKSCARF,
     SILVERPOWDER,
+    SKYPLATE,
     SOFTSAND,
     SOULDEW,
     GRISEOUSORB,
@@ -78,6 +82,7 @@ pub enum Items {
     THROATSPRAY,
     THICKCLUB,
     TOXICORB,
+    TOXICPLATE,
     TWISTEDSPOON,
     WACANBERRY,
     WAVEINCENSE,
@@ -89,6 +94,18 @@ pub enum Items {
     PROTECTIVEPADS,
     SHEDSHELL,
     YACHEBERRY,
+    STONEPLATE,
+    INSECTPLATE,
+    SPOOKYPLATE,
+    IRONPLATE,
+    FLAMEPLATE,
+    SPLASHPLATE,
+    MEADOWPLATE,
+    ZAPPLATE,
+    MINDPLATE,
+    ICICLEPLATE,
+    DRACOPLATE,
+    PIXIEPLATE,
 }
 
 pub fn get_choice_move_disable_instructions(
@@ -645,11 +662,6 @@ pub fn item_modify_attack_being_used(
                 attacking_choice.base_power *= 1.2;
             }
         }
-        Items::DREADPLATE => {
-            if attacking_choice.move_type == PokemonType::Dark {
-                attacking_choice.base_power *= 1.2;
-            }
-        }
         Items::EXPERTBELT => {
             if type_effectiveness_modifier(
                 &attacking_choice.move_type,
@@ -822,6 +834,142 @@ pub fn item_modify_attack_being_used(
         Items::WISEGLASSES => {
             if attacking_choice.category == MoveCategory::Special {
                 attacking_choice.base_power *= 1.1;
+            }
+        }
+        Items::FISTPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Fighting;
+            }
+            if attacking_choice.move_type == PokemonType::Fighting {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::SKYPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Flying;
+            }
+            if attacking_choice.move_type == PokemonType::Flying {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::TOXICPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Poison;
+            }
+            if attacking_choice.move_type == PokemonType::Poison {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::EARTHPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Ground;
+            }
+            if attacking_choice.move_type == PokemonType::Ground {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::STONEPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Rock;
+            }
+            if attacking_choice.move_type == PokemonType::Rock {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::INSECTPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Bug;
+            }
+            if attacking_choice.move_type == PokemonType::Bug {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::SPOOKYPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Ghost;
+            }
+            if attacking_choice.move_type == PokemonType::Ghost {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::IRONPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Steel;
+            }
+            if attacking_choice.move_type == PokemonType::Steel {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::FLAMEPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Fire;
+            }
+            if attacking_choice.move_type == PokemonType::Fire {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::SPLASHPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Water;
+            }
+            if attacking_choice.move_type == PokemonType::Water {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::MEADOWPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Grass;
+            }
+            if attacking_choice.move_type == PokemonType::Grass {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::ZAPPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Electric;
+            }
+            if attacking_choice.move_type == PokemonType::Electric {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::MINDPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Psychic;
+            }
+            if attacking_choice.move_type == PokemonType::Psychic {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::ICICLEPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Ice;
+            }
+            if attacking_choice.move_type == PokemonType::Ice {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::DRACOPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Dragon;
+            }
+            if attacking_choice.move_type == PokemonType::Dragon {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::DREADPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Dark;
+            }
+            if attacking_choice.move_type == PokemonType::Dark {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::PIXIEPLATE => {
+            if attacking_choice.move_id == Choices::JUDGMENT {
+                attacking_choice.move_type = PokemonType::Fairy;
+            }
+            if attacking_choice.move_type == PokemonType::Fairy {
+                attacking_choice.base_power *= 1.2;
             }
         }
         _ => {}
