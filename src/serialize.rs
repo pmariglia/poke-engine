@@ -1284,6 +1284,7 @@ impl FromStr for Items {
             "ICICLEPLATE" => Ok(Items::ICICLEPLATE),
             "DRACOPLATE" => Ok(Items::DRACOPLATE),
             "PIXIEPLATE" => Ok(Items::PIXIEPLATE),
+            "LIGHTBALL" => Ok(Items::LIGHTBALL),
             _ => Ok(Items::UNKNOWNITEM),
         }
     }

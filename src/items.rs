@@ -106,6 +106,7 @@ pub enum Items {
     ICICLEPLATE,
     DRACOPLATE,
     PIXIEPLATE,
+    LIGHTBALL
 }
 
 pub fn get_choice_move_disable_instructions(
@@ -970,6 +971,11 @@ pub fn item_modify_attack_being_used(
             }
             if attacking_choice.move_type == PokemonType::Fairy {
                 attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::LIGHTBALL => {
+            if attacking_side.get_active_immutable().id == "pikachu" {
+                attacking_choice.base_power *= 2.0;
             }
         }
         _ => {}
