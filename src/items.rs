@@ -106,7 +106,7 @@ pub enum Items {
     ICICLEPLATE,
     DRACOPLATE,
     PIXIEPLATE,
-    LIGHTBALL
+    LIGHTBALL,
 }
 
 pub fn get_choice_move_disable_instructions(

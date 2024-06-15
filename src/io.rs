@@ -307,7 +307,7 @@ pub fn main() {
         io_data.state = state;
     }
 
-    let mut result;
+    let result;
     let mut state;
     let mut side_one_options;
     let mut side_two_options;
@@ -347,10 +347,10 @@ pub fn main() {
     exit(0);
 }
 
-pub fn command_loop(mut io_data: IOData) {
+fn command_loop(mut io_data: IOData) {
     loop {
         print!("> ");
-        io::stdout().flush();
+        let _ = io::stdout().flush();
 
         let mut input = String::new();
         match io::stdin().read_line(&mut input) {

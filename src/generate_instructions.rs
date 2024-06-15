@@ -23,8 +23,8 @@ use crate::items::{
     item_on_switch_in, Items,
 };
 use crate::state::{
-    LastUsedMove, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
-    PokemonSideCondition, PokemonType, Side, Terrain,
+    LastUsedMove, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition,
+    PokemonType, Side, Terrain,
 };
 use crate::{
     choices::{Choice, MoveCategory},
@@ -1304,7 +1304,7 @@ fn generate_instructions_from_existing_status_conditions(
     incoming_instructions: &mut StateInstructions,
     final_instructions: &mut Vec<StateInstructions>,
 ) {
-    let (mut attacking_side, _defending_side) = state.get_both_sides(attacking_side_ref);
+    let (attacking_side, _defending_side) = state.get_both_sides(attacking_side_ref);
     let attacker_active = attacking_side.get_active();
     match attacker_active.status {
         PokemonStatus::Paralyze => {
@@ -2449,8 +2449,7 @@ mod tests {
         SwitchInstruction,
     };
     use crate::state::{
-        Move, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonMoves, SideReference,
-        State, Terrain,
+        Move, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, SideReference, State, Terrain,
     };
 
     #[test]

@@ -7,7 +7,6 @@ use std::thread;
 use std::time::Duration;
 
 enum IterativeDeependingThreadMessage {
-    Start((State, Vec<MoveChoice>, Vec<MoveChoice>)),
     Stop((Vec<MoveChoice>, Vec<MoveChoice>, Vec<f32>, i8)),
 }
 
@@ -164,10 +163,9 @@ pub fn iterative_deepen_expectiminimax(
     side_two_options: Vec<MoveChoice>,
     max_time: Duration,
 ) -> (Vec<MoveChoice>, Vec<MoveChoice>, Vec<f32>, i8) {
-    let mut result = Vec::new();
     let mut state_clone = state.clone();
 
-    result = expectiminimax_search(
+    let mut result = expectiminimax_search(
         state,
         1,
         side_one_options.clone(),

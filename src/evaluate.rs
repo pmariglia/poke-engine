@@ -59,8 +59,7 @@ fn evaluate_burned(pokemon: &Pokemon) -> f32 {
     }
 
     let mut multiplier = 0.0;
-    let mut iter = pokemon.moves.into_iter();
-    for mv in iter {
+    for mv in pokemon.moves.into_iter() {
         if mv.choice.category == MoveCategory::Physical {
             multiplier += 1.0;
         }
