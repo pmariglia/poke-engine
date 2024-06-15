@@ -7,7 +7,11 @@ use crate::choices::{
 };
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
-use crate::instruction::{ApplyVolatileStatusInstruction, BoostInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeType, ChangeWeather, DamageInstruction, HealInstruction, Instruction, StateInstructions};
+use crate::instruction::{
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeSideConditionInstruction,
+    ChangeStatusInstruction, ChangeTerrain, ChangeType, ChangeWeather, DamageInstruction,
+    HealInstruction, Instruction, StateInstructions,
+};
 use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Terrain};
 use crate::state::{PokemonStatus, State};
 use crate::state::{PokemonVolatileStatus, SideReference, Weather};
@@ -565,13 +569,17 @@ pub fn ability_on_switch_in(
                 }));
         }
         Abilities::SLOWSTART => {
-            active_pkmn.volatile_statuses.insert(PokemonVolatileStatus::SlowStart);
+            active_pkmn
+                .volatile_statuses
+                .insert(PokemonVolatileStatus::SlowStart);
             instructions
                 .instruction_list
-                .push(Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                    side_ref: *side_ref,
-                    volatile_status: PokemonVolatileStatus::SlowStart,
-                }));
+                .push(Instruction::ApplyVolatileStatus(
+                    ApplyVolatileStatusInstruction {
+                        side_ref: *side_ref,
+                        volatile_status: PokemonVolatileStatus::SlowStart,
+                    },
+                ));
         }
         Abilities::DROUGHT => {
             if state.weather.weather_type != Weather::Sun {

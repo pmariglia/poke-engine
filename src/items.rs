@@ -323,7 +323,7 @@ pub fn item_before_move(
                     },
                 ));
             }
-        },
+        }
         Items::CHOICESPECS | Items::CHOICEBAND | Items::CHOICESCARF => {
             let ins = get_choice_move_disable_instructions(active_pkmn, side_ref, &choice.move_id);
             for i in ins {

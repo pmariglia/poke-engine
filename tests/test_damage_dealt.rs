@@ -1,10 +1,14 @@
 #![cfg(feature = "damage_dealt")]
 
-
 use poke_engine::choices::{Choices, MoveCategory};
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
-use poke_engine::instruction::{DamageInstruction, Instruction, RemoveVolatileStatusInstruction, SetDamageDealtInstruction, StateInstructions};
-use poke_engine::state::{MoveChoice, PokemonMoveIndex, PokemonVolatileStatus, SideReference, State, Weather};
+use poke_engine::instruction::{
+    DamageInstruction, Instruction, RemoveVolatileStatusInstruction, SetDamageDealtInstruction,
+    StateInstructions,
+};
+use poke_engine::state::{
+    MoveChoice, PokemonMoveIndex, PokemonVolatileStatus, SideReference, State, Weather,
+};
 
 #[test]
 fn test_counter_after_physical_hit() {
@@ -44,7 +48,7 @@ fn test_counter_after_physical_hit() {
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 96,
-            })
+            }),
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -128,7 +132,7 @@ fn test_mirrorcoat_after_special_hit() {
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 64,
-            })
+            }),
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -218,7 +222,11 @@ fn test_focuspunch_after_getting_hit() {
 #[test]
 fn test_focuspunch_after_substitute_getting_hit() {
     let mut state = State::default();
-    state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::Substitute);
+    state
+        .side_one
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::Substitute);
     state.side_one.get_active().substitute_health = 1;
 
     state

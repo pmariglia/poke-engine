@@ -907,18 +907,23 @@ fn get_instructions_from_drag(
 fn reset_damage_dealt(
     side: &Side,
     side_reference: &SideReference,
-    incoming_instructions: &mut StateInstructions
+    incoming_instructions: &mut StateInstructions,
 ) {
-    if side.damage_dealt.damage != 0 || side.damage_dealt.move_category != MoveCategory::Physical || side.damage_dealt.hit_substitute {
-        incoming_instructions.instruction_list.push(Instruction::SetDamageDealt(SetDamageDealtInstruction {
-            side_ref: *side_reference,
-            damage: 0,
-            previous_damage: side.damage_dealt.damage,
-            move_category: MoveCategory::Physical,
-            previous_move_category: side.damage_dealt.move_category,
-            hit_substitute: false,
-            previous_hit_substitute: side.damage_dealt.hit_substitute,
-        }));
+    if side.damage_dealt.damage != 0
+        || side.damage_dealt.move_category != MoveCategory::Physical
+        || side.damage_dealt.hit_substitute
+    {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::SetDamageDealt(SetDamageDealtInstruction {
+                side_ref: *side_reference,
+                damage: 0,
+                previous_damage: side.damage_dealt.damage,
+                move_category: MoveCategory::Physical,
+                previous_move_category: side.damage_dealt.move_category,
+                hit_substitute: false,
+                previous_hit_substitute: side.damage_dealt.hit_substitute,
+            }));
     }
 }
 
@@ -2698,15 +2703,11 @@ mod tests {
 
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
-            instruction_list: vec![
-                Instruction::ChangeItem(
-                    ChangeItemInstruction {
-                        side_ref: SideReference::SideOne,
-                        current_item: Items::CUSTAPBERRY,
-                        new_item: Items::NONE,
-                    },
-                )
-            ],
+            instruction_list: vec![Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::CUSTAPBERRY,
+                new_item: Items::NONE,
+            })],
         };
 
         assert_eq!(instructions, vec![expected_instructions])
