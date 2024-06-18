@@ -1176,6 +1176,7 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
             .get_side_immutable(&attacking_side_ref.get_other_side())
             .last_used_move
         {
+            LastUsedMove::Move(Choices::NONE) => true,
             LastUsedMove::Move(_) => false,
             LastUsedMove::Switch(_) => true,
         };

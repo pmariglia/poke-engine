@@ -380,6 +380,53 @@ fn test_encore_fast_fails_with_lastusedmove_equal_to_switch() {
 }
 
 #[test]
+fn test_encore_fast_fails_with_lastusedmove_equal_to_none() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 200;
+    state.side_two.get_active().speed = 100;
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::ENCORE);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::TACKLE);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M1, Choices::WATERGUN);
+    state.side_two.last_used_move = LastUsedMove::Move(Choices::NONE);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
+                side_ref: SideReference::SideOne,
+                last_used_move: LastUsedMove::Move(Choices::ENCORE),
+                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+            }),
+            Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
+                side_ref: SideReference::SideTwo,
+                last_used_move: LastUsedMove::Move(Choices::TACKLE),
+                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_encore_second_fails_when_opponent_switches() {
     let mut state = State::default();
     state.side_one.get_active().speed = 200;
