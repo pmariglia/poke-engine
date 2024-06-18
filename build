@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+if [ -z "$1" ]; then
+    echo "Usage: ./build <generation>"
+    echo "Example: ./build gen4"
+    exit 1
+fi
+
+cargo build --release --features "$1,last_used_move,damage_dealt" --no-default-features
