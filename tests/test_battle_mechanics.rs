@@ -4962,6 +4962,30 @@ fn test_lifeorb_boost_and_recoil() {
 }
 
 #[test]
+fn test_no_lifeorb_recoil_with_magicguard() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::LIFEORB;
+    state.side_one.get_active().ability = Abilities::MAGICGUARD;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 61,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_lifeorb_on_non_damaging_move() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::LIFEORB;

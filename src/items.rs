@@ -1,5 +1,6 @@
 #![allow(unused_variables)]
 use std::cmp;
+use crate::abilities::Abilities;
 
 use crate::choices::{Choice, Choices, Effect, MoveCategory, MoveTarget, Secondary, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
@@ -681,11 +682,13 @@ pub fn item_modify_attack_being_used(
         Items::LIFEORB => {
             if attacking_choice.category != MoveCategory::Status {
                 attacking_choice.base_power *= 1.3;
-                attacking_choice.add_or_create_secondaries(Secondary {
-                    chance: 100.0,
-                    effect: Effect::Heal(-0.1),
-                    target: MoveTarget::User,
-                });
+                if attacking_side.get_active_immutable().ability != Abilities::MAGICGUARD {
+                    attacking_choice.add_or_create_secondaries(Secondary {
+                        chance: 100.0,
+                        effect: Effect::Heal(-0.1),
+                        target: MoveTarget::User,
+                    });
+                }
             }
         }
         Items::METALCOAT => {
