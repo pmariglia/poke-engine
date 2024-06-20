@@ -1039,7 +1039,7 @@ fn generate_instructions_from_damage(
         } else {
             let mut knocked_out = false;
             damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
-            if defending_pokemon.ability == Abilities::STURDY
+            if (defending_pokemon.ability == Abilities::STURDY || defending_pokemon.item == Items::FOCUSSASH)
                 && defending_pokemon.maxhp == defending_pokemon.hp
             {
                 damage_dealt -= 1;
@@ -4741,6 +4741,35 @@ mod tests {
         let mut state: State = State::default();
         let mut choice = MOVES.get(&Choices::EARTHQUAKE).unwrap().to_owned();
         state.side_two.get_active().ability = Abilities::STURDY;
+        state.side_two.get_active().hp = 50;
+        state.side_two.get_active().maxhp = 50;
+
+        let mut instructions = vec![];
+        generate_instructions_from_move(
+            &mut state,
+            &mut choice,
+            &MOVES.get(&Choices::TACKLE).unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+            &mut instructions,
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 49,
+            })],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_cannot_ohko_versus_sash() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get(&Choices::EARTHQUAKE).unwrap().to_owned();
+        state.side_two.get_active().item = Items::FOCUSSASH;
         state.side_two.get_active().hp = 50;
         state.side_two.get_active().maxhp = 50;
 

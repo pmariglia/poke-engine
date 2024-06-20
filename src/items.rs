@@ -107,6 +107,7 @@ pub enum Items {
     DRACOPLATE,
     PIXIEPLATE,
     LIGHTBALL,
+    FOCUSSASH
 }
 
 pub fn get_choice_move_disable_instructions(
