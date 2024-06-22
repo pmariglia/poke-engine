@@ -11,7 +11,7 @@ gen7:
 	./build gen7
 
 gen8:
-	./build gen8 &&
+	./build gen8
 
 test:
 	cargo test --no-default-features --features "gen9"
