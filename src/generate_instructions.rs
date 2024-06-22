@@ -1039,7 +1039,8 @@ fn generate_instructions_from_damage(
         } else {
             let mut knocked_out = false;
             damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
-            if (defending_pokemon.ability == Abilities::STURDY || defending_pokemon.item == Items::FOCUSSASH)
+            if (defending_pokemon.ability == Abilities::STURDY
+                || defending_pokemon.item == Items::FOCUSSASH)
                 && defending_pokemon.maxhp == defending_pokemon.hp
             {
                 damage_dealt -= 1;
@@ -1569,7 +1570,7 @@ pub fn generate_instructions_from_move(
         return;
     }
 
-    let damage = calculate_damage(state, attacking_side, &choice, DamageRolls::Average);
+    let damage = calculate_damage(state, &attacking_side, &choice, DamageRolls::Average);
     if cannot_use_move(state, &choice, &attacking_side) {
         state.reverse_instructions(&incoming_instructions.instruction_list);
         final_instructions.push(incoming_instructions);
@@ -2436,6 +2437,56 @@ fn remove_low_chance_instructions(instructions: &mut Vec<StateInstructions>, thr
     });
     for instruction in instructions.iter_mut() {
         instruction.percentage = instruction.percentage * 100.0 / percentage_sum;
+    }
+}
+
+pub fn calculate_damage_rolls(
+    mut state: State,
+    attacking_side_ref: &SideReference,
+    mut choice: Choice,
+    defending_choice: &Choice,
+) -> Option<Vec<i16>> {
+    let mut incoming_instructions = StateInstructions::default();
+
+    if choice.flags.charge {
+        choice.flags.charge = false;
+    }
+
+    before_move(
+        &mut state,
+        &mut choice,
+        attacking_side_ref,
+        &mut incoming_instructions,
+    );
+    update_choice(
+        &mut state,
+        &mut choice,
+        defending_choice,
+        attacking_side_ref,
+    );
+
+    let mut return_vec = Vec::with_capacity(16);
+    if let Some(damage) = calculate_damage(&state, attacking_side_ref, &choice, DamageRolls::Max) {
+        let damage = damage as f32;
+        return_vec.push((damage * 0.85) as i16);
+        return_vec.push((damage * 0.86) as i16);
+        return_vec.push((damage * 0.87) as i16);
+        return_vec.push((damage * 0.88) as i16);
+        return_vec.push((damage * 0.89) as i16);
+        return_vec.push((damage * 0.90) as i16);
+        return_vec.push((damage * 0.91) as i16);
+        return_vec.push((damage * 0.92) as i16);
+        return_vec.push((damage * 0.93) as i16);
+        return_vec.push((damage * 0.94) as i16);
+        return_vec.push((damage * 0.95) as i16);
+        return_vec.push((damage * 0.96) as i16);
+        return_vec.push((damage * 0.97) as i16);
+        return_vec.push((damage * 0.98) as i16);
+        return_vec.push((damage * 0.99) as i16);
+        return_vec.push(damage as i16);
+        Some(return_vec)
+    } else {
+        None
     }
 }
 

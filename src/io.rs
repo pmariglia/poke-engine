@@ -1,12 +1,14 @@
+use crate::choices::{Choice, Choices, MOVES};
 use crate::evaluate::evaluate;
-use crate::generate_instructions::generate_instructions_from_move_pair;
+use crate::generate_instructions::{calculate_damage_rolls, generate_instructions_from_move_pair};
 use crate::instruction::{Instruction, StateInstructions};
 use crate::search::{expectiminimax_search, iterative_deepen_expectiminimax, pick_safest};
-use crate::state::{MoveChoice, Pokemon, Side, State};
+use crate::state::{MoveChoice, Pokemon, Side, SideReference, State};
 use clap::Parser;
 use std::io;
 use std::io::Write;
 use std::process::exit;
+use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 
 struct IOData {
@@ -28,6 +30,7 @@ struct Cli {
 enum SubCommand {
     Expectiminimax(Expectiminimax),
     IterativeDeepening(IterativeDeepening),
+    CalculateDamage(CalculateDamage),
 }
 
 #[derive(Parser)]
@@ -49,6 +52,18 @@ struct IterativeDeepening {
 
     #[clap(short, long, default_value_t = 5000)]
     time_to_search_ms: u64,
+}
+
+#[derive(Parser)]
+struct CalculateDamage {
+    #[clap(short, long, required = true)]
+    state: String,
+
+    #[clap(short = 'o', long, required = true)]
+    side_one_move: String,
+
+    #[clap(short = 't', long, required = true)]
+    side_two_move: String,
 }
 
 impl Default for IOData {
@@ -328,6 +343,7 @@ pub fn main() {
                     expectiminimax.ab_prune,
                     &Arc::new(Mutex::new(true)),
                 );
+                print_subcommand_result(&result, &side_one_options, &side_two_options, &state);
             }
             SubCommand::IterativeDeepening(iterative_deepending) => {
                 state = State::deserialize(iterative_deepending.state.as_str());
@@ -338,13 +354,55 @@ pub fn main() {
                     side_two_options.clone(),
                     std::time::Duration::from_millis(iterative_deepending.time_to_search_ms),
                 );
+                print_subcommand_result(&result, &side_one_options, &side_two_options, &state);
+            }
+            SubCommand::CalculateDamage(calculate_damage) => {
+                state = State::deserialize(calculate_damage.state.as_str());
+                let s1_choice = MOVES
+                    .get(&Choices::from_str(calculate_damage.side_one_move.as_str()).unwrap())
+                    .unwrap()
+                    .to_owned();
+                let s2_choice = MOVES
+                    .get(&Choices::from_str(calculate_damage.side_two_move.as_str()).unwrap())
+                    .unwrap()
+                    .to_owned();
+                calculate_damage_io(&state, s1_choice, s2_choice);
             }
         },
     }
 
-    print_subcommand_result(&result, &side_one_options, &side_two_options, &state);
-
     exit(0);
+}
+
+fn calculate_damage_io(state: &State, s1_choice: Choice, s2_choice: Choice) {
+    let damages_dealt_s1 = calculate_damage_rolls(
+        state.clone(),
+        &SideReference::SideOne,
+        s1_choice.clone(),
+        &s2_choice,
+    );
+    let damages_dealt_s2 = calculate_damage_rolls(
+        state.clone(),
+        &SideReference::SideTwo,
+        s2_choice,
+        &s1_choice,
+    );
+
+    for dmg in [damages_dealt_s1, damages_dealt_s2] {
+        match dmg {
+            Some(damages_vec) => {
+                let joined = damages_vec
+                    .iter()
+                    .map(|x| format!("{:?}", x))
+                    .collect::<Vec<String>>()
+                    .join(",");
+                println!("Damage Rolls: {}", joined);
+            }
+            None => {
+                println!("Damage Rolls: 0");
+            }
+        }
+    }
 }
 
 fn command_loop(mut io_data: IOData) {
@@ -458,6 +516,34 @@ fn command_loop(mut io_data: IOData) {
                     generate_instructions_from_move_pair(&mut io_data.state, &s1_move, &s2_move);
                 println!("{:?}", instructions);
                 io_data.last_instructions_generated = instructions;
+            }
+            "calculate-damage" | "d" => {
+                let (s1_choice, s2_choice);
+                match args.next() {
+                    Some(s) => {
+                        s1_choice = MOVES
+                            .get(&Choices::from_str(s).unwrap())
+                            .unwrap()
+                            .to_owned();
+                    }
+                    None => {
+                        println!("Usage: calculate-damage <side-1 move> <side-2 move>");
+                        continue;
+                    }
+                }
+                match args.next() {
+                    Some(s) => {
+                        s2_choice = MOVES
+                            .get(&Choices::from_str(s).unwrap())
+                            .unwrap()
+                            .to_owned();
+                    }
+                    None => {
+                        println!("Usage: calculate-damage <side-1 move> <side-2 move>");
+                        continue;
+                    }
+                }
+                calculate_damage_io(&io_data.state, s1_choice, s2_choice);
             }
             "instructions" | "i" => {
                 println!("{:?}", io_data.last_instructions_generated);

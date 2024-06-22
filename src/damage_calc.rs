@@ -305,11 +305,11 @@ fn _get_damage_rolls(damage: f32, damage_roll_type: DamageRolls) -> Vec<i16> {
 // be reflected in the `Choice`
 pub fn calculate_damage(
     state: &State,
-    attacking_side: SideReference,
+    attacking_side: &SideReference,
     choice: &Choice,
     _damage_rolls: DamageRolls,
 ) -> Option<i16> {
-    let (attacking_side, defending_side) = state.get_both_sides_immutable(&attacking_side);
+    let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side);
     let attacker = attacking_side.get_active_immutable();
     let defender = defending_side.get_active_immutable();
 
@@ -395,7 +395,14 @@ pub fn calculate_damage(
 
     damage = damage * damage_modifier;
 
-    return Some((damage.floor() * 0.925) as i16);
+    match _damage_rolls {
+        DamageRolls::Average => damage = damage.floor() * 0.925,
+        DamageRolls::Min => damage = damage.floor() * 0.85,
+        DamageRolls::Max => damage = damage.floor(),
+        _ => panic!("Not implemented"),
+    }
+
+    return Some(damage as i16);
 }
 
 #[cfg(test)]
@@ -421,7 +428,7 @@ mod tests {
 
         let dmg = calculate_damage(
             &state,
-            SideReference::SideOne,
+            &SideReference::SideOne,
             &choice,
             DamageRolls::Average,
         );
@@ -441,7 +448,7 @@ mod tests {
 
         let dmg = calculate_damage(
             &state,
-            SideReference::SideOne,
+            &SideReference::SideOne,
             &choice,
             DamageRolls::Average,
         );
@@ -462,7 +469,7 @@ mod tests {
 
         let dmg = calculate_damage(
             &state,
-            SideReference::SideOne,
+            &SideReference::SideOne,
             &choice,
             DamageRolls::Average,
         );
@@ -484,7 +491,7 @@ mod tests {
 
         let dmg = calculate_damage(
             &state,
-            SideReference::SideOne,
+            &SideReference::SideOne,
             &choice,
             DamageRolls::Average,
         );
@@ -507,7 +514,7 @@ mod tests {
 
         let dmg = calculate_damage(
             &state,
-            SideReference::SideOne,
+            &SideReference::SideOne,
             &choice,
             DamageRolls::Average,
         );
@@ -529,7 +536,7 @@ mod tests {
         choice.category = MoveCategory::Special;
         let dmg = calculate_damage(
             &state,
-            SideReference::SideOne,
+            &SideReference::SideOne,
             &choice,
             DamageRolls::Average,
         );
@@ -551,7 +558,7 @@ mod tests {
         choice.category = MoveCategory::Special;
         let dmg = calculate_damage(
             &state,
-            SideReference::SideOne,
+            &SideReference::SideOne,
             &choice,
             DamageRolls::Average,
         );
@@ -574,7 +581,7 @@ mod tests {
                     choice.move_type = move_type;
                     choice.base_power = 40.0;
                     choice.category = MoveCategory::Special;
-                    let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
+                    let dmg = calculate_damage(&state, &SideReference::SideOne, &choice, DamageRolls::Average);
 
                     assert_eq!(expected_damage_amount, dmg.unwrap());
                 }
@@ -608,7 +615,7 @@ mod tests {
                     choice.move_type = attacking_move_type;
                     choice.base_power = 40.0;
                     choice.category = MoveCategory::Special;
-                    let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
+                    let dmg = calculate_damage(&state, &SideReference::SideOne, &choice, DamageRolls::Average);
 
                     assert_eq!(expected_damage_amount, dmg.unwrap());
                 }
@@ -635,7 +642,7 @@ mod tests {
                     choice.category = attacking_move_category;
                     choice.move_type = PokemonType::Typeless;
                     choice.base_power = 40.0;
-                    let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
+                    let dmg = calculate_damage(&state, &SideReference::SideOne, &choice, DamageRolls::Average);
 
                     assert_eq!(expected_damage_amount, dmg.unwrap());
                 }
@@ -664,7 +671,7 @@ mod tests {
                     choice.category = move_category;
                     choice.base_power = 40.0;
                     choice.move_type = PokemonType::Typeless;
-                    let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
+                    let dmg = calculate_damage(&state, &SideReference::SideOne, &choice, DamageRolls::Average);
 
                     assert_eq!(expected_damage_amount, dmg.unwrap());
                 }
@@ -699,7 +706,7 @@ mod tests {
                     choice.category = MoveCategory::Physical;
                     choice.move_type = move_type;
                     choice.base_power = 40.0;
-                    let dmg = calculate_damage(&state, SideReference::SideOne, &choice, DamageRolls::Average);
+                    let dmg = calculate_damage(&state, &SideReference::SideOne, &choice, DamageRolls::Average);
 
                     assert_eq!(expected_damage_amount, dmg.unwrap());
                 }
