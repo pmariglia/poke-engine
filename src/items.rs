@@ -1,6 +1,6 @@
 #![allow(unused_variables)]
-use std::cmp;
 use crate::abilities::Abilities;
+use std::cmp;
 
 use crate::choices::{Choice, Choices, Effect, MoveCategory, MoveTarget, Secondary, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
@@ -108,7 +108,7 @@ pub enum Items {
     DRACOPLATE,
     PIXIEPLATE,
     LIGHTBALL,
-    FOCUSSASH
+    FOCUSSASH,
 }
 
 pub fn get_choice_move_disable_instructions(

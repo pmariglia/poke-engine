@@ -4975,12 +4975,10 @@ fn test_no_lifeorb_recoil_with_magicguard() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 61,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 61,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
