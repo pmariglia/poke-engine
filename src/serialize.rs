@@ -10,6 +10,574 @@ use std::collections::HashSet;
 use std::fmt;
 use std::str::FromStr;
 
+impl Move {
+    pub fn serialize(&self) -> String {
+        return format!("{:?};{};{}", self.id, self.disabled, self.pp);
+    }
+    pub fn deserialize(serialized: &str) -> Move {
+        let split: Vec<&str> = serialized.split(";").collect();
+        return Move {
+            id: Choices::from_str(split[0]).unwrap(),
+            disabled: split[1].parse::<bool>().unwrap(),
+            pp: split[2].parse::<i8>().unwrap(),
+            choice: MOVES
+                .get(&Choices::from_str(split[0]).unwrap())
+                .unwrap()
+                .to_owned(),
+        };
+    }
+}
+
+impl MoveChoice {
+    pub fn deserialize(serialized: &str) -> MoveChoice {
+        let mut chars = serialized.chars();
+
+        let char1 = chars.next().unwrap();
+
+        match char1 {
+            'm' => {
+                let char2 = chars.next().unwrap();
+                return MoveChoice::Move(PokemonMoveIndex::deserialize(&char2.to_string()));
+            }
+            's' => {
+                let char2 = chars.next().unwrap();
+                return MoveChoice::Switch(PokemonIndex::deserialize(&char2.to_string()));
+            }
+            'n' => {
+                return MoveChoice::None;
+            }
+            _ => panic!("Invalid move choice: {}", serialized),
+        }
+    }
+}
+
+impl PokemonMoveIndex {
+    pub fn deserialize(serialized: &str) -> PokemonMoveIndex {
+        return match serialized {
+            "0" => PokemonMoveIndex::M0,
+            "1" => PokemonMoveIndex::M1,
+            "2" => PokemonMoveIndex::M2,
+            "3" => PokemonMoveIndex::M3,
+            _ => panic!("Invalid move index: {}", serialized),
+        };
+    }
+}
+
+impl PokemonType {
+    pub fn serialize(&self) -> String {
+        return format!("{:?}", self);
+    }
+
+    pub fn deserialize(input: &str) -> PokemonType {
+        match input.to_lowercase().as_str() {
+            "normal" => PokemonType::Normal,
+            "fire" => PokemonType::Fire,
+            "water" => PokemonType::Water,
+            "electric" => PokemonType::Electric,
+            "grass" => PokemonType::Grass,
+            "ice" => PokemonType::Ice,
+            "fighting" => PokemonType::Fighting,
+            "poison" => PokemonType::Poison,
+            "ground" => PokemonType::Ground,
+            "flying" => PokemonType::Flying,
+            "psychic" => PokemonType::Psychic,
+            "bug" => PokemonType::Bug,
+            "rock" => PokemonType::Rock,
+            "ghost" => PokemonType::Ghost,
+            "dragon" => PokemonType::Dragon,
+            "dark" => PokemonType::Dark,
+            "steel" => PokemonType::Steel,
+            "fairy" => PokemonType::Fairy,
+            "typeless" => PokemonType::Typeless,
+            _ => panic!("Invalid type: {}", input),
+        }
+    }
+}
+
+impl PokemonStatus {
+    pub fn serialize(&self) -> String {
+        return format!("{:?}", self);
+    }
+
+    pub fn deserialize(input: &str) -> PokemonStatus {
+        match input.to_lowercase().as_str() {
+            "none" => PokemonStatus::None,
+            "burn" => PokemonStatus::Burn,
+            "sleep" => PokemonStatus::Sleep,
+            "freeze" => PokemonStatus::Freeze,
+            "paralyze" => PokemonStatus::Paralyze,
+            "poison" => PokemonStatus::Poison,
+            "toxic" => PokemonStatus::Toxic,
+            _ => panic!("Invalid status: {}", input),
+        }
+    }
+}
+
+impl PokemonNatures {
+    pub fn serialize(&self) -> String {
+        return format!("{:?}", self);
+    }
+
+    pub fn deserialize(input: &str) -> PokemonNatures {
+        match input.to_lowercase().as_str() {
+            "lonely" => PokemonNatures::Lonely,
+            "adamant" => PokemonNatures::Adamant,
+            "naughty" => PokemonNatures::Naughty,
+            "brave" => PokemonNatures::Brave,
+            "bold" => PokemonNatures::Bold,
+            "impish" => PokemonNatures::Impish,
+            "lax" => PokemonNatures::Lax,
+            "relaxed" => PokemonNatures::Relaxed,
+            "modest" => PokemonNatures::Modest,
+            "mild" => PokemonNatures::Mild,
+            "rash" => PokemonNatures::Rash,
+            "quiet" => PokemonNatures::Quiet,
+            "calm" => PokemonNatures::Calm,
+            "gentle" => PokemonNatures::Gentle,
+            "careful" => PokemonNatures::Careful,
+            "sassy" => PokemonNatures::Sassy,
+            "timid" => PokemonNatures::Timid,
+            "hasty" => PokemonNatures::Hasty,
+            "jolly" => PokemonNatures::Jolly,
+            "naive" => PokemonNatures::Naive,
+            "hardy" => PokemonNatures::Hardy,
+            "docile" => PokemonNatures::Docile,
+            "bashful" => PokemonNatures::Bashful,
+            "quirky" => PokemonNatures::Quirky,
+            "serious" => PokemonNatures::Serious,
+            _ => panic!("Invalid nature: {}", input),
+        }
+    }
+}
+
+impl PokemonVolatileStatus {
+    pub fn serialize(&self) -> String {
+        return format!("{:?}", self);
+    }
+
+    pub fn deserialize(input: &str) -> PokemonVolatileStatus {
+        match input.to_lowercase().as_str() {
+            "aquaring" => PokemonVolatileStatus::AquaRing,
+            "attract" => PokemonVolatileStatus::Attract,
+            "autotomize" => PokemonVolatileStatus::Autotomize,
+            "banefulbunker" => PokemonVolatileStatus::BanefulBunker,
+            "bide" => PokemonVolatileStatus::Bide,
+            "bounce" => PokemonVolatileStatus::Bounce,
+            "charge" => PokemonVolatileStatus::Charge,
+            "confusion" => PokemonVolatileStatus::Confusion,
+            "curse" => PokemonVolatileStatus::Curse,
+            "defensecurl" => PokemonVolatileStatus::DefenseCurl,
+            "destinybond" => PokemonVolatileStatus::DestinyBond,
+            "dig" => PokemonVolatileStatus::Dig,
+            "disable" => PokemonVolatileStatus::Disable,
+            "dive" => PokemonVolatileStatus::Dive,
+            "electrify" => PokemonVolatileStatus::Electrify,
+            "embargo" => PokemonVolatileStatus::Embargo,
+            "encore" => PokemonVolatileStatus::Encore,
+            "endure" => PokemonVolatileStatus::Endure,
+            "flashfire" => PokemonVolatileStatus::FlashFire,
+            "flinch" => PokemonVolatileStatus::Flinch,
+            "fly" => PokemonVolatileStatus::Fly,
+            "focusenergy" => PokemonVolatileStatus::Focusenergy,
+            "followme" => PokemonVolatileStatus::FollowMe,
+            "foresight" => PokemonVolatileStatus::Foresight,
+            "freezeshock" => PokemonVolatileStatus::Freezeshock,
+            "gastroacid" => PokemonVolatileStatus::GastroAcid,
+            "geomancy" => PokemonVolatileStatus::Geomancy,
+            "glaiverush" => PokemonVolatileStatus::GlaiveRush,
+            "grudge" => PokemonVolatileStatus::Grudge,
+            "healblock" => PokemonVolatileStatus::HealBlock,
+            "helpinghand" => PokemonVolatileStatus::HelpingHand,
+            "iceburn" => PokemonVolatileStatus::IceBurn,
+            "imprison" => PokemonVolatileStatus::Imprison,
+            "ingrain" => PokemonVolatileStatus::Ingrain,
+            "kingsshield" => PokemonVolatileStatus::KingsShield,
+            "laserfocus" => PokemonVolatileStatus::LaserFocus,
+            "leechseed" => PokemonVolatileStatus::LeechSeed,
+            "lockedmove" => PokemonVolatileStatus::LockedMove,
+            "magiccoat" => PokemonVolatileStatus::MagicCoat,
+            "magnetrise" => PokemonVolatileStatus::MagnetRise,
+            "maxguard" => PokemonVolatileStatus::MaxGuard,
+            "meteorbeam" => PokemonVolatileStatus::MeteorBeam,
+            "minimize" => PokemonVolatileStatus::Minimize,
+            "miracleeye" => PokemonVolatileStatus::MiracleEye,
+            "mustrecharge" => PokemonVolatileStatus::MustRecharge,
+            "nightmare" => PokemonVolatileStatus::Nightmare,
+            "noretreat" => PokemonVolatileStatus::NoRetreat,
+            "octolock" => PokemonVolatileStatus::Octolock,
+            "partiallytrapped" => PokemonVolatileStatus::PartiallyTrapped,
+            "phantomforce" => PokemonVolatileStatus::PhantomForce,
+            "powder" => PokemonVolatileStatus::Powder,
+            "powershift" => PokemonVolatileStatus::PowerShift,
+            "powertrick" => PokemonVolatileStatus::PowerTrick,
+            "protect" => PokemonVolatileStatus::Protect,
+            "rage" => PokemonVolatileStatus::Rage,
+            "ragepowder" => PokemonVolatileStatus::RagePowder,
+            "razorwind" => PokemonVolatileStatus::RazorWind,
+            "roost" => PokemonVolatileStatus::Roost,
+            "saltcure" => PokemonVolatileStatus::SaltCure,
+            "shadowforce" => PokemonVolatileStatus::ShadowForce,
+            "skullbash" => PokemonVolatileStatus::SkullBash,
+            "skyattack" => PokemonVolatileStatus::SkyAttack,
+            "skydrop" => PokemonVolatileStatus::SkyDrop,
+            "silktrap" => PokemonVolatileStatus::SilkTrap,
+            "slowstart" => PokemonVolatileStatus::SlowStart,
+            "smackdown" => PokemonVolatileStatus::SmackDown,
+            "snatch" => PokemonVolatileStatus::Snatch,
+            "solarbeam" => PokemonVolatileStatus::SolarBeam,
+            "solarblade" => PokemonVolatileStatus::SolarBlade,
+            "sparklingaria" => PokemonVolatileStatus::SparklingAria,
+            "spikyshield" => PokemonVolatileStatus::SpikyShield,
+            "spotlight" => PokemonVolatileStatus::Spotlight,
+            "stockpile" => PokemonVolatileStatus::StockPile,
+            "substitute" => PokemonVolatileStatus::Substitute,
+            "syrupbomb" => PokemonVolatileStatus::SyrupBomb,
+            "tarshot" => PokemonVolatileStatus::TarShot,
+            "taunt" => PokemonVolatileStatus::Taunt,
+            "telekinesis" => PokemonVolatileStatus::Telekinesis,
+            "throatchop" => PokemonVolatileStatus::ThroatChop,
+            "torment" => PokemonVolatileStatus::Torment,
+            "unburden" => PokemonVolatileStatus::Unburden,
+            "uproar" => PokemonVolatileStatus::Uproar,
+            "yawn" => PokemonVolatileStatus::Yawn,
+            _ => PokemonVolatileStatus::None,
+        }
+    }
+}
+
+impl Pokemon {
+    pub fn serialize(&self) -> String {
+        let mut vs_string = String::new();
+        for vs in &self.volatile_statuses {
+            vs_string.push_str(&vs.serialize());
+            vs_string.push_str(":");
+        }
+
+        return format!(
+            "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
+            self.id,
+            self.level,
+            self.types.0.serialize(),
+            self.types.1.serialize(),
+            self.hp,
+            self.maxhp,
+            self.ability.to_string(),
+            self.item.to_string(),
+            self.attack,
+            self.defense,
+            self.special_attack,
+            self.special_defense,
+            self.speed,
+            self.attack_boost,
+            self.defense_boost,
+            self.special_attack_boost,
+            self.special_defense_boost,
+            self.speed_boost,
+            self.accuracy_boost,
+            self.evasion_boost,
+            self.status.serialize(),
+            self.substitute_health,
+            self.rest_turns,
+            self.nature.serialize(),
+            vs_string,
+            self.moves.m0.serialize(),
+            self.moves.m1.serialize(),
+            self.moves.m2.serialize(),
+            self.moves.m3.serialize(),
+            self.moves.m4.serialize(),
+            self.moves.m5.serialize(),
+        );
+    }
+
+    pub fn deserialize(serialized: &str) -> Pokemon {
+        let split: Vec<&str> = serialized.split(",").collect();
+
+        let mut vs_hashset = HashSet::new();
+        if split[24] != "" {
+            for item in split[24].split(":") {
+                vs_hashset.insert(PokemonVolatileStatus::deserialize(item));
+            }
+        }
+
+        return Pokemon {
+            id: split[0].to_string(),
+            level: split[1].parse::<i8>().unwrap(),
+            types: (
+                PokemonType::deserialize(split[2]),
+                PokemonType::deserialize(split[3]),
+            ),
+            hp: split[4].parse::<i16>().unwrap(),
+            maxhp: split[5].parse::<i16>().unwrap(),
+            ability: Abilities::from_str(split[6]).unwrap(),
+            item: Items::from_str(split[7]).unwrap(),
+            attack: split[8].parse::<i16>().unwrap(),
+            defense: split[9].parse::<i16>().unwrap(),
+            special_attack: split[10].parse::<i16>().unwrap(),
+            special_defense: split[11].parse::<i16>().unwrap(),
+            speed: split[12].parse::<i16>().unwrap(),
+            attack_boost: split[13].parse::<i8>().unwrap(),
+            defense_boost: split[14].parse::<i8>().unwrap(),
+            special_attack_boost: split[15].parse::<i8>().unwrap(),
+            special_defense_boost: split[16].parse::<i8>().unwrap(),
+            speed_boost: split[17].parse::<i8>().unwrap(),
+            accuracy_boost: split[18].parse::<i8>().unwrap(),
+            evasion_boost: split[19].parse::<i8>().unwrap(),
+            status: PokemonStatus::deserialize(split[20]),
+            substitute_health: split[21].parse::<i16>().unwrap(),
+            rest_turns: split[22].parse::<i8>().unwrap(),
+            nature: PokemonNatures::deserialize(split[23]),
+            volatile_statuses: vs_hashset,
+            moves: PokemonMoves {
+                m0: Move::deserialize(split[25]),
+                m1: Move::deserialize(split[26]),
+                m2: Move::deserialize(split[27]),
+                m3: Move::deserialize(split[28]),
+                m4: Move::deserialize(split[29]),
+                m5: Move::deserialize(split[30]),
+            },
+        };
+    }
+}
+
+impl LastUsedMove {
+    fn serialize(&self) -> String {
+        return match self {
+            LastUsedMove::Move(move_name) => format!("move:{}", move_name),
+            LastUsedMove::Switch(pkmn_index) => format!("switch:{}", pkmn_index.serialize()),
+        };
+    }
+    fn deserialize(serialized: &str) -> LastUsedMove {
+        let split: Vec<&str> = serialized.split(":").collect();
+        match split[0] {
+            "move" => return LastUsedMove::Move(Choices::from_str(split[1]).unwrap()),
+            "switch" => return LastUsedMove::Switch(PokemonIndex::deserialize(split[1])),
+            _ => panic!("Invalid LastUsedMove: {}", serialized),
+        }
+    }
+}
+
+impl PokemonIndex {
+    pub fn serialize(&self) -> String {
+        match self {
+            PokemonIndex::P0 => "0".to_string(),
+            PokemonIndex::P1 => "1".to_string(),
+            PokemonIndex::P2 => "2".to_string(),
+            PokemonIndex::P3 => "3".to_string(),
+            PokemonIndex::P4 => "4".to_string(),
+            PokemonIndex::P5 => "5".to_string(),
+        }
+    }
+
+    pub fn deserialize(serialized: &str) -> PokemonIndex {
+        match serialized {
+            "0" => PokemonIndex::P0,
+            "1" => PokemonIndex::P1,
+            "2" => PokemonIndex::P2,
+            "3" => PokemonIndex::P3,
+            "4" => PokemonIndex::P4,
+            "5" => PokemonIndex::P5,
+            _ => panic!("Invalid PokemonIndex: {}", serialized),
+        }
+    }
+}
+
+impl SideConditions {
+    pub fn serialize(&self) -> String {
+        return format!(
+            "{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{}",
+            self.aurora_veil,
+            self.crafty_shield,
+            self.healing_wish,
+            self.light_screen,
+            self.lucky_chant,
+            self.lunar_dance,
+            self.mat_block,
+            self.mist,
+            self.protect,
+            self.quick_guard,
+            self.reflect,
+            self.safeguard,
+            self.spikes,
+            self.stealth_rock,
+            self.sticky_web,
+            self.tailwind,
+            self.toxic_count,
+            self.toxic_spikes,
+            self.wide_guard,
+        );
+    }
+    pub fn deserialize(serialized: &str) -> SideConditions {
+        let split: Vec<&str> = serialized.split(";").collect();
+        return SideConditions {
+            aurora_veil: split[0].parse::<i8>().unwrap(),
+            crafty_shield: split[1].parse::<i8>().unwrap(),
+            healing_wish: split[2].parse::<i8>().unwrap(),
+            light_screen: split[3].parse::<i8>().unwrap(),
+            lucky_chant: split[4].parse::<i8>().unwrap(),
+            lunar_dance: split[5].parse::<i8>().unwrap(),
+            mat_block: split[6].parse::<i8>().unwrap(),
+            mist: split[7].parse::<i8>().unwrap(),
+            protect: split[8].parse::<i8>().unwrap(),
+            quick_guard: split[9].parse::<i8>().unwrap(),
+            reflect: split[10].parse::<i8>().unwrap(),
+            safeguard: split[11].parse::<i8>().unwrap(),
+            spikes: split[12].parse::<i8>().unwrap(),
+            stealth_rock: split[13].parse::<i8>().unwrap(),
+            sticky_web: split[14].parse::<i8>().unwrap(),
+            tailwind: split[15].parse::<i8>().unwrap(),
+            toxic_count: split[16].parse::<i8>().unwrap(),
+            toxic_spikes: split[17].parse::<i8>().unwrap(),
+            wide_guard: split[18].parse::<i8>().unwrap(),
+        };
+    }
+}
+
+impl Side {
+    pub fn serialize(&self) -> String {
+        return format!(
+            "{}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}",
+            self.pokemon.p0.serialize(),
+            self.pokemon.p1.serialize(),
+            self.pokemon.p2.serialize(),
+            self.pokemon.p3.serialize(),
+            self.pokemon.p4.serialize(),
+            self.pokemon.p5.serialize(),
+            self.active_index.serialize(),
+            self.side_conditions.serialize(),
+            self.wish.0,
+            self.wish.1,
+            self.force_switch,
+            self.switch_out_move_second_saved_move.to_string(),
+            self.baton_passing,
+            self.force_trapped,
+            self.last_used_move.serialize(),
+            self.slow_uturn_move,
+        );
+    }
+    pub fn deserialize(serialized: &str) -> Side {
+        let split: Vec<&str> = serialized.split("=").collect();
+        return Side {
+            active_index: PokemonIndex::deserialize(split[6]),
+            pokemon: SidePokemon {
+                p0: Pokemon::deserialize(split[0]),
+                p1: Pokemon::deserialize(split[1]),
+                p2: Pokemon::deserialize(split[2]),
+                p3: Pokemon::deserialize(split[3]),
+                p4: Pokemon::deserialize(split[4]),
+                p5: Pokemon::deserialize(split[5]),
+            },
+            side_conditions: SideConditions::deserialize(split[7]),
+            wish: (
+                split[8].parse::<i8>().unwrap(),
+                split[9].parse::<i16>().unwrap(),
+            ),
+            force_switch: split[10].parse::<bool>().unwrap(),
+            switch_out_move_second_saved_move: Choices::from_str(split[11]).unwrap(),
+            baton_passing: split[12].parse::<bool>().unwrap(),
+            force_trapped: split[13].parse::<bool>().unwrap(),
+            last_used_move: LastUsedMove::deserialize(split[14]),
+            damage_dealt: DamageDealt::default(),
+            slow_uturn_move: split[15].parse::<bool>().unwrap(),
+        };
+    }
+}
+
+impl Weather {
+    pub fn from_str(input: &str) -> Result<Weather, ()> {
+        match input.to_lowercase().as_str() {
+            "none" => Ok(Weather::None),
+            "rain" => Ok(Weather::Rain),
+            "sun" => Ok(Weather::Sun),
+            "sand" => Ok(Weather::Sand),
+            "hail" => Ok(Weather::Hail),
+            "harshsun" => Ok(Weather::HarshSun),
+            "heavyrain" => Ok(Weather::HeavyRain),
+            _ => Err(()),
+        }
+    }
+}
+
+impl StateWeather {
+    pub fn serialize(&self) -> String {
+        return format!("{:?};{}", self.weather_type, self.turns_remaining);
+    }
+    pub fn deserialize(serialized: &str) -> StateWeather {
+        let split: Vec<&str> = serialized.split(";").collect();
+        return StateWeather {
+            weather_type: Weather::from_str(split[0]).unwrap(),
+            turns_remaining: split[1].parse::<i8>().unwrap(),
+        };
+    }
+}
+
+impl Terrain {
+    pub fn from_str(input: &str) -> Result<Terrain, ()> {
+        match input.to_lowercase().as_str() {
+            "none" => Ok(Terrain::None),
+            "electricterrain" => Ok(Terrain::ElectricTerrain),
+            "grassyterrain" => Ok(Terrain::GrassyTerrain),
+            "mistyterrain" => Ok(Terrain::MistyTerrain),
+            "psychicterrain" => Ok(Terrain::PsychicTerrain),
+            _ => Err(()),
+        }
+    }
+}
+
+impl StateTerrain {
+    pub fn serialize(&self) -> String {
+        return format!("{:?};{}", self.terrain_type, self.turns_remaining);
+    }
+    pub fn deserialize(serialized: &str) -> StateTerrain {
+        let split: Vec<&str> = serialized.split(";").collect();
+        return StateTerrain {
+            terrain_type: Terrain::from_str(split[0]).unwrap(),
+            turns_remaining: split[1].parse::<i8>().unwrap(),
+        };
+    }
+}
+
+impl State {
+    pub fn serialize(&self) -> String {
+        return format!(
+            "{}/{}/{}/{}/{}/{}",
+            self.side_one.serialize(),
+            self.side_two.serialize(),
+            self.weather.serialize(),
+            self.terrain.serialize(),
+            self.trick_room,
+            self.team_preview
+        );
+    }
+
+    /// ```
+    /// use poke_engine::abilities::Abilities;
+    /// use poke_engine::items::Items;
+    /// use poke_engine::state::State;
+    /// let serialized_state = "alakazam,100,Psychic,Typeless,251,251,MAGICGUARD,LIFEORB,121,148,353,206,365,0,0,0,0,0,0,0,None,0,0,Serious,,PSYCHIC;false;16,GRASSKNOT;false;32,SHADOWBALL;false;24,HIDDENPOWERFIRE70;false;24,NONE;true;32,NONE;true;32=skarmory,100,Steel,Flying,271,271,STURDY,CUSTAPBERRY,259,316,104,177,262,0,0,0,0,0,0,0,None,0,0,Serious,,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,NONE;true;32,NONE;true;32=tyranitar,100,Rock,Dark,404,404,SANDSTREAM,CHOPLEBERRY,305,256,203,327,159,0,0,0,0,0,0,0,None,0,0,Serious,,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,NONE;true;32,NONE;true;32=mamoswine,100,Ice,Ground,362,362,THICKFAT,NEVERMELTICE,392,196,158,176,241,0,0,0,0,0,0,0,None,0,0,Serious,,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,NONE;true;32,NONE;true;32=jellicent,100,Water,Ghost,404,404,WATERABSORB,AIRBALLOON,140,237,206,246,180,0,0,0,0,0,0,0,None,0,0,Serious,,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,NONE;true;32,NONE;true;32=excadrill,100,Ground,Steel,362,362,SANDFORCE,CHOICESCARF,367,156,122,168,302,0,0,0,0,0,0,0,None,0,0,Serious,,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,NONE;true;32,NONE;true;32=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;=0=0=false=NONE=false=false=switch:0=false/terrakion,100,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,0,0,0,0,0,0,0,None,0,0,Serious,,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,XSCISSOR;false;24,QUICKATTACK;false;48=lucario,100,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,0,0,0,0,0,0,0,None,0,0,Serious,,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,ICEPUNCH;false;24,AURASPHERE;false;32=breloom,100,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,0,0,0,0,0,0,0,None,0,0,Serious,,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,DRAINPUNCH;false;16,PROTECT;false;16=keldeo,100,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,0,0,0,0,0,0,0,None,0,0,Serious,,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,HIDDENPOWERICE70;false;24,CALMMIND;false;32=conkeldurr,100,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,0,0,0,0,0,0,0,None,0,0,Serious,,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,BULKUP;false;32,PAYBACK;false;16=toxicroak,100,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,0,0,0,0,0,0,0,None,0,0,Serious,,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,POISONJAB;false;32,SUBSTITUTE;false;16=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;=0=0=false=NONE=false=false=switch:0=false/none;5/none;5/false/false";
+    /// let state = State::deserialize(serialized_state);
+    ///
+    /// assert_eq!(state.side_one.get_active_immutable().id, "alakazam");
+    /// assert_eq!(state.side_one.get_active_immutable().item, Items::LIFEORB);
+    /// assert_eq!(state.side_one.get_active_immutable().ability, Abilities::MAGICGUARD);
+    /// assert_eq!(state.side_two.get_active_immutable().id, "terrakion");
+    /// assert_eq!(state.side_two.get_active_immutable().item, Items::FOCUSSASH);
+    /// assert_eq!(state.side_two.get_active_immutable().ability, Abilities::JUSTIFIED);
+    /// assert_eq!(state.trick_room, false);
+    /// assert_eq!(state.team_preview, false);
+    /// ```
+    pub fn deserialize(serialized: &str) -> State {
+        let split: Vec<&str> = serialized.split("/").collect();
+        return State {
+            side_one: Side::deserialize(split[0]),
+            side_two: Side::deserialize(split[1]),
+            weather: StateWeather::deserialize(split[2]),
+            terrain: StateTerrain::deserialize(split[3]),
+            trick_room: split[4].parse::<bool>().unwrap(),
+            team_preview: split[5].parse::<bool>().unwrap(),
+        };
+    }
+}
+
 impl FromStr for Choices {
     type Err = ();
     fn from_str(input: &str) -> Result<Self, Self::Err> {
@@ -1294,573 +1862,5 @@ impl FromStr for Items {
 impl fmt::Display for Items {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}", self)
-    }
-}
-
-impl Move {
-    pub fn serialize(&self) -> String {
-        return format!("{:?};{};{}", self.id, self.disabled, self.pp);
-    }
-    pub fn deserialize(serialized: &str) -> Move {
-        let split: Vec<&str> = serialized.split(";").collect();
-        return Move {
-            id: Choices::from_str(split[0]).unwrap(),
-            disabled: split[1].parse::<bool>().unwrap(),
-            pp: split[2].parse::<i8>().unwrap(),
-            choice: MOVES
-                .get(&Choices::from_str(split[0]).unwrap())
-                .unwrap()
-                .to_owned(),
-        };
-    }
-}
-
-impl MoveChoice {
-    pub fn deserialize(serialized: &str) -> MoveChoice {
-        let mut chars = serialized.chars();
-
-        let char1 = chars.next().unwrap();
-
-        match char1 {
-            'm' => {
-                let char2 = chars.next().unwrap();
-                return MoveChoice::Move(PokemonMoveIndex::deserialize(&char2.to_string()));
-            }
-            's' => {
-                let char2 = chars.next().unwrap();
-                return MoveChoice::Switch(PokemonIndex::deserialize(&char2.to_string()));
-            }
-            'n' => {
-                return MoveChoice::None;
-            }
-            _ => panic!("Invalid move choice: {}", serialized),
-        }
-    }
-}
-
-impl PokemonMoveIndex {
-    pub fn deserialize(serialized: &str) -> PokemonMoveIndex {
-        return match serialized {
-            "0" => PokemonMoveIndex::M0,
-            "1" => PokemonMoveIndex::M1,
-            "2" => PokemonMoveIndex::M2,
-            "3" => PokemonMoveIndex::M3,
-            _ => panic!("Invalid move index: {}", serialized),
-        };
-    }
-}
-
-impl PokemonType {
-    pub fn serialize(&self) -> String {
-        return format!("{:?}", self);
-    }
-
-    pub fn deserialize(input: &str) -> PokemonType {
-        match input.to_lowercase().as_str() {
-            "normal" => PokemonType::Normal,
-            "fire" => PokemonType::Fire,
-            "water" => PokemonType::Water,
-            "electric" => PokemonType::Electric,
-            "grass" => PokemonType::Grass,
-            "ice" => PokemonType::Ice,
-            "fighting" => PokemonType::Fighting,
-            "poison" => PokemonType::Poison,
-            "ground" => PokemonType::Ground,
-            "flying" => PokemonType::Flying,
-            "psychic" => PokemonType::Psychic,
-            "bug" => PokemonType::Bug,
-            "rock" => PokemonType::Rock,
-            "ghost" => PokemonType::Ghost,
-            "dragon" => PokemonType::Dragon,
-            "dark" => PokemonType::Dark,
-            "steel" => PokemonType::Steel,
-            "fairy" => PokemonType::Fairy,
-            "typeless" => PokemonType::Typeless,
-            _ => panic!("Invalid type: {}", input),
-        }
-    }
-}
-
-impl PokemonStatus {
-    pub fn serialize(&self) -> String {
-        return format!("{:?}", self);
-    }
-
-    pub fn deserialize(input: &str) -> PokemonStatus {
-        match input.to_lowercase().as_str() {
-            "none" => PokemonStatus::None,
-            "burn" => PokemonStatus::Burn,
-            "sleep" => PokemonStatus::Sleep,
-            "freeze" => PokemonStatus::Freeze,
-            "paralyze" => PokemonStatus::Paralyze,
-            "poison" => PokemonStatus::Poison,
-            "toxic" => PokemonStatus::Toxic,
-            _ => panic!("Invalid status: {}", input),
-        }
-    }
-}
-
-impl PokemonNatures {
-    pub fn serialize(&self) -> String {
-        return format!("{:?}", self);
-    }
-
-    pub fn deserialize(input: &str) -> PokemonNatures {
-        match input.to_lowercase().as_str() {
-            "lonely" => PokemonNatures::Lonely,
-            "adamant" => PokemonNatures::Adamant,
-            "naughty" => PokemonNatures::Naughty,
-            "brave" => PokemonNatures::Brave,
-            "bold" => PokemonNatures::Bold,
-            "impish" => PokemonNatures::Impish,
-            "lax" => PokemonNatures::Lax,
-            "relaxed" => PokemonNatures::Relaxed,
-            "modest" => PokemonNatures::Modest,
-            "mild" => PokemonNatures::Mild,
-            "rash" => PokemonNatures::Rash,
-            "quiet" => PokemonNatures::Quiet,
-            "calm" => PokemonNatures::Calm,
-            "gentle" => PokemonNatures::Gentle,
-            "careful" => PokemonNatures::Careful,
-            "sassy" => PokemonNatures::Sassy,
-            "timid" => PokemonNatures::Timid,
-            "hasty" => PokemonNatures::Hasty,
-            "jolly" => PokemonNatures::Jolly,
-            "naive" => PokemonNatures::Naive,
-            "hardy" => PokemonNatures::Hardy,
-            "docile" => PokemonNatures::Docile,
-            "bashful" => PokemonNatures::Bashful,
-            "quirky" => PokemonNatures::Quirky,
-            "serious" => PokemonNatures::Serious,
-            _ => panic!("Invalid nature: {}", input),
-        }
-    }
-}
-
-impl PokemonVolatileStatus {
-    pub fn serialize(&self) -> String {
-        return format!("{:?}", self);
-    }
-
-    pub fn deserialize(input: &str) -> PokemonVolatileStatus {
-        match input.to_lowercase().as_str() {
-            "aquaring" => PokemonVolatileStatus::AquaRing,
-            "attract" => PokemonVolatileStatus::Attract,
-            "autotomize" => PokemonVolatileStatus::Autotomize,
-            "banefulbunker" => PokemonVolatileStatus::BanefulBunker,
-            "bide" => PokemonVolatileStatus::Bide,
-            "bounce" => PokemonVolatileStatus::Bounce,
-            "charge" => PokemonVolatileStatus::Charge,
-            "confusion" => PokemonVolatileStatus::Confusion,
-            "curse" => PokemonVolatileStatus::Curse,
-            "defensecurl" => PokemonVolatileStatus::DefenseCurl,
-            "destinybond" => PokemonVolatileStatus::DestinyBond,
-            "dig" => PokemonVolatileStatus::Dig,
-            "disable" => PokemonVolatileStatus::Disable,
-            "dive" => PokemonVolatileStatus::Dive,
-            "electrify" => PokemonVolatileStatus::Electrify,
-            "embargo" => PokemonVolatileStatus::Embargo,
-            "encore" => PokemonVolatileStatus::Encore,
-            "endure" => PokemonVolatileStatus::Endure,
-            "flashfire" => PokemonVolatileStatus::FlashFire,
-            "flinch" => PokemonVolatileStatus::Flinch,
-            "fly" => PokemonVolatileStatus::Fly,
-            "focusenergy" => PokemonVolatileStatus::Focusenergy,
-            "followme" => PokemonVolatileStatus::FollowMe,
-            "foresight" => PokemonVolatileStatus::Foresight,
-            "freezeshock" => PokemonVolatileStatus::Freezeshock,
-            "gastroacid" => PokemonVolatileStatus::GastroAcid,
-            "geomancy" => PokemonVolatileStatus::Geomancy,
-            "glaiverush" => PokemonVolatileStatus::GlaiveRush,
-            "grudge" => PokemonVolatileStatus::Grudge,
-            "healblock" => PokemonVolatileStatus::HealBlock,
-            "helpinghand" => PokemonVolatileStatus::HelpingHand,
-            "iceburn" => PokemonVolatileStatus::IceBurn,
-            "imprison" => PokemonVolatileStatus::Imprison,
-            "ingrain" => PokemonVolatileStatus::Ingrain,
-            "kingsshield" => PokemonVolatileStatus::KingsShield,
-            "laserfocus" => PokemonVolatileStatus::LaserFocus,
-            "leechseed" => PokemonVolatileStatus::LeechSeed,
-            "lockedmove" => PokemonVolatileStatus::LockedMove,
-            "magiccoat" => PokemonVolatileStatus::MagicCoat,
-            "magnetrise" => PokemonVolatileStatus::MagnetRise,
-            "maxguard" => PokemonVolatileStatus::MaxGuard,
-            "meteorbeam" => PokemonVolatileStatus::MeteorBeam,
-            "minimize" => PokemonVolatileStatus::Minimize,
-            "miracleeye" => PokemonVolatileStatus::MiracleEye,
-            "mustrecharge" => PokemonVolatileStatus::MustRecharge,
-            "nightmare" => PokemonVolatileStatus::Nightmare,
-            "noretreat" => PokemonVolatileStatus::NoRetreat,
-            "octolock" => PokemonVolatileStatus::Octolock,
-            "partiallytrapped" => PokemonVolatileStatus::PartiallyTrapped,
-            "phantomforce" => PokemonVolatileStatus::PhantomForce,
-            "powder" => PokemonVolatileStatus::Powder,
-            "powershift" => PokemonVolatileStatus::PowerShift,
-            "powertrick" => PokemonVolatileStatus::PowerTrick,
-            "protect" => PokemonVolatileStatus::Protect,
-            "rage" => PokemonVolatileStatus::Rage,
-            "ragepowder" => PokemonVolatileStatus::RagePowder,
-            "razorwind" => PokemonVolatileStatus::RazorWind,
-            "roost" => PokemonVolatileStatus::Roost,
-            "saltcure" => PokemonVolatileStatus::SaltCure,
-            "shadowforce" => PokemonVolatileStatus::ShadowForce,
-            "skullbash" => PokemonVolatileStatus::SkullBash,
-            "skyattack" => PokemonVolatileStatus::SkyAttack,
-            "skydrop" => PokemonVolatileStatus::SkyDrop,
-            "silktrap" => PokemonVolatileStatus::SilkTrap,
-            "slowstart" => PokemonVolatileStatus::SlowStart,
-            "smackdown" => PokemonVolatileStatus::SmackDown,
-            "snatch" => PokemonVolatileStatus::Snatch,
-            "solarbeam" => PokemonVolatileStatus::SolarBeam,
-            "solarblade" => PokemonVolatileStatus::SolarBlade,
-            "sparklingaria" => PokemonVolatileStatus::SparklingAria,
-            "spikyshield" => PokemonVolatileStatus::SpikyShield,
-            "spotlight" => PokemonVolatileStatus::Spotlight,
-            "stockpile" => PokemonVolatileStatus::StockPile,
-            "substitute" => PokemonVolatileStatus::Substitute,
-            "syrupbomb" => PokemonVolatileStatus::SyrupBomb,
-            "tarshot" => PokemonVolatileStatus::TarShot,
-            "taunt" => PokemonVolatileStatus::Taunt,
-            "telekinesis" => PokemonVolatileStatus::Telekinesis,
-            "throatchop" => PokemonVolatileStatus::ThroatChop,
-            "torment" => PokemonVolatileStatus::Torment,
-            "unburden" => PokemonVolatileStatus::Unburden,
-            "uproar" => PokemonVolatileStatus::Uproar,
-            "yawn" => PokemonVolatileStatus::Yawn,
-            _ => PokemonVolatileStatus::None,
-        }
-    }
-}
-
-impl Pokemon {
-    pub fn serialize(&self) -> String {
-        let mut vs_string = String::new();
-        for vs in &self.volatile_statuses {
-            vs_string.push_str(&vs.serialize());
-            vs_string.push_str(":");
-        }
-
-        return format!(
-            "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
-            self.id,
-            self.level,
-            self.types.0.serialize(),
-            self.types.1.serialize(),
-            self.hp,
-            self.maxhp,
-            self.ability.to_string(),
-            self.item.to_string(),
-            self.attack,
-            self.defense,
-            self.special_attack,
-            self.special_defense,
-            self.speed,
-            self.attack_boost,
-            self.defense_boost,
-            self.special_attack_boost,
-            self.special_defense_boost,
-            self.speed_boost,
-            self.accuracy_boost,
-            self.evasion_boost,
-            self.status.serialize(),
-            self.substitute_health,
-            self.rest_turns,
-            self.nature.serialize(),
-            vs_string,
-            self.moves.m0.serialize(),
-            self.moves.m1.serialize(),
-            self.moves.m2.serialize(),
-            self.moves.m3.serialize(),
-            self.moves.m4.serialize(),
-            self.moves.m5.serialize(),
-        );
-    }
-
-    pub fn deserialize(serialized: &str) -> Pokemon {
-        let split: Vec<&str> = serialized.split(",").collect();
-
-        let mut vs_hashset = HashSet::new();
-        if split[24] != "" {
-            for item in split[24].split(":") {
-                vs_hashset.insert(PokemonVolatileStatus::deserialize(item));
-            }
-        }
-
-        return Pokemon {
-            id: split[0].to_string(),
-            level: split[1].parse::<i8>().unwrap(),
-            types: (
-                PokemonType::deserialize(split[2]),
-                PokemonType::deserialize(split[3]),
-            ),
-            hp: split[4].parse::<i16>().unwrap(),
-            maxhp: split[5].parse::<i16>().unwrap(),
-            ability: Abilities::from_str(split[6]).unwrap(),
-            item: Items::from_str(split[7]).unwrap(),
-            attack: split[8].parse::<i16>().unwrap(),
-            defense: split[9].parse::<i16>().unwrap(),
-            special_attack: split[10].parse::<i16>().unwrap(),
-            special_defense: split[11].parse::<i16>().unwrap(),
-            speed: split[12].parse::<i16>().unwrap(),
-            attack_boost: split[13].parse::<i8>().unwrap(),
-            defense_boost: split[14].parse::<i8>().unwrap(),
-            special_attack_boost: split[15].parse::<i8>().unwrap(),
-            special_defense_boost: split[16].parse::<i8>().unwrap(),
-            speed_boost: split[17].parse::<i8>().unwrap(),
-            accuracy_boost: split[18].parse::<i8>().unwrap(),
-            evasion_boost: split[19].parse::<i8>().unwrap(),
-            status: PokemonStatus::deserialize(split[20]),
-            substitute_health: split[21].parse::<i16>().unwrap(),
-            rest_turns: split[22].parse::<i8>().unwrap(),
-            nature: PokemonNatures::deserialize(split[23]),
-            volatile_statuses: vs_hashset,
-            moves: PokemonMoves {
-                m0: Move::deserialize(split[25]),
-                m1: Move::deserialize(split[26]),
-                m2: Move::deserialize(split[27]),
-                m3: Move::deserialize(split[28]),
-                m4: Move::deserialize(split[29]),
-                m5: Move::deserialize(split[30]),
-            },
-        };
-    }
-}
-
-impl LastUsedMove {
-    fn serialize(&self) -> String {
-        return match self {
-            LastUsedMove::Move(move_name) => format!("move:{}", move_name),
-            LastUsedMove::Switch(pkmn_index) => format!("switch:{}", pkmn_index.serialize()),
-        };
-    }
-    fn deserialize(serialized: &str) -> LastUsedMove {
-        let split: Vec<&str> = serialized.split(":").collect();
-        match split[0] {
-            "move" => return LastUsedMove::Move(Choices::from_str(split[1]).unwrap()),
-            "switch" => return LastUsedMove::Switch(PokemonIndex::deserialize(split[1])),
-            _ => panic!("Invalid LastUsedMove: {}", serialized),
-        }
-    }
-}
-
-impl PokemonIndex {
-    pub fn serialize(&self) -> String {
-        match self {
-            PokemonIndex::P0 => "0".to_string(),
-            PokemonIndex::P1 => "1".to_string(),
-            PokemonIndex::P2 => "2".to_string(),
-            PokemonIndex::P3 => "3".to_string(),
-            PokemonIndex::P4 => "4".to_string(),
-            PokemonIndex::P5 => "5".to_string(),
-        }
-    }
-
-    pub fn deserialize(serialized: &str) -> PokemonIndex {
-        match serialized {
-            "0" => PokemonIndex::P0,
-            "1" => PokemonIndex::P1,
-            "2" => PokemonIndex::P2,
-            "3" => PokemonIndex::P3,
-            "4" => PokemonIndex::P4,
-            "5" => PokemonIndex::P5,
-            _ => panic!("Invalid PokemonIndex: {}", serialized),
-        }
-    }
-}
-
-impl SideConditions {
-    pub fn serialize(&self) -> String {
-        return format!(
-            "{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{}",
-            self.aurora_veil,
-            self.crafty_shield,
-            self.healing_wish,
-            self.light_screen,
-            self.lucky_chant,
-            self.lunar_dance,
-            self.mat_block,
-            self.mist,
-            self.protect,
-            self.quick_guard,
-            self.reflect,
-            self.safeguard,
-            self.spikes,
-            self.stealth_rock,
-            self.sticky_web,
-            self.tailwind,
-            self.toxic_count,
-            self.toxic_spikes,
-            self.wide_guard,
-        );
-    }
-    pub fn deserialize(serialized: &str) -> SideConditions {
-        let split: Vec<&str> = serialized.split(";").collect();
-        return SideConditions {
-            aurora_veil: split[0].parse::<i8>().unwrap(),
-            crafty_shield: split[1].parse::<i8>().unwrap(),
-            healing_wish: split[2].parse::<i8>().unwrap(),
-            light_screen: split[3].parse::<i8>().unwrap(),
-            lucky_chant: split[4].parse::<i8>().unwrap(),
-            lunar_dance: split[5].parse::<i8>().unwrap(),
-            mat_block: split[6].parse::<i8>().unwrap(),
-            mist: split[7].parse::<i8>().unwrap(),
-            protect: split[8].parse::<i8>().unwrap(),
-            quick_guard: split[9].parse::<i8>().unwrap(),
-            reflect: split[10].parse::<i8>().unwrap(),
-            safeguard: split[11].parse::<i8>().unwrap(),
-            spikes: split[12].parse::<i8>().unwrap(),
-            stealth_rock: split[13].parse::<i8>().unwrap(),
-            sticky_web: split[14].parse::<i8>().unwrap(),
-            tailwind: split[15].parse::<i8>().unwrap(),
-            toxic_count: split[16].parse::<i8>().unwrap(),
-            toxic_spikes: split[17].parse::<i8>().unwrap(),
-            wide_guard: split[18].parse::<i8>().unwrap(),
-        };
-    }
-}
-
-impl Side {
-    pub fn serialize(&self) -> String {
-        return format!(
-            "{}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}",
-            self.pokemon.p0.serialize(),
-            self.pokemon.p1.serialize(),
-            self.pokemon.p2.serialize(),
-            self.pokemon.p3.serialize(),
-            self.pokemon.p4.serialize(),
-            self.pokemon.p5.serialize(),
-            self.active_index.serialize(),
-            self.side_conditions.serialize(),
-            self.wish.0,
-            self.wish.1,
-            self.force_switch,
-            self.switch_out_move_second_saved_move.to_string(),
-            self.baton_passing,
-            self.force_trapped,
-            self.last_used_move.serialize(),
-            self.slow_uturn_move,
-        );
-    }
-    pub fn deserialize(serialized: &str) -> Side {
-        let split: Vec<&str> = serialized.split("=").collect();
-        return Side {
-            active_index: PokemonIndex::deserialize(split[6]),
-            pokemon: SidePokemon {
-                p0: Pokemon::deserialize(split[0]),
-                p1: Pokemon::deserialize(split[1]),
-                p2: Pokemon::deserialize(split[2]),
-                p3: Pokemon::deserialize(split[3]),
-                p4: Pokemon::deserialize(split[4]),
-                p5: Pokemon::deserialize(split[5]),
-            },
-            side_conditions: SideConditions::deserialize(split[7]),
-            wish: (
-                split[8].parse::<i8>().unwrap(),
-                split[9].parse::<i16>().unwrap(),
-            ),
-            force_switch: split[10].parse::<bool>().unwrap(),
-            switch_out_move_second_saved_move: Choices::from_str(split[11]).unwrap(),
-            baton_passing: split[12].parse::<bool>().unwrap(),
-            force_trapped: split[13].parse::<bool>().unwrap(),
-            last_used_move: LastUsedMove::deserialize(split[14]),
-            damage_dealt: DamageDealt::default(),
-            slow_uturn_move: split[15].parse::<bool>().unwrap(),
-        };
-    }
-}
-
-impl Weather {
-    pub fn from_str(input: &str) -> Result<Weather, ()> {
-        match input.to_lowercase().as_str() {
-            "none" => Ok(Weather::None),
-            "rain" => Ok(Weather::Rain),
-            "sun" => Ok(Weather::Sun),
-            "sand" => Ok(Weather::Sand),
-            "hail" => Ok(Weather::Hail),
-            "harshsun" => Ok(Weather::HarshSun),
-            "heavyrain" => Ok(Weather::HeavyRain),
-            _ => Err(()),
-        }
-    }
-}
-
-impl StateWeather {
-    pub fn serialize(&self) -> String {
-        return format!("{:?};{}", self.weather_type, self.turns_remaining);
-    }
-    pub fn deserialize(serialized: &str) -> StateWeather {
-        let split: Vec<&str> = serialized.split(";").collect();
-        return StateWeather {
-            weather_type: Weather::from_str(split[0]).unwrap(),
-            turns_remaining: split[1].parse::<i8>().unwrap(),
-        };
-    }
-}
-
-impl Terrain {
-    pub fn from_str(input: &str) -> Result<Terrain, ()> {
-        match input.to_lowercase().as_str() {
-            "none" => Ok(Terrain::None),
-            "electricterrain" => Ok(Terrain::ElectricTerrain),
-            "grassyterrain" => Ok(Terrain::GrassyTerrain),
-            "mistyterrain" => Ok(Terrain::MistyTerrain),
-            "psychicterrain" => Ok(Terrain::PsychicTerrain),
-            _ => Err(()),
-        }
-    }
-}
-
-impl StateTerrain {
-    pub fn serialize(&self) -> String {
-        return format!("{:?};{}", self.terrain_type, self.turns_remaining);
-    }
-    pub fn deserialize(serialized: &str) -> StateTerrain {
-        let split: Vec<&str> = serialized.split(";").collect();
-        return StateTerrain {
-            terrain_type: Terrain::from_str(split[0]).unwrap(),
-            turns_remaining: split[1].parse::<i8>().unwrap(),
-        };
-    }
-}
-
-impl State {
-    pub fn serialize(&self) -> String {
-        return format!(
-            "{}/{}/{}/{}/{}/{}",
-            self.side_one.serialize(),
-            self.side_two.serialize(),
-            self.weather.serialize(),
-            self.terrain.serialize(),
-            self.trick_room,
-            self.team_preview
-        );
-    }
-
-    /// ```
-    /// use poke_engine::abilities::Abilities;
-    /// use poke_engine::items::Items;
-    /// use poke_engine::state::State;
-    /// let serialized_state = "alakazam,100,Psychic,Typeless,251,251,MAGICGUARD,LIFEORB,121,148,353,206,365,0,0,0,0,0,0,0,None,0,0,Serious,,PSYCHIC;false;16,GRASSKNOT;false;32,SHADOWBALL;false;24,HIDDENPOWERFIRE70;false;24,NONE;true;32,NONE;true;32=skarmory,100,Steel,Flying,271,271,STURDY,CUSTAPBERRY,259,316,104,177,262,0,0,0,0,0,0,0,None,0,0,Serious,,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,NONE;true;32,NONE;true;32=tyranitar,100,Rock,Dark,404,404,SANDSTREAM,CHOPLEBERRY,305,256,203,327,159,0,0,0,0,0,0,0,None,0,0,Serious,,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,NONE;true;32,NONE;true;32=mamoswine,100,Ice,Ground,362,362,THICKFAT,NEVERMELTICE,392,196,158,176,241,0,0,0,0,0,0,0,None,0,0,Serious,,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,NONE;true;32,NONE;true;32=jellicent,100,Water,Ghost,404,404,WATERABSORB,AIRBALLOON,140,237,206,246,180,0,0,0,0,0,0,0,None,0,0,Serious,,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,NONE;true;32,NONE;true;32=excadrill,100,Ground,Steel,362,362,SANDFORCE,CHOICESCARF,367,156,122,168,302,0,0,0,0,0,0,0,None,0,0,Serious,,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,NONE;true;32,NONE;true;32=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;=0=0=false=NONE=false=false=switch:0=false/terrakion,100,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,0,0,0,0,0,0,0,None,0,0,Serious,,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,XSCISSOR;false;24,QUICKATTACK;false;48=lucario,100,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,0,0,0,0,0,0,0,None,0,0,Serious,,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,ICEPUNCH;false;24,AURASPHERE;false;32=breloom,100,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,0,0,0,0,0,0,0,None,0,0,Serious,,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,DRAINPUNCH;false;16,PROTECT;false;16=keldeo,100,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,0,0,0,0,0,0,0,None,0,0,Serious,,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,HIDDENPOWERICE70;false;24,CALMMIND;false;32=conkeldurr,100,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,0,0,0,0,0,0,0,None,0,0,Serious,,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,BULKUP;false;32,PAYBACK;false;16=toxicroak,100,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,0,0,0,0,0,0,0,None,0,0,Serious,,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,POISONJAB;false;32,SUBSTITUTE;false;16=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;=0=0=false=NONE=false=false=switch:0=false/none;5/none;5/false/false";
-    /// let state = State::deserialize(serialized_state);
-    ///
-    /// assert_eq!(state.side_one.get_active_immutable().id, "alakazam");
-    /// assert_eq!(state.side_one.get_active_immutable().item, Items::LIFEORB);
-    /// assert_eq!(state.side_one.get_active_immutable().ability, Abilities::MAGICGUARD);
-    /// assert_eq!(state.side_two.get_active_immutable().id, "terrakion");
-    /// assert_eq!(state.side_two.get_active_immutable().item, Items::FOCUSSASH);
-    /// assert_eq!(state.side_two.get_active_immutable().ability, Abilities::JUSTIFIED);
-    /// assert_eq!(state.trick_room, false);
-    /// assert_eq!(state.team_preview, false);
-    /// ```
-    pub fn deserialize(serialized: &str) -> State {
-        let split: Vec<&str> = serialized.split("/").collect();
-        return State {
-            side_one: Side::deserialize(split[0]),
-            side_two: Side::deserialize(split[1]),
-            weather: StateWeather::deserialize(split[2]),
-            terrain: StateTerrain::deserialize(split[3]),
-            trick_room: split[4].parse::<bool>().unwrap(),
-            team_preview: split[5].parse::<bool>().unwrap(),
-        };
     }
 }
