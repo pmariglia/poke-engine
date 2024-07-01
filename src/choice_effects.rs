@@ -658,6 +658,26 @@ pub fn choice_special_effect(
                 }
             }
         }
+        Choices::METALBURST => {
+            if defending_side.damage_dealt.move_category != MoveCategory::Status
+                && !defending_side.damage_dealt.hit_substitute
+                && !choice.first_move
+            {
+                let damage_amount = cmp::min(
+                    (defending_side.damage_dealt.damage * 3) / 2,
+                    defending_side.get_active_immutable().hp,
+                );
+                if damage_amount > 0 {
+                    instructions
+                        .instruction_list
+                        .push(Instruction::Damage(DamageInstruction {
+                            side_ref: attacking_side_ref.get_other_side(),
+                            damage_amount: damage_amount,
+                        }));
+                    defending_side.get_active().hp -= damage_amount;
+                }
+            }
+        }
         Choices::WISH => {
             if attacking_side.wish.0 == 0 {
                 instructions
