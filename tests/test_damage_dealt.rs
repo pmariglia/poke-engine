@@ -154,7 +154,11 @@ fn test_metalburst_after_substitute_being_hit() {
         .side_two
         .get_active()
         .replace_move(PokemonMoveIndex::M0, Choices::TACKLE);
-    state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::Substitute);
+    state
+        .side_one
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::Substitute);
     state.side_one.get_active().substitute_health = 5;
 
     let vec_of_instructions = generate_instructions_from_move_pair(

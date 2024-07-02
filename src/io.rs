@@ -2,6 +2,7 @@ use crate::choices::{Choice, Choices, MOVES};
 use crate::evaluate::evaluate;
 use crate::generate_instructions::{calculate_damage_rolls, generate_instructions_from_move_pair};
 use crate::instruction::{Instruction, StateInstructions};
+use crate::mcts::{MctsResult, perform_mcts};
 use crate::search::{expectiminimax_search, iterative_deepen_expectiminimax, pick_safest};
 use crate::state::{MoveChoice, Pokemon, Side, SideReference, State};
 use clap::Parser;
@@ -30,6 +31,7 @@ struct Cli {
 enum SubCommand {
     Expectiminimax(Expectiminimax),
     IterativeDeepening(IterativeDeepening),
+    MonteCarloTreeSearch(MonteCarloTreeSearch),
     CalculateDamage(CalculateDamage),
 }
 
@@ -47,6 +49,15 @@ struct Expectiminimax {
 
 #[derive(Parser)]
 struct IterativeDeepening {
+    #[clap(short, long, required = true)]
+    state: String,
+
+    #[clap(short, long, default_value_t = 5000)]
+    time_to_search_ms: u64,
+}
+
+#[derive(Parser)]
+struct MonteCarloTreeSearch {
     #[clap(short, long, required = true)]
     state: String,
 
@@ -80,13 +91,13 @@ impl Side {
     fn option_to_string(&self, option: &MoveChoice) -> String {
         match option {
             MoveChoice::Move(index) => {
-                return format!("{}", self.get_active_immutable().moves[*index].id);
+                return format!("{}", self.get_active_immutable().moves[*index].id).to_lowercase();
             }
             MoveChoice::Switch(index) => {
-                return format!("{}", self.pokemon[*index].id);
+                return format!("{}", self.pokemon[*index].id).to_lowercase();
             }
             MoveChoice::None => {
-                return "No Move".to_string();
+                return "no move".to_string();
             }
         }
     }
@@ -254,6 +265,35 @@ fn pprint_expectiminimax_result(
     }
 }
 
+fn pprint_mcts_result(state: &State, result: MctsResult) {
+    let s1_joined_options = result
+        .s1
+        .iter()
+        .map(|x| format!(
+            "{},{:.2},{}",
+            get_move_id_from_movechoice(&state.side_one, &x.move_choice),
+            x.total_score,
+            x.visits
+        ))
+        .collect::<Vec<String>>()
+        .join("|");
+    let s2_joined_options = result
+        .s1
+        .iter()
+        .map(|x| format!(
+            "{},{:.2},{}",
+            get_move_id_from_movechoice(&state.side_two, &x.move_choice),
+            x.total_score,
+            x.visits
+        ))
+        .collect::<Vec<String>>()
+        .join("|");
+
+    println!("Total Iterations: {}", result.iteration_count);
+    println!("side one: {}", s1_joined_options);
+    println!("side two: {}", s2_joined_options);
+}
+
 fn get_move_id_from_movechoice(side: &Side, move_choice: &MoveChoice) -> String {
     return match move_choice {
         MoveChoice::Move(index) => {
@@ -355,6 +395,17 @@ pub fn main() {
                     std::time::Duration::from_millis(iterative_deepending.time_to_search_ms),
                 );
                 print_subcommand_result(&result, &side_one_options, &side_two_options, &state);
+            }
+            SubCommand::MonteCarloTreeSearch(mcts) => {
+                state = State::deserialize(mcts.state.as_str());
+                (side_one_options, side_two_options) = io_get_all_options(&state);
+                let result = perform_mcts(
+                    &mut state,
+                    side_one_options.clone(),
+                    side_two_options.clone(),
+                    std::time::Duration::from_millis(mcts.time_to_search_ms),
+                );
+                pprint_mcts_result(&state, result);
             }
             SubCommand::CalculateDamage(calculate_damage) => {
                 state = State::deserialize(calculate_damage.state.as_str());
@@ -579,7 +630,29 @@ fn command_loop(mut io_data: IOData) {
                     println!("Depth Searched: {}", depth_searched);
                 }
                 None => {
-                    println!("Usage: iterative-deepening <depth> <ab_prune=false>");
+                    println!("Usage: iterative-deepening <timeout_ms>");
+                    continue;
+                }
+            },
+            "monte-carlo-tree-search" | "mcts" => match args.next() {
+                Some(s) => {
+                    let max_time_ms = s.parse::<u64>().unwrap();
+                    let (side_one_options, side_two_options) = io_get_all_options(&io_data.state);
+
+                    let start_time = std::time::Instant::now();
+                    let result = perform_mcts(
+                        &mut io_data.state,
+                        side_one_options.clone(),
+                        side_two_options.clone(),
+                        std::time::Duration::from_millis(max_time_ms),
+                    );
+                    let elapsed = start_time.elapsed();
+                    pprint_mcts_result(&io_data.state, result);
+
+                    println!("Took: {:?}", elapsed);
+                }
+                None => {
+                    println!("Usage: monte-carlo-tree-search <timeout_ms>");
                     continue;
                 }
             },

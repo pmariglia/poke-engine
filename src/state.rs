@@ -52,7 +52,7 @@ pub enum LastUsedMove {
     Switch(PokemonIndex),
 }
 
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone, Hash)]
 pub enum MoveChoice {
     Move(PokemonMoveIndex),
     Switch(PokemonIndex),
@@ -342,7 +342,7 @@ impl Default for SideConditions {
     }
 }
 
-#[derive(Debug, Copy, PartialEq, Clone, Eq)]
+#[derive(Debug, Copy, PartialEq, Clone, Eq, Hash)]
 pub enum PokemonMoveIndex {
     M0,
     M1,
@@ -637,7 +637,10 @@ impl Pokemon {
         match volatile_status {
             // grass immunity to leechseed covered by `powder`
             PokemonVolatileStatus::LeechSeed => {
-                if self.volatile_statuses.contains(&PokemonVolatileStatus::Substitute) {
+                if self
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::Substitute)
+                {
                     return false;
                 }
                 return true;
@@ -722,7 +725,7 @@ impl Default for Pokemon {
     }
 }
 
-#[derive(Debug, Copy, PartialEq, Clone, Eq)]
+#[derive(Debug, Copy, PartialEq, Clone, Eq, Hash)]
 pub enum PokemonIndex {
     P0,
     P1,

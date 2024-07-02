@@ -8,6 +8,7 @@ pub mod generate_instructions;
 pub mod instruction;
 pub mod io;
 pub mod items;
+pub mod mcts;
 pub mod search;
 pub mod serialize;
 pub mod state;

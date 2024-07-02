@@ -4144,7 +4144,11 @@ fn test_leechseed_does_not_trigger_if_receiving_side_fainted_this_turn() {
 #[test]
 fn test_leechseed_into_substitute() {
     let mut state = State::default();
-    state.side_two.get_active().volatile_statuses.insert(PokemonVolatileStatus::Substitute);
+    state
+        .side_two
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::Substitute);
     state.side_two.get_active().substitute_health = 10;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
