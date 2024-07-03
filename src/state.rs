@@ -635,6 +635,13 @@ impl Pokemon {
             return false;
         }
         match volatile_status {
+            // grass immunity to leechseed covered by `powder`
+            PokemonVolatileStatus::LeechSeed => {
+                if self.volatile_statuses.contains(&PokemonVolatileStatus::Substitute) {
+                    return false;
+                }
+                return true;
+            }
             PokemonVolatileStatus::Substitute => return self.hp > self.maxhp / 4,
             PokemonVolatileStatus::Flinch => {
                 if !first_move || [Abilities::INNERFOCUS].contains(&self.ability) {

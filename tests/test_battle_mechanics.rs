@@ -4142,6 +4142,43 @@ fn test_leechseed_does_not_trigger_if_receiving_side_fainted_this_turn() {
 }
 
 #[test]
+fn test_leechseed_into_substitute() {
+    let mut state = State::default();
+    state.side_two.get_active().volatile_statuses.insert(PokemonVolatileStatus::Substitute);
+    state.side_two.get_active().substitute_health = 10;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::LEECHSEED,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_leechseed_into_grass_type() {
+    let mut state = State::default();
+    state.side_two.get_active().types.0 = PokemonType::Grass;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::LEECHSEED,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_solarbeam_not_in_sun() {
     let mut state = State::default();
 
