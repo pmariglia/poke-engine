@@ -239,32 +239,6 @@ pub struct MctsResult {
     pub iteration_count: i64,
 }
 
-impl MctsResult {
-    pub fn highest_average_scores(&self) -> (MctsSideResult, MctsSideResult) {
-        let mut best_s1 = MctsSideResult {
-            move_choice: MoveChoice::None,
-            total_score: f32::MIN,
-            visits: 1,
-        };
-        let mut best_s2 = MctsSideResult {
-            move_choice: MoveChoice::None,
-            total_score: f32::MIN,
-            visits: 1,
-        };
-        for s1 in self.s1.iter() {
-            if s1.average_score() > best_s1.average_score() {
-                best_s1 = s1.clone();
-            }
-        }
-        for s2 in self.s2.iter() {
-            if s2.average_score() > best_s2.average_score() {
-                best_s2 = s2.clone();
-            }
-        }
-        return (best_s1, best_s2);
-    }
-}
-
 fn do_mcts(root_node: &mut Node, state: &mut State) {
     let (mut new_node, s1_move, s2_move) = unsafe { root_node.selection(state) };
     new_node = unsafe { (*new_node).expand(state, &s1_move, &s2_move) };
