@@ -1,7 +1,7 @@
 use crate::evaluate::evaluate;
 use crate::generate_instructions::generate_instructions_from_move_pair;
-use crate::instruction::{Instruction, StateInstructions};
-use crate::state::{MoveChoice, Side, State};
+use crate::instruction::StateInstructions;
+use crate::state::{MoveChoice, State};
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use rand::thread_rng;
@@ -70,7 +70,7 @@ impl Node {
     }
 
     pub unsafe fn selection(&mut self, state: &mut State) -> (*mut Node, MoveChoice, MoveChoice) {
-        let mut return_node = self as *mut Node;
+        let return_node = self as *mut Node;
 
         let s1_move_choice = self.maximize_ucb_for_side(&self.s1_options);
         let s2_move_choice = self.maximize_ucb_for_side(&self.s2_options);
@@ -78,7 +78,7 @@ impl Node {
         match child_vector {
             Some(child_vector) => {
                 let child_vec_ptr = child_vector as *mut Vec<Node>;
-                let mut chosen_child = self.sample_node(child_vec_ptr);
+                let chosen_child = self.sample_node(child_vec_ptr);
                 state.apply_instructions(&(*chosen_child).instructions.instruction_list);
                 return (*chosen_child).selection(state);
             }
@@ -164,7 +164,7 @@ impl Node {
     }
 
     pub fn rollout(&mut self, state: &mut State) -> f32 {
-        let mut battle_is_over = state.battle_is_over();
+        let battle_is_over = state.battle_is_over();
         if battle_is_over == 0.0 {
             let eval = evaluate(state);
             return sigmoid(eval);

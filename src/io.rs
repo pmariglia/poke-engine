@@ -278,7 +278,7 @@ fn pprint_mcts_result(state: &State, result: MctsResult) {
         .collect::<Vec<String>>()
         .join("|");
     let s2_joined_options = result
-        .s1
+        .s2
         .iter()
         .map(|x| format!(
             "{},{:.2},{}",
