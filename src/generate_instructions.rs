@@ -1955,7 +1955,7 @@ fn add_end_of_turn_instructions(
         }
 
         match weather_type {
-            Weather::Hail if active_pkmn.ability != Abilities::ICEBODY => {
+            Weather::Hail if active_pkmn.ability != Abilities::ICEBODY && !active_pkmn.has_type(&PokemonType::Ice) => {
                 let damage_amount =
                     cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
                 let hail_damage_instruction = Instruction::Damage(DamageInstruction {
@@ -1968,7 +1968,11 @@ fn add_end_of_turn_instructions(
                     .instruction_list
                     .push(hail_damage_instruction);
             }
-            Weather::Sand => {
+            Weather::Sand
+                if !active_pkmn.has_type(&PokemonType::Ground)
+                    && !active_pkmn.has_type(&PokemonType::Steel)
+                    && !active_pkmn.has_type(&PokemonType::Rock) =>
+            {
                 let damage_amount =
                     cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
                 let sand_damage_instruction = Instruction::Damage(DamageInstruction {
@@ -7221,6 +7225,94 @@ mod tests {
                     damage_amount: 6,
                 }),
             ],
+        };
+
+        assert_eq!(expected_instructions, incoming_instructions)
+    }
+
+    #[test]
+    fn test_end_of_turn_hail_damage_against_ice_type() {
+        let mut state = State::default();
+        state.weather.weather_type = Weather::Hail;
+        state.side_two.get_active().types.0 = PokemonType::Ice;
+
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
+            &mut state,
+            &mut incoming_instructions,
+            &MOVES.get(&Choices::TACKLE).unwrap().to_owned(),
+            &MOVES.get(&Choices::TACKLE).unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                // no damage to side_two
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 6,
+                }),
+            ],
+        };
+
+        assert_eq!(expected_instructions, incoming_instructions)
+    }
+
+    #[test]
+    fn test_end_of_turn_sand_damage() {
+        let mut state = State::default();
+        state.weather.weather_type = Weather::Sand;
+
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
+            &mut state,
+            &mut incoming_instructions,
+            &MOVES.get(&Choices::TACKLE).unwrap().to_owned(),
+            &MOVES.get(&Choices::TACKLE).unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 6,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 6,
+                }),
+            ],
+        };
+
+        assert_eq!(expected_instructions, incoming_instructions)
+    }
+
+    #[test]
+    fn test_end_of_turn_sand_damage_against_ground_type() {
+        let mut state = State::default();
+        state.weather.weather_type = Weather::Sand;
+        state.side_two.get_active().types.0 = PokemonType::Ground;
+
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
+            &mut state,
+            &mut incoming_instructions,
+            &MOVES.get(&Choices::TACKLE).unwrap().to_owned(),
+            &MOVES.get(&Choices::TACKLE).unwrap().to_owned(),
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+
+            // no damage to side_two
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            })],
         };
 
         assert_eq!(expected_instructions, incoming_instructions)

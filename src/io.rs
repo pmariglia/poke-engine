@@ -2,7 +2,7 @@ use crate::choices::{Choice, Choices, MOVES};
 use crate::evaluate::evaluate;
 use crate::generate_instructions::{calculate_damage_rolls, generate_instructions_from_move_pair};
 use crate::instruction::{Instruction, StateInstructions};
-use crate::mcts::{MctsResult, perform_mcts};
+use crate::mcts::{perform_mcts, MctsResult};
 use crate::search::{expectiminimax_search, iterative_deepen_expectiminimax, pick_safest};
 use crate::state::{MoveChoice, Pokemon, Side, SideReference, State};
 use clap::Parser;
@@ -104,6 +104,10 @@ impl Side {
 
     fn string_to_movechoice(&self, s: &str) -> Option<MoveChoice> {
         let s = s.to_lowercase();
+        if s == "none" {
+            return Some(MoveChoice::None);
+        }
+
         let mut pkmn_iter = self.pokemon.into_iter();
         while let Some(pkmn) = pkmn_iter.next() {
             if pkmn.id.to_lowercase() == s && pkmn_iter.pokemon_index != self.active_index {
@@ -115,10 +119,6 @@ impl Side {
             if format!("{:?}", mv.id).to_lowercase() == s {
                 return Some(MoveChoice::Move(move_iter.pokemon_move_index));
             }
-        }
-
-        if s == "none" {
-            return Some(MoveChoice::None);
         }
 
         return None;
@@ -269,23 +269,27 @@ fn pprint_mcts_result(state: &State, result: MctsResult) {
     let s1_joined_options = result
         .s1
         .iter()
-        .map(|x| format!(
-            "{},{:.2},{}",
-            get_move_id_from_movechoice(&state.side_one, &x.move_choice),
-            x.total_score,
-            x.visits
-        ))
+        .map(|x| {
+            format!(
+                "{},{:.2},{}",
+                get_move_id_from_movechoice(&state.side_one, &x.move_choice),
+                x.total_score,
+                x.visits
+            )
+        })
         .collect::<Vec<String>>()
         .join("|");
     let s2_joined_options = result
         .s2
         .iter()
-        .map(|x| format!(
-            "{},{:.2},{}",
-            get_move_id_from_movechoice(&state.side_two, &x.move_choice),
-            x.total_score,
-            x.visits
-        ))
+        .map(|x| {
+            format!(
+                "{},{:.2},{}",
+                get_move_id_from_movechoice(&state.side_two, &x.move_choice),
+                x.total_score,
+                x.visits
+            )
+        })
         .collect::<Vec<String>>()
         .join("|");
 

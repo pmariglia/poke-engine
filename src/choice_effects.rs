@@ -914,7 +914,7 @@ pub fn choice_special_effect(
             let defender = defending_side.get_active();
             let attacker_item = attacker.item;
             let defender_item = defender.item;
-            if attacker_item == defender_item  || !defender.item_can_be_removed() {
+            if attacker_item == defender_item || !defender.item_can_be_removed() {
                 return;
             }
             let change_attacker_item_instruction = Instruction::ChangeItem(ChangeItemInstruction {
