@@ -243,13 +243,13 @@ impl MctsResult {
     pub fn highest_average_scores(&self) -> (MctsSideResult, MctsSideResult) {
         let mut best_s1 = MctsSideResult {
             move_choice: MoveChoice::None,
-            total_score: 0.0,
-            visits: 0,
+            total_score: f32::MIN,
+            visits: 1,
         };
         let mut best_s2 = MctsSideResult {
             move_choice: MoveChoice::None,
-            total_score: 0.0,
-            visits: 0,
+            total_score: f32::MIN,
+            visits: 1,
         };
         for s1 in self.s1.iter() {
             if s1.average_score() > best_s1.average_score() {
