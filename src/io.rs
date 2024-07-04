@@ -289,9 +289,21 @@ fn pprint_mcts_result(state: &State, result: MctsResult) {
         .collect::<Vec<String>>()
         .join("|");
 
+    let (s1_highest_average, s2_highest_average) = result.highest_average_scores();
+
     println!("Total Iterations: {}", result.iteration_count);
     println!("side one: {}", s1_joined_options);
     println!("side two: {}", s2_joined_options);
+    println!(
+        "side one highest average score: {},{}",
+        get_move_id_from_movechoice(&state.side_one, &s1_highest_average.move_choice),
+        s1_highest_average.average_score()
+    );
+    println!(
+        "side two highest average score: {},{}",
+        get_move_id_from_movechoice(&state.side_two, &s2_highest_average.move_choice),
+        s2_highest_average.average_score()
+    );
 }
 
 fn get_move_id_from_movechoice(side: &Side, move_choice: &MoveChoice) -> String {

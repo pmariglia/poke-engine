@@ -216,6 +216,7 @@ impl MoveNode {
     }
 }
 
+#[derive(Clone)]
 pub struct MctsSideResult {
     pub move_choice: MoveChoice,
     pub total_score: f32,
@@ -224,6 +225,9 @@ pub struct MctsSideResult {
 
 impl MctsSideResult {
     pub fn average_score(&self) -> f32 {
+        if self.visits == 0 {
+            return 0.0;
+        }
         let score = self.total_score / self.visits as f32;
         return score;
     }
@@ -233,6 +237,32 @@ pub struct MctsResult {
     pub s1: Vec<MctsSideResult>,
     pub s2: Vec<MctsSideResult>,
     pub iteration_count: i64,
+}
+
+impl MctsResult {
+    pub fn highest_average_scores(&self) -> (MctsSideResult, MctsSideResult) {
+        let mut best_s1 = MctsSideResult {
+            move_choice: MoveChoice::None,
+            total_score: 0.0,
+            visits: 0,
+        };
+        let mut best_s2 = MctsSideResult {
+            move_choice: MoveChoice::None,
+            total_score: 0.0,
+            visits: 0,
+        };
+        for s1 in self.s1.iter() {
+            if s1.average_score() > best_s1.average_score() {
+                best_s1 = s1.clone();
+            }
+        }
+        for s2 in self.s2.iter() {
+            if s2.average_score() > best_s2.average_score() {
+                best_s2 = s2.clone();
+            }
+        }
+        return (best_s1, best_s2);
+    }
 }
 
 fn do_mcts(root_node: &mut Node, state: &mut State) {
