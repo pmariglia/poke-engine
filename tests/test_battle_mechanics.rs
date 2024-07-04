@@ -4315,6 +4315,57 @@ fn test_trick() {
 }
 
 #[test]
+fn test_trick_fails_versus_arceus_with_plate() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::SILVERPOWDER;
+    state.side_two.get_active().item = Items::SKYPLATE;
+    state.side_two.get_active().id = "arceus".to_string();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TRICK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_trick_versus_arceus_without_plate() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::SILVERPOWDER;
+    state.side_two.get_active().item = Items::LEFTOVERS;
+    state.side_two.get_active().id = "arceus".to_string();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TRICK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::SILVERPOWDER,
+                new_item: Items::LEFTOVERS,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideTwo,
+                current_item: Items::LEFTOVERS,
+                new_item: Items::SILVERPOWDER,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_trick_with_one_side_having_no_item() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::SILVERPOWDER;

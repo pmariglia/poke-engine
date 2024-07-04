@@ -275,7 +275,8 @@ pub fn modify_choice(
             }
         }
         Choices::KNOCKOFF => {
-            if defending_side.get_active_immutable().item_can_be_removed() {
+            let defender = defending_side.get_active_immutable();
+            if defender.item_can_be_removed() && defender.item != Items::NONE {
                 attacker_choice.base_power *= 1.5;
             }
         }
@@ -416,7 +417,7 @@ pub fn choice_after_damage_hit(
     match choice.move_id {
         Choices::KNOCKOFF => {
             let defender_active = defending_side.get_active();
-            if defender_active.item_can_be_removed() {
+            if defender_active.item_can_be_removed() && defender_active.item != Items::NONE {
                 let instruction = Instruction::ChangeItem(ChangeItemInstruction {
                     side_ref: attacking_side_ref.get_other_side(),
                     current_item: defender_active.item,
@@ -913,7 +914,7 @@ pub fn choice_special_effect(
             let defender = defending_side.get_active();
             let attacker_item = attacker.item;
             let defender_item = defender.item;
-            if attacker_item == defender_item {
+            if attacker_item == defender_item  || !defender.item_can_be_removed() {
                 return;
             }
             let change_attacker_item_instruction = Instruction::ChangeItem(ChangeItemInstruction {

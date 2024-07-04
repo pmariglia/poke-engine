@@ -588,7 +588,27 @@ impl Pokemon {
     }
 
     pub fn item_can_be_removed(&self) -> bool {
-        return self.item != Items::NONE;
+        match self.item {
+            Items::SPLASHPLATE
+            | Items::TOXICPLATE
+            | Items::EARTHPLATE
+            | Items::STONEPLATE
+            | Items::INSECTPLATE
+            | Items::SPOOKYPLATE
+            | Items::IRONPLATE
+            | Items::FLAMEPLATE
+            | Items::MEADOWPLATE
+            | Items::ZAPPLATE
+            | Items::MINDPLATE
+            | Items::ICICLEPLATE
+            | Items::DRACOPLATE
+            | Items::DREADPLATE
+            | Items::FISTPLATE
+            | Items::BLANKPLATE
+            | Items::SKYPLATE
+            | Items::PIXIEPLATE => return self.id != "arceus".to_string(),
+            _ => return true,
+        }
     }
 
     pub fn clear_volatile_statuses(&mut self) {
