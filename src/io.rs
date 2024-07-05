@@ -265,7 +265,7 @@ fn pprint_expectiminimax_result(
     }
 }
 
-fn pprint_mcts_result(state: &State, result: MctsResult) {
+fn print_mcts_result(state: &State, result: MctsResult) {
     let s1_joined_options = result
         .s1
         .iter()
@@ -296,6 +296,32 @@ fn pprint_mcts_result(state: &State, result: MctsResult) {
     println!("Total Iterations: {}", result.iteration_count);
     println!("side one: {}", s1_joined_options);
     println!("side two: {}", s2_joined_options);
+}
+
+fn pprint_mcts_result(state: &State, result: MctsResult) {
+
+    println!("\nTotal Iterations: {}\n", result.iteration_count);
+    println!("Side One:");
+    println!("\t{:<25}{:>10}{:>10}", "Move", "Total Score", "Visits");
+    for x in result.s1.iter() {
+        println!(
+            "\t{:<25}{:>10.2}{:>10}",
+            get_move_id_from_movechoice(&state.side_one, &x.move_choice),
+            x.total_score,
+            x.visits
+        );
+    }
+
+    println!("Side Two:");
+    println!("\t{:<25}{:>10}{:>10}", "Move", "Total Score", "Visits");
+    for x in result.s2.iter() {
+        println!(
+            "\t{:<25}{:>10.2}{:>10}",
+            get_move_id_from_movechoice(&state.side_two, &x.move_choice),
+            x.total_score,
+            x.visits
+        );
+    }
 }
 
 fn get_move_id_from_movechoice(side: &Side, move_choice: &MoveChoice) -> String {
@@ -409,7 +435,7 @@ pub fn main() {
                     side_two_options.clone(),
                     std::time::Duration::from_millis(mcts.time_to_search_ms),
                 );
-                pprint_mcts_result(&state, result);
+                print_mcts_result(&state, result);
             }
             SubCommand::CalculateDamage(calculate_damage) => {
                 state = State::deserialize(calculate_damage.state.as_str());
@@ -653,7 +679,7 @@ fn command_loop(mut io_data: IOData) {
                     let elapsed = start_time.elapsed();
                     pprint_mcts_result(&io_data.state, result);
 
-                    println!("Took: {:?}", elapsed);
+                    println!("\nTook: {:?}", elapsed);
                 }
                 None => {
                     println!("Usage: monte-carlo-tree-search <timeout_ms>");
