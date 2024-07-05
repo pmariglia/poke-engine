@@ -696,6 +696,10 @@ impl Pokemon {
             return true;
         }
 
+        if self.volatile_statuses.contains(&PokemonVolatileStatus::Substitute) {
+            return true;
+        }
+
         if stat == &PokemonBoostableStat::Attack && self.ability == Abilities::HYPERCUTTER {
             return true;
         } else if stat == &PokemonBoostableStat::Accuracy && self.ability == Abilities::KEENEYE {
