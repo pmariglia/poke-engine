@@ -3,7 +3,7 @@ use crate::choices::{Choices, MOVES};
 use crate::items::Items;
 use crate::state::{
     DamageDealt, LastUsedMove, Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoveIndex,
-    PokemonMoves, PokemonNatures, PokemonStatus, PokemonType, PokemonVolatileStatus, Side,
+    PokemonMoves, PokemonStatus, PokemonType, PokemonVolatileStatus, Side,
     SideConditions, SidePokemon, State, StateTerrain, StateWeather, Terrain, Weather,
 };
 use std::collections::HashSet;
@@ -109,43 +109,6 @@ impl PokemonStatus {
             "poison" => PokemonStatus::Poison,
             "toxic" => PokemonStatus::Toxic,
             _ => panic!("Invalid status: {}", input),
-        }
-    }
-}
-
-impl PokemonNatures {
-    pub fn serialize(&self) -> String {
-        return format!("{:?}", self);
-    }
-
-    pub fn deserialize(input: &str) -> PokemonNatures {
-        match input.to_lowercase().as_str() {
-            "lonely" => PokemonNatures::Lonely,
-            "adamant" => PokemonNatures::Adamant,
-            "naughty" => PokemonNatures::Naughty,
-            "brave" => PokemonNatures::Brave,
-            "bold" => PokemonNatures::Bold,
-            "impish" => PokemonNatures::Impish,
-            "lax" => PokemonNatures::Lax,
-            "relaxed" => PokemonNatures::Relaxed,
-            "modest" => PokemonNatures::Modest,
-            "mild" => PokemonNatures::Mild,
-            "rash" => PokemonNatures::Rash,
-            "quiet" => PokemonNatures::Quiet,
-            "calm" => PokemonNatures::Calm,
-            "gentle" => PokemonNatures::Gentle,
-            "careful" => PokemonNatures::Careful,
-            "sassy" => PokemonNatures::Sassy,
-            "timid" => PokemonNatures::Timid,
-            "hasty" => PokemonNatures::Hasty,
-            "jolly" => PokemonNatures::Jolly,
-            "naive" => PokemonNatures::Naive,
-            "hardy" => PokemonNatures::Hardy,
-            "docile" => PokemonNatures::Docile,
-            "bashful" => PokemonNatures::Bashful,
-            "quirky" => PokemonNatures::Quirky,
-            "serious" => PokemonNatures::Serious,
-            _ => panic!("Invalid nature: {}", input),
         }
     }
 }
@@ -278,7 +241,7 @@ impl Pokemon {
             self.status.serialize(),
             self.substitute_health,
             self.rest_turns,
-            self.nature.serialize(),
+            self.weight_kg,
             vs_string,
             self.moves.m0.serialize(),
             self.moves.m1.serialize(),
@@ -325,7 +288,7 @@ impl Pokemon {
             status: PokemonStatus::deserialize(split[20]),
             substitute_health: split[21].parse::<i16>().unwrap(),
             rest_turns: split[22].parse::<i8>().unwrap(),
-            nature: PokemonNatures::deserialize(split[23]),
+            weight_kg: split[23].parse::<f32>().unwrap(),
             volatile_statuses: vs_hashset,
             moves: PokemonMoves {
                 m0: Move::deserialize(split[25]),
@@ -553,10 +516,11 @@ impl State {
     /// use poke_engine::abilities::Abilities;
     /// use poke_engine::items::Items;
     /// use poke_engine::state::State;
-    /// let serialized_state = "alakazam,100,Psychic,Typeless,251,251,MAGICGUARD,LIFEORB,121,148,353,206,365,0,0,0,0,0,0,0,None,0,0,Serious,,PSYCHIC;false;16,GRASSKNOT;false;32,SHADOWBALL;false;24,HIDDENPOWERFIRE70;false;24,NONE;true;32,NONE;true;32=skarmory,100,Steel,Flying,271,271,STURDY,CUSTAPBERRY,259,316,104,177,262,0,0,0,0,0,0,0,None,0,0,Serious,,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,NONE;true;32,NONE;true;32=tyranitar,100,Rock,Dark,404,404,SANDSTREAM,CHOPLEBERRY,305,256,203,327,159,0,0,0,0,0,0,0,None,0,0,Serious,,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,NONE;true;32,NONE;true;32=mamoswine,100,Ice,Ground,362,362,THICKFAT,NEVERMELTICE,392,196,158,176,241,0,0,0,0,0,0,0,None,0,0,Serious,,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,NONE;true;32,NONE;true;32=jellicent,100,Water,Ghost,404,404,WATERABSORB,AIRBALLOON,140,237,206,246,180,0,0,0,0,0,0,0,None,0,0,Serious,,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,NONE;true;32,NONE;true;32=excadrill,100,Ground,Steel,362,362,SANDFORCE,CHOICESCARF,367,156,122,168,302,0,0,0,0,0,0,0,None,0,0,Serious,,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,NONE;true;32,NONE;true;32=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;=0=0=false=NONE=false=false=switch:0=false/terrakion,100,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,0,0,0,0,0,0,0,None,0,0,Serious,,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,XSCISSOR;false;24,QUICKATTACK;false;48=lucario,100,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,0,0,0,0,0,0,0,None,0,0,Serious,,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,ICEPUNCH;false;24,AURASPHERE;false;32=breloom,100,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,0,0,0,0,0,0,0,None,0,0,Serious,,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,DRAINPUNCH;false;16,PROTECT;false;16=keldeo,100,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,0,0,0,0,0,0,0,None,0,0,Serious,,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,HIDDENPOWERICE70;false;24,CALMMIND;false;32=conkeldurr,100,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,0,0,0,0,0,0,0,None,0,0,Serious,,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,BULKUP;false;32,PAYBACK;false;16=toxicroak,100,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,0,0,0,0,0,0,0,None,0,0,Serious,,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,POISONJAB;false;32,SUBSTITUTE;false;16=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;=0=0=false=NONE=false=false=switch:0=false/none;5/none;5/false/false";
+    /// let serialized_state = "alakazam,100,Psychic,Typeless,251,251,MAGICGUARD,LIFEORB,121,148,353,206,365,0,0,0,0,0,0,0,None,0,0,25.5,,PSYCHIC;false;16,GRASSKNOT;false;32,SHADOWBALL;false;24,HIDDENPOWERFIRE70;false;24,NONE;true;32,NONE;true;32=skarmory,100,Steel,Flying,271,271,STURDY,CUSTAPBERRY,259,316,104,177,262,0,0,0,0,0,0,0,None,0,0,25.5,,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,NONE;true;32,NONE;true;32=tyranitar,100,Rock,Dark,404,404,SANDSTREAM,CHOPLEBERRY,305,256,203,327,159,0,0,0,0,0,0,0,None,0,0,25.5,,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,NONE;true;32,NONE;true;32=mamoswine,100,Ice,Ground,362,362,THICKFAT,NEVERMELTICE,392,196,158,176,241,0,0,0,0,0,0,0,None,0,0,25.5,,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,NONE;true;32,NONE;true;32=jellicent,100,Water,Ghost,404,404,WATERABSORB,AIRBALLOON,140,237,206,246,180,0,0,0,0,0,0,0,None,0,0,25.5,,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,NONE;true;32,NONE;true;32=excadrill,100,Ground,Steel,362,362,SANDFORCE,CHOICESCARF,367,156,122,168,302,0,0,0,0,0,0,0,None,0,0,25.5,,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,NONE;true;32,NONE;true;32=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;=0=0=false=NONE=false=false=switch:0=false/terrakion,100,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,0,0,0,0,0,0,0,None,0,0,25.5,,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,XSCISSOR;false;24,QUICKATTACK;false;48=lucario,100,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,0,0,0,0,0,0,0,None,0,0,25.5,,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,ICEPUNCH;false;24,AURASPHERE;false;32=breloom,100,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,0,0,0,0,0,0,0,None,0,0,25.5,,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,DRAINPUNCH;false;16,PROTECT;false;16=keldeo,100,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,0,0,0,0,0,0,0,None,0,0,25.5,,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,HIDDENPOWERICE70;false;24,CALMMIND;false;32=conkeldurr,100,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,0,0,0,0,0,0,0,None,0,0,25.5,,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,BULKUP;false;32,PAYBACK;false;16=toxicroak,100,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,0,0,0,0,0,0,0,None,0,0,25.5,,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,POISONJAB;false;32,SUBSTITUTE;false;16=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;=0=0=false=NONE=false=false=switch:0=false/none;5/none;5/false/false";
     /// let state = State::deserialize(serialized_state);
     ///
     /// assert_eq!(state.side_one.get_active_immutable().id, "alakazam");
+    /// assert_eq!(state.side_one.get_active_immutable().weight_kg, 25.5);
     /// assert_eq!(state.side_one.get_active_immutable().item, Items::LIFEORB);
     /// assert_eq!(state.side_one.get_active_immutable().ability, Abilities::MAGICGUARD);
     /// assert_eq!(state.side_two.get_active_immutable().id, "terrakion");

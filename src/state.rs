@@ -251,37 +251,6 @@ pub enum PokemonType {
     Typeless,
 }
 
-#[derive(Debug, Clone)]
-pub enum PokemonNatures {
-    Lonely,
-    Adamant,
-    Naughty,
-    Brave,
-    Bold,
-    Impish,
-    Lax,
-    Relaxed,
-    Modest,
-    Mild,
-    Rash,
-    Quiet,
-    Calm,
-    Gentle,
-    Careful,
-    Sassy,
-    Timid,
-    Hasty,
-    Jolly,
-    Naive,
-
-    // Neutral Natures
-    Hardy,
-    Docile,
-    Bashful,
-    Quirky,
-    Serious,
-}
-
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum PokemonBoostableStat {
     Attack,
@@ -492,7 +461,7 @@ pub struct Pokemon {
     pub status: PokemonStatus,
     pub rest_turns: i8,
     pub substitute_health: i16,
-    pub nature: PokemonNatures,
+    pub weight_kg: f32,
     pub volatile_statuses: HashSet<PokemonVolatileStatus>,
     pub moves: PokemonMoves,
 }
@@ -738,7 +707,7 @@ impl Default for Pokemon {
             status: PokemonStatus::None,
             substitute_health: 0,
             rest_turns: 0,
-            nature: PokemonNatures::Serious,
+            weight_kg: 1.0,
             volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
             moves: PokemonMoves {
                 m0: Default::default(),
