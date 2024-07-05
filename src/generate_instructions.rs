@@ -254,7 +254,8 @@ fn generate_instructions_from_switch(
         incoming_instructions,
     );
 
-    if side.get_active_immutable().item != Items::HEAVYDUTYBOOTS {
+    let active = side.get_active_immutable();
+    if active.item != Items::HEAVYDUTYBOOTS && active.ability != Abilities::MAGICGUARD {
         if side.side_conditions.stealth_rock == 1 {
             let switched_in_pkmn = side.get_active();
             let multiplier =
