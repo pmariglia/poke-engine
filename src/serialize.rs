@@ -1855,6 +1855,7 @@ impl FromStr for Items {
             "LIGHTBALL" => Ok(Items::LIGHTBALL),
             "FOCUSSASH" => Ok(Items::FOCUSSASH),
             "LUMBERRY" => Ok(Items::LUMBERRY),
+            "SITRUSBERRY" => Ok(Items::SITRUSBERRY),
             _ => Ok(Items::UNKNOWNITEM),
         }
     }

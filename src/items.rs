@@ -110,6 +110,7 @@ pub enum Items {
     LIGHTBALL,
     FOCUSSASH,
     LUMBERRY,
+    SITRUSBERRY,
 }
 
 pub fn get_choice_move_disable_instructions(
@@ -180,6 +181,30 @@ fn lum_berry(
         ChangeItemInstruction {
             side_ref: *side_ref,
             current_item: Items::LUMBERRY,
+            new_item: Items::NONE,
+        },
+    ));
+    active_pkmn.item = Items::NONE;
+}
+
+fn sitrus_berry(
+    side_ref: &SideReference,
+    attacking_side: &mut Side,
+    instructions: &mut StateInstructions,
+) {
+    let active_pkmn = attacking_side.get_active();
+    let heal_amount = cmp::min(active_pkmn.maxhp / 4, active_pkmn.maxhp - active_pkmn.hp);
+    instructions.instruction_list.push(Instruction::Heal(
+        HealInstruction {
+            side_ref: *side_ref,
+            heal_amount: heal_amount,
+        },
+    ));
+    active_pkmn.hp += heal_amount;
+    instructions.instruction_list.push(Instruction::ChangeItem(
+        ChangeItemInstruction {
+            side_ref: *side_ref,
+            current_item: Items::SITRUSBERRY,
             new_item: Items::NONE,
         },
     ));
@@ -350,6 +375,7 @@ pub fn item_before_move(
     }
     match active_pkmn.item {
         Items::LUMBERRY if active_pkmn.status != PokemonStatus::None => lum_berry(side_ref, attacking_side, instructions),
+        Items::SITRUSBERRY if active_pkmn.hp < active_pkmn.maxhp / 2 => sitrus_berry(side_ref, attacking_side, instructions),
         Items::CUSTAPBERRY => {
             if active_pkmn.hp <= active_pkmn.maxhp / 4 {
                 active_pkmn.item = Items::NONE;
@@ -481,6 +507,7 @@ pub fn item_end_of_turn(
     let active_pkmn = attacking_side.get_active();
     match active_pkmn.item {
         Items::LUMBERRY if active_pkmn.status != PokemonStatus::None => lum_berry(side_ref, attacking_side, instructions),
+        Items::SITRUSBERRY if active_pkmn.hp < active_pkmn.maxhp / 2 => sitrus_berry(side_ref, attacking_side, instructions),
         Items::BLACKSLUDGE => {
             if active_pkmn.has_type(&PokemonType::Poison) {
                 if active_pkmn.hp < active_pkmn.maxhp {
