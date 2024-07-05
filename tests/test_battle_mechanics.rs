@@ -5503,6 +5503,78 @@ fn test_basic_levitate() {
 }
 
 #[test]
+fn test_mold_breaker_into_levitate() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::MOLDBREAKER;
+    state.side_two.get_active().ability = Abilities::LEVITATE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::EARTHQUAKE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 79,
+            })
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_mold_breaker_into_waterabsorb() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::MOLDBREAKER;
+    state.side_two.get_active().ability = Abilities::WATERABSORB;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::WATERGUN,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 32,
+            })
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_mold_breaker_into_wonderguard() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::MOLDBREAKER;
+    state.side_two.get_active().ability = Abilities::WONDERGUARD;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::EARTHQUAKE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 79,
+            })
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_lightning_rod() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::LIGHTNINGROD;

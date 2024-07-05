@@ -296,6 +296,84 @@ pub enum Abilities {
     PURIFYINGSALT,
 }
 
+// https://bulbapedia.bulbagarden.net/wiki/Ignoring_Abilities#Ignorable_Abilities
+fn mold_breaker_ignores(ability: &Abilities) -> bool {
+    return match ability {
+        Abilities::BATTLEARMOR
+        | Abilities::CLEARBODY
+        | Abilities::DAMP
+        | Abilities::DRYSKIN
+        | Abilities::FILTER
+        | Abilities::FLASHFIRE
+        | Abilities::FLOWERGIFT
+        | Abilities::HEATPROOF
+        | Abilities::HYPERCUTTER
+        | Abilities::IMMUNITY
+        | Abilities::INNERFOCUS
+        | Abilities::INSOMNIA
+        | Abilities::KEENEYE
+        | Abilities::LEAFGUARD
+        | Abilities::LEVITATE
+        | Abilities::LIGHTNINGROD
+        | Abilities::LIMBER
+        | Abilities::MAGMAARMOR
+        | Abilities::MARVELSCALE
+        | Abilities::MOTORDRIVE
+        | Abilities::OBLIVIOUS
+        | Abilities::OWNTEMPO
+        | Abilities::SANDVEIL
+        | Abilities::SHELLARMOR
+        | Abilities::SHIELDDUST
+        | Abilities::SIMPLE
+        | Abilities::SNOWCLOAK
+        | Abilities::SOLIDROCK
+        | Abilities::SOUNDPROOF
+        | Abilities::STICKYHOLD
+        | Abilities::STORMDRAIN
+        | Abilities::STURDY
+        | Abilities::SUCTIONCUPS
+        | Abilities::TANGLEDFEET
+        | Abilities::THICKFAT
+        | Abilities::UNAWARE
+        | Abilities::VITALSPIRIT
+        | Abilities::VOLTABSORB
+        | Abilities::WATERABSORB
+        | Abilities::WATERVEIL
+        | Abilities::WHITESMOKE
+        | Abilities::WONDERGUARD
+        | Abilities::BIGPECKS
+        | Abilities::CONTRARY
+        | Abilities::FRIENDGUARD
+        | Abilities::HEAVYMETAL
+        | Abilities::LIGHTMETAL
+        | Abilities::MAGICBOUNCE
+        | Abilities::MULTISCALE
+        | Abilities::SAPSIPPER
+        | Abilities::TELEPATHY
+        | Abilities::WONDERSKIN
+        | Abilities::AURABREAK
+        | Abilities::AROMAVEIL
+        | Abilities::BULLETPROOF
+        | Abilities::FLOWERVEIL
+        | Abilities::FURCOAT
+        | Abilities::OVERCOAT
+        | Abilities::SWEETVEIL
+        | Abilities::DAZZLING
+        | Abilities::DISGUISE
+        | Abilities::FLUFFY
+        | Abilities::QUEENLYMAJESTY
+        | Abilities::WATERBUBBLE
+        | Abilities::ICESCALES
+        | Abilities::ICEFACE
+        | Abilities::MIRRORARMOR
+        | Abilities::PASTELVEIL
+        | Abilities::PUNKROCK
+        | Abilities::FAIRYAURA
+        | Abilities::DARKAURA => true,
+        _ => false
+    }
+}
+
 pub fn ability_before_move(
     state: &mut State,
     choice: &Choice,
@@ -1203,6 +1281,10 @@ pub fn ability_modify_attack_against(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     let target_pkmn = defending_side.get_active_immutable();
+    if attacking_side.get_active_immutable().ability == Abilities::MOLDBREAKER && mold_breaker_ignores(&target_pkmn.ability) {
+        return;
+    }
+
     match target_pkmn.ability {
         Abilities::SOUNDPROOF => {
             if attacker_choice.flags.sound {
