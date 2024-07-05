@@ -9,7 +9,7 @@ use crate::instruction::{
     ChangeItemInstruction, ChangeStatusInstruction, DamageInstruction, DisableMoveInstruction,
     HealInstruction, Instruction, StateInstructions,
 };
-use crate::state::{Pokemon, PokemonType};
+use crate::state::{Pokemon, PokemonType, Side};
 use crate::state::{PokemonBoostableStat, State, Terrain};
 use crate::state::{PokemonStatus, SideReference};
 
@@ -109,6 +109,7 @@ pub enum Items {
     PIXIEPLATE,
     LIGHTBALL,
     FOCUSSASH,
+    LUMBERRY,
 }
 
 pub fn get_choice_move_disable_instructions(
@@ -150,6 +151,39 @@ fn damage_reduction_berry(
         defending_pkmn.item = Items::NONE;
         choice.base_power /= 2.0;
     }
+}
+
+/*
+Regarding berries:
+    most berries (lum, sitrus, etc) activate right away when applicable, but there isn't
+    logic in this engine to implement that. Attempting to activate these berries before the user's
+    move AND at the end-of-turn should be accurate enough for a simulation. The item is
+    removed after this is triggered so only one will take effect
+*/
+fn lum_berry(
+    side_ref: &SideReference,
+    attacking_side: &mut Side,
+    instructions: &mut StateInstructions,
+) {
+    let active_index = attacking_side.active_index;
+    let active_pkmn = attacking_side.get_active();
+    instructions.instruction_list.push(Instruction::ChangeStatus(
+        ChangeStatusInstruction {
+            side_ref: *side_ref,
+            pokemon_index: active_index,
+            new_status: PokemonStatus::None,
+            old_status: active_pkmn.status,
+        },
+    ));
+    active_pkmn.status = PokemonStatus::None;
+    instructions.instruction_list.push(Instruction::ChangeItem(
+        ChangeItemInstruction {
+            side_ref: *side_ref,
+            current_item: Items::LUMBERRY,
+            new_item: Items::NONE,
+        },
+    ));
+    active_pkmn.item = Items::NONE;
 }
 
 pub fn item_before_move(
@@ -315,6 +349,7 @@ pub fn item_before_move(
         _ => {}
     }
     match active_pkmn.item {
+        Items::LUMBERRY if active_pkmn.status != PokemonStatus::None => lum_berry(side_ref, attacking_side, instructions),
         Items::CUSTAPBERRY => {
             if active_pkmn.hp <= active_pkmn.maxhp / 4 {
                 active_pkmn.item = Items::NONE;
@@ -442,8 +477,10 @@ pub fn item_end_of_turn(
     side_ref: &SideReference,
     instructions: &mut StateInstructions,
 ) {
-    let active_pkmn = state.get_side(side_ref).get_active();
+    let attacking_side = state.get_side(side_ref);
+    let active_pkmn = attacking_side.get_active();
     match active_pkmn.item {
+        Items::LUMBERRY if active_pkmn.status != PokemonStatus::None => lum_berry(side_ref, attacking_side, instructions),
         Items::BLACKSLUDGE => {
             if active_pkmn.has_type(&PokemonType::Poison) {
                 if active_pkmn.hp < active_pkmn.maxhp {
