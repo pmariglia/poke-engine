@@ -299,7 +299,6 @@ fn print_mcts_result(state: &State, result: MctsResult) {
 }
 
 fn pprint_mcts_result(state: &State, result: MctsResult) {
-
     println!("\nTotal Iterations: {}\n", result.iteration_count);
     println!("Side One:");
     println!("\t{:<25}{:>10}{:>10}", "Move", "Total Score", "Visits");

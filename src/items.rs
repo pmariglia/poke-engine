@@ -168,22 +168,22 @@ fn lum_berry(
 ) {
     let active_index = attacking_side.active_index;
     let active_pkmn = attacking_side.get_active();
-    instructions.instruction_list.push(Instruction::ChangeStatus(
-        ChangeStatusInstruction {
+    instructions
+        .instruction_list
+        .push(Instruction::ChangeStatus(ChangeStatusInstruction {
             side_ref: *side_ref,
             pokemon_index: active_index,
             new_status: PokemonStatus::None,
             old_status: active_pkmn.status,
-        },
-    ));
+        }));
     active_pkmn.status = PokemonStatus::None;
-    instructions.instruction_list.push(Instruction::ChangeItem(
-        ChangeItemInstruction {
+    instructions
+        .instruction_list
+        .push(Instruction::ChangeItem(ChangeItemInstruction {
             side_ref: *side_ref,
             current_item: Items::LUMBERRY,
             new_item: Items::NONE,
-        },
-    ));
+        }));
     active_pkmn.item = Items::NONE;
 }
 
@@ -194,20 +194,20 @@ fn sitrus_berry(
 ) {
     let active_pkmn = attacking_side.get_active();
     let heal_amount = cmp::min(active_pkmn.maxhp / 4, active_pkmn.maxhp - active_pkmn.hp);
-    instructions.instruction_list.push(Instruction::Heal(
-        HealInstruction {
+    instructions
+        .instruction_list
+        .push(Instruction::Heal(HealInstruction {
             side_ref: *side_ref,
             heal_amount: heal_amount,
-        },
-    ));
+        }));
     active_pkmn.hp += heal_amount;
-    instructions.instruction_list.push(Instruction::ChangeItem(
-        ChangeItemInstruction {
+    instructions
+        .instruction_list
+        .push(Instruction::ChangeItem(ChangeItemInstruction {
             side_ref: *side_ref,
             current_item: Items::SITRUSBERRY,
             new_item: Items::NONE,
-        },
-    ));
+        }));
     active_pkmn.item = Items::NONE;
 }
 
@@ -374,8 +374,12 @@ pub fn item_before_move(
         _ => {}
     }
     match active_pkmn.item {
-        Items::LUMBERRY if active_pkmn.status != PokemonStatus::None => lum_berry(side_ref, attacking_side, instructions),
-        Items::SITRUSBERRY if active_pkmn.hp < active_pkmn.maxhp / 2 => sitrus_berry(side_ref, attacking_side, instructions),
+        Items::LUMBERRY if active_pkmn.status != PokemonStatus::None => {
+            lum_berry(side_ref, attacking_side, instructions)
+        }
+        Items::SITRUSBERRY if active_pkmn.hp < active_pkmn.maxhp / 2 => {
+            sitrus_berry(side_ref, attacking_side, instructions)
+        }
         Items::CUSTAPBERRY => {
             if active_pkmn.hp <= active_pkmn.maxhp / 4 {
                 active_pkmn.item = Items::NONE;
@@ -506,8 +510,12 @@ pub fn item_end_of_turn(
     let attacking_side = state.get_side(side_ref);
     let active_pkmn = attacking_side.get_active();
     match active_pkmn.item {
-        Items::LUMBERRY if active_pkmn.status != PokemonStatus::None => lum_berry(side_ref, attacking_side, instructions),
-        Items::SITRUSBERRY if active_pkmn.hp < active_pkmn.maxhp / 2 => sitrus_berry(side_ref, attacking_side, instructions),
+        Items::LUMBERRY if active_pkmn.status != PokemonStatus::None => {
+            lum_berry(side_ref, attacking_side, instructions)
+        }
+        Items::SITRUSBERRY if active_pkmn.hp < active_pkmn.maxhp / 2 => {
+            sitrus_berry(side_ref, attacking_side, instructions)
+        }
         Items::BLACKSLUDGE => {
             if active_pkmn.has_type(&PokemonType::Poison) {
                 if active_pkmn.hp < active_pkmn.maxhp {

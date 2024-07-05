@@ -2085,12 +2085,10 @@ fn test_sitrus_berry_does_not_activate_if_above_half() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideOne,
-                damage_amount: 48,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 48,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -2143,12 +2141,10 @@ fn test_lumberry_does_nothing_with_no_status() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 48,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 48,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -5516,12 +5512,10 @@ fn test_mold_breaker_into_levitate() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 79,
-            })
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 79,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -5540,12 +5534,10 @@ fn test_mold_breaker_into_waterabsorb() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 32,
-            })
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 32,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -5564,12 +5556,10 @@ fn test_mold_breaker_into_wonderguard() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 79,
-            })
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 79,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -6294,7 +6284,11 @@ fn test_scrappy_versus_intimidate() {
 #[test]
 fn test_substitute_versus_intimidate() {
     let mut state = State::default();
-    state.side_two.get_active().volatile_statuses.insert(PokemonVolatileStatus::Substitute);
+    state
+        .side_two
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::Substitute);
     state.side_two.get_active().substitute_health = 25;
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::INTIMIDATE;
 

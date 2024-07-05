@@ -370,8 +370,8 @@ fn mold_breaker_ignores(ability: &Abilities) -> bool {
         | Abilities::PUNKROCK
         | Abilities::FAIRYAURA
         | Abilities::DARKAURA => true,
-        _ => false
-    }
+        _ => false,
+    };
 }
 
 pub fn ability_before_move(
@@ -1281,7 +1281,9 @@ pub fn ability_modify_attack_against(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     let target_pkmn = defending_side.get_active_immutable();
-    if attacking_side.get_active_immutable().ability == Abilities::MOLDBREAKER && mold_breaker_ignores(&target_pkmn.ability) {
+    if attacking_side.get_active_immutable().ability == Abilities::MOLDBREAKER
+        && mold_breaker_ignores(&target_pkmn.ability)
+    {
         return;
     }
 

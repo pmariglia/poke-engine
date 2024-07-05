@@ -696,7 +696,10 @@ impl Pokemon {
             return true;
         }
 
-        if self.volatile_statuses.contains(&PokemonVolatileStatus::Substitute) {
+        if self
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::Substitute)
+        {
             return true;
         }
 
