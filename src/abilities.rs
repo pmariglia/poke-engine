@@ -1251,6 +1251,7 @@ pub fn ability_modify_attack_against(
         }
         Abilities::EARTHEATER => {
             if attacker_choice.move_type == PokemonType::Ground {
+                attacker_choice.remove_all_effects();
                 attacker_choice.base_power = 0.0;
                 attacker_choice.heal = Some(Heal {
                     target: MoveTarget::Opponent,
@@ -1638,6 +1639,7 @@ pub fn ability_modify_attack_against(
         }
         Abilities::WATERABSORB => {
             if attacker_choice.move_type == PokemonType::Water {
+                attacker_choice.remove_all_effects();
                 attacker_choice.base_power = 0.0;
                 attacker_choice.heal = Some(Heal {
                     target: MoveTarget::Opponent,
@@ -1648,6 +1650,7 @@ pub fn ability_modify_attack_against(
         }
         Abilities::DRYSKIN => {
             if attacker_choice.move_type == PokemonType::Water {
+                attacker_choice.remove_all_effects();
                 attacker_choice.base_power = 0.0;
                 attacker_choice.heal = Some(Heal {
                     target: MoveTarget::Opponent,
