@@ -3,8 +3,8 @@ use crate::choices::{Choices, MOVES};
 use crate::items::Items;
 use crate::state::{
     DamageDealt, LastUsedMove, Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoveIndex,
-    PokemonMoves, PokemonStatus, PokemonType, PokemonVolatileStatus, Side,
-    SideConditions, SidePokemon, State, StateTerrain, StateWeather, Terrain, Weather,
+    PokemonMoves, PokemonStatus, PokemonType, PokemonVolatileStatus, Side, SideConditions,
+    SidePokemon, State, StateTerrain, StateWeather, Terrain, Weather,
 };
 use std::collections::HashSet;
 use std::fmt;

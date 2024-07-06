@@ -435,6 +435,98 @@ pub fn ability_after_damage_hit(
         }
         _ => {}
     }
+    let (attacking_side, defending_side) = state.get_both_sides(side_ref);
+    let attacking_pkmn = attacking_side.get_active();
+    let defending_pkmn = defending_side.get_active();
+    match defending_pkmn.ability {
+        Abilities::COLORCHANGE => {
+            if damage_dealt > 0
+                && defending_pkmn.hp != 0
+                && !defending_pkmn.has_type(&choice.move_type)
+            {
+                let change_type_instruction = Instruction::ChangeType(ChangeType {
+                    side_ref: side_ref.get_other_side(),
+                    new_types: (choice.move_type, PokemonType::Typeless),
+                    old_types: defending_pkmn.types,
+                });
+                defending_pkmn.types = (choice.move_type, PokemonType::Typeless);
+                instructions.instruction_list.push(change_type_instruction);
+            }
+        }
+        Abilities::STAMINA => {
+            if damage_dealt > 0 && defending_pkmn.hp != 0 {
+                if let Some(boost_instruction) = get_boost_instruction(
+                    &defending_pkmn,
+                    &PokemonBoostableStat::Defense,
+                    &1,
+                    side_ref,
+                    &side_ref.get_other_side(),
+                ) {
+                    state.apply_one_instruction(&boost_instruction);
+                    instructions.instruction_list.push(boost_instruction);
+                }
+            }
+        }
+        Abilities::COTTONDOWN => {
+            if damage_dealt > 0 {
+                if let Some(boost_instruction) = get_boost_instruction(
+                    &attacking_pkmn,
+                    &PokemonBoostableStat::Speed,
+                    &-1,
+                    &side_ref.get_other_side(),
+                    side_ref,
+                ) {
+                    state.apply_one_instruction(&boost_instruction);
+                    instructions.instruction_list.push(boost_instruction);
+                }
+            }
+        }
+        Abilities::BERSERK => {
+            if damage_dealt > 0
+                && defending_pkmn.hp < defending_pkmn.maxhp / 2
+                && defending_pkmn.hp + damage_dealt >= defending_pkmn.maxhp / 2
+            {
+                if let Some(boost_instruction) = get_boost_instruction(
+                    &defending_pkmn,
+                    &PokemonBoostableStat::SpecialAttack,
+                    &1,
+                    &side_ref.get_other_side(),
+                    &side_ref.get_other_side(),
+                ) {
+                    state.apply_one_instruction(&boost_instruction);
+                    instructions.instruction_list.push(boost_instruction);
+                }
+            }
+        }
+        Abilities::ROUGHSKIN | Abilities::IRONBARBS => {
+            if damage_dealt > 0 && choice.flags.contact {
+                let damage_dealt = cmp::min(attacking_pkmn.maxhp / 8, attacking_pkmn.hp);
+                instructions
+                    .instruction_list
+                    .push(Instruction::Damage(DamageInstruction {
+                        side_ref: *side_ref,
+                        damage_amount: damage_dealt,
+                    }));
+                attacking_pkmn.hp -= damage_dealt;
+            }
+        }
+        Abilities::AFTERMATH => {
+            if damage_dealt > 0
+                && defending_side.get_active_immutable().hp == 0
+                && choice.flags.contact
+            {
+                let damage_dealt = cmp::min(attacking_pkmn.maxhp / 4, attacking_pkmn.hp);
+                instructions
+                    .instruction_list
+                    .push(Instruction::Damage(DamageInstruction {
+                        side_ref: *side_ref,
+                        damage_amount: damage_dealt,
+                    }));
+                attacking_pkmn.hp -= damage_dealt;
+            }
+        }
+        _ => {}
+    }
 }
 
 pub fn ability_on_switch_out(
@@ -1502,15 +1594,6 @@ pub fn ability_modify_attack_against(
         Abilities::SUCTIONCUPS => {
             attacker_choice.flags.drag = false;
         }
-        Abilities::ROUGHSKIN => {
-            if attacker_choice.flags.contact {
-                attacker_choice.add_or_create_secondaries(Secondary {
-                    chance: 100.0,
-                    target: MoveTarget::User,
-                    effect: Effect::Heal(-0.125),
-                });
-            }
-        }
         Abilities::WONDERGUARD => {
             if attacker_choice.category != MoveCategory::Status
                 && type_effectiveness_modifier(&attacker_choice.move_type, &target_pkmn.types)
@@ -1607,31 +1690,6 @@ pub fn ability_modify_attack_against(
         Abilities::FURCOAT => {
             if attacker_choice.category == MoveCategory::Physical {
                 attacker_choice.base_power *= 0.5;
-            }
-        }
-        Abilities::IRONBARBS => {
-            if attacker_choice.flags.contact {
-                attacker_choice.add_or_create_secondaries(Secondary {
-                    chance: 100.0,
-                    target: MoveTarget::User,
-                    effect: Effect::Heal(-0.125),
-                });
-            }
-        }
-        Abilities::STAMINA => {
-            if attacker_choice.category != MoveCategory::Status {
-                attacker_choice.add_or_create_secondaries(Secondary {
-                    chance: 100.0,
-                    target: MoveTarget::Opponent,
-                    effect: Effect::Boost(StatBoosts {
-                        attack: 0,
-                        defense: 1,
-                        special_attack: 0,
-                        special_defense: 0,
-                        speed: 0,
-                        accuracy: 0,
-                    }),
-                });
             }
         }
         Abilities::TANGLINGHAIR => {
