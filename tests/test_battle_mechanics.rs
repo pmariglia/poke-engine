@@ -4105,6 +4105,34 @@ fn test_shoreup_in_sand() {
 }
 
 #[test]
+fn test_rock_spdef_in_sand() {
+    let mut state = State::default();
+    state.weather.weather_type = Weather::Sand;
+    state.side_one.get_active().types.0 = PokemonType::Rock;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::WATERGUN,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 44,  // 66 normally
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_morningsun_in_rain() {
     let mut state = State::default();
     state.weather.weather_type = Weather::Rain;

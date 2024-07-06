@@ -314,7 +314,7 @@ pub fn calculate_damage(
     let defender = defending_side.get_active_immutable();
 
     let attacking_stat;
-    let defending_stat;
+    let mut defending_stat;
     match choice.category {
         MoveCategory::Physical => {
             if defender.ability == Abilities::UNAWARE {
@@ -347,6 +347,15 @@ pub fn calculate_damage(
 
     if choice.base_power <= 0.0 {
         return Some(0);
+    }
+
+    match state.weather.weather_type {
+        Weather::Sand => {
+            if defender.has_type(&PokemonType::Rock) {
+                defending_stat = (defending_stat as f32 * 1.5) as i16;
+            }
+        }
+        _ => {}
     }
 
     let mut damage: f32;
