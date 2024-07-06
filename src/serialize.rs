@@ -563,11 +563,11 @@ impl State {
     /// // item
     /// "LIFEORB,",
     ///
-    /// // attack, defense, special attack, special defense, speed
+    /// // attack,defense,special attack,special defense,speed
     /// // note these are final stats, not base stats
     /// "121,148,353,206,365,",
     ///
-    /// // attack_boost, defense_boost, special attack_boost, special defense_boost, speed_boost, accuracy_boost, evasion_boost
+    /// // attack_boost,defense_boost,special attack_boost,special defense_boost,speed_boost,accuracy_boost,evasion_boost
     /// "0,0,0,0,0,0,0,",
     ///
     /// // status
