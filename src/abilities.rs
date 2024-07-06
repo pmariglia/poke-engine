@@ -1372,8 +1372,11 @@ pub fn ability_modify_attack_against(
     attacking_side_ref: &SideReference,
 ) {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
+    let attacking_pkmn = attacking_side.get_active_immutable();
     let target_pkmn = defending_side.get_active_immutable();
-    if attacking_side.get_active_immutable().ability == Abilities::MOLDBREAKER
+    if (attacking_pkmn.ability == Abilities::MOLDBREAKER
+        || attacking_pkmn.ability == Abilities::TERAVOLT
+        || attacking_pkmn.ability == Abilities::TURBOBLAZE)
         && mold_breaker_ignores(&target_pkmn.ability)
     {
         return;
