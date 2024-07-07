@@ -350,10 +350,8 @@ pub fn calculate_damage(
     }
 
     match state.weather.weather_type {
-        Weather::Sand => {
-            if defender.has_type(&PokemonType::Rock) {
-                defending_stat = (defending_stat as f32 * 1.5) as i16;
-            }
+        Weather::Sand if defender.has_type(&PokemonType::Rock) && choice.category == MoveCategory::Special => {
+            defending_stat = (defending_stat as f32 * 1.5) as i16;
         }
         _ => {}
     }
