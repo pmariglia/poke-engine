@@ -73,7 +73,7 @@ Available commands:
 | **pop**                                               |     p     | Pops the last instructions from the state, undoing their changes                                              |
 | **pop-all**                                           |    pa     | Pops all applied instructions from the state                                                                  |
 | **evaluate**                                          |    ev     | Calculate the current state's evaluation                                                                      |
-| **calculate-damage**                                  |     d     | Calculate the damage rolls for the given moves                                                                |
+| **calculate-damage** *side-1-move* *side-2-move*      |     d     | Calculate the damage rolls for the given moves                                                                |
 | **expectiminimax** *depth* *[ab-prune=false]*         |     e     | Perform expectiminimax (see above), and display the results                                                   |
 | **iterative-deepening** *time-ms*                     |    id     | Perform iterative-deepening (see above), and display the results                                              |
 | **monte-carlo-tree-search** *time-ms*                 |   mcts    | Perform monte-carlo-tree-search (see above), and display the results                                          |
