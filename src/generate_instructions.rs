@@ -2460,6 +2460,49 @@ pub fn calculate_damage_rolls(
         choice.flags.charge = false;
     }
 
+    let attacker_active = state.get_side_immutable(attacking_side_ref).get_active_immutable();
+    let defender_active = state.get_side_immutable(&attacking_side_ref.get_other_side()).get_active_immutable();
+    match choice.move_id {
+        Choices::SEISMICTOSS => {
+            if type_effectiveness_modifier(&PokemonType::Normal, &defender_active.types) == 0.0 {
+                return None;
+            }
+            return Some(vec![attacker_active.level as i16]);
+        },
+        Choices::NIGHTSHADE => {
+            if type_effectiveness_modifier(&PokemonType::Ghost, &defender_active.types) == 0.0 {
+                return None;
+            }
+            return Some(vec![attacker_active.level as i16]);
+        },
+        Choices::FINALGAMBIT => {
+            if type_effectiveness_modifier(&PokemonType::Ghost, &defender_active.types) == 0.0 {
+                return None;
+            }
+            return Some(vec![attacker_active.hp]);
+        },
+        Choices::ENDEAVOR => {
+            if type_effectiveness_modifier(&PokemonType::Ghost, &defender_active.types) == 0.0 || defender_active.hp <= attacker_active.hp {
+                return None;
+            }
+            return Some(vec![defender_active.hp - attacker_active.hp]);
+        },
+        Choices::PAINSPLIT => {
+            if type_effectiveness_modifier(&PokemonType::Ghost, &defender_active.types) == 0.0 || defender_active.hp <= attacker_active.hp {
+                return None;
+            }
+            return Some(vec![defender_active.hp - (attacker_active.hp + defender_active.hp) / 2]);
+        },
+        Choices::SUPERFANG | Choices::NATURESMADNESS | Choices::RUINATION => {
+            if type_effectiveness_modifier(&PokemonType::Normal, &defender_active.types) == 0.0 {
+                return None;
+            }
+            return Some(vec![defender_active.hp / 2]);
+        },
+
+        _ => {}
+    }
+
     before_move(
         &mut state,
         &mut choice,
