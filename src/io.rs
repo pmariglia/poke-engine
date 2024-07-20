@@ -75,6 +75,9 @@ struct CalculateDamage {
 
     #[clap(short = 't', long, required = true)]
     side_two_move: String,
+
+    #[clap(short = 'm', long, required = false, default_value_t = false)]
+    side_one_moves_first: bool,
 }
 
 impl Default for IOData {
@@ -446,7 +449,8 @@ pub fn main() {
                     .get(&Choices::from_str(calculate_damage.side_two_move.as_str()).unwrap())
                     .unwrap()
                     .to_owned();
-                calculate_damage_io(&state, s1_choice, s2_choice);
+                let s1_moves_first = calculate_damage.side_one_moves_first;
+                calculate_damage_io(&state, s1_choice, s2_choice, s1_moves_first);
             }
         },
     }
@@ -454,7 +458,15 @@ pub fn main() {
     exit(0);
 }
 
-fn calculate_damage_io(state: &State, s1_choice: Choice, s2_choice: Choice) {
+fn calculate_damage_io(state: &State, mut s1_choice: Choice, mut s2_choice: Choice, side_one_moves_first: bool) {
+    if side_one_moves_first {
+        s1_choice.first_move = true;
+        s2_choice.first_move = false;
+    } else {
+        s1_choice.first_move = false;
+        s2_choice.first_move = true;
+    }
+
     let damages_dealt_s1 = calculate_damage_rolls(
         state.clone(),
         &SideReference::SideOne,
@@ -607,7 +619,7 @@ fn command_loop(mut io_data: IOData) {
                             .to_owned();
                     }
                     None => {
-                        println!("Usage: calculate-damage <side-1 move> <side-2 move>");
+                        println!("Usage: calculate-damage <side-1 move> <side-2 move> <side-1-moves-first>");
                         continue;
                     }
                 }
@@ -619,11 +631,21 @@ fn command_loop(mut io_data: IOData) {
                             .to_owned();
                     }
                     None => {
-                        println!("Usage: calculate-damage <side-1 move> <side-2 move>");
+                        println!("Usage: calculate-damage <side-1 move> <side-2 move> <side-1-moves-first>");
                         continue;
                     }
                 }
-                calculate_damage_io(&io_data.state, s1_choice, s2_choice);
+                let s1_moves_first: bool;
+                match args.next() {
+                    Some(s) => {
+                        s1_moves_first = s.parse::<bool>().unwrap();
+                    }
+                    None => {
+                        println!("Usage: calculate-damage <side-1 move> <side-2 move> <side-1-moves-first>");
+                        continue
+                    }
+                }
+                calculate_damage_io(&io_data.state, s1_choice, s2_choice, s1_moves_first);
             }
             "instructions" | "i" => {
                 println!("{:?}", io_data.last_instructions_generated);
