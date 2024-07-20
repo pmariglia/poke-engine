@@ -337,6 +337,23 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 2.0;
             }
         }
+
+        #[cfg(any(feature = "gen4"))]
+        Choices::PAYBACK => {
+            if !attacker_choice.first_move
+            {
+                attacker_choice.base_power *= 2.0;
+            }
+        }
+
+        #[cfg(any(feature = "gen5", feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
+        Choices::PAYBACK => {
+            if !attacker_choice.first_move && defender_choice.category != MoveCategory::Switch
+            {
+                attacker_choice.base_power *= 2.0;
+            }
+        }
+
         Choices::FACADE => {
             if attacking_side.get_active_immutable().status != PokemonStatus::None {
                 attacker_choice.base_power *= 2.0;
