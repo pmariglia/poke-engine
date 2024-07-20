@@ -115,6 +115,11 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 1.5;
             }
         }
+        #[cfg(any(feature = "gen4"))]
+        Choices::EXPLOSION => {
+            attacker_choice.base_power *= 2.0;
+        }
+
         Choices::MORNINGSUN | Choices::MOONLIGHT | Choices::SYNTHESIS => {
             match state.weather.weather_type {
                 Weather::Sun => {
