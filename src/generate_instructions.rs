@@ -2459,6 +2459,9 @@ pub fn calculate_damage_rolls(
     if choice.flags.charge {
         choice.flags.charge = false;
     }
+    if choice.move_id == Choices::FAKEOUT {
+        state.get_side(attacking_side_ref).last_used_move = LastUsedMove::Switch(PokemonIndex::P0);
+    }
 
     let attacker_active = state.get_side_immutable(attacking_side_ref).get_active_immutable();
     let defender_active = state.get_side_immutable(&attacking_side_ref.get_other_side()).get_active_immutable();
