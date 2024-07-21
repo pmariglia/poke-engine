@@ -279,12 +279,15 @@ pub fn modify_choice(
                 attacker_choice.accuracy = 50.0;
             }
         }
+
+        #[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
         Choices::KNOCKOFF => {
             let defender = defending_side.get_active_immutable();
             if defender.item_can_be_removed() && defender.item != Items::NONE {
                 attacker_choice.base_power *= 1.5;
             }
         }
+
         Choices::ACROBATICS => {
             if attacking_side.get_active_immutable().item == Items::NONE {
                 attacker_choice.base_power *= 2.0;
