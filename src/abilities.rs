@@ -1138,7 +1138,7 @@ pub fn ability_modify_attack_being_used(
             if attacker_choice.move_type == PokemonType::Water
                 && attacking_pkmn.hp < attacking_pkmn.maxhp / 3
             {
-                attacker_choice.base_power *= 1.3;
+                attacker_choice.base_power *= 1.5;
             }
         }
         Abilities::SERENEGRACE => {
@@ -1231,7 +1231,7 @@ pub fn ability_modify_attack_being_used(
             if attacker_choice.move_type == PokemonType::Bug
                 && attacking_pkmn.hp < attacking_pkmn.maxhp / 3
             {
-                attacker_choice.base_power *= 1.3;
+                attacker_choice.base_power *= 1.5;
             }
         }
         Abilities::GORILLATACTICS => {
@@ -1243,7 +1243,14 @@ pub fn ability_modify_attack_being_used(
             if attacker_choice.move_type == PokemonType::Fire
                 && attacking_pkmn.hp < attacking_pkmn.maxhp / 3
             {
-                attacker_choice.base_power *= 1.3;
+                attacker_choice.base_power *= 1.5;
+            }
+        }
+        Abilities::OVERGROW => {
+            if attacker_choice.move_type == PokemonType::Grass
+                && attacking_pkmn.hp < attacking_pkmn.maxhp / 3
+            {
+                attacker_choice.base_power *= 1.5;
             }
         }
         Abilities::ANALYTIC => {
