@@ -4133,6 +4133,52 @@ fn test_rock_spdef_in_sand() {
 }
 
 #[test]
+fn test_rock_spdef_in_sand_versus_secretsword_doesnt_change_damageroll() {
+    /*
+    There was a bug that arose based on how I calculated the modifier for Secret Sword.
+    I initially modified the basepower by the ratio of the defender's defense/special defense.
+    This was incorrect for all use cases, specifically when the defender's spdef is modified
+    later on in the calc by something like sandstorm
+    */
+
+    let mut state = State::default();
+    state.side_one.get_active().hp = 300;
+    state.side_one.get_active().maxhp = 300;
+
+    // make them both immune to sand damage to make comparison of
+    // instructions easier
+    state.side_one.get_active().types.0 = PokemonType::Rock;
+    state.side_two.get_active().types.0 = PokemonType::Rock;
+
+    let first_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SECRETSWORD,
+    );
+
+    // spdef gets boosted, but it shouldnt affect secretsword
+    state.weather.weather_type = Weather::Sand;
+    state.side_one.get_active().types.0 = PokemonType::Rock;
+    let second_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SECRETSWORD,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 135,
+            }),
+        ],
+    }];
+    assert_eq!(first_instructions, second_instructions);
+    assert_eq!(first_instructions, expected_instructions);
+}
+
+#[test]
 fn test_morningsun_in_rain() {
     let mut state = State::default();
     state.weather.weather_type = Weather::Rain;

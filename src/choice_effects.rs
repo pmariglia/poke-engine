@@ -367,13 +367,6 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 2.0;
             }
         }
-        Choices::PSYSHOCK | Choices::SECRETSWORD | Choices::PSYSTRIKE => {
-            let defender = defending_side.get_active_immutable();
-            let defender_defense = defender.calculate_boosted_stat(PokemonBoostableStat::Defense);
-            let defender_special_defense =
-                defender.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
-            attacker_choice.base_power *= defender_special_defense as f32 / defender_defense as f32
-        }
         Choices::STOREDPOWER => {
             let attacking_pokemon = attacking_side.get_active_immutable();
             let total_boosts = attacking_pokemon.attack_boost
