@@ -337,12 +337,16 @@ pub fn calculate_damage(
             }
             if attacker.ability == Abilities::UNAWARE {
                 defending_stat = defender.special_defense;
-            } else if choice.move_id == Choices::PSYSHOCK || choice.move_id == Choices::SECRETSWORD || choice.move_id == Choices::PSYSTRIKE {
+            } else if choice.move_id == Choices::PSYSHOCK
+                || choice.move_id == Choices::SECRETSWORD
+                || choice.move_id == Choices::PSYSTRIKE
+            {
                 defending_stat = defender.calculate_boosted_stat(PokemonBoostableStat::Defense);
             } else {
                 defending_stat =
                     defender.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
-                if state.weather.weather_type == Weather::Sand && defender.has_type(&PokemonType::Rock)
+                if state.weather.weather_type == Weather::Sand
+                    && defender.has_type(&PokemonType::Rock)
                 {
                     defending_stat = (defending_stat as f32 * 1.5) as i16;
                 }

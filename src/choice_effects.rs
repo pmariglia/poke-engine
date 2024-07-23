@@ -349,16 +349,20 @@ pub fn modify_choice(
 
         #[cfg(any(feature = "gen4"))]
         Choices::PAYBACK => {
-            if !attacker_choice.first_move
-            {
+            if !attacker_choice.first_move {
                 attacker_choice.base_power *= 2.0;
             }
         }
 
-        #[cfg(any(feature = "gen5", feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
+        #[cfg(any(
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
         Choices::PAYBACK => {
-            if !attacker_choice.first_move && defender_choice.category != MoveCategory::Switch
-            {
+            if !attacker_choice.first_move && defender_choice.category != MoveCategory::Switch {
                 attacker_choice.base_power *= 2.0;
             }
         }
@@ -469,7 +473,10 @@ pub fn choice_after_damage_hit(
     match choice.move_id {
         Choices::KNOCKOFF => {
             let defender_active = defending_side.get_active();
-            if defender_active.item_can_be_removed() && defender_active.item != Items::NONE && !hit_sub {
+            if defender_active.item_can_be_removed()
+                && defender_active.item != Items::NONE
+                && !hit_sub
+            {
                 let instruction = Instruction::ChangeItem(ChangeItemInstruction {
                     side_ref: attacking_side_ref.get_other_side(),
                     current_item: defender_active.item,
@@ -966,7 +973,12 @@ pub fn choice_special_effect(
             let defender = defending_side.get_active();
             let attacker_item = attacker.item;
             let defender_item = defender.item;
-            if attacker_item == defender_item || !defender.item_can_be_removed() || defender.volatile_statuses.contains(&PokemonVolatileStatus::Substitute) {
+            if attacker_item == defender_item
+                || !defender.item_can_be_removed()
+                || defender
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::Substitute)
+            {
                 return;
             }
             let change_attacker_item_instruction = Instruction::ChangeItem(ChangeItemInstruction {

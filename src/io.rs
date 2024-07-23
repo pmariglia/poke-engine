@@ -458,7 +458,12 @@ pub fn main() {
     exit(0);
 }
 
-fn calculate_damage_io(state: &State, mut s1_choice: Choice, mut s2_choice: Choice, side_one_moves_first: bool) {
+fn calculate_damage_io(
+    state: &State,
+    mut s1_choice: Choice,
+    mut s2_choice: Choice,
+    side_one_moves_first: bool,
+) {
     if side_one_moves_first {
         s1_choice.first_move = true;
         s2_choice.first_move = false;
@@ -642,7 +647,7 @@ fn command_loop(mut io_data: IOData) {
                     }
                     None => {
                         println!("Usage: calculate-damage <side-1 move> <side-2 move> <side-1-moves-first>");
-                        continue
+                        continue;
                     }
                 }
                 calculate_damage_io(&io_data.state, s1_choice, s2_choice, s1_moves_first);

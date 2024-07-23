@@ -585,12 +585,10 @@ fn test_knockoff_cannot_remove_arceus_plate() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideOne,
-                damage_amount: 51,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 51,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -600,7 +598,11 @@ fn test_knockoff_cannot_remove_arceus_plate() {
 fn test_knockoff_boosts_damage_but_cannot_remove_if_sub_is_hit() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::LEFTOVERS;
-    state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::Substitute);
+    state
+        .side_one
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::Substitute);
     state.side_one.get_active().substitute_health = 100;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -611,12 +613,10 @@ fn test_knockoff_boosts_damage_but_cannot_remove_if_sub_is_hit() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::DamageSubstitute(DamageInstruction {
-                side_ref: SideReference::SideOne,
-                damage_amount: 76,  // 51 is unboosted dmg
-            }),
-        ],
+        instruction_list: vec![Instruction::DamageSubstitute(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 76, // 51 is unboosted dmg
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -4201,7 +4201,7 @@ fn test_rock_spdef_in_sand() {
         instruction_list: vec![
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
-                damage_amount: 44,  // 66 normally
+                damage_amount: 44, // 66 normally
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -4247,12 +4247,10 @@ fn test_rock_spdef_in_sand_versus_secretsword_doesnt_change_damageroll() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideOne,
-                damage_amount: 135,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 135,
+        })],
     }];
     assert_eq!(first_instructions, second_instructions);
     assert_eq!(first_instructions, expected_instructions);
@@ -5279,7 +5277,11 @@ fn test_trick_against_substitute_fails() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::SILVERPOWDER;
     state.side_two.get_active().item = Items::LEFTOVERS;
-    state.side_two.get_active().volatile_statuses.insert(PokemonVolatileStatus::Substitute);
+    state
+        .side_two
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::Substitute);
     state.side_two.get_active().substitute_health = 10;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
