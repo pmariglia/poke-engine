@@ -282,6 +282,7 @@ pub fn modify_choice(
 
         #[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
         Choices::KNOCKOFF => {
+            // Note: Bonus damage still applies if substitute is hit
             let defender = defending_side.get_active_immutable();
             if defender.item_can_be_removed() && defender.item != Items::NONE {
                 attacker_choice.base_power *= 1.5;
@@ -462,12 +463,13 @@ pub fn choice_after_damage_hit(
     choice: &Choice,
     attacking_side_ref: &SideReference,
     instructions: &mut StateInstructions,
+    hit_sub: bool,
 ) {
     let (_attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
     match choice.move_id {
         Choices::KNOCKOFF => {
             let defender_active = defending_side.get_active();
-            if defender_active.item_can_be_removed() && defender_active.item != Items::NONE {
+            if defender_active.item_can_be_removed() && defender_active.item != Items::NONE && !hit_sub {
                 let instruction = Instruction::ChangeItem(ChangeItemInstruction {
                     side_ref: attacking_side_ref.get_other_side(),
                     current_item: defender_active.item,
@@ -964,7 +966,7 @@ pub fn choice_special_effect(
             let defender = defending_side.get_active();
             let attacker_item = attacker.item;
             let defender_item = defender.item;
-            if attacker_item == defender_item || !defender.item_can_be_removed() {
+            if attacker_item == defender_item || !defender.item_can_be_removed() || defender.volatile_statuses.contains(&PokemonVolatileStatus::Substitute) {
                 return;
             }
             let change_attacker_item_instruction = Instruction::ChangeItem(ChangeItemInstruction {

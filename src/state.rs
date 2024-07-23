@@ -575,7 +575,7 @@ impl Pokemon {
             | Items::FISTPLATE
             | Items::BLANKPLATE
             | Items::SKYPLATE
-            | Items::PIXIEPLATE => return self.id != "arceus".to_string(),
+            | Items::PIXIEPLATE => return !self.id.starts_with("arceus"),
             _ => return true,
         }
     }

@@ -541,6 +541,86 @@ fn test_protect_stops_after_damage_hit_callback() {
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
+#[cfg(feature = "gen8")]
+#[test]
+fn test_knockoff_removing_item() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::LEFTOVERS;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::KNOCKOFF,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 76,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::LEFTOVERS,
+                new_item: Items::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[cfg(feature = "gen8")]
+#[test]
+fn test_knockoff_cannot_remove_arceus_plate() {
+    let mut state = State::default();
+    state.side_one.get_active().id = "arceusghost".to_string();
+    state.side_one.get_active().item = Items::SPOOKYPLATE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::KNOCKOFF,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 51,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[cfg(feature = "gen8")]
+#[test]
+fn test_knockoff_boosts_damage_but_cannot_remove_if_sub_is_hit() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::LEFTOVERS;
+    state.side_one.get_active().volatile_statuses.insert(PokemonVolatileStatus::Substitute);
+    state.side_one.get_active().substitute_health = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::KNOCKOFF,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DamageSubstitute(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 76,  // 51 is unboosted dmg
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
 #[test]
 #[cfg(feature = "gen9")]
 fn test_move_that_goes_through_protect() {
@@ -5190,6 +5270,27 @@ fn test_trick_with_one_side_having_no_item() {
                 new_item: Items::SILVERPOWDER,
             }),
         ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_trick_against_substitute_fails() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::SILVERPOWDER;
+    state.side_two.get_active().item = Items::LEFTOVERS;
+    state.side_two.get_active().volatile_statuses.insert(PokemonVolatileStatus::Substitute);
+    state.side_two.get_active().substitute_health = 10;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TRICK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

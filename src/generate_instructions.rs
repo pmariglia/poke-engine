@@ -1129,6 +1129,7 @@ fn generate_instructions_from_damage(
             &choice,
             attacking_side_ref,
             &mut incoming_instructions,
+            hit_sub
         );
     }
     return hit_sub;
