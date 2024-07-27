@@ -116,7 +116,7 @@ pub fn modify_choice(
             }
         }
         #[cfg(any(feature = "gen4"))]
-        Choices::EXPLOSION => {
+        Choices::EXPLOSION | Choices::SELFDESTRUCT => {
             attacker_choice.base_power *= 2.0;
         }
 
