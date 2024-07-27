@@ -2453,7 +2453,7 @@ pub fn calculate_damage_rolls(
     mut state: State,
     attacking_side_ref: &SideReference,
     mut choice: Choice,
-    defending_choice: &Choice,
+    mut defending_choice: &Choice,
 ) -> Option<Vec<i16>> {
     let mut incoming_instructions = StateInstructions::default();
 
@@ -2512,6 +2512,9 @@ pub fn calculate_damage_rolls(
                 return None;
             }
             return Some(vec![defender_active.hp / 2]);
+        }
+        Choices::SUCKERPUNCH => {
+            defending_choice = MOVES.get(&Choices::TACKLE).unwrap();
         }
 
         _ => {}
