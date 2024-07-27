@@ -3197,7 +3197,7 @@ fn test_batonpass_with_boosts() {
 #[cfg(feature = "gen4")]
 fn test_simple_in_gen4_doubles_effective_boost() {
     let mut state = State::default();
-    state.side_one.get_active().attack_boost = 1;  // should behave as +2 in gen4
+    state.side_one.get_active().attack_boost = 1; // should behave as +2 in gen4
 
     let regular_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -3217,21 +3217,17 @@ fn test_simple_in_gen4_doubles_effective_boost() {
 
     let expected_regular_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 72,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 72,
+        })],
     }];
     let expected_simple_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 95,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 95,
+        })],
     }];
 
     assert_eq!(expected_regular_instructions, regular_instructions);

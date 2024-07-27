@@ -376,7 +376,7 @@ fn generate_instructions_from_side_conditions(
         PokemonSideCondition::Spikes => max_layers = 3,
         PokemonSideCondition::ToxicSpikes => max_layers = 2,
         PokemonSideCondition::AuroraVeil => {
-            max_layers = if state.weather.weather_type == Weather::Hail {
+            max_layers = if state.weather_is_active(&Weather::Hail) {
                 1
             } else {
                 0
@@ -492,7 +492,7 @@ pub fn immune_to_status(
         Abilities::SHIELDSDOWN => return target_pkmn.hp > target_pkmn.maxhp / 2,
         Abilities::PURIFYINGSALT => return true,
         Abilities::COMATOSE => return true,
-        Abilities::LEAFGUARD => return state.weather.weather_type == Weather::Sun,
+        Abilities::LEAFGUARD => return state.weather_is_active(&Weather::Sun),
         _ => {}
     }
 
@@ -517,7 +517,8 @@ pub fn immune_to_status(
             PokemonStatus::Freeze => {
                 target_pkmn.has_type(&PokemonType::Ice)
                     || target_pkmn.ability == Abilities::MAGMAARMOR
-                    || state.weather.weather_type == Weather::HarshSun
+                    || state.weather_is_active(&Weather::Sun)
+                    || state.weather_is_active(&Weather::HarshSun)
             }
             PokemonStatus::Sleep => {
                 (state.terrain.terrain_type == Terrain::ElectricTerrain
@@ -1947,49 +1948,49 @@ fn add_end_of_turn_instructions(
 
     // Weather Damage
     for side_ref in sides {
-        let weather_type = state.weather.weather_type;
-        let active_pkmn = state.get_side(side_ref).get_active();
-        if active_pkmn.hp == 0
-            || active_pkmn.ability == Abilities::MAGICGUARD
-            || active_pkmn.ability == Abilities::OVERCOAT
-        {
-            continue;
-        }
-
-        match weather_type {
-            Weather::Hail
-                if active_pkmn.ability != Abilities::ICEBODY
-                    && !active_pkmn.has_type(&PokemonType::Ice) =>
+        if state.weather_is_active(&Weather::Hail) {
+            let active_pkmn = state.get_side(side_ref).get_active();
+            if active_pkmn.hp == 0
+                || active_pkmn.ability == Abilities::MAGICGUARD
+                || active_pkmn.ability == Abilities::OVERCOAT
+                || active_pkmn.ability == Abilities::ICEBODY
+                || active_pkmn.has_type(&PokemonType::Ice)
             {
-                let damage_amount =
-                    cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
-                let hail_damage_instruction = Instruction::Damage(DamageInstruction {
-                    side_ref: *side_ref,
-                    damage_amount: damage_amount,
-                });
+                continue;
+            }
 
-                active_pkmn.hp -= damage_amount;
-                incoming_instructions
-                    .instruction_list
-                    .push(hail_damage_instruction);
-            }
-            Weather::Sand
-                if !active_pkmn.has_type(&PokemonType::Ground)
-                    && !active_pkmn.has_type(&PokemonType::Steel)
-                    && !active_pkmn.has_type(&PokemonType::Rock) =>
+            let damage_amount =
+                cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
+            let hail_damage_instruction = Instruction::Damage(DamageInstruction {
+                side_ref: *side_ref,
+                damage_amount: damage_amount,
+            });
+
+            active_pkmn.hp -= damage_amount;
+            incoming_instructions
+                .instruction_list
+                .push(hail_damage_instruction);
+        } else if state.weather_is_active(&Weather::Sand) {
+            let active_pkmn = state.get_side(side_ref).get_active();
+            if active_pkmn.hp == 0
+                || active_pkmn.ability == Abilities::MAGICGUARD
+                || active_pkmn.ability == Abilities::OVERCOAT
+                || active_pkmn.has_type(&PokemonType::Ground)
+                || active_pkmn.has_type(&PokemonType::Steel)
+                || active_pkmn.has_type(&PokemonType::Rock)
             {
-                let damage_amount =
-                    cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
-                let sand_damage_instruction = Instruction::Damage(DamageInstruction {
-                    side_ref: *side_ref,
-                    damage_amount: damage_amount,
-                });
-                active_pkmn.hp -= damage_amount;
-                incoming_instructions
-                    .instruction_list
-                    .push(sand_damage_instruction);
+                continue;
             }
-            _ => {}
+            let damage_amount =
+                cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
+            let sand_damage_instruction = Instruction::Damage(DamageInstruction {
+                side_ref: *side_ref,
+                damage_amount: damage_amount,
+            });
+            active_pkmn.hp -= damage_amount;
+            incoming_instructions
+                .instruction_list
+                .push(sand_damage_instruction);
         }
     }
 

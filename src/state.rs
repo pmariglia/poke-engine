@@ -1420,7 +1420,13 @@ impl State {
     }
 
     pub fn weather_is_active(&self, weather: &Weather) -> bool {
-        return &self.weather.weather_type == weather && self.weather.turns_remaining > 0;
+        let s1_active = self.side_one.get_active_immutable();
+        let s2_active = self.side_two.get_active_immutable();
+        return &self.weather.weather_type == weather
+            && s1_active.ability != Abilities::AIRLOCK
+            && s1_active.ability != Abilities::CLOUDNINE
+            && s2_active.ability != Abilities::AIRLOCK
+            && s2_active.ability != Abilities::CLOUDNINE;
     }
 
     fn damage(&mut self, side_ref: &SideReference, amount: i16) {

@@ -590,8 +590,7 @@ pub fn ability_end_of_turn(
             }
         }
         Abilities::SOLARPOWER => {
-            if state.weather.weather_type == Weather::HarshSun
-                || state.weather.weather_type == Weather::Sun
+            if state.weather_is_active(&Weather::HarshSun) || state.weather_is_active(&Weather::Sun)
             {
                 let active_pkmn = state.get_side(side_ref).get_active();
                 let damage_dealt =
@@ -608,7 +607,7 @@ pub fn ability_end_of_turn(
             }
         }
         Abilities::ICEBODY => {
-            if state.weather.weather_type == Weather::Hail {
+            if state.weather_is_active(&Weather::Hail) {
                 let active_pkmn = state.get_side(side_ref).get_active();
                 let health_recovered =
                     cmp::min(active_pkmn.maxhp / 16, active_pkmn.maxhp - active_pkmn.hp);
@@ -650,8 +649,8 @@ pub fn ability_end_of_turn(
             }
         }
         Abilities::RAINDISH => {
-            if state.weather.weather_type == Weather::Rain
-                || state.weather.weather_type == Weather::HeavyRain
+            if state.weather_is_active(&Weather::Rain)
+                || state.weather_is_active(&Weather::HeavyRain)
             {
                 let active_pkmn = state.get_side(side_ref).get_active();
                 let health_recovered =
@@ -684,8 +683,8 @@ pub fn ability_end_of_turn(
         }
         Abilities::HYDRATION => {
             if active_pkmn.status != PokemonStatus::None
-                && (state.weather.weather_type == Weather::Rain
-                    || state.weather.weather_type == Weather::HeavyRain)
+                && (state.weather_is_active(&Weather::Rain)
+                    || state.weather_is_active(&Weather::HeavyRain))
             {
                 let attacking_side = state.get_side(side_ref);
                 let active_index = attacking_side.active_index;

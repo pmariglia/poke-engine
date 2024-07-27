@@ -83,7 +83,7 @@ pub fn modify_choice(
             _ => {}
         },
         Choices::GROWTH => {
-            if state.weather.weather_type == Weather::Sun {
+            if state.weather_is_active(&Weather::Sun) {
                 attacker_choice.boost = Some(Boost {
                     target: MoveTarget::User,
                     boosts: StatBoosts {
@@ -103,7 +103,7 @@ pub fn modify_choice(
             }
         }
         Choices::HYDROSTEAM => {
-            if state.weather.weather_type == Weather::Sun {
+            if state.weather_is_active(&Weather::Sun) {
                 attacker_choice.base_power *= 3.0; // 1.5x for being in sun, 2x for cancelling out rain debuff
             }
         }
@@ -177,7 +177,7 @@ pub fn modify_choice(
             }
         }
         Choices::SHOREUP => {
-            if state.weather.weather_type == Weather::Sand {
+            if state.weather_is_active(&Weather::Sand) {
                 attacker_choice.heal = Some(Heal {
                     target: MoveTarget::User,
                     amount: 0.667,
@@ -257,24 +257,23 @@ pub fn modify_choice(
             Weather::None => {}
         },
         Choices::SOLARBEAM => {
-            if state.weather.weather_type == Weather::Sun
-                || state.weather.weather_type == Weather::HarshSun
+            if state.weather_is_active(&Weather::Sun) || state.weather_is_active(&Weather::HarshSun)
             {
                 attacker_choice.flags.charge = false;
             }
         }
         Choices::BLIZZARD => {
-            if state.weather.weather_type == Weather::Hail {
+            if state.weather_is_active(&Weather::Hail) {
                 attacker_choice.accuracy = 100.0;
             }
         }
         Choices::HURRICANE | Choices::THUNDER => {
-            if state.weather.weather_type == Weather::Rain
-                || state.weather.weather_type == Weather::HeavyRain
+            if state.weather_is_active(&Weather::Rain)
+                || state.weather_is_active(&Weather::HeavyRain)
             {
                 attacker_choice.accuracy = 100.0;
-            } else if state.weather.weather_type == Weather::Sun
-                || state.weather.weather_type == Weather::HarshSun
+            } else if state.weather_is_active(&Weather::Sun)
+                || state.weather_is_active(&Weather::HarshSun)
             {
                 attacker_choice.accuracy = 50.0;
             }

@@ -345,8 +345,7 @@ pub fn calculate_damage(
             } else {
                 defending_stat =
                     defender.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
-                if state.weather.weather_type == Weather::Sand
-                    && defender.has_type(&PokemonType::Rock)
+                if state.weather_is_active(&Weather::Sand) && defender.has_type(&PokemonType::Rock)
                 {
                     defending_stat = (defending_stat as f32 * 1.5) as i16;
                 }
@@ -383,7 +382,15 @@ pub fn calculate_damage(
 
     let mut damage_modifier = 1.0;
     damage_modifier *= type_effectiveness_modifier(&choice.move_type, &defender_types);
-    damage_modifier *= weather_modifier(&choice.move_type, &state.weather.weather_type);
+
+    if attacker.ability != Abilities::CLOUDNINE
+        && attacker.ability != Abilities::AIRLOCK
+        && defender.ability != Abilities::CLOUDNINE
+        && defender.ability != Abilities::AIRLOCK
+    {
+        damage_modifier *= weather_modifier(&choice.move_type, &state.weather.weather_type);
+    }
+
     damage_modifier *= stab_modifier(&choice.move_type, &attacker.types);
     damage_modifier *= burn_modifier(&choice.category, &attacker.status);
     damage_modifier *= volatile_status_modifier(&choice, attacker, defender);
