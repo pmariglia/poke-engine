@@ -98,7 +98,7 @@ pub fn modify_choice(
             }
         }
         Choices::HEX => {
-            if attacking_side.get_active_immutable().status != PokemonStatus::None {
+            if defending_side.get_active_immutable().status != PokemonStatus::None {
                 attacker_choice.base_power *= 2.0;
             }
         }
