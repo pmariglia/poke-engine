@@ -845,7 +845,11 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::GRISEOUSORB => {
-            if attacking_side.get_active_immutable().id.starts_with("giratina") {
+            if attacking_side
+                .get_active_immutable()
+                .id
+                .starts_with("giratina")
+            {
                 if attacking_choice.move_type == PokemonType::Dragon
                     || attacking_choice.move_type == PokemonType::Ghost
                 {
@@ -854,7 +858,11 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::LUSTROUSORB => {
-            if attacking_side.get_active_immutable().id.starts_with("palkia") {
+            if attacking_side
+                .get_active_immutable()
+                .id
+                .starts_with("palkia")
+            {
                 if attacking_choice.move_type == PokemonType::Dragon
                     || attacking_choice.move_type == PokemonType::Ghost
                 {
@@ -863,7 +871,11 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::ADAMANTORB => {
-            if attacking_side.get_active_immutable().id.starts_with("dialga") {
+            if attacking_side
+                .get_active_immutable()
+                .id
+                .starts_with("dialga")
+            {
                 if attacking_choice.move_type == PokemonType::Dragon
                     || attacking_choice.move_type == PokemonType::Steel
                 {

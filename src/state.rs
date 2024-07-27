@@ -595,16 +595,72 @@ impl Pokemon {
     }
 
     pub fn calculate_boosted_stat(&self, stat: PokemonBoostableStat) -> i16 {
+        /*
+        In Gen4, simple doubles the effective boost, without it visually being doubled
+        It will not boost beyond an effective value of 6 though.
+        */
         match stat {
-            PokemonBoostableStat::Attack => multiply_boost(self.attack_boost, self.attack),
-            PokemonBoostableStat::Defense => multiply_boost(self.defense_boost, self.defense),
+            PokemonBoostableStat::Attack => {
+                #[cfg(feature = "gen4")]
+                let boost = if self.ability == Abilities::SIMPLE {
+                    (self.attack_boost * 2).min(6).max(-6)
+                } else {
+                    self.attack_boost
+                };
+
+                #[cfg(not(feature = "gen4"))]
+                let boost = self.attack_boost;
+
+                multiply_boost(boost, self.attack)
+            }
+            PokemonBoostableStat::Defense => {
+                #[cfg(feature = "gen4")]
+                let boost = if self.ability == Abilities::SIMPLE {
+                    (self.defense_boost * 2).min(6).max(-6)
+                } else {
+                    self.defense_boost
+                };
+                #[cfg(not(feature = "gen4"))]
+                let boost = self.defense_boost;
+
+                multiply_boost(boost, self.defense)
+            }
             PokemonBoostableStat::SpecialAttack => {
-                multiply_boost(self.special_attack_boost, self.special_attack)
+                #[cfg(feature = "gen4")]
+                let boost = if self.ability == Abilities::SIMPLE {
+                    (self.special_attack_boost * 2).min(6).max(-6)
+                } else {
+                    self.special_attack_boost
+                };
+                #[cfg(not(feature = "gen4"))]
+                let boost = self.special_attack_boost;
+
+                multiply_boost(boost, self.special_attack)
             }
             PokemonBoostableStat::SpecialDefense => {
-                multiply_boost(self.special_defense_boost, self.special_defense)
+                #[cfg(feature = "gen4")]
+                let boost = if self.ability == Abilities::SIMPLE {
+                    (self.special_defense_boost * 2).min(6).max(-6)
+                } else {
+                    self.special_defense_boost
+                };
+                #[cfg(not(feature = "gen4"))]
+                let boost = self.special_defense_boost;
+
+                multiply_boost(boost, self.special_defense)
             }
-            PokemonBoostableStat::Speed => multiply_boost(self.speed_boost, self.speed),
+            PokemonBoostableStat::Speed => {
+                #[cfg(feature = "gen4")]
+                let boost = if self.ability == Abilities::SIMPLE {
+                    (self.speed_boost * 2).min(6).max(-6)
+                } else {
+                    self.speed_boost
+                };
+                #[cfg(not(feature = "gen4"))]
+                let boost = self.speed_boost;
+
+                multiply_boost(boost, self.speed)
+            }
             _ => {
                 panic!("Not implemented")
             }
