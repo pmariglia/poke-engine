@@ -294,10 +294,6 @@ pub fn modify_choice(
             }
         }
         Choices::FOCUSPUNCH => {
-            if attacker_choice.first_move {
-                attacker_choice.remove_all_effects();
-                return;
-            }
             if (defending_side.damage_dealt.move_category == MoveCategory::Physical
                 || defending_side.damage_dealt.move_category == MoveCategory::Special)
                 && !defending_side.damage_dealt.hit_substitute
