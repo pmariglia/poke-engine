@@ -864,7 +864,7 @@ pub fn item_modify_attack_being_used(
                 .starts_with("palkia")
             {
                 if attacking_choice.move_type == PokemonType::Dragon
-                    || attacking_choice.move_type == PokemonType::Ghost
+                    || attacking_choice.move_type == PokemonType::Water
                 {
                     attacking_choice.base_power *= 1.2;
                 }
