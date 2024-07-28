@@ -4,7 +4,7 @@ use crate::generate_instructions::{calculate_damage_rolls, generate_instructions
 use crate::instruction::{Instruction, StateInstructions};
 use crate::mcts::{perform_mcts, MctsResult};
 use crate::search::{expectiminimax_search, iterative_deepen_expectiminimax, pick_safest};
-use crate::state::{MoveChoice, Pokemon, Side, SideReference, State};
+use crate::state::{MoveChoice, Pokemon, Side, SideConditions, SideReference, State};
 use clap::Parser;
 use std::io;
 use std::io::Write;
@@ -103,6 +103,43 @@ impl Default for IOData {
     }
 }
 
+impl SideConditions {
+    fn io_print(&self) -> String {
+        let conditions = [
+            ("aurora_veil", self.aurora_veil),
+            ("crafty_shield", self.crafty_shield),
+            ("healing_wish", self.healing_wish),
+            ("light_screen", self.light_screen),
+            ("lucky_chant", self.lucky_chant),
+            ("lunar_dance", self.lunar_dance),
+            ("mat_block", self.mat_block),
+            ("mist", self.mist),
+            ("protect", self.protect),
+            ("quick_guard", self.quick_guard),
+            ("reflect", self.reflect),
+            ("safeguard", self.safeguard),
+            ("spikes", self.spikes),
+            ("stealth_rock", self.stealth_rock),
+            ("sticky_web", self.sticky_web),
+            ("tailwind", self.tailwind),
+            ("toxic_count", self.toxic_count),
+            ("toxic_spikes", self.toxic_spikes),
+            ("wide_guard", self.wide_guard),
+        ];
+
+        let mut output = String::new();
+        for (name, value) in conditions {
+            if value != 0 {
+                output.push_str(&format!("\n  {}: {}", name, value));
+            }
+        }
+        if output.is_empty() {
+            return "none".to_string();
+        }
+        output
+    }
+}
+
 impl Side {
     fn io_print(&self, available_choices: Vec<String>) -> String {
         let reserve = self
@@ -111,8 +148,9 @@ impl Side {
             .map(|p| p.io_print_reserve())
             .collect::<Vec<String>>();
         return format!(
-            "\nActive:{}\nPokemon: {}\nAvailable Choices: {}",
+            "\nActive:{}\nSide Conditions: {}\nPokemon: {}\nAvailable Choices: {}",
             self.get_active_immutable().io_print_active(),
+            self.side_conditions.io_print(),
             reserve.join(", "),
             available_choices.join(", ")
         );
