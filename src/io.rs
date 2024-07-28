@@ -33,6 +33,7 @@ enum SubCommand {
     IterativeDeepening(IterativeDeepening),
     MonteCarloTreeSearch(MonteCarloTreeSearch),
     CalculateDamage(CalculateDamage),
+    GenerateInstructions(GenerateInstructions),
 }
 
 #[derive(Parser)]
@@ -78,6 +79,18 @@ struct CalculateDamage {
 
     #[clap(short = 'm', long, required = false, default_value_t = false)]
     side_one_moves_first: bool,
+}
+
+#[derive(Parser)]
+struct GenerateInstructions {
+    #[clap(short, long, required = true)]
+    state: String,
+
+    #[clap(short = 'o', long, required = true)]
+    side_one_move: String,
+
+    #[clap(short = 't', long, required = true)]
+    side_two_move: String,
 }
 
 impl Default for IOData {
@@ -476,6 +489,42 @@ pub fn main() {
                     .to_owned();
                 let s1_moves_first = calculate_damage.side_one_moves_first;
                 calculate_damage_io(&state, s1_choice, s2_choice, s1_moves_first);
+            }
+            SubCommand::GenerateInstructions(generate_instructions) => {
+                state = State::deserialize(generate_instructions.state.as_str());
+                let (s1_movechoice, s2_movechoice);
+                match state
+                    .side_one
+                    .string_to_movechoice(generate_instructions.side_one_move.as_str())
+                {
+                    None => {
+                        println!(
+                            "Invalid move choice for side one: {}",
+                            generate_instructions.side_one_move
+                        );
+                        exit(1);
+                    }
+                    Some(v) => s1_movechoice = v,
+                }
+                match state
+                    .side_two
+                    .string_to_movechoice(generate_instructions.side_two_move.as_str())
+                {
+                    None => {
+                        println!(
+                            "Invalid move choice for side two: {}",
+                            generate_instructions.side_two_move
+                        );
+                        exit(1);
+                    }
+                    Some(v) => s2_movechoice = v,
+                }
+                let instructions = generate_instructions_from_move_pair(
+                    &mut state,
+                    &s1_movechoice,
+                    &s2_movechoice,
+                );
+                pprint_state_instruction_vector(&instructions);
             }
         },
     }
