@@ -91,6 +91,20 @@ impl Default for IOData {
 }
 
 impl Side {
+    fn io_print(&self, available_choices: Vec<String>) -> String {
+        let reserve = self
+            .pokemon
+            .into_iter()
+            .map(|p| p.io_print_reserve())
+            .collect::<Vec<String>>();
+        return format!(
+            "\nActive:{}\nPokemon: {:?}\nAvailable Choices: {}",
+            self.get_active_immutable().io_print_active(),
+            reserve.join(", "),
+            available_choices.join(", ")
+        );
+    }
+
     fn option_to_string(&self, option: &MoveChoice) -> String {
         match option {
             MoveChoice::Move(index) => {
@@ -129,14 +143,18 @@ impl Side {
 }
 
 impl Pokemon {
-    fn io_print(&self) -> String {
+    fn io_print_reserve(&self) -> String {
+        return format!("{}: {}/{}", self.id, self.hp, self.maxhp);
+    }
+    fn io_print_active(&self) -> String {
         let moves: Vec<String> = self
             .moves
             .into_iter()
             .map(|m| format!("{:?}", m.id).to_lowercase())
+            .filter(|x| x != "none")
             .collect();
         return format!(
-            "Active: {}\nHP: {}/{}\nStatus: {:?}\nAbility: {:?}\nItem: {:?}\nBoosts: {:?}\nVolatiles: {:?}\nMoves: {:?}",
+            "\n  Name: {}\n  HP: {}/{}\n  Status: {:?}\n  Ability: {:?}\n  Item: {:?}\n  Boosts: {:?}\n  Volatiles: {:?}\n  Moves: {:?}",
             self.id,
             self.hp,
             self.maxhp,
@@ -145,7 +163,7 @@ impl Pokemon {
             self.item,
             self.get_pkmn_boost_enum_pairs(),
             self.volatile_statuses,
-            moves
+            moves.join(", ")
         );
     }
 }
@@ -323,6 +341,13 @@ fn pprint_mcts_result(state: &State, result: MctsResult) {
             x.total_score,
             x.visits
         );
+    }
+}
+
+fn pprint_state_instruction_vector(instructions: &Vec<StateInstructions>) {
+    for (i, instruction) in instructions.iter().enumerate() {
+        println!("Index: {}", i);
+        println!("StateInstruction: {:?}", instruction);
     }
 }
 
@@ -539,25 +564,14 @@ fn command_loop(mut io_data: IOData) {
                 println!("{}", io_data.state.serialize());
             }
             "matchup" | "m" => {
-                let p1_active = io_data.state.side_one.get_active_immutable();
-                let p2_active = io_data.state.side_two.get_active_immutable();
                 let (side_one_options, side_two_options) = io_get_all_options(&io_data.state);
 
-                let mut side_one_switch_pkmn = vec![];
-                for pkmn in io_data.state.side_one.pokemon.into_iter() {
-                    side_one_switch_pkmn.push(format!("{}: {}/{}", &pkmn.id, pkmn.hp, pkmn.maxhp));
-                }
                 let mut side_one_choices = vec![];
                 for option in side_one_options {
                     side_one_choices.push(
                         format!("{:?}", io_data.state.side_one.option_to_string(&option))
                             .to_lowercase(),
                     );
-                }
-
-                let mut side_two_switch_pkmn = vec![];
-                for pkmn in io_data.state.side_two.pokemon.into_iter() {
-                    side_two_switch_pkmn.push(format!("{}: {}/{}", &pkmn.id, pkmn.hp, pkmn.maxhp));
                 }
                 let mut side_two_choices = vec![];
                 for option in side_two_options {
@@ -566,15 +580,13 @@ fn command_loop(mut io_data: IOData) {
                             .to_lowercase(),
                     );
                 }
-
                 println!(
-                    "{}\nPokemon: {:?}\nAvailable Choices: [{}]\n\nvs\n\n{}\nPokemon: {:?}\nAvailable Choices: [{}]\n",
-                    p1_active.io_print(),
-                    side_one_switch_pkmn,
-                    side_one_choices.join(", "),
-                    p2_active.io_print(),
-                    side_two_switch_pkmn,
-                    side_two_choices.join(", "),
+                    "SideOne {}\n\nvs\n\nSideTwo {}\n\nState:\n  Weather: {:?}\n  Terrain: {:?}\n  TrickRoom: {}",
+                    io_data.state.side_one.io_print(side_one_choices),
+                    io_data.state.side_two.io_print(side_two_choices),
+                    io_data.state.weather.weather_type,
+                    io_data.state.terrain.terrain_type,
+                    io_data.state.trick_room
                 );
             }
             "generate-instructions" | "g" => {
@@ -611,7 +623,7 @@ fn command_loop(mut io_data: IOData) {
                 }
                 let instructions =
                     generate_instructions_from_move_pair(&mut io_data.state, &s1_move, &s2_move);
-                println!("{:?}", instructions);
+                pprint_state_instruction_vector(&instructions);
                 io_data.last_instructions_generated = instructions;
             }
             "calculate-damage" | "d" => {
@@ -721,6 +733,7 @@ fn command_loop(mut io_data: IOData) {
                         .apply_instructions(&instructions.instruction_list);
                     io_data.instruction_list.push(instructions.instruction_list);
                     io_data.last_instructions_generated = Vec::new();
+                    println!("Applied instructions at index {}", index)
                 }
                 None => {
                     println!("Usage: apply <instruction index>");
@@ -734,12 +747,14 @@ fn command_loop(mut io_data: IOData) {
                 }
                 let instructions = io_data.instruction_list.pop().unwrap();
                 io_data.state.reverse_instructions(&instructions);
+                println!("Popped last applied instructions");
             }
             "pop-all" | "pa" => {
                 for i in io_data.instruction_list.iter().rev() {
                     io_data.state.reverse_instructions(i);
                 }
                 io_data.instruction_list.clear();
+                println!("Popped all applied instructions");
             }
             "expectiminimax" | "e" => match args.next() {
                 Some(s) => {

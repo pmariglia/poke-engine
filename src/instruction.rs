@@ -8,6 +8,7 @@ use crate::state::{PokemonBoostableStat, PokemonType};
 use crate::state::{PokemonIndex, PokemonSideCondition};
 use crate::state::{PokemonMoveIndex, PokemonStatus};
 use std::fmt;
+use std::fmt::Formatter;
 
 #[derive(PartialEq, Clone)]
 pub struct StateInstructions {
@@ -25,8 +26,8 @@ impl Default for StateInstructions {
 }
 
 impl fmt::Debug for StateInstructions {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut final_string = format!("\n\tPercentage: {}\n\tInstructions:", self.percentage);
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        let mut final_string = format!("\n\tPercentage: {:.2}\n\tInstructions:", self.percentage);
         for i in self.instruction_list.iter() {
             final_string.push_str(format!("\n\t\t{:?}", i).as_str());
         }
@@ -41,7 +42,7 @@ impl StateInstructions {
 }
 
 // https://stackoverflow.com/questions/50686411/whats-the-usual-way-to-create-a-vector-of-different-structs
-#[derive(Debug, PartialEq, Clone)]
+#[derive(PartialEq, Clone)]
 pub enum Instruction {
     Switch(SwitchInstruction),
     ApplyVolatileStatus(ApplyVolatileStatusInstruction),
@@ -71,6 +72,183 @@ pub enum Instruction {
     ToggleTrickRoom,
     ToggleSideOneForceSwitch,
     ToggleSideTwoForceSwitch,
+}
+
+impl fmt::Debug for Instruction {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            Instruction::Switch(s) => {
+                write!(
+                    f,
+                    "Switch {:?}: {:?} -> {:?}",
+                    s.side_ref, s.previous_index, s.next_index
+                )
+            }
+            Instruction::ApplyVolatileStatus(a) => {
+                write!(
+                    f,
+                    "ApplyVolatileStatus {:?}: {:?}",
+                    a.side_ref, a.volatile_status
+                )
+            }
+            Instruction::RemoveVolatileStatus(r) => {
+                write!(
+                    f,
+                    "RemoveVolatileStatus {:?}: {:?}",
+                    r.side_ref, r.volatile_status
+                )
+            }
+            Instruction::ChangeStatus(c) => {
+                write!(
+                    f,
+                    "ChangeStatus {:?}-{:?}: {:?} -> {:?}",
+                    c.side_ref, c.pokemon_index, c.old_status, c.new_status
+                )
+            }
+            Instruction::Heal(h) => {
+                write!(f, "Heal {:?}: {:?}", h.side_ref, h.heal_amount)
+            }
+            Instruction::Damage(d) => {
+                write!(f, "Damage {:?}: {}", d.side_ref, d.damage_amount)
+            }
+            Instruction::Boost(b) => {
+                write!(f, "Boost {:?} {:?}: {:?}", b.side_ref, b.stat, b.amount)
+            }
+            Instruction::ChangeSideCondition(c) => {
+                write!(
+                    f,
+                    "ChangeSideCondition {:?} {:?}: {:?}",
+                    c.side_ref, c.side_condition, c.amount
+                )
+            }
+            Instruction::ChangeWeather(c) => {
+                write!(
+                    f,
+                    "ChangeWeather: {:?},{:?} -> {:?},{:?}",
+                    c.previous_weather,
+                    c.previous_weather_turns_remaining,
+                    c.new_weather,
+                    c.new_weather_turns_remaining
+                )
+            }
+            Instruction::ChangeTerrain(c) => {
+                write!(
+                    f,
+                    "ChangeTerrain: {:?},{:?} -> {:?},{:?}",
+                    c.previous_terrain,
+                    c.previous_terrain_turns_remaining,
+                    c.new_terrain,
+                    c.new_terrain_turns_remaining
+                )
+            }
+            Instruction::ChangeType(c) => {
+                write!(
+                    f,
+                    "ChangeType {:?}: {:?} -> {:?}",
+                    c.side_ref, c.old_types, c.new_types
+                )
+            }
+            Instruction::ChangeItem(c) => {
+                write!(
+                    f,
+                    "ChangeItem {:?}: {:?} -> {:?}",
+                    c.side_ref, c.current_item, c.new_item
+                )
+            }
+            Instruction::DisableMove(d) => {
+                write!(f, "DisableMove {:?}: {:?}", d.side_ref, d.move_index)
+            }
+            Instruction::EnableMove(e) => {
+                write!(f, "EnableMove {:?}: {:?}", e.side_ref, e.move_index)
+            }
+            Instruction::SetWish(s) => {
+                write!(
+                    f,
+                    "SetWish {:?}: {:?} -> {:?}",
+                    s.side_ref, s.previous_wish_amount, s.wish_amount
+                )
+            }
+            Instruction::DecrementWish(d) => {
+                write!(f, "DecrementWish {:?}", d.side_ref)
+            }
+            Instruction::DamageSubstitute(d) => {
+                write!(
+                    f,
+                    "DamageSubstitute {:?}: {:?}",
+                    d.side_ref, d.damage_amount
+                )
+            }
+            Instruction::DecrementRestTurns(d) => {
+                write!(f, "DecrementRestTurns {:?}", d.side_ref)
+            }
+            Instruction::SetRestTurns(s) => {
+                write!(
+                    f,
+                    "SetRestTurns {:?}-{:?}: {:?} -> {:?}",
+                    s.side_ref, s.pokemon_index, s.previous_turns, s.new_turns
+                )
+            }
+            Instruction::SetSubstituteHealth(s) => {
+                write!(
+                    f,
+                    "SetSubstituteHealth {:?}: {:?} -> {:?}",
+                    s.side_ref, s.old_health, s.new_health
+                )
+            }
+            Instruction::SetSideOneMoveSecondSwitchOutMove(s) => {
+                write!(
+                    f,
+                    "SideOneMoveSecondSwitchOutMove: {:?} -> {:?}",
+                    s.previous_choice, s.new_choice
+                )
+            }
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(s) => {
+                write!(
+                    f,
+                    "SideTwoMoveSecondSwitchOutMove: {:?} -> {:?}",
+                    s.previous_choice, s.new_choice
+                )
+            }
+            Instruction::ToggleBatonPassing(s) => {
+                write!(f, "ToggleBatonPassing {:?}", s.side_ref)
+            }
+            Instruction::SetLastUsedMove(s) => {
+                write!(
+                    f,
+                    "SetLastUsedMove {:?}: {:?} -> {:?}",
+                    s.side_ref, s.previous_last_used_move, s.last_used_move
+                )
+            }
+            Instruction::SetDamageDealt(s) => {
+                let prev_hit_substitute = if s.previous_hit_substitute {
+                    ",HitSub"
+                } else {
+                    ""
+                };
+                let hit_substitute = if s.hit_substitute { ",HitSub" } else { "" };
+                write!(
+                    f,
+                    "SetDamageDealt {:?}: {:?},{:?}{} -> {:?},{:?}{}",
+                    s.side_ref,
+                    s.previous_move_category,
+                    s.previous_damage,
+                    prev_hit_substitute,
+                    s.move_category,
+                    s.damage,
+                    hit_substitute
+                )
+            }
+            Instruction::ToggleTrickRoom => {
+                write!(f, "ToggleTrickRoom")
+            }
+            Instruction::ToggleSideOneForceSwitch => {
+                write!(f, "ToggleSideOneForceSwitch")
+            }
+            Instruction::ToggleSideTwoForceSwitch => {
+                write!(f, "ToggleSideTwoForceSwitch")
+            }
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
