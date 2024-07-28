@@ -111,7 +111,7 @@ impl Side {
             .map(|p| p.io_print_reserve())
             .collect::<Vec<String>>();
         return format!(
-            "\nActive:{}\nPokemon: {:?}\nAvailable Choices: {}",
+            "\nActive:{}\nPokemon: {}\nAvailable Choices: {}",
             self.get_active_immutable().io_print_active(),
             reserve.join(", "),
             available_choices.join(", ")
@@ -167,7 +167,7 @@ impl Pokemon {
             .filter(|x| x != "none")
             .collect();
         return format!(
-            "\n  Name: {}\n  HP: {}/{}\n  Status: {:?}\n  Ability: {:?}\n  Item: {:?}\n  Boosts: {:?}\n  Volatiles: {:?}\n  Moves: {:?}",
+            "\n  Name: {}\n  HP: {}/{}\n  Status: {:?}\n  Ability: {:?}\n  Item: {:?}\n  Boosts: {:?}\n  Volatiles: {:?}\n  Moves: {}",
             self.id,
             self.hp,
             self.maxhp,
