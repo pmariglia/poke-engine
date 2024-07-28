@@ -1162,6 +1162,7 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
     {
         return true;
     } else if choice.move_type == PokemonType::Electric
+        && choice.target == MoveTarget::Opponent
         && state
             .get_side_immutable(&attacking_side_ref.get_other_side())
             .get_active_immutable()
@@ -1169,6 +1170,7 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
     {
         return true;
     } else if choice.flags.powder
+        && choice.target == MoveTarget::Opponent
         && state
             .get_side_immutable(&attacking_side_ref.get_other_side())
             .get_active_immutable()
