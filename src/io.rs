@@ -194,6 +194,16 @@ impl Side {
 }
 
 impl Pokemon {
+    fn io_print_boosts(&self) -> String {
+        return format!(
+            "Attack:{}, Defense:{}, SpecialAttack:{}, SpecialDefense:{}, Speed:{}",
+            self.attack_boost,
+            self.defense_boost,
+            self.special_attack_boost,
+            self.special_defense_boost,
+            self.speed_boost
+        );
+    }
     fn io_print_reserve(&self) -> String {
         return format!("{}:{}/{}", self.id, self.hp, self.maxhp);
     }
@@ -205,14 +215,14 @@ impl Pokemon {
             .filter(|x| x != "none")
             .collect();
         return format!(
-            "\n  Name: {}\n  HP: {}/{}\n  Status: {:?}\n  Ability: {:?}\n  Item: {:?}\n  Boosts: {:?}\n  Volatiles: {:?}\n  Moves: {}",
+            "\n  Name: {}\n  HP: {}/{}\n  Status: {:?}\n  Ability: {:?}\n  Item: {:?}\n  Boosts: {}\n  Volatiles: {:?}\n  Moves: {}",
             self.id,
             self.hp,
             self.maxhp,
             self.status,
             self.ability,
             self.item,
-            self.get_pkmn_boost_enum_pairs(),
+            self.io_print_boosts(),
             self.volatile_statuses,
             moves.join(", ")
         );
