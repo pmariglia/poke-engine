@@ -195,7 +195,7 @@ impl Side {
 
 impl Pokemon {
     fn io_print_reserve(&self) -> String {
-        return format!("{}: {}/{}", self.id, self.hp, self.maxhp);
+        return format!("{}:{}/{}", self.id, self.hp, self.maxhp);
     }
     fn io_print_active(&self) -> String {
         let moves: Vec<String> = self
