@@ -658,7 +658,7 @@ impl Pokemon {
         volatile_status: &PokemonVolatileStatus,
         first_move: bool,
     ) -> bool {
-        if self.volatile_statuses.contains(volatile_status) {
+        if self.volatile_statuses.contains(volatile_status) || self.hp == 0 {
             return false;
         }
         match volatile_status {

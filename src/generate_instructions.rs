@@ -615,6 +615,7 @@ pub fn get_boost_instruction(
     if boost != &0
         && !(target_side_ref != attacking_side_ref
             && target_pkmn.immune_to_stats_lowered_by_opponent(&stat))
+        && target_pkmn.hp != 0
     {
         let mut boost_amount = *boost;
         if target_pkmn.ability == Abilities::CONTRARY {
@@ -2998,6 +2999,8 @@ mod tests {
     #[test]
     fn test_possible_secondary_volatilestatus_with_possible_accuracy() {
         let mut state: State = State::default();
+        state.side_two.get_active().hp = 400;
+        state.side_two.get_active().maxhp = 400;
         let mut choice = MOVES.get(&Choices::AXEKICK).unwrap().to_owned();
 
         let mut instructions = vec![];
@@ -3022,7 +3025,7 @@ mod tests {
                 percentage: 63.0,
                 instruction_list: vec![Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
-                    damage_amount: 100,
+                    damage_amount: 188,
                 })],
             },
             StateInstructions {
@@ -3030,7 +3033,7 @@ mod tests {
                 instruction_list: vec![
                     Instruction::Damage(DamageInstruction {
                         side_ref: SideReference::SideTwo,
-                        damage_amount: 100,
+                        damage_amount: 188,
                     }),
                     Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                         side_ref: SideReference::SideTwo,
