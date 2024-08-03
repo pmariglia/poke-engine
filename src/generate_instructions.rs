@@ -2175,6 +2175,101 @@ fn add_end_of_turn_instructions(
 
         if active_pkmn
             .volatile_statuses
+            .contains(&PokemonVolatileStatus::Perish1)
+        {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::Damage(DamageInstruction {
+                    side_ref: *side_ref,
+                    damage_amount: active_pkmn.hp,
+                }));
+            active_pkmn.hp = 0;
+        }
+
+        if active_pkmn
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::Perish2)
+        {
+            active_pkmn
+                .volatile_statuses
+                .remove(&PokemonVolatileStatus::Perish2);
+            active_pkmn
+                .volatile_statuses
+                .insert(PokemonVolatileStatus::Perish1);
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::RemoveVolatileStatus(
+                    RemoveVolatileStatusInstruction {
+                        side_ref: *side_ref,
+                        volatile_status: PokemonVolatileStatus::Perish2,
+                    },
+                ));
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ApplyVolatileStatus(
+                    ApplyVolatileStatusInstruction {
+                        side_ref: *side_ref,
+                        volatile_status: PokemonVolatileStatus::Perish1,
+                    },
+                ));
+        }
+        if active_pkmn
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::Perish3)
+        {
+            active_pkmn
+                .volatile_statuses
+                .remove(&PokemonVolatileStatus::Perish3);
+            active_pkmn
+                .volatile_statuses
+                .insert(PokemonVolatileStatus::Perish2);
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::RemoveVolatileStatus(
+                    RemoveVolatileStatusInstruction {
+                        side_ref: *side_ref,
+                        volatile_status: PokemonVolatileStatus::Perish3,
+                    },
+                ));
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ApplyVolatileStatus(
+                    ApplyVolatileStatusInstruction {
+                        side_ref: *side_ref,
+                        volatile_status: PokemonVolatileStatus::Perish2,
+                    },
+                ));
+        }
+        if active_pkmn
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::Perish4)
+        {
+            active_pkmn
+                .volatile_statuses
+                .remove(&PokemonVolatileStatus::Perish4);
+            active_pkmn
+                .volatile_statuses
+                .insert(PokemonVolatileStatus::Perish3);
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::RemoveVolatileStatus(
+                    RemoveVolatileStatusInstruction {
+                        side_ref: *side_ref,
+                        volatile_status: PokemonVolatileStatus::Perish4,
+                    },
+                ));
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ApplyVolatileStatus(
+                    ApplyVolatileStatusInstruction {
+                        side_ref: *side_ref,
+                        volatile_status: PokemonVolatileStatus::Perish3,
+                    },
+                ));
+        }
+
+        if active_pkmn
+            .volatile_statuses
             .contains(&PokemonVolatileStatus::Flinch)
         {
             active_pkmn

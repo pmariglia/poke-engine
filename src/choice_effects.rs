@@ -1,3 +1,4 @@
+use crate::abilities::Abilities;
 use crate::choices::{Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::add_remove_status_instructions;
@@ -961,6 +962,41 @@ pub fn choice_special_effect(
                     .instruction_list
                     .push(set_sub_health_instruction);
                 instructions.instruction_list.push(apply_vs_instruction);
+            }
+        }
+        Choices::PERISHSONG => {
+            let s1_active = state.side_one.get_active();
+            let s2_active = state.side_two.get_active();
+            for (side_ref, pkmn) in [
+                (SideReference::SideOne, s1_active),
+                (SideReference::SideTwo, s2_active),
+            ] {
+                if pkmn.hp != 0
+                    && pkmn.ability != Abilities::SOUNDPROOF
+                    && !(pkmn
+                        .volatile_statuses
+                        .contains(&PokemonVolatileStatus::Perish4)
+                        || pkmn
+                            .volatile_statuses
+                            .contains(&PokemonVolatileStatus::Perish3)
+                        || pkmn
+                            .volatile_statuses
+                            .contains(&PokemonVolatileStatus::Perish2)
+                        || pkmn
+                            .volatile_statuses
+                            .contains(&PokemonVolatileStatus::Perish1))
+                {
+                    instructions
+                        .instruction_list
+                        .push(Instruction::ApplyVolatileStatus(
+                            ApplyVolatileStatusInstruction {
+                                side_ref: side_ref,
+                                volatile_status: PokemonVolatileStatus::Perish4,
+                            },
+                        ));
+                    pkmn.volatile_statuses
+                        .insert(PokemonVolatileStatus::Perish4);
+                }
             }
         }
         Choices::TRICK | Choices::SWITCHEROO => {
