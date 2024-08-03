@@ -165,7 +165,7 @@ impl Side {
                 return format!("{}", self.pokemon[*index].id).to_lowercase();
             }
             MoveChoice::None => {
-                return "no move".to_string();
+                return "none".to_string();
             }
         }
     }
