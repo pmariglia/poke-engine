@@ -277,6 +277,13 @@ fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
             .add_available_moves(&mut s2_options, &state.side_two.last_used_move);
     }
 
+    if s1_options.len() == 0 {
+        s1_options.push(MoveChoice::None);
+    }
+    if s2_options.len() == 0 {
+        s2_options.push(MoveChoice::None);
+    }
+
     return (s1_options, s2_options);
 }
 
