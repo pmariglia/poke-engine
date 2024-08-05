@@ -379,6 +379,16 @@ pub fn calculate_damage(
             defender_types = (defender_types.0, PokemonType::Typeless);
         }
     }
+    if attacker.ability == Abilities::SCRAPPY
+        && (choice.move_type == PokemonType::Normal || choice.move_type == PokemonType::Fighting)
+    {
+        if defender_types.0 == PokemonType::Ghost {
+            defender_types = (PokemonType::Typeless, defender_types.1);
+        }
+        if defender_types.1 == PokemonType::Ghost {
+            defender_types = (defender_types.0, PokemonType::Typeless);
+        }
+    }
 
     let mut damage_modifier = 1.0;
     damage_modifier *= type_effectiveness_modifier(&choice.move_type, &defender_types);

@@ -1323,15 +1323,6 @@ pub fn ability_modify_attack_being_used(
                 attacker_choice.accuracy *= 0.80
             }
         }
-        Abilities::SCRAPPY => {
-            if defending_side
-                .get_active_immutable()
-                .has_type(&PokemonType::Ghost)
-            {
-                // Technically wrong, come back to this later
-                attacker_choice.move_type = PokemonType::Typeless;
-            }
-        }
         Abilities::POISONTOUCH => {
             if attacker_choice.flags.contact {
                 attacker_choice.add_or_create_secondaries(Secondary {

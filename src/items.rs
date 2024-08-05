@@ -183,7 +183,6 @@ fn power_up_gem(
     instructions: &mut StateInstructions,
 ) {
     if &choice.move_type == &gem_type {
-
         #[cfg(feature = "gen5")]
         {
             choice.base_power *= 1.5;

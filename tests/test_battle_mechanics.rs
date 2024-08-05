@@ -5277,7 +5277,11 @@ fn test_perish_gets_applied_to_both_sides() {
 #[test]
 fn test_perish_bypasses_sub() {
     let mut state = State::default();
-    state.side_two.get_active().volatile_statuses.insert(PokemonVolatileStatus::Substitute);
+    state
+        .side_two
+        .get_active()
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::Substitute);
     state.side_two.get_active().substitute_health = 50;
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -7581,6 +7585,61 @@ fn test_scrappy_versus_intimidate() {
             next_index: PokemonIndex::P1,
         })],
     }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_scrappy_versus_ghost_type() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::SCRAPPY;
+    state.side_two.get_active().types.1 = PokemonType::Ghost;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 48,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_scrappy_fighting_move_becomes_supereffective_against_ghost_normal() {
+    let mut state = State::default();
+
+    state.side_two.get_active().types.0 = PokemonType::Normal;
+    state.side_two.get_active().types.1 = PokemonType::Typeless;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::KARATECHOP,
+        Choices::SPLASH,
+    );
+
+    state.side_one.get_active().ability = Abilities::SCRAPPY;
+    state.side_two.get_active().types.1 = PokemonType::Ghost;
+
+    let vec_of_instructions_after_scrappy = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::KARATECHOP,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 81,
+        })],
+    }];
+    assert_eq!(vec_of_instructions, vec_of_instructions_after_scrappy);
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
