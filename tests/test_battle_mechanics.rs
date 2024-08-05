@@ -2445,6 +2445,106 @@ fn test_roughskin_damage_taken_on_multihit_move() {
 }
 
 #[test]
+#[cfg(not(feature = "gen5"))]
+fn test_flyinggem_and_acrobatics_together() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::FLYINGGEM;
+    state.side_two.get_active().hp = 400;
+    state.side_two.get_active().maxhp = 400;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::ACROBATICS,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::FLYINGGEM,
+                new_item: Items::NONE,
+            }),
+            // 44 damage normally
+            // 2x for acrobatics without item
+            // 1.3x for gem usage
+            // ~= 112
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 112,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(feature = "gen5")]
+fn test_flyinggem_and_acrobatics_together_gen5() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::FLYINGGEM;
+    state.side_two.get_active().hp = 400;
+    state.side_two.get_active().maxhp = 400;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::ACROBATICS,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::FLYINGGEM,
+                new_item: Items::NONE,
+            }),
+            // 44 damage normally
+            // 2x for acrobatics without item
+            // 1.5x for gem usage
+            // ~= 129
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 129,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(not(feature = "gen5"))]
+fn test_normalgem_boosting_tackle() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::NORMALGEM;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::NORMALGEM,
+                new_item: Items::NONE,
+            }),
+            // 48 damage normally. 1.3x for gem
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 61,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_chopleberry_damage_reduction() {
     let mut state = State::default();
     state.side_two.get_active().item = Items::CHOPLEBERRY;

@@ -111,6 +111,24 @@ pub enum Items {
     FOCUSSASH,
     LUMBERRY,
     SITRUSBERRY,
+    NORMALGEM,
+    BUGGEM,
+    ELECTRICGEM,
+    FIGHTINGGEM,
+    GHOSTGEM,
+    PSYCHICGEM,
+    FLYINGGEM,
+    STEELGEM,
+    ICEGEM,
+    POISONGEM,
+    FIREGEM,
+    DRAGONGEM,
+    GROUNDGEM,
+    WATERGEM,
+    DARKGEM,
+    ROCKGEM,
+    GRASSGEM,
+    FAIRYGEM,
 }
 
 pub fn get_choice_move_disable_instructions(
@@ -151,6 +169,38 @@ fn damage_reduction_berry(
             }));
         defending_pkmn.item = Items::NONE;
         choice.base_power /= 2.0;
+    }
+}
+
+/*
+NormalGem, FlyingGem, etc.
+*/
+fn power_up_gem(
+    attacking_side_ref: &SideReference,
+    attacking_pkmn: &mut Pokemon,
+    choice: &mut Choice,
+    gem_type: PokemonType,
+    instructions: &mut StateInstructions,
+) {
+    if &choice.move_type == &gem_type {
+
+        #[cfg(feature = "gen5")]
+        {
+            choice.base_power *= 1.5;
+        }
+        #[cfg(not(feature = "gen5"))]
+        {
+            choice.base_power *= 1.3;
+        }
+
+        instructions
+            .instruction_list
+            .push(Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: *attacking_side_ref,
+                current_item: attacking_pkmn.item,
+                new_item: Items::NONE,
+            }));
+        attacking_pkmn.item = Items::NONE;
     }
 }
 
@@ -374,6 +424,132 @@ pub fn item_before_move(
         _ => {}
     }
     match active_pkmn.item {
+        Items::NORMALGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Normal,
+            instructions,
+        ),
+        Items::BUGGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Bug,
+            instructions,
+        ),
+        Items::ELECTRICGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Electric,
+            instructions,
+        ),
+        Items::FIGHTINGGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Fighting,
+            instructions,
+        ),
+        Items::GHOSTGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Ghost,
+            instructions,
+        ),
+        Items::PSYCHICGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Psychic,
+            instructions,
+        ),
+        Items::FLYINGGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Flying,
+            instructions,
+        ),
+        Items::STEELGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Steel,
+            instructions,
+        ),
+        Items::ICEGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Ice,
+            instructions,
+        ),
+        Items::POISONGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Poison,
+            instructions,
+        ),
+        Items::FIREGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Fire,
+            instructions,
+        ),
+        Items::DRAGONGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Dragon,
+            instructions,
+        ),
+        Items::GROUNDGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Ground,
+            instructions,
+        ),
+        Items::WATERGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Water,
+            instructions,
+        ),
+        Items::DARKGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Dark,
+            instructions,
+        ),
+        Items::ROCKGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Rock,
+            instructions,
+        ),
+        Items::GRASSGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Grass,
+            instructions,
+        ),
+        Items::FAIRYGEM => power_up_gem(
+            side_ref,
+            active_pkmn,
+            choice,
+            PokemonType::Fairy,
+            instructions,
+        ),
         Items::LUMBERRY if active_pkmn.status != PokemonStatus::None => {
             lum_berry(side_ref, attacking_side, instructions)
         }
