@@ -145,8 +145,10 @@ pub fn evaluate(state: &State) -> f32 {
             side_two_alive_count += 1.0;
             score -= evaluate_pokemon(pkmn);
         } else if pkmn.level == 1 {
-            // hack for randombattle where pokemon are not revealed
+            // level == 1 represents an un-revealed pokemon
             side_two_alive_count += 1.0;
+            score -= POKEMON_ALIVE;
+            score -= POKEMON_HP;
         }
     }
 

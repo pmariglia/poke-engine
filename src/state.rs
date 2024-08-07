@@ -1134,7 +1134,8 @@ impl State {
         if self.side_one.pokemon.into_iter().all(|p| p.hp <= 0) {
             return -1.0;
         }
-        if self.side_two.pokemon.into_iter().all(|p| p.hp <= 0) {
+        // level == 1 represents an un-revealed pokemon
+        if self.side_two.pokemon.into_iter().all(|p| p.hp <= 0 && p.level != 1) {
             return 1.0;
         }
         return 0.0;
