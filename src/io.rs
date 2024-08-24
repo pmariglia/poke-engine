@@ -390,7 +390,10 @@ fn print_mcts_result(state: &State, result: MctsResult) {
 fn pprint_mcts_result(state: &State, result: MctsResult) {
     println!("\nTotal Iterations: {}\n", result.iteration_count);
     println!("Side One:");
-    println!("\t{:<25}{:>12}{:>12}{:>10}{:>10}", "Move", "Total Score", "Avg Score", "Visits", "% Visits");
+    println!(
+        "\t{:<25}{:>12}{:>12}{:>10}{:>10}",
+        "Move", "Total Score", "Avg Score", "Visits", "% Visits"
+    );
     for x in result.s1.iter() {
         println!(
             "\t{:<25}{:>12.2}{:>12.2}{:>10}{:>10.2}",
@@ -403,7 +406,10 @@ fn pprint_mcts_result(state: &State, result: MctsResult) {
     }
 
     println!("Side Two:");
-    println!("\t{:<25}{:>12}{:>12}{:>10}{:>10}", "Move", "Total Score", "Avg Score", "Visits", "% Visits");
+    println!(
+        "\t{:<25}{:>12}{:>12}{:>10}{:>10}",
+        "Move", "Total Score", "Avg Score", "Visits", "% Visits"
+    );
     for x in result.s2.iter() {
         println!(
             "\t{:<25}{:>12.2}{:>12.2}{:>10}{:>10.2}",
