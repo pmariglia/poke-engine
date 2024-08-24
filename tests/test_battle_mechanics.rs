@@ -8635,7 +8635,7 @@ fn test_watercompaction() {
 }
 
 #[test]
-#[cfg(feature = "gen_5_or_earlier_typechart")]
+#[cfg(any(feature = "gen4", feature = "gen5"))]
 fn test_gen5_or_earlier_ghost_versus_steel() {
     let mut state = State::default();
     state.side_two.get_active().types = (PokemonType::Steel, PokemonType::Typeless);
@@ -8647,7 +8647,7 @@ fn test_gen5_or_earlier_ghost_versus_steel() {
         percentage: 100.0,
         instruction_list: vec![Instruction::Damage(DamageInstruction {
             side_ref: SideReference::SideTwo,
-            damage_amount: 25,
+            damage_amount: 20,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
