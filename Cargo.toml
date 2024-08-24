@@ -6,6 +6,15 @@ edition = "2018"
 license-file = "LICENSE"
 description = "A Pokemon battle engine that can be used to search through the state space of a Pokemon battle."
 
+[lib]
+name = "poke_engine"
+path = "src/lib.rs"
+crate-type = ["lib"]
+
+[[bin]]
+name = "poke-engine"
+path = "src/main.rs"
+
 [profile.release]
 debug = 1
 
@@ -25,4 +34,9 @@ gen7 = []
 gen8 = []
 gen9 = []
 
-default = ["gen4"]
+default = []
+
+[workspace]
+members = [
+    "poke-engine-py"
+]

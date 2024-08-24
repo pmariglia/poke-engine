@@ -59,6 +59,20 @@ pub enum MoveChoice {
     None,
 }
 
+impl MoveChoice {
+    pub fn to_string(&self, side: &Side) -> String {
+        return match self {
+            MoveChoice::Move(index) => {
+                format!("{}", side.get_active_immutable().moves[*index].id).to_lowercase()
+            }
+            MoveChoice::Switch(index) => {
+                format!("switch {}", side.pokemon[*index].id).to_lowercase()
+            }
+            MoveChoice::None => "No Move".to_string(),
+        };
+    }
+}
+
 #[derive(Debug, PartialEq, Copy, Clone, Hash)]
 pub enum PokemonStatus {
     None,

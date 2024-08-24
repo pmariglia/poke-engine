@@ -1,7 +1,5 @@
 #![allow(unused_variables)]
 use crate::abilities::Abilities;
-use std::cmp;
-
 use crate::choices::{Choice, Choices, Effect, MoveCategory, MoveTarget, Secondary, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::{get_boost_instruction, immune_to_status};
@@ -12,6 +10,7 @@ use crate::instruction::{
 use crate::state::{Pokemon, PokemonType, Side};
 use crate::state::{PokemonBoostableStat, State, Terrain};
 use crate::state::{PokemonStatus, SideReference};
+use std::cmp;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Items {

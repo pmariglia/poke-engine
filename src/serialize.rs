@@ -2,9 +2,9 @@ use crate::abilities::Abilities;
 use crate::choices::{Choices, MOVES};
 use crate::items::Items;
 use crate::state::{
-    DamageDealt, LastUsedMove, Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoveIndex,
-    PokemonMoves, PokemonStatus, PokemonType, PokemonVolatileStatus, Side, SideConditions,
-    SidePokemon, State, StateTerrain, StateWeather, Terrain, Weather,
+    DamageDealt, LastUsedMove, Move, Pokemon, PokemonIndex, PokemonMoves, PokemonStatus,
+    PokemonType, PokemonVolatileStatus, Side, SideConditions, SidePokemon, State, StateTerrain,
+    StateWeather, Terrain, Weather,
 };
 use std::collections::HashSet;
 use std::fmt;
@@ -24,41 +24,6 @@ impl Move {
                 .get(&Choices::from_str(split[0]).unwrap())
                 .unwrap()
                 .to_owned(),
-        };
-    }
-}
-
-impl MoveChoice {
-    pub fn deserialize(serialized: &str) -> MoveChoice {
-        let mut chars = serialized.chars();
-
-        let char1 = chars.next().unwrap();
-
-        match char1 {
-            'm' => {
-                let char2 = chars.next().unwrap();
-                return MoveChoice::Move(PokemonMoveIndex::deserialize(&char2.to_string()));
-            }
-            's' => {
-                let char2 = chars.next().unwrap();
-                return MoveChoice::Switch(PokemonIndex::deserialize(&char2.to_string()));
-            }
-            'n' => {
-                return MoveChoice::None;
-            }
-            _ => panic!("Invalid move choice: {}", serialized),
-        }
-    }
-}
-
-impl PokemonMoveIndex {
-    pub fn deserialize(serialized: &str) -> PokemonMoveIndex {
-        return match serialized {
-            "0" => PokemonMoveIndex::M0,
-            "1" => PokemonMoveIndex::M1,
-            "2" => PokemonMoveIndex::M2,
-            "3" => PokemonMoveIndex::M3,
-            _ => panic!("Invalid move index: {}", serialized),
         };
     }
 }
@@ -275,13 +240,13 @@ impl Pokemon {
 }
 
 impl LastUsedMove {
-    fn serialize(&self) -> String {
+    pub fn serialize(&self) -> String {
         return match self {
             LastUsedMove::Move(move_name) => format!("move:{}", move_name),
             LastUsedMove::Switch(pkmn_index) => format!("switch:{}", pkmn_index.serialize()),
         };
     }
-    fn deserialize(serialized: &str) -> LastUsedMove {
+    pub fn deserialize(serialized: &str) -> LastUsedMove {
         let split: Vec<&str> = serialized.split(":").collect();
         match split[0] {
             "move" => return LastUsedMove::Move(Choices::from_str(split[1]).unwrap()),

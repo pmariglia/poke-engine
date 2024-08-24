@@ -2569,6 +2569,36 @@ pub fn calculate_damage_rolls(
     }
 }
 
+pub fn calculate_both_damage_rolls(
+    state: &State,
+    mut s1_choice: Choice,
+    mut s2_choice: Choice,
+    side_one_moves_first: bool,
+) -> (Option<Vec<i16>>, Option<Vec<i16>>) {
+    if side_one_moves_first {
+        s1_choice.first_move = true;
+        s2_choice.first_move = false;
+    } else {
+        s1_choice.first_move = false;
+        s2_choice.first_move = true;
+    }
+
+    let damages_dealt_s1 = calculate_damage_rolls(
+        state.clone(),
+        &SideReference::SideOne,
+        s1_choice.clone(),
+        &s2_choice,
+    );
+    let damages_dealt_s2 = calculate_damage_rolls(
+        state.clone(),
+        &SideReference::SideTwo,
+        s2_choice,
+        &s1_choice,
+    );
+
+    return (damages_dealt_s1, damages_dealt_s2);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

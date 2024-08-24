@@ -1,3 +1,6 @@
+**/dist
 /target
 .idea/
 .vscode
+*.so
+**__pycache**

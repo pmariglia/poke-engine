@@ -1,0 +1,11 @@
+[tool.maturin]
+python-source = "python"
+module-name = "poke_engine._poke_engine"
+
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "poke-engine"
+version = "0.0.2"

@@ -1,12 +1,12 @@
 use crate::choices::{Choice, Choices, MOVES};
 use crate::evaluate::evaluate;
-use crate::generate_instructions::{calculate_damage_rolls, generate_instructions_from_move_pair};
+use crate::generate_instructions::{
+    calculate_both_damage_rolls, generate_instructions_from_move_pair,
+};
 use crate::instruction::{Instruction, StateInstructions};
 use crate::mcts::{perform_mcts, MctsResult};
 use crate::search::{expectiminimax_search, iterative_deepen_expectiminimax, pick_safest};
-use crate::state::{
-    MoveChoice, Pokemon, PokemonVolatileStatus, Side, SideConditions, SideReference, State,
-};
+use crate::state::{MoveChoice, Pokemon, PokemonVolatileStatus, Side, SideConditions, State};
 use clap::Parser;
 use std::io;
 use std::io::Write;
@@ -184,7 +184,7 @@ impl Side {
         }
     }
 
-    fn string_to_movechoice(&self, s: &str) -> Option<MoveChoice> {
+    pub fn string_to_movechoice(&self, s: &str) -> Option<MoveChoice> {
         let s = s.to_lowercase();
         if s == "none" {
             return Some(MoveChoice::None);
@@ -231,7 +231,7 @@ impl Pokemon {
     }
 }
 
-fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
+pub fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
     if state.team_preview {
         let mut s1_options = Vec::with_capacity(6);
         let mut s2_options = Vec::with_capacity(6);
@@ -611,30 +611,12 @@ pub fn main() {
 
 fn calculate_damage_io(
     state: &State,
-    mut s1_choice: Choice,
-    mut s2_choice: Choice,
+    s1_choice: Choice,
+    s2_choice: Choice,
     side_one_moves_first: bool,
 ) {
-    if side_one_moves_first {
-        s1_choice.first_move = true;
-        s2_choice.first_move = false;
-    } else {
-        s1_choice.first_move = false;
-        s2_choice.first_move = true;
-    }
-
-    let damages_dealt_s1 = calculate_damage_rolls(
-        state.clone(),
-        &SideReference::SideOne,
-        s1_choice.clone(),
-        &s2_choice,
-    );
-    let damages_dealt_s2 = calculate_damage_rolls(
-        state.clone(),
-        &SideReference::SideTwo,
-        s2_choice,
-        &s1_choice,
-    );
+    let (damages_dealt_s1, damages_dealt_s2) =
+        calculate_both_damage_rolls(state, s1_choice, s2_choice, side_one_moves_first);
 
     for dmg in [damages_dealt_s1, damages_dealt_s2] {
         match dmg {
