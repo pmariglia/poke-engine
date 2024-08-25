@@ -583,12 +583,13 @@ pub fn item_on_switch_in(
     side_ref: &SideReference,
     instructions: &mut StateInstructions,
 ) {
-    let switching_in_pkmn = state.get_side_immutable(side_ref).get_active_immutable();
+    let switching_in_side = state.get_side_immutable(side_ref);
+    let switching_in_pkmn = switching_in_side.get_active_immutable();
     match switching_in_pkmn.item {
         Items::ELECTRICSEED => {
             if state.terrain_is_active(&Terrain::ElectricTerrain) {
                 if let Some(boost_instruction) = get_boost_instruction(
-                    switching_in_pkmn,
+                    &switching_in_side,
                     &PokemonBoostableStat::Defense,
                     &1,
                     side_ref,
@@ -610,7 +611,7 @@ pub fn item_on_switch_in(
         Items::GRASSYSEED => {
             if state.terrain_is_active(&Terrain::GrassyTerrain) {
                 if let Some(boost_instruction) = get_boost_instruction(
-                    switching_in_pkmn,
+                    &switching_in_side,
                     &PokemonBoostableStat::Defense,
                     &1,
                     side_ref,
@@ -632,7 +633,7 @@ pub fn item_on_switch_in(
         Items::MISTYSEED => {
             if state.terrain_is_active(&Terrain::MistyTerrain) {
                 if let Some(boost_instruction) = get_boost_instruction(
-                    switching_in_pkmn,
+                    &switching_in_side,
                     &PokemonBoostableStat::SpecialDefense,
                     &1,
                     side_ref,
@@ -654,7 +655,7 @@ pub fn item_on_switch_in(
         Items::PSYCHICSEED => {
             if state.terrain_is_active(&Terrain::PsychicTerrain) {
                 if let Some(boost_instruction) = get_boost_instruction(
-                    switching_in_pkmn,
+                    &switching_in_side,
                     &PokemonBoostableStat::SpecialDefense,
                     &1,
                     side_ref,

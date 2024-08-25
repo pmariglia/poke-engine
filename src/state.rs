@@ -455,18 +455,9 @@ pub struct Pokemon {
     pub special_attack: i16,
     pub special_defense: i16,
     pub speed: i16,
-    pub attack_boost: i8,
-    pub defense_boost: i8,
-    pub special_attack_boost: i8,
-    pub special_defense_boost: i8,
-    pub speed_boost: i8,
-    pub accuracy_boost: i8,
-    pub evasion_boost: i8,
     pub status: PokemonStatus,
     pub rest_turns: i8,
-    pub substitute_health: i16,
     pub weight_kg: f32,
-    pub volatile_statuses: HashSet<PokemonVolatileStatus>,
     pub moves: PokemonMoves,
 }
 
@@ -485,11 +476,13 @@ impl Pokemon {
         self.moves[move_index].id = new_move_name;
     }
 
-    pub fn add_available_moves(&self, vec: &mut Vec<MoveChoice>, last_used_move: &LastUsedMove) {
+    pub fn add_available_moves(
+        &self,
+        vec: &mut Vec<MoveChoice>,
+        last_used_move: &LastUsedMove,
+        encored: bool,
+    ) {
         let mut iter = self.moves.into_iter();
-        let encored = self
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::Encore);
         while let Some(p) = iter.next() {
             if !p.disabled {
                 if (iter.pokemon_move_index == PokemonMoveIndex::M4
@@ -527,17 +520,6 @@ impl Pokemon {
         }
     }
 
-    pub fn get_boost_from_boost_enum(&self, boost_enum: &PokemonBoostableStat) -> i8 {
-        return match boost_enum {
-            PokemonBoostableStat::Attack => self.attack_boost,
-            PokemonBoostableStat::Defense => self.defense_boost,
-            PokemonBoostableStat::SpecialAttack => self.special_attack_boost,
-            PokemonBoostableStat::SpecialDefense => self.special_defense_boost,
-            PokemonBoostableStat::Speed => self.speed_boost,
-            PokemonBoostableStat::Evasion => self.evasion_boost,
-            PokemonBoostableStat::Accuracy => self.accuracy_boost,
-        };
-    }
     pub fn has_type(&self, pkmn_type: &PokemonType) -> bool {
         return pkmn_type == &self.types.0 || pkmn_type == &self.types.1;
     }
@@ -566,10 +548,6 @@ impl Pokemon {
         }
     }
 
-    pub fn clear_volatile_statuses(&mut self) {
-        self.volatile_statuses.clear();
-    }
-
     pub fn is_grounded(&self) -> bool {
         if self.has_type(&PokemonType::Flying)
             || self.ability == Abilities::LEVITATE
@@ -580,79 +558,6 @@ impl Pokemon {
         return true;
     }
 
-    pub fn calculate_boosted_stat(&self, stat: PokemonBoostableStat) -> i16 {
-        /*
-        In Gen4, simple doubles the effective boost, without it visually being doubled
-        It will not boost beyond an effective value of 6 though.
-        */
-        match stat {
-            PokemonBoostableStat::Attack => {
-                #[cfg(feature = "gen4")]
-                let boost = if self.ability == Abilities::SIMPLE {
-                    (self.attack_boost * 2).min(6).max(-6)
-                } else {
-                    self.attack_boost
-                };
-
-                #[cfg(not(feature = "gen4"))]
-                let boost = self.attack_boost;
-
-                multiply_boost(boost, self.attack)
-            }
-            PokemonBoostableStat::Defense => {
-                #[cfg(feature = "gen4")]
-                let boost = if self.ability == Abilities::SIMPLE {
-                    (self.defense_boost * 2).min(6).max(-6)
-                } else {
-                    self.defense_boost
-                };
-                #[cfg(not(feature = "gen4"))]
-                let boost = self.defense_boost;
-
-                multiply_boost(boost, self.defense)
-            }
-            PokemonBoostableStat::SpecialAttack => {
-                #[cfg(feature = "gen4")]
-                let boost = if self.ability == Abilities::SIMPLE {
-                    (self.special_attack_boost * 2).min(6).max(-6)
-                } else {
-                    self.special_attack_boost
-                };
-                #[cfg(not(feature = "gen4"))]
-                let boost = self.special_attack_boost;
-
-                multiply_boost(boost, self.special_attack)
-            }
-            PokemonBoostableStat::SpecialDefense => {
-                #[cfg(feature = "gen4")]
-                let boost = if self.ability == Abilities::SIMPLE {
-                    (self.special_defense_boost * 2).min(6).max(-6)
-                } else {
-                    self.special_defense_boost
-                };
-                #[cfg(not(feature = "gen4"))]
-                let boost = self.special_defense_boost;
-
-                multiply_boost(boost, self.special_defense)
-            }
-            PokemonBoostableStat::Speed => {
-                #[cfg(feature = "gen4")]
-                let boost = if self.ability == Abilities::SIMPLE {
-                    (self.speed_boost * 2).min(6).max(-6)
-                } else {
-                    self.speed_boost
-                };
-                #[cfg(not(feature = "gen4"))]
-                let boost = self.speed_boost;
-
-                multiply_boost(boost, self.speed)
-            }
-            _ => {
-                panic!("Not implemented")
-            }
-        }
-    }
-
     pub fn calculate_highest_stat(&self) -> PokemonBoostableStat {
         return PokemonBoostableStat::Attack;
     }
@@ -660,18 +565,16 @@ impl Pokemon {
     pub fn volatile_status_can_be_applied(
         &self,
         volatile_status: &PokemonVolatileStatus,
+        active_volatiles: &HashSet<PokemonVolatileStatus>,
         first_move: bool,
     ) -> bool {
-        if self.volatile_statuses.contains(volatile_status) || self.hp == 0 {
+        if active_volatiles.contains(volatile_status) || self.hp == 0 {
             return false;
         }
         match volatile_status {
             // grass immunity to leechseed covered by `powder`
             PokemonVolatileStatus::LeechSeed => {
-                if self
-                    .volatile_statuses
-                    .contains(&PokemonVolatileStatus::Substitute)
-                {
+                if active_volatiles.contains(&PokemonVolatileStatus::Substitute) {
                     return false;
                 }
                 return true;
@@ -695,7 +598,11 @@ impl Pokemon {
         }
     }
 
-    pub fn immune_to_stats_lowered_by_opponent(&self, stat: &PokemonBoostableStat) -> bool {
+    pub fn immune_to_stats_lowered_by_opponent(
+        &self,
+        stat: &PokemonBoostableStat,
+        volatiles: &HashSet<PokemonVolatileStatus>,
+    ) -> bool {
         if [
             Abilities::CLEARBODY,
             Abilities::WHITESMOKE,
@@ -707,10 +614,7 @@ impl Pokemon {
             return true;
         }
 
-        if self
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::Substitute)
-        {
+        if volatiles.contains(&PokemonVolatileStatus::Substitute) {
             return true;
         }
 
@@ -739,18 +643,9 @@ impl Default for Pokemon {
             special_attack: 100,
             special_defense: 100,
             speed: 100,
-            attack_boost: 0,
-            defense_boost: 0,
-            special_attack_boost: 0,
-            special_defense_boost: 0,
-            speed_boost: 0,
-            accuracy_boost: 0,
-            evasion_boost: 0,
             status: PokemonStatus::None,
-            substitute_health: 0,
             rest_turns: 0,
             weight_kg: 1.0,
-            volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
             moves: PokemonMoves {
                 m0: Default::default(),
                 m1: Default::default(),
@@ -922,12 +817,107 @@ pub struct Side {
     pub force_switch: bool,
     pub force_trapped: bool,
     pub slow_uturn_move: bool,
+    pub volatile_statuses: HashSet<PokemonVolatileStatus>,
+    pub substitute_health: i16,
+    pub attack_boost: i8,
+    pub defense_boost: i8,
+    pub special_attack_boost: i8,
+    pub special_defense_boost: i8,
+    pub speed_boost: i8,
+    pub accuracy_boost: i8,
+    pub evasion_boost: i8,
     pub last_used_move: LastUsedMove,
     pub damage_dealt: DamageDealt,
     pub switch_out_move_second_saved_move: Choices,
 }
 
 impl Side {
+    pub fn get_boost_from_boost_enum(&self, boost_enum: &PokemonBoostableStat) -> i8 {
+        return match boost_enum {
+            PokemonBoostableStat::Attack => self.attack_boost,
+            PokemonBoostableStat::Defense => self.defense_boost,
+            PokemonBoostableStat::SpecialAttack => self.special_attack_boost,
+            PokemonBoostableStat::SpecialDefense => self.special_defense_boost,
+            PokemonBoostableStat::Speed => self.speed_boost,
+            PokemonBoostableStat::Evasion => self.evasion_boost,
+            PokemonBoostableStat::Accuracy => self.accuracy_boost,
+        };
+    }
+
+    pub fn calculate_boosted_stat(&self, stat: PokemonBoostableStat) -> i16 {
+        /*
+        In Gen4, simple doubles the effective boost, without it visually being doubled
+        It will not boost beyond an effective value of 6 though.
+        */
+        let active = self.get_active_immutable();
+        match stat {
+            PokemonBoostableStat::Attack => {
+                #[cfg(feature = "gen4")]
+                let boost = if active.ability == Abilities::SIMPLE {
+                    (self.attack_boost * 2).min(6).max(-6)
+                } else {
+                    self.attack_boost
+                };
+
+                #[cfg(not(feature = "gen4"))]
+                let boost = self.attack_boost;
+
+                multiply_boost(boost, active.attack)
+            }
+            PokemonBoostableStat::Defense => {
+                #[cfg(feature = "gen4")]
+                let boost = if active.ability == Abilities::SIMPLE {
+                    (self.defense_boost * 2).min(6).max(-6)
+                } else {
+                    self.defense_boost
+                };
+                #[cfg(not(feature = "gen4"))]
+                let boost = self.defense_boost;
+
+                multiply_boost(boost, active.defense)
+            }
+            PokemonBoostableStat::SpecialAttack => {
+                #[cfg(feature = "gen4")]
+                let boost = if active.ability == Abilities::SIMPLE {
+                    (self.special_attack_boost * 2).min(6).max(-6)
+                } else {
+                    self.special_attack_boost
+                };
+                #[cfg(not(feature = "gen4"))]
+                let boost = self.special_attack_boost;
+
+                multiply_boost(boost, active.special_attack)
+            }
+            PokemonBoostableStat::SpecialDefense => {
+                #[cfg(feature = "gen4")]
+                let boost = if active.ability == Abilities::SIMPLE {
+                    (self.special_defense_boost * 2).min(6).max(-6)
+                } else {
+                    self.special_defense_boost
+                };
+                #[cfg(not(feature = "gen4"))]
+                let boost = self.special_defense_boost;
+
+                multiply_boost(boost, active.special_defense)
+            }
+            PokemonBoostableStat::Speed => {
+                #[cfg(feature = "gen4")]
+                let boost = if active.ability == Abilities::SIMPLE {
+                    (self.speed_boost * 2).min(6).max(-6)
+                } else {
+                    self.speed_boost
+                };
+                #[cfg(not(feature = "gen4"))]
+                let boost = self.speed_boost;
+
+                multiply_boost(boost, active.speed)
+            }
+            _ => {
+                panic!("Not implemented")
+            }
+        }
+    }
+
     pub fn has_sleeping_pkmn(&self) -> bool {
         for p in self.pokemon.into_iter() {
             if p.status == PokemonStatus::Sleep {
@@ -936,9 +926,11 @@ impl Side {
         }
         return false;
     }
+
     fn toggle_force_switch(&mut self) {
         self.force_switch = !self.force_switch;
     }
+
     pub fn add_switches(&self, vec: &mut Vec<MoveChoice>) {
         let mut iter = self.pokemon.into_iter();
         while let Some(p) = iter.next() {
@@ -953,7 +945,7 @@ impl Side {
 
     pub fn trapped(&self, opponent_active: &Pokemon) -> bool {
         let active_pkmn = self.get_active_immutable();
-        if active_pkmn
+        if self
             .volatile_statuses
             .contains(&PokemonVolatileStatus::LockedMove)
         {
@@ -961,7 +953,7 @@ impl Side {
         }
         if active_pkmn.item == Items::SHEDSHELL || active_pkmn.has_type(&PokemonType::Ghost) {
             return false;
-        } else if active_pkmn
+        } else if self
             .volatile_statuses
             .contains(&PokemonVolatileStatus::PartiallyTrapped)
         {
@@ -1083,9 +1075,17 @@ impl Default for Side {
                     ..Pokemon::default()
                 },
             },
+            substitute_health: 0,
+            attack_boost: 0,
+            defense_boost: 0,
+            special_attack_boost: 0,
+            special_defense_boost: 0,
+            speed_boost: 0,
+            accuracy_boost: 0,
             side_conditions: SideConditions {
                 ..Default::default()
             },
+            volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
             wish: (0, 0),
             force_switch: false,
             slow_uturn_move: false,
@@ -1093,6 +1093,7 @@ impl Default for Side {
             last_used_move: LastUsedMove::Move(Choices::NONE),
             damage_dealt: DamageDealt::default(),
             switch_out_move_second_saved_move: Choices::NONE,
+            evasion_boost: 0,
         }
     }
 }
@@ -1198,17 +1199,29 @@ impl State {
             return (side_one_options, side_two_options);
         }
 
-        self.side_one
-            .get_active_immutable()
-            .add_available_moves(&mut side_one_options, &self.side_one.last_used_move);
+        let encored = self
+            .side_one
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::Encore);
+        self.side_one.get_active_immutable().add_available_moves(
+            &mut side_one_options,
+            &self.side_one.last_used_move,
+            encored,
+        );
 
         if !self.side_one.trapped(side_two_active) {
             self.side_one.add_switches(&mut side_one_options);
         }
 
-        self.side_two
-            .get_active_immutable()
-            .add_available_moves(&mut side_two_options, &self.side_two.last_used_move);
+        let encored = self
+            .side_two
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::Encore);
+        self.side_two.get_active_immutable().add_available_moves(
+            &mut side_two_options,
+            &self.side_two.last_used_move,
+            encored,
+        );
 
         if !self.side_two.trapped(side_one_active) {
             self.side_two.add_switches(&mut side_two_options);
@@ -1310,10 +1323,17 @@ impl State {
         &mut self,
         side_ref: &SideReference,
         vec_to_add_to: &mut Vec<Instruction>,
+        baton_passing: bool,
     ) {
         let side = self.get_side(side_ref);
-        let active_pkmn = side.get_active();
-        for pkmn_volatile_status in &active_pkmn.volatile_statuses {
+        for pkmn_volatile_status in &side.volatile_statuses {
+            // dont remove substitute or leechseed if batonpassing
+            if baton_passing
+                && (pkmn_volatile_status == &PokemonVolatileStatus::Substitute
+                    || pkmn_volatile_status == &PokemonVolatileStatus::LeechSeed)
+            {
+                continue;
+            }
             vec_to_add_to.push(Instruction::RemoveVolatileStatus(
                 RemoveVolatileStatusInstruction {
                     side_ref: *side_ref,
@@ -1321,74 +1341,73 @@ impl State {
                 },
             ));
         }
-        active_pkmn.volatile_statuses.drain();
+        side.volatile_statuses.drain();
     }
 
     pub fn reset_boosts(&mut self, side_ref: &SideReference, vec_to_add_to: &mut Vec<Instruction>) {
         let side = self.get_side(side_ref);
-        let active_pkmn = side.get_active();
 
-        if active_pkmn.attack_boost != 0 {
+        if side.attack_boost != 0 {
             vec_to_add_to.push(Instruction::Boost(BoostInstruction {
                 side_ref: *side_ref,
                 stat: PokemonBoostableStat::Attack,
-                amount: -1 * active_pkmn.attack_boost,
+                amount: -1 * side.attack_boost,
             }));
-            active_pkmn.attack_boost = 0;
+            side.attack_boost = 0;
         }
 
-        if active_pkmn.defense_boost != 0 {
+        if side.defense_boost != 0 {
             vec_to_add_to.push(Instruction::Boost(BoostInstruction {
                 side_ref: *side_ref,
                 stat: PokemonBoostableStat::Defense,
-                amount: -1 * active_pkmn.defense_boost,
+                amount: -1 * side.defense_boost,
             }));
-            active_pkmn.defense_boost = 0;
+            side.defense_boost = 0;
         }
 
-        if active_pkmn.special_attack_boost != 0 {
+        if side.special_attack_boost != 0 {
             vec_to_add_to.push(Instruction::Boost(BoostInstruction {
                 side_ref: *side_ref,
                 stat: PokemonBoostableStat::SpecialAttack,
-                amount: -1 * active_pkmn.special_attack_boost,
+                amount: -1 * side.special_attack_boost,
             }));
-            active_pkmn.special_attack_boost = 0;
+            side.special_attack_boost = 0;
         }
 
-        if active_pkmn.special_defense_boost != 0 {
+        if side.special_defense_boost != 0 {
             vec_to_add_to.push(Instruction::Boost(BoostInstruction {
                 side_ref: *side_ref,
                 stat: PokemonBoostableStat::SpecialDefense,
-                amount: -1 * active_pkmn.special_defense_boost,
+                amount: -1 * side.special_defense_boost,
             }));
-            active_pkmn.special_defense_boost = 0;
+            side.special_defense_boost = 0;
         }
 
-        if active_pkmn.speed_boost != 0 {
+        if side.speed_boost != 0 {
             vec_to_add_to.push(Instruction::Boost(BoostInstruction {
                 side_ref: *side_ref,
                 stat: PokemonBoostableStat::Speed,
-                amount: -1 * active_pkmn.speed_boost,
+                amount: -1 * side.speed_boost,
             }));
-            active_pkmn.speed_boost = 0;
+            side.speed_boost = 0;
         }
 
-        if active_pkmn.evasion_boost != 0 {
+        if side.evasion_boost != 0 {
             vec_to_add_to.push(Instruction::Boost(BoostInstruction {
                 side_ref: *side_ref,
                 stat: PokemonBoostableStat::Evasion,
-                amount: -1 * active_pkmn.evasion_boost,
+                amount: -1 * side.evasion_boost,
             }));
-            active_pkmn.evasion_boost = 0;
+            side.evasion_boost = 0;
         }
 
-        if active_pkmn.accuracy_boost != 0 {
+        if side.accuracy_boost != 0 {
             vec_to_add_to.push(Instruction::Boost(BoostInstruction {
                 side_ref: *side_ref,
                 stat: PokemonBoostableStat::Accuracy,
-                amount: -1 * active_pkmn.accuracy_boost,
+                amount: -1 * side.accuracy_boost,
             }));
-            active_pkmn.accuracy_boost = 0;
+            side.accuracy_boost = 0;
         }
     }
 
@@ -1458,8 +1477,9 @@ impl State {
         side_ref: &SideReference,
         volatile_status: PokemonVolatileStatus,
     ) {
-        let active = self.get_side(&side_ref).get_active();
-        active.volatile_statuses.insert(volatile_status);
+        self.get_side(&side_ref)
+            .volatile_statuses
+            .insert(volatile_status);
     }
 
     fn remove_volatile_status(
@@ -1467,8 +1487,9 @@ impl State {
         side_ref: &SideReference,
         volatile_status: PokemonVolatileStatus,
     ) {
-        let active = self.get_side(&side_ref).get_active();
-        active.volatile_statuses.remove(&volatile_status);
+        self.get_side(&side_ref)
+            .volatile_statuses
+            .remove(&volatile_status);
     }
 
     fn change_status(
@@ -1482,15 +1503,15 @@ impl State {
     }
 
     fn apply_boost(&mut self, side_ref: &SideReference, stat: &PokemonBoostableStat, amount: i8) {
-        let active = self.get_side(&side_ref).get_active();
+        let side = self.get_side(&side_ref);
         match stat {
-            PokemonBoostableStat::Attack => active.attack_boost += amount,
-            PokemonBoostableStat::Defense => active.defense_boost += amount,
-            PokemonBoostableStat::SpecialAttack => active.special_attack_boost += amount,
-            PokemonBoostableStat::SpecialDefense => active.special_defense_boost += amount,
-            PokemonBoostableStat::Speed => active.speed_boost += amount,
-            PokemonBoostableStat::Evasion => active.evasion_boost += amount,
-            PokemonBoostableStat::Accuracy => active.accuracy_boost += amount,
+            PokemonBoostableStat::Attack => side.attack_boost += amount,
+            PokemonBoostableStat::Defense => side.defense_boost += amount,
+            PokemonBoostableStat::SpecialAttack => side.special_attack_boost += amount,
+            PokemonBoostableStat::SpecialDefense => side.special_defense_boost += amount,
+            PokemonBoostableStat::Speed => side.speed_boost += amount,
+            PokemonBoostableStat::Evasion => side.evasion_boost += amount,
+            PokemonBoostableStat::Accuracy => side.accuracy_boost += amount,
         }
     }
 
@@ -1574,15 +1595,15 @@ impl State {
     }
 
     fn damage_substitute(&mut self, side_reference: &SideReference, amount: i16) {
-        self.get_side(side_reference).get_active().substitute_health -= amount;
+        self.get_side(side_reference).substitute_health -= amount;
     }
 
     fn heal_substitute(&mut self, side_reference: &SideReference, amount: i16) {
-        self.get_side(side_reference).get_active().substitute_health += amount;
+        self.get_side(side_reference).substitute_health += amount;
     }
 
     fn set_substitute_health(&mut self, side_reference: &SideReference, amount: i16) {
-        self.get_side(side_reference).get_active().substitute_health = amount;
+        self.get_side(side_reference).substitute_health = amount;
     }
 
     fn decrement_rest_turn(&mut self, side_reference: &SideReference) {

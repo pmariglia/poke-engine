@@ -600,10 +600,9 @@ fn test_knockoff_boosts_damage_but_cannot_remove_if_sub_is_hit() {
     state.side_one.get_active().item = Items::LEFTOVERS;
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Substitute);
-    state.side_one.get_active().substitute_health = 100;
+    state.side_one.substitute_health = 100;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -812,7 +811,7 @@ fn test_berserk_when_staying_above_half() {
 fn test_berserk_cannot_overboost() {
     let mut state = State::default();
     state.side_one.get_active().hp = 51;
-    state.side_one.get_active().special_attack_boost = 6;
+    state.side_one.special_attack_boost = 6;
     state.side_one.get_active().ability = Abilities::BERSERK;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -1022,7 +1021,7 @@ fn test_cottondown_activates_when_fainting() {
 fn test_cottondown_cannot_boost_below_minus_6() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::COTTONDOWN;
-    state.side_two.get_active().speed_boost = -6;
+    state.side_two.speed_boost = -6;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -1701,7 +1700,6 @@ fn test_using_substitute_when_it_is_already_up() {
     let mut state = State::default();
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Substitute);
 
@@ -1723,10 +1721,9 @@ fn test_taking_damage_with_0_hp_sub_but_with_vs() {
     let mut state = State::default();
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Substitute);
-    state.side_one.get_active().substitute_health = 0;
+    state.side_one.substitute_health = 0;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2064,10 +2061,9 @@ fn test_using_protect_with_a_substitute() {
     state.side_one.get_active().speed = 150;
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Substitute);
-    state.side_one.get_active().substitute_health = 25;
+    state.side_one.substitute_health = 25;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2102,10 +2098,9 @@ fn test_drag_move_against_substitute() {
     state.side_one.get_active().speed = 150;
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Substitute);
-    state.side_one.get_active().substitute_health = 25;
+    state.side_one.substitute_health = 25;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2196,10 +2191,9 @@ fn test_whirlwind_move_against_substitute() {
     state.side_one.get_active().speed = 150;
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Substitute);
-    state.side_one.get_active().substitute_health = 25;
+    state.side_one.substitute_health = 25;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2288,10 +2282,9 @@ fn test_drag_move_against_protect_and_substitute() {
     state.side_one.get_active().speed = 150;
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Substitute);
-    state.side_one.get_active().substitute_health = 25;
+    state.side_one.substitute_health = 25;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -3269,7 +3262,7 @@ fn test_growth_in_sun() {
 #[test]
 fn test_batonpass_with_boosts() {
     let mut state = State::default();
-    state.side_one.get_active().attack_boost = 1;
+    state.side_one.attack_boost = 1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -3297,7 +3290,7 @@ fn test_batonpass_with_boosts() {
 #[cfg(feature = "gen4")]
 fn test_simple_in_gen4_doubles_effective_boost() {
     let mut state = State::default();
-    state.side_one.get_active().attack_boost = 1; // should behave as +2 in gen4
+    state.side_one.attack_boost = 1; // should behave as +2 in gen4
 
     let regular_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -3337,8 +3330,8 @@ fn test_simple_in_gen4_doubles_effective_boost() {
 #[test]
 fn test_switching_from_batonpass_with_boosts() {
     let mut state = State::default();
-    state.side_one.get_active().attack_boost = 5;
-    state.side_one.get_active().speed_boost = 5;
+    state.side_one.attack_boost = 5;
+    state.side_one.speed_boost = 5;
     state.side_one.force_switch = true;
     state.side_one.baton_passing = true;
 
@@ -3355,30 +3348,10 @@ fn test_switching_from_batonpass_with_boosts() {
             Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
                 side_ref: SideReference::SideOne,
             }),
-            Instruction::Boost(BoostInstruction {
-                side_ref: SideReference::SideOne,
-                stat: PokemonBoostableStat::Attack,
-                amount: -5,
-            }),
-            Instruction::Boost(BoostInstruction {
-                side_ref: SideReference::SideOne,
-                stat: PokemonBoostableStat::Speed,
-                amount: -5,
-            }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
                 previous_index: PokemonIndex::P0,
                 next_index: PokemonIndex::P1,
-            }),
-            Instruction::Boost(BoostInstruction {
-                side_ref: SideReference::SideOne,
-                stat: PokemonBoostableStat::Attack,
-                amount: 5,
-            }),
-            Instruction::Boost(BoostInstruction {
-                side_ref: SideReference::SideOne,
-                stat: PokemonBoostableStat::Speed,
-                amount: 5,
             }),
         ],
     }];
@@ -3390,7 +3363,6 @@ fn test_batonpass_with_leechseed() {
     let mut state = State::default();
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::LeechSeed);
 
@@ -3421,7 +3393,6 @@ fn test_switching_from_batonpass_with_leechseed() {
     let mut state = State::default();
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::LeechSeed);
     state.side_one.force_switch = true;
@@ -3433,6 +3404,7 @@ fn test_switching_from_batonpass_with_leechseed() {
         &MoveChoice::None,
     );
 
+    // leechseed remains (no instructions to remove it)
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
@@ -3440,18 +3412,10 @@ fn test_switching_from_batonpass_with_leechseed() {
             Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
                 side_ref: SideReference::SideOne,
             }),
-            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
-                side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::LeechSeed,
-            }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
                 previous_index: PokemonIndex::P0,
                 next_index: PokemonIndex::P1,
-            }),
-            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::LeechSeed,
             }),
         ],
     }];
@@ -3463,7 +3427,6 @@ fn test_non_baton_pass_switching_with_leechseed() {
     let mut state = State::default();
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::LeechSeed);
     state.side_one.force_switch = true;
@@ -3498,10 +3461,9 @@ fn test_switching_from_batonpass_with_sub() {
     let mut state = State::default();
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Substitute);
-    state.side_one.get_active().substitute_health = 25;
+    state.side_one.substitute_health = 25;
     state.side_one.force_switch = true;
     state.side_one.baton_passing = true;
 
@@ -3511,6 +3473,7 @@ fn test_switching_from_batonpass_with_sub() {
         &MoveChoice::None,
     );
 
+    // substitute remains (no instructions to remove it or change sub health)
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
@@ -3518,23 +3481,10 @@ fn test_switching_from_batonpass_with_sub() {
             Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
                 side_ref: SideReference::SideOne,
             }),
-            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
-                side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Substitute,
-            }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
                 previous_index: PokemonIndex::P0,
                 next_index: PokemonIndex::P1,
-            }),
-            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Substitute,
-            }),
-            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
-                side_ref: SideReference::SideOne,
-                new_health: 25,
-                old_health: 0,
             }),
         ],
     }];
@@ -3546,7 +3496,6 @@ fn test_non_baton_pass_switching_with_sub() {
     let mut state = State::default();
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::LeechSeed);
     state.side_one.force_switch = true;
@@ -4199,7 +4148,6 @@ fn test_lockedmove_prevents_switches() {
     let mut state = State::default();
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::LockedMove);
 
@@ -4248,7 +4196,6 @@ fn test_noretreat_with_vs_already() {
     let mut state = State::default();
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::NoRetreat);
 
@@ -5279,10 +5226,9 @@ fn test_perish_bypasses_sub() {
     let mut state = State::default();
     state
         .side_two
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Substitute);
-    state.side_two.get_active().substitute_health = 50;
+    state.side_two.substitute_health = 50;
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
         Choices::PERISHSONG,
@@ -5410,7 +5356,6 @@ fn test_perish_cannot_be_applied_to_pkmn_with_a_perish_volatile() {
     let mut state = State::default();
     state
         .side_two
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Perish2);
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -5452,7 +5397,6 @@ fn test_perish1_causes_faint_end_of_turn() {
     let mut state = State::default();
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Perish1);
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -5476,7 +5420,6 @@ fn test_perish1_switching_out_prevents_faint() {
     let mut state = State::default();
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Perish1);
 
@@ -5510,7 +5453,6 @@ fn test_leechseed_does_not_trigger_if_receiving_side_fainted_this_turn() {
     state.side_two.get_active().hp = 50;
     state
         .side_two
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::LeechSeed);
 
@@ -5535,10 +5477,9 @@ fn test_leechseed_into_substitute() {
     let mut state = State::default();
     state
         .side_two
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Substitute);
-    state.side_two.get_active().substitute_health = 10;
+    state.side_two.substitute_health = 10;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -5598,7 +5539,6 @@ fn test_solarbeam_with_active_volatile_status() {
     let mut state = State::default();
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::SolarBeam);
 
@@ -5791,10 +5731,9 @@ fn test_trick_against_substitute_fails() {
     state.side_two.get_active().item = Items::LEFTOVERS;
     state
         .side_two
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Substitute);
-    state.side_two.get_active().substitute_health = 10;
+    state.side_two.substitute_health = 10;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -6338,10 +6277,9 @@ fn test_basic_multi_hit_move() {
 #[test]
 fn test_multi_hit_move_where_first_hit_breaks_substitute() {
     let mut state = State::default();
-    state.side_two.get_active().substitute_health = 10;
+    state.side_two.substitute_health = 10;
     state
         .side_two
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Substitute);
 
@@ -6503,10 +6441,9 @@ fn test_skilllink_always_has_5_hits() {
 fn test_triple_multihit_move_versus_substitute_and_rockyhelmet() {
     let mut state = State::default();
     state.side_two.get_active().item = Items::ROCKYHELMET;
-    state.side_two.get_active().substitute_health = 25;
+    state.side_two.substitute_health = 25;
     state
         .side_two
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Substitute);
 
@@ -7474,7 +7411,7 @@ fn test_download_for_defense() {
 fn test_download_for_defense_when_switching_in_with_baton_boosted_max_attack() {
     let mut state = State::default();
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::DOWNLOAD;
-    state.side_one.get_active().attack_boost = 6;
+    state.side_one.attack_boost = 6;
     state.side_one.baton_passing = true;
     state.side_two.get_active().defense = 100;
     state.side_two.get_active().special_defense = 150;
@@ -7491,20 +7428,10 @@ fn test_download_for_defense_when_switching_in_with_baton_boosted_max_attack() {
             Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
                 side_ref: SideReference::SideOne,
             }),
-            Instruction::Boost(BoostInstruction {
-                side_ref: SideReference::SideOne,
-                stat: PokemonBoostableStat::Attack,
-                amount: -6,
-            }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
                 previous_index: PokemonIndex::P0,
                 next_index: PokemonIndex::P1,
-            }),
-            Instruction::Boost(BoostInstruction {
-                side_ref: SideReference::SideOne,
-                stat: PokemonBoostableStat::Attack,
-                amount: 6,
             }),
         ],
     }];
@@ -7648,10 +7575,9 @@ fn test_substitute_versus_intimidate() {
     let mut state = State::default();
     state
         .side_two
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Substitute);
-    state.side_two.get_active().substitute_health = 25;
+    state.side_two.substitute_health = 25;
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::INTIMIDATE;
 
     let vec_of_instructions = generate_instructions_from_move_pair(
@@ -7814,7 +7740,7 @@ fn test_weaknesspolicy_does_not_overboost() {
     state.side_two.get_active().item = Items::WEAKNESSPOLICY;
     state.side_two.get_active().hp = 200;
     state.side_two.get_active().maxhp = 200;
-    state.side_two.get_active().attack_boost = 5;
+    state.side_two.attack_boost = 5;
     state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Normal);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -7937,7 +7863,7 @@ fn test_contrary_with_seed() {
 fn test_contrary_when_pre_swapped_boost_goes_above_max() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::CONTRARY;
-    state.side_two.get_active().attack_boost = 6;
+    state.side_two.attack_boost = 6;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,

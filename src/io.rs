@@ -4,7 +4,9 @@ use crate::generate_instructions::{calculate_damage_rolls, generate_instructions
 use crate::instruction::{Instruction, StateInstructions};
 use crate::mcts::{perform_mcts, MctsResult};
 use crate::search::{expectiminimax_search, iterative_deepen_expectiminimax, pick_safest};
-use crate::state::{MoveChoice, Pokemon, Side, SideConditions, SideReference, State};
+use crate::state::{
+    MoveChoice, Pokemon, PokemonVolatileStatus, Side, SideConditions, SideReference, State,
+};
 use clap::Parser;
 use std::io;
 use std::io::Write;
@@ -141,6 +143,16 @@ impl SideConditions {
 }
 
 impl Side {
+    fn io_print_boosts(&self) -> String {
+        return format!(
+            "Attack:{}, Defense:{}, SpecialAttack:{}, SpecialDefense:{}, Speed:{}",
+            self.attack_boost,
+            self.defense_boost,
+            self.special_attack_boost,
+            self.special_defense_boost,
+            self.speed_boost
+        );
+    }
     fn io_print(&self, available_choices: Vec<String>) -> String {
         let reserve = self
             .pokemon
@@ -148,8 +160,10 @@ impl Side {
             .map(|p| p.io_print_reserve())
             .collect::<Vec<String>>();
         return format!(
-            "\nActive:{}\nSide Conditions: {}\nPokemon: {}\nAvailable Choices: {}",
+            "\nActive:{}\nVolatiles: {:?}\nBoosts: {}\nSide Conditions: {}\nPokemon: {}\nAvailable Choices: {}",
             self.get_active_immutable().io_print_active(),
+            self.volatile_statuses,
+            self.io_print_boosts(),
             self.side_conditions.io_print(),
             reserve.join(", "),
             available_choices.join(", ")
@@ -194,16 +208,6 @@ impl Side {
 }
 
 impl Pokemon {
-    fn io_print_boosts(&self) -> String {
-        return format!(
-            "Attack:{}, Defense:{}, SpecialAttack:{}, SpecialDefense:{}, Speed:{}",
-            self.attack_boost,
-            self.defense_boost,
-            self.special_attack_boost,
-            self.special_defense_boost,
-            self.speed_boost
-        );
-    }
     fn io_print_reserve(&self) -> String {
         return format!("{}:{}/{}", self.id, self.hp, self.maxhp);
     }
@@ -215,15 +219,13 @@ impl Pokemon {
             .filter(|x| x != "none")
             .collect();
         return format!(
-            "\n  Name: {}\n  HP: {}/{}\n  Status: {:?}\n  Ability: {:?}\n  Item: {:?}\n  Boosts: {}\n  Volatiles: {:?}\n  Moves: {}",
+            "\n  Name: {}\n  HP: {}/{}\n  Status: {:?}\n  Ability: {:?}\n  Item: {:?}\n  Moves: {}",
             self.id,
             self.hp,
             self.maxhp,
             self.status,
             self.ability,
             self.item,
-            self.io_print_boosts(),
-            self.volatile_statuses,
             moves.join(", ")
         );
     }
@@ -256,10 +258,15 @@ fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
     }
     if state.side_one.slow_uturn_move {
         s1_options.clear();
-        state
+        let encored = state
             .side_one
-            .get_active_immutable()
-            .add_available_moves(&mut s1_options, &state.side_one.last_used_move);
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::Encore);
+        state.side_one.get_active_immutable().add_available_moves(
+            &mut s1_options,
+            &state.side_one.last_used_move,
+            encored,
+        );
     }
 
     if state.side_two.force_trapped {
@@ -271,10 +278,15 @@ fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
     }
     if state.side_two.slow_uturn_move {
         s2_options.clear();
-        state
+        let encored = state
             .side_two
-            .get_active_immutable()
-            .add_available_moves(&mut s2_options, &state.side_two.last_used_move);
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::Encore);
+        state.side_two.get_active_immutable().add_available_moves(
+            &mut s2_options,
+            &state.side_two.last_used_move,
+            encored,
+        );
     }
 
     if s1_options.len() == 0 {

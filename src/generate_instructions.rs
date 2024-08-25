@@ -16,7 +16,7 @@ use crate::instruction::{
     ChangeSideConditionInstruction, DecrementRestTurnsInstruction, DecrementWishInstruction,
     HealInstruction, RemoveVolatileStatusInstruction, SetDamageDealtInstruction,
     SetLastUsedMoveInstruction, SetRestTurnsInstruction, SetSecondMoveSwitchOutMoveInstruction,
-    SetSubstituteHealthInstruction, ToggleBatonPassingInstruction,
+    ToggleBatonPassingInstruction,
 };
 use crate::items::{
     item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
@@ -33,7 +33,7 @@ use crate::{
         ChangeStatusInstruction, DamageInstruction, Instruction, StateInstructions,
         SwitchInstruction,
     },
-    state::{Pokemon, PokemonStatus, PokemonVolatileStatus, SideReference, State, Weather},
+    state::{PokemonStatus, PokemonVolatileStatus, SideReference, State, Weather},
 };
 use std::cmp;
 
@@ -60,7 +60,6 @@ fn set_last_used_move_as_move(
     incoming_instructions: &mut StateInstructions,
 ) {
     if side
-        .get_active_immutable()
         .volatile_statuses
         .contains(&PokemonVolatileStatus::Flinch)
     {
@@ -109,11 +108,9 @@ fn generate_instructions_from_switch(
         }
     }
 
-    let mut passed_boosts = StatBoosts::default();
-    let mut pass_substitute = false;
-    let mut pass_substitute_hp = 0;
-    let mut pass_leechseed = false;
+    let mut baton_passing = false;
     if side.baton_passing {
+        baton_passing = true;
         side.baton_passing = false;
         match switching_side_ref {
             SideReference::SideOne => {
@@ -135,22 +132,6 @@ fn generate_instructions_from_switch(
                     ));
             }
         }
-
-        let active_pkmn = side.get_active_immutable();
-        passed_boosts.update_from_pkmn_boosts(&active_pkmn);
-        if active_pkmn
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::Substitute)
-        {
-            pass_substitute = true;
-            pass_substitute_hp = active_pkmn.substitute_health;
-        }
-        if active_pkmn
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::LeechSeed)
-        {
-            pass_leechseed = true;
-        }
     }
 
     state.re_enable_disabled_moves(
@@ -160,15 +141,18 @@ fn generate_instructions_from_switch(
     state.remove_volatile_statuses(
         &switching_side_ref,
         &mut incoming_instructions.instruction_list,
+        baton_passing,
     );
     state.reset_toxic_count(
         &switching_side_ref,
         &mut incoming_instructions.instruction_list,
     );
-    state.reset_boosts(
-        &switching_side_ref,
-        &mut incoming_instructions.instruction_list,
-    );
+    if !baton_passing {
+        state.reset_boosts(
+            &switching_side_ref,
+            &mut incoming_instructions.instruction_list,
+        );
+    }
 
     ability_on_switch_out(state, &switching_side_ref, incoming_instructions);
 
@@ -180,71 +164,9 @@ fn generate_instructions_from_switch(
 
     let side = state.get_side(&switching_side_ref);
     side.active_index = new_pokemon_index;
-    let active_pkmn = side.get_active();
     incoming_instructions
         .instruction_list
         .push(switch_instruction);
-
-    if pass_substitute {
-        incoming_instructions
-            .instruction_list
-            .push(Instruction::ApplyVolatileStatus(
-                ApplyVolatileStatusInstruction {
-                    side_ref: switching_side_ref,
-                    volatile_status: PokemonVolatileStatus::Substitute,
-                },
-            ));
-        incoming_instructions
-            .instruction_list
-            .push(Instruction::SetSubstituteHealth(
-                SetSubstituteHealthInstruction {
-                    side_ref: switching_side_ref,
-                    new_health: pass_substitute_hp,
-                    old_health: active_pkmn.substitute_health,
-                },
-            ));
-        active_pkmn
-            .volatile_statuses
-            .insert(PokemonVolatileStatus::Substitute);
-        active_pkmn.substitute_health = pass_substitute_hp;
-    }
-
-    if pass_leechseed {
-        incoming_instructions
-            .instruction_list
-            .push(Instruction::ApplyVolatileStatus(
-                ApplyVolatileStatusInstruction {
-                    side_ref: switching_side_ref,
-                    volatile_status: PokemonVolatileStatus::LeechSeed,
-                },
-            ));
-        active_pkmn
-            .volatile_statuses
-            .insert(PokemonVolatileStatus::LeechSeed);
-    }
-
-    for (stat, boost) in passed_boosts.get_as_pokemon_boostable().iter() {
-        if boost == &0 {
-            continue;
-        }
-        // no need to check if a boost can be applied because these are baton-passed
-        match stat {
-            PokemonBoostableStat::Attack => active_pkmn.attack_boost = *boost,
-            PokemonBoostableStat::Defense => active_pkmn.defense_boost = *boost,
-            PokemonBoostableStat::SpecialAttack => active_pkmn.special_attack_boost = *boost,
-            PokemonBoostableStat::SpecialDefense => active_pkmn.special_defense_boost = *boost,
-            PokemonBoostableStat::Speed => active_pkmn.speed_boost = *boost,
-            PokemonBoostableStat::Accuracy => active_pkmn.accuracy_boost = *boost,
-            PokemonBoostableStat::Evasion => active_pkmn.evasion_boost = *boost,
-        }
-        incoming_instructions
-            .instruction_list
-            .push(Instruction::Boost(BoostInstruction {
-                side_ref: switching_side_ref,
-                stat: *stat,
-                amount: *boost,
-            }));
-    }
 
     #[cfg(feature = "last_used_move")]
     set_last_used_move_as_switch(
@@ -296,7 +218,7 @@ fn generate_instructions_from_switch(
             // a pkmn switching in doesn't have any other speed drops,
             // so no need to check for going below -6
             if let Some(sticky_web_instruction) = get_boost_instruction(
-                switched_in_pkmn,
+                &side,
                 &PokemonBoostableStat::Speed,
                 &-1,
                 &switching_side_ref,
@@ -410,9 +332,11 @@ fn get_instructions_from_volatile_statuses(
         MoveTarget::User => target_side = *attacking_side_reference,
     }
 
-    let affected_pkmn = state.get_side(&target_side).get_active();
+    let side = state.get_side(&target_side);
+    let affected_pkmn = side.get_active_immutable();
     if affected_pkmn.volatile_status_can_be_applied(
         &volatile_status.volatile_status,
+        &side.volatile_statuses,
         attacker_choice.first_move,
     ) {
         let ins = Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
@@ -420,8 +344,7 @@ fn get_instructions_from_volatile_statuses(
             volatile_status: volatile_status.volatile_status,
         });
 
-        affected_pkmn
-            .volatile_statuses
+        side.volatile_statuses
             .insert(volatile_status.volatile_status);
         incoming_instructions.instruction_list.push(ins);
 
@@ -500,7 +423,7 @@ pub fn immune_to_status(
         true
     } else if state.terrain.terrain_type == Terrain::MistyTerrain && target_pkmn.is_grounded() {
         true
-    } else if target_pkmn
+    } else if target_side
         .volatile_statuses
         .contains(&PokemonVolatileStatus::Substitute)
         && status_target == &MoveTarget::Opponent
@@ -585,12 +508,12 @@ fn get_instructions_from_status_effects(
         .push(status_hit_instruction);
 }
 
-pub fn get_boost_amount(pkmn: &Pokemon, boost: &PokemonBoostableStat, amount: i8) -> i8 {
+pub fn get_boost_amount(side: &Side, boost: &PokemonBoostableStat, amount: i8) -> i8 {
     /*
     returns that amount that can actually be applied from the attempted boost amount
         e.g. using swordsdance at +5 attack would result in a +1 boost instead of +2
     */
-    let current_boost = pkmn.get_boost_from_boost_enum(boost);
+    let current_boost = side.get_boost_from_boost_enum(boost);
 
     if amount > 0 {
         return cmp::min(6 - current_boost, amount);
@@ -601,7 +524,7 @@ pub fn get_boost_amount(pkmn: &Pokemon, boost: &PokemonBoostableStat, amount: i8
 }
 
 pub fn get_boost_instruction(
-    target_pkmn: &Pokemon,
+    target_side: &Side,
     stat: &PokemonBoostableStat,
     boost: &i8,
     attacking_side_ref: &SideReference,
@@ -611,17 +534,19 @@ pub fn get_boost_instruction(
     Single point for checking whether a boost can be applied to a pokemon
     Returns that boost instruction, if applicable
     */
+    let target_pkmn = target_side.get_active_immutable();
 
     if boost != &0
         && !(target_side_ref != attacking_side_ref
-            && target_pkmn.immune_to_stats_lowered_by_opponent(&stat))
+            && target_pkmn
+                .immune_to_stats_lowered_by_opponent(&stat, &target_side.volatile_statuses))
         && target_pkmn.hp != 0
     {
         let mut boost_amount = *boost;
         if target_pkmn.ability == Abilities::CONTRARY {
             boost_amount *= -1;
         }
-        boost_amount = get_boost_amount(target_pkmn, &stat, boost_amount);
+        boost_amount = get_boost_amount(target_side, &stat, boost_amount);
         if boost_amount != 0 {
             return Some(Instruction::Boost(BoostInstruction {
                 side_ref: *target_side_ref,
@@ -646,10 +571,9 @@ fn get_instructions_from_boosts(
     }
     let boostable_stats = boosts.boosts.get_as_pokemon_boostable();
     for (pkmn_boostable_stat, boost) in boostable_stats.iter().filter(|(_, b)| b != &0) {
+        let side = state.get_side_immutable(&target_side_ref);
         if let Some(boost_instruction) = get_boost_instruction(
-            &state
-                .get_side_immutable(&target_side_ref)
-                .get_active_immutable(),
+            &side,
             pkmn_boostable_stat,
             boost,
             attacking_side_reference,
@@ -847,7 +771,7 @@ fn check_move_hit_or_miss(
         if Items::BLUNDERPOLICY == attacking_pokemon.item && attacking_pokemon.item_can_be_removed()
         {
             if let Some(boost_instruction) = get_boost_instruction(
-                attacking_pokemon,
+                &attacking_side,
                 &PokemonBoostableStat::Speed,
                 &2,
                 attacking_side_ref,
@@ -986,26 +910,25 @@ fn generate_instructions_from_damage(
         return hit_sub;
     }
 
-    let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
-    let attacking_pokemon = attacking_side.get_active();
-    let defending_pokemon = defending_side.get_active();
     let percent_hit = (choice.accuracy / 100.0).min(1.0);
 
     if percent_hit > 0.0 {
+        let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
+        let attacking_pokemon = attacking_side.get_active();
         let mut damage_dealt;
-        if defending_pokemon
+        if defending_side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::Substitute)
             && !choice.flags.sound
             && attacking_pokemon.ability != Abilities::INFILTRATOR
         {
-            damage_dealt = cmp::min(calculated_damage, defending_pokemon.substitute_health);
+            damage_dealt = cmp::min(calculated_damage, defending_side.substitute_health);
             let substitute_damage_dealt = cmp::min(calculated_damage, damage_dealt);
             let substitute_instruction = Instruction::DamageSubstitute(DamageInstruction {
                 side_ref: attacking_side_ref.get_other_side(),
                 damage_amount: substitute_damage_dealt,
             });
-            defending_pokemon.substitute_health -= substitute_damage_dealt;
+            defending_side.substitute_health -= substitute_damage_dealt;
             incoming_instructions
                 .instruction_list
                 .push(substitute_instruction);
@@ -1020,10 +943,10 @@ fn generate_instructions_from_damage(
                 &mut incoming_instructions,
             );
 
-            if defending_pokemon
+            if defending_side
                 .volatile_statuses
                 .contains(&PokemonVolatileStatus::Substitute)
-                && defending_pokemon.substitute_health == 0
+                && defending_side.substitute_health == 0
             {
                 incoming_instructions
                     .instruction_list
@@ -1033,13 +956,15 @@ fn generate_instructions_from_damage(
                             volatile_status: PokemonVolatileStatus::Substitute,
                         },
                     ));
-                defending_pokemon
+                defending_side
                     .volatile_statuses
                     .remove(&PokemonVolatileStatus::Substitute);
             }
 
             hit_sub = true;
         } else {
+            let attacking_pokemon = attacking_side.get_active();
+            let defending_pokemon = defending_side.get_active();
             let mut knocked_out = false;
             damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
             if (defending_pokemon.ability == Abilities::STURDY
@@ -1063,7 +988,7 @@ fn generate_instructions_from_damage(
                 .push(damage_instruction);
 
             if knocked_out
-                && defending_pokemon
+                && defending_side
                     .volatile_statuses
                     .contains(&PokemonVolatileStatus::DestinyBond)
             {
@@ -1146,18 +1071,16 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
             - you were flinched
             - etc.
     */
-    let attacking_pkmn: &Pokemon = state
-        .get_side_immutable(attacking_side_ref)
-        .get_active_immutable();
+    let attacking_side = state.get_side_immutable(attacking_side_ref);
 
     // If you were taunted, you can't use a Physical/Special move
-    if attacking_pkmn
+    if attacking_side
         .volatile_statuses
         .contains(&PokemonVolatileStatus::Taunt)
         && matches!(choice.category, MoveCategory::Status)
     {
         return true;
-    } else if attacking_pkmn
+    } else if attacking_side
         .volatile_statuses
         .contains(&PokemonVolatileStatus::Flinch)
     {
@@ -1223,9 +1146,7 @@ fn update_choice(
             has already been removed
     */
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side);
-    let attacking_pokemon = attacking_side.get_active_immutable();
-    let defending_pokemon = defending_side.get_active_immutable();
-    if defending_pokemon
+    if defending_side
         .volatile_statuses
         .contains(&PokemonVolatileStatus::Substitute)
         && attacker_choice.category != MoveCategory::Status
@@ -1236,7 +1157,7 @@ fn update_choice(
     // Update Choice for `charge` moves
     if attacker_choice.flags.charge {
         let charge_volatile_status = charge_choice_to_volatile(&attacker_choice.move_id);
-        if !attacking_pokemon
+        if !attacking_side
             .volatile_statuses
             .contains(&charge_volatile_status)
         {
@@ -1249,16 +1170,16 @@ fn update_choice(
     }
 
     // modify choice if defender has protect active
-    if (defending_pokemon
+    if (defending_side
         .volatile_statuses
         .contains(&PokemonVolatileStatus::Protect)
-        || defending_pokemon
+        || defending_side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::SpikyShield)
-        || defending_pokemon
+        || defending_side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::BanefulBunker)
-        || defending_pokemon
+        || defending_side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::SilkTrap))
         && attacker_choice.flags.protect
@@ -1268,7 +1189,7 @@ fn update_choice(
             attacker_choice.accuracy = 0.0;
         }
 
-        if defending_pokemon
+        if defending_side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::SpikyShield)
             && attacker_choice.flags.contact
@@ -1277,7 +1198,7 @@ fn update_choice(
                 target: MoveTarget::User,
                 amount: -0.125,
             })
-        } else if defending_pokemon
+        } else if defending_side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::BanefulBunker)
             && attacker_choice.flags.contact
@@ -1286,7 +1207,7 @@ fn update_choice(
                 target: MoveTarget::User,
                 status: PokemonStatus::Poison,
             })
-        } else if defending_pokemon
+        } else if defending_side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::SilkTrap)
             && attacker_choice.flags.contact
@@ -1397,17 +1318,17 @@ fn generate_instructions_from_existing_status_conditions(
         _ => {}
     }
 
-    let attacker_active = attacking_side.get_active();
-    if attacker_active
+    if attacking_side
         .volatile_statuses
         .contains(&PokemonVolatileStatus::Confusion)
     {
         let mut hit_yourself_instruction = incoming_instructions.clone();
         hit_yourself_instruction.update_percentage(0.50);
 
-        let attacking_stat = attacker_active.calculate_boosted_stat(PokemonBoostableStat::Attack);
-        let defending_stat = attacker_active.calculate_boosted_stat(PokemonBoostableStat::Defense);
+        let attacking_stat = attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
+        let defending_stat = attacking_side.calculate_boosted_stat(PokemonBoostableStat::Defense);
 
+        let attacker_active = attacking_side.get_active();
         let mut damage_dealt = 2.0 * attacker_active.level as f32;
         damage_dealt = damage_dealt.floor() / 5.0;
         damage_dealt = damage_dealt.floor() + 2.0;
@@ -1473,7 +1394,6 @@ pub fn generate_instructions_from_move(
 
     let side = state.get_side_immutable(&attacking_side);
     if side
-        .get_active_immutable()
         .volatile_statuses
         .contains(&PokemonVolatileStatus::Encore)
     {
@@ -1513,16 +1433,16 @@ pub fn generate_instructions_from_move(
 
     // If the move is a charge move, remove the volatile status if damage was done
     if choice.flags.charge {
-        let attacker = state.get_side(&attacking_side).get_active();
+        let side = state.get_side(&attacking_side);
         let volatile_status = charge_choice_to_volatile(&choice.move_id);
-        if attacker.volatile_statuses.contains(&volatile_status) {
+        if side.volatile_statuses.contains(&volatile_status) {
             choice.flags.charge = false;
             let instruction = Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: attacking_side,
                 volatile_status: volatile_status,
             });
             incoming_instructions.instruction_list.push(instruction);
-            attacker.volatile_statuses.remove(&volatile_status);
+            side.volatile_statuses.remove(&volatile_status);
         }
     }
 
@@ -1810,7 +1730,7 @@ fn get_effective_speed(state: &State, side_reference: &SideReference) -> i16 {
     let side = state.get_side_immutable(side_reference);
     let active_pkmn = side.get_active_immutable();
 
-    let mut boosted_speed = active_pkmn.calculate_boosted_stat(PokemonBoostableStat::Speed) as f32;
+    let mut boosted_speed = side.calculate_boosted_stat(PokemonBoostableStat::Speed) as f32;
 
     match state.weather.weather_type {
         Weather::Sun | Weather::HarshSun if active_pkmn.ability == Abilities::CHLOROPHYLL => {
@@ -1829,7 +1749,7 @@ fn get_effective_speed(state: &State, side_reference: &SideReference) -> i16 {
             boosted_speed *= 2.0
         }
         Abilities::UNBURDEN
-            if active_pkmn
+            if side
                 .volatile_statuses
                 .contains(&PokemonVolatileStatus::Unburden) =>
         {
@@ -1839,7 +1759,7 @@ fn get_effective_speed(state: &State, side_reference: &SideReference) -> i16 {
         _ => {}
     }
 
-    if active_pkmn
+    if side
         .volatile_statuses
         .contains(&PokemonVolatileStatus::SlowStart)
     {
@@ -2129,19 +2049,19 @@ fn add_end_of_turn_instructions(
     // leechseed sap
     for side_ref in sides {
         let (leechseed_side, other_side) = state.get_both_sides(side_ref);
-        let active_pkmn = leechseed_side.get_active();
-        let other_active_pkmn = other_side.get_active();
-        if active_pkmn.hp == 0
-            || other_active_pkmn.hp == 0
-            || active_pkmn.ability == Abilities::MAGICGUARD
-        {
-            continue;
-        }
-
-        if active_pkmn
+        if leechseed_side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::LeechSeed)
         {
+            let active_pkmn = leechseed_side.get_active();
+            let other_active_pkmn = other_side.get_active();
+            if active_pkmn.hp == 0
+                || other_active_pkmn.hp == 0
+                || active_pkmn.ability == Abilities::MAGICGUARD
+            {
+                continue;
+            }
+
             let health_sapped = cmp::min((active_pkmn.maxhp as f32 * 0.125) as i16, active_pkmn.hp);
             let damage_ins = Instruction::Damage(DamageInstruction {
                 side_ref: *side_ref,
@@ -2168,15 +2088,15 @@ fn add_end_of_turn_instructions(
     // volatile statuses
     for side_ref in sides {
         let side = state.get_side(side_ref);
-        let active_pkmn = side.get_active();
-        if active_pkmn.hp == 0 {
+        if side.get_active().hp == 0 {
             continue;
         }
 
-        if active_pkmn
+        if side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::Perish1)
         {
+            let active_pkmn = side.get_active();
             incoming_instructions
                 .instruction_list
                 .push(Instruction::Damage(DamageInstruction {
@@ -2186,15 +2106,13 @@ fn add_end_of_turn_instructions(
             active_pkmn.hp = 0;
         }
 
-        if active_pkmn
+        if side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::Perish2)
         {
-            active_pkmn
-                .volatile_statuses
+            side.volatile_statuses
                 .remove(&PokemonVolatileStatus::Perish2);
-            active_pkmn
-                .volatile_statuses
+            side.volatile_statuses
                 .insert(PokemonVolatileStatus::Perish1);
             incoming_instructions
                 .instruction_list
@@ -2213,15 +2131,13 @@ fn add_end_of_turn_instructions(
                     },
                 ));
         }
-        if active_pkmn
+        if side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::Perish3)
         {
-            active_pkmn
-                .volatile_statuses
+            side.volatile_statuses
                 .remove(&PokemonVolatileStatus::Perish3);
-            active_pkmn
-                .volatile_statuses
+            side.volatile_statuses
                 .insert(PokemonVolatileStatus::Perish2);
             incoming_instructions
                 .instruction_list
@@ -2240,15 +2156,13 @@ fn add_end_of_turn_instructions(
                     },
                 ));
         }
-        if active_pkmn
+        if side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::Perish4)
         {
-            active_pkmn
-                .volatile_statuses
+            side.volatile_statuses
                 .remove(&PokemonVolatileStatus::Perish4);
-            active_pkmn
-                .volatile_statuses
+            side.volatile_statuses
                 .insert(PokemonVolatileStatus::Perish3);
             incoming_instructions
                 .instruction_list
@@ -2268,12 +2182,11 @@ fn add_end_of_turn_instructions(
                 ));
         }
 
-        if active_pkmn
+        if side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::Flinch)
         {
-            active_pkmn
-                .volatile_statuses
+            side.volatile_statuses
                 .remove(&PokemonVolatileStatus::Flinch);
             incoming_instructions
                 .instruction_list
@@ -2284,13 +2197,11 @@ fn add_end_of_turn_instructions(
                     },
                 ));
         }
-        if active_pkmn
+        if side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::Roost)
         {
-            active_pkmn
-                .volatile_statuses
-                .remove(&PokemonVolatileStatus::Roost);
+            side.volatile_statuses.remove(&PokemonVolatileStatus::Roost);
             incoming_instructions
                 .instruction_list
                 .push(Instruction::RemoveVolatileStatus(
@@ -2300,12 +2211,11 @@ fn add_end_of_turn_instructions(
                     },
                 ));
         }
-        if active_pkmn
+        if side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::DestinyBond)
         {
-            active_pkmn
-                .volatile_statuses
+            side.volatile_statuses
                 .remove(&PokemonVolatileStatus::DestinyBond);
             incoming_instructions
                 .instruction_list
@@ -2317,10 +2227,11 @@ fn add_end_of_turn_instructions(
                 ));
         }
 
-        if active_pkmn
+        if side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::PartiallyTrapped)
         {
+            let active_pkmn = side.get_active();
             let damage_amount = cmp::min((active_pkmn.maxhp as f32 / 8.0) as i16, active_pkmn.hp);
             incoming_instructions
                 .instruction_list
@@ -2330,10 +2241,11 @@ fn add_end_of_turn_instructions(
                 }));
             active_pkmn.hp -= damage_amount;
         }
-        if active_pkmn
+        if side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::SaltCure)
         {
+            let active_pkmn = side.get_active();
             let mut divisor = 8.0;
             if active_pkmn.has_type(&PokemonType::Water)
                 || active_pkmn.has_type(&PokemonType::Steel)
@@ -2360,7 +2272,7 @@ fn add_end_of_turn_instructions(
 
         let mut protect_vs = None;
         for status in &possible_statuses {
-            if active_pkmn.volatile_statuses.contains(status) {
+            if side.volatile_statuses.contains(status) {
                 protect_vs = Some(*status);
                 break;
             }
@@ -2375,7 +2287,7 @@ fn add_end_of_turn_instructions(
                         volatile_status: protect_vs,
                     },
                 ));
-            active_pkmn.volatile_statuses.remove(&protect_vs);
+            side.volatile_statuses.remove(&protect_vs);
             incoming_instructions
                 .instruction_list
                 .push(Instruction::ChangeSideCondition(
@@ -2398,7 +2310,7 @@ fn add_end_of_turn_instructions(
                 ));
             side.side_conditions.protect -= side.side_conditions.protect;
         }
-    }
+    } // end volatile statuses
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
 }
@@ -3202,7 +3114,6 @@ mod tests {
         let mut state: State = State::default();
         state
             .side_two
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::Attract);
         let mut choice = MOVES.get(&Choices::ATTRACT).unwrap().to_owned();
@@ -3984,7 +3895,6 @@ mod tests {
         let mut state: State = State::default();
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::Substitute);
         state.side_one.get_active().hp = state.side_one.get_active().maxhp - 1;
@@ -4197,7 +4107,7 @@ mod tests {
     #[test]
     fn test_does_not_overboost() {
         let mut state: State = State::default();
-        state.side_one.get_active().attack_boost = 5;
+        state.side_one.attack_boost = 5;
         let mut choice = MOVES.get(&Choices::SWORDSDANCE).unwrap().to_owned();
 
         let mut instructions = vec![];
@@ -4225,7 +4135,7 @@ mod tests {
     #[test]
     fn test_no_instruction_when_boosting_at_max() {
         let mut state: State = State::default();
-        state.side_one.get_active().attack_boost = 6;
+        state.side_one.attack_boost = 6;
         let mut choice = MOVES.get(&Choices::SWORDSDANCE).unwrap().to_owned();
 
         let mut instructions = vec![];
@@ -4309,7 +4219,7 @@ mod tests {
     #[test]
     fn test_cannot_boost_lower_than_negative_6() {
         let mut state: State = State::default();
-        state.side_two.get_active().attack_boost = -5;
+        state.side_two.attack_boost = -5;
         let mut choice = MOVES.get(&Choices::CHARM).unwrap().to_owned();
 
         let mut instructions = vec![];
@@ -4337,7 +4247,7 @@ mod tests {
     #[test]
     fn test_no_boost_when_already_at_minimum() {
         let mut state: State = State::default();
-        state.side_two.get_active().attack_boost = -6;
+        state.side_two.attack_boost = -6;
         let mut choice = MOVES.get(&Choices::CHARM).unwrap().to_owned();
 
         let mut instructions = vec![];
@@ -4863,7 +4773,6 @@ mod tests {
         let mut choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::Flinch);
 
@@ -4885,7 +4794,6 @@ mod tests {
         let mut choice = MOVES.get(&Choices::GLARE).unwrap().to_owned();
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::Taunt);
 
@@ -4906,7 +4814,6 @@ mod tests {
         let mut state: State = State::default();
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::Taunt);
 
@@ -5085,7 +4992,7 @@ mod tests {
         let mut choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
         state.side_one.get_active().ability = Abilities::BEASTBOOST;
         state.side_one.get_active().attack = 500; // highest stat
-        state.side_one.get_active().attack_boost = 6; // max boosts already
+        state.side_one.attack_boost = 6; // max boosts already
         state.side_two.get_active().hp = 1;
 
         let mut instructions = vec![];
@@ -5525,7 +5432,6 @@ mod tests {
         let mut state: State = State::default();
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::LeechSeed);
         let mut choice = Choice {
@@ -5600,8 +5506,8 @@ mod tests {
     #[test]
     fn test_basic_switch_with_boost() {
         let mut state: State = State::default();
-        state.side_one.get_active().attack_boost = 2;
-        state.side_one.get_active().speed_boost = 5;
+        state.side_one.attack_boost = 2;
+        state.side_one.speed_boost = 5;
         let mut choice = Choice {
             ..Default::default()
         };
@@ -6471,7 +6377,7 @@ mod tests {
     fn test_switching_in_with_intimidate_when_opponent_is_already_lowest_atk_boost() {
         let mut state: State = State::default();
         state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::INTIMIDATE;
-        state.side_two.get_active().attack_boost = -6;
+        state.side_two.attack_boost = -6;
         let mut choice = Choice {
             ..Default::default()
         };
@@ -6763,7 +6669,6 @@ mod tests {
         let mut state = State::default();
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::Confusion);
         let mut incoming_instructions = StateInstructions::default();
@@ -6799,7 +6704,6 @@ mod tests {
         let mut state = State::default();
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::Confusion);
         let mut incoming_instructions = StateInstructions::default();
@@ -6848,7 +6752,6 @@ mod tests {
         let mut state = State::default();
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::Confusion);
         let mut incoming_instructions = StateInstructions::default();
@@ -6967,7 +6870,6 @@ mod tests {
         state.side_one.get_active().status = PokemonStatus::Sleep;
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::Confusion);
         let mut incoming_instructions = StateInstructions::default();
@@ -7198,7 +7100,6 @@ mod tests {
         state.side_two.get_active().speed = 101;
         state
             .side_two
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::SlowStart);
 
@@ -7253,7 +7154,6 @@ mod tests {
     #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
     fn test_earlier_gen_speed_cutting_by_75_percent() {
         let mut state = State::default();
-        let side_one_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
         state.side_one.get_active().status = PokemonStatus::Paralyze;
         state.side_one.get_active().speed = 100;
 
@@ -8063,7 +7963,7 @@ mod tests {
     fn test_speedboost_does_not_boost_beyond_6() {
         let mut state = State::default();
         state.side_one.get_active().ability = Abilities::SPEEDBOOST;
-        state.side_one.get_active().speed_boost = 6;
+        state.side_one.speed_boost = 6;
 
         let mut incoming_instructions = StateInstructions::default();
         add_end_of_turn_instructions(
@@ -8272,7 +8172,6 @@ mod tests {
         let mut state = State::default();
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::LeechSeed);
         state.side_one.get_active().hp = 50;
@@ -8309,7 +8208,6 @@ mod tests {
         let mut state = State::default();
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::LeechSeed);
         state.side_one.get_active().hp = 50;
@@ -8340,7 +8238,6 @@ mod tests {
         let mut state = State::default();
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::LeechSeed);
         state.side_one.get_active().hp = 5;
@@ -8377,7 +8274,6 @@ mod tests {
         let mut state = State::default();
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::LeechSeed);
         state.side_one.get_active().hp = 50;
@@ -8414,7 +8310,6 @@ mod tests {
         let mut state = State::default();
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::Protect);
 
@@ -8478,7 +8373,6 @@ mod tests {
         let mut state = State::default();
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::Roost);
 
@@ -8509,7 +8403,6 @@ mod tests {
         let mut state = State::default();
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::PartiallyTrapped);
 
@@ -8539,7 +8432,6 @@ mod tests {
         state.side_one.get_active().types.0 = PokemonType::Water;
         state
             .side_one
-            .get_active()
             .volatile_statuses
             .insert(PokemonVolatileStatus::SaltCure);
 

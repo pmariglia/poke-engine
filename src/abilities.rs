@@ -411,7 +411,7 @@ pub fn ability_after_damage_hit(
         Abilities::MOXIE => {
             if damage_dealt > 0 && defending_side.get_active_immutable().hp == 0 {
                 if let Some(boost_instruction) = get_boost_instruction(
-                    &active_pkmn,
+                    &attacking_side,
                     &PokemonBoostableStat::Attack,
                     &1,
                     side_ref,
@@ -426,7 +426,7 @@ pub fn ability_after_damage_hit(
             if damage_dealt > 0 && defending_side.get_active_immutable().hp == 0 {
                 let highest_stat = &active_pkmn.calculate_highest_stat();
                 if let Some(boost_instruction) =
-                    get_boost_instruction(&active_pkmn, highest_stat, &1, side_ref, side_ref)
+                    get_boost_instruction(&attacking_side, highest_stat, &1, side_ref, side_ref)
                 {
                     state.apply_one_instruction(&boost_instruction);
                     instructions.instruction_list.push(boost_instruction);
@@ -456,7 +456,7 @@ pub fn ability_after_damage_hit(
         Abilities::STAMINA => {
             if damage_dealt > 0 && defending_pkmn.hp != 0 {
                 if let Some(boost_instruction) = get_boost_instruction(
-                    &defending_pkmn,
+                    &defending_side,
                     &PokemonBoostableStat::Defense,
                     &1,
                     side_ref,
@@ -470,7 +470,7 @@ pub fn ability_after_damage_hit(
         Abilities::COTTONDOWN => {
             if damage_dealt > 0 {
                 if let Some(boost_instruction) = get_boost_instruction(
-                    &attacking_pkmn,
+                    &attacking_side,
                     &PokemonBoostableStat::Speed,
                     &-1,
                     &side_ref.get_other_side(),
@@ -487,7 +487,7 @@ pub fn ability_after_damage_hit(
                 && defending_pkmn.hp + damage_dealt >= defending_pkmn.maxhp / 2
             {
                 if let Some(boost_instruction) = get_boost_instruction(
-                    &defending_pkmn,
+                    &defending_side,
                     &PokemonBoostableStat::SpecialAttack,
                     &1,
                     &side_ref.get_other_side(),
@@ -638,13 +638,13 @@ pub fn ability_end_of_turn(
             }
         }
         Abilities::SPEEDBOOST => {
-            if active_pkmn.speed_boost < 6 {
+            if attacking_side.speed_boost < 6 {
                 let ins = Instruction::Boost(BoostInstruction {
                     side_ref: side_ref.clone(),
                     stat: PokemonBoostableStat::Speed,
                     amount: 1,
                 });
-                active_pkmn.speed_boost += 1;
+                attacking_side.speed_boost += 1;
                 instructions.instruction_list.push(ins);
             }
         }
@@ -728,7 +728,7 @@ pub fn ability_on_switch_in(
     match active_pkmn.ability {
         Abilities::INTREPIDSWORD => {
             // no need to check for boost at +6 because we are switching in
-            active_pkmn.attack_boost += 1;
+            attacking_side.attack_boost += 1;
             instructions
                 .instruction_list
                 .push(Instruction::Boost(BoostInstruction {
@@ -738,7 +738,7 @@ pub fn ability_on_switch_in(
                 }));
         }
         Abilities::SLOWSTART => {
-            active_pkmn
+            attacking_side
                 .volatile_statuses
                 .insert(PokemonVolatileStatus::SlowStart);
             instructions
@@ -807,15 +807,14 @@ pub fn ability_on_switch_in(
             }
         }
         Abilities::INTIMIDATE => {
-            let defending_pkmn = defending_side.get_active();
             if let Some(boost_instruction) = get_boost_instruction(
-                defending_pkmn,
+                &defending_side,
                 &PokemonBoostableStat::Attack,
                 &-1,
                 side_ref,
                 &side_ref.get_other_side(),
             ) {
-                match defending_pkmn.ability {
+                match defending_side.get_active_immutable().ability {
                     Abilities::OWNTEMPO
                     | Abilities::OBLIVIOUS
                     | Abilities::INNERFOCUS
@@ -829,7 +828,7 @@ pub fn ability_on_switch_in(
         }
         Abilities::DAUNTLESSSHIELD => {
             // no need to check for boost at +6 because we are switching in
-            active_pkmn.defense_boost += 1;
+            attacking_side.defense_boost += 1;
             instructions
                 .instruction_list
                 .push(Instruction::Boost(BoostInstruction {
@@ -867,12 +866,11 @@ pub fn ability_on_switch_in(
             }
         }
         Abilities::DOWNLOAD => {
-            let defending_pkmn = defending_side.get_active();
-            if defending_pkmn.calculate_boosted_stat(PokemonBoostableStat::Defense)
-                < defending_pkmn.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense)
+            if defending_side.calculate_boosted_stat(PokemonBoostableStat::Defense)
+                < defending_side.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense)
             {
                 if let Some(boost_instruction) = get_boost_instruction(
-                    active_pkmn,
+                    &attacking_side,
                     &PokemonBoostableStat::Attack,
                     &1,
                     side_ref,
@@ -883,7 +881,7 @@ pub fn ability_on_switch_in(
                 }
             } else {
                 if let Some(boost_instruction) = get_boost_instruction(
-                    active_pkmn,
+                    &attacking_side,
                     &PokemonBoostableStat::SpecialAttack,
                     &1,
                     side_ref,

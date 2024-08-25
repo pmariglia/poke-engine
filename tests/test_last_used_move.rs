@@ -146,7 +146,6 @@ fn test_encore_causes_get_all_options_to_only_allow_last_used_move() {
     let mut state = State::default();
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Encore);
     state.side_one.last_used_move = LastUsedMove::Move(Choices::TACKLE);
@@ -176,7 +175,6 @@ fn test_encore_and_arenatrapped_together() {
     state.side_two.get_active().ability = Abilities::ARENATRAP;
     state
         .side_one
-        .get_active()
         .volatile_statuses
         .insert(PokemonVolatileStatus::Encore);
     state.side_one.last_used_move = LastUsedMove::Move(Choices::TACKLE);

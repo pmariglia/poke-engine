@@ -24,10 +24,9 @@ pub fn modify_choice(
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     match attacker_choice.move_id {
         Choices::BODYPRESS => {
-            let attacker = attacking_side.get_active_immutable();
             attacker_choice.base_power *=
-                attacker.calculate_boosted_stat(PokemonBoostableStat::Defense) as f32
-                    / attacker.calculate_boosted_stat(PokemonBoostableStat::Attack) as f32;
+                attacking_side.calculate_boosted_stat(PokemonBoostableStat::Defense) as f32
+                    / attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack) as f32;
         }
         Choices::BOLTBEAK | Choices::FISHIOUSREND => {
             if attacker_choice.first_move {
@@ -140,7 +139,6 @@ pub fn modify_choice(
         }
         Choices::NORETREAT => {
             if attacking_side
-                .get_active_immutable()
                 .volatile_statuses
                 .contains(&PokemonVolatileStatus::NoRetreat)
             {
@@ -202,9 +200,8 @@ pub fn modify_choice(
                     accuracy: 0,
                 },
             });
-            let defender_attack = defending_side
-                .get_active_immutable()
-                .calculate_boosted_stat(PokemonBoostableStat::Attack);
+            let defender_attack =
+                defending_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
             let attacker_maxhp = attacking_side.get_active_immutable().maxhp;
             attacker_choice.heal = Some(Heal {
                 target: MoveTarget::User,
@@ -304,12 +301,8 @@ pub fn modify_choice(
             }
         }
         Choices::ELECTROBALL => {
-            let attacker_speed = attacking_side
-                .get_active_immutable()
-                .calculate_boosted_stat(PokemonBoostableStat::Speed);
-            let defender_speed = defending_side
-                .get_active_immutable()
-                .calculate_boosted_stat(PokemonBoostableStat::Speed);
+            let attacker_speed = attacking_side.calculate_boosted_stat(PokemonBoostableStat::Speed);
+            let defender_speed = defending_side.calculate_boosted_stat(PokemonBoostableStat::Speed);
             let speed_ratio = attacker_speed as f32 / defender_speed as f32;
             if speed_ratio >= 4.0 {
                 attacker_choice.base_power = 150.0;
@@ -324,12 +317,8 @@ pub fn modify_choice(
             }
         }
         Choices::GYROBALL => {
-            let attacker_speed = attacking_side
-                .get_active_immutable()
-                .calculate_boosted_stat(PokemonBoostableStat::Speed);
-            let defender_speed = defending_side
-                .get_active_immutable()
-                .calculate_boosted_stat(PokemonBoostableStat::Speed);
+            let attacker_speed = attacking_side.calculate_boosted_stat(PokemonBoostableStat::Speed);
+            let defender_speed = defending_side.calculate_boosted_stat(PokemonBoostableStat::Speed);
 
             attacker_choice.base_power =
                 ((25.0 * defender_speed as f32 / attacker_speed as f32) + 1.0).min(150.0);
@@ -369,24 +358,22 @@ pub fn modify_choice(
             }
         }
         Choices::STOREDPOWER => {
-            let attacking_pokemon = attacking_side.get_active_immutable();
-            let total_boosts = attacking_pokemon.attack_boost
-                + attacking_pokemon.defense_boost
-                + attacking_pokemon.special_attack_boost
-                + attacking_pokemon.special_defense_boost
-                + attacking_pokemon.speed_boost
-                + attacking_pokemon.accuracy_boost
-                + attacking_pokemon.evasion_boost;
+            let total_boosts = attacking_side.attack_boost
+                + attacking_side.defense_boost
+                + attacking_side.special_attack_boost
+                + attacking_side.special_defense_boost
+                + attacking_side.speed_boost
+                + attacking_side.accuracy_boost
+                + attacking_side.evasion_boost;
             if total_boosts > 0 {
                 attacker_choice.base_power *= total_boosts as f32;
             }
         }
         Choices::FOULPLAY => {
-            let defender = defending_side.get_active_immutable();
-            let defender_attack = defender.calculate_boosted_stat(PokemonBoostableStat::Attack);
-            let attacker_attack = attacking_side
-                .get_active_immutable()
-                .calculate_boosted_stat(PokemonBoostableStat::Attack);
+            let defender_attack =
+                defending_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
+            let attacker_attack =
+                attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
             attacker_choice.base_power *= defender_attack as f32 / attacker_attack as f32;
         }
         Choices::BARBBARRAGE => {
@@ -928,13 +915,14 @@ pub fn choice_special_effect(
             defending_side.get_active().hp = target_hp;
         }
         Choices::SUBSTITUTE => {
-            let active_pkmn = attacking_side.get_active();
-            if active_pkmn
+            if attacking_side
                 .volatile_statuses
                 .contains(&PokemonVolatileStatus::Substitute)
             {
                 return;
             }
+            let sub_current_health = attacking_side.substitute_health;
+            let active_pkmn = attacking_side.get_active();
             let sub_target_health = active_pkmn.maxhp / 4;
             if active_pkmn.hp > sub_target_health {
                 let damage_instruction = Instruction::Damage(DamageInstruction {
@@ -945,7 +933,7 @@ pub fn choice_special_effect(
                     Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
                         side_ref: attacking_side_ref.clone(),
                         new_health: sub_target_health,
-                        old_health: active_pkmn.substitute_health,
+                        old_health: sub_current_health,
                     });
                 let apply_vs_instruction =
                     Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
@@ -953,8 +941,8 @@ pub fn choice_special_effect(
                         volatile_status: PokemonVolatileStatus::Substitute,
                     });
                 active_pkmn.hp -= sub_target_health;
-                active_pkmn.substitute_health = sub_target_health;
-                active_pkmn
+                attacking_side.substitute_health = sub_target_health;
+                attacking_side
                     .volatile_statuses
                     .insert(PokemonVolatileStatus::Substitute);
                 instructions.instruction_list.push(damage_instruction);
@@ -965,24 +953,21 @@ pub fn choice_special_effect(
             }
         }
         Choices::PERISHSONG => {
-            let s1_active = state.side_one.get_active();
-            let s2_active = state.side_two.get_active();
-            for (side_ref, pkmn) in [
-                (SideReference::SideOne, s1_active),
-                (SideReference::SideTwo, s2_active),
-            ] {
+            for side_ref in [SideReference::SideOne, SideReference::SideTwo] {
+                let side = state.get_side(&side_ref);
+                let pkmn = side.get_active();
                 if pkmn.hp != 0
                     && pkmn.ability != Abilities::SOUNDPROOF
-                    && !(pkmn
+                    && !(side
                         .volatile_statuses
                         .contains(&PokemonVolatileStatus::Perish4)
-                        || pkmn
+                        || side
                             .volatile_statuses
                             .contains(&PokemonVolatileStatus::Perish3)
-                        || pkmn
+                        || side
                             .volatile_statuses
                             .contains(&PokemonVolatileStatus::Perish2)
-                        || pkmn
+                        || side
                             .volatile_statuses
                             .contains(&PokemonVolatileStatus::Perish1))
                 {
@@ -994,21 +979,20 @@ pub fn choice_special_effect(
                                 volatile_status: PokemonVolatileStatus::Perish4,
                             },
                         ));
-                    pkmn.volatile_statuses
+                    side.volatile_statuses
                         .insert(PokemonVolatileStatus::Perish4);
                 }
             }
         }
         Choices::TRICK | Choices::SWITCHEROO => {
+            let defender_has_sub = defending_side
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::Substitute);
             let attacker = attacking_side.get_active();
             let defender = defending_side.get_active();
             let attacker_item = attacker.item;
             let defender_item = defender.item;
-            if attacker_item == defender_item
-                || !defender.item_can_be_removed()
-                || defender
-                    .volatile_statuses
-                    .contains(&PokemonVolatileStatus::Substitute)
+            if attacker_item == defender_item || !defender.item_can_be_removed() || defender_has_sub
             {
                 return;
             }

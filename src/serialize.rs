@@ -214,14 +214,8 @@ impl PokemonVolatileStatus {
 
 impl Pokemon {
     pub fn serialize(&self) -> String {
-        let mut vs_string = String::new();
-        for vs in &self.volatile_statuses {
-            vs_string.push_str(&vs.serialize());
-            vs_string.push_str(":");
-        }
-
         return format!(
-            "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
+            "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
             self.id,
             self.level,
             self.types.0.serialize(),
@@ -235,18 +229,9 @@ impl Pokemon {
             self.special_attack,
             self.special_defense,
             self.speed,
-            self.attack_boost,
-            self.defense_boost,
-            self.special_attack_boost,
-            self.special_defense_boost,
-            self.speed_boost,
-            self.accuracy_boost,
-            self.evasion_boost,
             self.status.serialize(),
-            self.substitute_health,
             self.rest_turns,
             self.weight_kg,
-            vs_string,
             self.moves.m0.serialize(),
             self.moves.m1.serialize(),
             self.moves.m2.serialize(),
@@ -258,14 +243,6 @@ impl Pokemon {
 
     pub fn deserialize(serialized: &str) -> Pokemon {
         let split: Vec<&str> = serialized.split(",").collect();
-
-        let mut vs_hashset = HashSet::new();
-        if split[24] != "" {
-            for item in split[24].split(":") {
-                vs_hashset.insert(PokemonVolatileStatus::deserialize(item));
-            }
-        }
-
         return Pokemon {
             id: split[0].to_string(),
             level: split[1].parse::<i8>().unwrap(),
@@ -282,25 +259,16 @@ impl Pokemon {
             special_attack: split[10].parse::<i16>().unwrap(),
             special_defense: split[11].parse::<i16>().unwrap(),
             speed: split[12].parse::<i16>().unwrap(),
-            attack_boost: split[13].parse::<i8>().unwrap(),
-            defense_boost: split[14].parse::<i8>().unwrap(),
-            special_attack_boost: split[15].parse::<i8>().unwrap(),
-            special_defense_boost: split[16].parse::<i8>().unwrap(),
-            speed_boost: split[17].parse::<i8>().unwrap(),
-            accuracy_boost: split[18].parse::<i8>().unwrap(),
-            evasion_boost: split[19].parse::<i8>().unwrap(),
-            status: PokemonStatus::deserialize(split[20]),
-            substitute_health: split[21].parse::<i16>().unwrap(),
-            rest_turns: split[22].parse::<i8>().unwrap(),
-            weight_kg: split[23].parse::<f32>().unwrap(),
-            volatile_statuses: vs_hashset,
+            status: PokemonStatus::deserialize(split[13]),
+            rest_turns: split[14].parse::<i8>().unwrap(),
+            weight_kg: split[15].parse::<f32>().unwrap(),
             moves: PokemonMoves {
-                m0: Move::deserialize(split[25]),
-                m1: Move::deserialize(split[26]),
-                m2: Move::deserialize(split[27]),
-                m3: Move::deserialize(split[28]),
-                m4: Move::deserialize(split[29]),
-                m5: Move::deserialize(split[30]),
+                m0: Move::deserialize(split[16]),
+                m1: Move::deserialize(split[17]),
+                m2: Move::deserialize(split[18]),
+                m3: Move::deserialize(split[19]),
+                m4: Move::deserialize(split[20]),
+                m5: Move::deserialize(split[21]),
             },
         };
     }
@@ -401,8 +369,13 @@ impl SideConditions {
 
 impl Side {
     pub fn serialize(&self) -> String {
+        let mut vs_string = String::new();
+        for vs in &self.volatile_statuses {
+            vs_string.push_str(&vs.serialize());
+            vs_string.push_str(":");
+        }
         return format!(
-            "{}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}",
+            "{}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}",
             self.pokemon.p0.serialize(),
             self.pokemon.p1.serialize(),
             self.pokemon.p2.serialize(),
@@ -411,6 +384,8 @@ impl Side {
             self.pokemon.p5.serialize(),
             self.active_index.serialize(),
             self.side_conditions.serialize(),
+            vs_string,
+            self.substitute_health,
             self.wish.0,
             self.wish.1,
             self.force_switch,
@@ -423,6 +398,13 @@ impl Side {
     }
     pub fn deserialize(serialized: &str) -> Side {
         let split: Vec<&str> = serialized.split("=").collect();
+
+        let mut vs_hashset = HashSet::new();
+        if split[8] != "" {
+            for item in split[8].split(":") {
+                vs_hashset.insert(PokemonVolatileStatus::deserialize(item));
+            }
+        }
         return Side {
             pokemon: SidePokemon {
                 p0: Pokemon::deserialize(split[0]),
@@ -434,17 +416,26 @@ impl Side {
             },
             active_index: PokemonIndex::deserialize(split[6]),
             side_conditions: SideConditions::deserialize(split[7]),
+            volatile_statuses: vs_hashset,
+            substitute_health: split[9].parse::<i16>().unwrap(),
+            attack_boost: split[10].parse::<i8>().unwrap(),
+            defense_boost: split[11].parse::<i8>().unwrap(),
+            special_attack_boost: split[12].parse::<i8>().unwrap(),
+            special_defense_boost: split[13].parse::<i8>().unwrap(),
+            speed_boost: split[14].parse::<i8>().unwrap(),
+            accuracy_boost: split[15].parse::<i8>().unwrap(),
+            evasion_boost: split[16].parse::<i8>().unwrap(),
             wish: (
-                split[8].parse::<i8>().unwrap(),
-                split[9].parse::<i16>().unwrap(),
+                split[17].parse::<i8>().unwrap(),
+                split[18].parse::<i16>().unwrap(),
             ),
-            force_switch: split[10].parse::<bool>().unwrap(),
-            switch_out_move_second_saved_move: Choices::from_str(split[11]).unwrap(),
-            baton_passing: split[12].parse::<bool>().unwrap(),
-            force_trapped: split[13].parse::<bool>().unwrap(),
-            last_used_move: LastUsedMove::deserialize(split[14]),
+            force_switch: split[19].parse::<bool>().unwrap(),
+            switch_out_move_second_saved_move: Choices::from_str(split[20]).unwrap(),
+            baton_passing: split[21].parse::<bool>().unwrap(),
+            force_trapped: split[22].parse::<bool>().unwrap(),
+            last_used_move: LastUsedMove::deserialize(split[23]),
             damage_dealt: DamageDealt::default(),
-            slow_uturn_move: split[15].parse::<bool>().unwrap(),
+            slow_uturn_move: split[24].parse::<bool>().unwrap(),
         };
     }
 }
@@ -571,14 +562,8 @@ impl State {
     /// // note these are final stats, not base stats
     /// "121,148,353,206,365,",
     ///
-    /// // attack_boost,defense_boost,special attack_boost,special defense_boost,speed_boost,accuracy_boost,evasion_boost
-    /// "0,0,0,0,0,0,0,",
-    ///
     /// // status
     /// "None,",
-    ///
-    /// // substitute_health
-    /// "0,",
     ///
     /// // rest_turns
     /// "0,",
@@ -586,24 +571,31 @@ impl State {
     /// // weight_kg
     /// "25.5,",
     ///
-    /// // volatile_statuses (delimited by ":")
-    /// ",",
-    ///
     /// // moves 1 through 6 (move_id;disabled;pp)
     /// "PSYCHIC;false;16,GRASSKNOT;false;32,SHADOWBALL;false;24,HIDDENPOWERFIRE70;false;24,NONE;true;32,NONE;true;32=",
     ///
     /// // all remaining Pokémon shown in 1 line for brevity
-    /// "skarmory,100,Steel,Flying,271,271,STURDY,CUSTAPBERRY,259,316,104,177,262,0,0,0,0,0,0,0,None,0,0,25.5,,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,NONE;true;32,NONE;true;32=",
-    /// "tyranitar,100,Rock,Dark,404,404,SANDSTREAM,CHOPLEBERRY,305,256,203,327,159,0,0,0,0,0,0,0,None,0,0,25.5,,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,NONE;true;32,NONE;true;32=",
-    /// "mamoswine,100,Ice,Ground,362,362,THICKFAT,NEVERMELTICE,392,196,158,176,241,0,0,0,0,0,0,0,None,0,0,25.5,,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,NONE;true;32,NONE;true;32=",
-    /// "jellicent,100,Water,Ghost,404,404,WATERABSORB,AIRBALLOON,140,237,206,246,180,0,0,0,0,0,0,0,None,0,0,25.5,,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,NONE;true;32,NONE;true;32=",
-    /// "excadrill,100,Ground,Steel,362,362,SANDFORCE,CHOICESCARF,367,156,122,168,302,0,0,0,0,0,0,0,None,0,0,25.5,,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,NONE;true;32,NONE;true;32=",
+    /// "skarmory,100,Steel,Flying,271,271,STURDY,CUSTAPBERRY,259,316,104,177,262,None,0,25.5,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,NONE;true;32,NONE;true;32=",
+    /// "tyranitar,100,Rock,Dark,404,404,SANDSTREAM,CHOPLEBERRY,305,256,203,327,159,None,0,25.5,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,NONE;true;32,NONE;true;32=",
+    /// "mamoswine,100,Ice,Ground,362,362,THICKFAT,NEVERMELTICE,392,196,158,176,241,None,0,25.5,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,NONE;true;32,NONE;true;32=",
+    /// "jellicent,100,Water,Ghost,404,404,WATERABSORB,AIRBALLOON,140,237,206,246,180,None,0,25.5,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,NONE;true;32,NONE;true;32=",
+    /// "excadrill,100,Ground,Steel,362,362,SANDFORCE,CHOICESCARF,367,156,122,168,302,None,0,25.5,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,NONE;true;32,NONE;true;32=",
     ///
     /// // active-index. This is the index of the active Pokémon in the side's Pokémon array
     /// "0=",
     ///
     /// // side conditions are integers
     /// "0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;=",
+    ///
+    /// // volatile_statuses (delimited by ":")
+    /// "=",
+    ///
+    /// // substitute_health
+    /// "0=",
+    ///
+    /// // For the active pokemon:
+    /// // attack_boost,defense_boost,special attack_boost,special defense_boost,speed_boost,accuracy_boost,evasion_boost
+    /// "0=0=0=0=0=0=0=",
     ///
     /// // wish condition is represented by 2 integers, the first is how many wish turns remaining, the second is the amount of HP to heal
     /// "0=",
@@ -629,7 +621,7 @@ impl State {
     /// "false/",
     ///
     /// // SIDE 2, all in one line for brevity
-    /// "terrakion,100,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,0,0,0,0,0,0,0,None,0,0,25.5,,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,XSCISSOR;false;24,QUICKATTACK;false;48=lucario,100,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,0,0,0,0,0,0,0,None,0,0,25.5,,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,ICEPUNCH;false;24,AURASPHERE;false;32=breloom,100,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,0,0,0,0,0,0,0,None,0,0,25.5,,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,DRAINPUNCH;false;16,PROTECT;false;16=keldeo,100,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,0,0,0,0,0,0,0,None,0,0,25.5,,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,HIDDENPOWERICE70;false;24,CALMMIND;false;32=conkeldurr,100,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,0,0,0,0,0,0,0,None,0,0,25.5,,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,BULKUP;false;32,PAYBACK;false;16=toxicroak,100,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,0,0,0,0,0,0,0,None,0,0,25.5,,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,POISONJAB;false;32,SUBSTITUTE;false;16=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;=0=0=false=NONE=false=false=switch:0=false/",
+    /// "terrakion,100,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,None,0,25.5,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,XSCISSOR;false;24,QUICKATTACK;false;48=lucario,100,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,None,0,25.5,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,ICEPUNCH;false;24,AURASPHERE;false;32=breloom,100,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,None,0,25.5,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,DRAINPUNCH;false;16,PROTECT;false;16=keldeo,100,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,None,0,25.5,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,HIDDENPOWERICE70;false;24,CALMMIND;false;32=conkeldurr,100,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,None,0,25.5,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,BULKUP;false;32,PAYBACK;false;16=toxicroak,100,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,None,0,25.5,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,POISONJAB;false;32,SUBSTITUTE;false;16=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=switch:0=false/",
     ///
     /// // weather is a string representing the weather type and the number of turns remaining
     /// "none;5/",
@@ -651,6 +643,7 @@ impl State {
     /// assert_eq!(state.side_one.get_active_immutable().weight_kg, 25.5);
     /// assert_eq!(state.side_one.get_active_immutable().item, Items::LIFEORB);
     /// assert_eq!(state.side_one.get_active_immutable().ability, Abilities::MAGICGUARD);
+    /// assert_eq!(state.side_one.substitute_health, 0);
     /// assert_eq!(state.side_two.get_active_immutable().id, "terrakion");
     /// assert_eq!(state.side_two.get_active_immutable().item, Items::FOCUSSASH);
     /// assert_eq!(state.side_two.get_active_immutable().ability, Abilities::JUSTIFIED);
@@ -658,7 +651,7 @@ impl State {
     /// assert_eq!(state.team_preview, false);
     ///
     /// // the same state, but all in one line
-    /// let serialized_state = "alakazam,100,Psychic,Typeless,251,251,MAGICGUARD,LIFEORB,121,148,353,206,365,0,0,0,0,0,0,0,None,0,0,25.5,,PSYCHIC;false;16,GRASSKNOT;false;32,SHADOWBALL;false;24,HIDDENPOWERFIRE70;false;24,NONE;true;32,NONE;true;32=skarmory,100,Steel,Flying,271,271,STURDY,CUSTAPBERRY,259,316,104,177,262,0,0,0,0,0,0,0,None,0,0,25.5,,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,NONE;true;32,NONE;true;32=tyranitar,100,Rock,Dark,404,404,SANDSTREAM,CHOPLEBERRY,305,256,203,327,159,0,0,0,0,0,0,0,None,0,0,25.5,,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,NONE;true;32,NONE;true;32=mamoswine,100,Ice,Ground,362,362,THICKFAT,NEVERMELTICE,392,196,158,176,241,0,0,0,0,0,0,0,None,0,0,25.5,,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,NONE;true;32,NONE;true;32=jellicent,100,Water,Ghost,404,404,WATERABSORB,AIRBALLOON,140,237,206,246,180,0,0,0,0,0,0,0,None,0,0,25.5,,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,NONE;true;32,NONE;true;32=excadrill,100,Ground,Steel,362,362,SANDFORCE,CHOICESCARF,367,156,122,168,302,0,0,0,0,0,0,0,None,0,0,25.5,,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,NONE;true;32,NONE;true;32=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;=0=0=false=NONE=false=false=switch:0=false/terrakion,100,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,0,0,0,0,0,0,0,None,0,0,25.5,,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,XSCISSOR;false;24,QUICKATTACK;false;48=lucario,100,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,0,0,0,0,0,0,0,None,0,0,25.5,,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,ICEPUNCH;false;24,AURASPHERE;false;32=breloom,100,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,0,0,0,0,0,0,0,None,0,0,25.5,,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,DRAINPUNCH;false;16,PROTECT;false;16=keldeo,100,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,0,0,0,0,0,0,0,None,0,0,25.5,,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,HIDDENPOWERICE70;false;24,CALMMIND;false;32=conkeldurr,100,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,0,0,0,0,0,0,0,None,0,0,25.5,,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,BULKUP;false;32,PAYBACK;false;16=toxicroak,100,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,0,0,0,0,0,0,0,None,0,0,25.5,,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,POISONJAB;false;32,SUBSTITUTE;false;16=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;=0=0=false=NONE=false=false=switch:0=false/none;5/none;5/false/false";
+    /// let serialized_state = "alakazam,100,Psychic,Typeless,251,251,MAGICGUARD,LIFEORB,121,148,353,206,365,None,0,25.5,PSYCHIC;false;16,GRASSKNOT;false;32,SHADOWBALL;false;24,HIDDENPOWERFIRE70;false;24,NONE;true;32,NONE;true;32=skarmory,100,Steel,Flying,271,271,STURDY,CUSTAPBERRY,259,316,104,177,262,None,0,25.5,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,NONE;true;32,NONE;true;32=tyranitar,100,Rock,Dark,404,404,SANDSTREAM,CHOPLEBERRY,305,256,203,327,159,None,0,25.5,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,NONE;true;32,NONE;true;32=mamoswine,100,Ice,Ground,362,362,THICKFAT,NEVERMELTICE,392,196,158,176,241,None,0,25.5,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,NONE;true;32,NONE;true;32=jellicent,100,Water,Ghost,404,404,WATERABSORB,AIRBALLOON,140,237,206,246,180,None,0,25.5,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,NONE;true;32,NONE;true;32=excadrill,100,Ground,Steel,362,362,SANDFORCE,CHOICESCARF,367,156,122,168,302,None,0,25.5,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,NONE;true;32,NONE;true;32=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=switch:0=false/terrakion,100,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,None,0,25.5,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,XSCISSOR;false;24,QUICKATTACK;false;48=lucario,100,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,None,0,25.5,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,ICEPUNCH;false;24,AURASPHERE;false;32=breloom,100,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,None,0,25.5,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,DRAINPUNCH;false;16,PROTECT;false;16=keldeo,100,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,None,0,25.5,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,HIDDENPOWERICE70;false;24,CALMMIND;false;32=conkeldurr,100,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,None,0,25.5,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,BULKUP;false;32,PAYBACK;false;16=toxicroak,100,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,None,0,25.5,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,POISONJAB;false;32,SUBSTITUTE;false;16=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=switch:0=false/none;5/none;5/false/false";
     /// let state2 = State::deserialize(serialized_state);
     /// assert_eq!(state.serialize(), state2.serialize());
     ///
