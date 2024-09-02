@@ -53,6 +53,10 @@ impl PyState {
             },
         }
     }
+
+    fn to_string(&self) -> String {
+        self.state.serialize()
+    }
 }
 
 #[derive(Clone)]
@@ -461,9 +465,17 @@ fn calculate_damage(
     Ok((s1_py_rolls, s2_py_rolls))
 }
 
+#[pyfunction]
+fn state_from_string(s: String) -> PyResult<(PyState)> {
+    Ok(PyState {
+        state: State::deserialize(&s),
+    })
+}
+
 #[pymodule]
 #[pyo3(name = "_poke_engine")]
 fn py_poke_engine(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(state_from_string, m)?)?;
     m.add_function(wrap_pyfunction!(calculate_damage, m)?)?;
     m.add_function(wrap_pyfunction!(gi, m)?)?;
     m.add_function(wrap_pyfunction!(mcts, m)?)?;

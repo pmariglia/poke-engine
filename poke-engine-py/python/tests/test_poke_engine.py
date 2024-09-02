@@ -62,6 +62,11 @@ def test_state_converts_to_rust_object():
     state._into_rust_obj()
 
 
+def test_state_can_be_converted_to_and_from_a_string():
+    serialized = state.to_string()
+    State.from_string(serialized)
+
+
 def test_monte_carlo_search():
     monte_carlo_tree_search(state, 10)
 

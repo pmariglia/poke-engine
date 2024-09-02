@@ -340,7 +340,7 @@ impl Side {
             vs_string.push_str(":");
         }
         return format!(
-            "{}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}",
+            "{}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}",
             self.pokemon.p0.serialize(),
             self.pokemon.p1.serialize(),
             self.pokemon.p2.serialize(),
@@ -351,6 +351,13 @@ impl Side {
             self.side_conditions.serialize(),
             vs_string,
             self.substitute_health,
+            self.attack_boost,
+            self.defense_boost,
+            self.special_attack_boost,
+            self.special_defense_boost,
+            self.speed_boost,
+            self.accuracy_boost,
+            self.evasion_boost,
             self.wish.0,
             self.wish.1,
             self.force_switch,

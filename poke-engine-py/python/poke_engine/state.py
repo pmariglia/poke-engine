@@ -7,6 +7,7 @@ from ._poke_engine import (
     SideConditions as _SideConditions,
     Pokemon as _Pokemon,
     Move as _Move,
+    state_from_string as _state_from_string,
 )
 
 
@@ -44,6 +45,9 @@ class Pokemon:
     moves: list[Move] = field(default_factory=list)
 
     def _into_rust_obj(self):
+        if len(self.types) == 1:
+            self.types = (self.types[0], "typeless")
+
         return _Pokemon(
             id=self.id,
             level=self.level,
@@ -174,3 +178,10 @@ class State:
             trick_room=self.trick_room,
             team_preview=self.team_preview,
         )
+
+    def to_string(self):
+        return self._into_rust_obj().to_string()
+
+    @classmethod
+    def from_string(cls, state_str: str):
+        return _state_from_string(state_str)

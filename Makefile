@@ -24,7 +24,10 @@ gen7:
 gen8:
 	./build gen8
 
-test:
+pytest:
+	. venv/bin/activate && pytest --rootdir=poke-engine-py/python poke-engine-py/python/tests
+
+test: pytest
 	cargo test --no-default-features --features "gen9"
 	cargo test --no-default-features --features "gen8"
 	cargo test --no-default-features --features "gen7"
@@ -33,4 +36,3 @@ test:
 	cargo test --no-default-features --features "gen4"
 	cargo test --test test_last_used_move --no-default-features --features "gen9,last_used_move"
 	cargo test --test test_damage_dealt --no-default-features --features "gen9,damage_dealt"
-	. venv/bin/activate && pytest --rootdir=poke-engine-py/python poke-engine-py/python/tests
