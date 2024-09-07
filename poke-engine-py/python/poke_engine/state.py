@@ -13,6 +13,15 @@ from ._poke_engine import (
 
 @dataclass
 class Move:
+    """
+
+    :param id: The name of the move
+    :type id: str
+    :param disabled: Whether the move is disabled
+    :type disabled: bool
+    :param pp: The current PP of the move
+    :type pp: int
+    """
     id: str = "none"
     disabled: bool = False
     pp: int = 32
@@ -27,18 +36,54 @@ class Move:
 
 @dataclass
 class Pokemon:
+    """
+
+    :param id: The name of the Pokemon
+    :type id: str
+    :param level: The level of the Pokemon
+    :type level: int
+    :param types: The types of the Pokemon
+    :type types: (str, str)
+    :param hp: The current HP of the Pokemon
+    :type hp: int
+    :param maxhp: The maximum HP of the Pokemon
+    :type maxhp: int
+    :param ability: The ability of the Pokemon
+    :type ability: str
+    :param item: The item held by the Pokemon
+    :type item: str
+    :param attack: The attack stat of the Pokemon
+    :type attack: int
+    :param defense: The defense stat of the Pokemon
+    :type defense: int
+    :param special_attack: The special attack stat of the Pokemon
+    :type special_attack: int
+    :param special_defense: The special defense stat of the Pokemon
+    :type special_defense: int
+    :param speed: The speed stat of the Pokemon
+    :type speed: int
+    :param status: The status of the Pokemon
+    :type status: str
+    :param rest_turns: The remaining number of turns for a Pokemon that is asleep due to the move rest
+    :type rest_turns: int
+    :param weight_kg: The weight of the Pokemon in kilograms
+    :type weight_kg: float
+    :param moves: The moves of the Pokemon
+    :type moves: list[Move]
+
+    """
     id: str = ""
     level: int = 100
     types: (str, str) = ("normal", "typeless")
-    hp: int = 0
-    maxhp: int = 0
+    hp: int = 100
+    maxhp: int = 100
     ability: str = "none"
     item: str = "none"
-    attack: int = 0
-    defense: int = 0
-    special_attack: int = 0
-    special_defense: int = 0
-    speed: int = 0
+    attack: int = 100
+    defense: int = 100
+    special_attack: int = 100
+    special_defense: int = 100
+    speed: int = 100
     status: str = "none"
     rest_turns: int = 0
     weight_kg: float = 0
@@ -70,6 +115,49 @@ class Pokemon:
 
 @dataclass
 class SideConditions:
+    """
+    The side conditions on a Side
+
+    :param aurora_veil:
+    :type aurora_veil: int
+    :param crafty_shield:
+    :type crafty_shield: int
+    :param healing_wish:
+    :type healing_wish: int
+    :param light_screen:
+    :type light_screen: int
+    :param lucky_chant:
+    :type lucky_chant: int
+    :param lunar_dance:
+    :type lunar_dance: int
+    :param mat_block:
+    :type mat_block: int
+    :param mist:
+    :type mist: int
+    :param protect:
+    :type protect: int
+    :param quick_guard:
+    :type quick_guard: int
+    :param reflect:
+    :type reflect: int
+    :param safeguard:
+    :type safeguard: int
+    :param spikes:
+    :type spikes: int
+    :param stealth_rock:
+    :type stealth_rock: int
+    :param sticky_web:
+    :type sticky_web: int
+    :param tailwind:
+    :type tailwind: int
+    :param toxic_count:
+    :type toxic_count: int
+    :param toxic_spikes:
+    :type toxic_spikes: int
+    :param wide_guard:
+    :type wide_guard: int
+    """
+
     aurora_veil: int = 0
     crafty_shield: int = 0
     healing_wish: int = 0
@@ -116,6 +204,54 @@ class SideConditions:
 
 @dataclass
 class Side:
+    """
+    One of the sides of a pokemon battle
+
+    :param active_index: The index of the active Pokemon
+    :type active_index: str
+    :param baton_passing: Set to `true` if the next move this side is making is a switch due to having used baton pass.
+        `force_switch` will always be `true` if this is `true`
+    :type baton_passing: bool
+    :param pokemon: The Pokemon on this side
+    :type pokemon: list[Pokemon]
+    :param side_conditions: The SideConditions on this side
+    :type side_conditions: SideConditions
+    :param wish: Tuple representing the wish status. Format is (turns_remaining, health)
+    :type wish: (int, int)
+    :param force_switch: Whether this side is forced to switch next turn
+    :type force_switch: bool
+    :param force_trapped: Whether the side is forcibly trapped and cannot switch
+    :type force_trapped: bool
+    :param volatile_statuses: List of active volatile statuses for this sides active Pokemon
+    :type volatile_statuses: list[str]
+    :param substitute_health: Health of the substitute for this sides active Pokemon.
+        Only applies if the active Pokemon has a substitute volatile status
+    :type substitute_health: int
+    :param attack_boost: Attack boost of the active Pokemon
+    :type attack_boost: int
+    :param defense_boost: Defense boost of the active Pokemon
+    :type defense_boost: int
+    :param special_attack_boost: Special attack boost of the active Pokemon
+    :type special_attack_boost: int
+    :param special_defense_boost: Special defense boost of the active Pokemon
+    :type special_defense_boost: int
+    :param speed_boost: Speed boost of the active Pokemon
+    :type speed_boost: int
+    :param accuracy_boost: Accuracy boost of the active Pokemon
+    :type accuracy_boost: int
+    :param evasion_boost: Evasion boost of the active Pokemon
+    :type evasion_boost: int
+    :param last_used_move: The last move used by this side.
+        Format is "move:<move_id>" for a move, "switch:<pokemon_index>" for a switch, or "none" if neither are applicable
+    :type last_used_move: str
+    :param slow_uturn_move: Whether a slow U-turn move is pending.
+        This is set to `true` if the opposing side is switching out and this side has a pending move that will be executed after the switch
+    :type slow_uturn_move: bool
+    :param switch_out_move_second_saved_move: If `slow_uturn_move` is active,
+        this is the move that will be executed after the switch
+    :type switch_out_move_second_saved_move: str
+    """
+
     active_index: str = "0"
     baton_passing: bool = False
     pokemon: list[Pokemon] = field(default_factory=list)
@@ -123,7 +259,6 @@ class Side:
     wish: (int, int) = (0, 0)
     force_switch: bool = False
     force_trapped: bool = False
-    slow_uturn_move: bool = False
     volatile_statuses: list[str] = field(default_factory=list)
     substitute_health: int = 0
     attack_boost: int = 0
@@ -134,6 +269,7 @@ class Side:
     accuracy_boost: int = 0
     evasion_boost: int = 0
     last_used_move: str = "move:none"
+    slow_uturn_move: bool = False
     switch_out_move_second_saved_move: str = "none"
 
     def _into_rust_obj(self):
@@ -162,6 +298,23 @@ class Side:
 
 @dataclass
 class State:
+    """
+    The state of a pokemon battle
+
+    :param side_one: the first side of the battle
+    :type side_one: Side
+    :param side_two: the second side of the battle
+    :type side_two: Side
+    :param weather: the currently active weather
+    :type weather: str
+    :param terrain: the currently active terrain
+    :type terrain: str
+    :param trick_room: whether trick room is active
+    :type trick_room: bool
+    :param team_preview: if the battle is currently in team preview
+    :type team_preview: bool
+    """
+
     side_one: Side = field(default_factory=Side)
     side_two: Side = field(default_factory=Side)
     weather: str = "none"
