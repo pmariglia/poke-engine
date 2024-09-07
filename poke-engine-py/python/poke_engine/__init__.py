@@ -15,6 +15,7 @@ from ._poke_engine import (
     mcts as _mcts,
 )
 
+
 @dataclass
 class MctsSideResult:
     """
@@ -27,9 +28,11 @@ class MctsSideResult:
     :param visits: The number of times the move was chosen
     :type visits: int
     """
+
     move_choice: str
     total_score: float
     visits: int
+
 
 @dataclass
 class MctsResult:
@@ -37,30 +40,37 @@ class MctsResult:
     Result of a Monte Carlo Tree Search
 
     :param side_one: Result for side one
-    :type side_one: MctsSideResult
+    :type side_one: list[MctsSideResult]
     :param side_two: Result for side two
-    :type side_two: MctsSideResult
+    :type side_two: list[MctsSideResult]
     :param total_visits: Total number of monte carlo iterations
     :type total_visits: int
     """
-    side_one: MctsSideResult
-    side_two: MctsSideResult
+
+    side_one: list[MctsSideResult]
+    side_two: list[MctsSideResult]
     total_visits: int
 
     @classmethod
     def _from_rust(cls, rust_result):
         return cls(
-            side_one=MctsSideResult(
-                move_choice=rust_result.side_one.move_choice,
-                total_score=rust_result.side_one.total_score,
-                visits=rust_result.side_one.visits,
-            ),
-            side_two=MctsSideResult(
-                move_choice=rust_result.side_two.move_choice,
-                total_score=rust_result.side_two.total_score,
-                visits=rust_result.side_two.visits,
-            ),
-            total_visits=rust_result.total_visits,
+            side_one=[
+                MctsSideResult(
+                    move_choice=i.move_choice,
+                    total_score=i.total_score,
+                    visits=i.visits,
+                )
+                for i in rust_result.s1
+            ],
+            side_two=[
+                MctsSideResult(
+                    move_choice=i.move_choice,
+                    total_score=i.total_score,
+                    visits=i.visits,
+                )
+                for i in rust_result.s2
+            ],
+            total_visits=rust_result.iteration_count,
         )
 
 

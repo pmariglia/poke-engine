@@ -3,7 +3,7 @@
 poke-engine
 ===========
 
-.. include:: ../../README.md
+.. include:: ../../readme.md
    :parser: commonmark
 
 .. toctree::

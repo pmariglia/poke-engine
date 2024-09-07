@@ -22,6 +22,7 @@ class Move:
     :param pp: The current PP of the move
     :type pp: int
     """
+
     id: str = "none"
     disabled: bool = False
     pp: int = 32
@@ -72,6 +73,7 @@ class Pokemon:
     :type moves: list[Move]
 
     """
+
     id: str = ""
     level: int = 100
     types: (str, str) = ("normal", "typeless")
