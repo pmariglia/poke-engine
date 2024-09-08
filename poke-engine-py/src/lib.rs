@@ -11,10 +11,11 @@ use poke_engine::instruction::StateInstructions;
 use poke_engine::io::io_get_all_options;
 use poke_engine::items::Items;
 use poke_engine::mcts::{perform_mcts, MctsResult, MctsSideResult};
+use poke_engine::search::iterative_deepen_expectiminimax;
 use poke_engine::state::{
-    LastUsedMove, Move, Pokemon, PokemonIndex, PokemonMoves, PokemonStatus, PokemonType,
-    PokemonVolatileStatus, Side, SideConditions, SidePokemon, State, StateTerrain, StateWeather,
-    Terrain, Weather,
+    LastUsedMove, Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoves, PokemonStatus,
+    PokemonType, PokemonVolatileStatus, Side, SideConditions, SidePokemon, State, StateTerrain,
+    StateWeather, Terrain, Weather,
 };
 use std::str::FromStr;
 use std::time::Duration;
@@ -357,6 +358,37 @@ impl PyMctsResult {
     }
 }
 
+#[derive(Clone)]
+#[pyclass(get_all)]
+struct PyIterativeDeepeningResult {
+    s1: Vec<String>,
+    s2: Vec<String>,
+    matrix: Vec<f32>,
+    depth_searched: i8,
+}
+
+impl PyIterativeDeepeningResult {
+    fn from_iterative_deepening_result(
+        result: (Vec<MoveChoice>, Vec<MoveChoice>, Vec<f32>, i8),
+        state: &State,
+    ) -> Self {
+        PyIterativeDeepeningResult {
+            s1: result
+                .0
+                .iter()
+                .map(|c| c.to_string(&state.side_one))
+                .collect(),
+            s2: result
+                .1
+                .iter()
+                .map(|c| c.to_string(&state.side_two))
+                .collect(),
+            matrix: result.2,
+            depth_searched: result.3,
+        }
+    }
+}
+
 #[pyfunction]
 fn mcts(mut py_state: PyState, duration_ms: u64) -> PyResult<PyMctsResult> {
     let duration = Duration::from_millis(duration_ms);
@@ -365,6 +397,18 @@ fn mcts(mut py_state: PyState, duration_ms: u64) -> PyResult<PyMctsResult> {
 
     let py_mcts_result = PyMctsResult::from_mcts_result(mcts_result, &py_state.state);
     Ok(py_mcts_result)
+}
+
+#[pyfunction]
+fn id(mut py_state: PyState, duration_ms: u64) -> PyResult<PyIterativeDeepeningResult> {
+    let duration = Duration::from_millis(duration_ms);
+    let (s1_options, s2_options) = io_get_all_options(&py_state.state);
+    let id_result =
+        iterative_deepen_expectiminimax(&mut py_state.state, s1_options, s2_options, duration);
+
+    let py_id_result =
+        PyIterativeDeepeningResult::from_iterative_deepening_result(id_result, &py_state.state);
+    Ok(py_id_result)
 }
 
 #[derive(Clone)]
@@ -478,6 +522,7 @@ fn py_poke_engine(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(state_from_string, m)?)?;
     m.add_function(wrap_pyfunction!(calculate_damage, m)?)?;
     m.add_function(wrap_pyfunction!(gi, m)?)?;
+    m.add_function(wrap_pyfunction!(id, m)?)?;
     m.add_function(wrap_pyfunction!(mcts, m)?)?;
     m.add_class::<PyState>()?;
     m.add_class::<PySide>()?;

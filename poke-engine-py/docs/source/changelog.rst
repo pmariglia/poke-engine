@@ -3,6 +3,6 @@ Changelog
 =========
 
 
-`0.1.0` -- ????-??-??
+`0.0.5` -- 2024-09-08
 -------------------------------
-- Coming soon?
+- Python bindings for iterative-deepening

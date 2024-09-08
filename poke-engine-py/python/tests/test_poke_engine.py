@@ -8,6 +8,7 @@ from poke_engine import (
     monte_carlo_tree_search,
     generate_instructions,
     calculate_damage,
+    iterative_deepening_expectiminimax,
 )
 
 state = State(
@@ -69,6 +70,10 @@ def test_state_can_be_converted_to_and_from_a_string():
 
 def test_monte_carlo_search():
     monte_carlo_tree_search(state, 10)
+
+
+def test_iterative_deepening_search():
+    iterative_deepening_expectiminimax(state, 10)
 
 
 def test_get_instructions():

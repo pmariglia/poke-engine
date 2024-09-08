@@ -8,4 +8,4 @@ build-backend = "maturin"
 
 [project]
 name = "poke-engine"
-version = "0.0.4"
+version = "0.0.5"
