@@ -12,9 +12,9 @@ use poke_engine::instruction::{
 };
 use poke_engine::items::Items;
 use poke_engine::state::{
-    Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
-    PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, StateWeather, Terrain,
-    Weather,
+    pokemon_index_iter, Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
+    PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State,
+    StateWeather, Terrain, Weather,
 };
 
 fn set_moves_on_pkmn_and_call_generate_instructions(
@@ -9766,4 +9766,44 @@ fn test_innerfocus() {
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_battle_is_over_when_battle_is_not_over() {
+    let mut state = State::default();
+    assert_eq!(state.battle_is_over(), 0.0);
+}
+
+#[test]
+fn test_battle_is_over_when_side_one_lost() {
+    let mut state = State::default();
+    for pkmn_index in pokemon_index_iter() {
+        state.side_one.pokemon[pkmn_index].hp = 0;
+    }
+
+    assert_eq!(state.battle_is_over(), -1.0);
+}
+
+#[test]
+fn test_battle_is_over_when_side_two_lost() {
+    let mut state = State::default();
+    for pkmn_index in pokemon_index_iter() {
+        state.side_two.pokemon[pkmn_index].hp = 0;
+    }
+
+    assert_eq!(state.battle_is_over(), 1.0);
+}
+
+#[test]
+fn test_battle_is_over_when_side_two_has_unrevealed_pkmn() {
+    let mut state = State::default();
+    state.side_two.pokemon[PokemonIndex::P0].hp = 0;
+    state.side_two.pokemon[PokemonIndex::P1].hp = 0;
+    state.side_two.pokemon[PokemonIndex::P2].hp = 0;
+    state.side_two.pokemon[PokemonIndex::P3].hp = 0;
+    state.side_two.pokemon[PokemonIndex::P4].hp = 0;
+    state.side_two.pokemon[PokemonIndex::P5].hp = 0;
+    state.side_two.pokemon[PokemonIndex::P5].level = 1;
+
+    assert_eq!(state.battle_is_over(), 0.0);
 }

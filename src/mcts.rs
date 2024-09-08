@@ -92,8 +92,10 @@ impl Node {
         s1_move: &MoveChoice,
         s2_move: &MoveChoice,
     ) -> *mut Node {
-        // if the battle is over, no need to expand
-        if state.battle_is_over() != 0.0 && !self.root {
+        // if the battle is over or both moves are none there is no need to expand
+        if (state.battle_is_over() != 0.0 && !self.root)
+            || (s1_move == &MoveChoice::None && s2_move == &MoveChoice::None)
+        {
             return self as *mut Node;
         }
         let mut new_instructions = generate_instructions_from_move_pair(state, s1_move, s2_move);
@@ -360,6 +362,22 @@ pub fn perform_mcts(
     while start_time.elapsed() < max_time {
         for _ in 0..1000 {
             do_mcts(&mut root_node, state);
+        }
+
+        /*
+        Cut off after 10 million iterations
+
+        Under normal circumstances the bot will only run for 2.5-3.5 million iterations
+        however towards the end of a battle the bot may perform tens of millions of iterations
+
+        Beyond about 30 million iterations some floating point nonsense happens where
+        MoveNode.total_score stops updating because f32 does not have enough precision
+
+        I can push the problem farther out by using f64 but if the bot is running for 10 million iterations
+        then it almost certainly sees a forced win
+        */
+        if root_node.times_visited == 10_000_000 {
+            break;
         }
     }
 
