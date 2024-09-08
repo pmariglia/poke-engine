@@ -7,7 +7,17 @@ An engine for searching through Pokémon battles (singles only).
 This battle engine is meant to capture important aspects of Pokémon for the purposes of competitive single battles.
 It is nowhere near as complete or robust as the [PokemonShowdown](https://github.com/smogon/pokemon-showdown) battle engine.
 
-### Building & Running
+## Using in Your Project
+
+#### Rust
+Available on [crates](https://crates.io/crates/poke-engine) to include in your project.
+
+#### Python
+Python bindings are also available, [docs here](https://poke-engine.readthedocs.io/en/latest/)
+
+## Running Directly
+
+### Building
 
 Make sure you have Rust / Cargo installed.
 
@@ -157,7 +167,7 @@ Available commands:
 
 ### State Representation
 
-The engine parses the state of the game from a string.
+When running directly, the engine parses the state of the game from a string.
 
 Properly representing the state of a Pokémon battle gets really complicated.
 See the doctest for `State::deserialize` in [serialize.rs](src/serialize.rs)
