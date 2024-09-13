@@ -1400,6 +1400,48 @@ fn test_judgement_typechange_with_arceus_multitype() {
 }
 
 #[test]
+fn test_haze_resets_both_side_boosts() {
+    let mut state = State::default();
+    state.side_one.attack_boost = 3;
+    state.side_one.defense_boost = -3;
+    state.side_two.special_attack_boost = 2;
+    state.side_two.special_defense_boost = -2;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::HAZE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: -3,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Defense,
+                amount: 3,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: -2,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::SpecialDefense,
+                amount: 2,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_basic_healbell() {
     let mut state = State::default();
     state.side_one.get_active().status = PokemonStatus::Poison;

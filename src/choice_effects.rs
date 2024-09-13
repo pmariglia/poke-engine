@@ -757,6 +757,10 @@ pub fn choice_special_effect(
                 }
             }
         }
+        Choices::HAZE => {
+            state.reset_boosts(&SideReference::SideOne, &mut instructions.instruction_list);
+            state.reset_boosts(&SideReference::SideTwo, &mut instructions.instruction_list);
+        }
         Choices::REST => {
             let active_index = attacking_side.active_index;
             let active_pkmn = attacking_side.get_active();

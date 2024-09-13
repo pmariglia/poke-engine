@@ -134,6 +134,9 @@ fn generate_instructions_from_switch(
         }
     }
 
+    // is there a reason I put these functions on the state and not the side?
+    // they each need to call get_side() where I can instead call it once here and
+    // pass a mut side ?
     state.re_enable_disabled_moves(
         &switching_side_ref,
         &mut incoming_instructions.instruction_list,
