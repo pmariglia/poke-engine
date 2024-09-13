@@ -469,6 +469,9 @@ pub fn choice_after_damage_hit(
                 defender_active.item = Items::NONE;
             }
         }
+        Choices::CLEARSMOG => {
+            state.reset_boosts(&attacking_side_ref.get_other_side(), &mut instructions.instruction_list);
+        }
         _ => {}
     }
 }

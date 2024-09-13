@@ -1442,6 +1442,64 @@ fn test_haze_resets_both_side_boosts() {
 }
 
 #[test]
+fn test_clearsmog_removes_boosts_on_target() {
+    let mut state = State::default();
+    state.side_one.attack_boost = 3;
+    state.side_one.defense_boost = -3;
+    state.side_two.special_attack_boost = -2;
+    state.side_two.special_defense_boost = 2;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::CLEARSMOG,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 21,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: 2,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::SpecialDefense,
+                amount: -2,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_clearsmog_does_not_reset_boosts_if_defender_is_immune() {
+    let mut state = State::default();
+    state.side_two.get_active().types.0 = PokemonType::Steel;
+    state.side_one.attack_boost = 3;
+    state.side_one.defense_boost = -3;
+    state.side_two.special_attack_boost = -2;
+    state.side_two.special_defense_boost = 2;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::CLEARSMOG,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_basic_healbell() {
     let mut state = State::default();
     state.side_one.get_active().status = PokemonStatus::Poison;
