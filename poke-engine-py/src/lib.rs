@@ -468,12 +468,12 @@ fn gi(
 
 #[pyfunction]
 fn calculate_damage(
-    mut py_state: PyState,
+    py_state: PyState,
     side_one_move: String,
     side_two_move: String,
     side_one_moves_first: bool,
 ) -> PyResult<(Vec<i16>, Vec<i16>)> {
-    let (mut s1_choice, mut s2_choice);
+    let (s1_choice, s2_choice);
     match MOVES.get(&Choices::from_str(side_one_move.as_str()).unwrap()) {
         Some(m) => s1_choice = m.to_owned(),
         None => {
@@ -510,7 +510,7 @@ fn calculate_damage(
 }
 
 #[pyfunction]
-fn state_from_string(s: String) -> PyResult<(PyState)> {
+fn state_from_string(s: String) -> PyResult<PyState> {
     Ok(PyState {
         state: State::deserialize(&s),
     })
