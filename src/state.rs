@@ -174,6 +174,7 @@ pub enum PokemonVolatileStatus {
     Unburden,
     Uproar,
     Yawn,
+    YawnSleepThisTurn,
 }
 
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
@@ -607,7 +608,10 @@ impl Pokemon {
             | PokemonVolatileStatus::Disable
             | PokemonVolatileStatus::HealBlock
             | PokemonVolatileStatus::Attract => return self.ability != Abilities::AROMAVEIL,
-            PokemonVolatileStatus::Yawn => return self.ability != Abilities::INSOMNIA,
+            PokemonVolatileStatus::Yawn => {
+                // immunity to yawn via sleep immunity is handled in `get_instructions_from_volatile_statuses`
+                return !active_volatiles.contains(&PokemonVolatileStatus::YawnSleepThisTurn);
+            }
             _ => return true,
         }
     }

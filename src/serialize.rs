@@ -172,6 +172,7 @@ impl PokemonVolatileStatus {
             "unburden" => PokemonVolatileStatus::Unburden,
             "uproar" => PokemonVolatileStatus::Uproar,
             "yawn" => PokemonVolatileStatus::Yawn,
+            "yawnsleepthisturn" => PokemonVolatileStatus::YawnSleepThisTurn,
             _ => PokemonVolatileStatus::None,
         }
     }
