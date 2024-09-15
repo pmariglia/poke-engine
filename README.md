@@ -7,13 +7,16 @@ An engine for searching through Pokémon battles (singles only).
 This battle engine is meant to capture important aspects of Pokémon for the purposes of competitive single battles.
 It is nowhere near as complete or robust as the [PokemonShowdown](https://github.com/smogon/pokemon-showdown) battle engine.
 
-## Using in Your Project
+## Links
 
 #### Rust
 Available on [crates](https://crates.io/crates/poke-engine) to include in your project.
 
 #### Python
-Python bindings are also available, [docs here](https://poke-engine.readthedocs.io/en/latest/)
+
+[Python Bindings](poke-engine-py) are also available for the engine. [docs here](https://poke-engine.readthedocs.io/en/latest/)
+
+#### [CHANGELOG](CHANGELOG.md)
 
 ## Running Directly
 
