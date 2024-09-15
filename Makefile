@@ -15,7 +15,7 @@ new-tag:
 	git tag -a "$$new_tag" -m "$$new_tag"; \
 	git-cliff -l -p CHANGELOG.md; \
 	git add CHANGELOG.md; \
-	git commit -m "Update CHANGELOG.md for $$new_tag"; \
+	git commit -m "$$new_tag"; \
 	git push origin main --tags
 
 fmt:

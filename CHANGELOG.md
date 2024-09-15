@@ -1,3 +1,11 @@
+
+### Features
+
+- Implement Pickpocket, Magician, and StickyHold Abilities - ([d729469](https://github.com/pmariglia/poke-engine/commit/d729469ebdfbad8e99bf18202c4ad49ec8df2f75))
+
+### Miscellaneous Tasks
+
+- Remove unnecessary return statements - ([9c3315b](https://github.com/pmariglia/poke-engine/commit/9c3315bb11daafc1457451c8c8d061dfffeefff4))
 # Changelog
 
 All notable changes to this project will be documented in this file.
