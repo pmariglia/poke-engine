@@ -9,12 +9,7 @@ It is nowhere near as complete or robust as the [PokemonShowdown](https://github
 
 ## Links
 
-#### Rust
-Available on [crates](https://crates.io/crates/poke-engine) to include in your project.
-
-#### Python
-
-[Python Bindings](poke-engine-py) are also available for the engine. [docs here](https://poke-engine.readthedocs.io/en/latest/)
+#### [Python Bindings](poke-engine-py)
 
 #### [CHANGELOG](CHANGELOG.md)
 
