@@ -304,7 +304,7 @@ impl MoveNode {
             return f32::INFINITY;
         }
         let score = (self.total_score / self.visits as f32)
-            + (0.25 * (parent_visits as f32).ln() / self.visits as f32).sqrt();
+            + (2.0 * (parent_visits as f32).ln() / self.visits as f32).sqrt();
         return score;
     }
     pub fn average_score(&self) -> f32 {
