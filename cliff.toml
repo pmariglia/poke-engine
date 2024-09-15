@@ -1,0 +1,33 @@
+[changelog]
+body = """
+{% macro print_commit(commit) -%}
+    - {% if commit.scope %}*({{ commit.scope }})* {% endif %}\
+        {% if commit.breaking %}[**breaking**] {% endif %}\
+        {{ commit.message | upper_first }} - \
+        ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/pmariglia/poke-engine/commit/{{ commit.id }}))\
+{% endmacro -%}
+
+{% for group, commits in commits | group_by(attribute="group") %}
+    ### {{ group | striptags | trim | upper_first }}
+    {% for commit in commits
+    | filter(attribute="scope")
+    | sort(attribute="scope") %}
+        {{ self::print_commit(commit=commit) }}
+    {%- endfor %}
+    {% for commit in commits %}
+        {%- if not commit.scope -%}
+            {{ self::print_commit(commit=commit) }}
+        {% endif -%}
+    {% endfor -%}
+{% endfor -%}
+
+"""
+
+[git]
+commit_parsers = [
+    { message = "^feat", group = "<!-- 0 --> Features" },
+    { message = "^fix", group = "<!-- 1 --> Bug Fixes" },
+    { message = "^doc", group = "<!-- 3 --> Documentation" },
+    { message = "^perf", group = "<!-- 4 --> Performance" },
+    { message = "^chore|^ci", group = "<!-- 7 --> Miscellaneous Tasks" },
+]

@@ -2,6 +2,9 @@ name: Release New Version
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
 
 permissions:
   contents: read
