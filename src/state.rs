@@ -540,6 +540,9 @@ impl Pokemon {
     }
 
     pub fn item_can_be_removed(&self) -> bool {
+        if self.ability == Abilities::STICKYHOLD {
+            return false;
+        }
         match self.item {
             Items::SPLASHPLATE
             | Items::TOXICPLATE

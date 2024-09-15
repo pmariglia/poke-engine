@@ -6,10 +6,11 @@ use crate::choices::{
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
 use crate::instruction::{
-    ApplyVolatileStatusInstruction, BoostInstruction, ChangeSideConditionInstruction,
-    ChangeStatusInstruction, ChangeTerrain, ChangeType, ChangeWeather, DamageInstruction,
-    HealInstruction, Instruction, StateInstructions,
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
+    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeType,
+    ChangeWeather, DamageInstruction, HealInstruction, Instruction, StateInstructions,
 };
+use crate::items::Items;
 use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Terrain};
 use crate::state::{PokemonStatus, State};
 use crate::state::{PokemonVolatileStatus, SideReference, Weather};
@@ -407,6 +408,30 @@ pub fn ability_after_damage_hit(
     let (attacking_side, defending_side) = state.get_both_sides(side_ref);
     let active_pkmn = attacking_side.get_active();
     match active_pkmn.ability {
+        Abilities::MAGICIAN | Abilities::PICKPOCKET => {
+            let defending_pkmn = defending_side.get_active();
+            if damage_dealt > 0
+                && defending_pkmn.item_can_be_removed()
+                && active_pkmn.item == Items::NONE
+            {
+                instructions.instruction_list.push(Instruction::ChangeItem(
+                    ChangeItemInstruction {
+                        side_ref: *side_ref,
+                        current_item: active_pkmn.item,
+                        new_item: defending_pkmn.item,
+                    },
+                ));
+                active_pkmn.item = defending_pkmn.item;
+                instructions.instruction_list.push(Instruction::ChangeItem(
+                    ChangeItemInstruction {
+                        side_ref: side_ref.get_other_side(),
+                        current_item: defending_pkmn.item,
+                        new_item: Items::NONE,
+                    },
+                ));
+                defending_pkmn.item = Items::NONE;
+            }
+        }
         Abilities::MOXIE => {
             if damage_dealt > 0 && defending_side.get_active_immutable().hp == 0 {
                 if let Some(boost_instruction) = get_boost_instruction(

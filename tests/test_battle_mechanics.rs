@@ -728,6 +728,112 @@ fn test_spikyshield_recoil_does_not_overkill() {
 }
 
 #[test]
+fn test_magician_doing_damage_steals_opponents_item() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::MAGICIAN;
+    state.side_one.get_active().item = Items::NONE;
+    state.side_two.get_active().item = Items::LEFTOVERS;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::NONE,
+                new_item: Items::LEFTOVERS,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideTwo,
+                current_item: Items::LEFTOVERS,
+                new_item: Items::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_magician_does_not_steal_if_move_misses() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::MAGICIAN;
+    state.side_one.get_active().item = Items::NONE;
+    state.side_two.get_active().item = Items::LEFTOVERS;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::AIRSLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 5.000001,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 95.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 60,
+                }),
+                Instruction::ChangeItem(ChangeItemInstruction {
+                    side_ref: SideReference::SideOne,
+                    current_item: Items::NONE,
+                    new_item: Items::LEFTOVERS,
+                }),
+                Instruction::ChangeItem(ChangeItemInstruction {
+                    side_ref: SideReference::SideTwo,
+                    current_item: Items::LEFTOVERS,
+                    new_item: Items::NONE,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_magician_does_not_remove_from_stickyhold() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::MAGICIAN;
+    state.side_two.get_active().ability = Abilities::STICKYHOLD;
+    state.side_one.get_active().item = Items::NONE;
+    state.side_two.get_active().item = Items::LEFTOVERS;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideTwo,
+                heal_amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_moxie_boost() {
     let mut state = State::default();
     state.side_two.get_active().hp = 1;
