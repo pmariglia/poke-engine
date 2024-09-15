@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.8] - 2024-09-15
+
+### Miscellaneous Tasks
+
+- Some Makefile/Changelog fixes - ([3b3f31b](https://github.com/pmariglia/poke-engine/commit/3b3f31b106af9b6d8f7d2068ea53eb3a643b9c83))
+
+- Add release script - ([ec2a5b5](https://github.com/pmariglia/poke-engine/commit/ec2a5b56d06e837bcd5ab8c745e0f7aea02da301))
+
 ## [0.0.7] - 2024-09-15
 
 ### Features
