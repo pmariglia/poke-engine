@@ -8,6 +8,16 @@ upload_python_bindings:
 upload_rust_lib:
 	cargo publish --features "gen4"
 
+new-tag:
+	@current_tag=$$(git describe --tags `git rev-list --tags --max-count=1`); \
+	echo "Current tag: $$current_tag"; \
+	read -p "Enter the new tag: " new_tag; \
+	git tag -a "$$new_tag" -m "$$new_tag"; \
+	git-cliff -l -p CHANGELOG.md; \
+	git add CHANGELOG.md; \
+	git commit -m "Update CHANGELOG.md for $$new_tag"; \
+	git push origin main --tags
+
 fmt:
 	cargo fmt
 	ruff format poke-engine-py
