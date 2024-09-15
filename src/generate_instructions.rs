@@ -429,7 +429,7 @@ pub fn immune_to_status(
         _ => {}
     }
 
-    return if target_pkmn.status != PokemonStatus::None || target_pkmn.hp <= 0 {
+    if target_pkmn.status != PokemonStatus::None || target_pkmn.hp <= 0 {
         true
     } else if state.terrain.terrain_type == Terrain::MistyTerrain && target_pkmn.is_grounded() {
         true
@@ -482,7 +482,7 @@ pub fn immune_to_status(
             }
             _ => false,
         }
-    };
+    }
 }
 
 fn get_instructions_from_status_effects(
@@ -530,7 +530,7 @@ pub fn get_boost_amount(side: &Side, boost: &PokemonBoostableStat, amount: i8) -
     } else if amount < 0 {
         return cmp::max(-6 - current_boost, amount);
     }
-    return 0;
+    0
 }
 
 pub fn get_boost_instruction(
@@ -565,7 +565,7 @@ pub fn get_boost_instruction(
             }));
         }
     }
-    return None;
+    None
 }
 
 fn get_instructions_from_boosts(
@@ -1069,7 +1069,7 @@ fn generate_instructions_from_damage(
             hit_sub,
         );
     }
-    return hit_sub;
+    hit_sub
 }
 
 fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideReference) -> bool {
@@ -1122,7 +1122,7 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
         };
     }
 
-    return false;
+    false
 }
 
 fn before_move(
@@ -1796,7 +1796,7 @@ fn get_effective_speed(state: &State, side_reference: &SideReference) -> i16 {
         boosted_speed *= 0.50;
     }
 
-    return boosted_speed as i16;
+    boosted_speed as i16
 }
 
 fn get_effective_priority(state: &State, side_reference: &SideReference, choice: &Choice) -> i8 {
@@ -1815,7 +1815,7 @@ fn get_effective_priority(state: &State, side_reference: &SideReference, choice:
         _ => {}
     }
 
-    return priority;
+    priority
 }
 
 fn side_one_moves_first(state: &State, side_one_choice: &Choice, side_two_choice: &Choice) -> bool {
@@ -1854,7 +1854,7 @@ fn side_one_moves_first(state: &State, side_one_choice: &Choice, side_two_choice
             false => side_one_effective_speed > side_two_effective_speed,
         }
     } else {
-        return side_one_effective_priority > side_two_effective_priority;
+        side_one_effective_priority > side_two_effective_priority
     }
 }
 
@@ -2380,10 +2380,8 @@ fn add_end_of_turn_instructions(
 }
 
 fn end_of_turn_triggered(side_one_move: &MoveChoice, side_two_move: &MoveChoice) -> bool {
-    return !(matches!(side_one_move, &MoveChoice::Switch(_))
-        && side_two_move == &MoveChoice::None)
-        && !(side_one_move == &MoveChoice::None
-            && matches!(side_two_move, &MoveChoice::Switch(_)));
+    !(matches!(side_one_move, &MoveChoice::Switch(_)) && side_two_move == &MoveChoice::None)
+        && !(side_one_move == &MoveChoice::None && matches!(side_two_move, &MoveChoice::Switch(_)))
 }
 
 pub fn generate_instructions_from_move_pair(
@@ -2507,7 +2505,7 @@ pub fn generate_instructions_from_move_pair(
     #[cfg(feature = "remove_low_chance_instructions")]
     remove_low_chance_instructions(&mut state_instructions_vec, 20.0);
 
-    return state_instructions_vec;
+    state_instructions_vec
 }
 
 fn remove_low_chance_instructions(instructions: &mut Vec<StateInstructions>, threshold: f32) {
@@ -2660,7 +2658,7 @@ pub fn calculate_both_damage_rolls(
         &s1_choice,
     );
 
-    return (damages_dealt_s1, damages_dealt_s2);
+    (damages_dealt_s1, damages_dealt_s2)
 }
 
 #[cfg(test)]

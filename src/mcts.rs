@@ -10,7 +10,7 @@ use std::time::Duration;
 
 fn sigmoid(x: f32) -> f32 {
     // Tuned so that ~200 points is very close to 1.0
-    return 1.0 / (1.0 + (-0.0125 * x).exp());
+    1.0 / (1.0 + (-0.0125 * x).exp())
 }
 
 #[derive(Debug)]
@@ -52,7 +52,7 @@ impl Node {
                 choice = node.move_choice;
             }
         }
-        return choice;
+        choice
     }
 
     pub unsafe fn selection(&mut self, state: &mut State) -> (*mut Node, MoveChoice, MoveChoice) {
@@ -66,11 +66,9 @@ impl Node {
                 let child_vec_ptr = child_vector as *mut Vec<Node>;
                 let chosen_child = self.sample_node(child_vec_ptr);
                 state.apply_instructions(&(*chosen_child).instructions.instruction_list);
-                return (*chosen_child).selection(state);
+                (*chosen_child).selection(state)
             }
-            None => {
-                return (return_node, s1_move_choice, s2_move_choice);
-            }
+            None => (return_node, s1_move_choice, s2_move_choice),
         }
     }
 
@@ -83,7 +81,7 @@ impl Node {
         let dist = WeightedIndex::new(weights).unwrap();
         let chosen_node = &mut (*move_vector)[dist.sample(&mut rng)];
         let chosen_node_ptr = chosen_node as *mut Node;
-        return chosen_node_ptr;
+        chosen_node_ptr
     }
 
     pub unsafe fn expand(
@@ -118,7 +116,7 @@ impl Node {
         state.apply_instructions(&(*new_node_ptr).instructions.instruction_list);
         self.children
             .insert((s1_move.clone(), s2_move.clone()), this_pair_vec);
-        return new_node_ptr;
+        new_node_ptr
     }
 
     pub unsafe fn backpropagate(&mut self, score: f32, state: &mut State) {
@@ -143,12 +141,12 @@ impl Node {
         let battle_is_over = state.battle_is_over();
         if battle_is_over == 0.0 {
             let eval = evaluate(state);
-            return sigmoid(eval);
+            sigmoid(eval)
         } else {
             if battle_is_over == -1.0 {
-                return 0.0;
+                0.0
             } else {
-                return battle_is_over;
+                battle_is_over
             }
         }
     }
@@ -156,7 +154,7 @@ impl Node {
 
 impl Default for Node {
     fn default() -> Node {
-        return Node {
+        Node {
             root: false,
             parent: std::ptr::null_mut(),
             instructions: StateInstructions::default(),
@@ -166,13 +164,13 @@ impl Default for Node {
             s2_choice: MoveChoice::None,
             s1_options: SideOptions::new(),
             s2_options: SideOptions::new(),
-        };
+        }
     }
 }
 
 impl MoveChoice {
     fn get_usize(&self) -> usize {
-        return match self {
+        match self {
             MoveChoice::Move(mv) => match mv {
                 PokemonMoveIndex::M0 => 0,
                 PokemonMoveIndex::M1 => 1,
@@ -190,7 +188,7 @@ impl MoveChoice {
                 PokemonIndex::P5 => 11,
             },
             MoveChoice::None => 12,
-        };
+        }
     }
 }
 
@@ -201,7 +199,7 @@ pub struct SideOptions {
 
 impl SideOptions {
     fn new() -> SideOptions {
-        return SideOptions {
+        SideOptions {
             move_nodes: [
                 MoveNode {
                     active: false,
@@ -282,11 +280,11 @@ impl SideOptions {
                     visits: 0,
                 },
             ],
-        };
+        }
     }
 
     fn get_move_node(&mut self, move_choice: &MoveChoice) -> &mut MoveNode {
-        return &mut self.move_nodes[move_choice.get_usize()];
+        &mut self.move_nodes[move_choice.get_usize()]
     }
 }
 
@@ -305,11 +303,11 @@ impl MoveNode {
         }
         let score = (self.total_score / self.visits as f32)
             + (2.0 * (parent_visits as f32).ln() / self.visits as f32).sqrt();
-        return score;
+        score
     }
     pub fn average_score(&self) -> f32 {
         let score = self.total_score / self.visits as f32;
-        return score;
+        score
     }
 }
 
@@ -326,7 +324,7 @@ impl MctsSideResult {
             return 0.0;
         }
         let score = self.total_score / self.visits as f32;
-        return score;
+        score
     }
 }
 
@@ -407,5 +405,5 @@ pub fn perform_mcts(
         iteration_count: root_node.times_visited,
     };
 
-    return result;
+    result
 }

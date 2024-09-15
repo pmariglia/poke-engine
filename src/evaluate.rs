@@ -70,24 +70,24 @@ fn evaluate_burned(pokemon: &Pokemon) -> f32 {
         multiplier /= 2.0;
     }
 
-    return multiplier * POKEMON_BURNED;
+    multiplier * POKEMON_BURNED
 }
 
 fn get_boost_multiplier(boost: i8) -> f32 {
     match boost {
-        6 => return POKEMON_BOOST_MULTIPLIER_6,
-        5 => return POKEMON_BOOST_MULTIPLIER_5,
-        4 => return POKEMON_BOOST_MULTIPLIER_4,
-        3 => return POKEMON_BOOST_MULTIPLIER_3,
-        2 => return POKEMON_BOOST_MULTIPLIER_2,
-        1 => return POKEMON_BOOST_MULTIPLIER_1,
-        0 => return POKEMON_BOOST_MULTIPLIER_0,
-        -1 => return POKEMON_BOOST_MULTIPLIER_NEG_1,
-        -2 => return POKEMON_BOOST_MULTIPLIER_NEG_2,
-        -3 => return POKEMON_BOOST_MULTIPLIER_NEG_3,
-        -4 => return POKEMON_BOOST_MULTIPLIER_NEG_4,
-        -5 => return POKEMON_BOOST_MULTIPLIER_NEG_5,
-        -6 => return POKEMON_BOOST_MULTIPLIER_NEG_6,
+        6 => POKEMON_BOOST_MULTIPLIER_6,
+        5 => POKEMON_BOOST_MULTIPLIER_5,
+        4 => POKEMON_BOOST_MULTIPLIER_4,
+        3 => POKEMON_BOOST_MULTIPLIER_3,
+        2 => POKEMON_BOOST_MULTIPLIER_2,
+        1 => POKEMON_BOOST_MULTIPLIER_1,
+        0 => POKEMON_BOOST_MULTIPLIER_0,
+        -1 => POKEMON_BOOST_MULTIPLIER_NEG_1,
+        -2 => POKEMON_BOOST_MULTIPLIER_NEG_2,
+        -3 => POKEMON_BOOST_MULTIPLIER_NEG_3,
+        -4 => POKEMON_BOOST_MULTIPLIER_NEG_4,
+        -5 => POKEMON_BOOST_MULTIPLIER_NEG_5,
+        -6 => POKEMON_BOOST_MULTIPLIER_NEG_6,
         _ => panic!("Invalid boost value: {}", boost),
     }
 }
@@ -107,7 +107,7 @@ fn evaluate_pokemon(pokemon: &Pokemon) -> f32 {
         PokemonStatus::None => {}
     }
 
-    return score;
+    score
 }
 
 pub fn evaluate(state: &State) -> f32 {
@@ -192,5 +192,5 @@ pub fn evaluate(state: &State) -> f32 {
     score -=
         state.side_two.side_conditions.toxic_spikes as f32 * TOXIC_SPIKES * side_two_alive_count;
 
-    return score;
+    score
 }

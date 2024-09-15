@@ -104,7 +104,7 @@ pub fn type_effectiveness_modifier(
     modifier = modifier
         * TYPE_MATCHUP_DAMAGE_MULTIPICATION[attacking_type_index]
             [type_enum_to_type_matchup_int(&defending_types.1)];
-    return modifier;
+    modifier
 }
 
 fn weather_modifier(attacking_move_type: &PokemonType, weather: &Weather) -> f32 {
@@ -142,7 +142,7 @@ fn stab_modifier(
     {
         return 1.5;
     }
-    return 1.0;
+    1.0
 }
 
 fn burn_modifier(
@@ -155,7 +155,7 @@ fn burn_modifier(
         return 0.5;
     }
 
-    return 1.0;
+    1.0
 }
 
 fn terrain_modifier(
@@ -170,7 +170,7 @@ fn terrain_modifier(
     #[cfg(any(feature = "gen7", feature = "gen6", feature = "gen5", feature = "gen4"))]
     let terrain_boost = 1.5;
 
-    return match terrain {
+    match terrain {
         Terrain::ElectricTerrain => {
             if choice.move_type == PokemonType::Electric && attacker.is_grounded() {
                 terrain_boost
@@ -204,7 +204,7 @@ fn terrain_modifier(
             }
         }
         Terrain::None => 1.0,
-    };
+    }
 }
 
 fn volatile_status_modifier(choice: &Choice, attacking_side: &Side, defending_side: &Side) -> f32 {
@@ -247,32 +247,32 @@ fn volatile_status_modifier(choice: &Choice, attacking_side: &Side, defending_si
         }
     }
 
-    return modifier;
+    modifier
 }
 
 fn _get_damage_rolls(damage: f32, damage_roll_type: DamageRolls) -> Vec<i16> {
     match damage_roll_type {
         DamageRolls::Min => {
-            return vec![(damage * 0.85) as i16];
+            vec![(damage * 0.85) as i16]
         }
         DamageRolls::Average => {
-            return vec![(damage * 0.925) as i16];
+            vec![(damage * 0.925) as i16]
         }
         DamageRolls::Max => {
-            return vec![damage as i16];
+            vec![damage as i16]
         }
         DamageRolls::MinMax => {
-            return vec![(damage * 0.85) as i16, damage as i16];
+            vec![(damage * 0.85) as i16, damage as i16]
         }
         DamageRolls::MinMaxAverage => {
-            return vec![
+            vec![
                 (damage * 0.85) as i16,
                 (damage * 0.925) as i16,
                 damage as i16,
-            ];
+            ]
         }
         DamageRolls::All => {
-            return vec![
+            vec![
                 (damage * 0.85) as i16,
                 (damage * 0.86) as i16,
                 (damage * 0.87) as i16,
@@ -289,7 +289,7 @@ fn _get_damage_rolls(damage: f32, damage_roll_type: DamageRolls) -> Vec<i16> {
                 (damage * 0.98) as i16,
                 (damage * 0.99) as i16,
                 damage as i16,
-            ];
+            ]
         }
     }
 }
@@ -428,7 +428,7 @@ pub fn calculate_damage(
         _ => panic!("Not implemented"),
     }
 
-    return Some(damage as i16);
+    Some(damage as i16)
 }
 
 #[cfg(test)]

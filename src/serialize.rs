@@ -12,11 +12,11 @@ use std::str::FromStr;
 
 impl Move {
     pub fn serialize(&self) -> String {
-        return format!("{:?};{};{}", self.id, self.disabled, self.pp);
+        format!("{:?};{};{}", self.id, self.disabled, self.pp)
     }
     pub fn deserialize(serialized: &str) -> Move {
         let split: Vec<&str> = serialized.split(";").collect();
-        return Move {
+        Move {
             id: Choices::from_str(split[0]).unwrap(),
             disabled: split[1].parse::<bool>().unwrap(),
             pp: split[2].parse::<i8>().unwrap(),
@@ -24,13 +24,13 @@ impl Move {
                 .get(&Choices::from_str(split[0]).unwrap())
                 .unwrap()
                 .to_owned(),
-        };
+        }
     }
 }
 
 impl PokemonType {
     pub fn serialize(&self) -> String {
-        return format!("{:?}", self);
+        format!("{:?}", self)
     }
 
     pub fn deserialize(input: &str) -> PokemonType {
@@ -61,7 +61,7 @@ impl PokemonType {
 
 impl PokemonStatus {
     pub fn serialize(&self) -> String {
-        return format!("{:?}", self);
+        format!("{:?}", self)
     }
 
     pub fn deserialize(input: &str) -> PokemonStatus {
@@ -80,7 +80,7 @@ impl PokemonStatus {
 
 impl PokemonVolatileStatus {
     pub fn serialize(&self) -> String {
-        return format!("{:?}", self);
+        format!("{:?}", self)
     }
 
     pub fn deserialize(input: &str) -> PokemonVolatileStatus {
@@ -180,7 +180,7 @@ impl PokemonVolatileStatus {
 
 impl Pokemon {
     pub fn serialize(&self) -> String {
-        return format!(
+        format!(
             "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
             self.id,
             self.level,
@@ -204,12 +204,12 @@ impl Pokemon {
             self.moves.m3.serialize(),
             self.moves.m4.serialize(),
             self.moves.m5.serialize(),
-        );
+        )
     }
 
     pub fn deserialize(serialized: &str) -> Pokemon {
         let split: Vec<&str> = serialized.split(",").collect();
-        return Pokemon {
+        Pokemon {
             id: split[0].to_string(),
             level: split[1].parse::<i8>().unwrap(),
             types: (
@@ -236,22 +236,22 @@ impl Pokemon {
                 m4: Move::deserialize(split[20]),
                 m5: Move::deserialize(split[21]),
             },
-        };
+        }
     }
 }
 
 impl LastUsedMove {
     pub fn serialize(&self) -> String {
-        return match self {
+        match self {
             LastUsedMove::Move(move_name) => format!("move:{}", move_name),
             LastUsedMove::Switch(pkmn_index) => format!("switch:{}", pkmn_index.serialize()),
-        };
+        }
     }
     pub fn deserialize(serialized: &str) -> LastUsedMove {
         let split: Vec<&str> = serialized.split(":").collect();
         match split[0] {
-            "move" => return LastUsedMove::Move(Choices::from_str(split[1]).unwrap()),
-            "switch" => return LastUsedMove::Switch(PokemonIndex::deserialize(split[1])),
+            "move" => LastUsedMove::Move(Choices::from_str(split[1]).unwrap()),
+            "switch" => LastUsedMove::Switch(PokemonIndex::deserialize(split[1])),
             _ => panic!("Invalid LastUsedMove: {}", serialized),
         }
     }
@@ -284,7 +284,7 @@ impl PokemonIndex {
 
 impl SideConditions {
     pub fn serialize(&self) -> String {
-        return format!(
+        format!(
             "{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{}",
             self.aurora_veil,
             self.crafty_shield,
@@ -305,11 +305,11 @@ impl SideConditions {
             self.toxic_count,
             self.toxic_spikes,
             self.wide_guard,
-        );
+        )
     }
     pub fn deserialize(serialized: &str) -> SideConditions {
         let split: Vec<&str> = serialized.split(";").collect();
-        return SideConditions {
+        SideConditions {
             aurora_veil: split[0].parse::<i8>().unwrap(),
             crafty_shield: split[1].parse::<i8>().unwrap(),
             healing_wish: split[2].parse::<i8>().unwrap(),
@@ -329,7 +329,7 @@ impl SideConditions {
             toxic_count: split[16].parse::<i8>().unwrap(),
             toxic_spikes: split[17].parse::<i8>().unwrap(),
             wide_guard: split[18].parse::<i8>().unwrap(),
-        };
+        }
     }
 }
 
@@ -340,7 +340,7 @@ impl Side {
             vs_string.push_str(&vs.serialize());
             vs_string.push_str(":");
         }
-        return format!(
+        format!(
             "{}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}",
             self.pokemon.p0.serialize(),
             self.pokemon.p1.serialize(),
@@ -367,7 +367,7 @@ impl Side {
             self.force_trapped,
             self.last_used_move.serialize(),
             self.slow_uturn_move,
-        );
+        )
     }
     pub fn deserialize(serialized: &str) -> Side {
         let split: Vec<&str> = serialized.split("=").collect();
@@ -378,7 +378,7 @@ impl Side {
                 vs_hashset.insert(PokemonVolatileStatus::deserialize(item));
             }
         }
-        return Side {
+        Side {
             pokemon: SidePokemon {
                 p0: Pokemon::deserialize(split[0]),
                 p1: Pokemon::deserialize(split[1]),
@@ -409,7 +409,7 @@ impl Side {
             last_used_move: LastUsedMove::deserialize(split[23]),
             damage_dealt: DamageDealt::default(),
             slow_uturn_move: split[24].parse::<bool>().unwrap(),
-        };
+        }
     }
 }
 
@@ -430,14 +430,14 @@ impl Weather {
 
 impl StateWeather {
     pub fn serialize(&self) -> String {
-        return format!("{:?};{}", self.weather_type, self.turns_remaining);
+        format!("{:?};{}", self.weather_type, self.turns_remaining)
     }
     pub fn deserialize(serialized: &str) -> StateWeather {
         let split: Vec<&str> = serialized.split(";").collect();
-        return StateWeather {
+        StateWeather {
             weather_type: Weather::from_str(split[0]).unwrap(),
             turns_remaining: split[1].parse::<i8>().unwrap(),
-        };
+        }
     }
 }
 
@@ -456,20 +456,20 @@ impl Terrain {
 
 impl StateTerrain {
     pub fn serialize(&self) -> String {
-        return format!("{:?};{}", self.terrain_type, self.turns_remaining);
+        format!("{:?};{}", self.terrain_type, self.turns_remaining)
     }
     pub fn deserialize(serialized: &str) -> StateTerrain {
         let split: Vec<&str> = serialized.split(";").collect();
-        return StateTerrain {
+        StateTerrain {
             terrain_type: Terrain::from_str(split[0]).unwrap(),
             turns_remaining: split[1].parse::<i8>().unwrap(),
-        };
+        }
     }
 }
 
 impl State {
     pub fn serialize(&self) -> String {
-        return format!(
+        format!(
             "{}/{}/{}/{}/{}/{}",
             self.side_one.serialize(),
             self.side_two.serialize(),
@@ -477,7 +477,7 @@ impl State {
             self.terrain.serialize(),
             self.trick_room,
             self.team_preview
-        );
+        )
     }
 
     /// ```
@@ -631,14 +631,14 @@ impl State {
     /// ```
     pub fn deserialize(serialized: &str) -> State {
         let split: Vec<&str> = serialized.split("/").collect();
-        return State {
+        State {
             side_one: Side::deserialize(split[0]),
             side_two: Side::deserialize(split[1]),
             weather: StateWeather::deserialize(split[2]),
             terrain: StateTerrain::deserialize(split[3]),
             trick_room: split[4].parse::<bool>().unwrap(),
             team_preview: split[5].parse::<bool>().unwrap(),
-        };
+        }
     }
 }
 

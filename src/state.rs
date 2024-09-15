@@ -11,7 +11,7 @@ use crate::instruction::{
 use crate::items::Items;
 
 fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
-    return match boost_num {
+    match boost_num {
         -6 => stat_value * 2 / 8,
         -5 => stat_value * 2 / 7,
         -4 => stat_value * 2 / 6,
@@ -26,7 +26,7 @@ fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
         5 => stat_value * 7 / 2,
         6 => stat_value * 8 / 2,
         _ => panic!("Invalid boost number"),
-    };
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -38,11 +38,11 @@ pub struct DamageDealt {
 
 impl Default for DamageDealt {
     fn default() -> DamageDealt {
-        return DamageDealt {
+        DamageDealt {
             damage: 0,
             move_category: MoveCategory::Physical,
             hit_substitute: false,
-        };
+        }
     }
 }
 
@@ -61,7 +61,7 @@ pub enum MoveChoice {
 
 impl MoveChoice {
     pub fn to_string(&self, side: &Side) -> String {
-        return match self {
+        match self {
             MoveChoice::Move(index) => {
                 format!("{}", side.get_active_immutable().moves[*index].id).to_lowercase()
             }
@@ -69,7 +69,7 @@ impl MoveChoice {
                 format!("switch {}", side.pokemon[*index].id).to_lowercase()
             }
             MoveChoice::None => "No Move".to_string(),
-        };
+        }
     }
 }
 
@@ -388,7 +388,7 @@ impl<'a> Iterator for PokemonMoveIterator<'a> {
     type Item = &'a Move;
 
     fn next(&mut self) -> Option<Self::Item> {
-        return match self.index {
+        match self.index {
             0 => {
                 self.index += 1;
                 self.pokemon_move_index = PokemonMoveIndex::M0;
@@ -419,8 +419,8 @@ impl<'a> Iterator for PokemonMoveIterator<'a> {
                 self.pokemon_move_index = PokemonMoveIndex::M5;
                 Some(&self.pokemon_move.m5)
             }
-            _ => return None,
-        };
+            _ => None,
+        }
     }
 }
 
@@ -447,12 +447,12 @@ pub struct Move {
 
 impl Default for Move {
     fn default() -> Move {
-        return Move {
+        Move {
             id: Choices::NONE,
             disabled: false,
             pp: 32,
             choice: Choice::default(),
-        };
+        }
     }
 }
 
@@ -484,7 +484,7 @@ impl Pokemon {
                 vec.push(p.choice.clone());
             }
         }
-        return vec;
+        vec
     }
     pub fn replace_move(&mut self, move_index: PokemonMoveIndex, new_move_name: Choices) {
         self.moves[move_index].choice = MOVES.get(&new_move_name).unwrap().to_owned();
@@ -536,7 +536,7 @@ impl Pokemon {
     }
 
     pub fn has_type(&self, pkmn_type: &PokemonType) -> bool {
-        return pkmn_type == &self.types.0 || pkmn_type == &self.types.1;
+        pkmn_type == &self.types.0 || pkmn_type == &self.types.1
     }
 
     pub fn item_can_be_removed(&self) -> bool {
@@ -561,8 +561,8 @@ impl Pokemon {
             | Items::FISTPLATE
             | Items::BLANKPLATE
             | Items::SKYPLATE
-            | Items::PIXIEPLATE => return !self.id.starts_with("arceus"),
-            _ => return true,
+            | Items::PIXIEPLATE => !self.id.starts_with("arceus"),
+            _ => true,
         }
     }
 
@@ -573,11 +573,11 @@ impl Pokemon {
         {
             return false;
         }
-        return true;
+        true
     }
 
     pub fn calculate_highest_stat(&self) -> PokemonBoostableStat {
-        return PokemonBoostableStat::Attack;
+        PokemonBoostableStat::Attack
     }
 
     pub fn volatile_status_can_be_applied(
@@ -595,27 +595,27 @@ impl Pokemon {
                 if active_volatiles.contains(&PokemonVolatileStatus::Substitute) {
                     return false;
                 }
-                return true;
+                true
             }
-            PokemonVolatileStatus::Substitute => return self.hp > self.maxhp / 4,
+            PokemonVolatileStatus::Substitute => self.hp > self.maxhp / 4,
             PokemonVolatileStatus::Flinch => {
                 if !first_move || [Abilities::INNERFOCUS].contains(&self.ability) {
                     return false;
                 }
-                return true;
+                true
             }
-            PokemonVolatileStatus::Protect => return first_move,
+            PokemonVolatileStatus::Protect => first_move,
             PokemonVolatileStatus::Taunt
             | PokemonVolatileStatus::Torment
             | PokemonVolatileStatus::Encore
             | PokemonVolatileStatus::Disable
             | PokemonVolatileStatus::HealBlock
-            | PokemonVolatileStatus::Attract => return self.ability != Abilities::AROMAVEIL,
+            | PokemonVolatileStatus::Attract => self.ability != Abilities::AROMAVEIL,
             PokemonVolatileStatus::Yawn => {
                 // immunity to yawn via sleep immunity is handled in `get_instructions_from_volatile_statuses`
-                return !active_volatiles.contains(&PokemonVolatileStatus::YawnSleepThisTurn);
+                !active_volatiles.contains(&PokemonVolatileStatus::YawnSleepThisTurn)
             }
-            _ => return true,
+            _ => true,
         }
     }
 
@@ -645,13 +645,13 @@ impl Pokemon {
             return true;
         }
 
-        return false;
+        false
     }
 }
 
 impl Default for Pokemon {
     fn default() -> Pokemon {
-        return Pokemon {
+        Pokemon {
             id: "rattata".to_string(),
             level: 100,
             types: (PokemonType::Normal, PokemonType::Typeless),
@@ -675,7 +675,7 @@ impl Default for Pokemon {
                 m4: Default::default(),
                 m5: Default::default(),
             },
-        };
+        }
     }
 }
 
@@ -701,7 +701,7 @@ impl Iterator for PokemonIndexIterator {
     type Item = PokemonIndex;
 
     fn next(&mut self) -> Option<Self::Item> {
-        return match self.index {
+        match self.index {
             0 => {
                 self.index += 1;
                 Some(PokemonIndex::P0)
@@ -727,7 +727,7 @@ impl Iterator for PokemonIndexIterator {
                 Some(PokemonIndex::P5)
             }
             _ => None,
-        };
+        }
     }
 }
 
@@ -764,7 +764,7 @@ impl<'a> Iterator for SidePokemonIterator<'a> {
     type Item = &'a Pokemon;
 
     fn next(&mut self) -> Option<Self::Item> {
-        return match self.index {
+        match self.index {
             0 => {
                 self.index += 1;
                 self.pokemon_index = PokemonIndex::P0;
@@ -795,8 +795,8 @@ impl<'a> Iterator for SidePokemonIterator<'a> {
                 self.pokemon_index = PokemonIndex::P5;
                 Some(&self.side_pokemon.p5)
             }
-            _ => return None,
-        };
+            _ => None,
+        }
     }
 }
 
@@ -854,7 +854,7 @@ pub struct Side {
 
 impl Side {
     pub fn get_boost_from_boost_enum(&self, boost_enum: &PokemonBoostableStat) -> i8 {
-        return match boost_enum {
+        match boost_enum {
             PokemonBoostableStat::Attack => self.attack_boost,
             PokemonBoostableStat::Defense => self.defense_boost,
             PokemonBoostableStat::SpecialAttack => self.special_attack_boost,
@@ -862,7 +862,7 @@ impl Side {
             PokemonBoostableStat::Speed => self.speed_boost,
             PokemonBoostableStat::Evasion => self.evasion_boost,
             PokemonBoostableStat::Accuracy => self.accuracy_boost,
-        };
+        }
     }
 
     pub fn calculate_boosted_stat(&self, stat: PokemonBoostableStat) -> i16 {
@@ -945,7 +945,7 @@ impl Side {
                 return true;
             }
         }
-        return false;
+        false
     }
 
     fn toggle_force_switch(&mut self) {
@@ -988,7 +988,7 @@ impl Side {
         {
             return true;
         }
-        return false;
+        false
     }
 
     pub fn get_active(&mut self) -> &mut Pokemon {
@@ -1006,7 +1006,7 @@ impl Side {
                 count += 1;
             }
         }
-        return count;
+        count
     }
 
     pub fn get_alive_pkmn_indices(&self) -> Vec<PokemonIndex> {
@@ -1019,7 +1019,7 @@ impl Side {
             }
         }
 
-        return vec;
+        vec
     }
 
     pub fn get_side_condition(&self, side_condition: PokemonSideCondition) -> i8 {
@@ -1165,7 +1165,7 @@ impl State {
         {
             return 1.0;
         }
-        return 0.0;
+        0.0
     }
 
     pub fn get_all_options(&self) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
@@ -1255,34 +1255,34 @@ impl State {
             side_two_options.push(MoveChoice::None);
         }
 
-        return (side_one_options, side_two_options);
+        (side_one_options, side_two_options)
     }
 
     pub fn get_side(&mut self, side_ref: &SideReference) -> &mut Side {
         match side_ref {
-            SideReference::SideOne => return &mut self.side_one,
-            SideReference::SideTwo => return &mut self.side_two,
+            SideReference::SideOne => &mut self.side_one,
+            SideReference::SideTwo => &mut self.side_two,
         }
     }
 
     pub fn get_side_immutable(&self, side_ref: &SideReference) -> &Side {
         match side_ref {
-            SideReference::SideOne => return &self.side_one,
-            SideReference::SideTwo => return &self.side_two,
+            SideReference::SideOne => &self.side_one,
+            SideReference::SideTwo => &self.side_two,
         }
     }
 
     pub fn get_both_sides(&mut self, side_ref: &SideReference) -> (&mut Side, &mut Side) {
         match side_ref {
-            SideReference::SideOne => return (&mut self.side_one, &mut self.side_two),
-            SideReference::SideTwo => return (&mut self.side_two, &mut self.side_one),
+            SideReference::SideOne => (&mut self.side_one, &mut self.side_two),
+            SideReference::SideTwo => (&mut self.side_two, &mut self.side_one),
         }
     }
 
     pub fn get_both_sides_immutable(&self, side_ref: &SideReference) -> (&Side, &Side) {
         match side_ref {
-            SideReference::SideOne => return (&self.side_one, &self.side_two),
-            SideReference::SideTwo => return (&self.side_two, &self.side_one),
+            SideReference::SideOne => (&self.side_one, &self.side_two),
+            SideReference::SideTwo => (&self.side_two, &self.side_one),
         }
     }
 
@@ -1444,21 +1444,21 @@ impl State {
             }
             return true;
         }
-        return false;
+        false
     }
 
     pub fn terrain_is_active(&self, terrain: &Terrain) -> bool {
-        return &self.terrain.terrain_type == terrain && self.terrain.turns_remaining > 0;
+        &self.terrain.terrain_type == terrain && self.terrain.turns_remaining > 0
     }
 
     pub fn weather_is_active(&self, weather: &Weather) -> bool {
         let s1_active = self.side_one.get_active_immutable();
         let s2_active = self.side_two.get_active_immutable();
-        return &self.weather.weather_type == weather
+        &self.weather.weather_type == weather
             && s1_active.ability != Abilities::AIRLOCK
             && s1_active.ability != Abilities::CLOUDNINE
             && s2_active.ability != Abilities::AIRLOCK
-            && s2_active.ability != Abilities::CLOUDNINE;
+            && s2_active.ability != Abilities::CLOUDNINE
     }
 
     fn damage(&mut self, side_ref: &SideReference, amount: i16) {

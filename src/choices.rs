@@ -18700,27 +18700,27 @@ pub struct StatBoosts {
 
 impl Default for StatBoosts {
     fn default() -> StatBoosts {
-        return StatBoosts {
+        StatBoosts {
             attack: 0,
             defense: 0,
             special_attack: 0,
             special_defense: 0,
             speed: 0,
             accuracy: 0,
-        };
+        }
     }
 }
 
 impl StatBoosts {
     pub fn get_as_pokemon_boostable(&self) -> [(PokemonBoostableStat, i8); 6] {
-        return [
+        [
             (PokemonBoostableStat::Attack, self.attack),
             (PokemonBoostableStat::Defense, self.defense),
             (PokemonBoostableStat::SpecialAttack, self.special_attack),
             (PokemonBoostableStat::SpecialDefense, self.special_defense),
             (PokemonBoostableStat::Speed, self.speed),
             (PokemonBoostableStat::Accuracy, self.accuracy),
-        ];
+        ]
     }
 }
 
@@ -18758,7 +18758,7 @@ pub struct Flags {
 
 impl Default for Flags {
     fn default() -> Flags {
-        return Flags {
+        Flags {
             authentic: false,
             bite: false,
             bullet: false,
@@ -18781,7 +18781,7 @@ impl Default for Flags {
             reflectable: false,
             snatch: false,
             sound: false,
-        };
+        }
     }
 }
 
@@ -19818,7 +19818,7 @@ impl Choice {
 
 impl Default for Choice {
     fn default() -> Choice {
-        return Choice {
+        Choice {
             move_id: Choices::NONE,
             switch_id: PokemonIndex::P0,
             move_type: PokemonType::Normal,
@@ -19841,6 +19841,6 @@ impl Default for Choice {
             target: MoveTarget::Opponent,
             first_move: true,
             sleep_talk_move: false,
-        };
+        }
     }
 }

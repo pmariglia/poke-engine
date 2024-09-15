@@ -144,14 +144,14 @@ impl SideConditions {
 
 impl Side {
     fn io_print_boosts(&self) -> String {
-        return format!(
+        format!(
             "Attack:{}, Defense:{}, SpecialAttack:{}, SpecialDefense:{}, Speed:{}",
             self.attack_boost,
             self.defense_boost,
             self.special_attack_boost,
             self.special_defense_boost,
             self.speed_boost
-        );
+        )
     }
     fn io_print(&self, available_choices: Vec<String>) -> String {
         let reserve = self
@@ -159,7 +159,7 @@ impl Side {
             .into_iter()
             .map(|p| p.io_print_reserve())
             .collect::<Vec<String>>();
-        return format!(
+        format!(
             "\nActive:{}\nVolatiles: {:?}\nBoosts: {}\nSide Conditions: {}\nPokemon: {}\nAvailable Choices: {}",
             self.get_active_immutable().io_print_active(),
             self.volatile_statuses,
@@ -167,20 +167,16 @@ impl Side {
             self.side_conditions.io_print(),
             reserve.join(", "),
             available_choices.join(", ")
-        );
+        )
     }
 
     fn option_to_string(&self, option: &MoveChoice) -> String {
         match option {
             MoveChoice::Move(index) => {
-                return format!("{}", self.get_active_immutable().moves[*index].id).to_lowercase();
+                format!("{}", self.get_active_immutable().moves[*index].id).to_lowercase()
             }
-            MoveChoice::Switch(index) => {
-                return format!("{}", self.pokemon[*index].id).to_lowercase();
-            }
-            MoveChoice::None => {
-                return "none".to_string();
-            }
+            MoveChoice::Switch(index) => format!("{}", self.pokemon[*index].id).to_lowercase(),
+            MoveChoice::None => "none".to_string(),
         }
     }
 
@@ -203,13 +199,13 @@ impl Side {
             }
         }
 
-        return None;
+        None
     }
 }
 
 impl Pokemon {
     fn io_print_reserve(&self) -> String {
-        return format!("{}:{}/{}", self.id, self.hp, self.maxhp);
+        format!("{}:{}/{}", self.id, self.hp, self.maxhp)
     }
     fn io_print_active(&self) -> String {
         let moves: Vec<String> = self
@@ -218,7 +214,7 @@ impl Pokemon {
             .map(|m| format!("{:?}", m.id).to_lowercase())
             .filter(|x| x != "none")
             .collect();
-        return format!(
+        format!(
             "\n  Name: {}\n  HP: {}/{}\n  Status: {:?}\n  Ability: {:?}\n  Item: {:?}\n  Moves: {}",
             self.id,
             self.hp,
@@ -227,7 +223,7 @@ impl Pokemon {
             self.ability,
             self.item,
             moves.join(", ")
-        );
+        )
     }
 }
 
@@ -296,7 +292,7 @@ pub fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
         s2_options.push(MoveChoice::None);
     }
 
-    return (s1_options, s2_options);
+    (s1_options, s2_options)
 }
 
 fn pprint_expectiminimax_result(
@@ -442,13 +438,13 @@ fn pprint_state_instruction_vector(instructions: &Vec<StateInstructions>) {
 }
 
 fn get_move_id_from_movechoice(side: &Side, move_choice: &MoveChoice) -> String {
-    return match move_choice {
+    match move_choice {
         MoveChoice::Move(index) => {
             format!("{}", side.get_active_immutable().moves[*index].id).to_lowercase()
         }
         MoveChoice::Switch(index) => format!("switch {}", side.pokemon[*index].id).to_lowercase(),
         MoveChoice::None => "No Move".to_string(),
-    };
+    }
 }
 
 fn print_subcommand_result(

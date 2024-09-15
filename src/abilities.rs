@@ -298,7 +298,7 @@ pub enum Abilities {
 
 // https://bulbapedia.bulbagarden.net/wiki/Ignoring_Abilities#Ignorable_Abilities
 fn mold_breaker_ignores(ability: &Abilities) -> bool {
-    return match ability {
+    match ability {
         Abilities::BATTLEARMOR
         | Abilities::CLEARBODY
         | Abilities::DAMP
@@ -371,7 +371,7 @@ fn mold_breaker_ignores(ability: &Abilities) -> bool {
         | Abilities::FAIRYAURA
         | Abilities::DARKAURA => true,
         _ => false,
-    };
+    }
 }
 
 pub fn ability_before_move(

@@ -99,7 +99,7 @@ pub fn expectiminimax_search(
             alpha = beta;
         }
     }
-    return score_lookup;
+    score_lookup
 }
 
 pub fn pick_safest(
@@ -126,7 +126,7 @@ pub fn pick_safest(
         }
     }
 
-    return (best_worst_case_s1_index, best_worst_case);
+    (best_worst_case_s1_index, best_worst_case)
 }
 
 fn re_order_moves_for_iterative_deepening(
@@ -154,7 +154,7 @@ fn re_order_moves_for_iterative_deepening(
     worst_case_s1_scores.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
     let new_s1_vec = worst_case_s1_scores.iter().map(|x| x.0.clone()).collect();
 
-    return (new_s1_vec, side_two_options);
+    (new_s1_vec, side_two_options)
 }
 
 pub fn iterative_deepen_expectiminimax(
@@ -227,7 +227,7 @@ pub fn iterative_deepen_expectiminimax(
     match receiver.recv() {
         Ok(IterativeDeependingThreadMessage::Stop(result)) => {
             handle.join().unwrap();
-            return result;
+            result
         }
         _ => panic!("Failed to receive stop message"),
     }

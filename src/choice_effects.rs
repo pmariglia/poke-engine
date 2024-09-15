@@ -1087,7 +1087,7 @@ pub fn choice_special_effect(
 
 pub fn charge_choice_to_volatile(choice: &Choices) -> PokemonVolatileStatus {
     // Panics if you pass a choice that does not have a corresponding volatile status
-    return match choice {
+    match choice {
         Choices::BOUNCE => PokemonVolatileStatus::Bounce,
         Choices::DIG => PokemonVolatileStatus::Dig,
         Choices::DIVE => PokemonVolatileStatus::Dive,
@@ -1107,5 +1107,5 @@ pub fn charge_choice_to_volatile(choice: &Choices) -> PokemonVolatileStatus {
         _ => {
             panic!("Invalid choice for charge: {:?}", choice)
         }
-    };
+    }
 }

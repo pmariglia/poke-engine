@@ -18,10 +18,10 @@ pub struct StateInstructions {
 
 impl Default for StateInstructions {
     fn default() -> StateInstructions {
-        return StateInstructions {
+        StateInstructions {
             percentage: 100.0,
             instruction_list: Vec::with_capacity(16),
-        };
+        }
     }
 }
 

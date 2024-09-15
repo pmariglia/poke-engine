@@ -145,7 +145,7 @@ pub fn get_choice_move_disable_instructions(
             }));
         }
     }
-    return moves_to_disable;
+    moves_to_disable
 }
 
 fn damage_reduction_berry(
