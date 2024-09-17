@@ -1,15 +1,17 @@
+.PHONY: release
+
 dev:
 	virtualenv -p python3 venv
 	. venv/bin/activate && pip install -r poke-engine-py/requirements.txt && pip install -r poke-engine-py/requirements-dev.txt && cd poke-engine-py && maturin develop --features="poke-engine/gen4"
 
 upload_python_bindings:
-	cd poke-engine-py && ./build_and_publish.sh
+	cd poke-engine-py && ./build_and_publish
 
 upload_rust_lib:
 	cargo publish --features "gen4"
 
 release:
-	./release.sh
+	./release
 
 fmt:
 	cargo fmt

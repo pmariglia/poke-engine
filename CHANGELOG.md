@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.0.8] - 2024-09-15
+## [0.0.8](https://github.com/pmariglia/poke-engine/releases/tag/0.0.8) - 2024-09-15
 
 ### Miscellaneous Tasks
 
@@ -8,7 +8,7 @@
 
 - Add release script - ([ec2a5b5](https://github.com/pmariglia/poke-engine/commit/ec2a5b56d06e837bcd5ab8c745e0f7aea02da301))
 
-## [0.0.7] - 2024-09-15
+## [0.0.7](https://github.com/pmariglia/poke-engine/releases/tag/0.0.7) - 2024-09-15
 
 ### Features
 
@@ -18,7 +18,7 @@
 
 - Remove unnecessary return statements - ([9c3315b](https://github.com/pmariglia/poke-engine/commit/9c3315bb11daafc1457451c8c8d061dfffeefff4))
 
-## [0.0.6] - 2024-09-14
+## [0.0.6](https://github.com/pmariglia/poke-engine/releases/tag/0.0.6) - 2024-09-14
 
 ### Features
 

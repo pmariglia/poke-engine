@@ -3,10 +3,16 @@
 # Print current tag and ask for new tag
 current_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
 echo "Current tag: $current_tag"
-read -p "Enter the new tag: " new_tag
+read -p "Enter the new tag (without the \"v\"): " new_tag
+
+# Validate the new tag format
+if [[ ! $new_tag =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "Error: Tag must be in the format x.y.z"
+  exit 1
+fi
 
 # Update CHANGELOG
-git-cliff -c cliff.toml -u -t "$new_tag" -p CHANGELOG.md
+git cliff -c cliff.toml -u -t "$new_tag" -p CHANGELOG.md
 
 # Update versions
 sed -i -E "s/^version = \"[0-9]+\.[0-9]+\.[0-9]+\"/version = \"$new_tag\"/" Cargo.toml
@@ -15,6 +21,9 @@ sed -i -E "s/^version = \"[0-9]+\.[0-9]+\.[0-9]+\"/version = \"$new_tag\"/" poke
 
 # Force Cargo.lock to update
 cargo update -w
+
+# Prefix the tag with 'v'
+new_tag="v$new_tag"
 
 # Commit, tag, and push
 git add Cargo* poke-engine-py/Cargo.toml poke-engine-py/pyproject.toml CHANGELOG.md
