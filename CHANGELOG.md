@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.0.9](https://github.com/pmariglia/poke-engine/releases/tag/0.0.9) - 2024-09-18
+
+### Miscellaneous Tasks
+
+- Remove  from auto publish trigger - ([8b1e34b](https://github.com/pmariglia/poke-engine/commit/8b1e34b5c0b0e4f6aaf4239c04d912e45a0f1c70))
+
+- Refactor release script process - ([1250555](https://github.com/pmariglia/poke-engine/commit/1250555f1949c63b53d9746728447f53b0a2fa66))
+
+
+### Repo
+
+- README updates - ([1b95784](https://github.com/pmariglia/poke-engine/commit/1b9578442a802b303eb10ef04496dd9de9133ad5))
+
 ## [0.0.8](https://github.com/pmariglia/poke-engine/releases/tag/0.0.8) - 2024-09-15
 
 ### Miscellaneous Tasks
