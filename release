@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# Check if the git working tree is clean
+if [[ -n $(git status --porcelain) ]]; then
+  echo "Error: Working tree is not clean. Please commit or stash your changes."
+  exit 1
+fi
+
 # Print current tag and ask for new tag
 current_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
 echo "Current tag: $current_tag"
