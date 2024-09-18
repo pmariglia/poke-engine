@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.0.9](https://github.com/pmariglia/poke-engine/releases/tag/0.0.9) - 2024-09-18
+## [v0.0.9](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.9) - 2024-09-18
 
 ### Miscellaneous Tasks
 
@@ -13,7 +13,7 @@
 
 - README updates - ([1b95784](https://github.com/pmariglia/poke-engine/commit/1b9578442a802b303eb10ef04496dd9de9133ad5))
 
-## [0.0.8](https://github.com/pmariglia/poke-engine/releases/tag/0.0.8) - 2024-09-15
+## [v0.0.8](https://github.com/pmariglia/poke-engine/releases/tag/0.0.8) - 2024-09-15
 
 ### Miscellaneous Tasks
 
@@ -21,7 +21,7 @@
 
 - Add release script - ([ec2a5b5](https://github.com/pmariglia/poke-engine/commit/ec2a5b56d06e837bcd5ab8c745e0f7aea02da301))
 
-## [0.0.7](https://github.com/pmariglia/poke-engine/releases/tag/0.0.7) - 2024-09-15
+## [v0.0.7](https://github.com/pmariglia/poke-engine/releases/tag/0.0.7) - 2024-09-15
 
 ### Features
 
