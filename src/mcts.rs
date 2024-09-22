@@ -137,11 +137,11 @@ impl Node {
         (*self.parent).backpropagate(score, state);
     }
 
-    pub fn rollout(&mut self, state: &mut State) -> f32 {
+    pub fn rollout(&mut self, state: &mut State, root_eval: &f32) -> f32 {
         let battle_is_over = state.battle_is_over();
         if battle_is_over == 0.0 {
             let eval = evaluate(state);
-            sigmoid(eval)
+            sigmoid(eval - root_eval)
         } else {
             if battle_is_over == -1.0 {
                 0.0
@@ -334,10 +334,10 @@ pub struct MctsResult {
     pub iteration_count: i64,
 }
 
-fn do_mcts(root_node: &mut Node, state: &mut State) {
+fn do_mcts(root_node: &mut Node, state: &mut State, root_eval: &f32) {
     let (mut new_node, s1_move, s2_move) = unsafe { root_node.selection(state) };
     new_node = unsafe { (*new_node).expand(state, &s1_move, &s2_move) };
-    let rollout_result = unsafe { (*new_node).rollout(state) };
+    let rollout_result = unsafe { (*new_node).rollout(state, root_eval) };
     unsafe { (*new_node).backpropagate(rollout_result, state) }
 }
 
@@ -356,10 +356,11 @@ pub fn perform_mcts(
         root_node.s2_options.get_move_node(&op).active = true;
     }
 
+    let root_eval = evaluate(state);
     let start_time = std::time::Instant::now();
     while start_time.elapsed() < max_time {
         for _ in 0..1000 {
-            do_mcts(&mut root_node, state);
+            do_mcts(&mut root_node, state, &root_eval);
         }
 
         /*

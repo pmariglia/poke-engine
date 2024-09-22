@@ -125,15 +125,11 @@ pub fn evaluate(state: &State) -> f32 {
     let iter = state.side_two.pokemon.into_iter();
     for pkmn in iter {
         if pkmn.hp > 0 {
-            // might need something special for randombattles where
-            // the pokemon are not revealed
             side_two_alive_count += 1.0;
             score -= evaluate_pokemon(pkmn);
         } else if pkmn.level == 1 {
             // level == 1 represents an un-revealed pokemon
             side_two_alive_count += 1.0;
-            score -= POKEMON_ALIVE;
-            score -= POKEMON_HP;
         }
     }
 
