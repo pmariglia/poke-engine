@@ -53,7 +53,9 @@ pub enum Instruction {
     Boost(BoostInstruction),
     ChangeSideCondition(ChangeSideConditionInstruction),
     ChangeWeather(ChangeWeather),
+    DecrementWeatherTurnsRemaining,
     ChangeTerrain(ChangeTerrain),
+    DecrementTerrainTurnsRemaining,
     ChangeType(ChangeType),
     ChangeItem(ChangeItemInstruction),
     DisableMove(DisableMoveInstruction),
@@ -69,7 +71,8 @@ pub enum Instruction {
     ToggleBatonPassing(ToggleBatonPassingInstruction),
     SetLastUsedMove(SetLastUsedMoveInstruction),
     SetDamageDealt(SetDamageDealtInstruction),
-    ToggleTrickRoom,
+    ToggleTrickRoom(ToggleTrickRoomInstruction),
+    DecrementTrickRoomTurnsRemaining,
     ToggleSideOneForceSwitch,
     ToggleSideTwoForceSwitch,
 }
@@ -131,6 +134,9 @@ impl fmt::Debug for Instruction {
                     c.new_weather_turns_remaining
                 )
             }
+            Instruction::DecrementWeatherTurnsRemaining => {
+                write!(f, "DecrementWeatherTurnsRemaining",)
+            }
             Instruction::ChangeTerrain(c) => {
                 write!(
                     f,
@@ -140,6 +146,9 @@ impl fmt::Debug for Instruction {
                     c.new_terrain,
                     c.new_terrain_turns_remaining
                 )
+            }
+            Instruction::DecrementTerrainTurnsRemaining => {
+                write!(f, "DecrementTerrainTurnsRemaining",)
             }
             Instruction::ChangeType(c) => {
                 write!(
@@ -238,8 +247,18 @@ impl fmt::Debug for Instruction {
                     hit_substitute
                 )
             }
-            Instruction::ToggleTrickRoom => {
-                write!(f, "ToggleTrickRoom")
+            Instruction::ToggleTrickRoom(i) => {
+                write!(
+                    f,
+                    "ToggleTrickRoom: {:?},{:?} -> {:?},{:?}",
+                    i.currently_active,
+                    i.previous_trickroom_turns_remaining,
+                    !i.currently_active,
+                    i.new_trickroom_turns_remaining,
+                )
+            }
+            Instruction::DecrementTrickRoomTurnsRemaining => {
+                write!(f, "DecrementTrickRoomTurnsRemaining")
             }
             Instruction::ToggleSideOneForceSwitch => {
                 write!(f, "ToggleSideOneForceSwitch")
@@ -400,6 +419,13 @@ pub struct ChangeTerrain {
     pub new_terrain_turns_remaining: i8,
     pub previous_terrain: Terrain,
     pub previous_terrain_turns_remaining: i8,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ToggleTrickRoomInstruction {
+    pub currently_active: bool,
+    pub new_trickroom_turns_remaining: i8,
+    pub previous_trickroom_turns_remaining: i8,
 }
 
 #[derive(Debug, PartialEq, Clone)]

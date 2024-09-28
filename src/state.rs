@@ -247,6 +247,12 @@ pub struct StateTerrain {
     pub turns_remaining: i8,
 }
 
+#[derive(Debug, PartialEq, Clone)]
+pub struct StateTrickRoom {
+    pub active: bool,
+    pub turns_remaining: i8,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum PokemonType {
     Normal,
@@ -1125,7 +1131,7 @@ pub struct State {
     pub side_two: Side,
     pub weather: StateWeather,
     pub terrain: StateTerrain,
-    pub trick_room: bool,
+    pub trick_room: StateTrickRoom,
     pub team_preview: bool,
 }
 
@@ -1136,13 +1142,16 @@ impl Default for State {
             side_two: Side::default(),
             weather: StateWeather {
                 weather_type: Weather::None,
-                turns_remaining: 0,
+                turns_remaining: -1,
             },
             terrain: StateTerrain {
                 terrain_type: Terrain::None,
                 turns_remaining: 0,
             },
-            trick_room: false,
+            trick_room: StateTrickRoom {
+                active: false,
+                turns_remaining: 0,
+            },
             team_preview: false,
         }
     }
@@ -1644,8 +1653,9 @@ impl State {
         self.get_side(side_reference).pokemon[pokemon_index].rest_turns = amount;
     }
 
-    fn toggle_trickroom(&mut self) {
-        self.trick_room = !self.trick_room;
+    fn toggle_trickroom(&mut self, new_turns_remaining: i8) {
+        self.trick_room.active = !self.trick_room.active;
+        self.trick_room.turns_remaining = new_turns_remaining;
     }
 
     fn set_last_used_move(&mut self, side_reference: &SideReference, last_used_move: LastUsedMove) {
@@ -1707,10 +1717,16 @@ impl State {
                 instruction.new_weather,
                 instruction.new_weather_turns_remaining,
             ),
+            Instruction::DecrementWeatherTurnsRemaining => {
+                self.weather.turns_remaining -= 1;
+            }
             Instruction::ChangeTerrain(instruction) => self.change_terrain(
                 instruction.new_terrain,
                 instruction.new_terrain_turns_remaining,
             ),
+            Instruction::DecrementTerrainTurnsRemaining => {
+                self.terrain.turns_remaining -= 1;
+            }
             Instruction::ChangeType(instruction) => {
                 self.change_types(&instruction.side_ref, instruction.new_types)
             }
@@ -1748,7 +1764,12 @@ impl State {
             Instruction::DecrementRestTurns(instruction) => {
                 self.decrement_rest_turn(&instruction.side_ref);
             }
-            Instruction::ToggleTrickRoom => self.toggle_trickroom(),
+            Instruction::ToggleTrickRoom(instruction) => {
+                self.toggle_trickroom(instruction.new_trickroom_turns_remaining)
+            }
+            Instruction::DecrementTrickRoomTurnsRemaining => {
+                self.trick_room.turns_remaining -= 1;
+            }
             Instruction::ToggleSideOneForceSwitch => self.side_one.toggle_force_switch(),
             Instruction::ToggleSideTwoForceSwitch => self.side_two.toggle_force_switch(),
             Instruction::SetSideOneMoveSecondSwitchOutMove(instruction) => {
@@ -1818,10 +1839,16 @@ impl State {
                 instruction.previous_weather,
                 instruction.previous_weather_turns_remaining,
             ),
+            Instruction::DecrementWeatherTurnsRemaining => {
+                self.weather.turns_remaining += 1;
+            }
             Instruction::ChangeTerrain(instruction) => self.change_terrain(
                 instruction.previous_terrain,
                 instruction.previous_terrain_turns_remaining,
             ),
+            Instruction::DecrementTerrainTurnsRemaining => {
+                self.terrain.turns_remaining += 1;
+            }
             Instruction::ChangeType(instruction) => {
                 self.change_types(&instruction.side_ref, instruction.old_types)
             }
@@ -1857,7 +1884,12 @@ impl State {
             Instruction::DecrementRestTurns(instruction) => {
                 self.increment_rest_turn(&instruction.side_ref);
             }
-            Instruction::ToggleTrickRoom => self.toggle_trickroom(),
+            Instruction::ToggleTrickRoom(instruction) => {
+                self.toggle_trickroom(instruction.previous_trickroom_turns_remaining)
+            }
+            Instruction::DecrementTrickRoomTurnsRemaining => {
+                self.trick_room.turns_remaining += 1;
+            }
             Instruction::ToggleSideOneForceSwitch => self.side_one.toggle_force_switch(),
             Instruction::ToggleSideTwoForceSwitch => self.side_two.toggle_force_switch(),
             Instruction::SetSideOneMoveSecondSwitchOutMove(instruction) => {

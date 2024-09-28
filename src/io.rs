@@ -685,12 +685,15 @@ fn command_loop(mut io_data: IOData) {
                     );
                 }
                 println!(
-                    "SideOne {}\n\nvs\n\nSideTwo {}\n\nState:\n  Weather: {:?}\n  Terrain: {:?}\n  TrickRoom: {}",
+                    "SideOne {}\n\nvs\n\nSideTwo {}\n\nState:\n  Weather: {:?},{}\n  Terrain: {:?},{}\n  TrickRoom: {},{}",
                     io_data.state.side_one.io_print(side_one_choices),
                     io_data.state.side_two.io_print(side_two_choices),
                     io_data.state.weather.weather_type,
+                    io_data.state.weather.turns_remaining,
                     io_data.state.terrain.terrain_type,
-                    io_data.state.trick_room
+                    io_data.state.terrain.turns_remaining,
+                    io_data.state.trick_room.active,
+                    io_data.state.trick_room.turns_remaining
                 );
             }
             "generate-instructions" | "g" => {

@@ -9,6 +9,7 @@ use poke_engine::instruction::{
     RemoveVolatileStatusInstruction, SetRestTurnsInstruction,
     SetSecondMoveSwitchOutMoveInstruction, SetSubstituteHealthInstruction, SetWishInstruction,
     StateInstructions, SwitchInstruction, ToggleBatonPassingInstruction,
+    ToggleTrickRoomInstruction,
 };
 use poke_engine::items::Items;
 use poke_engine::state::{
@@ -4073,7 +4074,7 @@ fn test_end_of_turn_triggered_when_switchout_flag_is_removed() {
     let mut state = State::default();
     state.weather = StateWeather {
         weather_type: Weather::Sand,
-        turns_remaining: 5,
+        turns_remaining: -1,
     };
     state.side_one.force_switch = true;
     state.side_two.switch_out_move_second_saved_move = Choices::TACKLE;
@@ -4121,7 +4122,7 @@ fn test_end_of_turn_triggered_when_switchout_flag_is_removed_and_other_side_did_
     let mut state = State::default();
     state.weather = StateWeather {
         weather_type: Weather::Sand,
-        turns_remaining: 5,
+        turns_remaining: -1,
     };
     state.side_one.force_switch = true;
     state.side_two.switch_out_move_second_saved_move = Choices::NONE;
@@ -4551,6 +4552,143 @@ fn test_rock_spdef_in_sand_versus_secretsword_doesnt_change_damageroll() {
 }
 
 #[test]
+fn test_rain_turns_do_not_decrement_if_turns_remaining_are_negative() {
+    let mut state = State::default();
+    state.weather.weather_type = Weather::Rain;
+    state.weather.turns_remaining = -1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_rain_turns_decrement_if_turns_remaining_are_greater_than_1() {
+    let mut state = State::default();
+    state.weather.weather_type = Weather::Rain;
+    state.weather.turns_remaining = 3;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::DecrementWeatherTurnsRemaining],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_rain_ends_if_turns_remaining_is_1() {
+    let mut state = State::default();
+    state.weather.weather_type = Weather::Rain;
+    state.weather.turns_remaining = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DecrementWeatherTurnsRemaining,
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::None,
+                new_weather_turns_remaining: 0,
+                previous_weather: Weather::Rain,
+                previous_weather_turns_remaining: 0,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_sand_does_not_inflict_damage_when_ending() {
+    let mut state = State::default();
+    state.weather.weather_type = Weather::Sand;
+    state.weather.turns_remaining = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DecrementWeatherTurnsRemaining,
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::None,
+                new_weather_turns_remaining: 0,
+                previous_weather: Weather::Sand,
+                previous_weather_turns_remaining: 0,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_trickroom_decrements() {
+    let mut state = State::default();
+    state.trick_room.active = true;
+    state.trick_room.turns_remaining = 3;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::DecrementTrickRoomTurnsRemaining],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_trickroom_ends_when_decrementing_to_zero() {
+    let mut state = State::default();
+    state.trick_room.active = true;
+    state.trick_room.turns_remaining = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DecrementTrickRoomTurnsRemaining,
+            Instruction::ToggleTrickRoom(ToggleTrickRoomInstruction {
+                currently_active: true,
+                new_trickroom_turns_remaining: 0,
+                previous_trickroom_turns_remaining: 0,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_morningsun_in_rain() {
     let mut state = State::default();
     state.weather.weather_type = Weather::Rain;
@@ -4854,7 +4992,37 @@ fn test_trickroom() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![Instruction::ToggleTrickRoom],
+        instruction_list: vec![
+            Instruction::ToggleTrickRoom(ToggleTrickRoomInstruction {
+                currently_active: false,
+                new_trickroom_turns_remaining: 5,
+                previous_trickroom_turns_remaining: 0,
+            }),
+            Instruction::DecrementTrickRoomTurnsRemaining,
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_trickroom_when_trickroom_is_already_active() {
+    let mut state = State::default();
+    state.trick_room.active = true;
+    state.trick_room.turns_remaining = 3;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TRICKROOM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::ToggleTrickRoom(ToggleTrickRoomInstruction {
+            currently_active: true,
+            new_trickroom_turns_remaining: 0,
+            previous_trickroom_turns_remaining: 3,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -5014,7 +5182,8 @@ fn test_wish_in_gen4_uses_target_pkmn_maxhp() {
 #[test]
 fn test_undo_trickroom() {
     let mut state = State::default();
-    state.trick_room = true;
+    state.trick_room.active = true;
+    state.trick_room.turns_remaining = 3;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -5024,7 +5193,11 @@ fn test_undo_trickroom() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![Instruction::ToggleTrickRoom],
+        instruction_list: vec![Instruction::ToggleTrickRoom(ToggleTrickRoomInstruction {
+            currently_active: true,
+            new_trickroom_turns_remaining: 0,
+            previous_trickroom_turns_remaining: 3,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -6320,12 +6493,15 @@ fn test_sunnyday() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![Instruction::ChangeWeather(ChangeWeather {
-            new_weather: Weather::Sun,
-            new_weather_turns_remaining: 5,
-            previous_weather: Weather::None,
-            previous_weather_turns_remaining: 0,
-        })],
+        instruction_list: vec![
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::Sun,
+                new_weather_turns_remaining: 5,
+                previous_weather: Weather::None,
+                previous_weather_turns_remaining: -1,
+            }),
+            Instruction::DecrementWeatherTurnsRemaining,
+        ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -7780,7 +7956,7 @@ fn test_oblivious_versus_intimidate() {
 }
 
 #[test]
-fn test_drizze() {
+fn test_drizzle() {
     let mut state = State::default();
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::DRIZZLE;
 
@@ -7800,9 +7976,9 @@ fn test_drizze() {
             }),
             Instruction::ChangeWeather(ChangeWeather {
                 new_weather: Weather::Rain,
-                new_weather_turns_remaining: 5,
+                new_weather_turns_remaining: -1,
                 previous_weather: Weather::None,
-                previous_weather_turns_remaining: 0,
+                previous_weather_turns_remaining: -1,
             }),
         ],
     }];
@@ -7834,6 +8010,7 @@ fn test_electricsurge() {
                 previous_terrain: Terrain::None,
                 previous_terrain_turns_remaining: 0,
             }),
+            Instruction::DecrementTerrainTurnsRemaining,
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -7908,9 +8085,9 @@ fn test_drought() {
             }),
             Instruction::ChangeWeather(ChangeWeather {
                 new_weather: Weather::Sun,
-                new_weather_turns_remaining: 5,
+                new_weather_turns_remaining: -1,
                 previous_weather: Weather::None,
-                previous_weather_turns_remaining: 0,
+                previous_weather_turns_remaining: -1,
             }),
         ],
     }];
@@ -8353,6 +8530,7 @@ fn test_switching_in_with_grassyseed_in_grassy_terrain() {
                 current_item: Items::GRASSYSEED,
                 new_item: Items::NONE,
             }),
+            Instruction::DecrementTerrainTurnsRemaining,
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -8395,6 +8573,7 @@ fn test_contrary_with_seed() {
                 current_item: Items::PSYCHICSEED,
                 new_item: Items::NONE,
             }),
+            Instruction::DecrementTerrainTurnsRemaining,
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -9608,7 +9787,7 @@ fn test_dryskin_in_rain() {
     state.side_two.get_active().ability = Abilities::DRYSKIN;
     state.side_two.get_active().hp = 90;
     state.weather.weather_type = Weather::Rain;
-    state.weather.turns_remaining = 5;
+    state.weather.turns_remaining = -1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,

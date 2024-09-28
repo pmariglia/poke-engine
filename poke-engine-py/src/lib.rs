@@ -15,7 +15,7 @@ use poke_engine::search::iterative_deepen_expectiminimax;
 use poke_engine::state::{
     LastUsedMove, Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoves, PokemonStatus,
     PokemonType, PokemonVolatileStatus, Side, SideConditions, SidePokemon, State, StateTerrain,
-    StateWeather, Terrain, Weather,
+    StateTrickRoom, StateWeather, Terrain, Weather,
 };
 use std::str::FromStr;
 use std::time::Duration;
@@ -33,8 +33,11 @@ impl PyState {
         side_one: PySide,
         side_two: PySide,
         weather: String,
+        weather_turns_remaining: i8,
         terrain: String,
+        terrain_turns_remaining: i8,
         trick_room: bool,
+        trick_room_turns_remaining: i8,
         team_preview: bool,
     ) -> Self {
         PyState {
@@ -43,13 +46,16 @@ impl PyState {
                 side_two: side_two.create_side(),
                 weather: StateWeather {
                     weather_type: Weather::from_str(&weather).unwrap(),
-                    turns_remaining: 1,
+                    turns_remaining: weather_turns_remaining,
                 },
                 terrain: StateTerrain {
                     terrain_type: Terrain::from_str(&terrain).unwrap(),
-                    turns_remaining: 1,
+                    turns_remaining: terrain_turns_remaining,
                 },
-                trick_room,
+                trick_room: StateTrickRoom {
+                    active: trick_room,
+                    turns_remaining: trick_room_turns_remaining,
+                },
                 team_preview,
             },
         }

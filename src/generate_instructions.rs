@@ -13,10 +13,11 @@ use crate::choices::{
 };
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-    ChangeSideConditionInstruction, DecrementRestTurnsInstruction, DecrementWishInstruction,
-    HealInstruction, RemoveVolatileStatusInstruction, SetDamageDealtInstruction,
-    SetLastUsedMoveInstruction, SetRestTurnsInstruction, SetSecondMoveSwitchOutMoveInstruction,
-    ToggleBatonPassingInstruction,
+    ChangeSideConditionInstruction, ChangeTerrain, ChangeWeather, DecrementRestTurnsInstruction,
+    DecrementWishInstruction, HealInstruction, RemoveVolatileStatusInstruction,
+    SetDamageDealtInstruction, SetLastUsedMoveInstruction, SetRestTurnsInstruction,
+    SetSecondMoveSwitchOutMoveInstruction, ToggleBatonPassingInstruction,
+    ToggleTrickRoomInstruction,
 };
 use crate::items::{
     item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
@@ -1849,7 +1850,7 @@ fn side_one_moves_first(state: &State, side_one_choice: &Choice, side_two_choice
         {
             return false;
         }
-        match state.trick_room {
+        match state.trick_room.active {
             true => return side_one_effective_speed < side_two_effective_speed,
             false => side_one_effective_speed > side_two_effective_speed,
         }
@@ -1878,6 +1879,66 @@ fn add_end_of_turn_instructions(
     }
 
     let sides = [first_move_side, &first_move_side.get_other_side()];
+
+    // Weather decrement / dissipation
+    if state.weather.turns_remaining > 0 && state.weather.weather_type != Weather::None {
+        let weather_dissipate_instruction = Instruction::DecrementWeatherTurnsRemaining;
+        incoming_instructions
+            .instruction_list
+            .push(weather_dissipate_instruction);
+        state.weather.turns_remaining -= 1;
+        if state.weather.turns_remaining == 0 {
+            let weather_end_instruction = Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::None,
+                new_weather_turns_remaining: 0,
+                previous_weather: state.weather.weather_type,
+                previous_weather_turns_remaining: 0,
+            });
+            incoming_instructions
+                .instruction_list
+                .push(weather_end_instruction);
+            state.weather.weather_type = Weather::None;
+        }
+    }
+
+    // Trick Room decrement / dissipation
+    if state.trick_room.turns_remaining > 0 && state.trick_room.active {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::DecrementTrickRoomTurnsRemaining);
+        state.trick_room.turns_remaining -= 1;
+        if state.trick_room.turns_remaining == 0 {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ToggleTrickRoom(ToggleTrickRoomInstruction {
+                    currently_active: true,
+                    new_trickroom_turns_remaining: 0,
+                    previous_trickroom_turns_remaining: 0,
+                }));
+            state.trick_room.active = false;
+        }
+    }
+
+    // Terrain decrement / dissipation
+    if state.terrain.turns_remaining > 0 && state.terrain.terrain_type != Terrain::None {
+        let terrain_dissipate_instruction = Instruction::DecrementTerrainTurnsRemaining;
+        incoming_instructions
+            .instruction_list
+            .push(terrain_dissipate_instruction);
+        state.terrain.turns_remaining -= 1;
+        if state.terrain.turns_remaining == 0 {
+            let terrain_end_instruction = Instruction::ChangeTerrain(ChangeTerrain {
+                new_terrain: Terrain::None,
+                new_terrain_turns_remaining: 0,
+                previous_terrain: state.terrain.terrain_type,
+                previous_terrain_turns_remaining: 0,
+            });
+            incoming_instructions
+                .instruction_list
+                .push(terrain_end_instruction);
+            state.terrain.terrain_type = Terrain::None;
+        }
+    }
 
     // Weather Damage
     for side_ref in sides {

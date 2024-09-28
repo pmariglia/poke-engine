@@ -309,10 +309,16 @@ class State:
     :type side_two: Side
     :param weather: the currently active weather
     :type weather: str
+    :param weather_turns_remaining: number of turns remaining for weather
+    :type weather_turns_remaining: int
     :param terrain: the currently active terrain
     :type terrain: str
+    :param terrain_turns_remaining: number of turns remaining for terrain
+    :type terrain_turns_remaining: int
     :param trick_room: whether trick room is active
     :type trick_room: bool
+    :param trick_room_turns_remaining: number of turns remaining for trick room
+    :type trick_room_turns_remaining: int
     :param team_preview: if the battle is currently in team preview
     :type team_preview: bool
     """
@@ -320,8 +326,11 @@ class State:
     side_one: Side = field(default_factory=Side)
     side_two: Side = field(default_factory=Side)
     weather: str = "none"
+    weather_turns_remaining: int = -1
     terrain: str = "none"
+    terrain_turns_remaining: int = 0
     trick_room: bool = False
+    trick_room_turns_remaining: int = 0
     team_preview: bool = False
 
     def _into_rust_obj(self):
@@ -329,8 +338,11 @@ class State:
             side_one=self.side_one._into_rust_obj(),
             side_two=self.side_two._into_rust_obj(),
             weather=self.weather,
+            weather_turns_remaining=self.weather_turns_remaining,
             terrain=self.terrain,
+            terrain_turns_remaining=self.terrain_turns_remaining,
             trick_room=self.trick_room,
+            trick_room_turns_remaining=self.trick_room_turns_remaining,
             team_preview=self.team_preview,
         )
 

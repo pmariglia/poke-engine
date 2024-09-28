@@ -56,6 +56,12 @@ state = State(
             ),
         ]
     ),
+    weather="none",
+    weather_turns_remaining=-1,
+    terrain="none",
+    terrain_turns_remaining=-1,
+    trick_room=False,
+    trick_room_turns_remaining=-1,
 )
 
 

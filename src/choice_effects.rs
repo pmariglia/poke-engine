@@ -6,7 +6,7 @@ use crate::instruction::{
     ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction,
     ChangeStatusInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, HealInstruction,
     Instruction, SetRestTurnsInstruction, SetSubstituteHealthInstruction, SetWishInstruction,
-    StateInstructions,
+    StateInstructions, ToggleTrickRoomInstruction,
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::state::{
@@ -800,10 +800,20 @@ pub fn choice_special_effect(
             }
         }
         Choices::TRICKROOM => {
-            state.trick_room = !state.trick_room;
+            let new_turns_remaining;
+            if state.trick_room.active {
+                new_turns_remaining = 0;
+            } else {
+                new_turns_remaining = 5;
+            }
             instructions
                 .instruction_list
-                .push(Instruction::ToggleTrickRoom);
+                .push(Instruction::ToggleTrickRoom(ToggleTrickRoomInstruction {
+                    currently_active: state.trick_room.active,
+                    new_trickroom_turns_remaining: new_turns_remaining,
+                    previous_trickroom_turns_remaining: state.trick_room.turns_remaining,
+                }));
+            state.trick_room.active = !state.trick_room.active;
         }
         Choices::SUPERFANG | Choices::NATURESMADNESS | Choices::RUINATION => {
             let target_pkmn = defending_side.get_active();
@@ -1033,7 +1043,7 @@ pub fn choice_special_effect(
                         new_weather: Weather::Sun,
                         new_weather_turns_remaining: 5,
                         previous_weather: state.weather.weather_type,
-                        previous_weather_turns_remaining: 0,
+                        previous_weather_turns_remaining: state.weather.turns_remaining,
                     }));
                 state.weather.weather_type = Weather::Sun;
                 state.weather.turns_remaining = 5;
@@ -1047,7 +1057,7 @@ pub fn choice_special_effect(
                         new_weather: Weather::Rain,
                         new_weather_turns_remaining: 5,
                         previous_weather: state.weather.weather_type,
-                        previous_weather_turns_remaining: 0,
+                        previous_weather_turns_remaining: state.weather.turns_remaining,
                     }));
                 state.weather.weather_type = Weather::Rain;
                 state.weather.turns_remaining = 5;
@@ -1061,7 +1071,7 @@ pub fn choice_special_effect(
                         new_weather: Weather::Sand,
                         new_weather_turns_remaining: 5,
                         previous_weather: state.weather.weather_type,
-                        previous_weather_turns_remaining: 0,
+                        previous_weather_turns_remaining: state.weather.turns_remaining,
                     }));
                 state.weather.weather_type = Weather::Sand;
                 state.weather.turns_remaining = 5;
@@ -1075,7 +1085,7 @@ pub fn choice_special_effect(
                         new_weather: Weather::Hail,
                         new_weather_turns_remaining: 5,
                         previous_weather: state.weather.weather_type,
-                        previous_weather_turns_remaining: 0,
+                        previous_weather_turns_remaining: state.weather.turns_remaining,
                     }));
                 state.weather.weather_type = Weather::Hail;
                 state.weather.turns_remaining = 5;
