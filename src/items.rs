@@ -97,6 +97,7 @@ pub enum Items {
     STONEPLATE,
     INSECTPLATE,
     SPOOKYPLATE,
+    IRONBALL,
     IRONPLATE,
     FLAMEPLATE,
     SPLASHPLATE,

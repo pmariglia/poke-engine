@@ -573,6 +573,9 @@ impl Pokemon {
     }
 
     pub fn is_grounded(&self) -> bool {
+        if self.item == Items::IRONBALL {
+            return true;
+        }
         if self.has_type(&PokemonType::Flying)
             || self.ability == Abilities::LEVITATE
             || self.item == Items::AIRBALLOON

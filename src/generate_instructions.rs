@@ -1781,8 +1781,10 @@ fn get_effective_speed(state: &State, side_reference: &SideReference) -> i16 {
         boosted_speed *= 2.0
     }
 
-    if active_pkmn.item == Items::CHOICESCARF {
-        boosted_speed *= 1.5
+    match active_pkmn.item {
+        Items::IRONBALL => boosted_speed *= 0.5,
+        Items::CHOICESCARF => boosted_speed *= 1.5,
+        _ => {}
     }
 
     #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
@@ -7311,6 +7313,24 @@ mod tests {
         state.side_one.get_active().speed = 100;
 
         assert_eq!(25, get_effective_speed(&state, &SideReference::SideOne))
+    }
+
+    #[test]
+    fn test_choicescarf_multiplying_speed() {
+        let mut state = State::default();
+        state.side_one.get_active().speed = 100;
+        state.side_one.get_active().item = Items::CHOICESCARF;
+
+        assert_eq!(150, get_effective_speed(&state, &SideReference::SideOne))
+    }
+
+    #[test]
+    fn test_iron_ball_halving_speed() {
+        let mut state = State::default();
+        state.side_one.get_active().speed = 100;
+        state.side_one.get_active().item = Items::IRONBALL;
+
+        assert_eq!(50, get_effective_speed(&state, &SideReference::SideOne))
     }
 
     #[test]

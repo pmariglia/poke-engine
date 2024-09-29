@@ -1920,6 +1920,7 @@ impl FromStr for Items {
             "STONEPLATE" => Ok(Items::STONEPLATE),
             "INSECTPLATE" => Ok(Items::INSECTPLATE),
             "SPOOKYPLATE" => Ok(Items::SPOOKYPLATE),
+            "IRONBALL" => Ok(Items::IRONBALL),
             "IRONPLATE" => Ok(Items::IRONPLATE),
             "FLAMEPLATE" => Ok(Items::FLAMEPLATE),
             "SPLASHPLATE" => Ok(Items::SPLASHPLATE),
