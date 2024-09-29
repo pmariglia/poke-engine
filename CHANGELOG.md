@@ -1,5 +1,23 @@
 # Changelog
 
+## [v0.0.10](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.10) - 2024-09-29
+
+### Features
+
+- [**breaking**] Track turns remaining for weather/terrain/trickroom. - ([13e9373](https://github.com/pmariglia/poke-engine/commit/13e93735b5d0963668c654a956383cec2a04e5d9))
+
+- Implement ironball - ([d834548](https://github.com/pmariglia/poke-engine/commit/d8345488c716127255500a39529d5fb9d6f8a8fa))
+
+
+### Performance
+
+- Modify mcts rollout parameter to be the change in evaluation rather than the absolute evaluation - ([3fd0072](https://github.com/pmariglia/poke-engine/commit/3fd0072f6135826066e65ad31171395255531b1b))
+
+
+### Miscellaneous Tasks
+
+- Add exit-early to release script if git working tree is not clean - ([ceb85a1](https://github.com/pmariglia/poke-engine/commit/ceb85a13485f50b93867f2cf2cfb3116ddcc80a1))
+
 ## [v0.0.9](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.9) - 2024-09-18
 
 ### Miscellaneous Tasks
