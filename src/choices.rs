@@ -971,6 +971,7 @@ lazy_static! {
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
+                    pivot: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -2277,6 +2278,7 @@ lazy_static! {
                 move_id: Choices::CHILLYRECEPTION,
                 move_type: PokemonType::Ice,
                 flags: Flags {
+                    pivot: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -5565,6 +5567,7 @@ lazy_static! {
                     contact: true,
                     mirror: true,
                     protect: true,
+                    pivot: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -11412,6 +11415,7 @@ lazy_static! {
                     protect: true,
                     reflectable: true,
                     sound: true,
+                    pivot: true,
                     ..Default::default()
                 },
                 boost: Some(Boost {
@@ -16734,6 +16738,7 @@ lazy_static! {
                     target: MoveTarget::User,
                     move_type: PokemonType::Psychic,
                     flags: Flags {
+                        pivot: true,
                         ..Default::default()
                     },
                     ..Default::default()
@@ -17668,6 +17673,7 @@ lazy_static! {
                     contact: true,
                     mirror: true,
                     protect: true,
+                    pivot: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -17864,6 +17870,7 @@ lazy_static! {
                 flags: Flags {
                     mirror: true,
                     protect: true,
+                    pivot: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -18754,6 +18761,7 @@ pub struct Flags {
     pub reflectable: bool,
     pub snatch: bool,
     pub sound: bool,
+    pub pivot: bool,
 }
 
 impl Default for Flags {
@@ -18781,6 +18789,7 @@ impl Default for Flags {
             reflectable: false,
             snatch: false,
             sound: false,
+            pivot: false,
         }
     }
 }
@@ -19722,19 +19731,6 @@ impl fmt::Debug for Choice {
 }
 
 impl Choice {
-    pub fn switch_out_move(&self) -> bool {
-        match self.move_id {
-            Choices::UTURN
-            | Choices::PARTINGSHOT
-            | Choices::FLIPTURN
-            | Choices::VOLTSWITCH
-            | Choices::TELEPORT
-            | Choices::CHILLYRECEPTION
-            | Choices::BATONPASS => true,
-            _ => false,
-        }
-    }
-
     pub fn multi_accuracy(&self) -> MultiAccuracyMove {
         match self.move_id {
             Choices::TRIPLEAXEL => MultiAccuracyMove::TripleHit,
@@ -19790,6 +19786,7 @@ impl Choice {
         self.category = MoveCategory::Status;
         self.accuracy = 100.0;
         self.flags.drag = false;
+        self.flags.pivot = false;
         self.heal = None;
         self.drain = None;
         self.recoil = None;

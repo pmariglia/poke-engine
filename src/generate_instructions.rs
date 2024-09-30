@@ -1134,7 +1134,12 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
             - you were flinched
             - etc.
     */
-    let attacking_side = state.get_side_immutable(attacking_side_ref);
+    let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
+
+    // If the opponent has 0 hp, you can't use a non-status move
+    if defending_side.get_active_immutable().hp == 0 && choice.category != MoveCategory::Status {
+        return true;
+    }
 
     // If you were taunted, you can't use a Physical/Special move
     if attacking_side
@@ -1723,7 +1728,7 @@ pub fn generate_instructions_from_move(
     // Only entered if the move causes a switch-out
     // U-turn, Volt Switch, Baton Pass, etc.
     // This deals with a bunch of flags that are required for the next turn to run properly
-    if choice.switch_out_move() {
+    if choice.flags.pivot {
         match attacking_side {
             SideReference::SideOne => {
                 if state.side_one.num_alive_pkmn() > 1 {
