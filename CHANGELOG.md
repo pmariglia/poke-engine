@@ -1,5 +1,21 @@
 # Changelog
 
+## [v0.0.11](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.11) - 2024-09-30
+
+### Features
+
+- [**breaking**] Proper Sleep Turn Tracking - ([2281f7d](https://github.com/pmariglia/poke-engine/commit/2281f7d51fc00a65b84949868eb6d7c937b056fa))
+
+
+### Bug Fixes
+
+- Fix some interactions around pivot moves - ([6fedefa](https://github.com/pmariglia/poke-engine/commit/6fedefadc21bdee9ce0f89a09c52240a169dec95))
+
+
+### Miscellaneous Tasks
+
+- Fix some compilation warnings around unused variables - ([40f3480](https://github.com/pmariglia/poke-engine/commit/40f34802070e61da14bb977f10848544e610a27d))
+
 ## [v0.0.10](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.10) - 2024-09-29
 
 ### Features
