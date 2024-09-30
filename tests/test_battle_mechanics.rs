@@ -10933,7 +10933,7 @@ fn test_innerfocus() {
 
 #[test]
 fn test_battle_is_over_when_battle_is_not_over() {
-    let mut state = State::default();
+    let state = State::default();
     assert_eq!(state.battle_is_over(), 0.0);
 }
 

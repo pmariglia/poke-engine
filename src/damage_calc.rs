@@ -59,13 +59,11 @@ const TYPE_MATCHUP_DAMAGE_MULTIPICATION: [[f32; 19]; 19] = [
 /* 18 */ [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 ];
 
+#[allow(dead_code)]
 pub enum DamageRolls {
     Average,
     Min,
     Max,
-    MinMax,
-    MinMaxAverage,
-    All,
 }
 
 fn type_enum_to_type_matchup_int(type_enum: &PokemonType) -> usize {
@@ -250,50 +248,6 @@ fn volatile_status_modifier(choice: &Choice, attacking_side: &Side, defending_si
     modifier
 }
 
-fn _get_damage_rolls(damage: f32, damage_roll_type: DamageRolls) -> Vec<i16> {
-    match damage_roll_type {
-        DamageRolls::Min => {
-            vec![(damage * 0.85) as i16]
-        }
-        DamageRolls::Average => {
-            vec![(damage * 0.925) as i16]
-        }
-        DamageRolls::Max => {
-            vec![damage as i16]
-        }
-        DamageRolls::MinMax => {
-            vec![(damage * 0.85) as i16, damage as i16]
-        }
-        DamageRolls::MinMaxAverage => {
-            vec![
-                (damage * 0.85) as i16,
-                (damage * 0.925) as i16,
-                damage as i16,
-            ]
-        }
-        DamageRolls::All => {
-            vec![
-                (damage * 0.85) as i16,
-                (damage * 0.86) as i16,
-                (damage * 0.87) as i16,
-                (damage * 0.88) as i16,
-                (damage * 0.89) as i16,
-                (damage * 0.90) as i16,
-                (damage * 0.91) as i16,
-                (damage * 0.92) as i16,
-                (damage * 0.93) as i16,
-                (damage * 0.94) as i16,
-                (damage * 0.95) as i16,
-                (damage * 0.96) as i16,
-                (damage * 0.97) as i16,
-                (damage * 0.98) as i16,
-                (damage * 0.99) as i16,
-                damage as i16,
-            ]
-        }
-    }
-}
-
 // This is a basic damage calculation function that assumes special effects/modifiers
 // are reflected in the `Choice` struct
 //
@@ -425,7 +379,6 @@ pub fn calculate_damage(
         DamageRolls::Average => damage = damage.floor() * 0.925,
         DamageRolls::Min => damage = damage.floor() * 0.85,
         DamageRolls::Max => damage = damage.floor(),
-        _ => panic!("Not implemented"),
     }
 
     Some(damage as i16)

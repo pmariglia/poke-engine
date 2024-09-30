@@ -15,9 +15,16 @@ use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeTerrain, ChangeWeather, DecrementRestTurnsInstruction,
     DecrementWishInstruction, HealInstruction, RemoveVolatileStatusInstruction,
-    SetDamageDealtInstruction, SetLastUsedMoveInstruction, SetSecondMoveSwitchOutMoveInstruction,
-    SetSleepTurnsInstruction, ToggleBatonPassingInstruction, ToggleTrickRoomInstruction,
+    SetSecondMoveSwitchOutMoveInstruction, SetSleepTurnsInstruction, ToggleBatonPassingInstruction,
+    ToggleTrickRoomInstruction,
 };
+
+#[cfg(feature = "last_used_move")]
+use crate::instruction::SetLastUsedMoveInstruction;
+
+#[cfg(feature = "damage_dealt")]
+use crate::instruction::SetDamageDealtInstruction;
+
 use crate::items::{
     item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
     item_on_switch_in, Items,
@@ -51,6 +58,7 @@ fn chance_to_wake_up(turns_asleep: i8) -> f32 {
     }
 }
 
+#[cfg(feature = "last_used_move")]
 fn set_last_used_move_as_switch(
     side: &mut Side,
     new_pokemon_index: PokemonIndex,
@@ -67,6 +75,7 @@ fn set_last_used_move_as_switch(
     side.last_used_move = LastUsedMove::Switch(new_pokemon_index);
 }
 
+#[cfg(feature = "last_used_move")]
 fn set_last_used_move_as_move(
     side: &mut Side,
     used_move: Choices,
@@ -894,6 +903,7 @@ fn get_instructions_from_drag(
     }
 }
 
+#[cfg(feature = "damage_dealt")]
 fn reset_damage_dealt(
     side: &Side,
     side_reference: &SideReference,
@@ -917,6 +927,7 @@ fn reset_damage_dealt(
     }
 }
 
+#[cfg(feature = "damage_dealt")]
 fn set_damage_dealt(
     attacking_side: &mut Side,
     attacking_side_ref: &SideReference,
@@ -1486,10 +1497,12 @@ pub fn generate_instructions_from_move(
     mut incoming_instructions: StateInstructions,
     mut final_instructions: &mut Vec<StateInstructions>,
 ) {
-    let side = state.get_side(&attacking_side);
-
     #[cfg(feature = "damage_dealt")]
-    reset_damage_dealt(side, &attacking_side, &mut incoming_instructions);
+    reset_damage_dealt(
+        state.get_side(&attacking_side),
+        &attacking_side,
+        &mut incoming_instructions,
+    );
 
     if choice.category == MoveCategory::Switch {
         generate_instructions_from_switch(
@@ -2685,6 +2698,7 @@ pub fn generate_instructions_from_move_pair(
     state_instructions_vec
 }
 
+#[cfg(feature = "remove_low_chance_instructions")]
 fn remove_low_chance_instructions(instructions: &mut Vec<StateInstructions>, threshold: f32) {
     let mut percentage_sum = 100.0;
     instructions.retain(|instruction| {
@@ -2853,6 +2867,7 @@ mod tests {
     };
 
     #[test]
+    #[cfg(feature = "remove_low_chance_instructions")]
     fn test_remove_low_chance_instructions() {
         let mut instructions = vec![
             StateInstructions {
@@ -2893,6 +2908,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "remove_low_chance_instructions")]
     fn test_remove_low_chance_nodes_basic_case() {
         let mut instructions = vec![StateInstructions {
             percentage: 100.0,
@@ -2909,6 +2925,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "remove_low_chance_instructions")]
     fn test_remove_low_chance_nodes_multiple_removals() {
         let mut instructions = vec![
             StateInstructions {
@@ -7427,7 +7444,6 @@ mod tests {
     #[cfg(any(feature = "gen7", feature = "gen8", feature = "gen9"))]
     fn test_later_gen_speed_cutting_in_half() {
         let mut state = State::default();
-        let side_one_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
         state.side_one.get_active().status = PokemonStatus::Paralyze;
         state.side_one.get_active().speed = 100;
 
