@@ -64,7 +64,8 @@ pub enum Instruction {
     DecrementWish(DecrementWishInstruction),
     DamageSubstitute(DamageInstruction),
     DecrementRestTurns(DecrementRestTurnsInstruction),
-    SetRestTurns(SetRestTurnsInstruction),
+    SetRestTurns(SetSleepTurnsInstruction),
+    SetSleepTurns(SetSleepTurnsInstruction),
     SetSubstituteHealth(SetSubstituteHealthInstruction),
     SetSideOneMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
@@ -197,6 +198,13 @@ impl fmt::Debug for Instruction {
                     s.side_ref, s.pokemon_index, s.previous_turns, s.new_turns
                 )
             }
+            Instruction::SetSleepTurns(s) => {
+                write!(
+                    f,
+                    "SetSleepTurns {:?}-{:?}: {:?} -> {:?}",
+                    s.side_ref, s.pokemon_index, s.previous_turns, s.new_turns
+                )
+            }
             Instruction::SetSubstituteHealth(s) => {
                 write!(
                     f,
@@ -299,7 +307,7 @@ pub struct DecrementRestTurnsInstruction {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct SetRestTurnsInstruction {
+pub struct SetSleepTurnsInstruction {
     pub side_ref: SideReference,
     pub pokemon_index: PokemonIndex,
     pub new_turns: i8,

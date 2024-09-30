@@ -246,6 +246,7 @@ impl PyPokemon {
         speed: i16,
         status: String,
         rest_turns: i8,
+        sleep_turns: i8,
         weight_kg: f32,
         mut moves: Vec<PyMove>,
     ) -> Self {
@@ -272,6 +273,7 @@ impl PyPokemon {
                 speed,
                 status: PokemonStatus::deserialize(&status),
                 rest_turns,
+                sleep_turns,
                 weight_kg,
                 moves: PokemonMoves {
                     m0: moves[0].create_move(),

@@ -478,6 +478,7 @@ pub struct Pokemon {
     pub speed: i16,
     pub status: PokemonStatus,
     pub rest_turns: i8,
+    pub sleep_turns: i8,
     pub weight_kg: f32,
     pub moves: PokemonMoves,
 }
@@ -675,6 +676,7 @@ impl Default for Pokemon {
             speed: 100,
             status: PokemonStatus::None,
             rest_turns: 0,
+            sleep_turns: 0,
             weight_kg: 1.0,
             moves: PokemonMoves {
                 m0: Default::default(),
@@ -1656,6 +1658,15 @@ impl State {
         self.get_side(side_reference).pokemon[pokemon_index].rest_turns = amount;
     }
 
+    fn set_sleep_turn(
+        &mut self,
+        side_reference: &SideReference,
+        pokemon_index: PokemonIndex,
+        amount: i8,
+    ) {
+        self.get_side(side_reference).pokemon[pokemon_index].sleep_turns = amount;
+    }
+
     fn toggle_trickroom(&mut self, new_turns_remaining: i8) {
         self.trick_room.active = !self.trick_room.active;
         self.trick_room.turns_remaining = new_turns_remaining;
@@ -1759,6 +1770,13 @@ impl State {
             }
             Instruction::SetRestTurns(instruction) => {
                 self.set_rest_turn(
+                    &instruction.side_ref,
+                    instruction.pokemon_index,
+                    instruction.new_turns,
+                );
+            }
+            Instruction::SetSleepTurns(instruction) => {
+                self.set_sleep_turn(
                     &instruction.side_ref,
                     instruction.pokemon_index,
                     instruction.new_turns,
@@ -1879,6 +1897,13 @@ impl State {
             }
             Instruction::SetRestTurns(instruction) => {
                 self.set_rest_turn(
+                    &instruction.side_ref,
+                    instruction.pokemon_index,
+                    instruction.previous_turns,
+                );
+            }
+            Instruction::SetSleepTurns(instruction) => {
+                self.set_sleep_turn(
                     &instruction.side_ref,
                     instruction.pokemon_index,
                     instruction.previous_turns,

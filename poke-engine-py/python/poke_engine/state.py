@@ -67,11 +67,12 @@ class Pokemon:
     :type status: str
     :param rest_turns: The remaining number of turns for a Pokemon that is asleep due to the move rest
     :type rest_turns: int
+    :param sleep_turns: The number of turns this Pokemon has been asleep
+    :type sleep_turns: int
     :param weight_kg: The weight of the Pokemon in kilograms
     :type weight_kg: float
     :param moves: The moves of the Pokemon
     :type moves: list[Move]
-
     """
 
     id: str = ""
@@ -88,6 +89,7 @@ class Pokemon:
     speed: int = 100
     status: str = "none"
     rest_turns: int = 0
+    sleep_turns: int = 0
     weight_kg: float = 0
     moves: list[Move] = field(default_factory=list)
 
@@ -110,6 +112,7 @@ class Pokemon:
             speed=self.speed,
             status=self.status,
             rest_turns=self.rest_turns,
+            sleep_turns=self.sleep_turns,
             weight_kg=self.weight_kg,
             moves=[m._into_rust_obj() for m in self.moves],
         )

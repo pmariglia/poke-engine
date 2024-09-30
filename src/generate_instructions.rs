@@ -15,9 +15,8 @@ use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeTerrain, ChangeWeather, DecrementRestTurnsInstruction,
     DecrementWishInstruction, HealInstruction, RemoveVolatileStatusInstruction,
-    SetDamageDealtInstruction, SetLastUsedMoveInstruction, SetRestTurnsInstruction,
-    SetSecondMoveSwitchOutMoveInstruction, ToggleBatonPassingInstruction,
-    ToggleTrickRoomInstruction,
+    SetDamageDealtInstruction, SetLastUsedMoveInstruction, SetSecondMoveSwitchOutMoveInstruction,
+    SetSleepTurnsInstruction, ToggleBatonPassingInstruction, ToggleTrickRoomInstruction,
 };
 use crate::items::{
     item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
@@ -37,6 +36,20 @@ use crate::{
     state::{PokemonStatus, PokemonVolatileStatus, SideReference, State, Weather},
 };
 use std::cmp;
+
+#[cfg(feature = "gen4")]
+pub const MAX_SLEEP_TURNS: i8 = 4;
+
+#[cfg(not(feature = "gen4"))]
+pub const MAX_SLEEP_TURNS: i8 = 3;
+
+fn chance_to_wake_up(turns_asleep: i8) -> f32 {
+    if turns_asleep == 0 {
+        0.0
+    } else {
+        1.0 / (1 + MAX_SLEEP_TURNS - turns_asleep) as f32
+    }
+}
 
 fn set_last_used_move_as_switch(
     side: &mut Side,
@@ -132,6 +145,35 @@ fn generate_instructions_from_switch(
                         },
                     ));
             }
+        }
+    }
+
+    #[cfg(feature = "gen5")]
+    if side.get_active_immutable().status == PokemonStatus::Sleep {
+        let current_active_index = side.active_index;
+        let active = side.get_active();
+        if active.rest_turns > 0 {
+            let current_rest_turns = active.rest_turns;
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::SetRestTurns(SetSleepTurnsInstruction {
+                    side_ref: switching_side_ref,
+                    pokemon_index: current_active_index,
+                    new_turns: 3,
+                    previous_turns: current_rest_turns,
+                }));
+            active.rest_turns = 3
+        } else {
+            let current_sleep_turns = active.sleep_turns;
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                    side_ref: switching_side_ref,
+                    pokemon_index: current_active_index,
+                    new_turns: 0,
+                    previous_turns: current_sleep_turns,
+                }));
+            active.sleep_turns = 0
         }
     }
 
@@ -398,13 +440,23 @@ pub fn add_remove_status_instructions(
             if pkmn.rest_turns > 0 {
                 incoming_instructions
                     .instruction_list
-                    .push(Instruction::SetRestTurns(SetRestTurnsInstruction {
+                    .push(Instruction::SetRestTurns(SetSleepTurnsInstruction {
                         side_ref: side_reference,
-                        pokemon_index: pokemon_index,
+                        pokemon_index,
                         new_turns: 0,
                         previous_turns: pkmn.rest_turns,
                     }));
                 pkmn.rest_turns = 0;
+            } else if pkmn.sleep_turns > 0 {
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                        side_ref: side_reference,
+                        pokemon_index,
+                        new_turns: 0,
+                        previous_turns: pkmn.sleep_turns,
+                    }));
+                pkmn.sleep_turns = 0;
             }
         }
         _ => {}
@@ -1245,6 +1297,7 @@ fn generate_instructions_from_existing_status_conditions(
     final_instructions: &mut Vec<StateInstructions>,
 ) {
     let (attacking_side, _defending_side) = state.get_both_sides(attacking_side_ref);
+    let current_active_index = attacking_side.active_index;
     let attacker_active = attacking_side.get_active();
     match attacker_active.status {
         PokemonStatus::Paralyze => {
@@ -1267,7 +1320,7 @@ fn generate_instructions_from_existing_status_conditions(
                 .instruction_list
                 .push(Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: attacking_side_ref.clone(),
-                    pokemon_index: attacking_side.active_index,
+                    pokemon_index: current_active_index,
                     old_status: PokemonStatus::Freeze,
                     new_status: PokemonStatus::None,
                 }));
@@ -1276,21 +1329,75 @@ fn generate_instructions_from_existing_status_conditions(
             match attacker_active.rest_turns {
                 // Pokemon is not asleep because of Rest.
                 0 => {
-                    // Not technically correct, but assume a 33% chance to wake each turn
-                    // for non-rested asleep pkmn
-                    let mut still_asleep_instruction = incoming_instructions.clone();
-                    still_asleep_instruction.update_percentage(0.67);
-                    final_instructions.push(still_asleep_instruction);
-                    incoming_instructions.update_percentage(0.33);
-                    attacker_active.status = PokemonStatus::None;
-                    incoming_instructions
-                        .instruction_list
-                        .push(Instruction::ChangeStatus(ChangeStatusInstruction {
-                            side_ref: *attacking_side_ref,
-                            pokemon_index: attacking_side.active_index,
-                            old_status: PokemonStatus::Sleep,
-                            new_status: PokemonStatus::None,
-                        }));
+                    let current_sleep_turns = attacker_active.sleep_turns;
+                    let chance_to_wake = chance_to_wake_up(current_sleep_turns);
+                    if chance_to_wake == 1.0 {
+                        attacker_active.status = PokemonStatus::None;
+                        attacker_active.sleep_turns = 0;
+                        incoming_instructions
+                            .instruction_list
+                            .push(Instruction::ChangeStatus(ChangeStatusInstruction {
+                                side_ref: *attacking_side_ref,
+                                pokemon_index: current_active_index,
+                                old_status: PokemonStatus::Sleep,
+                                new_status: PokemonStatus::None,
+                            }));
+                        incoming_instructions
+                            .instruction_list
+                            .push(Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                                side_ref: *attacking_side_ref,
+                                pokemon_index: current_active_index,
+                                new_turns: 0,
+                                previous_turns: current_sleep_turns,
+                            }));
+                    } else if chance_to_wake == 0.0 {
+                        let mut still_asleep_instruction = incoming_instructions.clone();
+                        still_asleep_instruction.update_percentage(1.0);
+                        still_asleep_instruction
+                            .instruction_list
+                            .push(Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                                side_ref: *attacking_side_ref,
+                                pokemon_index: current_active_index,
+                                new_turns: current_sleep_turns + 1,
+                                previous_turns: current_sleep_turns,
+                            }));
+                        final_instructions.push(still_asleep_instruction);
+                        incoming_instructions.update_percentage(0.0);
+                    } else {
+                        // still asleep
+                        let mut still_asleep_instruction = incoming_instructions.clone();
+                        still_asleep_instruction.update_percentage(1.0 - chance_to_wake);
+                        still_asleep_instruction
+                            .instruction_list
+                            .push(Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                                side_ref: *attacking_side_ref,
+                                pokemon_index: current_active_index,
+                                new_turns: current_sleep_turns + 1,
+                                previous_turns: current_sleep_turns,
+                            }));
+                        final_instructions.push(still_asleep_instruction);
+
+                        // wakes up
+                        incoming_instructions.update_percentage(chance_to_wake);
+                        attacker_active.status = PokemonStatus::None;
+                        attacker_active.sleep_turns = 0;
+                        incoming_instructions
+                            .instruction_list
+                            .push(Instruction::ChangeStatus(ChangeStatusInstruction {
+                                side_ref: *attacking_side_ref,
+                                pokemon_index: current_active_index,
+                                old_status: PokemonStatus::Sleep,
+                                new_status: PokemonStatus::None,
+                            }));
+                        incoming_instructions
+                            .instruction_list
+                            .push(Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                                side_ref: *attacking_side_ref,
+                                pokemon_index: current_active_index,
+                                new_turns: 0,
+                                previous_turns: current_sleep_turns,
+                            }));
+                    }
                 }
                 // Pokemon is asleep because of Rest, and will wake up this turn
                 1 => {
@@ -1300,7 +1407,7 @@ fn generate_instructions_from_existing_status_conditions(
                         .instruction_list
                         .push(Instruction::ChangeStatus(ChangeStatusInstruction {
                             side_ref: *attacking_side_ref,
-                            pokemon_index: attacking_side.active_index,
+                            pokemon_index: current_active_index,
                             old_status: PokemonStatus::Sleep,
                             new_status: PokemonStatus::None,
                         }));
@@ -1503,7 +1610,9 @@ pub fn generate_instructions_from_move(
         return;
     } else if attacker.status == PokemonStatus::Sleep && !choice.sleep_talk_move {
         state.reverse_instructions(&incoming_instructions.instruction_list);
-        final_instructions.push(incoming_instructions);
+        if incoming_instructions.percentage > 0.0 {
+            final_instructions.push(incoming_instructions);
+        }
         return;
     }
 
@@ -4074,7 +4183,7 @@ mod tests {
                     old_status: PokemonStatus::None,
                     new_status: PokemonStatus::Sleep,
                 }),
-                Instruction::SetRestTurns(SetRestTurnsInstruction {
+                Instruction::SetRestTurns(SetSleepTurnsInstruction {
                     side_ref: SideReference::SideOne,
                     pokemon_index: PokemonIndex::P0,
                     new_turns: 3,
@@ -6989,22 +7098,28 @@ mod tests {
     fn test_asleep_pokemon_with_no_prior_instructions() {
         let mut state = State::default();
         state.side_one.get_active().status = PokemonStatus::Sleep;
+        state.side_one.get_active().sleep_turns = MAX_SLEEP_TURNS;
         let mut incoming_instructions = StateInstructions::default();
 
         let expected_instructions = StateInstructions {
-            percentage: 33.0,
-            instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: state.side_one.active_index,
-                old_status: PokemonStatus::Sleep,
-                new_status: PokemonStatus::None,
-            })],
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: state.side_one.active_index,
+                    old_status: PokemonStatus::Sleep,
+                    new_status: PokemonStatus::None,
+                }),
+                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    new_turns: 0,
+                    previous_turns: MAX_SLEEP_TURNS,
+                }),
+            ],
         };
 
-        let expected_frozen_instructions = &mut vec![StateInstructions {
-            percentage: 67.0,
-            instruction_list: vec![],
-        }];
+        let expected_frozen_instructions: &mut Vec<StateInstructions> = &mut vec![];
 
         let frozen_instructions = &mut vec![];
 
@@ -7020,9 +7135,10 @@ mod tests {
     }
 
     #[test]
-    fn test_asleep_and_confused() {
+    fn test_asleep_waking_up_and_confused() {
         let mut state = State::default();
         state.side_one.get_active().status = PokemonStatus::Sleep;
+        state.side_one.get_active().sleep_turns = MAX_SLEEP_TURNS;
         state
             .side_one
             .volatile_statuses
@@ -7030,36 +7146,44 @@ mod tests {
         let mut incoming_instructions = StateInstructions::default();
 
         let expected_instructions = StateInstructions {
-            percentage: 16.5,
-            instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: state.side_one.active_index,
-                old_status: PokemonStatus::Sleep,
-                new_status: PokemonStatus::None,
-            })],
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: state.side_one.active_index,
+                    old_status: PokemonStatus::Sleep,
+                    new_status: PokemonStatus::None,
+                }),
+                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    new_turns: 0,
+                    previous_turns: MAX_SLEEP_TURNS,
+                }),
+            ],
         };
 
-        let expected_frozen_instructions = &mut vec![
-            StateInstructions {
-                percentage: 67.0,
-                instruction_list: vec![],
-            },
-            StateInstructions {
-                percentage: 16.5,
-                instruction_list: vec![
-                    Instruction::ChangeStatus(ChangeStatusInstruction {
-                        side_ref: SideReference::SideOne,
-                        pokemon_index: state.side_one.active_index,
-                        old_status: PokemonStatus::Sleep,
-                        new_status: PokemonStatus::None,
-                    }),
-                    Instruction::Damage(DamageInstruction {
-                        side_ref: SideReference::SideOne,
-                        damage_amount: 35,
-                    }),
-                ],
-            },
-        ];
+        let expected_frozen_instructions = &mut vec![StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: state.side_one.active_index,
+                    old_status: PokemonStatus::Sleep,
+                    new_status: PokemonStatus::None,
+                }),
+                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    new_turns: 0,
+                    previous_turns: MAX_SLEEP_TURNS,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 35,
+                }),
+            ],
+        }];
 
         let frozen_instructions = &mut vec![];
 
@@ -8626,5 +8750,22 @@ mod tests {
         };
 
         assert_eq!(expected_instructions, incoming_instructions)
+    }
+
+    #[test]
+    fn test_chance_to_wake_up_with_no_turns_asleep_is_0() {
+        assert_eq!(0.0, chance_to_wake_up(0));
+    }
+
+    #[test]
+    #[cfg(any(feature = "gen4"))]
+    fn test_gen4_25_percent_to_wake_after_1_sleep_turn() {
+        assert_eq!(0.25, chance_to_wake_up(1));
+    }
+
+    #[test]
+    #[cfg(any(feature = "gen4"))]
+    fn test_gen4_100_percent_to_wake_after_4_sleep_turn() {
+        assert_eq!(1.0, chance_to_wake_up(4));
     }
 }

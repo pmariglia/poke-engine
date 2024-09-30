@@ -5,7 +5,7 @@ use crate::generate_instructions::add_remove_status_instructions;
 use crate::instruction::{
     ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction,
     ChangeStatusInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, HealInstruction,
-    Instruction, SetRestTurnsInstruction, SetSubstituteHealthInstruction, SetWishInstruction,
+    Instruction, SetSleepTurnsInstruction, SetSubstituteHealthInstruction, SetWishInstruction,
     StateInstructions, ToggleTrickRoomInstruction,
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
@@ -782,7 +782,7 @@ pub fn choice_special_effect(
                     }));
                 instructions
                     .instruction_list
-                    .push(Instruction::SetRestTurns(SetRestTurnsInstruction {
+                    .push(Instruction::SetRestTurns(SetSleepTurnsInstruction {
                         side_ref: *attacking_side_ref,
                         pokemon_index: active_index,
                         new_turns: 3,
