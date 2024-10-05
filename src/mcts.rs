@@ -1,7 +1,7 @@
 use crate::evaluate::evaluate;
 use crate::generate_instructions::generate_instructions_from_move_pair;
 use crate::instruction::StateInstructions;
-use crate::state::{MoveChoice, PokemonIndex, PokemonMoveIndex, State};
+use crate::state::{MoveChoice, State};
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use rand::thread_rng;
@@ -17,50 +17,71 @@ fn sigmoid(x: f32) -> f32 {
 pub struct Node {
     pub root: bool,
     pub parent: *mut Node,
-    pub children: HashMap<(MoveChoice, MoveChoice), Vec<Node>>,
+    pub children: HashMap<(usize, usize), Vec<Node>>,
     pub times_visited: i64,
 
     // represents the instructions & s1/s2 moves that led to this node from the parent
     pub instructions: StateInstructions,
-    pub s1_choice: MoveChoice,
-    pub s2_choice: MoveChoice,
+    pub s1_choice: usize,
+    pub s2_choice: usize,
 
     // represents the total score and number of visits for this node
     // de-coupled for s1 and s2
-    pub s1_options: SideOptions,
-    pub s2_options: SideOptions,
+    pub s1_options: Vec<MoveNode>,
+    pub s2_options: Vec<MoveNode>,
 }
 
 impl Node {
-    pub fn generate_options(&mut self, state: &State) {
-        let (s1_options, s2_options) = state.get_all_options();
-        for op in s1_options.iter() {
-            self.s1_options.get_move_node(op).active = true;
-        }
-        for op in s2_options.iter() {
-            self.s2_options.get_move_node(op).active = true;
+    fn new(s1_options: Vec<MoveChoice>, s2_options: Vec<MoveChoice>) -> Node {
+        let s1_options_vec = s1_options
+            .iter()
+            .map(|x| MoveNode {
+                move_choice: x.clone(),
+                total_score: 0.0,
+                visits: 0,
+            })
+            .collect();
+        let s2_options_vec = s2_options
+            .iter()
+            .map(|x| MoveNode {
+                move_choice: x.clone(),
+                total_score: 0.0,
+                visits: 0,
+            })
+            .collect();
+
+        Node {
+            root: false,
+            parent: std::ptr::null_mut(),
+            instructions: StateInstructions::default(),
+            times_visited: 0,
+            children: HashMap::new(),
+            s1_choice: 0,
+            s2_choice: 0,
+            s1_options: s1_options_vec,
+            s2_options: s2_options_vec,
         }
     }
 
-    pub fn maximize_ucb_for_side(&self, side_map: &SideOptions) -> MoveChoice {
-        let mut choice = MoveChoice::None;
+    pub fn maximize_ucb_for_side(&self, side_map: &[MoveNode]) -> usize {
+        let mut choice = 0;
         let mut best_ucb1 = f32::MIN;
-        for node in side_map.move_nodes.iter().filter(|x| x.active) {
+        for (index, node) in side_map.iter().enumerate() {
             let this_ucb1 = node.ucb1(self.times_visited);
             if this_ucb1 > best_ucb1 {
                 best_ucb1 = this_ucb1;
-                choice = node.move_choice;
+                choice = index;
             }
         }
         choice
     }
 
-    pub unsafe fn selection(&mut self, state: &mut State) -> (*mut Node, MoveChoice, MoveChoice) {
+    pub unsafe fn selection(&mut self, state: &mut State) -> (*mut Node, usize, usize) {
         let return_node = self as *mut Node;
 
-        let s1_move_choice = self.maximize_ucb_for_side(&self.s1_options);
-        let s2_move_choice = self.maximize_ucb_for_side(&self.s2_options);
-        let child_vector = self.children.get_mut(&(s1_move_choice, s2_move_choice));
+        let s1_mc_index = self.maximize_ucb_for_side(&self.s1_options);
+        let s2_mc_index = self.maximize_ucb_for_side(&self.s2_options);
+        let child_vector = self.children.get_mut(&(s1_mc_index, s2_mc_index));
         match child_vector {
             Some(child_vector) => {
                 let child_vec_ptr = child_vector as *mut Vec<Node>;
@@ -68,7 +89,7 @@ impl Node {
                 state.apply_instructions(&(*chosen_child).instructions.instruction_list);
                 (*chosen_child).selection(state)
             }
-            None => (return_node, s1_move_choice, s2_move_choice),
+            None => (return_node, s1_mc_index, s2_mc_index),
         }
     }
 
@@ -87,9 +108,11 @@ impl Node {
     pub unsafe fn expand(
         &mut self,
         state: &mut State,
-        s1_move: &MoveChoice,
-        s2_move: &MoveChoice,
+        s1_move_index: usize,
+        s2_move_index: usize,
     ) -> *mut Node {
+        let s1_move = &self.s1_options[s1_move_index].move_choice;
+        let s2_move = &self.s2_options[s2_move_index].move_choice;
         // if the battle is over or both moves are none there is no need to expand
         if (state.battle_is_over() != 0.0 && !self.root)
             || (s1_move == &MoveChoice::None && s2_move == &MoveChoice::None)
@@ -99,14 +122,16 @@ impl Node {
         let mut new_instructions = generate_instructions_from_move_pair(state, s1_move, s2_move);
         let mut this_pair_vec = Vec::with_capacity(2);
         for state_instructions in new_instructions.drain(..) {
-            let mut new_node = Node::default();
+            state.apply_instructions(&state_instructions.instruction_list);
+            let (s1_options, s2_options) = state.get_all_options();
+            state.reverse_instructions(&state_instructions.instruction_list);
+
+            let mut new_node = Node::new(s1_options, s2_options);
             new_node.parent = self;
             new_node.instructions = state_instructions;
-            new_node.s1_choice = s1_move.clone();
-            new_node.s2_choice = s2_move.clone();
-            state.apply_instructions(&new_node.instructions.instruction_list);
-            new_node.generate_options(state);
-            state.reverse_instructions(&new_node.instructions.instruction_list);
+            new_node.s1_choice = s1_move_index;
+            new_node.s2_choice = s2_move_index;
+
             this_pair_vec.push(new_node);
         }
 
@@ -115,7 +140,7 @@ impl Node {
         let new_node_ptr = self.sample_node(&mut this_pair_vec);
         state.apply_instructions(&(*new_node_ptr).instructions.instruction_list);
         self.children
-            .insert((s1_move.clone(), s2_move.clone()), this_pair_vec);
+            .insert((s1_move_index, s2_move_index), this_pair_vec);
         new_node_ptr
     }
 
@@ -125,11 +150,11 @@ impl Node {
             return;
         }
 
-        let parent_s1_movenode = (*self.parent).s1_options.get_move_node(&self.s1_choice);
+        let parent_s1_movenode = &mut (*self.parent).s1_options[self.s1_choice];
         parent_s1_movenode.total_score += score;
         parent_s1_movenode.visits += 1;
 
-        let parent_s2_movenode = (*self.parent).s2_options.get_move_node(&self.s2_choice);
+        let parent_s2_movenode = &mut (*self.parent).s2_options[self.s2_choice];
         parent_s2_movenode.total_score += 1.0 - score;
         parent_s2_movenode.visits += 1;
 
@@ -152,145 +177,8 @@ impl Node {
     }
 }
 
-impl Default for Node {
-    fn default() -> Node {
-        Node {
-            root: false,
-            parent: std::ptr::null_mut(),
-            instructions: StateInstructions::default(),
-            times_visited: 0,
-            children: HashMap::new(),
-            s1_choice: MoveChoice::None,
-            s2_choice: MoveChoice::None,
-            s1_options: SideOptions::new(),
-            s2_options: SideOptions::new(),
-        }
-    }
-}
-
-impl MoveChoice {
-    fn get_usize(&self) -> usize {
-        match self {
-            MoveChoice::Move(mv) => match mv {
-                PokemonMoveIndex::M0 => 0,
-                PokemonMoveIndex::M1 => 1,
-                PokemonMoveIndex::M2 => 2,
-                PokemonMoveIndex::M3 => 3,
-                PokemonMoveIndex::M4 => 4,
-                PokemonMoveIndex::M5 => 5,
-            },
-            MoveChoice::Switch(sw) => match sw {
-                PokemonIndex::P0 => 6,
-                PokemonIndex::P1 => 7,
-                PokemonIndex::P2 => 8,
-                PokemonIndex::P3 => 9,
-                PokemonIndex::P4 => 10,
-                PokemonIndex::P5 => 11,
-            },
-            MoveChoice::None => 12,
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct SideOptions {
-    move_nodes: [MoveNode; 13],
-}
-
-impl SideOptions {
-    fn new() -> SideOptions {
-        SideOptions {
-            move_nodes: [
-                MoveNode {
-                    active: false,
-                    move_choice: MoveChoice::Move(PokemonMoveIndex::M0),
-                    total_score: 0.0,
-                    visits: 0,
-                },
-                MoveNode {
-                    active: false,
-                    move_choice: MoveChoice::Move(PokemonMoveIndex::M1),
-                    total_score: 0.0,
-                    visits: 0,
-                },
-                MoveNode {
-                    active: false,
-                    move_choice: MoveChoice::Move(PokemonMoveIndex::M2),
-                    total_score: 0.0,
-                    visits: 0,
-                },
-                MoveNode {
-                    active: false,
-                    move_choice: MoveChoice::Move(PokemonMoveIndex::M3),
-                    total_score: 0.0,
-                    visits: 0,
-                },
-                MoveNode {
-                    active: false,
-                    move_choice: MoveChoice::Move(PokemonMoveIndex::M4),
-                    total_score: 0.0,
-                    visits: 0,
-                },
-                MoveNode {
-                    active: false,
-                    move_choice: MoveChoice::Move(PokemonMoveIndex::M5),
-                    total_score: 0.0,
-                    visits: 0,
-                },
-                MoveNode {
-                    active: false,
-                    move_choice: MoveChoice::Switch(PokemonIndex::P0),
-                    total_score: 0.0,
-                    visits: 0,
-                },
-                MoveNode {
-                    active: false,
-                    move_choice: MoveChoice::Switch(PokemonIndex::P1),
-                    total_score: 0.0,
-                    visits: 0,
-                },
-                MoveNode {
-                    active: false,
-                    move_choice: MoveChoice::Switch(PokemonIndex::P2),
-                    total_score: 0.0,
-                    visits: 0,
-                },
-                MoveNode {
-                    active: false,
-                    move_choice: MoveChoice::Switch(PokemonIndex::P3),
-                    total_score: 0.0,
-                    visits: 0,
-                },
-                MoveNode {
-                    active: false,
-                    move_choice: MoveChoice::Switch(PokemonIndex::P4),
-                    total_score: 0.0,
-                    visits: 0,
-                },
-                MoveNode {
-                    active: false,
-                    move_choice: MoveChoice::Switch(PokemonIndex::P5),
-                    total_score: 0.0,
-                    visits: 0,
-                },
-                MoveNode {
-                    active: false,
-                    move_choice: MoveChoice::None,
-                    total_score: 0.0,
-                    visits: 0,
-                },
-            ],
-        }
-    }
-
-    fn get_move_node(&mut self, move_choice: &MoveChoice) -> &mut MoveNode {
-        &mut self.move_nodes[move_choice.get_usize()]
-    }
-}
-
 #[derive(Debug)]
 pub struct MoveNode {
-    pub active: bool,
     pub move_choice: MoveChoice,
     pub total_score: f32,
     pub visits: i64,
@@ -336,25 +224,19 @@ pub struct MctsResult {
 
 fn do_mcts(root_node: &mut Node, state: &mut State, root_eval: &f32) {
     let (mut new_node, s1_move, s2_move) = unsafe { root_node.selection(state) };
-    new_node = unsafe { (*new_node).expand(state, &s1_move, &s2_move) };
+    new_node = unsafe { (*new_node).expand(state, s1_move, s2_move) };
     let rollout_result = unsafe { (*new_node).rollout(state, root_eval) };
     unsafe { (*new_node).backpropagate(rollout_result, state) }
 }
 
 pub fn perform_mcts(
     state: &mut State,
-    mut side_one_options: Vec<MoveChoice>,
-    mut side_two_options: Vec<MoveChoice>,
+    side_one_options: Vec<MoveChoice>,
+    side_two_options: Vec<MoveChoice>,
     max_time: Duration,
 ) -> MctsResult {
-    let mut root_node = Node::default();
+    let mut root_node = Node::new(side_one_options, side_two_options);
     root_node.root = true;
-    for op in side_one_options.drain(..) {
-        root_node.s1_options.get_move_node(&op).active = true;
-    }
-    for op in side_two_options.drain(..) {
-        root_node.s2_options.get_move_node(&op).active = true;
-    }
 
     let root_eval = evaluate(state);
     let start_time = std::time::Instant::now();
@@ -383,9 +265,7 @@ pub fn perform_mcts(
     let result = MctsResult {
         s1: root_node
             .s1_options
-            .move_nodes
             .iter()
-            .filter(|v| v.active)
             .map(|v| MctsSideResult {
                 move_choice: v.move_choice.clone(),
                 total_score: v.total_score,
@@ -394,9 +274,7 @@ pub fn perform_mcts(
             .collect(),
         s2: root_node
             .s2_options
-            .move_nodes
             .iter()
-            .filter(|v| v.active)
             .map(|v| MctsSideResult {
                 move_choice: v.move_choice.clone(),
                 total_score: v.total_score,
