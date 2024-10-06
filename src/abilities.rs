@@ -434,11 +434,25 @@ pub fn ability_after_damage_hit(
                 defending_pkmn.item = Items::NONE;
             }
         }
-        Abilities::MOXIE => {
+        Abilities::MOXIE | Abilities::CHILLINGNEIGH => {
             if damage_dealt > 0 && defending_side.get_active_immutable().hp == 0 {
                 if let Some(boost_instruction) = get_boost_instruction(
                     &attacking_side,
                     &PokemonBoostableStat::Attack,
+                    &1,
+                    side_ref,
+                    side_ref,
+                ) {
+                    state.apply_one_instruction(&boost_instruction);
+                    instructions.instruction_list.push(boost_instruction);
+                }
+            }
+        }
+        Abilities::GRIMNEIGH => {
+            if damage_dealt > 0 && defending_side.get_active_immutable().hp == 0 {
+                if let Some(boost_instruction) = get_boost_instruction(
+                    &attacking_side,
+                    &PokemonBoostableStat::SpecialAttack,
                     &1,
                     side_ref,
                     side_ref,
