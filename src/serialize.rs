@@ -1675,6 +1675,7 @@ impl FromStr for Abilities {
             "FAIRYAURA" => Ok(Abilities::FAIRYAURA),
             "SANDSPIT" => Ok(Abilities::SANDSPIT),
             "SEEDSOWER" => Ok(Abilities::SEEDSOWER),
+            "TOXICDEBRIS" => Ok(Abilities::TOXICDEBRIS),
             "INTIMIDATE" => Ok(Abilities::INTIMIDATE),
             "DAUNTLESSSHIELD" => Ok(Abilities::DAUNTLESSSHIELD),
             "AROMAVEIL" => Ok(Abilities::AROMAVEIL),

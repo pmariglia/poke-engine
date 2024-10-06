@@ -7228,6 +7228,56 @@ fn test_sandspit() {
 }
 
 #[test]
+fn test_toxicdebris() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::TOXICDEBRIS;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideOne,
+                side_condition: PokemonSideCondition::ToxicSpikes,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_toxicdebris_when_max_kayers_already_hit() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::TOXICDEBRIS;
+    state.side_one.side_conditions.toxic_spikes = 2;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 48,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_sandspit_does_not_activate_on_miss() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::SANDSPIT;

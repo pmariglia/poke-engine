@@ -144,6 +144,7 @@ pub enum Abilities {
     FAIRYAURA,
     SANDSPIT,
     SEEDSOWER,
+    TOXICDEBRIS,
     INTIMIDATE,
     DAUNTLESSSHIELD,
     AROMAVEIL,
@@ -568,6 +569,24 @@ pub fn ability_after_damage_hit(
                     }));
                 state.terrain.terrain_type = Terrain::GrassyTerrain;
                 state.terrain.turns_remaining = 5;
+            }
+        }
+        Abilities::TOXICDEBRIS => {
+            // Not complete: Toxic Spikes are not applied if a substitute is hit
+            if damage_dealt > 0
+                && choice.category == MoveCategory::Physical
+                && attacking_side.side_conditions.toxic_spikes < 2
+            {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeSideCondition(
+                        ChangeSideConditionInstruction {
+                            side_ref: *side_ref,
+                            side_condition: PokemonSideCondition::ToxicSpikes,
+                            amount: 1,
+                        },
+                    ));
+                attacking_side.side_conditions.toxic_spikes += 1;
             }
         }
         Abilities::BERSERK => {
