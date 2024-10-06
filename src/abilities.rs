@@ -574,6 +574,18 @@ pub fn ability_after_damage_hit(
                 attacking_pkmn.hp -= damage_dealt;
             }
         }
+        Abilities::INNARDSOUT => {
+            if damage_dealt > 0 && defending_side.get_active_immutable().hp == 0 {
+                let damage_dealt = cmp::min(damage_dealt, attacking_pkmn.hp);
+                instructions
+                    .instruction_list
+                    .push(Instruction::Damage(DamageInstruction {
+                        side_ref: *side_ref,
+                        damage_amount: damage_dealt,
+                    }));
+                attacking_pkmn.hp -= damage_dealt;
+            }
+        }
         _ => {}
     }
 }

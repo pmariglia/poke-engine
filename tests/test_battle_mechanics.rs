@@ -1070,6 +1070,63 @@ fn test_aftermath_damage() {
 }
 
 #[test]
+fn test_innards_out() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 1;
+    state.side_two.get_active().ability = Abilities::INNARDSOUT;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 1,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_innards_out_does_not_overkill() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 10;
+    state.side_one.get_active().hp = 1;
+    state.side_two.get_active().ability = Abilities::INNARDSOUT;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 10,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_aftermath_cannot_overkill() {
     let mut state = State::default();
     state.side_one.get_active().hp = 1;
