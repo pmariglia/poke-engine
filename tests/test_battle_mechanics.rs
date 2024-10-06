@@ -9761,6 +9761,28 @@ fn test_waterabsorb() {
 }
 
 #[test]
+fn test_eartheater() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::EARTHEATER;
+    state.side_two.get_active().hp = 50;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::EARTHQUAKE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Heal(HealInstruction {
+            side_ref: SideReference::SideTwo,
+            heal_amount: 25,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_dryskin_from_water_move() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::DRYSKIN;
