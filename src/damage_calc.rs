@@ -332,7 +332,7 @@ pub fn calculate_damage(
             defender_types = (defender_types.0, PokemonType::Typeless);
         }
     }
-    if attacker.ability == Abilities::SCRAPPY
+    if (attacker.ability == Abilities::SCRAPPY || attacker.ability == Abilities::MINDSEYE)
         && (choice.move_type == PokemonType::Normal || choice.move_type == PokemonType::Fighting)
     {
         if defender_types.0 == PokemonType::Ghost {

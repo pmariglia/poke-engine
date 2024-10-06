@@ -1811,6 +1811,7 @@ impl FromStr for Abilities {
             "HUSTLE" => Ok(Abilities::HUSTLE),
             "HYDRATION" => Ok(Abilities::HYDRATION),
             "SCRAPPY" => Ok(Abilities::SCRAPPY),
+            "MINDSEYE" => Ok(Abilities::MINDSEYE),
             "OVERCOAT" => Ok(Abilities::OVERCOAT),
             "NEUTRALIZINGGAS" => Ok(Abilities::NEUTRALIZINGGAS),
             "SWEETVEIL" => Ok(Abilities::SWEETVEIL),

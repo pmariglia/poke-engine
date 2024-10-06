@@ -279,6 +279,7 @@ pub enum Abilities {
     HUSTLE,
     HYDRATION,
     SCRAPPY,
+    MINDSEYE,
     OVERCOAT,
     NEUTRALIZINGGAS,
     SWEETVEIL,
