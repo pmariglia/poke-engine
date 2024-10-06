@@ -8631,6 +8631,37 @@ fn test_electricsurge() {
 }
 
 #[test]
+fn test_hadronenegine_terrain_application() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::HADRONENGINE;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::ChangeTerrain(ChangeTerrain {
+                new_terrain: Terrain::ElectricTerrain,
+                new_terrain_turns_remaining: 5,
+                previous_terrain: Terrain::None,
+                previous_terrain_turns_remaining: 0,
+            }),
+            Instruction::DecrementTerrainTurnsRemaining,
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_screencleaner() {
     let mut state = State::default();
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::SCREENCLEANER;
@@ -9635,6 +9666,32 @@ fn test_technician() {
             side_ref: SideReference::SideTwo,
             damage_amount: 72,
         })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_hadronengine_boost() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::HADRONENGINE;
+    state.terrain.terrain_type = Terrain::ElectricTerrain;
+    state.terrain.turns_remaining = 5;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::WATERGUN,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 42,
+            }),
+            Instruction::DecrementTerrainTurnsRemaining,
+        ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

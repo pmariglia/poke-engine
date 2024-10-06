@@ -1686,6 +1686,7 @@ impl FromStr for Abilities {
             "STURDY" => Ok(Abilities::STURDY),
             "PICKPOCKET" => Ok(Abilities::PICKPOCKET),
             "ELECTRICSURGE" => Ok(Abilities::ELECTRICSURGE),
+            "HADRONENGINE" => Ok(Abilities::HADRONENGINE),
             "RUNAWAY" => Ok(Abilities::RUNAWAY),
             "OBLIVIOUS" => Ok(Abilities::OBLIVIOUS),
             "SURGESURFER" => Ok(Abilities::SURGESURFER),

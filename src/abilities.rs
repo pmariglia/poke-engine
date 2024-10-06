@@ -154,6 +154,7 @@ pub enum Abilities {
     STURDY,
     PICKPOCKET,
     ELECTRICSURGE,
+    HADRONENGINE,
     RUNAWAY,
     OBLIVIOUS,
     SURGESURFER,
@@ -899,7 +900,7 @@ pub fn ability_on_switch_in(
                 state.terrain.turns_remaining = 5;
             }
         }
-        Abilities::ELECTRICSURGE => {
+        Abilities::ELECTRICSURGE | Abilities::HADRONENGINE => {
             if state.terrain.terrain_type != Terrain::ElectricTerrain {
                 instructions
                     .instruction_list
@@ -1086,6 +1087,11 @@ pub fn ability_modify_attack_being_used(
         Abilities::DRAGONSMAW => {
             if attacker_choice.move_type == PokemonType::Dragon {
                 attacker_choice.base_power *= 1.5;
+            }
+        }
+        Abilities::HADRONENGINE => {
+            if attacker_choice.category == MoveCategory::Special {
+                attacker_choice.base_power *= 1.33;
             }
         }
         Abilities::GALVANIZE => {
