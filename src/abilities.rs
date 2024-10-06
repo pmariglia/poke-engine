@@ -1349,7 +1349,7 @@ pub fn ability_modify_attack_being_used(
         Abilities::COMPOUNDEYES => {
             attacker_choice.accuracy *= 1.3;
         }
-        Abilities::STEELWORKER => {
+        Abilities::STEELWORKER | Abilities::STEELYSPIRIT => {
             if attacker_choice.move_type == PokemonType::Steel {
                 attacker_choice.base_power *= 1.5;
             }
