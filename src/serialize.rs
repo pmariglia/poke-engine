@@ -1713,6 +1713,7 @@ impl FromStr for Abilities {
             "DOWNLOAD" => Ok(Abilities::DOWNLOAD),
             "TRANSISTOR" => Ok(Abilities::TRANSISTOR),
             "MOLDBREAKER" => Ok(Abilities::MOLDBREAKER),
+            "MYCELIUMMIGHT" => Ok(Abilities::MYCELIUMMIGHT),
             "LIQUIDOOZE" => Ok(Abilities::LIQUIDOOZE),
             "POISONHEAL" => Ok(Abilities::POISONHEAL),
             "PRISMARMOR" => Ok(Abilities::PRISMARMOR),
