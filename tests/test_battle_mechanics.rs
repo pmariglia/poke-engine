@@ -8786,6 +8786,36 @@ fn test_hadronenegine_terrain_application() {
 }
 
 #[test]
+fn test_orichalcumpulse_weather_application() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::ORICHALCUMPULSE;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::Sun,
+                new_weather_turns_remaining: -1,
+                previous_weather: Weather::None,
+                previous_weather_turns_remaining: -1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_screencleaner() {
     let mut state = State::default();
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::SCREENCLEANER;
@@ -9838,6 +9868,29 @@ fn test_hadronengine_boost() {
             }),
             Instruction::DecrementTerrainTurnsRemaining,
         ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_orichalcum_boost() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::ORICHALCUMPULSE;
+    state.weather.weather_type = Weather::Sun;
+    state.weather.turns_remaining = -1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 63,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

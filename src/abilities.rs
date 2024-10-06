@@ -155,6 +155,7 @@ pub enum Abilities {
     PICKPOCKET,
     ELECTRICSURGE,
     HADRONENGINE,
+    ORICHALCUMPULSE,
     RUNAWAY,
     OBLIVIOUS,
     SURGESURFER,
@@ -864,7 +865,7 @@ pub fn ability_on_switch_in(
                     },
                 ));
         }
-        Abilities::DROUGHT => {
+        Abilities::DROUGHT | Abilities::ORICHALCUMPULSE => {
             if state.weather.weather_type != Weather::Sun {
                 instructions
                     .instruction_list
@@ -1158,7 +1159,16 @@ pub fn ability_modify_attack_being_used(
             }
         }
         Abilities::HADRONENGINE => {
-            if attacker_choice.category == MoveCategory::Special {
+            if attacker_choice.category == MoveCategory::Special
+                && state.terrain.terrain_type == Terrain::ElectricTerrain
+            {
+                attacker_choice.base_power *= 1.33;
+            }
+        }
+        Abilities::ORICHALCUMPULSE => {
+            if attacker_choice.category == MoveCategory::Physical
+                && state.weather.weather_type == Weather::Sun
+            {
                 attacker_choice.base_power *= 1.33;
             }
         }
