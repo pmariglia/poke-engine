@@ -388,6 +388,9 @@ pub fn ability_before_move(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides(side_ref);
     let active_pkmn = attacking_side.get_active();
+    if defending_side.get_active_immutable().ability == Abilities::NEUTRALIZINGGAS {
+        return;
+    }
     match active_pkmn.ability {
         Abilities::PROTEAN | Abilities::LIBERO => {
             if !active_pkmn.has_type(&choice.move_type) {
@@ -420,6 +423,11 @@ pub fn ability_after_damage_hit(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides(side_ref);
     let active_pkmn = attacking_side.get_active();
+    if defending_side.get_active_immutable().ability == Abilities::NEUTRALIZINGGAS
+        || active_pkmn.ability == Abilities::NEUTRALIZINGGAS
+    {
+        return;
+    }
     match active_pkmn.ability {
         Abilities::MAGICIAN | Abilities::PICKPOCKET => {
             let defending_pkmn = defending_side.get_active();
@@ -599,6 +607,9 @@ pub fn ability_on_switch_out(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides(side_ref);
     let active_pkmn = attacking_side.get_active();
+    if defending_side.get_active_immutable().ability == Abilities::NEUTRALIZINGGAS {
+        return;
+    }
     match active_pkmn.ability {
         Abilities::NATURALCURE => {
             if active_pkmn.status != PokemonStatus::None {
@@ -638,6 +649,9 @@ pub fn ability_end_of_turn(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides(side_ref);
     let active_pkmn = attacking_side.get_active();
+    if defending_side.get_active_immutable().ability == Abilities::NEUTRALIZINGGAS {
+        return;
+    }
     match active_pkmn.ability {
         Abilities::BADDREAMS => {
             let defender = defending_side.get_active();
@@ -788,6 +802,9 @@ pub fn ability_on_switch_in(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides(side_ref);
     let active_pkmn = attacking_side.get_active();
+    if defending_side.get_active_immutable().ability == Abilities::NEUTRALIZINGGAS {
+        return;
+    }
     match active_pkmn.ability {
         Abilities::INTREPIDSWORD => {
             // no need to check for boost at +6 because we are switching in
@@ -1097,6 +1114,9 @@ pub fn ability_modify_attack_being_used(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     let attacking_pkmn = attacking_side.get_active_immutable();
+    if defending_side.get_active_immutable().ability == Abilities::NEUTRALIZINGGAS {
+        return;
+    }
     match attacking_pkmn.ability {
         Abilities::DRAGONSMAW => {
             if attacker_choice.move_type == PokemonType::Dragon {
@@ -1441,6 +1461,9 @@ pub fn ability_modify_attack_against(
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     let attacking_pkmn = attacking_side.get_active_immutable();
     let target_pkmn = defending_side.get_active_immutable();
+    if target_pkmn.ability == Abilities::NEUTRALIZINGGAS {
+        return;
+    }
     if (attacking_pkmn.ability == Abilities::MOLDBREAKER
         || attacking_pkmn.ability == Abilities::MYCELIUMMIGHT
         || attacking_pkmn.ability == Abilities::TERAVOLT
