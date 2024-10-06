@@ -1677,6 +1677,7 @@ impl FromStr for Abilities {
             "INTIMIDATE" => Ok(Abilities::INTIMIDATE),
             "DAUNTLESSSHIELD" => Ok(Abilities::DAUNTLESSSHIELD),
             "AROMAVEIL" => Ok(Abilities::AROMAVEIL),
+            "ARMORTAIL" => Ok(Abilities::ARMORTAIL),
             "AIRLOCK" => Ok(Abilities::AIRLOCK),
             "NORMALIZE" => Ok(Abilities::NORMALIZE),
             "DARKAURA" => Ok(Abilities::DARKAURA),

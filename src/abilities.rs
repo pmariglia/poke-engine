@@ -18,6 +18,7 @@ use std::cmp;
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum Abilities {
+    ARMORTAIL,
     RIPEN,
     TANGLEDFEET,
     DRAGONSMAW,
@@ -301,6 +302,7 @@ fn mold_breaker_ignores(ability: &Abilities) -> bool {
     match ability {
         Abilities::BATTLEARMOR
         | Abilities::CLEARBODY
+        | Abilities::ARMORTAIL
         | Abilities::DAMP
         | Abilities::DRYSKIN
         | Abilities::FILTER
@@ -1402,6 +1404,11 @@ pub fn ability_modify_attack_against(
     }
 
     match target_pkmn.ability {
+        Abilities::ARMORTAIL => {
+            if attacker_choice.priority > 0 && attacker_choice.category != MoveCategory::Status {
+                attacker_choice.remove_all_effects();
+            }
+        }
         Abilities::SOUNDPROOF => {
             if attacker_choice.flags.sound {
                 attacker_choice.remove_all_effects();
