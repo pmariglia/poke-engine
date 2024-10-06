@@ -1206,7 +1206,9 @@ pub fn ability_modify_attack_being_used(
             }
         }
         Abilities::FAIRYAURA => {
-            if attacker_choice.move_type == PokemonType::Fairy {
+            if attacker_choice.move_type == PokemonType::Fairy
+                && defending_side.get_active_immutable().ability != Abilities::AURABREAK
+            {
                 attacker_choice.base_power *= 1.33;
             }
         }
@@ -1214,7 +1216,9 @@ pub fn ability_modify_attack_being_used(
             attacker_choice.move_type = PokemonType::Normal;
         }
         Abilities::DARKAURA => {
-            if attacker_choice.move_type == PokemonType::Dark {
+            if attacker_choice.move_type == PokemonType::Dark
+                && defending_side.get_active_immutable().ability != Abilities::AURABREAK
+            {
                 attacker_choice.base_power *= 1.33;
             }
         }

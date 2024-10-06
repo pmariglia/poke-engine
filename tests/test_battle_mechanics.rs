@@ -936,12 +936,10 @@ fn test_chillingneigh_does_not_overboost() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 1,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 1,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -961,12 +959,10 @@ fn test_grimneigh_does_not_overboost() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 1,
-            }),
-        ],
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 1,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
