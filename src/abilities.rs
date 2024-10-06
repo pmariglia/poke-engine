@@ -541,6 +541,20 @@ pub fn ability_after_damage_hit(
                 }
             }
         }
+        Abilities::SANDSPIT => {
+            if damage_dealt > 0 && state.weather.weather_type != Weather::Sand {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeWeather(ChangeWeather {
+                        new_weather: Weather::Sand,
+                        new_weather_turns_remaining: 5,
+                        previous_weather: state.weather.weather_type,
+                        previous_weather_turns_remaining: state.weather.turns_remaining,
+                    }));
+                state.weather.weather_type = Weather::Sand;
+                state.weather.turns_remaining = 5;
+            }
+        }
         Abilities::BERSERK => {
             if damage_dealt > 0
                 && defending_pkmn.hp < defending_pkmn.maxhp / 2

@@ -7190,6 +7190,88 @@ fn test_sunnyday() {
 }
 
 #[test]
+fn test_sandspit() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::SANDSPIT;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::Sand,
+                new_weather_turns_remaining: 5,
+                previous_weather: Weather::None,
+                previous_weather_turns_remaining: -1,
+            }),
+            Instruction::DecrementWeatherTurnsRemaining,
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 6,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_sandspit_does_not_activate_on_miss() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::SANDSPIT;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::AEROBLAST,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 5.000001,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 95.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 79,
+                }),
+                Instruction::ChangeWeather(ChangeWeather {
+                    new_weather: Weather::Sand,
+                    new_weather_turns_remaining: 5,
+                    previous_weather: Weather::None,
+                    previous_weather_turns_remaining: -1,
+                }),
+                Instruction::DecrementWeatherTurnsRemaining,
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 6,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 6,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_focuspunch_after_not_getting_hit() {
     let mut state = State::default();
     state.weather.weather_type = Weather::Sun;
