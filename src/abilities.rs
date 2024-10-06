@@ -596,6 +596,40 @@ pub fn ability_after_damage_hit(
                 attacking_pkmn.hp -= damage_dealt;
             }
         }
+        Abilities::PERISHBODY => {
+            if damage_dealt > 0 && choice.flags.contact {
+                for side_ref in [SideReference::SideOne, SideReference::SideTwo] {
+                    let side = state.get_side(&side_ref);
+                    let pkmn = side.get_active();
+                    if pkmn.hp != 0
+                        && pkmn.ability != Abilities::SOUNDPROOF
+                        && !(side
+                            .volatile_statuses
+                            .contains(&PokemonVolatileStatus::Perish4)
+                            || side
+                                .volatile_statuses
+                                .contains(&PokemonVolatileStatus::Perish3)
+                            || side
+                                .volatile_statuses
+                                .contains(&PokemonVolatileStatus::Perish2)
+                            || side
+                                .volatile_statuses
+                                .contains(&PokemonVolatileStatus::Perish1))
+                    {
+                        instructions
+                            .instruction_list
+                            .push(Instruction::ApplyVolatileStatus(
+                                ApplyVolatileStatusInstruction {
+                                    side_ref: side_ref,
+                                    volatile_status: PokemonVolatileStatus::Perish4,
+                                },
+                            ));
+                        side.volatile_statuses
+                            .insert(PokemonVolatileStatus::Perish4);
+                    }
+                }
+            }
+        }
         _ => {}
     }
 }
@@ -1647,7 +1681,7 @@ pub fn ability_modify_attack_against(
             }
         }
         Abilities::FLAMEBODY => {
-            if state.move_makes_contact(&attacker_choice, attacking_side_ref) {
+            if attacker_choice.flags.contact {
                 attacker_choice.add_or_create_secondaries(Secondary {
                     chance: 30.0,
                     target: MoveTarget::User,
@@ -1716,7 +1750,7 @@ pub fn ability_modify_attack_against(
             }
         }
         Abilities::STATIC => {
-            if state.move_makes_contact(&attacker_choice, attacking_side_ref) {
+            if attacker_choice.flags.contact {
                 attacker_choice.add_or_create_secondaries(Secondary {
                     chance: 30.0,
                     target: MoveTarget::User,

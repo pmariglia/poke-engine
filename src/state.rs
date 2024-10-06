@@ -1446,21 +1446,6 @@ impl State {
         }
     }
 
-    pub fn move_makes_contact(&self, choice: &Choice, attacking_side_ref: &SideReference) -> bool {
-        if choice.flags.contact {
-            if self
-                .get_side_immutable(attacking_side_ref)
-                .get_active_immutable()
-                .item
-                == Items::PROTECTIVEPADS
-            {
-                return false;
-            }
-            return true;
-        }
-        false
-    }
-
     pub fn terrain_is_active(&self, terrain: &Terrain) -> bool {
         &self.terrain.terrain_type == terrain && self.terrain.turns_remaining > 0
     }

@@ -574,6 +574,9 @@ pub fn item_before_move(
                 instructions.instruction_list.push(i);
             }
         }
+        Items::PROTECTIVEPADS => {
+            choice.flags.contact = false;
+        }
         _ => {}
     }
 }
