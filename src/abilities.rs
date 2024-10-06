@@ -143,6 +143,7 @@ pub enum Abilities {
     WATERVEIL,
     FAIRYAURA,
     SANDSPIT,
+    SEEDSOWER,
     INTIMIDATE,
     DAUNTLESSSHIELD,
     AROMAVEIL,
@@ -553,6 +554,20 @@ pub fn ability_after_damage_hit(
                     }));
                 state.weather.weather_type = Weather::Sand;
                 state.weather.turns_remaining = 5;
+            }
+        }
+        Abilities::SEEDSOWER => {
+            if damage_dealt > 0 && state.terrain.terrain_type != Terrain::GrassyTerrain {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeTerrain(ChangeTerrain {
+                        new_terrain: Terrain::GrassyTerrain,
+                        new_terrain_turns_remaining: 5,
+                        previous_terrain: state.terrain.terrain_type,
+                        previous_terrain_turns_remaining: state.terrain.turns_remaining,
+                    }));
+                state.terrain.terrain_type = Terrain::GrassyTerrain;
+                state.terrain.turns_remaining = 5;
             }
         }
         Abilities::BERSERK => {
