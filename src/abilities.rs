@@ -10,7 +10,7 @@ use crate::instruction::{
     ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeType,
     ChangeWeather, DamageInstruction, HealInstruction, Instruction, StateInstructions,
 };
-use crate::items::Items;
+use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Terrain};
 use crate::state::{PokemonStatus, State};
 use crate::state::{PokemonVolatileStatus, SideReference, Weather};
@@ -394,6 +394,13 @@ pub fn ability_before_move(
                 });
                 active_pkmn.types = (choice.move_type, PokemonType::Typeless);
                 instructions.instruction_list.push(ins);
+            }
+        }
+        Abilities::GORILLATACTICS => {
+            let ins = get_choice_move_disable_instructions(active_pkmn, side_ref, &choice.move_id);
+            for i in ins {
+                state.apply_one_instruction(&i);
+                instructions.instruction_list.push(i);
             }
         }
         _ => {}

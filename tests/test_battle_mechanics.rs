@@ -3326,6 +3326,88 @@ fn test_choiceband_locking() {
 }
 
 #[test]
+fn test_gorillatactics_locking() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::GORILLATACTICS;
+    state.side_one.get_active().moves[PokemonMoveIndex::M0] = Move {
+        id: Choices::ZAPCANNON,
+        disabled: false,
+        pp: 35,
+        ..Default::default()
+    };
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::ZAPCANNON,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M1,
+                }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M2,
+                }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M3,
+                }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M4,
+                }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M5,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M1,
+                }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M2,
+                }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M3,
+                }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M4,
+                }),
+                Instruction::DisableMove(DisableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M5,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 94,
+                }),
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    pokemon_index: PokemonIndex::P0,
+                    old_status: PokemonStatus::None,
+                    new_status: PokemonStatus::Paralyze,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_earthquake_hits_roosted_flying_type() {
     let mut state = State::default();
     state.side_two.get_active().types = (PokemonType::Flying, PokemonType::Normal);
