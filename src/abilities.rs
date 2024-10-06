@@ -192,6 +192,7 @@ pub enum Abilities {
     TURBOBLAZE,
     GORILLATACTICS,
     SPEEDBOOST,
+    GUARDDOG,
     HEATPROOF,
     SNOWCLOAK,
     TERAVOLT,

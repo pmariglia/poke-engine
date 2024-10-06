@@ -2588,6 +2588,25 @@ fn test_whirlwind_move_against_substitute() {
 }
 
 #[test]
+fn test_whirlwind_against_guarddog() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state.side_one.get_active().ability = Abilities::GUARDDOG;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::WHIRLWIND,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_drag_move_against_protect_and_substitute() {
     let mut state = State::default();
     state.side_one.get_active().speed = 150;

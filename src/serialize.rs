@@ -1723,6 +1723,7 @@ impl FromStr for Abilities {
             "ILLUMINATE" => Ok(Abilities::ILLUMINATE),
             "TURBOBLAZE" => Ok(Abilities::TURBOBLAZE),
             "GORILLATACTICS" => Ok(Abilities::GORILLATACTICS),
+            "GUARDDOG" => Ok(Abilities::GUARDDOG),
             "SPEEDBOOST" => Ok(Abilities::SPEEDBOOST),
             "HEATPROOF" => Ok(Abilities::HEATPROOF),
             "SNOWCLOAK" => Ok(Abilities::SNOWCLOAK),

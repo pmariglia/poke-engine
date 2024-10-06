@@ -1727,7 +1727,13 @@ pub fn generate_instructions_from_move(
         get_instructions_from_boosts(state, boost, &attacking_side, &mut incoming_instructions);
     }
 
-    if choice.flags.drag {
+    if choice.flags.drag
+        && state
+            .get_side_immutable(&attacking_side.get_other_side())
+            .get_active_immutable()
+            .ability
+            != Abilities::GUARDDOG
+    {
         get_instructions_from_drag(
             state,
             &attacking_side,
