@@ -1852,6 +1852,7 @@ impl FromStr for Items {
             "NONE" => Ok(Items::NONE),
             "UNKNOWNITEM" => Ok(Items::UNKNOWNITEM),
             "ABSORBBULB" => Ok(Items::ABSORBBULB),
+            "ADRENALINEORB" => Ok(Items::ADRENALINEORB),
             "ADAMANTORB" => Ok(Items::ADAMANTORB),
             "AIRBALLOON" => Ok(Items::AIRBALLOON),
             "ASSAULTVEST" => Ok(Items::ASSAULTVEST),

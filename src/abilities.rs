@@ -977,7 +977,27 @@ pub fn ability_on_switch_in(
                 side_ref,
                 &side_ref.get_other_side(),
             ) {
-                match defending_side.get_active_immutable().ability {
+                let defender = defending_side.get_active_immutable();
+                let mut adrenaline_orb_item_instruction = None;
+                let mut adrenaline_orb_boost_instruction = None;
+                if defender.item == Items::ADRENALINEORB {
+                    if let Some(boost_ins) = get_boost_instruction(
+                        &defending_side,
+                        &PokemonBoostableStat::Speed,
+                        &1,
+                        &side_ref.get_other_side(),
+                        &side_ref.get_other_side(),
+                    ) {
+                        adrenaline_orb_boost_instruction = Some(boost_ins);
+                        adrenaline_orb_item_instruction =
+                            Some(Instruction::ChangeItem(ChangeItemInstruction {
+                                side_ref: side_ref.get_other_side(),
+                                current_item: Items::ADRENALINEORB,
+                                new_item: Items::NONE,
+                            }));
+                    }
+                }
+                match defender.ability {
                     Abilities::OWNTEMPO
                     | Abilities::OBLIVIOUS
                     | Abilities::INNERFOCUS
@@ -985,6 +1005,14 @@ pub fn ability_on_switch_in(
                     _ => {
                         state.apply_one_instruction(&boost_instruction);
                         instructions.instruction_list.push(boost_instruction);
+                    }
+                }
+                if let Some(ins) = adrenaline_orb_boost_instruction {
+                    state.apply_one_instruction(&ins);
+                    instructions.instruction_list.push(ins);
+                    if let Some(ins) = adrenaline_orb_item_instruction {
+                        state.apply_one_instruction(&ins);
+                        instructions.instruction_list.push(ins);
                     }
                 }
             }

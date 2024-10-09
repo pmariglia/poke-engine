@@ -9298,6 +9298,104 @@ fn test_intimidate() {
 }
 
 #[test]
+fn test_adrenalineorb_against_intimidate() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::INTIMIDATE;
+    state.side_two.get_active().item = Items::ADRENALINEORB;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Attack,
+                amount: -1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Speed,
+                amount: 1,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideTwo,
+                current_item: Items::ADRENALINEORB,
+                new_item: Items::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_adrenalineorb_against_intimidate_when_already_at_max_speed() {
+    /*
+    Adrenaline Orb should not activate or be consumed if the holder is already at max speed
+    */
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::INTIMIDATE;
+    state.side_two.get_active().item = Items::ADRENALINEORB;
+    state.side_two.speed_boost = 6;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Attack,
+                amount: -1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_adrenaline_orb_activates_if_immune_to_intimidate() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::INTIMIDATE;
+    state.side_two.get_active().item = Items::ADRENALINEORB;
+    state.side_two.get_active().ability = Abilities::HYPERCUTTER;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Switch(SwitchInstruction {
+            side_ref: SideReference::SideOne,
+            previous_index: PokemonIndex::P0,
+            next_index: PokemonIndex::P1,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_ground_move_versus_airballoon() {
     let mut state = State::default();
     state.side_two.get_active().item = Items::AIRBALLOON;

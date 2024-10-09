@@ -17,6 +17,7 @@ pub enum Items {
     NONE,
     UNKNOWNITEM,
     ABSORBBULB,
+    ADRENALINEORB,
     ADAMANTORB,
     AIRBALLOON,
     ASSAULTVEST,
