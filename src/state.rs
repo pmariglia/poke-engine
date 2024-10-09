@@ -569,6 +569,23 @@ impl Pokemon {
             | Items::BLANKPLATE
             | Items::SKYPLATE
             | Items::PIXIEPLATE => !self.id.starts_with("arceus"),
+            Items::BUGMEMORY
+            | Items::FIGHTINGMEMORY
+            | Items::GHOSTMEMORY
+            | Items::PSYCHICMEMORY
+            | Items::FLYINGMEMORY
+            | Items::STEELMEMORY
+            | Items::ICEMEMORY
+            | Items::POISONMEMORY
+            | Items::FIREMEMORY
+            | Items::DRAGONMEMORY
+            | Items::GROUNDMEMORY
+            | Items::WATERMEMORY
+            | Items::DARKMEMORY
+            | Items::ROCKMEMORY
+            | Items::GRASSMEMORY
+            | Items::FAIRYMEMORY
+            | Items::ELECTRICMEMORY => !self.id.starts_with("silvally"),
             _ => true,
         }
     }

@@ -110,6 +110,9 @@ pub fn modify_choice(
         Choices::JUDGMENT => {
             attacker_choice.move_type = attacking_side.get_active_immutable().types.0;
         }
+        Choices::MULTIATTACK => {
+            attacker_choice.move_type = attacking_side.get_active_immutable().types.0;
+        }
         Choices::MISTYEXPLOSION => {
             if state.terrain.terrain_type == Terrain::MistyTerrain {
                 attacker_choice.base_power *= 1.5;

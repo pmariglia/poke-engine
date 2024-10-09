@@ -1668,6 +1668,27 @@ fn test_judgement_typechange_with_arceus_multitype() {
 }
 
 #[test]
+fn test_multiattack_typechange_with_silvally_drive() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::GHOSTMEMORY;
+    state.side_one.get_active().id = String::from("silvallyghost");
+    state.side_one.get_active().types.0 = PokemonType::Ghost;
+    state.side_two.get_active().types.0 = PokemonType::Normal;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::MULTIATTACK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_haze_resets_both_side_boosts() {
     let mut state = State::default();
     state.side_one.attack_boost = 3;
@@ -7046,6 +7067,26 @@ fn test_trick_fails_versus_arceus_with_plate() {
     state.side_one.get_active().item = Items::SILVERPOWDER;
     state.side_two.get_active().item = Items::SKYPLATE;
     state.side_two.get_active().id = "arceus".to_string();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TRICK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_trick_fails_versus_silvally_with_memory() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::SILVERPOWDER;
+    state.side_two.get_active().item = Items::BUGMEMORY;
+    state.side_two.get_active().id = "silvally".to_string();
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
