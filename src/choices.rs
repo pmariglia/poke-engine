@@ -1,7 +1,7 @@
-use crate::state::PokemonType;
 use crate::state::PokemonVolatileStatus;
 use crate::state::{PokemonBoostableStat, PokemonSideCondition};
 use crate::state::{PokemonIndex, PokemonStatus};
+use crate::state::{PokemonMoveIndex, PokemonType};
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::fmt;
@@ -19701,6 +19701,7 @@ pub enum Choices {
 pub struct Choice {
     // Basic move information
     pub move_id: Choices, // in the case of category::Switch, this is not used
+    pub move_index: PokemonMoveIndex,
     pub switch_id: PokemonIndex,
     pub move_type: PokemonType,
     pub accuracy: f32,
@@ -19817,6 +19818,7 @@ impl Default for Choice {
     fn default() -> Choice {
         Choice {
             move_id: Choices::NONE,
+            move_index: PokemonMoveIndex::M0,
             switch_id: PokemonIndex::P0,
             move_type: PokemonType::Normal,
             accuracy: 100.0,

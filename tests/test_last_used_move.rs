@@ -33,7 +33,7 @@ fn test_last_used_move_is_set_on_switch() {
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
                 last_used_move: LastUsedMove::Switch(PokemonIndex::P1),
-                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+                previous_last_used_move: LastUsedMove::None,
             }),
         ],
     }];
@@ -63,8 +63,8 @@ fn test_last_used_move_is_set_on_move() {
         instruction_list: vec![
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
-                last_used_move: LastUsedMove::Move(Choices::TACKLE),
-                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::None,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -72,8 +72,8 @@ fn test_last_used_move_is_set_on_move() {
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
-                last_used_move: LastUsedMove::Move(Choices::TACKLE),
-                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::None,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -114,8 +114,8 @@ fn test_last_used_move_overwritten_when_dragged_out() {
         instruction_list: vec![
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
-                last_used_move: LastUsedMove::Move(Choices::TACKLE),
-                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::None,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -123,8 +123,8 @@ fn test_last_used_move_overwritten_when_dragged_out() {
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
-                last_used_move: LastUsedMove::Move(Choices::WHIRLWIND),
-                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::None,
             }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
@@ -134,7 +134,7 @@ fn test_last_used_move_overwritten_when_dragged_out() {
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
                 last_used_move: LastUsedMove::Switch(PokemonIndex::P1),
-                previous_last_used_move: LastUsedMove::Move(Choices::TACKLE),
+                previous_last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
             }),
         ],
     }];
@@ -148,7 +148,7 @@ fn test_encore_causes_get_all_options_to_only_allow_last_used_move() {
         .side_one
         .volatile_statuses
         .insert(PokemonVolatileStatus::Encore);
-    state.side_one.last_used_move = LastUsedMove::Move(Choices::TACKLE);
+    state.side_one.last_used_move = LastUsedMove::Move(PokemonMoveIndex::M0);
     state
         .side_one
         .get_active()
@@ -177,7 +177,7 @@ fn test_encore_and_arenatrapped_together() {
         .side_one
         .volatile_statuses
         .insert(PokemonVolatileStatus::Encore);
-    state.side_one.last_used_move = LastUsedMove::Move(Choices::TACKLE);
+    state.side_one.last_used_move = LastUsedMove::Move(PokemonMoveIndex::M0);
     state
         .side_one
         .get_active()
@@ -219,8 +219,8 @@ fn test_encore_slow() {
         instruction_list: vec![
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
-                last_used_move: LastUsedMove::Move(Choices::TACKLE),
-                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::None,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -228,8 +228,8 @@ fn test_encore_slow() {
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
-                last_used_move: LastUsedMove::Move(Choices::ENCORE),
-                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::None,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
@@ -284,8 +284,8 @@ fn test_encore_slow_into_substitute() {
         instruction_list: vec![
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
-                last_used_move: LastUsedMove::Move(Choices::SUBSTITUTE),
-                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::None,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -302,8 +302,8 @@ fn test_encore_slow_into_substitute() {
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
-                last_used_move: LastUsedMove::Move(Choices::ENCORE),
-                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::None,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
@@ -360,12 +360,12 @@ fn test_encore_fast_fails_with_lastusedmove_equal_to_switch() {
         instruction_list: vec![
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
-                last_used_move: LastUsedMove::Move(Choices::ENCORE),
-                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::None,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
-                last_used_move: LastUsedMove::Move(Choices::TACKLE),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
                 previous_last_used_move: LastUsedMove::Switch(PokemonIndex::P0),
             }),
             Instruction::Damage(DamageInstruction {
@@ -394,7 +394,7 @@ fn test_encore_fast_fails_with_lastusedmove_equal_to_none() {
         .side_two
         .get_active()
         .replace_move(PokemonMoveIndex::M1, Choices::WATERGUN);
-    state.side_two.last_used_move = LastUsedMove::Move(Choices::NONE);
+    state.side_two.last_used_move = LastUsedMove::None;
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
@@ -407,13 +407,13 @@ fn test_encore_fast_fails_with_lastusedmove_equal_to_none() {
         instruction_list: vec![
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
-                last_used_move: LastUsedMove::Move(Choices::ENCORE),
-                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::None,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
-                last_used_move: LastUsedMove::Move(Choices::TACKLE),
-                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::None,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -433,7 +433,7 @@ fn test_encore_second_fails_when_opponent_switches() {
         .side_one
         .get_active()
         .replace_move(PokemonMoveIndex::M0, Choices::ENCORE);
-    state.side_two.last_used_move = LastUsedMove::Move(Choices::TACKLE);
+    state.side_two.last_used_move = LastUsedMove::Move(PokemonMoveIndex::M0);
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
@@ -452,12 +452,12 @@ fn test_encore_second_fails_when_opponent_switches() {
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
                 last_used_move: LastUsedMove::Switch(PokemonIndex::P1),
-                previous_last_used_move: LastUsedMove::Move(Choices::TACKLE),
+                previous_last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
-                last_used_move: LastUsedMove::Move(Choices::ENCORE),
-                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::None,
             }),
         ],
     }];
@@ -480,8 +480,8 @@ fn test_fast_encore_into_using_a_different_move_from_lum() {
     state
         .side_two
         .get_active()
-        .replace_move(PokemonMoveIndex::M1, Choices::WATERGUN);
-    state.side_two.last_used_move = LastUsedMove::Move(Choices::SWORDSDANCE);
+        .replace_move(PokemonMoveIndex::M1, Choices::SWORDSDANCE);
+    state.side_two.last_used_move = LastUsedMove::Move(PokemonMoveIndex::M1);
 
     // side_two will try to use tackle, but will encored into watergun from last turn
     let vec_of_instructions = generate_instructions_from_move_pair(
@@ -495,8 +495,8 @@ fn test_fast_encore_into_using_a_different_move_from_lum() {
         instruction_list: vec![
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
-                last_used_move: LastUsedMove::Move(Choices::ENCORE),
-                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::None,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
@@ -542,7 +542,7 @@ fn test_fakeout_first_turn_switched_in() {
         instruction_list: vec![
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
-                last_used_move: LastUsedMove::Move(Choices::FAKEOUT),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
                 previous_last_used_move: LastUsedMove::Switch(PokemonIndex::P0),
             }),
             Instruction::Damage(DamageInstruction {
@@ -576,7 +576,7 @@ fn test_fakeout_with_last_used_move_of_non_switch() {
         .get_active()
         .replace_move(PokemonMoveIndex::M0, Choices::TACKLE);
 
-    state.side_one.last_used_move = LastUsedMove::Move(Choices::FAKEOUT);
+    state.side_one.last_used_move = LastUsedMove::Move(PokemonMoveIndex::M0);
 
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
@@ -589,8 +589,8 @@ fn test_fakeout_with_last_used_move_of_non_switch() {
         instruction_list: vec![
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
-                last_used_move: LastUsedMove::Move(Choices::TACKLE),
-                previous_last_used_move: LastUsedMove::Move(Choices::NONE),
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::None,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,

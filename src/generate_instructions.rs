@@ -21,6 +21,8 @@ use crate::instruction::{
 
 #[cfg(feature = "last_used_move")]
 use crate::instruction::SetLastUsedMoveInstruction;
+#[cfg(feature = "last_used_move")]
+use crate::state::PokemonMoveIndex;
 
 #[cfg(feature = "damage_dealt")]
 use crate::instruction::SetDamageDealtInstruction;
@@ -78,7 +80,7 @@ fn set_last_used_move_as_switch(
 #[cfg(feature = "last_used_move")]
 fn set_last_used_move_as_move(
     side: &mut Side,
-    used_move: Choices,
+    used_move: PokemonMoveIndex,
     switching_side_ref: SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
@@ -94,7 +96,7 @@ fn set_last_used_move_as_move(
                 return;
             }
         }
-        LastUsedMove::Switch(_) => {}
+        _ => {}
     }
     incoming_instructions
         .instruction_list
@@ -1185,7 +1187,7 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
             .get_side_immutable(&attacking_side_ref.get_other_side())
             .last_used_move
         {
-            LastUsedMove::Move(Choices::NONE) => true,
+            LastUsedMove::None => true,
             LastUsedMove::Move(_) => false,
             LastUsedMove::Switch(_) => true,
         };
@@ -1535,11 +1537,15 @@ pub fn generate_instructions_from_move(
     {
         match side.last_used_move {
             LastUsedMove::Move(last_used_move) => {
-                if choice.move_id != last_used_move {
-                    *choice = MOVES.get(&last_used_move).unwrap().clone()
+                if choice.move_index != last_used_move {
+                    *choice = MOVES
+                        .get(&side.get_active_immutable().moves[last_used_move].id)
+                        .unwrap()
+                        .clone();
+                    choice.move_index = last_used_move;
                 }
             }
-            LastUsedMove::Switch(_) => panic!("Encore should not be active after a switch"),
+            _ => panic!("Encore should not be active when last used move is not a move"),
         }
     }
 
@@ -1592,7 +1598,7 @@ pub fn generate_instructions_from_move(
     #[cfg(feature = "last_used_move")]
     set_last_used_move_as_move(
         state.get_side(&attacking_side),
-        choice.move_id,
+        choice.move_index,
         attacking_side,
         &mut incoming_instructions,
     );
@@ -2608,6 +2614,7 @@ pub fn generate_instructions_from_move_pair(
             side_one_choice = state.side_one.get_active().moves[*move_index]
                 .choice
                 .clone();
+            side_one_choice.move_index = *move_index;
         }
         MoveChoice::None => {
             side_one_choice = Choice::default();
@@ -2625,6 +2632,7 @@ pub fn generate_instructions_from_move_pair(
             side_two_choice = state.side_two.get_active().moves[*move_index]
                 .choice
                 .clone();
+            side_two_choice.move_index = *move_index;
         }
         MoveChoice::None => {
             side_two_choice = Choice::default();

@@ -48,8 +48,9 @@ impl Default for DamageDealt {
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub enum LastUsedMove {
-    Move(Choices),
+    Move(PokemonMoveIndex),
     Switch(PokemonIndex),
+    None,
 }
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone, Hash)]
@@ -517,11 +518,11 @@ impl Pokemon {
                 if encored {
                     match last_used_move {
                         LastUsedMove::Move(last_used_move) => {
-                            if last_used_move != &p.id {
+                            if last_used_move != &iter.pokemon_move_index {
                                 continue;
                             }
                         }
-                        LastUsedMove::Switch(_) => {
+                        _ => {
                             // there are some situations where you switched out and got encored into
                             // a move from a different pokemon, because you also have that move
                             // just assume nothing is locked in this case
@@ -1139,7 +1140,7 @@ impl Default for Side {
             force_switch: false,
             slow_uturn_move: false,
             force_trapped: false,
-            last_used_move: LastUsedMove::Move(Choices::NONE),
+            last_used_move: LastUsedMove::None,
             damage_dealt: DamageDealt::default(),
             switch_out_move_second_saved_move: Choices::NONE,
             evasion_boost: 0,

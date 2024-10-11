@@ -2,9 +2,9 @@ use crate::abilities::Abilities;
 use crate::choices::{Choices, MOVES};
 use crate::items::Items;
 use crate::state::{
-    DamageDealt, LastUsedMove, Move, Pokemon, PokemonIndex, PokemonMoves, PokemonStatus,
-    PokemonType, PokemonVolatileStatus, Side, SideConditions, SidePokemon, State, StateTerrain,
-    StateTrickRoom, StateWeather, Terrain, Weather,
+    DamageDealt, LastUsedMove, Move, Pokemon, PokemonIndex, PokemonMoveIndex, PokemonMoves,
+    PokemonStatus, PokemonType, PokemonVolatileStatus, Side, SideConditions, SidePokemon, State,
+    StateTerrain, StateTrickRoom, StateWeather, Terrain, Weather,
 };
 use std::collections::HashSet;
 use std::fmt;
@@ -245,14 +245,21 @@ impl Pokemon {
 impl LastUsedMove {
     pub fn serialize(&self) -> String {
         match self {
-            LastUsedMove::Move(move_name) => format!("move:{}", move_name),
+            LastUsedMove::Move(move_index) => format!("move:{}", move_index.serialize()),
             LastUsedMove::Switch(pkmn_index) => format!("switch:{}", pkmn_index.serialize()),
+            LastUsedMove::None => "move:none".to_string(),
         }
     }
     pub fn deserialize(serialized: &str) -> LastUsedMove {
         let split: Vec<&str> = serialized.split(":").collect();
         match split[0] {
-            "move" => LastUsedMove::Move(Choices::from_str(split[1]).unwrap()),
+            "move" => {
+                if split[1] == "none" {
+                    LastUsedMove::None
+                } else {
+                    LastUsedMove::Move(PokemonMoveIndex::deserialize(split[1]))
+                }
+            }
             "switch" => LastUsedMove::Switch(PokemonIndex::deserialize(split[1])),
             _ => panic!("Invalid LastUsedMove: {}", serialized),
         }
@@ -280,6 +287,31 @@ impl PokemonIndex {
             "4" => PokemonIndex::P4,
             "5" => PokemonIndex::P5,
             _ => panic!("Invalid PokemonIndex: {}", serialized),
+        }
+    }
+}
+
+impl PokemonMoveIndex {
+    pub fn serialize(&self) -> String {
+        match self {
+            PokemonMoveIndex::M0 => "0".to_string(),
+            PokemonMoveIndex::M1 => "1".to_string(),
+            PokemonMoveIndex::M2 => "2".to_string(),
+            PokemonMoveIndex::M3 => "3".to_string(),
+            PokemonMoveIndex::M4 => "4".to_string(),
+            PokemonMoveIndex::M5 => "5".to_string(),
+        }
+    }
+
+    pub fn deserialize(serialized: &str) -> PokemonMoveIndex {
+        match serialized {
+            "0" => PokemonMoveIndex::M0,
+            "1" => PokemonMoveIndex::M1,
+            "2" => PokemonMoveIndex::M2,
+            "3" => PokemonMoveIndex::M3,
+            "4" => PokemonMoveIndex::M4,
+            "5" => PokemonMoveIndex::M5,
+            _ => panic!("Invalid PokemonMoveIndex: {}", serialized),
         }
     }
 }
