@@ -20,7 +20,7 @@ use crate::instruction::{
 };
 
 #[cfg(feature = "last_used_move")]
-use crate::instruction::SetLastUsedMoveInstruction;
+use crate::instruction::{DecrementPPInstruction, SetLastUsedMoveInstruction};
 #[cfg(feature = "last_used_move")]
 use crate::state::PokemonMoveIndex;
 
@@ -80,6 +80,7 @@ fn set_last_used_move_as_switch(
 #[cfg(feature = "last_used_move")]
 fn set_last_used_move_as_move(
     side: &mut Side,
+    other_side_has_pressure: bool,
     used_move: PokemonMoveIndex,
     switching_side_ref: SideReference,
     incoming_instructions: &mut StateInstructions,
@@ -89,6 +90,23 @@ fn set_last_used_move_as_move(
         .contains(&PokemonVolatileStatus::Flinch)
     {
         return;
+    }
+    let active = side.get_active();
+    incoming_instructions
+        .instruction_list
+        .push(Instruction::DecrementPP(DecrementPPInstruction {
+            side_ref: switching_side_ref,
+            move_index: used_move,
+        }));
+    active.moves[&used_move].pp -= 1;
+    if other_side_has_pressure {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::DecrementPP(DecrementPPInstruction {
+                side_ref: switching_side_ref,
+                move_index: used_move,
+            }));
+        active.moves[&used_move].pp -= 1;
     }
     match side.last_used_move {
         LastUsedMove::Move(last_used_move) => {
@@ -1539,7 +1557,7 @@ pub fn generate_instructions_from_move(
             LastUsedMove::Move(last_used_move) => {
                 if choice.move_index != last_used_move {
                     *choice = MOVES
-                        .get(&side.get_active_immutable().moves[last_used_move].id)
+                        .get(&side.get_active_immutable().moves[&last_used_move].id)
                         .unwrap()
                         .clone();
                     choice.move_index = last_used_move;
@@ -1596,8 +1614,15 @@ pub fn generate_instructions_from_move(
     }
 
     #[cfg(feature = "last_used_move")]
+    let has_pressure = state
+        .get_side_immutable(&attacking_side.get_other_side())
+        .get_active_immutable()
+        .ability
+        == Abilities::PRESSURE;
+    #[cfg(feature = "last_used_move")]
     set_last_used_move_as_move(
         state.get_side(&attacking_side),
+        has_pressure,
         choice.move_index,
         attacking_side,
         &mut incoming_instructions,
@@ -2611,9 +2636,7 @@ pub fn generate_instructions_from_move_pair(
             side_one_choice.category = MoveCategory::Switch;
         }
         MoveChoice::Move(move_index) => {
-            side_one_choice = state.side_one.get_active().moves[*move_index]
-                .choice
-                .clone();
+            side_one_choice = state.side_one.get_active().moves[move_index].choice.clone();
             side_one_choice.move_index = *move_index;
         }
         MoveChoice::None => {
@@ -2629,9 +2652,7 @@ pub fn generate_instructions_from_move_pair(
             side_two_choice.category = MoveCategory::Switch;
         }
         MoveChoice::Move(move_index) => {
-            side_two_choice = state.side_two.get_active().moves[*move_index]
-                .choice
-                .clone();
+            side_two_choice = state.side_two.get_active().moves[move_index].choice.clone();
             side_two_choice.move_index = *move_index;
         }
         MoveChoice::None => {

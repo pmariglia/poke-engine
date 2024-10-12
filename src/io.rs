@@ -173,7 +173,7 @@ impl Side {
     fn option_to_string(&self, option: &MoveChoice) -> String {
         match option {
             MoveChoice::Move(index) => {
-                format!("{}", self.get_active_immutable().moves[*index].id).to_lowercase()
+                format!("{}", self.get_active_immutable().moves[index].id).to_lowercase()
             }
             MoveChoice::Switch(index) => format!("{}", self.pokemon[*index].id).to_lowercase(),
             MoveChoice::None => "none".to_string(),
@@ -310,7 +310,7 @@ fn pprint_expectiminimax_result(
     for s2_move in s2_options.iter() {
         match s2_move {
             MoveChoice::Move(m) => {
-                let s2_move_str = format!("{}", state.side_two.get_active_immutable().moves[*m].id);
+                let s2_move_str = format!("{}", state.side_two.get_active_immutable().moves[m].id);
                 print!("{: >12}", s2_move_str.to_lowercase());
             }
             MoveChoice::Switch(s) => {
@@ -326,7 +326,7 @@ fn pprint_expectiminimax_result(
         let s1_move_str = s1_options[i];
         match s1_move_str {
             MoveChoice::Move(m) => {
-                let move_id = state.side_one.get_active_immutable().moves[m].id;
+                let move_id = state.side_one.get_active_immutable().moves[&m].id;
                 print!("{:<12}", move_id.to_string().to_lowercase());
             }
             MoveChoice::Switch(s) => {
@@ -343,7 +343,7 @@ fn pprint_expectiminimax_result(
     }
     match s1_options[safest_choice.0] {
         MoveChoice::Move(m) => {
-            let move_id = state.side_one.get_active_immutable().moves[m].id;
+            let move_id = state.side_one.get_active_immutable().moves[&m].id;
             print!(
                 "\nSafest Choice: {}, {}\n",
                 move_id.to_string().to_lowercase(),
@@ -440,7 +440,7 @@ fn pprint_state_instruction_vector(instructions: &Vec<StateInstructions>) {
 fn get_move_id_from_movechoice(side: &Side, move_choice: &MoveChoice) -> String {
     match move_choice {
         MoveChoice::Move(index) => {
-            format!("{}", side.get_active_immutable().moves[*index].id).to_lowercase()
+            format!("{}", side.get_active_immutable().moves[&index].id).to_lowercase()
         }
         MoveChoice::Switch(index) => format!("switch {}", side.pokemon[*index].id).to_lowercase(),
         MoveChoice::None => "No Move".to_string(),

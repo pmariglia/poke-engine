@@ -64,7 +64,7 @@ impl MoveChoice {
     pub fn to_string(&self, side: &Side) -> String {
         match self {
             MoveChoice::Move(index) => {
-                format!("{}", side.get_active_immutable().moves[*index].id).to_lowercase()
+                format!("{}", side.get_active_immutable().moves[index].id).to_lowercase()
             }
             MoveChoice::Switch(index) => {
                 format!("switch {}", side.pokemon[*index].id).to_lowercase()
@@ -357,10 +357,10 @@ pub struct PokemonMoves {
     pub m5: Move,
 }
 
-impl Index<PokemonMoveIndex> for PokemonMoves {
+impl Index<&PokemonMoveIndex> for PokemonMoves {
     type Output = Move;
 
-    fn index(&self, index: PokemonMoveIndex) -> &Self::Output {
+    fn index(&self, index: &PokemonMoveIndex) -> &Self::Output {
         match index {
             PokemonMoveIndex::M0 => &self.m0,
             PokemonMoveIndex::M1 => &self.m1,
@@ -372,8 +372,8 @@ impl Index<PokemonMoveIndex> for PokemonMoves {
     }
 }
 
-impl IndexMut<PokemonMoveIndex> for PokemonMoves {
-    fn index_mut(&mut self, index: PokemonMoveIndex) -> &mut Self::Output {
+impl IndexMut<&PokemonMoveIndex> for PokemonMoves {
+    fn index_mut(&mut self, index: &PokemonMoveIndex) -> &mut Self::Output {
         match index {
             PokemonMoveIndex::M0 => &mut self.m0,
             PokemonMoveIndex::M1 => &mut self.m1,
@@ -495,8 +495,8 @@ impl Pokemon {
         vec
     }
     pub fn replace_move(&mut self, move_index: PokemonMoveIndex, new_move_name: Choices) {
-        self.moves[move_index].choice = MOVES.get(&new_move_name).unwrap().to_owned();
-        self.moves[move_index].id = new_move_name;
+        self.moves[&move_index].choice = MOVES.get(&new_move_name).unwrap().to_owned();
+        self.moves[&move_index].id = new_move_name;
     }
 
     pub fn add_available_moves(
@@ -507,7 +507,7 @@ impl Pokemon {
     ) {
         let mut iter = self.moves.into_iter();
         while let Some(p) = iter.next() {
-            if !p.disabled {
+            if !p.disabled && p.pp > 0 {
                 if (iter.pokemon_move_index == PokemonMoveIndex::M4
                     || iter.pokemon_move_index == PokemonMoveIndex::M5)
                     && p.id == Choices::NONE
@@ -1606,11 +1606,11 @@ impl State {
         self.terrain.turns_remaining = turns_remaining;
     }
 
-    fn enable_move(&mut self, side_reference: &SideReference, move_index: PokemonMoveIndex) {
+    fn enable_move(&mut self, side_reference: &SideReference, move_index: &PokemonMoveIndex) {
         self.get_side(side_reference).get_active().moves[move_index].disabled = false;
     }
 
-    fn disable_move(&mut self, side_reference: &SideReference, move_index: PokemonMoveIndex) {
+    fn disable_move(&mut self, side_reference: &SideReference, move_index: &PokemonMoveIndex) {
         self.get_side(side_reference).get_active().moves[move_index].disabled = true;
     }
 
@@ -1679,6 +1679,20 @@ impl State {
         match side_reference {
             SideReference::SideOne => self.side_one.last_used_move = last_used_move,
             SideReference::SideTwo => self.side_two.last_used_move = last_used_move,
+        }
+    }
+
+    fn decrement_pp(&mut self, side_reference: &SideReference, move_index: &PokemonMoveIndex) {
+        match side_reference {
+            SideReference::SideOne => self.side_one.get_active().moves[move_index].pp -= 1,
+            SideReference::SideTwo => self.side_two.get_active().moves[move_index].pp -= 1,
+        }
+    }
+
+    fn increment_pp(&mut self, side_reference: &SideReference, move_index: &PokemonMoveIndex) {
+        match side_reference {
+            SideReference::SideOne => self.side_one.get_active().moves[move_index].pp += 1,
+            SideReference::SideTwo => self.side_two.get_active().moves[move_index].pp += 1,
         }
     }
 
@@ -1754,10 +1768,10 @@ impl State {
                 self.change_item(&instruction.side_ref, instruction.new_item)
             }
             Instruction::EnableMove(instruction) => {
-                self.enable_move(&instruction.side_ref, instruction.move_index)
+                self.enable_move(&instruction.side_ref, &instruction.move_index)
             }
             Instruction::DisableMove(instruction) => {
-                self.disable_move(&instruction.side_ref, instruction.move_index)
+                self.disable_move(&instruction.side_ref, &instruction.move_index)
             }
             Instruction::SetWish(instruction) => {
                 self.set_wish(&instruction.side_ref, instruction.wish_amount);
@@ -1819,6 +1833,9 @@ impl State {
                 instruction.move_category,
                 instruction.hit_substitute,
             ),
+            Instruction::DecrementPP(instruction) => {
+                self.decrement_pp(&instruction.side_ref, &instruction.move_index)
+            }
         }
     }
 
@@ -1877,10 +1894,10 @@ impl State {
                 self.change_types(&instruction.side_ref, instruction.old_types)
             }
             Instruction::EnableMove(instruction) => {
-                self.disable_move(&instruction.side_ref, instruction.move_index)
+                self.disable_move(&instruction.side_ref, &instruction.move_index)
             }
             Instruction::DisableMove(instruction) => {
-                self.enable_move(&instruction.side_ref, instruction.move_index)
+                self.enable_move(&instruction.side_ref, &instruction.move_index)
             }
             Instruction::Heal(instruction) => {
                 self.damage(&instruction.side_ref, instruction.heal_amount)
@@ -1946,6 +1963,9 @@ impl State {
                 instruction.previous_move_category,
                 instruction.previous_hit_substitute,
             ),
+            Instruction::DecrementPP(instruction) => {
+                self.increment_pp(&instruction.side_ref, &instruction.move_index)
+            }
         }
     }
 }

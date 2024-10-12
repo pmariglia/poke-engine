@@ -72,6 +72,7 @@ pub enum Instruction {
     ToggleBatonPassing(ToggleBatonPassingInstruction),
     SetLastUsedMove(SetLastUsedMoveInstruction),
     SetDamageDealt(SetDamageDealtInstruction),
+    DecrementPP(DecrementPPInstruction),
     ToggleTrickRoom(ToggleTrickRoomInstruction),
     DecrementTrickRoomTurnsRemaining,
     ToggleSideOneForceSwitch,
@@ -255,6 +256,9 @@ impl fmt::Debug for Instruction {
                     hit_substitute
                 )
             }
+            Instruction::DecrementPP(s) => {
+                write!(f, "DecrementPP {:?}: {:?}", s.side_ref, s.move_index)
+            }
             Instruction::ToggleTrickRoom(i) => {
                 write!(
                     f,
@@ -287,6 +291,12 @@ pub struct SetDamageDealtInstruction {
     pub previous_move_category: MoveCategory,
     pub hit_substitute: bool,
     pub previous_hit_substitute: bool,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct DecrementPPInstruction {
+    pub side_ref: SideReference,
+    pub move_index: PokemonMoveIndex,
 }
 
 #[derive(Debug, PartialEq, Clone)]

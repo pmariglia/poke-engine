@@ -1599,7 +1599,7 @@ fn test_protect_for_second_turn_in_a_row() {
 #[test]
 fn test_outrage_locking() {
     let mut state = State::default();
-    state.side_one.get_active().moves[PokemonMoveIndex::M0] = Move {
+    state.side_one.get_active().moves[&PokemonMoveIndex::M0] = Move {
         id: Choices::OUTRAGE,
         disabled: false,
         pp: 16,
@@ -3344,7 +3344,7 @@ fn test_rockyhelmet_does_not_overkill() {
 fn test_choiceband_locking() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::CHOICEBAND;
-    state.side_one.get_active().moves[PokemonMoveIndex::M0] = Move {
+    state.side_one.get_active().moves[&PokemonMoveIndex::M0] = Move {
         id: Choices::WILLOWISP,
         disabled: false,
         pp: 35,
@@ -3426,7 +3426,7 @@ fn test_choiceband_locking() {
 fn test_gorillatactics_locking() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::GORILLATACTICS;
-    state.side_one.get_active().moves[PokemonMoveIndex::M0] = Move {
+    state.side_one.get_active().moves[&PokemonMoveIndex::M0] = Move {
         id: Choices::ZAPCANNON,
         disabled: false,
         pp: 35,
@@ -3540,9 +3540,9 @@ fn test_earthquake_hits_roosted_flying_type() {
 #[test]
 fn test_locked_moves_unlock_on_switchout() {
     let mut state = State::default();
-    state.side_one.get_active().moves[PokemonMoveIndex::M1].disabled = true;
-    state.side_one.get_active().moves[PokemonMoveIndex::M2].disabled = true;
-    state.side_one.get_active().moves[PokemonMoveIndex::M3].disabled = true;
+    state.side_one.get_active().moves[&PokemonMoveIndex::M1].disabled = true;
+    state.side_one.get_active().moves[&PokemonMoveIndex::M2].disabled = true;
+    state.side_one.get_active().moves[&PokemonMoveIndex::M3].disabled = true;
 
     state
         .side_two
@@ -4351,7 +4351,7 @@ fn test_switchout_flag_where_faster_switchout_move_knocked_out_opponent() {
     state.side_one.force_switch = true;
     state.side_two.switch_out_move_second_saved_move = Choices::TACKLE;
     state.side_two.get_active().hp = 0;
-    state.side_two.get_active().moves[PokemonMoveIndex::M0] = Move {
+    state.side_two.get_active().moves[&PokemonMoveIndex::M0] = Move {
         id: Choices::TACKLE,
         disabled: false,
         pp: 35,
@@ -4410,7 +4410,7 @@ fn test_switch_out_move_flag_is_unset_after_next_move() {
     let mut state = State::default();
     state.side_one.force_switch = true;
     state.side_two.switch_out_move_second_saved_move = Choices::TACKLE;
-    state.side_two.get_active().moves[PokemonMoveIndex::M0] = Move {
+    state.side_two.get_active().moves[&PokemonMoveIndex::M0] = Move {
         id: Choices::TACKLE,
         disabled: false,
         pp: 35,
@@ -4450,7 +4450,7 @@ fn test_end_of_turn_triggered_when_switchout_flag_is_removed() {
     };
     state.side_one.force_switch = true;
     state.side_two.switch_out_move_second_saved_move = Choices::TACKLE;
-    state.side_two.get_active().moves[PokemonMoveIndex::M0] = Move {
+    state.side_two.get_active().moves[&PokemonMoveIndex::M0] = Move {
         id: Choices::TACKLE,
         disabled: false,
         pp: 35,
@@ -4743,11 +4743,32 @@ fn test_lockedmove_prevents_switches() {
 }
 
 #[test]
+fn test_zero_pp_move_cannot_be_used() {
+    let mut state = State::default();
+    state.side_one.get_active().moves[&PokemonMoveIndex::M0].pp = 0;
+
+    let (side_one_moves, _) = state.get_all_options();
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_one_moves
+    );
+}
+
+#[test]
 fn test_turn_after_switch_out_move_other_side_has_forced_move() {
     let mut state = State::default();
     state.side_one.force_switch = true;
     state.side_two.switch_out_move_second_saved_move = Choices::TACKLE;
-    state.side_two.get_active().moves[PokemonMoveIndex::M0] = Move {
+    state.side_two.get_active().moves[&PokemonMoveIndex::M0] = Move {
         id: Choices::TACKLE,
         disabled: false,
         pp: 35,
