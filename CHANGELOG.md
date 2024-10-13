@@ -1,5 +1,57 @@
 # Changelog
 
+## [v0.0.12](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.12) - 2024-10-13
+
+### Features
+
+- Implement ArmorTail - ([dadad97](https://github.com/pmariglia/poke-engine/commit/dadad977a982b949002a9bbd543c419444609818))
+
+- Implement ChillingNeigh & GrimNeigh - ([64f6848](https://github.com/pmariglia/poke-engine/commit/64f68487376507ccb273f6db22acb8ae4191bfb4))
+
+- Implement AuraBreak - ([19235b2](https://github.com/pmariglia/poke-engine/commit/19235b2b9bf8eb893b9b0063354241b25d1495ab))
+
+- Implement Gorilla Tactics - ([f4c8c76](https://github.com/pmariglia/poke-engine/commit/f4c8c76f0e99db95d5dd82e16b102ec77899d87f))
+
+- Implement GuardDog - ([c154be4](https://github.com/pmariglia/poke-engine/commit/c154be4da7ba79297a416d62979a3c320ec2d9cc))
+
+- Implement Hadron Engine - ([f1441cc](https://github.com/pmariglia/poke-engine/commit/f1441cc1543de54679daf6d95563e2ad6eb62e53))
+
+- Implement Innards Out - ([ea2e7ba](https://github.com/pmariglia/poke-engine/commit/ea2e7ba0329115beb73bdbc429a21ab6914e16e9))
+
+- Implement Minds Eye - ([8931219](https://github.com/pmariglia/poke-engine/commit/8931219928f63be5eb6086f7be861f4d35c4c20b))
+
+- Implement Mycelium Might - ([b907b89](https://github.com/pmariglia/poke-engine/commit/b907b89c2388c5d6c9ba6c3b4b0a5ff00e23dedd))
+
+- Implement Neutralizing Gas - ([d6cdfc3](https://github.com/pmariglia/poke-engine/commit/d6cdfc3a26b55eb48fde1a769469fc40f2a7e8aa))
+
+- Implement PerishBody - ([efedf6a](https://github.com/pmariglia/poke-engine/commit/efedf6a0bf4fa0dd4467cac1d85c8b14e145a03a))
+
+- Implement Orichalcum Pulse - ([3a29fff](https://github.com/pmariglia/poke-engine/commit/3a29fff338cbd7a49d8242224d2225c824c7d9ba))
+
+- Implement Sand Spit - ([ab7fdbe](https://github.com/pmariglia/poke-engine/commit/ab7fdbe4c64805674f447b1bf4fed25326527b7f))
+
+- Implment SteelySpirit - ([0e2d72b](https://github.com/pmariglia/poke-engine/commit/0e2d72b4f5c14eae1b3e4a0f0b553215302666b4))
+
+- Implement toxicdebris - ([595420f](https://github.com/pmariglia/poke-engine/commit/595420f288247b678800afa6c626cba4b02a799a))
+
+- Implement Adrenaline Orb - ([1987f88](https://github.com/pmariglia/poke-engine/commit/1987f8821dc67f0a1a8c57be5279df6a8e89df5e))
+
+- Implement Silvally Memories - ([3436ce6](https://github.com/pmariglia/poke-engine/commit/3436ce67db66bfbd359f1980e81e873a64800bc2))
+
+
+### Performance
+
+- MCTS Performance Improvements - ([efd9b00](https://github.com/pmariglia/poke-engine/commit/efd9b00c01cfbeafd396fce9a205e439c2c49e8d))
+
+
+### Miscellaneous Tasks
+
+- Test for eartheater - ([bb16559](https://github.com/pmariglia/poke-engine/commit/bb16559b5edda316fc40ac36d9383b1bd500c53d))
+
+- Implement Seed Sower - ([00ec032](https://github.com/pmariglia/poke-engine/commit/00ec032bc0b1c8ddb3609895e02f4951faaa3df8))
+
+- Refactor some logic around LastUsedMove - ([f4076b1](https://github.com/pmariglia/poke-engine/commit/f4076b190fad46e37d372ac68ea605ed0d83039a))
+
 ## [v0.0.11](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.11) - 2024-09-30
 
 ### Features
