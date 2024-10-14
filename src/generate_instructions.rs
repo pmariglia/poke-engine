@@ -3252,6 +3252,45 @@ mod tests {
     }
 
     #[test]
+    fn test_ceaselessedge_damage_and_stealthrock_setting() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get(&Choices::CEASELESSEDGE).unwrap().to_owned();
+
+        let mut instructions = vec![];
+        generate_instructions_from_move(
+            &mut state,
+            &mut choice,
+            &MOVES.get(&Choices::TACKLE).unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+            &mut instructions,
+        );
+
+        let expected_instructions = vec![
+            StateInstructions {
+                percentage: 10.000002,
+                instruction_list: vec![],
+            },
+            StateInstructions {
+                percentage: 90.0,
+                instruction_list: vec![
+                    Instruction::Damage(DamageInstruction {
+                        side_ref: SideReference::SideTwo,
+                        damage_amount: 51,
+                    }),
+                    Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                        side_ref: SideReference::SideTwo,
+                        side_condition: PokemonSideCondition::Spikes,
+                        amount: 1,
+                    }),
+                ],
+            },
+        ];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
     fn test_100_percent_secondary_volatilestatus() {
         let mut state: State = State::default();
         let mut choice = MOVES.get(&Choices::CHATTER).unwrap().to_owned();
