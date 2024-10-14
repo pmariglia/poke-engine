@@ -23,11 +23,6 @@ pub fn modify_choice(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     match attacker_choice.move_id {
-        Choices::BODYPRESS => {
-            attacker_choice.base_power *=
-                attacking_side.calculate_boosted_stat(PokemonBoostableStat::Defense) as f32
-                    / attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack) as f32;
-        }
         Choices::BOLTBEAK | Choices::FISHIOUSREND => {
             if attacker_choice.first_move {
                 attacker_choice.base_power *= 2.0;
@@ -371,13 +366,6 @@ pub fn modify_choice(
             if total_boosts > 0 {
                 attacker_choice.base_power *= total_boosts as f32;
             }
-        }
-        Choices::FOULPLAY => {
-            let defender_attack =
-                defending_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
-            let attacker_attack =
-                attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
-            attacker_choice.base_power *= defender_attack as f32 / attacker_attack as f32;
         }
         Choices::BARBBARRAGE => {
             let defending_pkmn_status = defending_side.get_active_immutable().status;

@@ -4999,6 +4999,30 @@ fn test_rock_spdef_in_sand_versus_secretsword_doesnt_change_damageroll() {
 }
 
 #[test]
+fn test_foulplay() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 300;
+    state.side_one.get_active().maxhp = 300;
+    state.side_one.get_active().attack = 200; // 200 attack boosts side_two's FoulPlay 2x
+    state.side_one.attack_boost = 1; // 1 attack boost boosts side_two's FoulPlay 1.5x
+
+    let first_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::FOULPLAY,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 222, // 74 if side_one's attack is 100 w/ no boosts (74 * 2 * 1.5 = 222)
+        })],
+    }];
+    assert_eq!(first_instructions, expected_instructions);
+}
+
+#[test]
 fn test_rain_turns_do_not_decrement_if_turns_remaining_are_negative() {
     let mut state = State::default();
     state.weather.weather_type = Weather::Rain;
@@ -5184,6 +5208,8 @@ fn test_bodypress() {
     let mut state = State::default();
     state.side_two.get_active().hp = 1000;
     state.side_two.get_active().maxhp = 1000;
+    state.side_one.get_active().defense = 200; // 200 defense boosts side_two's BodyPress 2x
+    state.side_one.defense_boost = 1; // 1 defense boost boosts side_two's BodyPress 1.5x
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -5195,7 +5221,7 @@ fn test_bodypress() {
         percentage: 100.0,
         instruction_list: vec![Instruction::Damage(DamageInstruction {
             side_ref: SideReference::SideTwo,
-            damage_amount: 127,
+            damage_amount: 375, // 127 with defense of 100 and no boosts
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);

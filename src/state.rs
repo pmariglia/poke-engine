@@ -486,6 +486,16 @@ pub struct Pokemon {
 }
 
 impl Pokemon {
+    pub fn get_stat_from_boostable_stat(&self, stat: PokemonBoostableStat) -> i16 {
+        match stat {
+            PokemonBoostableStat::Attack => self.attack,
+            PokemonBoostableStat::Defense => self.defense,
+            PokemonBoostableStat::SpecialAttack => self.special_attack,
+            PokemonBoostableStat::SpecialDefense => self.special_defense,
+            PokemonBoostableStat::Speed => self.speed,
+            _ => panic!("Not implemented"),
+        }
+    }
     pub fn get_sleep_talk_choices(&self) -> Vec<Choice> {
         let mut vec = Vec::with_capacity(4);
         for p in self.moves.into_iter() {

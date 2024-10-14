@@ -248,6 +248,120 @@ fn volatile_status_modifier(choice: &Choice, attacking_side: &Side, defending_si
     modifier
 }
 
+fn get_attacking_and_defending_stats(
+    attacker: &Pokemon,
+    defender: &Pokemon,
+    attacking_side: &Side,
+    defending_side: &Side,
+    state: &State,
+    choice: &Choice,
+) -> (i16, i16) {
+    let mut should_calc_attacker_boost = true;
+    let mut should_calc_defender_boost = true;
+    let defending_stat;
+    let (attacking_final_stat, mut defending_final_stat);
+
+    match choice.category {
+        MoveCategory::Physical => {
+            // Unaware checks
+            if defender.ability == Abilities::UNAWARE {
+                should_calc_attacker_boost = false;
+            }
+            if attacker.ability == Abilities::UNAWARE {
+                should_calc_defender_boost = false;
+            }
+
+            // Get the attacking stat
+
+            // checks for moves that change which stat is used for the attacking_stat
+            if choice.move_id == Choices::FOULPLAY {
+                if should_calc_attacker_boost {
+                    attacking_final_stat =
+                        defending_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
+                } else {
+                    attacking_final_stat = defender.attack;
+                }
+            } else if choice.move_id == Choices::BODYPRESS {
+                if should_calc_attacker_boost {
+                    attacking_final_stat =
+                        attacking_side.calculate_boosted_stat(PokemonBoostableStat::Defense);
+                } else {
+                    attacking_final_stat = attacker.defense;
+                }
+            } else if should_calc_attacker_boost {
+                attacking_final_stat =
+                    attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
+            } else {
+                attacking_final_stat = attacker.attack;
+            }
+
+            // Get the defending stat
+            defending_stat = PokemonBoostableStat::Defense;
+            if should_calc_defender_boost {
+                defending_final_stat =
+                    defending_side.calculate_boosted_stat(PokemonBoostableStat::Defense);
+            } else {
+                defending_final_stat = defender.defense;
+            }
+        }
+        MoveCategory::Special => {
+            // Unaware checks
+            if defender.ability == Abilities::UNAWARE {
+                should_calc_attacker_boost = false;
+            }
+            if attacker.ability == Abilities::UNAWARE {
+                should_calc_defender_boost = false;
+            }
+
+            // Get the attacking stat
+            if should_calc_attacker_boost {
+                attacking_final_stat =
+                    attacking_side.calculate_boosted_stat(PokemonBoostableStat::SpecialAttack);
+            } else {
+                attacking_final_stat = attacker.special_attack;
+            }
+
+            // Get the defending stat
+            // check for moves that change which stat is used for the defending_stat
+            if choice.move_id == Choices::PSYSHOCK
+                || choice.move_id == Choices::SECRETSWORD
+                || choice.move_id == Choices::PSYSTRIKE
+            {
+                defending_stat = PokemonBoostableStat::Defense;
+                if should_calc_defender_boost {
+                    defending_final_stat =
+                        defending_side.calculate_boosted_stat(PokemonBoostableStat::Defense);
+                } else {
+                    defending_final_stat = defender.defense;
+                }
+            } else {
+                defending_stat = PokemonBoostableStat::SpecialDefense;
+                if should_calc_defender_boost {
+                    defending_final_stat =
+                        defending_side.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
+                } else {
+                    defending_final_stat = defender.special_defense;
+                }
+            }
+        }
+        _ => panic!("Can only calculate damage for physical or special moves"),
+    }
+
+    if state.weather_is_active(&Weather::Snow)
+        && defender.has_type(&PokemonType::Ice)
+        && defending_stat == PokemonBoostableStat::Defense
+    {
+        defending_final_stat = (defending_final_stat as f32 * 1.5) as i16;
+    } else if state.weather_is_active(&Weather::Sand)
+        && defender.has_type(&PokemonType::Rock)
+        && defending_stat == PokemonBoostableStat::SpecialDefense
+    {
+        defending_final_stat = (defending_final_stat as f32 * 1.5) as i16;
+    }
+
+    (attacking_final_stat, defending_final_stat)
+}
+
 // This is a basic damage calculation function that assumes special effects/modifiers
 // are reflected in the `Choice` struct
 //
@@ -259,60 +373,22 @@ pub fn calculate_damage(
     choice: &Choice,
     _damage_rolls: DamageRolls,
 ) -> Option<i16> {
+    if choice.category == MoveCategory::Status || choice.category == MoveCategory::Switch {
+        return None;
+    } else if choice.base_power == 0.0 {
+        return Some(0);
+    }
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side);
     let attacker = attacking_side.get_active_immutable();
     let defender = defending_side.get_active_immutable();
-
-    let attacking_stat;
-    let mut defending_stat;
-    match choice.category {
-        MoveCategory::Physical => {
-            if defender.ability == Abilities::UNAWARE {
-                attacking_stat = attacker.attack;
-            } else {
-                attacking_stat =
-                    attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
-            }
-            if attacker.ability == Abilities::UNAWARE {
-                defending_stat = defender.defense;
-            } else {
-                defending_stat =
-                    defending_side.calculate_boosted_stat(PokemonBoostableStat::Defense);
-                if state.weather_is_active(&Weather::Snow) && defender.has_type(&PokemonType::Ice) {
-                    defending_stat = (defending_stat as f32 * 1.5) as i16;
-                }
-            }
-        }
-        MoveCategory::Special => {
-            if defender.ability == Abilities::UNAWARE {
-                attacking_stat = attacker.special_attack;
-            } else {
-                attacking_stat =
-                    attacking_side.calculate_boosted_stat(PokemonBoostableStat::SpecialAttack);
-            }
-            if attacker.ability == Abilities::UNAWARE {
-                defending_stat = defender.special_defense;
-            } else if choice.move_id == Choices::PSYSHOCK
-                || choice.move_id == Choices::SECRETSWORD
-                || choice.move_id == Choices::PSYSTRIKE
-            {
-                defending_stat =
-                    defending_side.calculate_boosted_stat(PokemonBoostableStat::Defense);
-            } else {
-                defending_stat =
-                    defending_side.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
-                if state.weather_is_active(&Weather::Sand) && defender.has_type(&PokemonType::Rock)
-                {
-                    defending_stat = (defending_stat as f32 * 1.5) as i16;
-                }
-            }
-        }
-        _ => return None,
-    }
-
-    if choice.base_power <= 0.0 {
-        return Some(0);
-    }
+    let (attacking_stat, defending_stat) = get_attacking_and_defending_stats(
+        attacker,
+        defender,
+        attacking_side,
+        defending_side,
+        state,
+        &choice,
+    );
 
     let mut damage: f32;
     damage = 2.0 * attacker.level as f32;
