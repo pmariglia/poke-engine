@@ -278,6 +278,9 @@ pub fn calculate_damage(
             } else {
                 defending_stat =
                     defending_side.calculate_boosted_stat(PokemonBoostableStat::Defense);
+                if state.weather_is_active(&Weather::Snow) && defender.has_type(&PokemonType::Ice) {
+                    defending_stat = (defending_stat as f32 * 1.5) as i16;
+                }
             }
         }
         MoveCategory::Special => {

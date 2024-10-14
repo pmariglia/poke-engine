@@ -251,7 +251,7 @@ pub fn modify_choice(
                 attacker_choice.base_power = 100.0;
                 attacker_choice.move_type = PokemonType::Rock;
             }
-            Weather::Hail => {
+            Weather::Hail | Weather::Snow => {
                 attacker_choice.base_power = 100.0;
                 attacker_choice.move_type = PokemonType::Ice;
             }
@@ -1091,6 +1091,20 @@ pub fn choice_special_effect(
                         previous_weather_turns_remaining: state.weather.turns_remaining,
                     }));
                 state.weather.weather_type = Weather::Hail;
+                state.weather.turns_remaining = 5;
+            }
+        }
+        Choices::SNOWSCAPE | Choices::CHILLYRECEPTION => {
+            if state.weather.weather_type != Weather::Snow {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeWeather(ChangeWeather {
+                        new_weather: Weather::Snow,
+                        new_weather_turns_remaining: 5,
+                        previous_weather: state.weather.weather_type,
+                        previous_weather_turns_remaining: state.weather.turns_remaining,
+                    }));
+                state.weather.weather_type = Weather::Snow;
                 state.weather.turns_remaining = 5;
             }
         }

@@ -223,6 +223,7 @@ pub enum Weather {
     Rain,
     Sand,
     Hail,
+    Snow,
     HarshSun,
     HeavyRain,
 }

@@ -4016,6 +4016,38 @@ fn test_non_baton_pass_switching_with_sub() {
 }
 
 #[test]
+fn test_chillyreception() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state.side_two.get_active().speed = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::CHILLYRECEPTION,
+        Choices::SPLASH,
+    );
+
+    // does not trigger end-of-turn to decrement turns remaining because it is a pivot move
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::Snow,
+                new_weather_turns_remaining: 5,
+                previous_weather: Weather::None,
+                previous_weather_turns_remaining: -1,
+            }),
+            Instruction::ToggleSideOneForceSwitch,
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
+                new_choice: Choices::SPLASH,
+                previous_choice: Choices::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_faster_uturn() {
     let mut state = State::default();
     state.side_one.get_active().speed = 150;
@@ -4108,7 +4140,7 @@ fn test_partingshot_into_protect_does_not_cause_switchout() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        Choices::UTURN,
+        Choices::PARTINGSHOT,
         Choices::PROTECT,
     );
 
@@ -4896,6 +4928,28 @@ fn test_rock_spdef_in_sand() {
                 damage_amount: 6,
             }),
         ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_ice_def_in_snow() {
+    let mut state = State::default();
+    state.weather.weather_type = Weather::Snow;
+    state.side_one.get_active().types.0 = PokemonType::Ice;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 33, // 48 normally
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -7252,6 +7306,31 @@ fn test_sunnyday() {
 }
 
 #[test]
+fn test_snowscape() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SNOWSCAPE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::Snow,
+                new_weather_turns_remaining: 5,
+                previous_weather: Weather::None,
+                previous_weather_turns_remaining: -1,
+            }),
+            Instruction::DecrementWeatherTurnsRemaining,
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_sandspit() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::SANDSPIT;
@@ -9078,6 +9157,76 @@ fn test_drought() {
             }),
             Instruction::ChangeWeather(ChangeWeather {
                 new_weather: Weather::Sun,
+                new_weather_turns_remaining: -1,
+                previous_weather: Weather::None,
+                previous_weather_turns_remaining: -1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(not(feature = "gen9"))]
+fn test_pre_gen9_snowwarning() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::SNOWWARNING;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::Hail,
+                new_weather_turns_remaining: -1,
+                previous_weather: Weather::None,
+                previous_weather_turns_remaining: -1,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(feature = "gen9")]
+fn test_gen9_snowwarning() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::SNOWWARNING;
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::Snow,
                 new_weather_turns_remaining: -1,
                 previous_weather: Weather::None,
                 previous_weather_turns_remaining: -1,

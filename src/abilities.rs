@@ -1172,16 +1172,21 @@ pub fn ability_on_switch_in(
             }
         }
         Abilities::SNOWWARNING => {
-            if state.weather.weather_type != Weather::Hail {
+            #[cfg(feature = "gen9")]
+            let weather_type = Weather::Snow;
+            #[cfg(not(feature = "gen9"))]
+            let weather_type = Weather::Hail;
+
+            if state.weather.weather_type != weather_type {
                 instructions
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
-                        new_weather: Weather::Hail,
+                        new_weather: weather_type,
                         new_weather_turns_remaining: -1,
                         previous_weather: state.weather.weather_type,
                         previous_weather_turns_remaining: state.weather.turns_remaining,
                     }));
-                state.weather.weather_type = Weather::Hail;
+                state.weather.weather_type = weather_type;
                 state.weather.turns_remaining = -1;
             }
         }
