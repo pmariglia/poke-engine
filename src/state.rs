@@ -1693,17 +1693,27 @@ impl State {
         }
     }
 
-    fn decrement_pp(&mut self, side_reference: &SideReference, move_index: &PokemonMoveIndex) {
+    fn decrement_pp(
+        &mut self,
+        side_reference: &SideReference,
+        move_index: &PokemonMoveIndex,
+        amount: &i8,
+    ) {
         match side_reference {
-            SideReference::SideOne => self.side_one.get_active().moves[move_index].pp -= 1,
-            SideReference::SideTwo => self.side_two.get_active().moves[move_index].pp -= 1,
+            SideReference::SideOne => self.side_one.get_active().moves[move_index].pp -= amount,
+            SideReference::SideTwo => self.side_two.get_active().moves[move_index].pp -= amount,
         }
     }
 
-    fn increment_pp(&mut self, side_reference: &SideReference, move_index: &PokemonMoveIndex) {
+    fn increment_pp(
+        &mut self,
+        side_reference: &SideReference,
+        move_index: &PokemonMoveIndex,
+        amount: &i8,
+    ) {
         match side_reference {
-            SideReference::SideOne => self.side_one.get_active().moves[move_index].pp += 1,
-            SideReference::SideTwo => self.side_two.get_active().moves[move_index].pp += 1,
+            SideReference::SideOne => self.side_one.get_active().moves[move_index].pp += amount,
+            SideReference::SideTwo => self.side_two.get_active().moves[move_index].pp += amount,
         }
     }
 
@@ -1844,9 +1854,11 @@ impl State {
                 instruction.move_category,
                 instruction.hit_substitute,
             ),
-            Instruction::DecrementPP(instruction) => {
-                self.decrement_pp(&instruction.side_ref, &instruction.move_index)
-            }
+            Instruction::DecrementPP(instruction) => self.decrement_pp(
+                &instruction.side_ref,
+                &instruction.move_index,
+                &instruction.amount,
+            ),
         }
     }
 
@@ -1974,9 +1986,11 @@ impl State {
                 instruction.previous_move_category,
                 instruction.previous_hit_substitute,
             ),
-            Instruction::DecrementPP(instruction) => {
-                self.increment_pp(&instruction.side_ref, &instruction.move_index)
-            }
+            Instruction::DecrementPP(instruction) => self.increment_pp(
+                &instruction.side_ref,
+                &instruction.move_index,
+                &instruction.amount,
+            ),
         }
     }
 }

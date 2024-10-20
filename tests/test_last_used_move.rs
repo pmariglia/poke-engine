@@ -64,6 +64,7 @@ fn test_last_used_move_is_set_on_move() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideTwo,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
@@ -77,6 +78,7 @@ fn test_last_used_move_is_set_on_move() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideOne,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
@@ -123,6 +125,7 @@ fn test_last_used_move_overwritten_when_dragged_out() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideOne,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
@@ -136,6 +139,7 @@ fn test_last_used_move_overwritten_when_dragged_out() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideTwo,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
@@ -236,6 +240,7 @@ fn test_encore_slow() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideTwo,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
@@ -249,6 +254,7 @@ fn test_encore_slow() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideOne,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
@@ -309,6 +315,7 @@ fn test_encore_slow_into_substitute() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideTwo,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
@@ -331,6 +338,7 @@ fn test_encore_slow_into_substitute() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideOne,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
@@ -393,6 +401,7 @@ fn test_encore_fast_fails_with_lastusedmove_equal_to_switch() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideOne,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
@@ -402,6 +411,7 @@ fn test_encore_fast_fails_with_lastusedmove_equal_to_switch() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideTwo,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
@@ -448,6 +458,7 @@ fn test_encore_fast_fails_with_lastusedmove_equal_to_none() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideOne,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
@@ -457,6 +468,7 @@ fn test_encore_fast_fails_with_lastusedmove_equal_to_none() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideTwo,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
@@ -505,6 +517,7 @@ fn test_encore_second_fails_when_opponent_switches() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideOne,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
@@ -548,6 +561,7 @@ fn test_fast_encore_into_using_a_different_move_from_lum() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideOne,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
@@ -564,6 +578,7 @@ fn test_fast_encore_into_using_a_different_move_from_lum() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideTwo,
                 move_index: PokemonMoveIndex::M1,
+                amount: 1,
             }),
             Instruction::Boost(BoostInstruction {
                 side_ref: SideReference::SideTwo,
@@ -602,6 +617,7 @@ fn test_pressure_caused_double_pp_decrement() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideTwo,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -610,10 +626,7 @@ fn test_pressure_caused_double_pp_decrement() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideOne,
                 move_index: PokemonMoveIndex::M0,
-            }),
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideOne,
-                move_index: PokemonMoveIndex::M0,
+                amount: 2,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
@@ -656,6 +669,7 @@ fn test_pp_decremented_when_last_used_move_not_updated() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideTwo,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
@@ -669,6 +683,7 @@ fn test_pp_decremented_when_last_used_move_not_updated() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideOne,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -708,6 +723,7 @@ fn test_fakeout_first_turn_switched_in() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideOne,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
@@ -759,10 +775,12 @@ fn test_fakeout_with_last_used_move_of_non_switch() {
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideOne,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::DecrementPP(DecrementPPInstruction {
                 side_ref: SideReference::SideTwo,
                 move_index: PokemonMoveIndex::M0,
+                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,

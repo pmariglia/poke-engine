@@ -257,7 +257,11 @@ impl fmt::Debug for Instruction {
                 )
             }
             Instruction::DecrementPP(s) => {
-                write!(f, "DecrementPP {:?}: {:?}", s.side_ref, s.move_index)
+                write!(
+                    f,
+                    "DecrementPP {:?}: {:?} {}",
+                    s.side_ref, s.move_index, s.amount
+                )
             }
             Instruction::ToggleTrickRoom(i) => {
                 write!(
@@ -297,6 +301,7 @@ pub struct SetDamageDealtInstruction {
 pub struct DecrementPPInstruction {
     pub side_ref: SideReference,
     pub move_index: PokemonMoveIndex,
+    pub amount: i8,
 }
 
 #[derive(Debug, PartialEq, Clone)]

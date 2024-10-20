@@ -80,7 +80,7 @@ fn set_last_used_move_as_switch(
 #[cfg(feature = "last_used_move")]
 fn set_last_used_move_as_move(
     side: &mut Side,
-    other_side_has_pressure: bool,
+    pp_decrement_amount: i8,
     used_move: PokemonMoveIndex,
     switching_side_ref: SideReference,
     incoming_instructions: &mut StateInstructions,
@@ -97,17 +97,9 @@ fn set_last_used_move_as_move(
         .push(Instruction::DecrementPP(DecrementPPInstruction {
             side_ref: switching_side_ref,
             move_index: used_move,
+            amount: pp_decrement_amount,
         }));
-    active.moves[&used_move].pp -= 1;
-    if other_side_has_pressure {
-        incoming_instructions
-            .instruction_list
-            .push(Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: switching_side_ref,
-                move_index: used_move,
-            }));
-        active.moves[&used_move].pp -= 1;
-    }
+    active.moves[&used_move].pp -= pp_decrement_amount;
     match side.last_used_move {
         LastUsedMove::Move(last_used_move) => {
             if last_used_move == used_move {
@@ -1614,15 +1606,20 @@ pub fn generate_instructions_from_move(
     }
 
     #[cfg(feature = "last_used_move")]
-    let has_pressure = state
+    let pp_decrement_amount = if state
         .get_side_immutable(&attacking_side.get_other_side())
         .get_active_immutable()
         .ability
-        == Abilities::PRESSURE;
+        == Abilities::PRESSURE
+    {
+        2
+    } else {
+        1
+    };
     #[cfg(feature = "last_used_move")]
     set_last_used_move_as_move(
         state.get_side(&attacking_side),
-        has_pressure,
+        pp_decrement_amount,
         choice.move_index,
         attacking_side,
         &mut incoming_instructions,
