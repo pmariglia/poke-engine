@@ -71,7 +71,8 @@ pub enum Instruction {
     SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     ToggleBatonPassing(ToggleBatonPassingInstruction),
     SetLastUsedMove(SetLastUsedMoveInstruction),
-    SetDamageDealt(SetDamageDealtInstruction),
+    SetDamageDealtSideOne(SetDamageDealtSideOneInstruction),
+    SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction),
     DecrementPP(DecrementPPInstruction),
     ToggleTrickRoom(ToggleTrickRoomInstruction),
     DecrementTrickRoomTurnsRemaining,
@@ -237,23 +238,24 @@ impl fmt::Debug for Instruction {
                     s.side_ref, s.previous_last_used_move, s.last_used_move
                 )
             }
-            Instruction::SetDamageDealt(s) => {
-                let prev_hit_substitute = if s.previous_hit_substitute {
-                    ",HitSub"
-                } else {
-                    ""
-                };
-                let hit_substitute = if s.hit_substitute { ",HitSub" } else { "" };
+            Instruction::SetDamageDealtSideOne(s) => {
                 write!(
                     f,
-                    "SetDamageDealt {:?}: {:?},{:?}{} -> {:?},{:?}{}",
-                    s.side_ref,
+                    "SetDamageDealt SideOne: ({:?} -> {:?}) Damage Change: {:?} HitSub Change: {:?}",
                     s.previous_move_category,
-                    s.previous_damage,
-                    prev_hit_substitute,
                     s.move_category,
-                    s.damage,
-                    hit_substitute
+                    s.damage_change,
+                    s.toggle_hit_substitute
+                )
+            }
+            Instruction::SetDamageDealtSideTwo(s) => {
+                write!(
+                    f,
+                    "SetDamageDealt SideTwo: ({:?} -> {:?}) Damage Change: {:?} HitSub Change: {:?}",
+                    s.previous_move_category,
+                    s.move_category,
+                    s.damage_change,
+                    s.toggle_hit_substitute
                 )
             }
             Instruction::DecrementPP(s) => {
@@ -287,14 +289,19 @@ impl fmt::Debug for Instruction {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct SetDamageDealtInstruction {
-    pub side_ref: SideReference,
-    pub damage: i16,
-    pub previous_damage: i16,
+pub struct SetDamageDealtSideOneInstruction {
+    pub damage_change: i16,
     pub move_category: MoveCategory,
     pub previous_move_category: MoveCategory,
-    pub hit_substitute: bool,
-    pub previous_hit_substitute: bool,
+    pub toggle_hit_substitute: bool,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct SetDamageDealtSideTwoInstruction {
+    pub damage_change: i16,
+    pub move_category: MoveCategory,
+    pub previous_move_category: MoveCategory,
+    pub toggle_hit_substitute: bool,
 }
 
 #[derive(Debug, PartialEq, Clone)]

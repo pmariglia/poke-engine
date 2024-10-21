@@ -1718,16 +1718,16 @@ impl State {
     }
 
     fn set_damage_dealt(
-        &mut self,
-        side_reference: &SideReference,
-        damage_amount: i16,
+        side: &mut Side,
+        damage_change: i16,
         move_category: MoveCategory,
-        hit_substitute: bool,
+        toggle_hit_substitute: bool,
     ) {
-        let side = self.get_side(side_reference);
-        side.damage_dealt.damage = damage_amount;
+        side.damage_dealt.damage += damage_change;
         side.damage_dealt.move_category = move_category;
-        side.damage_dealt.hit_substitute = hit_substitute;
+        if toggle_hit_substitute {
+            side.damage_dealt.hit_substitute = !side.damage_dealt.hit_substitute;
+        }
     }
 
     pub fn apply_instructions(&mut self, instructions: &Vec<Instruction>) {
@@ -1848,11 +1848,17 @@ impl State {
             Instruction::SetLastUsedMove(instruction) => {
                 self.set_last_used_move(&instruction.side_ref, instruction.last_used_move)
             }
-            Instruction::SetDamageDealt(instruction) => self.set_damage_dealt(
-                &instruction.side_ref,
-                instruction.damage,
+            Instruction::SetDamageDealtSideOne(instruction) => State::set_damage_dealt(
+                &mut self.side_one,
+                instruction.damage_change,
                 instruction.move_category,
-                instruction.hit_substitute,
+                instruction.toggle_hit_substitute,
+            ),
+            Instruction::SetDamageDealtSideTwo(instruction) => State::set_damage_dealt(
+                &mut self.side_two,
+                instruction.damage_change,
+                instruction.move_category,
+                instruction.toggle_hit_substitute,
             ),
             Instruction::DecrementPP(instruction) => self.decrement_pp(
                 &instruction.side_ref,
@@ -1980,11 +1986,17 @@ impl State {
             Instruction::SetLastUsedMove(instruction) => {
                 self.set_last_used_move(&instruction.side_ref, instruction.previous_last_used_move)
             }
-            Instruction::SetDamageDealt(instruction) => self.set_damage_dealt(
-                &instruction.side_ref,
-                instruction.previous_damage,
+            Instruction::SetDamageDealtSideOne(instruction) => State::set_damage_dealt(
+                &mut self.side_one,
+                -1 * instruction.damage_change,
                 instruction.previous_move_category,
-                instruction.previous_hit_substitute,
+                instruction.toggle_hit_substitute,
+            ),
+            Instruction::SetDamageDealtSideTwo(instruction) => State::set_damage_dealt(
+                &mut self.side_two,
+                -1 * instruction.damage_change,
+                instruction.previous_move_category,
+                instruction.toggle_hit_substitute,
             ),
             Instruction::DecrementPP(instruction) => self.increment_pp(
                 &instruction.side_ref,
