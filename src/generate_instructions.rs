@@ -11,6 +11,8 @@ use crate::choices::{
     Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, SideCondition, StatBoosts,
     Status, VolatileStatus, MOVES,
 };
+use crate::instruction::SetDamageDealtSideOneInstruction;
+use crate::instruction::SetDamageDealtSideTwoInstruction;
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeTerrain, ChangeWeather, DecrementRestTurnsInstruction,
@@ -18,16 +20,8 @@ use crate::instruction::{
     SetSecondMoveSwitchOutMoveInstruction, SetSleepTurnsInstruction, ToggleBatonPassingInstruction,
     ToggleTrickRoomInstruction,
 };
-
-#[cfg(feature = "last_used_move")]
 use crate::instruction::{DecrementPPInstruction, SetLastUsedMoveInstruction};
-#[cfg(feature = "last_used_move")]
 use crate::state::PokemonMoveIndex;
-
-#[cfg(feature = "damage_dealt")]
-use crate::instruction::SetDamageDealtSideOneInstruction;
-#[cfg(feature = "damage_dealt")]
-use crate::instruction::SetDamageDealtSideTwoInstruction;
 
 use crate::items::{
     item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
@@ -62,7 +56,6 @@ fn chance_to_wake_up(turns_asleep: i8) -> f32 {
     }
 }
 
-#[cfg(feature = "last_used_move")]
 fn set_last_used_move_as_switch(
     side: &mut Side,
     new_pokemon_index: PokemonIndex,
@@ -79,10 +72,8 @@ fn set_last_used_move_as_switch(
     side.last_used_move = LastUsedMove::Switch(new_pokemon_index);
 }
 
-#[cfg(feature = "last_used_move")]
 fn set_last_used_move_as_move(
     side: &mut Side,
-    pp_decrement_amount: i8,
     used_move: PokemonMoveIndex,
     switching_side_ref: SideReference,
     incoming_instructions: &mut StateInstructions,
@@ -93,15 +84,6 @@ fn set_last_used_move_as_move(
     {
         return;
     }
-    let active = side.get_active();
-    incoming_instructions
-        .instruction_list
-        .push(Instruction::DecrementPP(DecrementPPInstruction {
-            side_ref: switching_side_ref,
-            move_index: used_move,
-            amount: pp_decrement_amount,
-        }));
-    active.moves[&used_move].pp -= pp_decrement_amount;
     match side.last_used_move {
         LastUsedMove::Move(last_used_move) => {
             if last_used_move == used_move {
@@ -126,6 +108,7 @@ fn generate_instructions_from_switch(
     switching_side_ref: SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
+    let should_last_used_move = state.use_last_used_move;
     state.apply_instructions(&incoming_instructions.instruction_list);
 
     let side = state.get_side(&switching_side_ref);
@@ -204,7 +187,7 @@ fn generate_instructions_from_switch(
         &switching_side_ref,
         &mut incoming_instructions.instruction_list,
     );
-    state.remove_volatile_statuses(
+    state.remove_volatile_statuses_on_switch(
         &switching_side_ref,
         &mut incoming_instructions.instruction_list,
         baton_passing,
@@ -234,13 +217,14 @@ fn generate_instructions_from_switch(
         .instruction_list
         .push(switch_instruction);
 
-    #[cfg(feature = "last_used_move")]
-    set_last_used_move_as_switch(
-        side,
-        new_pokemon_index,
-        switching_side_ref,
-        incoming_instructions,
-    );
+    if should_last_used_move {
+        set_last_used_move_as_switch(
+            side,
+            new_pokemon_index,
+            switching_side_ref,
+            incoming_instructions,
+        );
+    }
 
     let active = side.get_active_immutable();
     if active.item != Items::HEAVYDUTYBOOTS && active.ability != Abilities::MAGICGUARD {
@@ -917,7 +901,6 @@ fn get_instructions_from_drag(
     }
 }
 
-#[cfg(feature = "damage_dealt")]
 fn reset_damage_dealt(
     side: &Side,
     side_reference: &SideReference,
@@ -956,7 +939,6 @@ fn reset_damage_dealt(
     }
 }
 
-#[cfg(feature = "damage_dealt")]
 fn set_damage_dealt(
     attacking_side: &mut Side,
     attacking_side_ref: &SideReference,
@@ -1033,6 +1015,7 @@ fn generate_instructions_from_damage(
     let percent_hit = (choice.accuracy / 100.0).min(1.0);
 
     if percent_hit > 0.0 {
+        let should_use_damage_dealt = state.use_damage_dealt;
         let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
         let attacking_pokemon = attacking_side.get_active();
         let mut damage_dealt;
@@ -1053,15 +1036,16 @@ fn generate_instructions_from_damage(
                 .instruction_list
                 .push(substitute_instruction);
 
-            #[cfg(feature = "damage_dealt")]
-            set_damage_dealt(
-                attacking_side,
-                attacking_side_ref,
-                damage_dealt,
-                choice,
-                true,
-                &mut incoming_instructions,
-            );
+            if should_use_damage_dealt {
+                set_damage_dealt(
+                    attacking_side,
+                    attacking_side_ref,
+                    damage_dealt,
+                    choice,
+                    true,
+                    &mut incoming_instructions,
+                );
+            }
 
             if defending_side
                 .volatile_statuses
@@ -1122,15 +1106,16 @@ fn generate_instructions_from_damage(
                     .push(damage_instruction);
             }
 
-            #[cfg(feature = "damage_dealt")]
-            set_damage_dealt(
-                attacking_side,
-                attacking_side_ref,
-                damage_dealt,
-                choice,
-                false,
-                &mut incoming_instructions,
-            );
+            if should_use_damage_dealt {
+                set_damage_dealt(
+                    attacking_side,
+                    attacking_side_ref,
+                    damage_dealt,
+                    choice,
+                    false,
+                    &mut incoming_instructions,
+                );
+            }
 
             ability_after_damage_hit(
                 &mut state,
@@ -1182,15 +1167,37 @@ fn generate_instructions_from_damage(
     hit_sub
 }
 
+fn move_has_no_effect(state: &State, choice: &Choice, attacking_side_ref: &SideReference) -> bool {
+    let (_attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
+
+    if choice.move_type == PokemonType::Electric
+        && choice.target == MoveTarget::Opponent
+        && defending_side
+            .get_active_immutable()
+            .has_type(&PokemonType::Ground)
+    {
+        return true;
+    } else if choice.flags.powder
+        && choice.target == MoveTarget::Opponent
+        && defending_side
+            .get_active_immutable()
+            .has_type(&PokemonType::Grass)
+    {
+        return true;
+    } else if choice.move_id == Choices::ENCORE {
+        return match state
+            .get_side_immutable(&attacking_side_ref.get_other_side())
+            .last_used_move
+        {
+            LastUsedMove::None => true,
+            LastUsedMove::Move(_) => false,
+            LastUsedMove::Switch(_) => true,
+        };
+    }
+    false
+}
+
 fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideReference) -> bool {
-    /*
-        Checks for any situation where a move cannot be used.
-        Some examples:
-            - electric type move versus a ground type
-            - you are taunted and are trying to use a non-damaging move
-            - you were flinched
-            - etc.
-    */
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
 
     // If the opponent has 0 hp, you can't use a non-status move
@@ -1210,33 +1217,7 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
         .contains(&PokemonVolatileStatus::Flinch)
     {
         return true;
-    } else if choice.move_type == PokemonType::Electric
-        && choice.target == MoveTarget::Opponent
-        && state
-            .get_side_immutable(&attacking_side_ref.get_other_side())
-            .get_active_immutable()
-            .has_type(&PokemonType::Ground)
-    {
-        return true;
-    } else if choice.flags.powder
-        && choice.target == MoveTarget::Opponent
-        && state
-            .get_side_immutable(&attacking_side_ref.get_other_side())
-            .get_active_immutable()
-            .has_type(&PokemonType::Grass)
-    {
-        return true;
-    } else if choice.move_id == Choices::ENCORE {
-        return match state
-            .get_side_immutable(&attacking_side_ref.get_other_side())
-            .last_used_move
-        {
-            LastUsedMove::None => true,
-            LastUsedMove::Move(_) => false,
-            LastUsedMove::Switch(_) => true,
-        };
     }
-
     false
 }
 
@@ -1543,12 +1524,13 @@ pub fn generate_instructions_from_move(
     mut incoming_instructions: StateInstructions,
     mut final_instructions: &mut Vec<StateInstructions>,
 ) {
-    #[cfg(feature = "damage_dealt")]
-    reset_damage_dealt(
-        state.get_side(&attacking_side),
-        &attacking_side,
-        &mut incoming_instructions,
-    );
+    if state.use_damage_dealt {
+        reset_damage_dealt(
+            state.get_side(&attacking_side),
+            &attacking_side,
+            &mut incoming_instructions,
+        );
+    }
 
     if choice.category == MoveCategory::Switch {
         generate_instructions_from_switch(
@@ -1632,6 +1614,12 @@ pub fn generate_instructions_from_move(
         }
     }
 
+    if cannot_use_move(state, &choice, &attacking_side) {
+        state.reverse_instructions(&incoming_instructions.instruction_list);
+        final_instructions.push(incoming_instructions);
+        return;
+    }
+
     before_move(state, choice, &attacking_side, &mut incoming_instructions);
     update_choice(state, choice, defender_choice, &attacking_side);
     if incoming_instructions.percentage == 0.0 {
@@ -1639,25 +1627,36 @@ pub fn generate_instructions_from_move(
         return;
     }
 
-    #[cfg(feature = "last_used_move")]
-    let pp_decrement_amount = if state
-        .get_side_immutable(&attacking_side.get_other_side())
-        .get_active_immutable()
-        .ability
-        == Abilities::PRESSURE
-    {
-        2
-    } else {
-        1
-    };
-    #[cfg(feature = "last_used_move")]
-    set_last_used_move_as_move(
-        state.get_side(&attacking_side),
-        pp_decrement_amount,
-        choice.move_index,
-        attacking_side,
-        &mut incoming_instructions,
-    );
+    // most of the time pp decrement doesn't matter and just adds another instruction
+    // so we only decrement pp if the move is at 10 or less pp since that is when it starts
+    // to matter
+    let (attacker_side, defender_side) = state.get_both_sides(&attacking_side);
+    let active = attacker_side.get_active();
+    if active.moves[&choice.move_index].pp < 10 {
+        let pp_decrement_amount =
+            if defender_side.get_active_immutable().ability == Abilities::PRESSURE {
+                2
+            } else {
+                1
+            };
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::DecrementPP(DecrementPPInstruction {
+                side_ref: attacking_side,
+                move_index: choice.move_index,
+                amount: pp_decrement_amount,
+            }));
+        active.moves[&choice.move_index].pp -= pp_decrement_amount;
+    }
+
+    if state.use_last_used_move {
+        set_last_used_move_as_move(
+            state.get_side(&attacking_side),
+            choice.move_index,
+            attacking_side,
+            &mut incoming_instructions,
+        );
+    }
 
     if !choice.sleep_talk_move {
         generate_instructions_from_existing_status_conditions(
@@ -1697,7 +1696,7 @@ pub fn generate_instructions_from_move(
     }
 
     let damage = calculate_damage(state, &attacking_side, &choice, DamageRolls::Average);
-    if cannot_use_move(state, &choice, &attacking_side) {
+    if move_has_no_effect(state, &choice, &attacking_side) {
         state.reverse_instructions(&incoming_instructions.instruction_list);
         final_instructions.push(incoming_instructions);
         return;

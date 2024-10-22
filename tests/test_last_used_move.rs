@@ -1,5 +1,3 @@
-#![cfg(feature = "last_used_move")]
-
 use poke_engine::abilities::Abilities;
 use poke_engine::choices::Choices;
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
@@ -16,6 +14,7 @@ use poke_engine::state::{
 #[test]
 fn test_last_used_move_is_set_on_switch() {
     let mut state = State::default();
+    state.use_last_used_move = true;
     let vec_of_instructions = generate_instructions_from_move_pair(
         &mut state,
         &MoveChoice::Switch(PokemonIndex::P1),
@@ -43,6 +42,7 @@ fn test_last_used_move_is_set_on_switch() {
 #[test]
 fn test_last_used_move_is_set_on_move() {
     let mut state = State::default();
+    state.use_last_used_move = true;
     state
         .side_one
         .get_active()
@@ -61,11 +61,6 @@ fn test_last_used_move_is_set_on_move() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideTwo,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
-            }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
                 last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
@@ -74,11 +69,6 @@ fn test_last_used_move_is_set_on_move() {
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
                 damage_amount: 48,
-            }),
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideOne,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
@@ -97,6 +87,7 @@ fn test_last_used_move_is_set_on_move() {
 #[test]
 fn test_last_used_move_overwritten_when_dragged_out() {
     let mut state = State::default();
+    state.use_last_used_move = true;
 
     // Only one drag option available to keep test simple
     state.side_one.pokemon.p2.hp = 0;
@@ -122,11 +113,6 @@ fn test_last_used_move_overwritten_when_dragged_out() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideOne,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
-            }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
                 last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
@@ -135,11 +121,6 @@ fn test_last_used_move_overwritten_when_dragged_out() {
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 48,
-            }),
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideTwo,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
@@ -164,6 +145,7 @@ fn test_last_used_move_overwritten_when_dragged_out() {
 #[test]
 fn test_encore_causes_get_all_options_to_only_allow_last_used_move() {
     let mut state = State::default();
+    state.use_last_used_move = true;
     state
         .side_one
         .volatile_statuses
@@ -192,6 +174,7 @@ fn test_encore_causes_get_all_options_to_only_allow_last_used_move() {
 #[test]
 fn test_encore_and_arenatrapped_together() {
     let mut state = State::default();
+    state.use_last_used_move = true;
     state.side_two.get_active().ability = Abilities::ARENATRAP;
     state
         .side_one
@@ -214,6 +197,7 @@ fn test_encore_and_arenatrapped_together() {
 #[test]
 fn test_encore_slow() {
     let mut state = State::default();
+    state.use_last_used_move = true;
 
     state
         .side_one
@@ -237,11 +221,6 @@ fn test_encore_slow() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideTwo,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
-            }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
                 last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
@@ -250,11 +229,6 @@ fn test_encore_slow() {
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
                 damage_amount: 48,
-            }),
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideOne,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
@@ -289,6 +263,7 @@ fn test_encore_slow() {
 #[test]
 fn test_encore_slow_into_substitute() {
     let mut state = State::default();
+    state.use_last_used_move = true;
 
     state
         .side_one
@@ -312,11 +287,6 @@ fn test_encore_slow_into_substitute() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideTwo,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
-            }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
                 last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
@@ -334,11 +304,6 @@ fn test_encore_slow_into_substitute() {
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
                 volatile_status: PokemonVolatileStatus::Substitute,
-            }),
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideOne,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
@@ -373,6 +338,7 @@ fn test_encore_slow_into_substitute() {
 #[test]
 fn test_encore_fast_fails_with_lastusedmove_equal_to_switch() {
     let mut state = State::default();
+    state.use_last_used_move = true;
     state.side_one.get_active().speed = 200;
     state.side_two.get_active().speed = 100;
     state
@@ -398,20 +364,10 @@ fn test_encore_fast_fails_with_lastusedmove_equal_to_switch() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideOne,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
-            }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
                 last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
                 previous_last_used_move: LastUsedMove::None,
-            }),
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideTwo,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
@@ -430,6 +386,7 @@ fn test_encore_fast_fails_with_lastusedmove_equal_to_switch() {
 #[test]
 fn test_encore_fast_fails_with_lastusedmove_equal_to_none() {
     let mut state = State::default();
+    state.use_last_used_move = true;
     state.side_one.get_active().speed = 200;
     state.side_two.get_active().speed = 100;
     state
@@ -455,20 +412,10 @@ fn test_encore_fast_fails_with_lastusedmove_equal_to_none() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideOne,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
-            }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
                 last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
                 previous_last_used_move: LastUsedMove::None,
-            }),
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideTwo,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
@@ -487,6 +434,7 @@ fn test_encore_fast_fails_with_lastusedmove_equal_to_none() {
 #[test]
 fn test_encore_second_fails_when_opponent_switches() {
     let mut state = State::default();
+    state.use_last_used_move = true;
     state.side_one.get_active().speed = 200;
     state.side_two.pokemon[PokemonIndex::P1].speed = 100;
     state
@@ -514,11 +462,6 @@ fn test_encore_second_fails_when_opponent_switches() {
                 last_used_move: LastUsedMove::Switch(PokemonIndex::P1),
                 previous_last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
             }),
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideOne,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
-            }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
                 last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
@@ -532,6 +475,7 @@ fn test_encore_second_fails_when_opponent_switches() {
 #[test]
 fn test_fast_encore_into_using_a_different_move_from_lum() {
     let mut state = State::default();
+    state.use_last_used_move = true;
     state.side_one.get_active().speed = 200;
     state.side_two.get_active().speed = 100;
     state
@@ -558,11 +502,6 @@ fn test_fast_encore_into_using_a_different_move_from_lum() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideOne,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
-            }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
                 last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
@@ -573,13 +512,6 @@ fn test_fast_encore_into_using_a_different_move_from_lum() {
                 volatile_status: PokemonVolatileStatus::Encore,
             }),
             // no setting last used move for s2 because it didn't change
-
-            // forced to swordsdance even though tackle was selected
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideTwo,
-                move_index: PokemonMoveIndex::M1,
-                amount: 1,
-            }),
             Instruction::Boost(BoostInstruction {
                 side_ref: SideReference::SideTwo,
                 stat: PokemonBoostableStat::Attack,
@@ -591,113 +523,9 @@ fn test_fast_encore_into_using_a_different_move_from_lum() {
 }
 
 #[test]
-fn test_pressure_caused_double_pp_decrement() {
-    let mut state = State::default();
-    state.side_two.get_active().ability = Abilities::PRESSURE;
-    state
-        .side_one
-        .get_active()
-        .replace_move(PokemonMoveIndex::M0, Choices::TACKLE);
-    state
-        .side_two
-        .get_active()
-        .replace_move(PokemonMoveIndex::M0, Choices::TACKLE);
-    state.side_two.last_used_move = LastUsedMove::Move(PokemonMoveIndex::M0);
-
-    // side_two will try to use tackle, but will encored into watergun from last turn
-    let vec_of_instructions = generate_instructions_from_move_pair(
-        &mut state,
-        &MoveChoice::Move(PokemonMoveIndex::M0),
-        &MoveChoice::Move(PokemonMoveIndex::M0),
-    );
-
-    let expected_instructions = vec![StateInstructions {
-        percentage: 100.0,
-        instruction_list: vec![
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideTwo,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
-            }),
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideOne,
-                damage_amount: 48,
-            }),
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideOne,
-                move_index: PokemonMoveIndex::M0,
-                amount: 2,
-            }),
-            Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
-                side_ref: SideReference::SideOne,
-                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
-                previous_last_used_move: LastUsedMove::None,
-            }),
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 48,
-            }),
-            // no setting last used move for s2 because it didn't change
-        ],
-    }];
-    assert_eq!(expected_instructions, vec_of_instructions);
-}
-
-#[test]
-fn test_pp_decremented_when_last_used_move_not_updated() {
-    let mut state = State::default();
-    state
-        .side_one
-        .get_active()
-        .replace_move(PokemonMoveIndex::M0, Choices::TACKLE);
-    state
-        .side_two
-        .get_active()
-        .replace_move(PokemonMoveIndex::M0, Choices::TACKLE);
-    state.side_one.last_used_move = LastUsedMove::Move(PokemonMoveIndex::M0);
-
-    // side_two will try to use tackle, but will encored into watergun from last turn
-    let vec_of_instructions = generate_instructions_from_move_pair(
-        &mut state,
-        &MoveChoice::Move(PokemonMoveIndex::M0),
-        &MoveChoice::Move(PokemonMoveIndex::M0),
-    );
-
-    let expected_instructions = vec![StateInstructions {
-        percentage: 100.0,
-        instruction_list: vec![
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideTwo,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
-            }),
-            Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
-                side_ref: SideReference::SideTwo,
-                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
-                previous_last_used_move: LastUsedMove::None,
-            }),
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideOne,
-                damage_amount: 48,
-            }),
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideOne,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
-            }),
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 48,
-            }),
-            // no setting last used move for s1 because it didn't change
-        ],
-    }];
-    assert_eq!(expected_instructions, vec_of_instructions);
-}
-
-#[test]
 fn test_fakeout_first_turn_switched_in() {
     let mut state = State::default();
+    state.use_last_used_move = true;
     state.side_one.get_active().speed = 200;
     state.side_two.get_active().speed = 100;
     state
@@ -720,11 +548,6 @@ fn test_fakeout_first_turn_switched_in() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideOne,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
-            }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
                 last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
@@ -750,6 +573,7 @@ fn test_fakeout_first_turn_switched_in() {
 #[test]
 fn test_fakeout_with_last_used_move_of_non_switch() {
     let mut state = State::default();
+    state.use_last_used_move = true;
     state.side_one.get_active().speed = 200;
     state.side_two.get_active().speed = 100;
     state
@@ -772,16 +596,6 @@ fn test_fakeout_with_last_used_move_of_non_switch() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideOne,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
-            }),
-            Instruction::DecrementPP(DecrementPPInstruction {
-                side_ref: SideReference::SideTwo,
-                move_index: PokemonMoveIndex::M0,
-                amount: 1,
-            }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideTwo,
                 last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),

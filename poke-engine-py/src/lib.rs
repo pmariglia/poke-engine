@@ -40,25 +40,27 @@ impl PyState {
         trick_room_turns_remaining: i8,
         team_preview: bool,
     ) -> Self {
-        PyState {
-            state: State {
-                side_one: side_one.create_side(),
-                side_two: side_two.create_side(),
-                weather: StateWeather {
-                    weather_type: Weather::from_str(&weather).unwrap(),
-                    turns_remaining: weather_turns_remaining,
-                },
-                terrain: StateTerrain {
-                    terrain_type: Terrain::from_str(&terrain).unwrap(),
-                    turns_remaining: terrain_turns_remaining,
-                },
-                trick_room: StateTrickRoom {
-                    active: trick_room,
-                    turns_remaining: trick_room_turns_remaining,
-                },
-                team_preview,
+        let mut state = State {
+            side_one: side_one.create_side(),
+            side_two: side_two.create_side(),
+            weather: StateWeather {
+                weather_type: Weather::from_str(&weather).unwrap(),
+                turns_remaining: weather_turns_remaining,
             },
-        }
+            terrain: StateTerrain {
+                terrain_type: Terrain::from_str(&terrain).unwrap(),
+                turns_remaining: terrain_turns_remaining,
+            },
+            trick_room: StateTrickRoom {
+                active: trick_room,
+                turns_remaining: trick_room_turns_remaining,
+            },
+            team_preview,
+            use_damage_dealt: false,
+            use_last_used_move: false,
+        };
+        state.set_conditional_mechanics();
+        PyState { state }
     }
 
     fn to_string(&self) -> String {

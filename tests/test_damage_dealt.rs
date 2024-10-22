@@ -1,5 +1,3 @@
-#![cfg(feature = "damage_dealt")]
-
 use poke_engine::choices::{Choices, MoveCategory};
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::{
@@ -13,6 +11,7 @@ use poke_engine::state::{
 #[test]
 fn test_previous_damage_dealt_resets_and_then_goes_to_a_new_value() {
     let mut state = State::default();
+    state.use_damage_dealt = true;
     state.side_two.damage_dealt.damage = 10;
 
     state
@@ -61,6 +60,7 @@ fn test_previous_damage_dealt_resets_and_then_goes_to_a_new_value() {
 #[test]
 fn test_counter_after_physical_hit() {
     let mut state = State::default();
+    state.use_damage_dealt = true;
 
     state
         .side_one
@@ -102,6 +102,7 @@ fn test_counter_after_physical_hit() {
 #[test]
 fn test_metalburst_after_physical_move() {
     let mut state = State::default();
+    state.use_damage_dealt = true;
 
     state
         .side_one
@@ -143,6 +144,7 @@ fn test_metalburst_after_physical_move() {
 #[test]
 fn test_metalburst_after_special_move() {
     let mut state = State::default();
+    state.use_damage_dealt = true;
 
     state
         .side_one
@@ -184,6 +186,7 @@ fn test_metalburst_after_special_move() {
 #[test]
 fn test_metalburst_after_substitute_being_hit() {
     let mut state = State::default();
+    state.use_damage_dealt = true;
 
     state
         .side_one
@@ -230,6 +233,7 @@ fn test_metalburst_after_substitute_being_hit() {
 #[test]
 fn test_metalburst_fails_moving_first() {
     let mut state = State::default();
+    state.use_damage_dealt = true;
 
     state
         .side_one
@@ -269,6 +273,7 @@ fn test_metalburst_fails_moving_first() {
 #[test]
 fn test_metalburst_after_status_move() {
     let mut state = State::default();
+    state.use_damage_dealt = true;
 
     state
         .side_one
@@ -295,6 +300,7 @@ fn test_metalburst_after_status_move() {
 #[test]
 fn test_counter_after_special_hit() {
     let mut state = State::default();
+    state.use_damage_dealt = true;
 
     state
         .side_one
@@ -332,6 +338,7 @@ fn test_counter_after_special_hit() {
 #[test]
 fn test_mirrorcoat_after_special_hit() {
     let mut state = State::default();
+    state.use_damage_dealt = true;
 
     state
         .side_one
@@ -373,6 +380,7 @@ fn test_mirrorcoat_after_special_hit() {
 #[test]
 fn test_mirrorcoat_after_physical_hit() {
     let mut state = State::default();
+    state.use_damage_dealt = true;
 
     state
         .side_one
@@ -410,6 +418,7 @@ fn test_mirrorcoat_after_physical_hit() {
 #[test]
 fn test_focuspunch_after_getting_hit() {
     let mut state = State::default();
+    state.use_damage_dealt = true;
     state.weather.weather_type = Weather::Sun;
 
     state
@@ -448,6 +457,7 @@ fn test_focuspunch_after_getting_hit() {
 #[test]
 fn test_focuspunch_after_substitute_getting_hit() {
     let mut state = State::default();
+    state.use_damage_dealt = true;
     state
         .side_one
         .volatile_statuses
@@ -504,6 +514,7 @@ fn test_focuspunch_after_substitute_getting_hit() {
 #[test]
 fn test_focuspunch_after_status_move() {
     let mut state = State::default();
+    state.use_damage_dealt = true;
 
     state
         .side_one

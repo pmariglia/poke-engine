@@ -1167,6 +1167,8 @@ pub struct State {
     pub terrain: StateTerrain,
     pub trick_room: StateTrickRoom,
     pub team_preview: bool,
+    pub use_last_used_move: bool,
+    pub use_damage_dealt: bool,
 }
 
 impl Default for State {
@@ -1187,6 +1189,8 @@ impl Default for State {
                 turns_remaining: 0,
             },
             team_preview: false,
+            use_damage_dealt: false,
+            use_last_used_move: false,
         }
     }
 }
@@ -1383,20 +1387,25 @@ impl State {
         }
     }
 
-    pub fn remove_volatile_statuses(
+    pub fn remove_volatile_statuses_on_switch(
         &mut self,
         side_ref: &SideReference,
         vec_to_add_to: &mut Vec<Instruction>,
         baton_passing: bool,
     ) {
         let side = self.get_side(side_ref);
+        let mut should_preserve_leechseed = false;
+        let mut should_preserve_substitute = false;
         for pkmn_volatile_status in &side.volatile_statuses {
             // dont remove substitute or leechseed if batonpassing
-            if baton_passing
-                && (pkmn_volatile_status == &PokemonVolatileStatus::Substitute
-                    || pkmn_volatile_status == &PokemonVolatileStatus::LeechSeed)
-            {
-                continue;
+            if baton_passing {
+                if pkmn_volatile_status == &PokemonVolatileStatus::Substitute {
+                    should_preserve_substitute = true;
+                    continue;
+                } else if pkmn_volatile_status == &PokemonVolatileStatus::LeechSeed {
+                    should_preserve_leechseed = true;
+                    continue;
+                }
             }
             vec_to_add_to.push(Instruction::RemoveVolatileStatus(
                 RemoveVolatileStatusInstruction {
@@ -1406,6 +1415,14 @@ impl State {
             ));
         }
         side.volatile_statuses.drain();
+        if should_preserve_leechseed {
+            side.volatile_statuses
+                .insert(PokemonVolatileStatus::LeechSeed);
+        }
+        if should_preserve_substitute {
+            side.volatile_statuses
+                .insert(PokemonVolatileStatus::Substitute);
+        }
     }
 
     pub fn reset_boosts(&mut self, side_ref: &SideReference, vec_to_add_to: &mut Vec<Instruction>) {
@@ -1487,6 +1504,51 @@ impl State {
             && s1_active.ability != Abilities::CLOUDNINE
             && s2_active.ability != Abilities::AIRLOCK
             && s2_active.ability != Abilities::CLOUDNINE
+    }
+
+    fn _state_contains_any_move(&self, moves: &[Choices]) -> bool {
+        for s in [&self.side_one, &self.side_two] {
+            for pkmn in s.pokemon.into_iter() {
+                for mv in pkmn.moves.into_iter() {
+                    if moves.contains(&mv.id) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        false
+    }
+
+    pub fn set_damage_dealt_flag(&mut self) {
+        if self._state_contains_any_move(&[
+            Choices::COUNTER,
+            Choices::MIRRORCOAT,
+            Choices::METALBURST,
+            Choices::FOCUSPUNCH,
+        ]) {
+            self.use_damage_dealt = true
+        }
+    }
+
+    pub fn set_last_used_move_flag(&mut self) {
+        if self._state_contains_any_move(&[
+            Choices::ENCORE,
+            Choices::FAKEOUT,
+            Choices::FIRSTIMPRESSION,
+        ]) {
+            self.use_last_used_move = true
+        }
+    }
+
+    pub fn set_conditional_mechanics(&mut self) {
+        /*
+        These mechanics are not always relevant but when they are it
+        is important that they are enabled. Enabling them all the time would
+        suffer about a 20% performance hit.
+        */
+        self.set_damage_dealt_flag();
+        self.set_last_used_move_flag();
     }
 
     fn damage(&mut self, side_ref: &SideReference, amount: i16) {

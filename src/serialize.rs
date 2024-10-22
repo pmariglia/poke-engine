@@ -681,14 +681,18 @@ impl State {
     /// ```
     pub fn deserialize(serialized: &str) -> State {
         let split: Vec<&str> = serialized.split("/").collect();
-        State {
+        let mut state = State {
             side_one: Side::deserialize(split[0]),
             side_two: Side::deserialize(split[1]),
             weather: StateWeather::deserialize(split[2]),
             terrain: StateTerrain::deserialize(split[3]),
             trick_room: StateTrickRoom::deserialize(split[4]),
             team_preview: split[5].parse::<bool>().unwrap(),
-        }
+            use_damage_dealt: false,
+            use_last_used_move: false,
+        };
+        state.set_conditional_mechanics();
+        state
     }
 }
 
