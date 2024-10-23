@@ -4394,12 +4394,12 @@ mod tests {
             percentage: 100.0,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
+                    side_ref: SideReference::SideOne,
                     damage_amount: 100,
                 }),
-                Instruction::Heal(HealInstruction {
-                    side_ref: SideReference::SideOne,
-                    heal_amount: -100,
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 100,
                 }),
             ],
         }];
@@ -4427,12 +4427,12 @@ mod tests {
             percentage: 100.0,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 1,
+                }),
+                Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
                     damage_amount: 100,
-                }),
-                Instruction::Heal(HealInstruction {
-                    side_ref: SideReference::SideOne,
-                    heal_amount: -1,
                 }),
             ],
         }];

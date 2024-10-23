@@ -476,8 +476,34 @@ pub fn choice_before_move(
     attacking_side_ref: &SideReference,
     instructions: &mut StateInstructions,
 ) {
-    let (attacking_side, _) = state.get_both_sides(attacking_side_ref);
+    let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
     let attacker = attacking_side.get_active();
+    let defender = defending_side.get_active_immutable();
+    match choice.move_id {
+        Choices::EXPLOSION | Choices::SELFDESTRUCT | Choices::MISTYEXPLOSION
+            if defender.ability != Abilities::DAMP =>
+        {
+            let damage_amount = attacker.hp;
+            instructions
+                .instruction_list
+                .push(Instruction::Damage(DamageInstruction {
+                    side_ref: *attacking_side_ref,
+                    damage_amount,
+                }));
+            attacker.hp = 0;
+        }
+        Choices::MINDBLOWN if defender.ability != Abilities::DAMP => {
+            let damage_amount = cmp::min(attacker.maxhp / 2, attacker.hp);
+            instructions
+                .instruction_list
+                .push(Instruction::Damage(DamageInstruction {
+                    side_ref: *attacking_side_ref,
+                    damage_amount,
+                }));
+            attacker.hp -= damage_amount;
+        }
+        _ => {}
+    }
     if choice.flags.charge
         && attacker.item == Items::POWERHERB
         && choice.move_id != Choices::SKYDROP

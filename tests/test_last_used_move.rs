@@ -2,9 +2,9 @@ use poke_engine::abilities::Abilities;
 use poke_engine::choices::Choices;
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::{
-    ApplyVolatileStatusInstruction, BoostInstruction, DamageInstruction, DecrementPPInstruction,
-    Instruction, RemoveVolatileStatusInstruction, SetLastUsedMoveInstruction,
-    SetSubstituteHealthInstruction, StateInstructions, SwitchInstruction,
+    ApplyVolatileStatusInstruction, BoostInstruction, DamageInstruction, Instruction,
+    RemoveVolatileStatusInstruction, SetLastUsedMoveInstruction, SetSubstituteHealthInstruction,
+    StateInstructions, SwitchInstruction,
 };
 use poke_engine::state::{
     LastUsedMove, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
