@@ -1,5 +1,39 @@
 # Changelog
 
+## [v0.0.13](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.13) - 2024-10-25
+
+### Features
+
+- Decrementing PP - ([b68e884](https://github.com/pmariglia/poke-engine/commit/b68e884bbdccef281e48ba450539c8403916d482))
+
+- Implement Gen9 Snow - ([88610b9](https://github.com/pmariglia/poke-engine/commit/88610b9720518cd97f83edde2ef41b13dd96f4aa))
+
+
+### Bug Fixes
+
+- Fix explosion related moves - ([b6a39f6](https://github.com/pmariglia/poke-engine/commit/b6a39f62a0f40211c713cd080fef15d3be64f312))
+
+
+### Performance
+
+- Refactor SetDamageDealt instruction - ([4974dd6](https://github.com/pmariglia/poke-engine/commit/4974dd694767de938fa468be8844d58474c9004f))
+
+
+### Miscellaneous Tasks
+
+- Add test for ceaselessedge - ([e72e45c](https://github.com/pmariglia/poke-engine/commit/e72e45ca7153b0351926971c76514cac5b93d813))
+
+- Some damage_calc refactoring - ([3131bdc](https://github.com/pmariglia/poke-engine/commit/3131bdc23fdbc3c9e7186a6b6400e7a9cf64549c))
+
+- Update pyo3 - ([ae4d0d0](https://github.com/pmariglia/poke-engine/commit/ae4d0d07d717ee8d6b2235259aee9d78fa8aaef7))
+
+
+### Refactor
+
+- Add an amount to DecrementPP instruction - ([ad972b8](https://github.com/pmariglia/poke-engine/commit/ad972b8d42a8d668d8c150f0a1bc462b5365f016))
+
+- Remove last_used_move & damage_dealt features - ([54b48fa](https://github.com/pmariglia/poke-engine/commit/54b48fab7251411451bda3ca86d261d62e60dc25))
+
 ## [v0.0.12](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.12) - 2024-10-13
 
 ### Features
