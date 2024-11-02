@@ -2857,7 +2857,7 @@ pub fn calculate_damage_rolls(
         Choices::SUPERFANG | Choices::NATURESMADNESS | Choices::RUINATION => {
             return Some(vec![defender_active.hp / 2]);
         }
-        Choices::SUCKERPUNCH => {
+        Choices::SUCKERPUNCH | Choices::THUNDERCLAP => {
             defending_choice = MOVES.get(&Choices::TACKLE).unwrap();
         }
 

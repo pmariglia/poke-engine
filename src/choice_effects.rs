@@ -420,7 +420,7 @@ pub fn modify_choice(
             let hp_ratio = attacker.hp as f32 / attacker.maxhp as f32;
             attacker_choice.base_power *= hp_ratio;
         }
-        Choices::SUCKERPUNCH => {
+        Choices::SUCKERPUNCH | Choices::THUNDERCLAP => {
             if !attacker_choice.first_move || defender_choice.category == MoveCategory::Status {
                 attacker_choice.base_power = 0.0;
             }
