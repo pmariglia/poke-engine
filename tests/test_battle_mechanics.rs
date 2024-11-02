@@ -11723,6 +11723,44 @@ fn test_wickedblow_gen8() {
 }
 
 #[test]
+fn test_mortalspin_poison_and_remove_hazards() {
+    let mut state = State::default();
+    state.side_one.side_conditions.spikes = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::MORTALSPIN,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 24,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideOne,
+                side_condition: PokemonSideCondition::Spikes,
+                amount: -1,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::None,
+                new_status: PokemonStatus::Poison,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 12,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 #[cfg(feature = "gen7")]
 fn test_gen7_rapidspin_does_not_boost_speed() {
     let mut state = State::default();

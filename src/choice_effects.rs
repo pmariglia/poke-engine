@@ -662,7 +662,7 @@ pub fn choice_hazard_clear(
                 }
             }
         }
-        Choices::RAPIDSPIN => {
+        Choices::RAPIDSPIN | Choices::MORTALSPIN => {
             if attacking_side.side_conditions.stealth_rock > 0 {
                 instructions
                     .instruction_list
