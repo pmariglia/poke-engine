@@ -1,7 +1,7 @@
 use crate::abilities::Abilities;
 use crate::choices::{Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
-use crate::generate_instructions::add_remove_status_instructions;
+use crate::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
 use crate::instruction::{
     ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction,
     ChangeStatusInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, HealInstruction,
@@ -502,8 +502,22 @@ pub fn choice_before_move(
                 }));
             attacker.hp -= damage_amount;
         }
+        Choices::METEORBEAM | Choices::ELECTROSHOT if choice.flags.charge => {
+            if let Some(boost_instruction) = get_boost_instruction(
+                &attacking_side,
+                &PokemonBoostableStat::SpecialAttack,
+                &1,
+                attacking_side_ref,
+                attacking_side_ref,
+            ) {
+                state.apply_one_instruction(&boost_instruction);
+                instructions.instruction_list.push(boost_instruction);
+            }
+        }
         _ => {}
     }
+    let attacking_side = state.get_side(attacking_side_ref);
+    let attacker = attacking_side.get_active();
     if choice.flags.charge
         && attacker.item == Items::POWERHERB
         && choice.move_id != Choices::SKYDROP
@@ -1137,6 +1151,7 @@ pub fn charge_choice_to_volatile(choice: &Choices) -> PokemonVolatileStatus {
         Choices::GEOMANCY => PokemonVolatileStatus::Geomancy,
         Choices::ICEBURN => PokemonVolatileStatus::IceBurn,
         Choices::METEORBEAM => PokemonVolatileStatus::MeteorBeam,
+        Choices::ELECTROSHOT => PokemonVolatileStatus::ElectroShot,
         Choices::PHANTOMFORCE => PokemonVolatileStatus::PhantomForce,
         Choices::RAZORWIND => PokemonVolatileStatus::RazorWind,
         Choices::SHADOWFORCE => PokemonVolatileStatus::ShadowForce,

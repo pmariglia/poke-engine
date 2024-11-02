@@ -104,6 +104,7 @@ pub enum PokemonVolatileStatus {
     Disable,
     Dive,
     Electrify,
+    ElectroShot,
     Embargo,
     Encore,
     Endure,

@@ -4229,7 +4229,7 @@ lazy_static! {
             Choices::ELECTROSHOT,
             Choice {
                 move_id: Choices::ELECTROSHOT,
-                base_power: 100.0,
+                base_power: 130.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Electric,
                 flags: Flags {
