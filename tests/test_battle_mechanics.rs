@@ -5910,6 +5910,27 @@ fn test_boltbeak() {
 }
 
 #[test]
+fn test_hardpress() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::HARDPRESS,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 1,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_trickroom() {
     let mut state = State::default();
 

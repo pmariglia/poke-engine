@@ -28,6 +28,10 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 2.0;
             }
         }
+        Choices::HARDPRESS => {
+            let defender = defending_side.get_active_immutable();
+            attacker_choice.base_power = 100.0 * (defender.hp as f32 / defender.maxhp as f32);
+        }
         Choices::CLANGOROUSSOUL => {
             let attacker = attacking_side.get_active_immutable();
             if attacker.hp > attacker.maxhp / 3 {
