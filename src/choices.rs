@@ -285,6 +285,21 @@ lazy_static! {
             },
         );
         moves.insert(
+            Choices::ALLURINGVOICE,
+            Choice {
+                base_power: 80.0,
+                move_id: Choices::ALLURINGVOICE,
+                move_type: PokemonType::Fairy,
+                flags: Flags {
+                    sound: true,
+                    mirror: true,
+                    protect: true,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        );
+        moves.insert(
             Choices::ALLYSWITCH,
             Choice {
                 move_id: Choices::ALLYSWITCH,
@@ -1971,6 +1986,23 @@ lazy_static! {
                 },
             );
         }
+        moves.insert(
+            Choices::BURNINGBULWARK,
+            Choice {
+                move_id: Choices::BURNINGBULWARK,
+                category: MoveCategory::Status,
+                move_type: PokemonType::Fire,
+                priority: 4,
+                flags: Flags {
+                    ..Default::default()
+                },
+                volatile_status: Some(VolatileStatus {
+                    target: MoveTarget::User,
+                    volatile_status: PokemonVolatileStatus::Protect,
+                }),
+                ..Default::default()
+            },
+        );
         moves.insert(
             Choices::BURNINGJEALOUSY,
             Choice {
@@ -3826,6 +3858,20 @@ lazy_static! {
             },
         );
         moves.insert(
+            Choices::DRAGONCHEER,
+            Choice {
+                move_id: Choices::DRAGONCHEER,
+                base_power: 60.0,
+                category: MoveCategory::Status,
+                move_type: PokemonType::Dragon,
+                target: MoveTarget::User,
+                flags: Flags {
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        );
+        moves.insert(
             Choices::DRAGONCLAW,
             Choice {
                 move_id: Choices::DRAGONCLAW,
@@ -4391,6 +4437,22 @@ lazy_static! {
             },
         );
         moves.insert(
+            Choices::ELECTROSHOT,
+            Choice {
+                move_id: Choices::ELECTROSHOT,
+                base_power: 100.0,
+                category: MoveCategory::Special,
+                move_type: PokemonType::Electric,
+                flags: Flags {
+                    charge: true,
+                    mirror: true,
+                    protect: true,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        );
+        moves.insert(
             Choices::ELECTROWEB,
             Choice {
                 move_id: Choices::ELECTROWEB,
@@ -4937,6 +4999,33 @@ lazy_static! {
                 },
             );
         }
+        moves.insert(
+            Choices::FICKLEBEAM,
+            Choice {
+                move_id: Choices::FICKLEBEAM,
+                base_power: 80.0,
+                category: MoveCategory::Special,
+                move_type: PokemonType::Dragon,
+                flags: Flags {
+                    mirror: true,
+                    protect: true,
+                    ..Default::default()
+                },
+                secondaries: Some(vec![Secondary {
+                    chance: 50.0,
+                    target: MoveTarget::User,
+                    effect: Effect::Boost(StatBoosts {
+                        attack: 0,
+                        defense: 0,
+                        special_attack: 1,
+                        special_defense: 0,
+                        speed: 0,
+                        accuracy: 0,
+                    }),
+                }]),
+                ..Default::default()
+            },
+        );
         moves.insert(
             Choices::FIERYDANCE,
             Choice {
@@ -6867,6 +6956,21 @@ lazy_static! {
                         accuracy: 0,
                     },
                 }),
+                ..Default::default()
+            },
+        );
+        moves.insert(
+            Choices::HARDPRESS,
+            Choice {
+                move_id: Choices::HARDPRESS,
+                category: MoveCategory::Physical,
+                move_type: PokemonType::Steel,
+                flags: Flags {
+                    contact: true,
+                    mirror: true,
+                    protect: true,
+                    ..Default::default()
+                },
                 ..Default::default()
             },
         );
@@ -9809,6 +9913,26 @@ lazy_static! {
             },
         );
         moves.insert(
+            Choices::MALIGNANTCHAIN,
+            Choice {
+                move_id: Choices::MALIGNANTCHAIN,
+                base_power: 100.0,
+                category: MoveCategory::Special,
+                move_type: PokemonType::Poison,
+                flags: Flags {
+                    mirror: true,
+                    protect: true,
+                    ..Default::default()
+                },
+                secondaries: Some(vec![Secondary {
+                    chance: 50.0,
+                    target: MoveTarget::Opponent,
+                    effect: Effect::Status(PokemonStatus::Toxic),
+                }]),
+                ..Default::default()
+            },
+        );
+        moves.insert(
             Choices::MATBLOCK,
             Choice {
                 move_id: Choices::MATBLOCK,
@@ -10168,6 +10292,21 @@ lazy_static! {
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        );
+        moves.insert(
+            Choices::MIGHTYCLEAVE,
+            Choice {
+                move_id: Choices::MIGHTYCLEAVE,
+                base_power: 95.0,
+                category: MoveCategory::Physical,
+                move_type: PokemonType::Rock,
+                flags: Flags {
+                    contact: true,
+                    mirror: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -12331,6 +12470,26 @@ lazy_static! {
             },
         );
         moves.insert(
+            Choices::PSYCHICNOISE,
+            Choice {
+                move_id: Choices::PSYCHICNOISE,
+                base_power: 75.0,
+                category: MoveCategory::Special,
+                move_type: PokemonType::Psychic,
+                flags: Flags {
+                    mirror: true,
+                    protect: true,
+                    sound: true,
+                    ..Default::default()
+                },
+                volatile_status: Some(VolatileStatus {
+                    target: MoveTarget::Opponent,
+                    volatile_status: PokemonVolatileStatus::HealBlock,
+                }),
+                ..Default::default()
+            },
+        );
+        moves.insert(
             Choices::PSYCHICTERRAIN,
             Choice {
                 move_id: Choices::PSYCHICTERRAIN,
@@ -14152,6 +14311,7 @@ lazy_static! {
                 target: MoveTarget::User,
                 move_type: PokemonType::Normal,
                 flags: Flags {
+                    pivot: true,
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
@@ -16041,6 +16201,24 @@ lazy_static! {
             },
         );
         moves.insert(
+            Choices::SUPERCELLSLAM,
+            Choice {
+                accuracy: 95.0,
+                move_id: Choices::SUPERCELLSLAM,
+                base_power: 100.0,
+                category: MoveCategory::Physical,
+                move_type: PokemonType::Electric,
+                flags: Flags {
+                    contact: true,
+                    mirror: true,
+                    protect: true,
+                    ..Default::default()
+                },
+                crash: Some(0.5),
+                ..Default::default()
+            },
+        );
+        moves.insert(
             Choices::SUPERFANG,
             Choice {
                 move_id: Choices::SUPERFANG,
@@ -16404,6 +16582,21 @@ lazy_static! {
             },
         );
         moves.insert(
+            Choices::TACHYONCUTTER,
+            Choice {
+                move_id: Choices::TACHYONCUTTER,
+                base_power: 50.0,
+                category: MoveCategory::Special,
+                move_type: PokemonType::Steel,
+                flags: Flags {
+                    mirror: true,
+                    protect: true,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        );
+        moves.insert(
             Choices::TACKLE,
             Choice {
                 move_id: Choices::TACKLE,
@@ -16743,12 +16936,42 @@ lazy_static! {
                 },
             );
         }
-
+        moves.insert(
+            Choices::TEMPERFLARE,
+            Choice {
+                move_id: Choices::TEMPERFLARE,
+                base_power: 75.0,
+                category: MoveCategory::Physical,
+                move_type: PokemonType::Fire,
+                flags: Flags {
+                    contact: true,
+                    mirror: true,
+                    protect: true,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        );
         moves.insert(
             Choices::TERABLAST,
             Choice {
                 move_id: Choices::TERABLAST,
                 base_power: 80.0,
+                category: MoveCategory::Special,
+                move_type: PokemonType::Normal,
+                flags: Flags {
+                    mirror: true,
+                    protect: true,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        );
+        moves.insert(
+            Choices::TERASTARSTORM,
+            Choice {
+                move_id: Choices::TERASTARSTORM,
+                base_power: 120.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Normal,
                 flags: Flags {
@@ -17014,6 +17237,21 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     volatile_status: PokemonVolatileStatus::PartiallyTrapped,
                 }),
+                ..Default::default()
+            },
+        );
+        moves.insert(
+            Choices::THUNDERCLAP,
+            Choice {
+                move_id: Choices::THUNDERCLAP,
+                base_power: 70.0,
+                category: MoveCategory::Special,
+                move_type: PokemonType::Electric,
+                flags: Flags {
+                    mirror: true,
+                    protect: true,
+                    ..Default::default()
+                },
                 ..Default::default()
             },
         );
@@ -17608,6 +17846,22 @@ lazy_static! {
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
                 }]),
+                ..Default::default()
+            },
+        );
+        moves.insert(
+            Choices::UPPERHAND,
+            Choice {
+                move_id: Choices::UPPERHAND,
+                base_power: 65.0,
+                category: MoveCategory::Physical,
+                move_type: PokemonType::Fighting,
+                flags: Flags {
+                    contact: true,
+                    mirror: true,
+                    protect: true,
+                    ..Default::default()
+                },
                 ..Default::default()
             },
         );
@@ -18823,6 +19077,7 @@ pub enum Choices {
     AGILITY,
     AIRCUTTER,
     AIRSLASH,
+    ALLURINGVOICE,
     ALLYSWITCH,
     AMNESIA,
     ANCHORSHOT,
@@ -18901,6 +19156,7 @@ pub enum Choices {
     BULLDOZE,
     BULLETPUNCH,
     BULLETSEED,
+    BURNINGBULWARK,
     BURNINGJEALOUSY,
     BURNUP,
     BUZZYBUZZ,
@@ -18983,6 +19239,7 @@ pub enum Choices {
     DRACOMETEOR,
     DRAGONASCENT,
     DRAGONBREATH,
+    DRAGONCHEER,
     DRAGONCLAW,
     DRAGONDANCE,
     DRAGONDARTS,
@@ -19012,6 +19269,7 @@ pub enum Choices {
     ELECTRIFY,
     ELECTROBALL,
     ELECTRODRIFT,
+    ELECTROSHOT,
     ELECTROWEB,
     EMBARGO,
     EMBER,
@@ -19038,6 +19296,7 @@ pub enum Choices {
     FEINT,
     FEINTATTACK,
     FELLSTINGER,
+    FICKLEBEAM,
     FIERYDANCE,
     FIERYWRATH,
     FILLETAWAY,
@@ -19122,6 +19381,7 @@ pub enum Choices {
     HAMMERARM,
     HAPPYHOUR,
     HARDEN,
+    HARDPRESS,
     HAZE,
     HEADBUTT,
     HEADCHARGE,
@@ -19265,6 +19525,7 @@ pub enum Choices {
     MAGNETRISE,
     MAGNITUDE,
     MAKEITRAIN,
+    MALIGNANTCHAIN,
     MATBLOCK,
     MATCHAGOTCHA,
     MEANLOOK,
@@ -19282,6 +19543,7 @@ pub enum Choices {
     METEORBEAM,
     METEORMASH,
     METRONOME,
+    MIGHTYCLEAVE,
     MILKDRINK,
     MIMIC,
     MINDBLOWN,
@@ -19381,6 +19643,7 @@ pub enum Choices {
     PSYBLADE,
     PSYCHIC,
     PSYCHICFANGS,
+    PSYCHICNOISE,
     PSYCHICTERRAIN,
     PSYCHOBOOST,
     PSYCHOCUT,
@@ -19565,6 +19828,7 @@ pub enum Choices {
     SUCKERPUNCH,
     SUNNYDAY,
     SUNSTEELSTRIKE,
+    SUPERCELLSLAM,
     SUPERFANG,
     SUPERPOWER,
     SUPERSONIC,
@@ -19580,6 +19844,7 @@ pub enum Choices {
     SYNCHRONOISE,
     SYNTHESIS,
     SYRUPBOMB,
+    TACHYONCUTTER,
     TACKLE,
     TAILGLOW,
     TAILSLAP,
@@ -19595,7 +19860,9 @@ pub enum Choices {
     TEETERDANCE,
     TELEKINESIS,
     TELEPORT,
+    TEMPERFLARE,
     TERABLAST,
+    TERASTARSTORM,
     TERRAINPULSE,
     THIEF,
     THOUSANDARROWS,
@@ -19605,6 +19872,7 @@ pub enum Choices {
     THUNDER,
     THUNDERBOLT,
     THUNDERCAGE,
+    THUNDERCLAP,
     THUNDERFANG,
     THUNDEROUSKICK,
     THUNDERPUNCH,
@@ -19633,6 +19901,7 @@ pub enum Choices {
     TWINBEAM,
     TWINEEDLE,
     TWISTER,
+    UPPERHAND,
     UPROAR,
     UTURN,
     VACUUMWAVE,
@@ -19748,6 +20017,7 @@ impl Choice {
             Choices::SCALESHOT => MultiHitMove::TwoToFiveHits,
             Choices::SPIKECANNON => MultiHitMove::TwoToFiveHits,
             Choices::SURGINGSTRIKES => MultiHitMove::TripleHit,
+            Choices::TACHYONCUTTER => MultiHitMove::DoubleHit,
             Choices::TAILSLAP => MultiHitMove::TwoToFiveHits,
             Choices::TRIPLEDIVE => MultiHitMove::TripleHit,
             Choices::TWINBEAM => MultiHitMove::DoubleHit,
