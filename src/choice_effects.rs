@@ -393,7 +393,7 @@ pub fn modify_choice(
                 attacker_choice.base_power = 0.0;
             }
         }
-        Choices::COLLISIONCOURSE => {
+        Choices::COLLISIONCOURSE | Choices::ELECTRODRIFT => {
             let defender_active = defending_side.get_active_immutable();
             if type_effectiveness_modifier(&attacker_choice.move_type, &defender_active.types) > 1.0
             {
