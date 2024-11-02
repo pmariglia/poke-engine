@@ -470,6 +470,20 @@ pub fn choice_after_damage_hit(
                 &mut instructions.instruction_list,
             );
         }
+        Choices::ICESPINNER => {
+            if state.terrain.terrain_type != Terrain::None && state.terrain.turns_remaining > 0 {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeTerrain(ChangeTerrain {
+                        new_terrain: Terrain::None,
+                        new_terrain_turns_remaining: 0,
+                        previous_terrain: state.terrain.terrain_type,
+                        previous_terrain_turns_remaining: state.terrain.turns_remaining,
+                    }));
+                state.terrain.terrain_type = Terrain::None;
+                state.terrain.turns_remaining = 0;
+            }
+        }
         _ => {}
     }
 }
