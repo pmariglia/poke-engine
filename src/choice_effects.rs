@@ -23,6 +23,24 @@ pub fn modify_choice(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     match attacker_choice.move_id {
+        Choices::RAGINGBULL if defending_side.side_conditions.reflect > 0 => {
+            // this gives the correct result even though it's not the "correct" way to implement it
+            // reflect is only removed if the move hits, but I don't have a way to check that
+            // doubling the power ensures the same damage calculation
+            attacker_choice.base_power *= 2.0;
+            match attacking_side.get_active_immutable().id.as_str() {
+                "taurospaldeacombat" => {
+                    attacker_choice.move_type = PokemonType::Fighting;
+                }
+                "taurospaldeablaze" => {
+                    attacker_choice.move_type = PokemonType::Fire;
+                }
+                "taurospaldeaaqua" => {
+                    attacker_choice.move_type = PokemonType::Water;
+                }
+                _ => {}
+            }
+        }
         Choices::BOLTBEAK | Choices::FISHIOUSREND => {
             if attacker_choice.first_move {
                 attacker_choice.base_power *= 2.0;
@@ -459,6 +477,44 @@ pub fn choice_after_damage_hit(
 ) {
     let (_attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
     match choice.move_id {
+        Choices::RAGINGBULL => {
+            if defending_side.side_conditions.reflect > 0 {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeSideCondition(
+                        ChangeSideConditionInstruction {
+                            side_ref: attacking_side_ref.get_other_side(),
+                            side_condition: PokemonSideCondition::Reflect,
+                            amount: -1 * defending_side.side_conditions.reflect,
+                        },
+                    ));
+                defending_side.side_conditions.reflect = 0;
+            }
+            if defending_side.side_conditions.light_screen > 0 {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeSideCondition(
+                        ChangeSideConditionInstruction {
+                            side_ref: attacking_side_ref.get_other_side(),
+                            side_condition: PokemonSideCondition::LightScreen,
+                            amount: -1 * defending_side.side_conditions.light_screen,
+                        },
+                    ));
+                defending_side.side_conditions.light_screen = 0;
+            }
+            if defending_side.side_conditions.aurora_veil > 0 {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeSideCondition(
+                        ChangeSideConditionInstruction {
+                            side_ref: attacking_side_ref.get_other_side(),
+                            side_condition: PokemonSideCondition::AuroraVeil,
+                            amount: -1 * defending_side.side_conditions.aurora_veil,
+                        },
+                    ));
+                defending_side.side_conditions.aurora_veil = 0;
+            }
+        }
         Choices::KNOCKOFF => {
             let defender_active = defending_side.get_active();
             if defender_active.item_can_be_removed()
