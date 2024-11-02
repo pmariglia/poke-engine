@@ -724,7 +724,7 @@ pub fn choice_special_effect(
                 }
             }
         }
-        Choices::METALBURST => {
+        Choices::METALBURST | Choices::COMEUPPANCE => {
             if defending_side.damage_dealt.move_category != MoveCategory::Status
                 && !defending_side.damage_dealt.hit_substitute
                 && !choice.first_move

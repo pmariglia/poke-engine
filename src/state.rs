@@ -1529,6 +1529,7 @@ impl State {
             Choices::COUNTER,
             Choices::MIRRORCOAT,
             Choices::METALBURST,
+            Choices::COMEUPPANCE,
             Choices::FOCUSPUNCH,
         ]) {
             self.use_damage_dealt = true
