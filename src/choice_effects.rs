@@ -32,6 +32,16 @@ pub fn modify_choice(
             let defender = defending_side.get_active_immutable();
             attacker_choice.base_power = 100.0 * (defender.hp as f32 / defender.maxhp as f32);
         }
+        Choices::LASTRESPECTS => {
+            // Technically not correct because of reviving moves but good enough
+            let mut bp = 50.0;
+            for pkmn in attacking_side.pokemon.into_iter() {
+                if pkmn.hp == 0 && pkmn.level != 1 {
+                    bp += 50.0;
+                }
+            }
+            attacker_choice.base_power = bp
+        }
         Choices::CLANGOROUSSOUL => {
             let attacker = attacking_side.get_active_immutable();
             if attacker.hp > attacker.maxhp / 3 {
