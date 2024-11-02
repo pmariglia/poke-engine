@@ -161,6 +161,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -176,6 +177,7 @@ lazy_static! {
                 move_type: PokemonType::Flying,
                 flags: Flags {
                     protect: true,
+                    wind: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -225,7 +227,9 @@ lazy_static! {
                     category: MoveCategory::Special,
                     move_type: PokemonType::Flying,
                     flags: Flags {
-                            protect: true,
+                        protect: true,
+                        slicing: true,
+                        wind: true,
                         ..Default::default()
                     },
                     ..Default::default()
@@ -258,6 +262,7 @@ lazy_static! {
                 move_type: PokemonType::Flying,
                 flags: Flags {
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
@@ -394,6 +399,7 @@ lazy_static! {
                 move_type: PokemonType::Water,
                 flags: Flags {
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -1011,6 +1017,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -1163,6 +1170,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 drain: Some(0.5),
@@ -1261,6 +1269,7 @@ lazy_static! {
                 move_type: PokemonType::Flying,
                 flags: Flags {
                     protect: true,
+                    wind: true,
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
@@ -1288,7 +1297,8 @@ lazy_static! {
                     category: MoveCategory::Special,
                     move_type: PokemonType::Ice,
                     flags: Flags {
-                            protect: true,
+                        protect: true,
+                        wind: true,
                         ..Default::default()
                     },
                     secondaries: Some(vec![Secondary {
@@ -2017,6 +2027,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 side_condition: Some(SideCondition {
@@ -2868,6 +2879,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
@@ -2985,6 +2997,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -4562,6 +4575,7 @@ lazy_static! {
                 move_type: PokemonType::Fairy,
                 flags: Flags {
                     protect: true,
+                    wind: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -5787,7 +5801,8 @@ lazy_static! {
                     move_type: PokemonType::Bug,
                     flags: Flags {
                         contact: true,
-                            protect: true,
+                        protect: true,
+                        slicing: true,
                         ..Default::default()
                     },
                     ..Default::default()
@@ -6498,6 +6513,7 @@ lazy_static! {
                 move_type: PokemonType::Flying,
                 flags: Flags {
                     protect: true,
+                    wind: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -6836,7 +6852,8 @@ lazy_static! {
                     category: MoveCategory::Special,
                     move_type: PokemonType::Fire,
                     flags: Flags {
-                            protect: true,
+                        protect: true,
+                        wind: true,
                         ..Default::default()
                     },
                     secondaries: Some(vec![Secondary {
@@ -6857,7 +6874,8 @@ lazy_static! {
                     category: MoveCategory::Special,
                     move_type: PokemonType::Fire,
                     flags: Flags {
-                            protect: true,
+                        protect: true,
+                        wind: true,
                         ..Default::default()
                     },
                     secondaries: Some(vec![Secondary {
@@ -7577,7 +7595,8 @@ lazy_static! {
                     category: MoveCategory::Special,
                     move_type: PokemonType::Flying,
                     flags: Flags {
-                                protect: true,
+                        protect: true,
+                        wind: true,
                         ..Default::default()
                     },
                     secondaries: Some(vec![Secondary {
@@ -7598,7 +7617,8 @@ lazy_static! {
                     category: MoveCategory::Special,
                     move_type: PokemonType::Flying,
                     flags: Flags {
-                                protect: true,
+                        protect: true,
+                        wind: true,
                         ..Default::default()
                     },
                     secondaries: Some(vec![Secondary {
@@ -8043,6 +8063,7 @@ lazy_static! {
                 move_type: PokemonType::Ice,
                 flags: Flags {
                     protect: true,
+                    wind: true,
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
@@ -8491,6 +8512,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -8631,6 +8653,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -9752,6 +9775,7 @@ lazy_static! {
                 move_type: PokemonType::Rock,
                 flags: Flags {
                     contact: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -10501,6 +10525,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -11012,6 +11037,7 @@ lazy_static! {
                 move_type: PokemonType::Grass,
                 flags: Flags {
                     protect: true,
+                    wind: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -11437,6 +11463,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -11758,6 +11785,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -11870,6 +11898,7 @@ lazy_static! {
                 move_type: PokemonType::Psychic,
                 flags: Flags {
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -12282,6 +12311,7 @@ lazy_static! {
                 move_type: PokemonType::Grass,
                 flags: Flags {
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -12298,6 +12328,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
@@ -12946,6 +12977,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -13019,6 +13051,7 @@ lazy_static! {
                 move_type: PokemonType::Ground,
                 flags: Flags {
                     protect: true,
+                    wind: true,
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
@@ -13035,6 +13068,7 @@ lazy_static! {
                 move_id: Choices::SANDSTORM,
                 move_type: PokemonType::Rock,
                 flags: Flags {
+                    wind: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -13302,6 +13336,7 @@ lazy_static! {
                 move_type: PokemonType::Fighting,
                 flags: Flags {
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -14005,6 +14040,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -14420,6 +14456,7 @@ lazy_static! {
                     charge: true,
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -14790,6 +14827,7 @@ lazy_static! {
                 move_type: PokemonType::Fairy,
                 flags: Flags {
                     protect: true,
+                    wind: true,
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
@@ -15003,6 +15041,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 side_condition: Some(SideCondition {
@@ -15711,6 +15750,7 @@ lazy_static! {
                 move_type: PokemonType::Steel,
                 flags: Flags {
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -15827,6 +15867,7 @@ lazy_static! {
                 target: MoveTarget::User,
                 move_type: PokemonType::Flying,
                 flags: Flags {
+                    wind: true,
                     ..Default::default()
                 },
                 side_condition: Some(SideCondition {
@@ -16895,6 +16936,7 @@ lazy_static! {
                 move_type: PokemonType::Dragon,
                 flags: Flags {
                     protect: true,
+                    wind: true,
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
@@ -17434,6 +17476,7 @@ lazy_static! {
                 flags: Flags {
                     drag: true,
                     reflectable: true,
+                    wind: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -17522,6 +17565,7 @@ lazy_static! {
                 move_type: PokemonType::Electric,
                 flags: Flags {
                     protect: true,
+                    wind: true,
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
@@ -17768,6 +17812,7 @@ lazy_static! {
                 flags: Flags {
                     contact: true,
                     protect: true,
+                    slicing: true,
                     ..Default::default()
                 },
                 ..Default::default()
@@ -17985,8 +18030,10 @@ pub struct Flags {
     pub punch: bool,
     pub recharge: bool,
     pub reflectable: bool,
+    pub slicing: bool,
     pub sound: bool,
     pub pivot: bool,
+    pub wind: bool,
 }
 
 impl Default for Flags {
@@ -18004,8 +18051,10 @@ impl Default for Flags {
             punch: false,
             recharge: false,
             reflectable: false,
+            slicing: false,
             sound: false,
             pivot: false,
+            wind: false,
         }
     }
 }
