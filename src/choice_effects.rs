@@ -5,8 +5,9 @@ use crate::generate_instructions::{add_remove_status_instructions, get_boost_ins
 use crate::instruction::{
     ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction,
     ChangeStatusInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, HealInstruction,
-    Instruction, SetSleepTurnsInstruction, SetSubstituteHealthInstruction, SetWishInstruction,
-    StateInstructions, ToggleTrickRoomInstruction,
+    Instruction, RemoveVolatileStatusInstruction, SetSleepTurnsInstruction,
+    SetSubstituteHealthInstruction, SetWishInstruction, StateInstructions,
+    ToggleTrickRoomInstruction,
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::state::{
@@ -716,6 +717,87 @@ pub fn choice_hazard_clear(
                         instructions.instruction_list.push(i)
                     }
                 }
+            }
+        }
+        Choices::TIDYUP => {
+            let side_condition_clears = [
+                PokemonSideCondition::Stealthrock,
+                PokemonSideCondition::Spikes,
+                PokemonSideCondition::ToxicSpikes,
+                PokemonSideCondition::StickyWeb,
+            ];
+
+            for side in [SideReference::SideOne, SideReference::SideTwo] {
+                for side_condition in side_condition_clears {
+                    let side_condition_num = state
+                        .get_side_immutable(&side)
+                        .get_side_condition(side_condition);
+                    if side_condition_num > 0 {
+                        let i = Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                            side_ref: side,
+                            side_condition: side_condition,
+                            amount: -1 * side_condition_num,
+                        });
+                        state.apply_one_instruction(&i);
+                        instructions.instruction_list.push(i)
+                    }
+                }
+            }
+            if state
+                .side_one
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::Substitute)
+            {
+                instructions
+                    .instruction_list
+                    .push(Instruction::SetSubstituteHealth(
+                        SetSubstituteHealthInstruction {
+                            side_ref: SideReference::SideOne,
+                            new_health: 0,
+                            old_health: state.side_one.substitute_health,
+                        },
+                    ));
+                instructions
+                    .instruction_list
+                    .push(Instruction::RemoveVolatileStatus(
+                        RemoveVolatileStatusInstruction {
+                            side_ref: SideReference::SideOne,
+                            volatile_status: PokemonVolatileStatus::Substitute,
+                        },
+                    ));
+                state.side_one.substitute_health = 0;
+                state
+                    .side_one
+                    .volatile_statuses
+                    .remove(&PokemonVolatileStatus::Substitute);
+            }
+            if state
+                .side_two
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::Substitute)
+            {
+                instructions
+                    .instruction_list
+                    .push(Instruction::SetSubstituteHealth(
+                        SetSubstituteHealthInstruction {
+                            side_ref: SideReference::SideTwo,
+                            new_health: 0,
+                            old_health: state.side_two.substitute_health,
+                        },
+                    ));
+                instructions
+                    .instruction_list
+                    .push(Instruction::RemoveVolatileStatus(
+                        RemoveVolatileStatusInstruction {
+                            side_ref: SideReference::SideTwo,
+                            volatile_status: PokemonVolatileStatus::Substitute,
+                        },
+                    ));
+                state.side_two.substitute_health = 0;
+                state
+                    .side_two
+                    .volatile_statuses
+                    .remove(&PokemonVolatileStatus::Substitute);
             }
         }
         Choices::RAPIDSPIN | Choices::MORTALSPIN => {

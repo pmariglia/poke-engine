@@ -2940,7 +2940,7 @@ mod tests {
     use crate::instruction::{
         ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
         ChangeStatusInstruction, ChangeTerrain, DamageInstruction, EnableMoveInstruction,
-        SwitchInstruction,
+        SetSubstituteHealthInstruction, SwitchInstruction,
     };
     use crate::state::{
         Move, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, SideReference, State, Terrain,
@@ -4840,6 +4840,82 @@ mod tests {
                     side_ref: SideReference::SideTwo,
                     side_condition: PokemonSideCondition::Reflect,
                     amount: -1,
+                }),
+            ],
+        }];
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_tidyup_clears_side_conditions_and_substitutes() {
+        let mut state: State = State::default();
+        state.terrain.terrain_type = Terrain::ElectricTerrain;
+        state
+            .side_one
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::Substitute);
+        state
+            .side_two
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::Substitute);
+        state.side_one.substitute_health = 10;
+        state.side_two.substitute_health = 25;
+        state.terrain.turns_remaining = 1;
+        state.side_one.side_conditions.spikes = 2;
+        state.side_two.side_conditions.stealth_rock = 1;
+
+        let mut choice = MOVES.get(&Choices::TIDYUP).unwrap().to_owned();
+
+        let mut instructions = vec![];
+        generate_instructions_from_move(
+            &mut state,
+            &mut choice,
+            &MOVES.get(&Choices::TACKLE).unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+            &mut instructions,
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Spikes,
+                    amount: -2,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideTwo,
+                    side_condition: PokemonSideCondition::Stealthrock,
+                    amount: -1,
+                }),
+                Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                    side_ref: SideReference::SideOne,
+                    new_health: 0,
+                    old_health: 10,
+                }),
+                Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::Substitute,
+                }),
+                Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                    side_ref: SideReference::SideTwo,
+                    new_health: 0,
+                    old_health: 25,
+                }),
+                Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    volatile_status: PokemonVolatileStatus::Substitute,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Attack,
+                    amount: 1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: 1,
                 }),
             ],
         }];
