@@ -2849,10 +2849,12 @@ pub fn calculate_damage_rolls(
                 defender_active.hp - (attacker_active.hp + defender_active.hp) / 2,
             ]);
         }
+        Choices::SUPERFANG
+            if type_effectiveness_modifier(&PokemonType::Normal, &defender_active.types) == 0.0 =>
+        {
+            return None;
+        }
         Choices::SUPERFANG | Choices::NATURESMADNESS | Choices::RUINATION => {
-            if type_effectiveness_modifier(&PokemonType::Normal, &defender_active.types) == 0.0 {
-                return None;
-            }
             return Some(vec![defender_active.hp / 2]);
         }
         Choices::SUCKERPUNCH => {
