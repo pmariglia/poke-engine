@@ -527,18 +527,21 @@ impl Pokemon {
                     break;
                 }
 
-                if encored {
-                    match last_used_move {
-                        LastUsedMove::Move(last_used_move) => {
-                            if last_used_move != &iter.pokemon_move_index {
-                                continue;
-                            }
+                match last_used_move {
+                    LastUsedMove::Move(last_used_move) => {
+                        if encored && last_used_move != &iter.pokemon_move_index {
+                            continue;
+                        } else if (self.moves[last_used_move].id == Choices::BLOODMOON
+                            || self.moves[last_used_move].id == Choices::GIGATONHAMMER)
+                            && &iter.pokemon_move_index == last_used_move
+                        {
+                            continue;
                         }
-                        _ => {
-                            // there are some situations where you switched out and got encored into
-                            // a move from a different pokemon, because you also have that move
-                            // just assume nothing is locked in this case
-                        }
+                    }
+                    _ => {
+                        // there are some situations where you switched out and got encored into
+                        // a move from a different pokemon because you also have that move.
+                        // just assume nothing is locked in this case
                     }
                 }
                 vec.push(MoveChoice::Move(iter.pokemon_move_index));
@@ -1537,6 +1540,8 @@ impl State {
             Choices::ENCORE,
             Choices::FAKEOUT,
             Choices::FIRSTIMPRESSION,
+            Choices::BLOODMOON,
+            Choices::GIGATONHAMMER,
         ]) {
             self.use_last_used_move = true
         }

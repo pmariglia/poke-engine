@@ -13,9 +13,9 @@ use poke_engine::instruction::{
 };
 use poke_engine::items::Items;
 use poke_engine::state::{
-    pokemon_index_iter, Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
-    PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State,
-    StateWeather, Terrain, Weather,
+    pokemon_index_iter, LastUsedMove, Move, MoveChoice, PokemonBoostableStat, PokemonIndex,
+    PokemonMoveIndex, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus,
+    SideReference, State, StateWeather, Terrain, Weather,
 };
 
 fn generate_instructions_with_state_assertion(
@@ -4686,6 +4686,182 @@ fn test_pkmn_is_not_trapped_if_it_has_fainted() {
 
     assert_eq!(
         vec![
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_two_moves
+    );
+}
+
+#[test]
+fn test_cannot_use_bloodmoon_after_using_bloodmoon() {
+    let mut state = State::default();
+
+    state.side_one.last_used_move = LastUsedMove::Move(PokemonMoveIndex::M0);
+    state.side_one.get_active().moves[&PokemonMoveIndex::M0] = Move {
+        id: Choices::BLOODMOON,
+        disabled: false,
+        pp: 35,
+        ..Default::default()
+    };
+    let (side_one_moves, side_two_moves) = state.get_all_options();
+
+    assert_eq!(
+        vec![
+            // no M0 because it cant be used twice
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_one_moves
+    );
+
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_two_moves
+    );
+}
+
+#[test]
+fn test_cannot_use_gigatonhammer_after_using_gigatonhammer() {
+    let mut state = State::default();
+
+    state.side_one.last_used_move = LastUsedMove::Move(PokemonMoveIndex::M0);
+    state.side_one.get_active().moves[&PokemonMoveIndex::M0] = Move {
+        id: Choices::GIGATONHAMMER,
+        disabled: false,
+        pp: 35,
+        ..Default::default()
+    };
+    let (side_one_moves, side_two_moves) = state.get_all_options();
+
+    assert_eq!(
+        vec![
+            // no M0 because it cant be used twice
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_one_moves
+    );
+
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_two_moves
+    );
+}
+
+#[test]
+fn test_can_use_gigatonhammer_after_using_switch() {
+    let mut state = State::default();
+
+    state.side_one.last_used_move = LastUsedMove::Switch(PokemonIndex::P0);
+    state.side_one.get_active().moves[&PokemonMoveIndex::M0] = Move {
+        id: Choices::GIGATONHAMMER,
+        disabled: false,
+        pp: 35,
+        ..Default::default()
+    };
+    let (side_one_moves, side_two_moves) = state.get_all_options();
+
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_one_moves
+    );
+
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_two_moves
+    );
+}
+
+#[test]
+fn test_can_use_bloodmoon_after_using_switch() {
+    let mut state = State::default();
+
+    state.side_one.last_used_move = LastUsedMove::Switch(PokemonIndex::P0);
+    state.side_one.get_active().moves[&PokemonMoveIndex::M0] = Move {
+        id: Choices::BLOODMOON,
+        disabled: false,
+        pp: 35,
+        ..Default::default()
+    };
+    let (side_one_moves, side_two_moves) = state.get_all_options();
+
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_one_moves
+    );
+
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
             MoveChoice::Switch(PokemonIndex::P1),
             MoveChoice::Switch(PokemonIndex::P2),
             MoveChoice::Switch(PokemonIndex::P3),
