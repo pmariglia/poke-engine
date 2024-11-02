@@ -57,6 +57,8 @@ pub enum Abilities {
     PROTEAN,
     ASONEGLASTRIER,
     SHADOWTAG,
+    SHARPNESS,
+    WINDRIDER,
     SKILLLINK,
     INTREPIDSWORD,
     SOULHEART,
@@ -328,6 +330,7 @@ fn mold_breaker_ignores(ability: &Abilities) -> bool {
         | Abilities::MAGMAARMOR
         | Abilities::MARVELSCALE
         | Abilities::MOTORDRIVE
+        | Abilities::WINDRIDER
         | Abilities::OBLIVIOUS
         | Abilities::OWNTEMPO
         | Abilities::SANDVEIL
@@ -1234,6 +1237,11 @@ pub fn ability_modify_attack_being_used(
         return;
     }
     match attacking_pkmn.ability {
+        Abilities::SHARPNESS => {
+            if attacker_choice.flags.slicing {
+                attacker_choice.base_power *= 1.5;
+            }
+        }
         Abilities::DRAGONSMAW => {
             if attacker_choice.move_type == PokemonType::Dragon {
                 attacker_choice.base_power *= 1.5;
@@ -1808,6 +1816,25 @@ pub fn ability_modify_attack_against(
                         special_attack: 0,
                         special_defense: 0,
                         speed: 1,
+                        accuracy: 0,
+                    },
+                    target: MoveTarget::Opponent,
+                });
+                attacker_choice.category = MoveCategory::Status;
+            }
+        }
+        Abilities::WINDRIDER => {
+            if attacker_choice.flags.wind {
+                attacker_choice.remove_all_effects();
+                attacker_choice.accuracy = 100.0;
+                attacker_choice.target = MoveTarget::Opponent;
+                attacker_choice.boost = Some(Boost {
+                    boosts: StatBoosts {
+                        attack: 1,
+                        defense: 0,
+                        special_attack: 0,
+                        special_defense: 0,
+                        speed: 0,
                         accuracy: 0,
                     },
                     target: MoveTarget::Opponent,

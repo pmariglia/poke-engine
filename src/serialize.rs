@@ -1639,6 +1639,8 @@ impl FromStr for Abilities {
             "PROTEAN" => Ok(Abilities::PROTEAN),
             "ASONEGLASTRIER" => Ok(Abilities::ASONEGLASTRIER),
             "SHADOWTAG" => Ok(Abilities::SHADOWTAG),
+            "SHARPNESS" => Ok(Abilities::SHARPNESS),
+            "WINDRIDER" => Ok(Abilities::WINDRIDER),
             "SKILLLINK" => Ok(Abilities::SKILLLINK),
             "INTREPIDSWORD" => Ok(Abilities::INTREPIDSWORD),
             "SOULHEART" => Ok(Abilities::SOULHEART),

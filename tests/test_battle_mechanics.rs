@@ -8699,6 +8699,73 @@ fn test_motor_drive() {
 }
 
 #[test]
+fn test_wind_rider() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::WINDRIDER;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::GUST,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Boost(BoostInstruction {
+            side_ref: SideReference::SideTwo,
+            stat: PokemonBoostableStat::Attack,
+            amount: 1,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_moldbreaker_negating_wind_rider() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::WINDRIDER;
+    state.side_one.get_active().ability = Abilities::MOLDBREAKER;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::GUST,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 32,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_sharpness_boost() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::SHARPNESS;
+    state.side_two.get_active().hp = 200;
+    state.side_two.get_active().maxhp = 200;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::LEAFBLADE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 106, // 71 normally
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_lightning_rod_versus_status_move() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::LIGHTNINGROD;
