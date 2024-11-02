@@ -94,6 +94,7 @@ pub enum PokemonVolatileStatus {
     BanefulBunker,
     Bide,
     Bounce,
+    BurningBulwark,
     Charge,
     Confusion,
     Curse,

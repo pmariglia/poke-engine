@@ -1905,7 +1905,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Protect,
+                    volatile_status: PokemonVolatileStatus::BurningBulwark,
                 }),
                 ..Default::default()
             },

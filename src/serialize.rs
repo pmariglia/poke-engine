@@ -91,6 +91,7 @@ impl PokemonVolatileStatus {
             "banefulbunker" => PokemonVolatileStatus::BanefulBunker,
             "bide" => PokemonVolatileStatus::Bide,
             "bounce" => PokemonVolatileStatus::Bounce,
+            "burningbulwark" => PokemonVolatileStatus::BurningBulwark,
             "charge" => PokemonVolatileStatus::Charge,
             "confusion" => PokemonVolatileStatus::Confusion,
             "curse" => PokemonVolatileStatus::Curse,

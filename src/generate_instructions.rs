@@ -1287,6 +1287,9 @@ fn update_choice(
             .contains(&PokemonVolatileStatus::BanefulBunker)
         || defending_side
             .volatile_statuses
+            .contains(&PokemonVolatileStatus::BurningBulwark)
+        || defending_side
+            .volatile_statuses
             .contains(&PokemonVolatileStatus::SilkTrap))
         && attacker_choice.flags.protect
     {
@@ -1312,6 +1315,15 @@ fn update_choice(
             attacker_choice.status = Some(Status {
                 target: MoveTarget::User,
                 status: PokemonStatus::Poison,
+            })
+        } else if defending_side
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::BurningBulwark)
+            && attacker_choice.flags.contact
+        {
+            attacker_choice.status = Some(Status {
+                target: MoveTarget::User,
+                status: PokemonStatus::Burn,
             })
         } else if defending_side
             .volatile_statuses
@@ -2587,6 +2599,7 @@ fn add_end_of_turn_instructions(
         let possible_statuses = [
             PokemonVolatileStatus::Protect,
             PokemonVolatileStatus::BanefulBunker,
+            PokemonVolatileStatus::BurningBulwark,
             PokemonVolatileStatus::SpikyShield,
             PokemonVolatileStatus::SilkTrap,
         ];
