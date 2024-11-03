@@ -1612,7 +1612,9 @@ pub fn ability_modify_attack_being_used(
                 attacker_choice.base_power *= 1.5;
 
                 // not the right place to put this, but good enough
-                if attacking_pkmn.status == PokemonStatus::Burn {
+                if attacking_pkmn.status == PokemonStatus::Burn
+                    && attacker_choice.category == MoveCategory::Physical
+                {
                     attacker_choice.base_power *= 2.0;
                 }
             }

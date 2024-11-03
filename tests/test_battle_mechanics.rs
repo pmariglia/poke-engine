@@ -10245,10 +10245,12 @@ fn test_ivycudgel_fire_against_flashfire() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-            side_ref: SideReference::SideTwo,
-            volatile_status: PokemonVolatileStatus::FlashFire,
-        })],
+        instruction_list: vec![Instruction::ApplyVolatileStatus(
+            ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::FlashFire,
+            },
+        )],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
