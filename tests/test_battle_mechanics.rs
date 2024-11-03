@@ -10923,6 +10923,60 @@ fn test_armortail_against_priority() {
 }
 
 #[test]
+fn test_upperhand_against_priority() {
+    let mut state = State::default();
+    state.side_two.get_active().maxhp = 300;
+    state.side_two.get_active().hp = 300;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::UPPERHAND,
+        Choices::QUICKATTACK,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 103,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Flinch,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Flinch,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_upperhand_against_non_priority() {
+    let mut state = State::default();
+    state.side_two.get_active().maxhp = 300;
+    state.side_two.get_active().hp = 300;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::UPPERHAND,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 48,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_moldbreaker_negating_armortail() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::MOLDBREAKER;

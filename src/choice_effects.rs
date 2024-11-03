@@ -426,6 +426,11 @@ pub fn modify_choice(
                 attacker_choice.base_power = 0.0;
             }
         }
+        Choices::UPPERHAND => {
+            if !(attacker_choice.first_move && defender_choice.priority > 0) {
+                attacker_choice.remove_all_effects()
+            }
+        }
         Choices::COLLISIONCOURSE | Choices::ELECTRODRIFT => {
             let defender_active = defending_side.get_active_immutable();
             if type_effectiveness_modifier(&attacker_choice.move_type, &defender_active.types) > 1.0

@@ -16952,6 +16952,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::UPPERHAND,
                 base_power: 65.0,
+                priority: 3,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::Fighting,
                 flags: Flags {
@@ -16959,6 +16960,11 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                secondaries: Some(vec![Secondary {
+                    chance: 100.0,
+                    target: MoveTarget::Opponent,
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                }]),
                 ..Default::default()
             },
         );
