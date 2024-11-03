@@ -147,6 +147,9 @@ pub enum Items {
     GRASSMEMORY,
     FAIRYMEMORY,
     ELECTRICMEMORY,
+    WELLSPRINGMASK,
+    HEARTHFLAMEMASK,
+    CORNERSTONEMASK,
 }
 
 pub fn get_choice_move_disable_instructions(
@@ -904,6 +907,17 @@ pub fn item_modify_attack_being_used(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     match attacking_side.get_active_immutable().item {
+        Items::WELLSPRINGMASK | Items::HEARTHFLAMEMASK | Items::CORNERSTONEMASK => {
+            if [
+                "ogerponwellspring",
+                "ogerponhearthflame",
+                "ogerponcornerstone",
+            ]
+            .contains(&attacking_side.get_active_immutable().id.as_str())
+            {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
         Items::BLACKBELT => {
             if attacking_choice.move_type == PokemonType::Fighting {
                 attacking_choice.base_power *= 1.2;

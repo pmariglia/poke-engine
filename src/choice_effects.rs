@@ -24,11 +24,28 @@ pub fn modify_choice(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     match attacker_choice.move_id {
-        Choices::RAGINGBULL if defending_side.side_conditions.reflect > 0 => {
+        Choices::IVYCUDGEL => {
+            let attacker = attacking_side.get_active_immutable();
+            match attacker.item {
+                Items::WELLSPRINGMASK => {
+                    attacker_choice.move_type = PokemonType::Water;
+                }
+                Items::HEARTHFLAMEMASK => {
+                    attacker_choice.move_type = PokemonType::Fire;
+                }
+                Items::CORNERSTONEMASK => {
+                    attacker_choice.move_type = PokemonType::Rock;
+                }
+                _ => {}
+            }
+        }
+        Choices::RAGINGBULL => {
             // this gives the correct result even though it's not the "correct" way to implement it
             // reflect is only removed if the move hits, but I don't have a way to check that
             // doubling the power ensures the same damage calculation
-            attacker_choice.base_power *= 2.0;
+            if defending_side.side_conditions.reflect > 0 {
+                attacker_choice.base_power *= 2.0;
+            }
             match attacking_side.get_active_immutable().id.as_str() {
                 "taurospaldeacombat" => {
                     attacker_choice.move_type = PokemonType::Fighting;

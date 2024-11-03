@@ -2036,6 +2036,9 @@ impl FromStr for Items {
             "GRASSMEMORY" => Ok(Items::GRASSMEMORY),
             "FAIRYMEMORY" => Ok(Items::FAIRYMEMORY),
             "ELECTRICMEMORY" => Ok(Items::ELECTRICMEMORY),
+            "WELLSPRINGMASK" => Ok(Items::WELLSPRINGMASK),
+            "HEARTHFLAMEMASK" => Ok(Items::HEARTHFLAMEMASK),
+            "CORNERSTONEMASK" => Ok(Items::CORNERSTONEMASK),
             _ => Ok(Items::UNKNOWNITEM),
         }
     }
