@@ -9617,6 +9617,35 @@ fn test_intrepidsword() {
 }
 
 #[test]
+fn test_emobdyaspectteal_switching_in() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::EMBODYASPECTTEAL;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Speed,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_slowstart_activates_on_switch_in() {
     let mut state = State::default();
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::SLOWSTART;
@@ -10197,6 +10226,28 @@ fn test_scrappy_versus_ghost_type() {
         instruction_list: vec![Instruction::Damage(DamageInstruction {
             side_ref: SideReference::SideTwo,
             damage_amount: 48,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_ivycudgel_fire_against_flashfire() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::HEARTHFLAMEMASK;
+    state.side_two.get_active().ability = Abilities::FLASHFIRE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::IVYCUDGEL,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+            side_ref: SideReference::SideTwo,
+            volatile_status: PokemonVolatileStatus::FlashFire,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);

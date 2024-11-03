@@ -1887,6 +1887,10 @@ impl FromStr for Abilities {
             "SIMPLE" => Ok(Abilities::SIMPLE),
             "NONE" => Ok(Abilities::NONE),
             "PURIFYINGSALT" => Ok(Abilities::PURIFYINGSALT),
+            "EMBODYASPECTWELLSPRING" => Ok(Abilities::EMBODYASPECTWELLSPRING),
+            "EMBODYASPECTCORNERSTONE" => Ok(Abilities::EMBODYASPECTCORNERSTONE),
+            "EMBODYASPECTHEARTHFLAME" => Ok(Abilities::EMBODYASPECTHEARTHFLAME),
+            "EMBODYASPECTTEAL" => Ok(Abilities::EMBODYASPECTTEAL),
             _ => Err(()),
         }
     }

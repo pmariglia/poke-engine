@@ -304,6 +304,10 @@ pub enum Abilities {
     SIMPLE,
     NONE,
     PURIFYINGSALT,
+    EMBODYASPECTWELLSPRING,
+    EMBODYASPECTCORNERSTONE,
+    EMBODYASPECTHEARTHFLAME,
+    EMBODYASPECTTEAL,
 }
 
 // https://bulbapedia.bulbagarden.net/wiki/Ignoring_Abilities#Ignorable_Abilities
@@ -892,6 +896,54 @@ pub fn ability_on_switch_in(
         return;
     }
     match active_pkmn.ability {
+        Abilities::EMBODYASPECTTEAL => {
+            if let Some(boost_instruction) = get_boost_instruction(
+                &attacking_side,
+                &PokemonBoostableStat::Speed,
+                &1,
+                side_ref,
+                side_ref,
+            ) {
+                state.apply_one_instruction(&boost_instruction);
+                instructions.instruction_list.push(boost_instruction);
+            }
+        }
+        Abilities::EMBODYASPECTWELLSPRING => {
+            if let Some(boost_instruction) = get_boost_instruction(
+                &attacking_side,
+                &PokemonBoostableStat::SpecialDefense,
+                &1,
+                side_ref,
+                side_ref,
+            ) {
+                state.apply_one_instruction(&boost_instruction);
+                instructions.instruction_list.push(boost_instruction);
+            }
+        }
+        Abilities::EMBODYASPECTCORNERSTONE => {
+            if let Some(boost_instruction) = get_boost_instruction(
+                &attacking_side,
+                &PokemonBoostableStat::Defense,
+                &1,
+                side_ref,
+                side_ref,
+            ) {
+                state.apply_one_instruction(&boost_instruction);
+                instructions.instruction_list.push(boost_instruction);
+            }
+        }
+        Abilities::EMBODYASPECTHEARTHFLAME => {
+            if let Some(boost_instruction) = get_boost_instruction(
+                &attacking_side,
+                &PokemonBoostableStat::Attack,
+                &1,
+                side_ref,
+                side_ref,
+            ) {
+                state.apply_one_instruction(&boost_instruction);
+                instructions.instruction_list.push(boost_instruction);
+            }
+        }
         Abilities::INTREPIDSWORD => {
             // no need to check for boost at +6 because we are switching in
             attacking_side.attack_boost += 1;
