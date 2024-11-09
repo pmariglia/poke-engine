@@ -1,5 +1,59 @@
 # Changelog
 
+## [v0.0.14](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.14) - 2024-11-09
+
+### Features
+
+- Add remaining gen9 moves - ([bf46836](https://github.com/pmariglia/poke-engine/commit/bf46836d579976bea72ce86fb9b9636a59d74314))
+
+- Implement burning bulwark - ([05df708](https://github.com/pmariglia/poke-engine/commit/05df70897d9a4da592d5130e9b20f31a2072fb6e))
+
+- Implement GigatonHammer and Bloodmoon - ([955ccc9](https://github.com/pmariglia/poke-engine/commit/955ccc9f645597a5970c950d762ab3e0a5d39725))
+
+- Implement electrodrift - ([0497bdf](https://github.com/pmariglia/poke-engine/commit/0497bdf7c87a527564eff378d1944107730cfe7c))
+
+- Comeuppance as metalburst clone - ([6329438](https://github.com/pmariglia/poke-engine/commit/63294380da38650735d5935d0e4b604a270ac5f8))
+
+- Implement meteorbeam and electroshot - ([526b839](https://github.com/pmariglia/poke-engine/commit/526b83987aca7a412aa796d8d629e6ef37f653fb))
+
+- Implement hardpress - ([e5bd684](https://github.com/pmariglia/poke-engine/commit/e5bd68454f9804dd0083bcd9ed317adb37eccf61))
+
+- Implement icespinner - ([344c1f4](https://github.com/pmariglia/poke-engine/commit/344c1f4ae50455bbc33d3a485a001360bf68cb9c))
+
+- Implement last respects - ([476d9b5](https://github.com/pmariglia/poke-engine/commit/476d9b53c31268d6137e7608f1a6e8400104bdc2))
+
+- Implement mortalspin - ([754212a](https://github.com/pmariglia/poke-engine/commit/754212a8dc96cd729ef0a39b30ab52a581fe4b8a))
+
+- Implement ragingbull - ([e9e80f9](https://github.com/pmariglia/poke-engine/commit/e9e80f9afcfac45b53beaea8560c4e89e884819b))
+
+- Thunderclap as suckerpunch clone - ([4ac9137](https://github.com/pmariglia/poke-engine/commit/4ac9137e5380f323df16cc3cfdd23a00703f2cfb))
+
+- Implement tidyup hazard/sub removal - ([91f5ba1](https://github.com/pmariglia/poke-engine/commit/91f5ba1c12bd615bc24dbc4ecb9939f113567d84))
+
+- Implement upperhand - ([c107790](https://github.com/pmariglia/poke-engine/commit/c10779069d96f22109cbd59efbff42e13323e8eb))
+
+- Implement ogerpon masks & ivycudgel - ([483bffd](https://github.com/pmariglia/poke-engine/commit/483bffd9fc15063e89a1e4cd7f946d8c3dd953b6))
+
+- Embody aspect abilities on switchin - ([b30099b](https://github.com/pmariglia/poke-engine/commit/b30099b78dec1e20e51a9b42947d1d545994867c))
+
+- [**breaking**] Terastallization (wip) - ([cb3fc51](https://github.com/pmariglia/poke-engine/commit/cb3fc514ce4853d9746b78c5190e1ff78d0ed59d))
+
+
+### Bug Fixes
+
+- Dont zero-out naturesmadness/ruination if target is immune to normal - thats only for superfang - ([8803a7d](https://github.com/pmariglia/poke-engine/commit/8803a7daa211b970d689be231a5319581644f4e8))
+
+
+### Miscellaneous Tasks
+
+- Remove unused flags - ([272cd0d](https://github.com/pmariglia/poke-engine/commit/272cd0d456e20acdd333b63240856cc3979ae6af))
+
+- Add slicing/wind flags - ([8df9a0b](https://github.com/pmariglia/poke-engine/commit/8df9a0b479e2ccade335563ca8468b7f72789c02))
+
+- Implement wind rider & sharpness - ([e23a473](https://github.com/pmariglia/poke-engine/commit/e23a473e16d60b8577896aceea1b8a828da8af9e))
+
+- Check for physical before negative guts burn bp reduction - ([86418ad](https://github.com/pmariglia/poke-engine/commit/86418ade42fefbf527b3935282d758e6c6ef8a7c))
+
 ## [v0.0.13](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.13) - 2024-10-25
 
 ### Features
