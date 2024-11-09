@@ -2019,6 +2019,7 @@ impl FromStr for Items {
             "TWISTEDSPOON" => Ok(Items::TWISTEDSPOON),
             "WACANBERRY" => Ok(Items::WACANBERRY),
             "WAVEINCENSE" => Ok(Items::WAVEINCENSE),
+            "MAGNET" => Ok(Items::MAGNET),
             "WEAKNESSPOLICY" => Ok(Items::WEAKNESSPOLICY),
             "WISEGLASSES" => Ok(Items::WISEGLASSES),
             "BLUNDERPOLICY" => Ok(Items::BLUNDERPOLICY),

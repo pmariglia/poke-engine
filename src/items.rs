@@ -87,6 +87,7 @@ pub enum Items {
     TWISTEDSPOON,
     WACANBERRY,
     WAVEINCENSE,
+    MAGNET,
     WEAKNESSPOLICY,
     WISEGLASSES,
     BLUNDERPOLICY,
@@ -1128,6 +1129,11 @@ pub fn item_modify_attack_being_used(
         }
         Items::WAVEINCENSE => {
             if attacking_choice.move_type == PokemonType::Water {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::MAGNET => {
+            if attacking_choice.move_type == PokemonType::Electric {
                 attacking_choice.base_power *= 1.2;
             }
         }
