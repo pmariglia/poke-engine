@@ -78,6 +78,7 @@ pub enum Instruction {
     DecrementTrickRoomTurnsRemaining,
     ToggleSideOneForceSwitch,
     ToggleSideTwoForceSwitch,
+    ToggleTerastallized(ToggleTerastallizedInstruction),
 }
 
 impl fmt::Debug for Instruction {
@@ -230,6 +231,9 @@ impl fmt::Debug for Instruction {
             }
             Instruction::ToggleBatonPassing(s) => {
                 write!(f, "ToggleBatonPassing {:?}", s.side_ref)
+            }
+            Instruction::ToggleTerastallized(s) => {
+                write!(f, "ToggleTerastallized {:?}", s.side_ref)
             }
             Instruction::SetLastUsedMove(s) => {
                 write!(
@@ -456,6 +460,11 @@ pub struct ToggleTrickRoomInstruction {
     pub currently_active: bool,
     pub new_trickroom_turns_remaining: i8,
     pub previous_trickroom_turns_remaining: i8,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ToggleTerastallizedInstruction {
+    pub side_ref: SideReference,
 }
 
 #[derive(Debug, PartialEq, Clone)]

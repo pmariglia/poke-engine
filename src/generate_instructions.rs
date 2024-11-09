@@ -11,7 +11,6 @@ use crate::choices::{
     Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, SideCondition, StatBoosts,
     Status, VolatileStatus, MOVES,
 };
-use crate::instruction::SetDamageDealtSideOneInstruction;
 use crate::instruction::SetDamageDealtSideTwoInstruction;
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
@@ -21,6 +20,7 @@ use crate::instruction::{
     ToggleTrickRoomInstruction,
 };
 use crate::instruction::{DecrementPPInstruction, SetLastUsedMoveInstruction};
+use crate::instruction::{SetDamageDealtSideOneInstruction, ToggleTerastallizedInstruction};
 use crate::state::PokemonMoveIndex;
 
 use crate::items::{
@@ -2672,6 +2672,7 @@ pub fn generate_instructions_from_move_pair(
     */
 
     let mut side_one_choice;
+    let mut s1_tera = false;
     match side_one_move {
         MoveChoice::Switch(switch_id) => {
             side_one_choice = Choice::default();
@@ -2682,12 +2683,18 @@ pub fn generate_instructions_from_move_pair(
             side_one_choice = state.side_one.get_active().moves[move_index].choice.clone();
             side_one_choice.move_index = *move_index;
         }
+        MoveChoice::MoveTera(move_index) => {
+            side_one_choice = state.side_one.get_active().moves[move_index].choice.clone();
+            side_one_choice.move_index = *move_index;
+            s1_tera = true;
+        }
         MoveChoice::None => {
             side_one_choice = Choice::default();
         }
     }
 
     let mut side_two_choice;
+    let mut s2_tera = false;
     match side_two_move {
         MoveChoice::Switch(switch_id) => {
             side_two_choice = Choice::default();
@@ -2698,13 +2705,41 @@ pub fn generate_instructions_from_move_pair(
             side_two_choice = state.side_two.get_active().moves[move_index].choice.clone();
             side_two_choice.move_index = *move_index;
         }
+        MoveChoice::MoveTera(move_index) => {
+            side_two_choice = state.side_two.get_active().moves[move_index].choice.clone();
+            side_two_choice.move_index = *move_index;
+            s2_tera = true;
+        }
         MoveChoice::None => {
             side_two_choice = Choice::default();
         }
     }
 
     let mut state_instructions_vec: Vec<StateInstructions> = Vec::with_capacity(16);
-    let incoming_instructions: StateInstructions = StateInstructions::default();
+    let mut incoming_instructions: StateInstructions = StateInstructions::default();
+
+    // Run terstallization type changes
+    // Note: only create/apply instructions, don't apply changes
+    // generate_instructions_from_move() assumes instructions have not been applied
+    if s1_tera {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::ToggleTerastallized(
+                ToggleTerastallizedInstruction {
+                    side_ref: SideReference::SideOne,
+                },
+            ));
+    }
+    if s2_tera {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::ToggleTerastallized(
+                ToggleTerastallizedInstruction {
+                    side_ref: SideReference::SideTwo,
+                },
+            ));
+    }
+
     let first_move_side;
     if side_one_moves_first(&state, &side_one_choice, &side_two_choice) {
         first_move_side = SideReference::SideOne;

@@ -172,6 +172,9 @@ impl Side {
 
     fn option_to_string(&self, option: &MoveChoice) -> String {
         match option {
+            MoveChoice::MoveTera(index) => {
+                format!("{}-tera", self.get_active_immutable().moves[index].id).to_lowercase()
+            }
             MoveChoice::Move(index) => {
                 format!("{}", self.get_active_immutable().moves[index].id).to_lowercase()
             }
@@ -192,10 +195,24 @@ impl Side {
                 return Some(MoveChoice::Switch(pkmn_iter.pokemon_index));
             }
         }
+
+        // check if s endswith `-tera`
+        // if it does, find the move with the name and return MoveChoice::MoveTera
+        // if it doesn't, find the move with the name and return MoveChoice::Move
         let mut move_iter = self.get_active_immutable().moves.into_iter();
-        while let Some(mv) = move_iter.next() {
-            if format!("{:?}", mv.id).to_lowercase() == s {
-                return Some(MoveChoice::Move(move_iter.pokemon_move_index));
+        let mut move_name = s;
+        if move_name.ends_with("-tera") {
+            move_name = move_name[..move_name.len() - 5].to_string();
+            while let Some(mv) = move_iter.next() {
+                if format!("{:?}", mv.id).to_lowercase() == move_name {
+                    return Some(MoveChoice::MoveTera(move_iter.pokemon_move_index));
+                }
+            }
+        } else {
+            while let Some(mv) = move_iter.next() {
+                if format!("{:?}", mv.id).to_lowercase() == move_name {
+                    return Some(MoveChoice::Move(move_iter.pokemon_move_index));
+                }
             }
         }
 
@@ -247,7 +264,7 @@ pub fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
 
     if state.side_one.force_trapped {
         s1_options.retain(|x| match x {
-            MoveChoice::Move(_) => true,
+            MoveChoice::Move(_) | MoveChoice::MoveTera(_) => true,
             MoveChoice::Switch(_) => false,
             MoveChoice::None => true,
         });
@@ -262,12 +279,13 @@ pub fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
             &mut s1_options,
             &state.side_one.last_used_move,
             encored,
+            state.side_one.can_use_tera(),
         );
     }
 
     if state.side_two.force_trapped {
         s2_options.retain(|x| match x {
-            MoveChoice::Move(_) => true,
+            MoveChoice::Move(_) | MoveChoice::MoveTera(_) => true,
             MoveChoice::Switch(_) => false,
             MoveChoice::None => true,
         });
@@ -282,6 +300,7 @@ pub fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
             &mut s2_options,
             &state.side_two.last_used_move,
             encored,
+            state.side_two.can_use_tera(),
         );
     }
 
@@ -309,6 +328,11 @@ fn pprint_expectiminimax_result(
 
     for s2_move in s2_options.iter() {
         match s2_move {
+            MoveChoice::MoveTera(m) => {
+                let s2_move_str =
+                    format!("{}-tera", state.side_two.get_active_immutable().moves[m].id);
+                print!("{: >12}", s2_move_str.to_lowercase());
+            }
             MoveChoice::Move(m) => {
                 let s2_move_str = format!("{}", state.side_two.get_active_immutable().moves[m].id);
                 print!("{: >12}", s2_move_str.to_lowercase());
@@ -325,6 +349,13 @@ fn pprint_expectiminimax_result(
     for i in 0..s1_len {
         let s1_move_str = s1_options[i];
         match s1_move_str {
+            MoveChoice::MoveTera(m) => {
+                let move_id = format!(
+                    "{}-tera",
+                    state.side_one.get_active_immutable().moves[&m].id
+                );
+                print!("{:<12}", move_id.to_string().to_lowercase());
+            }
             MoveChoice::Move(m) => {
                 let move_id = state.side_one.get_active_immutable().moves[&m].id;
                 print!("{:<12}", move_id.to_string().to_lowercase());
@@ -342,6 +373,17 @@ fn pprint_expectiminimax_result(
         print!("\n");
     }
     match s1_options[safest_choice.0] {
+        MoveChoice::MoveTera(m) => {
+            let move_id = format!(
+                "{}-tera",
+                state.side_one.get_active_immutable().moves[&m].id
+            );
+            print!(
+                "\nSafest Choice: {}, {}\n",
+                move_id.to_string().to_lowercase(),
+                safest_choice.1
+            );
+        }
         MoveChoice::Move(m) => {
             let move_id = state.side_one.get_active_immutable().moves[&m].id;
             print!(
@@ -439,6 +481,9 @@ fn pprint_state_instruction_vector(instructions: &Vec<StateInstructions>) {
 
 fn get_move_id_from_movechoice(side: &Side, move_choice: &MoveChoice) -> String {
     match move_choice {
+        MoveChoice::MoveTera(index) => {
+            format!("{}-tera", side.get_active_immutable().moves[&index].id).to_lowercase()
+        }
         MoveChoice::Move(index) => {
             format!("{}", side.get_active_immutable().moves[&index].id).to_lowercase()
         }
@@ -477,6 +522,12 @@ fn print_subcommand_result(
         .join(",");
     println!("matrix: {}", joined);
     match move_choice {
+        MoveChoice::MoveTera(_) => {
+            println!(
+                "choice: {}-tera",
+                get_move_id_from_movechoice(&state.side_one, &move_choice)
+            );
+        }
         MoveChoice::Move(_) => {
             println!(
                 "choice: {}",

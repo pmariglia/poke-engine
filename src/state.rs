@@ -55,6 +55,7 @@ pub enum LastUsedMove {
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone, Hash)]
 pub enum MoveChoice {
+    MoveTera(PokemonMoveIndex),
     Move(PokemonMoveIndex),
     Switch(PokemonIndex),
     None,
@@ -63,6 +64,9 @@ pub enum MoveChoice {
 impl MoveChoice {
     pub fn to_string(&self, side: &Side) -> String {
         match self {
+            MoveChoice::MoveTera(index) => {
+                format!("{}-tera", side.get_active_immutable().moves[index].id).to_lowercase()
+            }
             MoveChoice::Move(index) => {
                 format!("{}", side.get_active_immutable().moves[index].id).to_lowercase()
             }
@@ -277,6 +281,7 @@ pub enum PokemonType {
     Dark,
     Steel,
     Fairy,
+    Stellar,
     Typeless,
 }
 
@@ -484,6 +489,8 @@ pub struct Pokemon {
     pub rest_turns: i8,
     pub sleep_turns: i8,
     pub weight_kg: f32,
+    pub terastallized: bool,
+    pub tera_type: PokemonType,
     pub moves: PokemonMoves,
 }
 
@@ -517,6 +524,7 @@ impl Pokemon {
         vec: &mut Vec<MoveChoice>,
         last_used_move: &LastUsedMove,
         encored: bool,
+        can_tera: bool,
     ) {
         let mut iter = self.moves.into_iter();
         while let Some(p) = iter.next() {
@@ -546,6 +554,9 @@ impl Pokemon {
                     }
                 }
                 vec.push(MoveChoice::Move(iter.pokemon_move_index));
+                if can_tera {
+                    vec.push(MoveChoice::MoveTera(iter.pokemon_move_index));
+                }
             }
         }
     }
@@ -712,6 +723,8 @@ impl Default for Pokemon {
             rest_turns: 0,
             sleep_turns: 0,
             weight_kg: 1.0,
+            terastallized: false,
+            tera_type: PokemonType::Normal,
             moves: PokemonMoves {
                 m0: Default::default(),
                 m1: Default::default(),
@@ -991,6 +1004,21 @@ impl Side {
             }
         }
         false
+    }
+
+    #[cfg(not(feature = "terastallization"))]
+    pub fn can_use_tera(&self) -> bool {
+        false
+    }
+
+    #[cfg(feature = "terastallization")]
+    pub fn can_use_tera(&self) -> bool {
+        for p in self.pokemon.into_iter() {
+            if p.terastallized {
+                return false;
+            }
+        }
+        true
     }
 
     fn toggle_force_switch(&mut self) {
@@ -1280,6 +1308,7 @@ impl State {
             &mut side_one_options,
             &self.side_one.last_used_move,
             encored,
+            self.side_one.can_use_tera(),
         );
 
         if !self.side_one.trapped(side_two_active) {
@@ -1294,6 +1323,7 @@ impl State {
             &mut side_two_options,
             &self.side_two.last_used_move,
             encored,
+            self.side_two.can_use_tera(),
         );
 
         if !self.side_two.trapped(side_one_active) {
@@ -1915,6 +1945,10 @@ impl State {
                     self.side_two.baton_passing = !self.side_two.baton_passing
                 }
             },
+            Instruction::ToggleTerastallized(instruction) => match instruction.side_ref {
+                SideReference::SideOne => self.side_one.get_active().terastallized ^= true,
+                SideReference::SideTwo => self.side_two.get_active().terastallized ^= true,
+            },
             Instruction::SetLastUsedMove(instruction) => {
                 self.set_last_used_move(&instruction.side_ref, instruction.last_used_move)
             }
@@ -2052,6 +2086,10 @@ impl State {
                 SideReference::SideTwo => {
                     self.side_two.baton_passing = !self.side_two.baton_passing
                 }
+            },
+            Instruction::ToggleTerastallized(instruction) => match instruction.side_ref {
+                SideReference::SideOne => self.side_one.get_active().terastallized ^= true,
+                SideReference::SideTwo => self.side_two.get_active().terastallized ^= true,
             },
             Instruction::SetLastUsedMove(instruction) => {
                 self.set_last_used_move(&instruction.side_ref, instruction.previous_last_used_move)

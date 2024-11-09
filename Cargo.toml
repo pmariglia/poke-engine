@@ -31,6 +31,7 @@ gen6 = []
 gen7 = []
 gen8 = []
 gen9 = []
+terastallization = ["gen9"]
 
 default = []
 

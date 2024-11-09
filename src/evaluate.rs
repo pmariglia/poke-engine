@@ -4,6 +4,7 @@ use crate::state::{Pokemon, PokemonStatus, PokemonVolatileStatus, State};
 
 const POKEMON_ALIVE: f32 = 30.0;
 const POKEMON_HP: f32 = 100.0;
+const USED_TERA: f32 = -50.0;
 
 const POKEMON_ATTACK_BOOST: f32 = 30.0;
 const POKEMON_DEFENSE_BOOST: f32 = 15.0;
@@ -116,13 +117,21 @@ pub fn evaluate(state: &State) -> f32 {
     let mut side_two_alive_count: f32 = 0.0;
 
     let iter = state.side_one.pokemon.into_iter();
+    let mut s1_used_tera = false;
     for pkmn in iter {
         if pkmn.hp > 0 {
             side_one_alive_count += 1.0;
             score += evaluate_pokemon(pkmn);
         }
+        if pkmn.terastallized {
+            s1_used_tera = true;
+        }
+    }
+    if s1_used_tera {
+        score += USED_TERA;
     }
     let iter = state.side_two.pokemon.into_iter();
+    let mut s2_used_tera = false;
     for pkmn in iter {
         if pkmn.hp > 0 {
             side_two_alive_count += 1.0;
@@ -131,6 +140,12 @@ pub fn evaluate(state: &State) -> f32 {
             // level == 1 represents an un-revealed pokemon
             side_two_alive_count += 1.0;
         }
+        if pkmn.terastallized {
+            s2_used_tera = true;
+        }
+    }
+    if s2_used_tera {
+        score -= USED_TERA;
     }
 
     for vs in state.side_one.volatile_statuses.iter() {

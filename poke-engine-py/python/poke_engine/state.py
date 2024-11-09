@@ -73,6 +73,10 @@ class Pokemon:
     :type weight_kg: float
     :param moves: The moves of the Pokemon
     :type moves: list[Move]
+    :param terastallized: Whether or not the Pokemon is terastallized
+    :type terastallized: bool
+    :param tera_type: The tera-type of the Pokemon
+    :type tera_type: str
     """
 
     id: str = ""
@@ -92,6 +96,8 @@ class Pokemon:
     sleep_turns: int = 0
     weight_kg: float = 0
     moves: list[Move] = field(default_factory=list)
+    terastallized: bool = False
+    tera_type: str = "typeless"
 
     def _into_rust_obj(self):
         if len(self.types) == 1:
@@ -115,6 +121,8 @@ class Pokemon:
             sleep_turns=self.sleep_turns,
             weight_kg=self.weight_kg,
             moves=[m._into_rust_obj() for m in self.moves],
+            terastallized=self.terastallized,
+            tera_type=self.tera_type,
         )
 
 

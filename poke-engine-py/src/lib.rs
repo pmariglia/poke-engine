@@ -108,12 +108,9 @@ impl PySide {
         for vs in volatile_statuses {
             vs_hashset.insert(PokemonVolatileStatus::deserialize(&vs));
         }
-
-        let remaining_pkmn = 6 - pokemon.len();
-        for _ in 0..remaining_pkmn {
+        while pokemon.len() < 6 {
             pokemon.push(PyPokemon::create_fainted());
         }
-
         PySide {
             side: Side {
                 active_index: PokemonIndex::deserialize(&active_index),
@@ -251,9 +248,10 @@ impl PyPokemon {
         sleep_turns: i8,
         weight_kg: f32,
         mut moves: Vec<PyMove>,
+        terastallized: bool,
+        tera_type: String,
     ) -> Self {
-        let remaining_pkmn = 6 - moves.len();
-        for _ in 0..remaining_pkmn {
+        while moves.len() < 6 {
             moves.push(PyMove::create_empty_move());
         }
         PyPokemon {
@@ -285,6 +283,8 @@ impl PyPokemon {
                     m4: moves[4].create_move(),
                     m5: moves[5].create_move(),
                 },
+                terastallized,
+                tera_type: PokemonType::deserialize(&tera_type),
             },
         }
     }

@@ -87,6 +87,7 @@ fn type_enum_to_type_matchup_int(type_enum: &PokemonType) -> usize {
         PokemonType::Steel => 16,
         PokemonType::Fairy => 17,
         PokemonType::Typeless => 18,
+        PokemonType::Stellar => panic!("Stellar is not a valid type for type calculations"),
     }
 }
 
@@ -131,13 +132,21 @@ fn weather_modifier(attacking_move_type: &PokemonType, weather: &Weather) -> f32
     }
 }
 
-fn stab_modifier(
-    attacking_move_type: &PokemonType,
-    active_types: &(PokemonType, PokemonType),
-) -> f32 {
-    if attacking_move_type != &PokemonType::Typeless
-        && (attacking_move_type == &active_types.0 || attacking_move_type == &active_types.1)
-    {
+fn stab_modifier(attacking_move_type: &PokemonType, active_pkmn: &Pokemon) -> f32 {
+    if attacking_move_type == &PokemonType::Typeless {
+        return 1.0;
+    }
+
+    let active_types = active_pkmn.types;
+    let move_has_basic_stab =
+        attacking_move_type == &active_types.0 || attacking_move_type == &active_types.1;
+    if active_pkmn.terastallized {
+        if &active_pkmn.tera_type == attacking_move_type && move_has_basic_stab {
+            return 2.0;
+        } else if &active_pkmn.tera_type == attacking_move_type || move_has_basic_stab {
+            return 1.5;
+        }
+    } else if move_has_basic_stab {
         return 1.5;
     }
     1.0
@@ -246,6 +255,42 @@ fn volatile_status_modifier(choice: &Choice, attacking_side: &Side, defending_si
     }
 
     modifier
+}
+
+fn get_defending_types(
+    side: &Side,
+    defending_pkmn: &Pokemon,
+    attacking_pkmn: &Pokemon,
+    attacking_choice: &Choice,
+) -> (PokemonType, PokemonType) {
+    if defending_pkmn.terastallized && !(defending_pkmn.tera_type == PokemonType::Stellar) {
+        return (defending_pkmn.tera_type, PokemonType::Typeless);
+    }
+    let mut defender_types = defending_pkmn.types;
+    if side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::Roost)
+    {
+        if defender_types.0 == PokemonType::Flying {
+            defender_types = (PokemonType::Typeless, defender_types.1);
+        }
+        if defender_types.1 == PokemonType::Flying {
+            defender_types = (defender_types.0, PokemonType::Typeless);
+        }
+    }
+    if (attacking_pkmn.ability == Abilities::SCRAPPY
+        || attacking_pkmn.ability == Abilities::MINDSEYE)
+        && (attacking_choice.move_type == PokemonType::Normal
+            || attacking_choice.move_type == PokemonType::Fighting)
+    {
+        if defender_types.0 == PokemonType::Ghost {
+            defender_types = (PokemonType::Typeless, defender_types.1);
+        }
+        if defender_types.1 == PokemonType::Ghost {
+            defender_types = (defender_types.0, PokemonType::Typeless);
+        }
+    }
+    defender_types
 }
 
 fn get_attacking_and_defending_stats(
@@ -399,28 +444,7 @@ pub fn calculate_damage(
     damage = damage.floor() / 50.0;
     damage = damage.floor() + 2.0;
 
-    let mut defender_types = defender.types;
-    if defending_side
-        .volatile_statuses
-        .contains(&PokemonVolatileStatus::Roost)
-    {
-        if defender_types.0 == PokemonType::Flying {
-            defender_types = (PokemonType::Typeless, defender_types.1);
-        }
-        if defender_types.1 == PokemonType::Flying {
-            defender_types = (defender_types.0, PokemonType::Typeless);
-        }
-    }
-    if (attacker.ability == Abilities::SCRAPPY || attacker.ability == Abilities::MINDSEYE)
-        && (choice.move_type == PokemonType::Normal || choice.move_type == PokemonType::Fighting)
-    {
-        if defender_types.0 == PokemonType::Ghost {
-            defender_types = (PokemonType::Typeless, defender_types.1);
-        }
-        if defender_types.1 == PokemonType::Ghost {
-            defender_types = (defender_types.0, PokemonType::Typeless);
-        }
-    }
+    let defender_types = get_defending_types(&defending_side, defender, attacker, choice);
 
     let mut damage_modifier = 1.0;
     damage_modifier *= type_effectiveness_modifier(&choice.move_type, &defender_types);
@@ -433,7 +457,7 @@ pub fn calculate_damage(
         damage_modifier *= weather_modifier(&choice.move_type, &state.weather.weather_type);
     }
 
-    damage_modifier *= stab_modifier(&choice.move_type, &attacker.types);
+    damage_modifier *= stab_modifier(&choice.move_type, &attacker);
     damage_modifier *= burn_modifier(&choice.category, &attacker.status);
     damage_modifier *= volatile_status_modifier(&choice, attacking_side, defending_side);
     damage_modifier *= terrain_modifier(&state.terrain.terrain_type, attacker, defender, &choice);

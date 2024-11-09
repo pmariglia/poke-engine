@@ -143,6 +143,7 @@ fn test_last_used_move_overwritten_when_dragged_out() {
 }
 
 #[test]
+#[cfg(not(feature = "terastallization"))]
 fn test_encore_causes_get_all_options_to_only_allow_last_used_move() {
     let mut state = State::default();
     state.use_last_used_move = true;
@@ -172,6 +173,7 @@ fn test_encore_causes_get_all_options_to_only_allow_last_used_move() {
 }
 
 #[test]
+#[cfg(not(feature = "terastallization"))]
 fn test_encore_and_arenatrapped_together() {
     let mut state = State::default();
     state.use_last_used_move = true;
@@ -195,6 +197,7 @@ fn test_encore_and_arenatrapped_together() {
 }
 
 #[test]
+#[cfg(not(feature = "terastallization"))]
 fn test_encore_slow() {
     let mut state = State::default();
     state.use_last_used_move = true;
@@ -261,6 +264,7 @@ fn test_encore_slow() {
 }
 
 #[test]
+#[cfg(not(feature = "terastallization"))]
 fn test_encore_slow_into_substitute() {
     let mut state = State::default();
     state.use_last_used_move = true;

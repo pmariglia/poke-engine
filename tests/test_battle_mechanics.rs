@@ -9,7 +9,7 @@ use poke_engine::instruction::{
     Instruction, RemoveVolatileStatusInstruction, SetSecondMoveSwitchOutMoveInstruction,
     SetSleepTurnsInstruction, SetSubstituteHealthInstruction, SetWishInstruction,
     StateInstructions, SwitchInstruction, ToggleBatonPassingInstruction,
-    ToggleTrickRoomInstruction,
+    ToggleTerastallizedInstruction, ToggleTrickRoomInstruction,
 };
 use poke_engine::items::Items;
 use poke_engine::state::{
@@ -4699,6 +4699,7 @@ fn test_pkmn_is_not_trapped_if_it_has_fainted() {
 }
 
 #[test]
+#[cfg(not(feature = "terastallization"))]
 fn test_cannot_use_bloodmoon_after_using_bloodmoon() {
     let mut state = State::default();
 
@@ -4743,6 +4744,97 @@ fn test_cannot_use_bloodmoon_after_using_bloodmoon() {
 }
 
 #[test]
+#[cfg(feature = "terastallization")]
+fn test_terastallization_side_one() {
+    let mut state = State::default();
+    state.side_two.pokemon[PokemonIndex::P0].terastallized = true; // s2 cannot tera
+
+    let (side_one_moves, side_two_moves) = state.get_all_options();
+
+    assert_eq!(
+        vec![
+            // can tera
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::MoveTera(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::MoveTera(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::MoveTera(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::MoveTera(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_one_moves
+    );
+
+    assert_eq!(
+        vec![
+            // cannot tera
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_two_moves
+    );
+}
+
+#[test]
+#[cfg(feature = "terastallization")]
+fn test_terastallization_side_two() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P0].terastallized = true; // s1 cannot tera
+
+    let (side_one_moves, side_two_moves) = state.get_all_options();
+
+    assert_eq!(
+        vec![
+            // cannot tera
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_one_moves
+    );
+
+    assert_eq!(
+        vec![
+            // can tera
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::MoveTera(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::MoveTera(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::MoveTera(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::MoveTera(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_two_moves
+    );
+}
+
+#[test]
+#[cfg(not(feature = "terastallization"))]
 fn test_cannot_use_gigatonhammer_after_using_gigatonhammer() {
     let mut state = State::default();
 
@@ -4787,6 +4879,7 @@ fn test_cannot_use_gigatonhammer_after_using_gigatonhammer() {
 }
 
 #[test]
+#[cfg(not(feature = "terastallization"))]
 fn test_can_use_gigatonhammer_after_using_switch() {
     let mut state = State::default();
 
@@ -4831,6 +4924,7 @@ fn test_can_use_gigatonhammer_after_using_switch() {
 }
 
 #[test]
+#[cfg(not(feature = "terastallization"))]
 fn test_can_use_bloodmoon_after_using_switch() {
     let mut state = State::default();
 
@@ -4875,6 +4969,7 @@ fn test_can_use_bloodmoon_after_using_switch() {
 }
 
 #[test]
+#[cfg(not(feature = "terastallization"))]
 fn test_arenatrap_traps_opponent() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::ARENATRAP;
@@ -4909,6 +5004,7 @@ fn test_arenatrap_traps_opponent() {
 }
 
 #[test]
+#[cfg(not(feature = "terastallization"))]
 fn test_arenatrap_does_not_trap_flying() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::ARENATRAP;
@@ -4948,6 +5044,7 @@ fn test_arenatrap_does_not_trap_flying() {
 }
 
 #[test]
+#[cfg(not(feature = "terastallization"))]
 fn test_arenatrap_does_not_trap_ghost() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::ARENATRAP;
@@ -4987,6 +5084,7 @@ fn test_arenatrap_does_not_trap_ghost() {
 }
 
 #[test]
+#[cfg(not(feature = "terastallization"))]
 fn test_arenatrap_does_not_trap_shedshell() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::ARENATRAP;
@@ -5048,6 +5146,7 @@ fn test_turn_after_switch_out_move_other_side_does_nothing() {
 }
 
 #[test]
+#[cfg(not(feature = "terastallization"))]
 fn test_lockedmove_prevents_switches() {
     let mut state = State::default();
     state
@@ -5068,6 +5167,7 @@ fn test_lockedmove_prevents_switches() {
 }
 
 #[test]
+#[cfg(not(feature = "terastallization"))]
 fn test_zero_pp_move_cannot_be_used() {
     let mut state = State::default();
     state.side_one.get_active().moves[&PokemonMoveIndex::M0].pp = 0;
@@ -10311,6 +10411,33 @@ fn test_scrappy_fighting_move_becomes_supereffective_against_ghost_normal() {
 }
 
 #[test]
+fn test_terastallizing() {
+    let mut state = State::default();
+    state.side_one.get_active().tera_type = PokemonType::Grass;
+    state.side_two.get_active().tera_type = PokemonType::Fire;
+    state.side_one.get_active().terastallized = false;
+    state.side_two.get_active().terastallized = false;
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::MoveTera(PokemonMoveIndex::M0),
+        &MoveChoice::MoveTera(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleTerastallized(ToggleTerastallizedInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+            Instruction::ToggleTerastallized(ToggleTerastallizedInstruction {
+                side_ref: SideReference::SideTwo,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_substitute_versus_intimidate() {
     let mut state = State::default();
     state
@@ -10460,6 +10587,168 @@ fn test_adrenaline_orb_activates_if_immune_to_intimidate() {
             previous_index: PokemonIndex::P0,
             next_index: PokemonIndex::P1,
         })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_terastallized_into_ghost_makes_immune_to_normal() {
+    let mut state = State::default();
+    state.side_two.get_active().tera_type = PokemonType::Ghost;
+    state.side_two.get_active().terastallized = true;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_normal_terastallized_into_stellar_remains_immune_to_ghost() {
+    let mut state = State::default();
+    state.side_two.get_active().tera_type = PokemonType::Stellar;
+    state.side_two.get_active().terastallized = true;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SHADOWBALL,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_tera_double_stab() {
+    let mut state = State::default();
+    state.side_one.get_active().types = (PokemonType::Normal, PokemonType::Typeless);
+    state.side_one.get_active().tera_type = PokemonType::Normal;
+    state.side_one.get_active().terastallized = true;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 64, // 48 normally
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_tera_stab_without_an_original_type_in_tera_types() {
+    let mut state = State::default();
+    state.side_one.get_active().types = (PokemonType::Grass, PokemonType::Typeless);
+    state.side_one.get_active().tera_type = PokemonType::Normal;
+    state.side_one.get_active().terastallized = true;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 48, // 48 is normal 1.5x STAB
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_tera_without_any_stab() {
+    let mut state = State::default();
+    state.side_one.get_active().types = (PokemonType::Grass, PokemonType::Typeless);
+    state.side_one.get_active().tera_type = PokemonType::Water;
+    state.side_one.get_active().terastallized = true;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 32, // 48 is normal 1.5x STAB
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_tera_with_original_type_stab() {
+    let mut state = State::default();
+    state.side_one.get_active().types = (PokemonType::Normal, PokemonType::Typeless);
+    state.side_one.get_active().tera_type = PokemonType::Water;
+    state.side_one.get_active().terastallized = true;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 48, // 48 is normal 1.5x STAB
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_cannot_lose_tera_flying_type_with_roost() {
+    let mut state = State::default();
+    state.side_two.get_active().tera_type = PokemonType::Flying;
+    state.side_two.get_active().terastallized = true;
+
+    // ensure roost happens first
+    state.side_two.get_active().speed = 200;
+    state.side_one.get_active().speed = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::EARTHQUAKE,
+        Choices::ROOST,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Roost,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Roost,
+            }),
+        ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

@@ -32,10 +32,14 @@ gen7:
 gen8:
 	cargo build --release --features gen8 --no-default-features
 
+gen9:
+	cargo build --release --features gen9,terastallization --no-default-features
+
 pytest:
 	. venv/bin/activate && pytest --rootdir=poke-engine-py/python poke-engine-py/python/tests
 
 test: pytest
+	cargo test --no-default-features --features "terastallization"
 	cargo test --no-default-features --features "gen9"
 	cargo test --no-default-features --features "gen8"
 	cargo test --no-default-features --features "gen7"
