@@ -256,6 +256,17 @@ pub fn modify_choice(
                 amount: defender_attack as f32 / attacker_maxhp as f32,
             });
         }
+        Choices::TERABLAST => {
+            let active = attacking_side.get_active_immutable();
+            if active.terastallized {
+                attacker_choice.move_type = active.tera_type;
+                if attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack)
+                    > attacking_side.calculate_boosted_stat(PokemonBoostableStat::SpecialAttack)
+                {
+                    attacker_choice.category = MoveCategory::Physical;
+                }
+            }
+        }
         Choices::TERRAINPULSE => match state.terrain.terrain_type {
             Terrain::ElectricTerrain => {
                 attacker_choice.move_type = PokemonType::Electric;

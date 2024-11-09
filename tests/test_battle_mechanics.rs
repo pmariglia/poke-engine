@@ -13,9 +13,9 @@ use poke_engine::instruction::{
 };
 use poke_engine::items::Items;
 use poke_engine::state::{
-    pokemon_index_iter, LastUsedMove, Move, MoveChoice, PokemonBoostableStat, PokemonIndex,
-    PokemonMoveIndex, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus,
-    SideReference, State, StateWeather, Terrain, Weather,
+    pokemon_index_iter, Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
+    PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State,
+    StateWeather, Terrain, Weather,
 };
 
 fn generate_instructions_with_state_assertion(
@@ -3808,6 +3808,50 @@ fn test_terrainpulse_gen9() {
         instruction_list: vec![Instruction::Damage(DamageInstruction {
             side_ref: SideReference::SideTwo,
             damage_amount: 102,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_terablast_into_ghost_makes_normal_immune() {
+    let mut state = State::default();
+    state.side_one.get_active().tera_type = PokemonType::Ghost;
+    state.side_one.get_active().terastallized = true;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TERABLAST,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_terablast_becomes_physical() {
+    let mut state = State::default();
+    state.side_one.get_active().tera_type = PokemonType::Water;
+    state.side_one.get_active().terastallized = true;
+    state.side_one.get_active().attack = 150;
+    state.side_two.get_active().maxhp = 300;
+    state.side_two.get_active().hp = 300;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TERABLAST,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 141, // boosted from 95 because attack increased
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
