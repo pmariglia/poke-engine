@@ -152,6 +152,7 @@ pub enum Items {
     WELLSPRINGMASK,
     HEARTHFLAMEMASK,
     CORNERSTONEMASK,
+    WIDELENS,
 }
 
 pub fn get_choice_move_disable_instructions(

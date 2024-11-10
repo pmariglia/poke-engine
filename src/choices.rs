@@ -18107,6 +18107,7 @@ pub enum MultiHitMove {
     DoubleHit,
     TripleHit,
     TwoToFiveHits,
+    PopulationBomb,
 }
 
 pub enum MultiAccuracyMove {
@@ -19077,6 +19078,7 @@ impl Choice {
             Choices::TWINBEAM => MultiHitMove::DoubleHit,
             Choices::TWINEEDLE => MultiHitMove::DoubleHit,
             Choices::WATERSHURIKEN => MultiHitMove::TwoToFiveHits,
+            Choices::POPULATIONBOMB => MultiHitMove::PopulationBomb,
             _ => MultiHitMove::None,
         }
     }

@@ -1077,59 +1077,61 @@ fn generate_instructions_from_damage(
             let defending_pokemon = defending_side.get_active();
             let mut knocked_out = false;
             damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
-            if (defending_pokemon.ability == Abilities::STURDY
-                || defending_pokemon.item == Items::FOCUSSASH)
-                && defending_pokemon.maxhp == defending_pokemon.hp
-            {
-                damage_dealt -= 1;
-            }
+            if damage_dealt != 0 {
+                if (defending_pokemon.ability == Abilities::STURDY
+                    || defending_pokemon.item == Items::FOCUSSASH)
+                    && defending_pokemon.maxhp == defending_pokemon.hp
+                {
+                    damage_dealt -= 1;
+                }
 
-            if damage_dealt >= defending_pokemon.hp {
-                knocked_out = true;
-            }
+                if damage_dealt >= defending_pokemon.hp {
+                    knocked_out = true;
+                }
 
-            let damage_instruction = Instruction::Damage(DamageInstruction {
-                side_ref: attacking_side_ref.get_other_side(),
-                damage_amount: damage_dealt,
-            });
-            defending_pokemon.hp -= damage_dealt;
-            incoming_instructions
-                .instruction_list
-                .push(damage_instruction);
-
-            if knocked_out
-                && defending_side
-                    .volatile_statuses
-                    .contains(&PokemonVolatileStatus::DestinyBond)
-            {
                 let damage_instruction = Instruction::Damage(DamageInstruction {
-                    side_ref: *attacking_side_ref,
-                    damage_amount: attacking_pokemon.hp,
+                    side_ref: attacking_side_ref.get_other_side(),
+                    damage_amount: damage_dealt,
                 });
-                attacking_pokemon.hp = 0;
+                defending_pokemon.hp -= damage_dealt;
                 incoming_instructions
                     .instruction_list
                     .push(damage_instruction);
-            }
 
-            if should_use_damage_dealt {
-                set_damage_dealt(
-                    attacking_side,
+                if knocked_out
+                    && defending_side
+                        .volatile_statuses
+                        .contains(&PokemonVolatileStatus::DestinyBond)
+                {
+                    let damage_instruction = Instruction::Damage(DamageInstruction {
+                        side_ref: *attacking_side_ref,
+                        damage_amount: attacking_pokemon.hp,
+                    });
+                    attacking_pokemon.hp = 0;
+                    incoming_instructions
+                        .instruction_list
+                        .push(damage_instruction);
+                }
+
+                if should_use_damage_dealt {
+                    set_damage_dealt(
+                        attacking_side,
+                        attacking_side_ref,
+                        damage_dealt,
+                        choice,
+                        false,
+                        &mut incoming_instructions,
+                    );
+                }
+
+                ability_after_damage_hit(
+                    &mut state,
+                    choice,
                     attacking_side_ref,
                     damage_dealt,
-                    choice,
-                    false,
                     &mut incoming_instructions,
                 );
             }
-
-            ability_after_damage_hit(
-                &mut state,
-                choice,
-                attacking_side_ref,
-                damage_dealt,
-                &mut incoming_instructions,
-            );
         }
 
         let attacking_pokemon = state.get_side(attacking_side_ref).get_active();
@@ -1753,6 +1755,14 @@ pub fn generate_instructions_from_move(
                 } else {
                     3 // too lazy to implement branching here. Average is 3.2 so this is a fine approximation
                 };
+        }
+        MultiHitMove::PopulationBomb => {
+            // population bomb checks accuracy each time but lets approximate
+            hit_count = if state.get_side(&attacking_side).get_active().item == Items::WIDELENS {
+                9
+            } else {
+                6
+            };
         }
     }
     let mut hit_sub: bool = false;

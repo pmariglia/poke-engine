@@ -2104,6 +2104,7 @@ impl FromStr for Items {
             "WELLSPRINGMASK" => Ok(Items::WELLSPRINGMASK),
             "HEARTHFLAMEMASK" => Ok(Items::HEARTHFLAMEMASK),
             "CORNERSTONEMASK" => Ok(Items::CORNERSTONEMASK),
+            "WIDELENS" => Ok(Items::WIDELENS),
             _ => Ok(Items::UNKNOWNITEM),
         }
     }
