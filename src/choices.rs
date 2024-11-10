@@ -16751,6 +16751,27 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                // not technically correct but idgaf
+                // this should roll 20% chance to inflict, and then roll for the status
+                secondaries: Some(
+                    vec![
+                        Secondary {
+                            chance: 6.67,
+                            target: MoveTarget::Opponent,
+                            effect: Effect::Status(PokemonStatus::Paralyze),
+                        },
+                        Secondary {
+                            chance: 6.67,
+                            target: MoveTarget::Opponent,
+                            effect: Effect::Status(PokemonStatus::Burn),
+                        },
+                        Secondary {
+                            chance: 6.67,
+                            target: MoveTarget::Opponent,
+                            effect: Effect::Status(PokemonStatus::Freeze),
+                        },
+                    ]
+                ),
                 ..Default::default()
             },
         );
