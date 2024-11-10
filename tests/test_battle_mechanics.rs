@@ -9730,6 +9730,73 @@ fn test_lightning_rod_versus_status_move() {
 }
 
 #[test]
+#[cfg(any(feature = "gen9", feature = "gen8", feature = "gen7"))]
+fn test_prankster_into_dark_type() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::PRANKSTER;
+    state.side_two.get_active().types.0 = PokemonType::Dark;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::THUNDERWAVE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(not(any(feature = "gen9", feature = "gen8", feature = "gen7")))]
+fn test_prankster_into_dark_type_earlier_gens() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::PRANKSTER;
+    state.side_two.get_active().types.0 = PokemonType::Dark;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::THUNDERWAVE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+            side_ref: SideReference::SideTwo,
+            pokemon_index: PokemonIndex::P0,
+            old_status: PokemonStatus::None,
+            new_status: PokemonStatus::Paralyze,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_prankster_damaging_move_innto_dark_type() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::PRANKSTER;
+    state.side_two.get_active().types.0 = PokemonType::Dark;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 48,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_thunderwave_into_goodasgold() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::GOODASGOLD;

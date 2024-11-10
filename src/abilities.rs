@@ -1411,6 +1411,16 @@ pub fn ability_modify_attack_being_used(
         return;
     }
     match attacking_pkmn.ability {
+        #[cfg(any(feature = "gen9", feature = "gen8", feature = "gen7"))]
+        Abilities::PRANKSTER => {
+            if attacker_choice.category == MoveCategory::Status
+                && defending_side
+                    .get_active_immutable()
+                    .has_type(&PokemonType::Dark)
+            {
+                attacker_choice.remove_all_effects();
+            }
+        }
         Abilities::BEADSOFRUIN => {
             if attacker_choice.category == MoveCategory::Special {
                 attacker_choice.base_power *= 1.33;
