@@ -1320,6 +1320,11 @@ pub fn ability_modify_attack_being_used(
                 attacker_choice.base_power *= 1.5;
             }
         }
+        Abilities::WATERBUBBLE => {
+            if attacker_choice.move_type == PokemonType::Water {
+                attacker_choice.base_power *= 2.0;
+            }
+        }
         Abilities::DRAGONSMAW => {
             if attacker_choice.move_type == PokemonType::Dragon {
                 attacker_choice.base_power *= 1.5;
