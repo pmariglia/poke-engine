@@ -1,5 +1,36 @@
 # Changelog
 
+## [v0.0.15](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.15) - 2024-11-10
+
+### Features
+
+- Terablast physical/special check and typechange - ([fb0de03](https://github.com/pmariglia/poke-engine/commit/fb0de032a2d511905aeef342165520c430a408d2))
+
+- Implement magnet - ([0cc5594](https://github.com/pmariglia/poke-engine/commit/0cc5594aebcd15334a679e790718d6d91bdaee4e))
+
+- Implement waterbubble - ([a5d4e02](https://github.com/pmariglia/poke-engine/commit/a5d4e02d39897039930aad7ee4db4f853d124511))
+
+- Implement * of ruin abilities - ([3ff639e](https://github.com/pmariglia/poke-engine/commit/3ff639e68d3ea2a753fe4f5111d553b8caf6cfe0))
+
+- Implement Protosynthesis / Quarkdrive - ([9609f2f](https://github.com/pmariglia/poke-engine/commit/9609f2f10a45be9d8a9a901a84d7d20c2bad6590))
+
+- Implement Thermal Exchange - ([8ef6572](https://github.com/pmariglia/poke-engine/commit/8ef65722c3e3139cc38c4c9f6884b51158351dfa))
+
+- Implement Toxic Chain - ([8235837](https://github.com/pmariglia/poke-engine/commit/8235837f3646628a24c141d217b046da0300d047))
+
+- Implement WellBakedBody - ([86b7999](https://github.com/pmariglia/poke-engine/commit/86b7999880b9d4029ea61b6789107abb306ec3f0))
+
+- Add remaining gen9 ignorable abilities - ([2eac648](https://github.com/pmariglia/poke-engine/commit/2eac648e94fef1fed73d04bce189431e8bd1dd03))
+
+- Implement Good as Gold - ([2f54eec](https://github.com/pmariglia/poke-engine/commit/2f54eec7c17a35b648b28671b30c8dd45247203a))
+
+- Implement Dark immunity to prankster gen7 onward - ([a35d909](https://github.com/pmariglia/poke-engine/commit/a35d909b005c001ac232eaa066da25598e451608))
+
+
+### Bug Fixes
+
+- Lightball boosts all pikachu formes - ([f93a8bb](https://github.com/pmariglia/poke-engine/commit/f93a8bb226e1064e09174b083fec8d48311f1040))
+
 ## [v0.0.14](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.14) - 2024-11-09
 
 ### Features
