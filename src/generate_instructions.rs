@@ -505,7 +505,12 @@ pub fn immune_to_status(
         match status {
             PokemonStatus::Burn => {
                 target_pkmn.has_type(&PokemonType::Fire)
-                    || [Abilities::WATERVEIL, Abilities::WATERBUBBLE].contains(&target_pkmn.ability)
+                    || [
+                        Abilities::WATERVEIL,
+                        Abilities::WATERBUBBLE,
+                        Abilities::THERMALEXCHANGE,
+                    ]
+                    .contains(&target_pkmn.ability)
             }
             PokemonStatus::Freeze => {
                 target_pkmn.has_type(&PokemonType::Ice)

@@ -11583,6 +11583,35 @@ fn test_steamengine() {
 }
 
 #[test]
+fn test_thermal_exchange() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::THERMALEXCHANGE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::FLAMETHROWER,
+        Choices::SPLASH,
+    );
+
+    // no burn change because thermalexchange
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 71,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Attack,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_stormdrain() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::STORMDRAIN;

@@ -1876,6 +1876,22 @@ pub fn ability_modify_attack_against(
                 });
             }
         }
+        Abilities::THERMALEXCHANGE => {
+            if attacker_choice.move_type == PokemonType::Fire {
+                attacker_choice.add_or_create_secondaries(Secondary {
+                    chance: 100.0,
+                    target: MoveTarget::Opponent,
+                    effect: Effect::Boost(StatBoosts {
+                        attack: 1,
+                        defense: 0,
+                        special_attack: 0,
+                        special_defense: 0,
+                        speed: 0,
+                        accuracy: 0,
+                    }),
+                });
+            }
+        }
         #[cfg(any(feature = "gen9", feature = "gen8", feature = "gen7"))]
         Abilities::WEAKARMOR => {
             if attacker_choice.category == MoveCategory::Physical {
