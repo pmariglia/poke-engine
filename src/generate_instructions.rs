@@ -11,7 +11,6 @@ use crate::choices::{
     Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, SideCondition, StatBoosts,
     Status, VolatileStatus, MOVES,
 };
-use crate::instruction::SetDamageDealtSideTwoInstruction;
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeTerrain, ChangeWeather, DecrementRestTurnsInstruction,
@@ -19,10 +18,12 @@ use crate::instruction::{
     SetSecondMoveSwitchOutMoveInstruction, SetSleepTurnsInstruction, ToggleBatonPassingInstruction,
     ToggleTrickRoomInstruction,
 };
+use crate::instruction::{DecrementFutureSightInstruction, SetDamageDealtSideTwoInstruction};
 use crate::instruction::{DecrementPPInstruction, SetLastUsedMoveInstruction};
 use crate::instruction::{SetDamageDealtSideOneInstruction, ToggleTerastallizedInstruction};
 use crate::state::PokemonMoveIndex;
 
+use crate::damage_calc::calculate_futuresight_damage;
 use crate::items::{
     item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
     item_on_switch_in, Items,
@@ -2211,6 +2212,38 @@ fn add_end_of_turn_instructions(
         }
     }
 
+    // future sight
+    for side_ref in sides {
+        let (attacking_side, defending_side) = state.get_both_sides(side_ref);
+        if attacking_side.future_sight.0 > 0 {
+            let decrement_future_sight_instruction =
+                Instruction::DecrementFutureSight(DecrementFutureSightInstruction {
+                    side_ref: *side_ref,
+                });
+            if attacking_side.future_sight.0 == 1 {
+                let mut damage = calculate_futuresight_damage(
+                    &attacking_side,
+                    &defending_side,
+                    &attacking_side.future_sight.1,
+                );
+                let defender = defending_side.get_active();
+                damage = cmp::min(damage, defender.hp);
+                let future_sight_damage_instruction = Instruction::Damage(DamageInstruction {
+                    side_ref: side_ref.get_other_side(),
+                    damage_amount: damage,
+                });
+                incoming_instructions
+                    .instruction_list
+                    .push(future_sight_damage_instruction);
+                defender.hp -= damage;
+            }
+            attacking_side.future_sight.0 -= 1;
+            incoming_instructions
+                .instruction_list
+                .push(decrement_future_sight_instruction);
+        }
+    }
+
     // wish
     for side_ref in sides {
         let side = state.get_side(side_ref);
@@ -2926,6 +2959,10 @@ pub fn calculate_damage_rolls(
         defending_choice,
         attacking_side_ref,
     );
+
+    if choice.move_id == Choices::FUTURESIGHT {
+        choice = MOVES.get(&Choices::FUTURESIGHT)?.clone();
+    }
 
     let mut return_vec = Vec::with_capacity(16);
     if let Some(damage) = calculate_damage(&state, attacking_side_ref, &choice, DamageRolls::Max) {

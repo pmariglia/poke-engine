@@ -879,6 +879,21 @@ impl Index<PokemonIndex> for SidePokemon {
     }
 }
 
+impl Index<&PokemonIndex> for SidePokemon {
+    type Output = Pokemon;
+
+    fn index(&self, index: &PokemonIndex) -> &Self::Output {
+        match index {
+            PokemonIndex::P0 => &self.p0,
+            PokemonIndex::P1 => &self.p1,
+            PokemonIndex::P2 => &self.p2,
+            PokemonIndex::P3 => &self.p3,
+            PokemonIndex::P4 => &self.p4,
+            PokemonIndex::P5 => &self.p5,
+        }
+    }
+}
+
 impl IndexMut<PokemonIndex> for SidePokemon {
     fn index_mut(&mut self, index: PokemonIndex) -> &mut Self::Output {
         match index {
@@ -899,6 +914,7 @@ pub struct Side {
     pub pokemon: SidePokemon,
     pub side_conditions: SideConditions,
     pub wish: (i8, i16),
+    pub future_sight: (i8, PokemonIndex),
     pub force_switch: bool,
     pub force_trapped: bool,
     pub slow_uturn_move: bool,
@@ -1204,6 +1220,7 @@ impl Default for Side {
             },
             volatile_statuses: HashSet::<PokemonVolatileStatus>::new(),
             wish: (0, 0),
+            future_sight: (0, PokemonIndex::P0),
             force_switch: false,
             slow_uturn_move: false,
             force_trapped: false,
@@ -1766,6 +1783,30 @@ impl State {
         self.get_side(side_reference).wish.0 -= 1;
     }
 
+    fn set_future_sight(&mut self, side_reference: &SideReference, pokemon_index: PokemonIndex) {
+        let side = self.get_side(side_reference);
+        side.future_sight.0 = 3;
+        side.future_sight.1 = pokemon_index;
+    }
+
+    fn unset_future_sight(
+        &mut self,
+        side_reference: &SideReference,
+        previous_pokemon_index: PokemonIndex,
+    ) {
+        let side = self.get_side(side_reference);
+        side.future_sight.0 = 0;
+        side.future_sight.1 = previous_pokemon_index;
+    }
+
+    fn increment_future_sight(&mut self, side_reference: &SideReference) {
+        self.get_side(side_reference).future_sight.0 += 1;
+    }
+
+    fn decrement_future_sight(&mut self, side_reference: &SideReference) {
+        self.get_side(side_reference).future_sight.0 -= 1;
+    }
+
     fn damage_substitute(&mut self, side_reference: &SideReference, amount: i16) {
         self.get_side(side_reference).substitute_health -= amount;
     }
@@ -1923,6 +1964,12 @@ impl State {
             Instruction::DecrementWish(instruction) => {
                 self.decrement_wish(&instruction.side_ref);
             }
+            Instruction::SetFutureSight(instruction) => {
+                self.set_future_sight(&instruction.side_ref, instruction.pokemon_index);
+            }
+            Instruction::DecrementFutureSight(instruction) => {
+                self.decrement_future_sight(&instruction.side_ref);
+            }
             Instruction::DamageSubstitute(instruction) => {
                 self.damage_substitute(&instruction.side_ref, instruction.damage_amount);
             }
@@ -2065,6 +2112,12 @@ impl State {
                 self.unset_wish(&instruction.side_ref, instruction.previous_wish_amount)
             }
             Instruction::DecrementWish(instruction) => self.increment_wish(&instruction.side_ref),
+            Instruction::SetFutureSight(instruction) => {
+                self.unset_future_sight(&instruction.side_ref, instruction.previous_pokemon_index)
+            }
+            Instruction::DecrementFutureSight(instruction) => {
+                self.increment_future_sight(&instruction.side_ref)
+            }
             Instruction::DamageSubstitute(instruction) => {
                 self.heal_substitute(&instruction.side_ref, instruction.damage_amount);
             }

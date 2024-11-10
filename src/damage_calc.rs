@@ -1,6 +1,6 @@
 use crate::abilities::Abilities;
-use crate::choices::Choices;
-use crate::state::{Side, Terrain};
+use crate::choices::{Choices, MOVES};
+use crate::state::{PokemonIndex, Side, Terrain};
 use crate::{
     choices::{Choice, MoveCategory},
     state::{
@@ -427,6 +427,61 @@ fn get_attacking_and_defending_stats(
     (attacking_final_stat, defending_final_stat)
 }
 
+fn common_pkmn_damage_calc(
+    attacking_side: &Side,
+    attacker: &Pokemon,
+    attacking_stat: i16,
+    defending_side: &Side,
+    defender: &Pokemon,
+    defending_stat: i16,
+    weather: &Weather,
+    terrain: &Terrain,
+    choice: &Choice,
+) -> f32 {
+    let mut damage: f32;
+    damage = 2.0 * attacker.level as f32;
+    damage = damage.floor() / 5.0;
+    damage = damage.floor() + 2.0;
+    damage = damage.floor() * choice.base_power;
+    damage = damage * attacking_stat as f32 / defending_stat as f32;
+    damage = damage.floor() / 50.0;
+    damage = damage.floor() + 2.0;
+
+    let defender_types = get_defending_types(&defending_side, defender, attacker, choice);
+
+    let mut damage_modifier = 1.0;
+    damage_modifier *= type_effectiveness_modifier(&choice.move_type, &defender_types);
+
+    if attacker.ability != Abilities::CLOUDNINE
+        && attacker.ability != Abilities::AIRLOCK
+        && defender.ability != Abilities::CLOUDNINE
+        && defender.ability != Abilities::AIRLOCK
+    {
+        damage_modifier *= weather_modifier(&choice.move_type, weather);
+    }
+
+    damage_modifier *= stab_modifier(&choice.move_type, &attacker);
+    damage_modifier *= burn_modifier(&choice.category, &attacker.status);
+    damage_modifier *= volatile_status_modifier(&choice, attacking_side, defending_side);
+    damage_modifier *= terrain_modifier(terrain, attacker, defender, &choice);
+
+    if attacker.ability != Abilities::INFILTRATOR {
+        if defending_side.side_conditions.aurora_veil > 0 {
+            damage_modifier *= 0.5
+        } else if defending_side.side_conditions.reflect > 0
+            && choice.category == MoveCategory::Physical
+        {
+            damage_modifier *= 0.5
+        } else if defending_side.side_conditions.light_screen > 0
+            && choice.category == MoveCategory::Special
+        {
+            damage_modifier *= 0.5
+        }
+    }
+
+    damage * damage_modifier
+}
+
 // This is a basic damage calculation function that assumes special effects/modifiers
 // are reflected in the `Choice` struct
 //
@@ -455,48 +510,17 @@ pub fn calculate_damage(
         &choice,
     );
 
-    let mut damage: f32;
-    damage = 2.0 * attacker.level as f32;
-    damage = damage.floor() / 5.0;
-    damage = damage.floor() + 2.0;
-    damage = damage.floor() * choice.base_power;
-    damage = damage * attacking_stat as f32 / defending_stat as f32;
-    damage = damage.floor() / 50.0;
-    damage = damage.floor() + 2.0;
-
-    let defender_types = get_defending_types(&defending_side, defender, attacker, choice);
-
-    let mut damage_modifier = 1.0;
-    damage_modifier *= type_effectiveness_modifier(&choice.move_type, &defender_types);
-
-    if attacker.ability != Abilities::CLOUDNINE
-        && attacker.ability != Abilities::AIRLOCK
-        && defender.ability != Abilities::CLOUDNINE
-        && defender.ability != Abilities::AIRLOCK
-    {
-        damage_modifier *= weather_modifier(&choice.move_type, &state.weather.weather_type);
-    }
-
-    damage_modifier *= stab_modifier(&choice.move_type, &attacker);
-    damage_modifier *= burn_modifier(&choice.category, &attacker.status);
-    damage_modifier *= volatile_status_modifier(&choice, attacking_side, defending_side);
-    damage_modifier *= terrain_modifier(&state.terrain.terrain_type, attacker, defender, &choice);
-
-    if attacker.ability != Abilities::INFILTRATOR {
-        if defending_side.side_conditions.aurora_veil > 0 {
-            damage_modifier *= 0.5
-        } else if defending_side.side_conditions.reflect > 0
-            && choice.category == MoveCategory::Physical
-        {
-            damage_modifier *= 0.5
-        } else if defending_side.side_conditions.light_screen > 0
-            && choice.category == MoveCategory::Special
-        {
-            damage_modifier *= 0.5
-        }
-    }
-
-    damage = damage * damage_modifier;
+    let mut damage = common_pkmn_damage_calc(
+        attacking_side,
+        attacker,
+        attacking_stat,
+        defending_side,
+        defender,
+        defending_stat,
+        &state.weather.weather_type,
+        &state.terrain.terrain_type,
+        choice,
+    );
 
     match _damage_rolls {
         DamageRolls::Average => damage = damage.floor() * 0.925,
@@ -505,6 +529,29 @@ pub fn calculate_damage(
     }
 
     Some(damage as i16)
+}
+
+pub fn calculate_futuresight_damage(
+    attacking_side: &Side,
+    defending_side: &Side,
+    attacking_side_pokemon_index: &PokemonIndex,
+) -> i16 {
+    let attacking_stat = attacking_side.pokemon[attacking_side_pokemon_index].special_attack;
+    let defending_stat = defending_side.get_active_immutable().special_defense;
+    let attacker = attacking_side.get_active_immutable();
+    let damage = common_pkmn_damage_calc(
+        attacking_side,
+        attacker,
+        attacking_stat,
+        defending_side,
+        defending_side.get_active_immutable(),
+        defending_stat,
+        &Weather::None,
+        &Terrain::None,
+        MOVES.get(&Choices::FUTURESIGHT).unwrap(),
+    );
+
+    (damage * 0.925) as i16
 }
 
 #[cfg(test)]

@@ -231,6 +231,8 @@ class Side:
     :type side_conditions: SideConditions
     :param wish: Tuple representing the wish status. Format is (turns_remaining, health)
     :type wish: (int, int)
+    :param future_sight: Tuple representing the future_sight status. Format is (turns_remaining, PokemonIndex)
+    :type future_sight: (int, str)
     :param force_switch: Whether this side is forced to switch next turn
     :type force_switch: bool
     :param force_trapped: Whether the side is forcibly trapped and cannot switch
@@ -270,6 +272,7 @@ class Side:
     pokemon: list[Pokemon] = field(default_factory=list)
     side_conditions: SideConditions = field(default_factory=SideConditions)
     wish: (int, int) = (0, 0)
+    future_sight: (int, str) = (0, "0")
     force_switch: bool = False
     force_trapped: bool = False
     volatile_statuses: list[str] = field(default_factory=list)
@@ -292,6 +295,7 @@ class Side:
             pokemon=[p._into_rust_obj() for p in self.pokemon],
             side_conditions=self.side_conditions._into_rust_obj(),
             wish=self.wish,
+            future_sight=self.future_sight,
             force_switch=self.force_switch,
             force_trapped=self.force_trapped,
             slow_uturn_move=self.slow_uturn_move,

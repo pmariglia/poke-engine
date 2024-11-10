@@ -4,12 +4,12 @@ use poke_engine::generate_instructions::{generate_instructions_from_move_pair, M
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeType,
-    ChangeWeather, DamageInstruction, DecrementPPInstruction, DecrementRestTurnsInstruction,
-    DecrementWishInstruction, DisableMoveInstruction, EnableMoveInstruction, HealInstruction,
-    Instruction, RemoveVolatileStatusInstruction, SetSecondMoveSwitchOutMoveInstruction,
-    SetSleepTurnsInstruction, SetSubstituteHealthInstruction, SetWishInstruction,
-    StateInstructions, SwitchInstruction, ToggleBatonPassingInstruction,
-    ToggleTerastallizedInstruction, ToggleTrickRoomInstruction,
+    ChangeWeather, DamageInstruction, DecrementFutureSightInstruction, DecrementPPInstruction,
+    DecrementRestTurnsInstruction, DecrementWishInstruction, DisableMoveInstruction,
+    EnableMoveInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction,
+    SetFutureSightInstruction, SetSecondMoveSwitchOutMoveInstruction, SetSleepTurnsInstruction,
+    SetSubstituteHealthInstruction, SetWishInstruction, StateInstructions, SwitchInstruction,
+    ToggleBatonPassingInstruction, ToggleTerastallizedInstruction, ToggleTrickRoomInstruction,
 };
 use poke_engine::items::Items;
 use poke_engine::state::{
@@ -8062,6 +8062,135 @@ fn test_solarbeam_with_powerherb() {
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 94,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_using_futuresight() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::FUTURESIGHT,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::SetFutureSight(SetFutureSightInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                previous_pokemon_index: PokemonIndex::P0,
+            }),
+            Instruction::DecrementFutureSight(DecrementFutureSightInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_futuresight_decrementing_on_its_own() {
+    let mut state = State::default();
+    state.side_one.future_sight.0 = 2;
+    state.side_one.future_sight.1 = PokemonIndex::P0;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::DecrementFutureSight(
+            DecrementFutureSightInstruction {
+                side_ref: SideReference::SideOne,
+            },
+        )],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_cannot_use_futuresight_when_it_is_already_active() {
+    let mut state = State::default();
+    state.side_one.future_sight.0 = 2;
+    state.side_one.future_sight.1 = PokemonIndex::P0;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::FUTURESIGHT,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::DecrementFutureSight(
+            DecrementFutureSightInstruction {
+                side_ref: SideReference::SideOne,
+            },
+        )],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(feature = "gen9", feature = "gen8", feature = "gen7", feature = "gen6"))] // just so that the damage is correct
+fn test_futuresight_activating() {
+    let mut state = State::default();
+    state.side_one.future_sight.0 = 1;
+    state.side_one.future_sight.1 = PokemonIndex::P0;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 94,
+            }),
+            Instruction::DecrementFutureSight(DecrementFutureSightInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(feature = "gen9", feature = "gen8", feature = "gen7", feature = "gen6"))] // just so that the damage is correct
+fn test_futuresight_activating_on_reserve_pkmn() {
+    let mut state = State::default();
+    state.side_one.future_sight.0 = 1;
+    state.side_one.future_sight.1 = PokemonIndex::P1;
+    state.side_one.pokemon[PokemonIndex::P1].special_attack = 10; // very weak
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 11,
+            }),
+            Instruction::DecrementFutureSight(DecrementFutureSightInstruction {
+                side_ref: SideReference::SideOne,
             }),
         ],
     }];

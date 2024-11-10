@@ -5,9 +5,9 @@ use crate::generate_instructions::{add_remove_status_instructions, get_boost_ins
 use crate::instruction::{
     ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction,
     ChangeStatusInstruction, ChangeTerrain, ChangeWeather, DamageInstruction, HealInstruction,
-    Instruction, RemoveVolatileStatusInstruction, SetSleepTurnsInstruction,
-    SetSubstituteHealthInstruction, SetWishInstruction, StateInstructions,
-    ToggleTrickRoomInstruction,
+    Instruction, RemoveVolatileStatusInstruction, SetFutureSightInstruction,
+    SetSleepTurnsInstruction, SetSubstituteHealthInstruction, SetWishInstruction,
+    StateInstructions, ToggleTrickRoomInstruction,
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::state::{
@@ -598,6 +598,19 @@ pub fn choice_before_move(
     let attacker = attacking_side.get_active();
     let defender = defending_side.get_active_immutable();
     match choice.move_id {
+        Choices::FUTURESIGHT => {
+            choice.remove_all_effects();
+            if attacking_side.future_sight.0 == 0 {
+                instructions
+                    .instruction_list
+                    .push(Instruction::SetFutureSight(SetFutureSightInstruction {
+                        side_ref: *attacking_side_ref,
+                        pokemon_index: attacking_side.active_index,
+                        previous_pokemon_index: attacking_side.future_sight.1,
+                    }));
+                attacking_side.future_sight = (3, attacking_side.active_index);
+            }
+        }
         Choices::EXPLOSION | Choices::SELFDESTRUCT | Choices::MISTYEXPLOSION
             if defender.ability != Abilities::DAMP =>
         {

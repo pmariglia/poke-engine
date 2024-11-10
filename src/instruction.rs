@@ -62,6 +62,8 @@ pub enum Instruction {
     EnableMove(EnableMoveInstruction),
     SetWish(SetWishInstruction),
     DecrementWish(DecrementWishInstruction),
+    SetFutureSight(SetFutureSightInstruction),
+    DecrementFutureSight(DecrementFutureSightInstruction),
     DamageSubstitute(DamageInstruction),
     DecrementRestTurns(DecrementRestTurnsInstruction),
     SetRestTurns(SetSleepTurnsInstruction),
@@ -183,6 +185,16 @@ impl fmt::Debug for Instruction {
             }
             Instruction::DecrementWish(d) => {
                 write!(f, "DecrementWish {:?}", d.side_ref)
+            }
+            Instruction::SetFutureSight(s) => {
+                write!(
+                    f,
+                    "SetFutureSight {:?}: {:?} -> {:?}",
+                    s.side_ref, s.previous_pokemon_index, s.pokemon_index
+                )
+            }
+            Instruction::DecrementFutureSight(d) => {
+                write!(f, "DecrementFutureSight {:?}", d.side_ref)
             }
             Instruction::DamageSubstitute(d) => {
                 write!(
@@ -355,6 +367,18 @@ pub struct SetWishInstruction {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct DecrementWishInstruction {
+    pub side_ref: SideReference,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct SetFutureSightInstruction {
+    pub side_ref: SideReference,
+    pub pokemon_index: PokemonIndex,
+    pub previous_pokemon_index: PokemonIndex,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct DecrementFutureSightInstruction {
     pub side_ref: SideReference,
 }
 
