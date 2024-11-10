@@ -2112,6 +2112,22 @@ pub fn ability_modify_attack_against(
                 });
             }
         }
+        Abilities::WELLBAKEDBODY => {
+            if attacker_choice.move_type == PokemonType::Fire {
+                attacker_choice.remove_all_effects();
+                attacker_choice.boost = Some(Boost {
+                    boosts: StatBoosts {
+                        attack: 0,
+                        defense: 2,
+                        special_attack: 0,
+                        special_defense: 0,
+                        speed: 0,
+                        accuracy: 0,
+                    },
+                    target: MoveTarget::Opponent,
+                });
+            }
+        }
         Abilities::DAZZLING => {
             if attacker_choice.priority > 0 {
                 attacker_choice.accuracy = 0.0;

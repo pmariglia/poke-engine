@@ -1346,6 +1346,29 @@ fn test_stamina_activating() {
 }
 
 #[test]
+fn test_wellbakedbody_activating() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::WELLBAKEDBODY;
+    state.side_two.get_active().types.0 = PokemonType::Fire;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::EMBER,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Boost(BoostInstruction {
+            side_ref: SideReference::SideTwo,
+            stat: PokemonBoostableStat::Defense,
+            amount: 2,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_stamina_activating_on_multi_hit() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::STAMINA;
