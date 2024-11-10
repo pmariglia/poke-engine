@@ -1280,7 +1280,11 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::LIGHTBALL => {
-            if attacking_side.get_active_immutable().id == "pikachu" {
+            if attacking_side
+                .get_active_immutable()
+                .id
+                .starts_with("pikachu")
+            {
                 attacking_choice.base_power *= 2.0;
             }
         }
