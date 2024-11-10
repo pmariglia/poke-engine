@@ -1315,6 +1315,16 @@ pub fn ability_modify_attack_being_used(
         return;
     }
     match attacking_pkmn.ability {
+        Abilities::BEADSOFRUIN => {
+            if attacker_choice.category == MoveCategory::Special {
+                attacker_choice.base_power *= 1.33;
+            }
+        }
+        Abilities::SWORDOFRUIN => {
+            if attacker_choice.category == MoveCategory::Physical {
+                attacker_choice.base_power *= 1.33;
+            }
+        }
         Abilities::SHARPNESS => {
             if attacker_choice.flags.slicing {
                 attacker_choice.base_power *= 1.5;
@@ -1692,6 +1702,16 @@ pub fn ability_modify_attack_against(
     }
 
     match target_pkmn.ability {
+        Abilities::TABLETSOFRUIN => {
+            if attacker_choice.category == MoveCategory::Physical {
+                attacker_choice.base_power *= 0.75;
+            }
+        }
+        Abilities::VESSELOFRUIN => {
+            if attacker_choice.category == MoveCategory::Special {
+                attacker_choice.base_power *= 0.75;
+            }
+        }
         Abilities::ARMORTAIL => {
             if attacker_choice.priority > 0 && attacker_choice.category != MoveCategory::Status {
                 attacker_choice.remove_all_effects();
