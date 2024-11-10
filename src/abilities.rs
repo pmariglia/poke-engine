@@ -1733,6 +1733,15 @@ pub fn ability_modify_attack_being_used(
                 })
             }
         }
+        Abilities::TOXICCHAIN => {
+            if attacker_choice.target == MoveTarget::Opponent {
+                attacker_choice.add_or_create_secondaries(Secondary {
+                    chance: 30.0,
+                    target: MoveTarget::Opponent,
+                    effect: Effect::Status(PokemonStatus::Toxic),
+                })
+            }
+        }
         Abilities::GUTS => {
             if attacking_pkmn.status != PokemonStatus::None {
                 attacker_choice.base_power *= 1.5;
