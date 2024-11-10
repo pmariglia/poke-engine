@@ -5,6 +5,13 @@ use poke_engine::instruction::{
     RemoveVolatileStatusInstruction, SetLastUsedMoveInstruction, StateInstructions,
     SwitchInstruction,
 };
+
+#[cfg(not(feature = "terastallization"))]
+use poke_engine::instruction::SetSubstituteHealthInstruction;
+
+#[cfg(not(feature = "terastallization"))]
+use poke_engine::abilities::Abilities;
+
 use poke_engine::state::{
     LastUsedMove, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
     PokemonVolatileStatus, SideReference, State,

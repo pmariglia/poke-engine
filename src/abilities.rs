@@ -11,7 +11,7 @@ use crate::instruction::{
     ChangeWeather, DamageInstruction, HealInstruction, Instruction, StateInstructions,
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
-use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Terrain};
+use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Side, Terrain};
 use crate::state::{PokemonStatus, State};
 use crate::state::{PokemonVolatileStatus, SideReference, Weather};
 use std::cmp;
@@ -416,6 +416,67 @@ fn mold_breaker_ignores(ability: &Abilities) -> bool {
     }
 }
 
+fn protosynthesus_or_quarkdrive_on_switch_in(
+    thing_is_active: bool,
+    volatile: PokemonVolatileStatus,
+    instructions: &mut StateInstructions,
+    attacking_side: &mut Side,
+    side_ref: &SideReference,
+) {
+    let active_pkmn = attacking_side.get_active();
+    if thing_is_active {
+        instructions
+            .instruction_list
+            .push(Instruction::ApplyVolatileStatus(
+                ApplyVolatileStatusInstruction {
+                    side_ref: *side_ref,
+                    volatile_status: volatile,
+                },
+            ));
+        attacking_side.volatile_statuses.insert(volatile);
+    } else if active_pkmn.item == Items::BOOSTERENERGY {
+        instructions
+            .instruction_list
+            .push(Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: *side_ref,
+                current_item: Items::BOOSTERENERGY,
+                new_item: Items::NONE,
+            }));
+        instructions
+            .instruction_list
+            .push(Instruction::ApplyVolatileStatus(
+                ApplyVolatileStatusInstruction {
+                    side_ref: *side_ref,
+                    volatile_status: volatile,
+                },
+            ));
+        active_pkmn.item = Items::NONE;
+        attacking_side.volatile_statuses.insert(volatile);
+    }
+}
+
+fn protosynthesis_volatile_from_side(side: &Side) -> PokemonVolatileStatus {
+    match side.calculate_highest_stat() {
+        PokemonBoostableStat::Attack => PokemonVolatileStatus::ProtosynthesisAtk,
+        PokemonBoostableStat::Defense => PokemonVolatileStatus::ProtosynthesisDef,
+        PokemonBoostableStat::SpecialAttack => PokemonVolatileStatus::ProtosynthesisSpa,
+        PokemonBoostableStat::SpecialDefense => PokemonVolatileStatus::ProtosynthesisSpd,
+        PokemonBoostableStat::Speed => PokemonVolatileStatus::ProtosynthesisSpe,
+        _ => panic!("Invalid stat for protosynthesis"),
+    }
+}
+
+fn quarkdrive_volatile_from_side(side: &Side) -> PokemonVolatileStatus {
+    match side.calculate_highest_stat() {
+        PokemonBoostableStat::Attack => PokemonVolatileStatus::QuarkDriveAtk,
+        PokemonBoostableStat::Defense => PokemonVolatileStatus::QuarkDriveDef,
+        PokemonBoostableStat::SpecialAttack => PokemonVolatileStatus::QuarkDriveSpa,
+        PokemonBoostableStat::SpecialDefense => PokemonVolatileStatus::QuarkDriveSpd,
+        PokemonBoostableStat::Speed => PokemonVolatileStatus::QuarkDriveSpe,
+        _ => panic!("Invalid stat for quarkdrive"),
+    }
+}
+
 pub fn ability_before_move(
     state: &mut State,
     choice: &Choice,
@@ -519,7 +580,7 @@ pub fn ability_after_damage_hit(
         }
         Abilities::BEASTBOOST => {
             if damage_dealt > 0 && defending_side.get_active_immutable().hp == 0 {
-                let highest_stat = &active_pkmn.calculate_highest_stat();
+                let highest_stat = &attacking_side.calculate_highest_stat();
                 if let Some(boost_instruction) =
                     get_boost_instruction(&attacking_side, highest_stat, &1, side_ref, side_ref)
                 {
@@ -922,6 +983,30 @@ pub fn ability_on_switch_in(
         return;
     }
     match active_pkmn.ability {
+        Abilities::PROTOSYNTHESIS => {
+            let sun_is_active = state.weather_is_active(&Weather::Sun);
+            let attacking_side = state.get_side(side_ref);
+            let volatile = protosynthesis_volatile_from_side(&attacking_side);
+            protosynthesus_or_quarkdrive_on_switch_in(
+                sun_is_active,
+                volatile,
+                instructions,
+                attacking_side,
+                side_ref,
+            );
+        }
+        Abilities::QUARKDRIVE => {
+            let electric_terrain_is_active = state.terrain_is_active(&Terrain::ElectricTerrain);
+            let attacking_side = state.get_side(side_ref);
+            let volatile = quarkdrive_volatile_from_side(&attacking_side);
+            protosynthesus_or_quarkdrive_on_switch_in(
+                electric_terrain_is_active,
+                volatile,
+                instructions,
+                attacking_side,
+                side_ref,
+            );
+        }
         Abilities::EMBODYASPECTTEAL => {
             if let Some(boost_instruction) = get_boost_instruction(
                 &attacking_side,

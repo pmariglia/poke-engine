@@ -224,6 +224,16 @@ fn volatile_status_modifier(choice: &Choice, attacking_side: &Side, defending_si
             PokemonVolatileStatus::SlowStart if choice.category == MoveCategory::Physical => {
                 modifier *= 0.5;
             }
+            PokemonVolatileStatus::ProtosynthesisAtk | PokemonVolatileStatus::QuarkDriveAtk
+                if choice.category == MoveCategory::Physical =>
+            {
+                modifier *= 1.3;
+            }
+            PokemonVolatileStatus::ProtosynthesisSpa | PokemonVolatileStatus::QuarkDriveSpa
+                if choice.category == MoveCategory::Special =>
+            {
+                modifier *= 1.3;
+            }
             _ => {}
         }
     }
@@ -249,6 +259,16 @@ fn volatile_status_modifier(choice: &Choice, attacking_side: &Side, defending_si
             }
             PokemonVolatileStatus::GlaiveRush => {
                 modifier *= 2.0;
+            }
+            PokemonVolatileStatus::ProtosynthesisDef | PokemonVolatileStatus::QuarkDriveDef
+                if choice.category == MoveCategory::Physical =>
+            {
+                modifier /= 1.3;
+            }
+            PokemonVolatileStatus::ProtosynthesisSpd | PokemonVolatileStatus::QuarkDriveSpd
+                if choice.category == MoveCategory::Special =>
+            {
+                modifier /= 1.3;
             }
             _ => {}
         }

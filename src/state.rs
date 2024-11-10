@@ -152,6 +152,16 @@ pub enum PokemonVolatileStatus {
     PowerShift,
     PowerTrick,
     Protect,
+    ProtosynthesisAtk,
+    ProtosynthesisDef,
+    ProtosynthesisSpa,
+    ProtosynthesisSpd,
+    ProtosynthesisSpe,
+    QuarkDriveAtk,
+    QuarkDriveDef,
+    QuarkDriveSpa,
+    QuarkDriveSpd,
+    QuarkDriveSpe,
     Rage,
     RagePowder,
     RazorWind,
@@ -631,10 +641,6 @@ impl Pokemon {
         true
     }
 
-    pub fn calculate_highest_stat(&self) -> PokemonBoostableStat {
-        PokemonBoostableStat::Attack
-    }
-
     pub fn volatile_status_can_be_applied(
         &self,
         volatile_status: &PokemonVolatileStatus,
@@ -911,6 +917,23 @@ pub struct Side {
 }
 
 impl Side {
+    pub fn calculate_highest_stat(&self) -> PokemonBoostableStat {
+        let mut highest_stat = PokemonBoostableStat::Attack;
+        let mut highest_stat_value = self.calculate_boosted_stat(PokemonBoostableStat::Attack);
+        for stat in [
+            PokemonBoostableStat::Defense,
+            PokemonBoostableStat::SpecialAttack,
+            PokemonBoostableStat::SpecialDefense,
+            PokemonBoostableStat::Speed,
+        ] {
+            let stat_value = self.calculate_boosted_stat(stat);
+            if stat_value > highest_stat_value {
+                highest_stat = stat;
+                highest_stat_value = stat_value;
+            }
+        }
+        highest_stat
+    }
     pub fn get_boost_from_boost_enum(&self, boost_enum: &PokemonBoostableStat) -> i8 {
         match boost_enum {
             PokemonBoostableStat::Attack => self.attack_boost,

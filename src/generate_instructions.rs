@@ -1983,6 +1983,16 @@ fn get_effective_speed(state: &State, side_reference: &SideReference) -> i16 {
         boosted_speed *= 0.5;
     }
 
+    if side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::ProtosynthesisSpe)
+        || side
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::QuarkDriveSpe)
+    {
+        boosted_speed *= 1.5;
+    }
+
     if side.side_conditions.tailwind > 0 {
         boosted_speed *= 2.0
     }
@@ -5498,7 +5508,41 @@ mod tests {
                 }),
             ],
         };
+        assert_eq!(instructions, vec![expected_instructions])
+    }
 
+    #[test]
+    fn test_beastboost_boosts_different_stat_on_kill() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        state.side_one.get_active().ability = Abilities::BEASTBOOST;
+        state.side_one.get_active().defense = 500; // highest stat
+        state.side_two.get_active().hp = 1;
+
+        let mut instructions = vec![];
+        generate_instructions_from_move(
+            &mut state,
+            &mut choice,
+            &MOVES.get(&Choices::TACKLE).unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+            &mut instructions,
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Defense,
+                    amount: 1,
+                }),
+            ],
+        };
         assert_eq!(instructions, vec![expected_instructions])
     }
 
@@ -7581,6 +7625,44 @@ mod tests {
         let side_one_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
         let side_two_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
         state.side_one.get_active().item = Items::CUSTAPBERRY;
+        state.side_one.get_active().hp = 24;
+        state.side_one.get_active().speed = 100;
+        state.side_two.get_active().speed = 101;
+
+        assert_eq!(
+            true,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
+    }
+
+    #[test]
+    fn test_quarkdrivespe_boost_works() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        let side_two_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        state
+            .side_one
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::QuarkDriveSpe);
+        state.side_one.get_active().hp = 24;
+        state.side_one.get_active().speed = 100;
+        state.side_two.get_active().speed = 101;
+
+        assert_eq!(
+            true,
+            side_one_moves_first(&state, &side_one_choice, &side_two_choice)
+        )
+    }
+
+    #[test]
+    fn test_protosynthesisspe_boost_works() {
+        let mut state = State::default();
+        let side_one_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        let side_two_choice = MOVES.get(&Choices::TACKLE).unwrap().to_owned();
+        state
+            .side_one
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::ProtosynthesisSpe);
         state.side_one.get_active().hp = 24;
         state.side_one.get_active().speed = 100;
         state.side_two.get_active().speed = 101;
