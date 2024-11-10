@@ -1,5 +1,20 @@
 # Changelog
 
+## [v0.0.16](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.16) - 2024-11-10
+
+### Features
+
+- [**breaking**] Implement FutureSight - ([37beed5](https://github.com/pmariglia/poke-engine/commit/37beed547ec1f1148aa6632fb0313de34d384720))
+
+- Implement triattack - ([b8bf4e7](https://github.com/pmariglia/poke-engine/commit/b8bf4e709e50879c85a1f876e5c9b35b45b5eff1))
+
+- Implement population bomb (approximation) and widelens - ([ec996e6](https://github.com/pmariglia/poke-engine/commit/ec996e63f6baaa86edf2bbdf994d1cbf1aca53a1))
+
+
+### Bug Fixes
+
+- Using a move that is your tera-type while terastallized makes minimum BP=60 - ([20779c2](https://github.com/pmariglia/poke-engine/commit/20779c276a4eff9421d87216e9c1f37f60a4dda3))
+
 ## [v0.0.15](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.15) - 2024-11-10
 
 ### Features
