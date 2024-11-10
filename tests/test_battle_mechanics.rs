@@ -9730,6 +9730,90 @@ fn test_lightning_rod_versus_status_move() {
 }
 
 #[test]
+fn test_thunderwave_into_goodasgold() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::GOODASGOLD;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::THUNDERWAVE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_willowisp_into_goodasgold() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::GOODASGOLD;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::WILLOWISP,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_stealthrock_into_goodasgold() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::GOODASGOLD;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::STEALTHROCK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::ChangeSideCondition(
+            ChangeSideConditionInstruction {
+                side_ref: SideReference::SideTwo,
+                side_condition: PokemonSideCondition::Stealthrock,
+                amount: 1,
+            },
+        )],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_spikes_into_goodasgold() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::GOODASGOLD;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPIKES,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::ChangeSideCondition(
+            ChangeSideConditionInstruction {
+                side_ref: SideReference::SideTwo,
+                side_condition: PokemonSideCondition::Spikes,
+                amount: 1,
+            },
+        )],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_liquidooze() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::LIQUIDOOZE;

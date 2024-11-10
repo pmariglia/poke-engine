@@ -2345,6 +2345,21 @@ pub fn ability_modify_attack_against(
                 attacker_choice.accuracy = 0.0
             }
         }
+        Abilities::GOODASGOLD => {
+            // This engine doesn't distinguish "targetting other pkmn" versus "targetting the side"
+            // Thankfully it is a short list of moves that target the opponent side
+            if attacker_choice.category == MoveCategory::Status
+                && ![
+                    Choices::STEALTHROCK,
+                    Choices::STICKYWEB,
+                    Choices::TOXICSPIKES,
+                    Choices::SPIKES,
+                ]
+                .contains(&attacker_choice.move_id)
+            {
+                attacker_choice.remove_all_effects();
+            }
+        }
         Abilities::RATTLED => {
             if attacker_choice.move_type == PokemonType::Bug
                 || attacker_choice.move_type == PokemonType::Dark
