@@ -342,6 +342,17 @@ fn mold_breaker_ignores(ability: &Abilities) -> bool {
         Abilities::BATTLEARMOR
         | Abilities::CLEARBODY
         | Abilities::ARMORTAIL
+        | Abilities::EARTHEATER
+        | Abilities::GUARDDOG
+        | Abilities::GOODASGOLD
+        | Abilities::ILLUMINATE
+        | Abilities::MINDSEYE
+        | Abilities::PURIFYINGSALT
+        | Abilities::TERASHELL
+        | Abilities::TABLETSOFRUIN
+        | Abilities::THERMALEXCHANGE
+        | Abilities::WELLBAKEDBODY
+        | Abilities::VESSELOFRUIN
         | Abilities::DAMP
         | Abilities::DRYSKIN
         | Abilities::FILTER
