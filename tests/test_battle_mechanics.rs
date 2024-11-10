@@ -5706,6 +5706,29 @@ fn test_rock_spdef_in_sand() {
 }
 
 #[test]
+#[cfg(feature = "terastallization")]
+fn test_low_bp_move_boost_when_terastallizing() {
+    let mut state = State::default();
+    state.side_one.get_active().terastallized = true;
+    state.side_one.get_active().tera_type = PokemonType::Water;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::WATERGUN,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 72, // 48 as a 40bp move
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_ice_def_in_snow() {
     let mut state = State::default();
     state.weather.weather_type = Weather::Snow;
@@ -11520,10 +11543,12 @@ fn test_tera_double_stab() {
     state.side_one.get_active().types = (PokemonType::Normal, PokemonType::Typeless);
     state.side_one.get_active().tera_type = PokemonType::Normal;
     state.side_one.get_active().terastallized = true;
+    state.side_two.get_active().hp = 500;
+    state.side_two.get_active().maxhp = 500;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        Choices::TACKLE,
+        Choices::RETURN,
         Choices::SPLASH,
     );
 
@@ -11531,7 +11556,7 @@ fn test_tera_double_stab() {
         percentage: 100.0,
         instruction_list: vec![Instruction::Damage(DamageInstruction {
             side_ref: SideReference::SideTwo,
-            damage_amount: 64, // 48 normally
+            damage_amount: 160, // 80 without any STAB. 2x for tera into existing type
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -11543,10 +11568,12 @@ fn test_tera_stab_without_an_original_type_in_tera_types() {
     state.side_one.get_active().types = (PokemonType::Grass, PokemonType::Typeless);
     state.side_one.get_active().tera_type = PokemonType::Normal;
     state.side_one.get_active().terastallized = true;
+    state.side_two.get_active().hp = 500;
+    state.side_two.get_active().maxhp = 500;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        Choices::TACKLE,
+        Choices::RETURN,
         Choices::SPLASH,
     );
 
@@ -11554,7 +11581,7 @@ fn test_tera_stab_without_an_original_type_in_tera_types() {
         percentage: 100.0,
         instruction_list: vec![Instruction::Damage(DamageInstruction {
             side_ref: SideReference::SideTwo,
-            damage_amount: 48, // 48 is normal 1.5x STAB
+            damage_amount: 120, // 80 without any STAB. 1.5x for tera
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);

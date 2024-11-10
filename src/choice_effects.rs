@@ -597,6 +597,13 @@ pub fn choice_before_move(
     let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
     let attacker = attacking_side.get_active();
     let defender = defending_side.get_active_immutable();
+
+    #[cfg(feature = "terastallization")]
+    if attacker.terastallized && choice.move_type == attacker.tera_type && choice.base_power < 60.0
+    {
+        choice.base_power = 60.0;
+    }
+
     match choice.move_id {
         Choices::FUTURESIGHT => {
             choice.remove_all_effects();
