@@ -236,6 +236,9 @@ fn volatile_status_modifier(choice: &Choice, attacking_side: &Side, defending_si
             PokemonVolatileStatus::SlowStart if choice.category == MoveCategory::Physical => {
                 modifier *= 0.5;
             }
+            PokemonVolatileStatus::Charge if choice.move_type == PokemonType::Electric => {
+                modifier *= 2.0;
+            }
             PokemonVolatileStatus::ProtosynthesisAtk | PokemonVolatileStatus::QuarkDriveAtk
                 if choice.category == MoveCategory::Physical =>
             {
