@@ -54,6 +54,7 @@ pub enum Items {
     LEFTOVERS,
     LIFEORB,
     LUSTROUSORB,
+    LUSTROUSGLOBE,
     METALCOAT,
     MISTYSEED,
     MUSCLEBAND,
@@ -1072,7 +1073,7 @@ pub fn item_modify_attack_being_used(
                 }
             }
         }
-        Items::LUSTROUSORB => {
+        Items::LUSTROUSORB | Items::LUSTROUSGLOBE => {
             if attacking_side
                 .get_active_immutable()
                 .id

@@ -2007,6 +2007,7 @@ impl FromStr for Items {
             "LEFTOVERS" => Ok(Items::LEFTOVERS),
             "LIFEORB" => Ok(Items::LIFEORB),
             "LUSTROUSORB" => Ok(Items::LUSTROUSORB),
+            "LUSTROUSGLOBE" => Ok(Items::LUSTROUSGLOBE),
             "METALCOAT" => Ok(Items::METALCOAT),
             "MISTYSEED" => Ok(Items::MISTYSEED),
             "MUSCLEBAND" => Ok(Items::MUSCLEBAND),
