@@ -1483,7 +1483,7 @@ pub fn ability_modify_attack_being_used(
         Abilities::NEUROFORCE => {
             if type_effectiveness_modifier(
                 &attacker_choice.move_type,
-                &defending_side.get_active_immutable().types,
+                &defending_side.get_active_immutable(),
             ) > 1.0
             {
                 attacker_choice.base_power *= 1.25;
@@ -1534,7 +1534,7 @@ pub fn ability_modify_attack_being_used(
         Abilities::TINTEDLENS => {
             if type_effectiveness_modifier(
                 &attacker_choice.move_type,
-                &defending_side.get_active_immutable().types,
+                &defending_side.get_active_immutable(),
             ) < 1.0
             {
                 attacker_choice.base_power *= 2.0;
@@ -2083,8 +2083,7 @@ pub fn ability_modify_attack_against(
         }
         Abilities::WONDERGUARD => {
             if attacker_choice.category != MoveCategory::Status
-                && type_effectiveness_modifier(&attacker_choice.move_type, &target_pkmn.types)
-                    <= 1.0
+                && type_effectiveness_modifier(&attacker_choice.move_type, &target_pkmn) <= 1.0
             {
                 attacker_choice.remove_all_effects();
                 attacker_choice.base_power = 0.0;
@@ -2160,7 +2159,7 @@ pub fn ability_modify_attack_against(
             }
         }
         Abilities::PRISMARMOR => {
-            if type_effectiveness_modifier(&attacker_choice.move_type, &target_pkmn.types) > 1.0 {
+            if type_effectiveness_modifier(&attacker_choice.move_type, &target_pkmn) > 1.0 {
                 attacker_choice.base_power *= 0.75;
             }
         }
@@ -2186,7 +2185,7 @@ pub fn ability_modify_attack_against(
             }
         }
         Abilities::FILTER => {
-            if type_effectiveness_modifier(&attacker_choice.move_type, &target_pkmn.types) > 1.0 {
+            if type_effectiveness_modifier(&attacker_choice.move_type, &target_pkmn) > 1.0 {
                 attacker_choice.base_power *= 0.75;
             }
         }
@@ -2345,7 +2344,7 @@ pub fn ability_modify_attack_against(
             }
         }
         Abilities::SOLIDROCK => {
-            if type_effectiveness_modifier(&attacker_choice.move_type, &target_pkmn.types) > 1.0 {
+            if type_effectiveness_modifier(&attacker_choice.move_type, &target_pkmn) > 1.0 {
                 attacker_choice.base_power *= 0.75;
             }
         }

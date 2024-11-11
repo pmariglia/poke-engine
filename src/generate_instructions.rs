@@ -231,8 +231,7 @@ fn generate_instructions_from_switch(
     if active.item != Items::HEAVYDUTYBOOTS && active.ability != Abilities::MAGICGUARD {
         if side.side_conditions.stealth_rock == 1 {
             let switched_in_pkmn = side.get_active();
-            let multiplier =
-                type_effectiveness_modifier(&PokemonType::Rock, &switched_in_pkmn.types);
+            let multiplier = type_effectiveness_modifier(&PokemonType::Rock, &switched_in_pkmn);
 
             let dmg_amount = cmp::min(
                 (switched_in_pkmn.maxhp as f32 * multiplier / 8.0) as i16,
@@ -2907,25 +2906,25 @@ pub fn calculate_damage_rolls(
         .get_active_immutable();
     match choice.move_id {
         Choices::SEISMICTOSS => {
-            if type_effectiveness_modifier(&PokemonType::Normal, &defender_active.types) == 0.0 {
+            if type_effectiveness_modifier(&PokemonType::Normal, &defender_active) == 0.0 {
                 return None;
             }
             return Some(vec![attacker_active.level as i16]);
         }
         Choices::NIGHTSHADE => {
-            if type_effectiveness_modifier(&PokemonType::Ghost, &defender_active.types) == 0.0 {
+            if type_effectiveness_modifier(&PokemonType::Ghost, &defender_active) == 0.0 {
                 return None;
             }
             return Some(vec![attacker_active.level as i16]);
         }
         Choices::FINALGAMBIT => {
-            if type_effectiveness_modifier(&PokemonType::Ghost, &defender_active.types) == 0.0 {
+            if type_effectiveness_modifier(&PokemonType::Ghost, &defender_active) == 0.0 {
                 return None;
             }
             return Some(vec![attacker_active.hp]);
         }
         Choices::ENDEAVOR => {
-            if type_effectiveness_modifier(&PokemonType::Ghost, &defender_active.types) == 0.0
+            if type_effectiveness_modifier(&PokemonType::Ghost, &defender_active) == 0.0
                 || defender_active.hp <= attacker_active.hp
             {
                 return None;
@@ -2933,7 +2932,7 @@ pub fn calculate_damage_rolls(
             return Some(vec![defender_active.hp - attacker_active.hp]);
         }
         Choices::PAINSPLIT => {
-            if type_effectiveness_modifier(&PokemonType::Ghost, &defender_active.types) == 0.0
+            if type_effectiveness_modifier(&PokemonType::Ghost, &defender_active) == 0.0
                 || defender_active.hp <= attacker_active.hp
             {
                 return None;
@@ -2943,7 +2942,7 @@ pub fn calculate_damage_rolls(
             ]);
         }
         Choices::SUPERFANG
-            if type_effectiveness_modifier(&PokemonType::Normal, &defender_active.types) == 0.0 =>
+            if type_effectiveness_modifier(&PokemonType::Normal, &defender_active) == 0.0 =>
         {
             return None;
         }

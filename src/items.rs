@@ -182,7 +182,7 @@ fn damage_reduction_berry(
     instructions: &mut StateInstructions,
 ) {
     if &choice.move_type == pkmn_type
-        && type_effectiveness_modifier(pkmn_type, &defending_pkmn.types) > 1.0
+        && type_effectiveness_modifier(pkmn_type, &defending_pkmn) > 1.0
     {
         instructions
             .instruction_list
@@ -867,7 +867,7 @@ pub fn item_modify_attack_against(
             if attacking_choice.category != MoveCategory::Status
                 && type_effectiveness_modifier(
                     &attacking_choice.move_type,
-                    &defending_side.get_active_immutable().types,
+                    &defending_side.get_active_immutable(),
                 ) > 1.0
             {
                 attacking_choice.add_or_create_secondaries(Secondary {
@@ -954,7 +954,7 @@ pub fn item_modify_attack_being_used(
         Items::EXPERTBELT => {
             if type_effectiveness_modifier(
                 &attacking_choice.move_type,
-                &defending_side.get_active_immutable().types,
+                &defending_side.get_active_immutable(),
             ) > 1.0
             {
                 attacking_choice.base_power *= 1.2;

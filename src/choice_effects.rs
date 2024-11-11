@@ -461,8 +461,7 @@ pub fn modify_choice(
         }
         Choices::COLLISIONCOURSE | Choices::ELECTRODRIFT => {
             let defender_active = defending_side.get_active_immutable();
-            if type_effectiveness_modifier(&attacker_choice.move_type, &defender_active.types) > 1.0
-            {
+            if type_effectiveness_modifier(&attacker_choice.move_type, &defender_active) > 1.0 {
                 attacker_choice.base_power *= 1.3;
             }
         }
@@ -1071,7 +1070,7 @@ pub fn choice_special_effect(
                 return;
             }
             if choice.move_id == Choices::SUPERFANG
-                && type_effectiveness_modifier(&PokemonType::Normal, &target_pkmn.types) == 0.0
+                && type_effectiveness_modifier(&PokemonType::Normal, &target_pkmn) == 0.0
             {
                 return;
             }
@@ -1088,7 +1087,7 @@ pub fn choice_special_effect(
             let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
             let attacker_level = attacking_side.get_active_immutable().level;
             let defender_active = defending_side.get_active();
-            if type_effectiveness_modifier(&PokemonType::Ghost, &defender_active.types) == 0.0 {
+            if type_effectiveness_modifier(&PokemonType::Ghost, &defender_active) == 0.0 {
                 return;
             }
 
@@ -1105,7 +1104,7 @@ pub fn choice_special_effect(
             let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
             let attacker_level = attacking_side.get_active_immutable().level;
             let defender_active = defending_side.get_active();
-            if type_effectiveness_modifier(&PokemonType::Normal, &defender_active.types) == 0.0 {
+            if type_effectiveness_modifier(&PokemonType::Normal, &defender_active) == 0.0 {
                 return;
             }
 
@@ -1123,7 +1122,7 @@ pub fn choice_special_effect(
             let attacker = attacking_side.get_active();
             let defender = defending_side.get_active();
 
-            if type_effectiveness_modifier(&PokemonType::Normal, &defender.types) == 0.0
+            if type_effectiveness_modifier(&PokemonType::Normal, &defender) == 0.0
                 || attacker.hp >= defender.hp
             {
                 return;
@@ -1143,7 +1142,7 @@ pub fn choice_special_effect(
             let attacker = attacking_side.get_active();
             let defender = defending_side.get_active();
 
-            if type_effectiveness_modifier(&PokemonType::Normal, &defender.types) == 0.0 {
+            if type_effectiveness_modifier(&PokemonType::Normal, &defender) == 0.0 {
                 return;
             }
 

@@ -91,7 +91,19 @@ fn type_enum_to_type_matchup_int(type_enum: &PokemonType) -> usize {
     }
 }
 
-pub fn type_effectiveness_modifier(
+pub fn type_effectiveness_modifier(attacking_type: &PokemonType, defender: &Pokemon) -> f32 {
+    #[cfg(not(feature = "terastallization"))]
+    let defending_types = defender.types;
+    #[cfg(feature = "terastallization")]
+    let defending_types = if defender.terastallized {
+        (defender.tera_type, PokemonType::Typeless)
+    } else {
+        defender.types
+    };
+    _type_effectiveness_modifier(attacking_type, &defending_types)
+}
+
+fn _type_effectiveness_modifier(
     attacking_type: &PokemonType,
     defending_types: &(PokemonType, PokemonType),
 ) -> f32 {
@@ -450,7 +462,7 @@ fn common_pkmn_damage_calc(
     let defender_types = get_defending_types(&defending_side, defender, attacker, choice);
 
     let mut damage_modifier = 1.0;
-    damage_modifier *= type_effectiveness_modifier(&choice.move_type, &defender_types);
+    damage_modifier *= _type_effectiveness_modifier(&choice.move_type, &defender_types);
 
     if attacker.ability != Abilities::CLOUDNINE
         && attacker.ability != Abilities::AIRLOCK
