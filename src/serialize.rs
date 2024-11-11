@@ -2032,6 +2032,7 @@ impl FromStr for Items {
             "SOFTSAND" => Ok(Items::SOFTSAND),
             "SOULDEW" => Ok(Items::SOULDEW),
             "GRISEOUSORB" => Ok(Items::GRISEOUSORB),
+            "GRISEOUSCORE" => Ok(Items::GRISEOUSCORE),
             "TANGABERRY" => Ok(Items::TANGABERRY),
             "THROATSPRAY" => Ok(Items::THROATSPRAY),
             "THICKCLUB" => Ok(Items::THICKCLUB),

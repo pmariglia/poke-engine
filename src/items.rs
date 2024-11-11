@@ -80,6 +80,7 @@ pub enum Items {
     SOFTSAND,
     SOULDEW,
     GRISEOUSORB,
+    GRISEOUSCORE,
     TANGABERRY,
     THROATSPRAY,
     THICKCLUB,
@@ -1058,7 +1059,7 @@ pub fn item_modify_attack_being_used(
                 }
             }
         }
-        Items::GRISEOUSORB => {
+        Items::GRISEOUSORB | Items::GRISEOUSCORE => {
             if attacking_side
                 .get_active_immutable()
                 .id
