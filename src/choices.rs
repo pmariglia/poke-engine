@@ -18102,6 +18102,7 @@ pub enum Effect {
     RemoveItem,
 }
 
+#[derive(PartialEq)]
 pub enum MultiHitMove {
     None,
     DoubleHit,
@@ -18110,6 +18111,7 @@ pub enum MultiHitMove {
     PopulationBomb,
 }
 
+#[derive(PartialEq)]
 pub enum MultiAccuracyMove {
     None,
     TripleHit,

@@ -501,7 +501,7 @@ pub fn ability_before_move(
     }
     match active_pkmn.ability {
         Abilities::PROTEAN | Abilities::LIBERO => {
-            if !active_pkmn.has_type(&choice.move_type) {
+            if !active_pkmn.has_type(&choice.move_type) && !active_pkmn.terastallized {
                 let ins = Instruction::ChangeType(ChangeType {
                     side_ref: *side_ref,
                     new_types: (choice.move_type, PokemonType::Typeless),

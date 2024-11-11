@@ -1,5 +1,8 @@
 use crate::abilities::Abilities;
-use crate::choices::{Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts};
+use crate::choices::{
+    Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, MultiAccuracyMove, MultiHitMove,
+    StatBoosts,
+};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
 use crate::instruction::{
@@ -417,15 +420,15 @@ pub fn modify_choice(
             }
         }
         Choices::STOREDPOWER => {
-            let total_boosts = attacking_side.attack_boost
-                + attacking_side.defense_boost
-                + attacking_side.special_attack_boost
-                + attacking_side.special_defense_boost
-                + attacking_side.speed_boost
-                + attacking_side.accuracy_boost
-                + attacking_side.evasion_boost;
+            let total_boosts = attacking_side.attack_boost.max(0)
+                + attacking_side.defense_boost.max(0)
+                + attacking_side.special_attack_boost.max(0)
+                + attacking_side.special_defense_boost.max(0)
+                + attacking_side.speed_boost.max(0)
+                + attacking_side.accuracy_boost.max(0)
+                + attacking_side.evasion_boost.max(0);
             if total_boosts > 0 {
-                attacker_choice.base_power *= total_boosts as f32;
+                attacker_choice.base_power += 20.0 * total_boosts as f32;
             }
         }
         Choices::BARBBARRAGE => {
@@ -444,7 +447,7 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 4.0; // 2x for being super effective, 2x for nullifying water resistance
             }
         }
-        Choices::ERUPTION | Choices::WATERSPOUT => {
+        Choices::ERUPTION | Choices::WATERSPOUT | Choices::DRAGONENERGY => {
             let attacker = attacking_side.get_active_immutable();
             let hp_ratio = attacker.hp as f32 / attacker.maxhp as f32;
             attacker_choice.base_power *= hp_ratio;
@@ -598,7 +601,12 @@ pub fn choice_before_move(
     let defender = defending_side.get_active_immutable();
 
     #[cfg(feature = "terastallization")]
-    if attacker.terastallized && choice.move_type == attacker.tera_type && choice.base_power < 60.0
+    if attacker.terastallized
+        && choice.move_type == attacker.tera_type
+        && choice.base_power < 60.0
+        && choice.priority <= 0
+        && choice.multi_hit() == MultiHitMove::None
+        && choice.multi_accuracy() == MultiAccuracyMove::None
     {
         choice.base_power = 60.0;
     }
