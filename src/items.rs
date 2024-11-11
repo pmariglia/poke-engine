@@ -19,6 +19,7 @@ pub enum Items {
     ABSORBBULB,
     ADRENALINEORB,
     ADAMANTORB,
+    ADAMANTCRYSTAL,
     AIRBALLOON,
     ASSAULTVEST,
     BABIRIBERRY,
@@ -1086,7 +1087,7 @@ pub fn item_modify_attack_being_used(
                 }
             }
         }
-        Items::ADAMANTORB => {
+        Items::ADAMANTORB | Items::ADAMANTCRYSTAL => {
             if attacking_side
                 .get_active_immutable()
                 .id

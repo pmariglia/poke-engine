@@ -1972,6 +1972,7 @@ impl FromStr for Items {
             "ABSORBBULB" => Ok(Items::ABSORBBULB),
             "ADRENALINEORB" => Ok(Items::ADRENALINEORB),
             "ADAMANTORB" => Ok(Items::ADAMANTORB),
+            "ADAMANTCRYSTAL" => Ok(Items::ADAMANTCRYSTAL),
             "AIRBALLOON" => Ok(Items::AIRBALLOON),
             "ASSAULTVEST" => Ok(Items::ASSAULTVEST),
             "BABIRIBERRY" => Ok(Items::BABIRIBERRY),
