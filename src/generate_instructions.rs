@@ -843,8 +843,7 @@ fn check_move_hit_or_miss(
                 .push(crash_instruction);
         }
 
-        if Items::BLUNDERPOLICY == attacking_pokemon.item && attacking_pokemon.item_can_be_removed()
-        {
+        if Items::BLUNDERPOLICY == attacking_pokemon.item {
             if let Some(boost_instruction) = get_boost_instruction(
                 &attacking_side,
                 &PokemonBoostableStat::Speed,

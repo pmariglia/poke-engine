@@ -654,6 +654,35 @@ fn test_knockoff_boosts_damage_but_cannot_remove_if_sub_is_hit() {
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
+#[cfg(any(feature = "gen9", feature = "gen8", feature = "gen7", feature = "gen6"))]
+#[test]
+fn test_knockoff_boosts_damage_but_cannot_remove_if_stickyhold() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::LEFTOVERS;
+    state.side_one.get_active().ability = Abilities::STICKYHOLD;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::KNOCKOFF,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 76, // 51 is unboosted dmg
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
 #[test]
 #[cfg(feature = "gen9")]
 fn test_move_that_goes_through_protect() {

@@ -594,10 +594,7 @@ impl Pokemon {
         pkmn_type == &self.types.0 || pkmn_type == &self.types.1
     }
 
-    pub fn item_can_be_removed(&self) -> bool {
-        if self.ability == Abilities::STICKYHOLD {
-            return false;
-        }
+    pub fn item_is_permanent(&self) -> bool {
         match self.item {
             Items::SPLASHPLATE
             | Items::TOXICPLATE
@@ -639,6 +636,13 @@ impl Pokemon {
             }
             _ => true,
         }
+    }
+
+    pub fn item_can_be_removed(&self) -> bool {
+        if self.ability == Abilities::STICKYHOLD {
+            return false;
+        }
+        self.item_is_permanent()
     }
 
     pub fn is_grounded(&self) -> bool {

@@ -338,9 +338,9 @@ pub fn modify_choice(
 
         #[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
         Choices::KNOCKOFF => {
-            // Note: Bonus damage still applies if substitute is hit
+            // Bonus damage still applies if substitute is hit
             let defender = defending_side.get_active_immutable();
-            if defender.item_can_be_removed() && defender.item != Items::NONE {
+            if defender.item_is_permanent() && defender.item != Items::NONE {
                 attacker_choice.base_power *= 1.5;
             }
         }
