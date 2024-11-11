@@ -1837,7 +1837,7 @@ pub fn generate_instructions_from_move(
     if choice.flags.pivot {
         match attacking_side {
             SideReference::SideOne => {
-                if state.side_one.num_alive_pkmn() > 1 {
+                if state.side_one.visible_alive_pkmn() > 1 {
                     if choice.move_id == Choices::BATONPASS {
                         state.side_one.baton_passing = !state.side_one.baton_passing;
                         incoming_instructions.instruction_list.push(
@@ -1879,7 +1879,7 @@ pub fn generate_instructions_from_move(
                 }
             }
             SideReference::SideTwo => {
-                if state.side_two.num_alive_pkmn() > 1 {
+                if state.side_two.visible_alive_pkmn() > 1 {
                     if choice.move_id == Choices::BATONPASS {
                         state.side_two.baton_passing = !state.side_two.baton_passing;
                         incoming_instructions.instruction_list.push(

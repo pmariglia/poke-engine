@@ -1515,7 +1515,7 @@ pub fn ability_modify_attack_being_used(
         }
         Abilities::SUPREMEOVERLORD => {
             let mut boost_amount = 1.0;
-            boost_amount += 0.1 * attacking_side.num_alive_pkmn() as f32;
+            boost_amount += 0.1 * attacking_side.num_fainted_pkmn() as f32;
             attacker_choice.base_power *= boost_amount;
         }
         Abilities::ADAPTABILITY => {

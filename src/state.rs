@@ -1128,7 +1128,17 @@ impl Side {
         &self.pokemon[self.active_index]
     }
 
-    pub fn num_alive_pkmn(&self) -> i8 {
+    pub fn num_fainted_pkmn(&self) -> i8 {
+        let mut count = 0;
+        for p in self.pokemon.into_iter() {
+            if p.hp == 0 && p.level != 1 {
+                count += 1;
+            }
+        }
+        count
+    }
+
+    pub fn visible_alive_pkmn(&self) -> i8 {
         let mut count = 0;
         for p in self.pokemon.into_iter() {
             if p.hp > 0 {
