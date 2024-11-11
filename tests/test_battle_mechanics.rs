@@ -604,6 +604,29 @@ fn test_knockoff_cannot_remove_arceus_plate() {
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
+#[test]
+#[cfg(feature = "gen9")]
+fn test_knockoff_cannot_remove_ogerpon_mask() {
+    let mut state = State::default();
+    state.side_one.get_active().id = "ogerponcornerstone".to_string();
+    state.side_one.get_active().item = Items::CORNERSTONEMASK;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::KNOCKOFF,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 51,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
 #[cfg(feature = "gen8")]
 #[test]
 fn test_knockoff_boosts_damage_but_cannot_remove_if_sub_is_hit() {
@@ -8535,6 +8558,25 @@ fn test_trick_fails_versus_silvally_with_memory() {
     state.side_one.get_active().item = Items::SILVERPOWDER;
     state.side_two.get_active().item = Items::BUGMEMORY;
     state.side_two.get_active().id = "silvally".to_string();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TRICK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_trick_fails_versus_ogerpon_cornerstone() {
+    let mut state = State::default();
+    state.side_two.get_active().item = Items::CORNERSTONEMASK;
+    state.side_two.get_active().id = "ogerponcornerstone".to_string();
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,

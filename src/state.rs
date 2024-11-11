@@ -634,6 +634,9 @@ impl Pokemon {
             | Items::GRASSMEMORY
             | Items::FAIRYMEMORY
             | Items::ELECTRICMEMORY => !self.id.starts_with("silvally"),
+            Items::CORNERSTONEMASK | Items::HEARTHFLAMEMASK | Items::WELLSPRINGMASK => {
+                !self.id.starts_with("ogerpon")
+            }
             _ => true,
         }
     }
