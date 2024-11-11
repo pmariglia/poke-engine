@@ -1,4 +1,4 @@
-use crate::choices::{Choice, Choices, MOVES};
+use crate::choices::{Choice, Choices, MoveCategory, MOVES};
 use crate::evaluate::evaluate;
 use crate::generate_instructions::{
     calculate_both_damage_rolls, generate_instructions_from_move_pair,
@@ -603,15 +603,21 @@ pub fn main() {
             }
             SubCommand::CalculateDamage(calculate_damage) => {
                 state = State::deserialize(calculate_damage.state.as_str());
-                let s1_choice = MOVES
+                let mut s1_choice = MOVES
                     .get(&Choices::from_str(calculate_damage.side_one_move.as_str()).unwrap())
                     .unwrap()
                     .to_owned();
-                let s2_choice = MOVES
+                let mut s2_choice = MOVES
                     .get(&Choices::from_str(calculate_damage.side_two_move.as_str()).unwrap())
                     .unwrap()
                     .to_owned();
                 let s1_moves_first = calculate_damage.side_one_moves_first;
+                if calculate_damage.side_one_move == "switch" {
+                    s1_choice.category = MoveCategory::Switch
+                }
+                if calculate_damage.side_two_move == "switch" {
+                    s2_choice.category = MoveCategory::Switch
+                }
                 calculate_damage_io(&state, s1_choice, s2_choice, s1_moves_first);
             }
             SubCommand::GenerateInstructions(generate_instructions) => {
@@ -785,13 +791,16 @@ fn command_loop(mut io_data: IOData) {
                 io_data.last_instructions_generated = instructions;
             }
             "calculate-damage" | "d" => {
-                let (s1_choice, s2_choice);
+                let (mut s1_choice, mut s2_choice);
                 match args.next() {
                     Some(s) => {
                         s1_choice = MOVES
                             .get(&Choices::from_str(s).unwrap())
                             .unwrap()
                             .to_owned();
+                        if s == "switch" {
+                            s1_choice.category = MoveCategory::Switch
+                        }
                     }
                     None => {
                         println!("Usage: calculate-damage <side-1 move> <side-2 move> <side-1-moves-first>");
@@ -804,6 +813,9 @@ fn command_loop(mut io_data: IOData) {
                             .get(&Choices::from_str(s).unwrap())
                             .unwrap()
                             .to_owned();
+                        if s == "switch" {
+                            s2_choice.category = MoveCategory::Switch
+                        }
                     }
                     None => {
                         println!("Usage: calculate-damage <side-1 move> <side-2 move> <side-1-moves-first>");

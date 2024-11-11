@@ -734,6 +734,7 @@ impl FromStr for Choices {
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         match input.to_uppercase().as_str() {
             "NONE" => Ok(Choices::NONE),
+            "SWITCH" => Ok(Choices::NONE),
             "ABSORB" => Ok(Choices::ABSORB),
             "ACCELEROCK" => Ok(Choices::ACCELEROCK),
             "ACID" => Ok(Choices::ACID),
