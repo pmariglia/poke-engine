@@ -580,6 +580,16 @@ impl Pokemon {
         }
     }
 
+    #[cfg(feature = "terastallization")]
+    pub fn has_type(&self, pkmn_type: &PokemonType) -> bool {
+        if self.terastallized {
+            pkmn_type == &self.tera_type
+        } else {
+            pkmn_type == &self.types.0 || pkmn_type == &self.types.1
+        }
+    }
+
+    #[cfg(not(feature = "terastallization"))]
     pub fn has_type(&self, pkmn_type: &PokemonType) -> bool {
         pkmn_type == &self.types.0 || pkmn_type == &self.types.1
     }

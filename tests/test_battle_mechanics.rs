@@ -5707,6 +5707,41 @@ fn test_rock_spdef_in_sand() {
 
 #[test]
 #[cfg(feature = "terastallization")]
+fn test_rock_does_not_get_spdef_when_terastallized_out_of_rock() {
+    let mut state = State::default();
+    state.weather.weather_type = Weather::Sand;
+    state.side_one.get_active().types.0 = PokemonType::Rock;
+    state.side_one.get_active().terastallized = true;
+    state.side_one.get_active().tera_type = PokemonType::Fire;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::WATERGUN,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 64,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 6,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(feature = "terastallization")]
 fn test_low_bp_move_boost_when_terastallizing() {
     let mut state = State::default();
     state.side_one.get_active().terastallized = true;
