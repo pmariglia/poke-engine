@@ -1724,9 +1724,20 @@ pub fn ability_modify_attack_being_used(
             }
         }
         Abilities::SHEERFORCE => {
-            if attacker_choice.secondaries.is_some() {
+            let mut sheer_force_volatile_boosted = false;
+            if let Some(attacker_volatile_status) = &attacker_choice.volatile_status {
+                if attacker_volatile_status.volatile_status
+                    != PokemonVolatileStatus::PartiallyTrapped
+                    && attacker_volatile_status.volatile_status != PokemonVolatileStatus::LockedMove
+                    && attacker_volatile_status.volatile_status != PokemonVolatileStatus::SmackDown
+                {
+                    sheer_force_volatile_boosted = true;
+                }
+            }
+            if attacker_choice.secondaries.is_some() || sheer_force_volatile_boosted {
                 attacker_choice.base_power *= 1.3;
-                attacker_choice.secondaries = None
+                attacker_choice.secondaries = None;
+                attacker_choice.volatile_status = None
             }
         }
         Abilities::IRONFIST => {
