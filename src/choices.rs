@@ -277,6 +277,7 @@ lazy_static! {
             Choices::ALLURINGVOICE,
             Choice {
                 base_power: 80.0,
+                category: MoveCategory::Special,
                 move_id: Choices::ALLURINGVOICE,
                 move_type: PokemonType::Fairy,
                 flags: Flags {
