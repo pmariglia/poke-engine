@@ -9141,11 +9141,12 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        moves.insert(
+        if cfg!(feature = "gen9") {
+            moves.insert(
             Choices::LUSTERPURGE,
             Choice {
                 move_id: Choices::LUSTERPURGE,
-                base_power: 70.0,
+                base_power: 95.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::Psychic,
                 flags: Flags {
@@ -9167,6 +9168,34 @@ lazy_static! {
                 ..Default::default()
             },
         );
+        } else {
+            moves.insert(
+                Choices::LUSTERPURGE,
+                Choice {
+                    move_id: Choices::LUSTERPURGE,
+                    base_power: 70.0,
+                    category: MoveCategory::Special,
+                    move_type: PokemonType::Psychic,
+                    flags: Flags {
+                        protect: true,
+                        ..Default::default()
+                    },
+                    secondaries: Some(vec![Secondary {
+                        chance: 50.0,
+                        target: MoveTarget::Opponent,
+                        effect: Effect::Boost(StatBoosts {
+                            attack: 0,
+                            defense: 0,
+                            special_attack: 0,
+                            special_defense: -1,
+                            speed: 0,
+                            accuracy: 0,
+                        }),
+                    }]),
+                    ..Default::default()
+                },
+            );
+        }
         moves.insert(
             Choices::MACHPUNCH,
             Choice {
