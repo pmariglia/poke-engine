@@ -1,8 +1,5 @@
 use crate::abilities::Abilities;
-use crate::choices::{
-    Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, MultiAccuracyMove, MultiHitMove,
-    StatBoosts,
-};
+use crate::choices::{Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
 use crate::instruction::{
@@ -18,6 +15,9 @@ use crate::state::{
     PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather,
 };
 use std::cmp;
+
+#[cfg(feature = "terastallization")]
+use crate::choices::{MultiAccuracyMove, MultiHitMove};
 
 pub fn modify_choice(
     state: &State,
