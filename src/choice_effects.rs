@@ -27,6 +27,11 @@ pub fn modify_choice(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     match attacker_choice.move_id {
+        Choices::AURAWHEEL => {
+            if attacking_side.get_active_immutable().id == "morpekohangry" {
+                attacker_choice.move_type = PokemonType::Dark;
+            }
+        }
         Choices::IVYCUDGEL => {
             let attacker = attacking_side.get_active_immutable();
             match attacker.item {
