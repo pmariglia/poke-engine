@@ -3,7 +3,7 @@ use pyo3::{pyfunction, pymethods, pymodule, wrap_pyfunction, Bound, PyResult};
 use std::collections::HashSet;
 
 use poke_engine::abilities::Abilities;
-use poke_engine::choices::{Choices, MOVES};
+use poke_engine::choices::{Choices, MoveCategory, MOVES};
 use poke_engine::generate_instructions::{
     calculate_both_damage_rolls, generate_instructions_from_move_pair,
 };
@@ -485,7 +485,7 @@ fn calculate_damage(
     side_two_move: String,
     side_one_moves_first: bool,
 ) -> PyResult<(Vec<i16>, Vec<i16>)> {
-    let (s1_choice, s2_choice);
+    let (mut s1_choice, mut s2_choice);
     match MOVES.get(&Choices::from_str(side_one_move.as_str()).unwrap()) {
         Some(m) => s1_choice = m.to_owned(),
         None => {
@@ -503,6 +503,12 @@ fn calculate_damage(
                 side_one_move
             )))
         }
+    }
+    if side_one_move == "switch" {
+        s1_choice.category = MoveCategory::Switch
+    }
+    if side_two_move == "switch" {
+        s2_choice.category = MoveCategory::Switch
     }
 
     let (s1_damage_rolls, s2_damage_rolls) =
