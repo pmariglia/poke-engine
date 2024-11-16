@@ -216,8 +216,6 @@ fn terrain_modifier(
         Terrain::PsychicTerrain => {
             if choice.move_type == PokemonType::Psychic && attacker.is_grounded() {
                 terrain_boost
-            } else if choice.priority > 0 && defender.is_grounded() {
-                0.5
             } else {
                 1.0
             }

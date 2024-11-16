@@ -1175,19 +1175,16 @@ fn generate_instructions_from_damage(
 
 fn move_has_no_effect(state: &State, choice: &Choice, attacking_side_ref: &SideReference) -> bool {
     let (_attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
+    let defender = defending_side.get_active_immutable();
 
     if choice.move_type == PokemonType::Electric
         && choice.target == MoveTarget::Opponent
-        && defending_side
-            .get_active_immutable()
-            .has_type(&PokemonType::Ground)
+        && defender.has_type(&PokemonType::Ground)
     {
         return true;
     } else if choice.flags.powder
         && choice.target == MoveTarget::Opponent
-        && defending_side
-            .get_active_immutable()
-            .has_type(&PokemonType::Grass)
+        && defender.has_type(&PokemonType::Grass)
     {
         return true;
     } else if choice.move_id == Choices::ENCORE {
@@ -1199,6 +1196,11 @@ fn move_has_no_effect(state: &State, choice: &Choice, attacking_side_ref: &SideR
             LastUsedMove::Move(_) => false,
             LastUsedMove::Switch(_) => true,
         };
+    } else if state.terrain_is_active(&Terrain::PsychicTerrain)
+        && defender.is_grounded()
+        && choice.priority > 0
+    {
+        return true;
     }
     false
 }
@@ -2032,23 +2034,20 @@ fn get_effective_speed(state: &State, side_reference: &SideReference) -> i16 {
     boosted_speed as i16
 }
 
-fn get_effective_priority(state: &State, side_reference: &SideReference, choice: &Choice) -> i8 {
-    let mut priority = choice.priority;
+fn modify_choice_priority(state: &State, side_reference: &SideReference, choice: &mut Choice) {
     let side = state.get_side_immutable(side_reference);
     let active_pkmn = side.get_active_immutable();
 
     match active_pkmn.ability {
-        Abilities::PRANKSTER if choice.category == MoveCategory::Status => priority += 1,
+        Abilities::PRANKSTER if choice.category == MoveCategory::Status => choice.priority += 1,
         Abilities::GALEWINGS
             if choice.move_type == PokemonType::Flying && active_pkmn.hp == active_pkmn.maxhp =>
         {
-            priority += 1
+            choice.priority += 1
         }
-        Abilities::TRIAGE if choice.flags.heal => priority += 3,
+        Abilities::TRIAGE if choice.flags.heal => choice.priority += 3,
         _ => {}
     }
-
-    priority
 }
 
 fn side_one_moves_first(state: &State, side_one_choice: &Choice, side_two_choice: &Choice) -> bool {
@@ -2065,14 +2064,9 @@ fn side_one_moves_first(state: &State, side_one_choice: &Choice, side_two_choice
         return side_one_choice.move_id == Choices::PURSUIT;
     }
 
-    let side_one_effective_priority =
-        get_effective_priority(&state, &SideReference::SideOne, &side_one_choice);
-    let side_two_effective_priority =
-        get_effective_priority(&state, &SideReference::SideTwo, &side_two_choice);
-
     let side_one_active = state.side_one.get_active_immutable();
     let side_two_active = state.side_two.get_active_immutable();
-    if side_one_effective_priority == side_two_effective_priority {
+    if side_one_choice.priority == side_two_choice.priority {
         if side_one_active.item == Items::CUSTAPBERRY
             && side_one_active.hp < side_one_active.maxhp / 4
         {
@@ -2087,7 +2081,7 @@ fn side_one_moves_first(state: &State, side_one_choice: &Choice, side_two_choice
             false => side_one_effective_speed > side_two_effective_speed,
         }
     } else {
-        side_one_effective_priority > side_two_effective_priority
+        side_one_choice.priority > side_two_choice.priority
     }
 }
 
@@ -2797,6 +2791,8 @@ pub fn generate_instructions_from_move_pair(
     }
 
     let first_move_side;
+    modify_choice_priority(&state, &SideReference::SideOne, &mut side_one_choice);
+    modify_choice_priority(&state, &SideReference::SideTwo, &mut side_two_choice);
     if side_one_moves_first(&state, &side_one_choice, &side_two_choice) {
         first_move_side = SideReference::SideOne;
         generate_instructions_from_move(

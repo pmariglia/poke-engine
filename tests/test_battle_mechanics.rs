@@ -7694,6 +7694,71 @@ fn test_yawn_cannot_be_inflicted_to_vitalspirit() {
 }
 
 #[test]
+fn test_priority_move_on_grounded_pkmn_in_psychicterrain() {
+    let mut state = State::default();
+    state.terrain.terrain_type = Terrain::PsychicTerrain;
+    state.terrain.turns_remaining = 5;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::QUICKATTACK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::DecrementTerrainTurnsRemaining],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_priority_move_on_non_grounded_pkmn_in_psychicterrain() {
+    let mut state = State::default();
+    state.side_two.get_active().types.0 = PokemonType::Flying;
+    state.terrain.terrain_type = Terrain::PsychicTerrain;
+    state.terrain.turns_remaining = 5;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::QUICKATTACK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+            Instruction::DecrementTerrainTurnsRemaining,
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_prankster_giving_higher_priority_in_psychicterrain() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::PRANKSTER;
+    state.terrain.terrain_type = Terrain::PsychicTerrain;
+    state.terrain.turns_remaining = 5;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::THUNDERWAVE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::DecrementTerrainTurnsRemaining],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_yawn_cannot_be_inflicted_with_electricterrain() {
     let mut state = State::default();
     state.terrain.terrain_type = Terrain::ElectricTerrain;
