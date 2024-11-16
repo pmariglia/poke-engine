@@ -10,6 +10,7 @@ use crate::instruction::{
     StateInstructions, ToggleTrickRoomInstruction,
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
+use crate::pokemon::PokemonName;
 use crate::state::{
     pokemon_index_iter, LastUsedMove, PokemonBoostableStat, PokemonSideCondition, PokemonStatus,
     PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather,
@@ -28,7 +29,7 @@ pub fn modify_choice(
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     match attacker_choice.move_id {
         Choices::AURAWHEEL => {
-            if attacking_side.get_active_immutable().id == "morpekohangry" {
+            if attacking_side.get_active_immutable().id == PokemonName::MORPEKOHANGRY {
                 attacker_choice.move_type = PokemonType::Dark;
             }
         }
@@ -54,14 +55,14 @@ pub fn modify_choice(
             if defending_side.side_conditions.reflect > 0 {
                 attacker_choice.base_power *= 2.0;
             }
-            match attacking_side.get_active_immutable().id.as_str() {
-                "taurospaldeacombat" => {
+            match attacking_side.get_active_immutable().id {
+                PokemonName::TAUROSPALDEACOMBAT => {
                     attacker_choice.move_type = PokemonType::Fighting;
                 }
-                "taurospaldeablaze" => {
+                PokemonName::TAUROSPALDEABLAZE => {
                     attacker_choice.move_type = PokemonType::Fire;
                 }
-                "taurospaldeaaqua" => {
+                PokemonName::TAUROSPALDEAAQUA => {
                     attacker_choice.move_type = PokemonType::Water;
                 }
                 _ => {}

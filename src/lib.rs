@@ -9,6 +9,7 @@ pub mod instruction;
 pub mod io;
 pub mod items;
 pub mod mcts;
+pub mod pokemon;
 pub mod search;
 pub mod serialize;
 pub mod state;

@@ -11,6 +11,7 @@ use poke_engine::instruction::StateInstructions;
 use poke_engine::io::io_get_all_options;
 use poke_engine::items::Items;
 use poke_engine::mcts::{perform_mcts, MctsResult, MctsSideResult};
+use poke_engine::pokemon::PokemonName;
 use poke_engine::search::iterative_deepen_expectiminimax;
 use poke_engine::state::{
     LastUsedMove, Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoves, PokemonStatus,
@@ -258,7 +259,7 @@ impl PyPokemon {
         }
         PyPokemon {
             pokemon: Pokemon {
-                id,
+                id: PokemonName::from_str(&id).unwrap(),
                 level,
                 types: (
                     PokemonType::deserialize(&types[0]),

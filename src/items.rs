@@ -7,6 +7,7 @@ use crate::instruction::{
     ChangeItemInstruction, ChangeStatusInstruction, DamageInstruction, DisableMoveInstruction,
     HealInstruction, Instruction, StateInstructions,
 };
+use crate::pokemon::PokemonName;
 use crate::state::{Pokemon, PokemonType, Side};
 use crate::state::{PokemonBoostableStat, State, Terrain};
 use crate::state::{PokemonStatus, SideReference};
@@ -893,8 +894,8 @@ pub fn item_modify_attack_against(
             }
         }
         Items::SOULDEW => {
-            if defending_side.get_active_immutable().id == "latios"
-                || defending_side.get_active_immutable().id == "latias"
+            if defending_side.get_active_immutable().id == PokemonName::LATIOS
+                || defending_side.get_active_immutable().id == PokemonName::LATIAS
             {
                 #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
                 if attacking_choice.category == MoveCategory::Special {
@@ -913,17 +914,24 @@ pub fn item_modify_attack_being_used(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     match attacking_side.get_active_immutable().item {
-        Items::WELLSPRINGMASK | Items::HEARTHFLAMEMASK | Items::CORNERSTONEMASK => {
-            if [
-                "ogerponwellspring",
-                "ogerponhearthflame",
-                "ogerponcornerstone",
-            ]
-            .contains(&attacking_side.get_active_immutable().id.as_str())
-            {
+        Items::WELLSPRINGMASK => match attacking_side.get_active_immutable().id {
+            PokemonName::OGERPONWELLSPRING | PokemonName::OGERPONWELLSPRINGTERA => {
                 attacking_choice.base_power *= 1.2;
             }
-        }
+            _ => {}
+        },
+        Items::HEARTHFLAMEMASK => match attacking_side.get_active_immutable().id {
+            PokemonName::OGERPONHEARTHFLAME | PokemonName::OGERPONHEARTHFLAMETERA => {
+                attacking_choice.base_power *= 1.2;
+            }
+            _ => {}
+        },
+        Items::CORNERSTONEMASK => match attacking_side.get_active_immutable().id {
+            PokemonName::OGERPONCORNERSTONE | PokemonName::OGERPONCORNERSTONETERA => {
+                attacking_choice.base_power *= 1.2;
+            }
+            _ => {}
+        },
         Items::BLACKBELT => {
             if attacking_choice.move_type == PokemonType::Fighting {
                 attacking_choice.base_power *= 1.2;
@@ -1045,8 +1053,8 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::SOULDEW => {
-            if attacking_side.get_active_immutable().id == "latios"
-                || attacking_side.get_active_immutable().id == "latias"
+            if attacking_side.get_active_immutable().id == PokemonName::LATIOS
+                || attacking_side.get_active_immutable().id == PokemonName::LATIAS
             {
                 #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
                 if attacking_choice.category == MoveCategory::Special {
@@ -1062,11 +1070,7 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::GRISEOUSORB | Items::GRISEOUSCORE => {
-            if attacking_side
-                .get_active_immutable()
-                .id
-                .starts_with("giratina")
-            {
+            if attacking_side.get_active_immutable().id == PokemonName::GIRATINAORIGIN {
                 if attacking_choice.move_type == PokemonType::Dragon
                     || attacking_choice.move_type == PokemonType::Ghost
                 {
@@ -1075,11 +1079,7 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::LUSTROUSORB | Items::LUSTROUSGLOBE => {
-            if attacking_side
-                .get_active_immutable()
-                .id
-                .starts_with("palkia")
-            {
+            if attacking_side.get_active_immutable().id == PokemonName::PALKIAORIGIN {
                 if attacking_choice.move_type == PokemonType::Dragon
                     || attacking_choice.move_type == PokemonType::Water
                 {
@@ -1088,11 +1088,7 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::ADAMANTORB | Items::ADAMANTCRYSTAL => {
-            if attacking_side
-                .get_active_immutable()
-                .id
-                .starts_with("dialga")
-            {
+            if attacking_side.get_active_immutable().id == PokemonName::DIALGAORIGIN {
                 if attacking_choice.move_type == PokemonType::Dragon
                     || attacking_choice.move_type == PokemonType::Steel
                 {
@@ -1121,8 +1117,11 @@ pub fn item_modify_attack_being_used(
                 });
             }
         }
-        Items::THICKCLUB => match attacking_side.get_active_immutable().id.as_str() {
-            "cubone" | "marowak" | "marowakalola" => {
+        Items::THICKCLUB => match attacking_side.get_active_immutable().id {
+            PokemonName::CUBONE
+            | PokemonName::MAROWAK
+            | PokemonName::MAROWAKALOLA
+            | PokemonName::MAROWAKALOLATOTEM => {
                 attacking_choice.base_power *= 2.0;
             }
             _ => {}
@@ -1287,7 +1286,7 @@ pub fn item_modify_attack_being_used(
             if attacking_side
                 .get_active_immutable()
                 .id
-                .starts_with("pikachu")
+                .is_pikachu_variant()
             {
                 attacking_choice.base_power *= 2.0;
             }

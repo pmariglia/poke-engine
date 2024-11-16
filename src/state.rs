@@ -9,6 +9,7 @@ use crate::instruction::{
     RemoveVolatileStatusInstruction,
 };
 use crate::items::Items;
+use crate::pokemon::PokemonName;
 
 fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
     match boost_num {
@@ -483,7 +484,7 @@ impl Default for Move {
 
 #[derive(Debug, Clone)]
 pub struct Pokemon {
-    pub id: String,
+    pub id: PokemonName,
     pub level: i8,
     pub types: (PokemonType, PokemonType),
     pub hp: i16,
@@ -596,43 +597,52 @@ impl Pokemon {
 
     pub fn item_is_permanent(&self) -> bool {
         match self.item {
-            Items::SPLASHPLATE
-            | Items::TOXICPLATE
-            | Items::EARTHPLATE
-            | Items::STONEPLATE
-            | Items::INSECTPLATE
-            | Items::SPOOKYPLATE
-            | Items::IRONPLATE
-            | Items::FLAMEPLATE
-            | Items::MEADOWPLATE
-            | Items::ZAPPLATE
-            | Items::MINDPLATE
-            | Items::ICICLEPLATE
-            | Items::DRACOPLATE
-            | Items::DREADPLATE
-            | Items::FISTPLATE
-            | Items::BLANKPLATE
-            | Items::SKYPLATE
-            | Items::PIXIEPLATE => !self.id.starts_with("arceus"),
-            Items::BUGMEMORY
-            | Items::FIGHTINGMEMORY
-            | Items::GHOSTMEMORY
-            | Items::PSYCHICMEMORY
-            | Items::FLYINGMEMORY
-            | Items::STEELMEMORY
-            | Items::ICEMEMORY
-            | Items::POISONMEMORY
-            | Items::FIREMEMORY
-            | Items::DRAGONMEMORY
-            | Items::GROUNDMEMORY
-            | Items::WATERMEMORY
-            | Items::DARKMEMORY
-            | Items::ROCKMEMORY
-            | Items::GRASSMEMORY
-            | Items::FAIRYMEMORY
-            | Items::ELECTRICMEMORY => !self.id.starts_with("silvally"),
-            Items::CORNERSTONEMASK | Items::HEARTHFLAMEMASK | Items::WELLSPRINGMASK => {
-                !self.id.starts_with("ogerpon")
+            Items::SPLASHPLATE => !(self.id == PokemonName::ARCEUSWATER),
+            Items::TOXICPLATE => !(self.id == PokemonName::ARCEUSPOISON),
+            Items::EARTHPLATE => !(self.id == PokemonName::ARCEUSGROUND),
+            Items::STONEPLATE => !(self.id == PokemonName::ARCEUSROCK),
+            Items::INSECTPLATE => !(self.id == PokemonName::ARCEUSBUG),
+            Items::SPOOKYPLATE => !(self.id == PokemonName::ARCEUSGHOST),
+            Items::IRONPLATE => !(self.id == PokemonName::ARCEUSSTEEL),
+            Items::FLAMEPLATE => !(self.id == PokemonName::ARCEUSFIRE),
+            Items::MEADOWPLATE => !(self.id == PokemonName::ARCEUSGRASS),
+            Items::ZAPPLATE => !(self.id == PokemonName::ARCEUSELECTRIC),
+            Items::MINDPLATE => !(self.id == PokemonName::ARCEUSPSYCHIC),
+            Items::ICICLEPLATE => !(self.id == PokemonName::ARCEUSICE),
+            Items::DRACOPLATE => !(self.id == PokemonName::ARCEUSDRAGON),
+            Items::DREADPLATE => !(self.id == PokemonName::ARCEUSDARK),
+            Items::FISTPLATE => !(self.id == PokemonName::ARCEUSFIGHTING),
+            Items::BLANKPLATE => !(self.id == PokemonName::ARCEUS),
+            Items::SKYPLATE => !(self.id == PokemonName::ARCEUSFLYING),
+            Items::PIXIEPLATE => !(self.id == PokemonName::ARCEUSFAIRY),
+            Items::BUGMEMORY => !(self.id == PokemonName::SILVALLYBUG),
+            Items::FIGHTINGMEMORY => !(self.id == PokemonName::SILVALLYFIGHTING),
+            Items::GHOSTMEMORY => !(self.id == PokemonName::SILVALLYGHOST),
+            Items::PSYCHICMEMORY => !(self.id == PokemonName::SILVALLYPSYCHIC),
+            Items::FLYINGMEMORY => !(self.id == PokemonName::SILVALLYFLYING),
+            Items::STEELMEMORY => !(self.id == PokemonName::SILVALLYSTEEL),
+            Items::ICEMEMORY => !(self.id == PokemonName::SILVALLYICE),
+            Items::POISONMEMORY => !(self.id == PokemonName::SILVALLYPOISON),
+            Items::FIREMEMORY => !(self.id == PokemonName::SILVALLYFIRE),
+            Items::DRAGONMEMORY => !(self.id == PokemonName::SILVALLYDRAGON),
+            Items::GROUNDMEMORY => !(self.id == PokemonName::SILVALLYGROUND),
+            Items::WATERMEMORY => !(self.id == PokemonName::SILVALLYWATER),
+            Items::DARKMEMORY => !(self.id == PokemonName::SILVALLYDARK),
+            Items::ROCKMEMORY => !(self.id == PokemonName::SILVALLYROCK),
+            Items::GRASSMEMORY => !(self.id == PokemonName::SILVALLYGRASS),
+            Items::FAIRYMEMORY => !(self.id == PokemonName::SILVALLYFAIRY),
+            Items::ELECTRICMEMORY => !(self.id == PokemonName::SILVALLYELECTRIC),
+            Items::CORNERSTONEMASK => {
+                !(self.id == PokemonName::OGERPONCORNERSTONE
+                    || self.id == PokemonName::OGERPONCORNERSTONETERA)
+            }
+            Items::HEARTHFLAMEMASK => {
+                !(self.id == PokemonName::OGERPONHEARTHFLAME
+                    || self.id == PokemonName::OGERPONHEARTHFLAMETERA)
+            }
+            Items::WELLSPRINGMASK => {
+                !(self.id == PokemonName::OGERPONWELLSPRING
+                    || self.id == PokemonName::OGERPONWELLSPRINGTERA)
             }
             _ => true,
         }
@@ -730,7 +740,7 @@ impl Pokemon {
 impl Default for Pokemon {
     fn default() -> Pokemon {
         Pokemon {
-            id: "rattata".to_string(),
+            id: PokemonName::RATTATA,
             level: 100,
             types: (PokemonType::Normal, PokemonType::Typeless),
             hp: 100,

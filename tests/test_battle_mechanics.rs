@@ -12,6 +12,7 @@ use poke_engine::instruction::{
     ToggleBatonPassingInstruction, ToggleTerastallizedInstruction, ToggleTrickRoomInstruction,
 };
 use poke_engine::items::Items;
+use poke_engine::pokemon::PokemonName;
 use poke_engine::state::{
     pokemon_index_iter, Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
     PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State,
@@ -585,7 +586,7 @@ fn test_knockoff_removing_item() {
 #[test]
 fn test_knockoff_cannot_remove_arceus_plate() {
     let mut state = State::default();
-    state.side_one.get_active().id = "arceusghost".to_string();
+    state.side_one.get_active().id = PokemonName::ARCEUSGHOST;
     state.side_one.get_active().item = Items::SPOOKYPLATE;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -608,7 +609,7 @@ fn test_knockoff_cannot_remove_arceus_plate() {
 #[cfg(feature = "gen9")]
 fn test_knockoff_cannot_remove_ogerpon_mask() {
     let mut state = State::default();
-    state.side_one.get_active().id = "ogerponcornerstone".to_string();
+    state.side_one.get_active().id = PokemonName::OGERPONCORNERSTONE;
     state.side_one.get_active().item = Items::CORNERSTONEMASK;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -1889,7 +1890,7 @@ fn test_judgement_typechange_with_arceus_multitype() {
 fn test_multiattack_typechange_with_silvally_drive() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::GHOSTMEMORY;
-    state.side_one.get_active().id = String::from("silvallyghost");
+    state.side_one.get_active().id = PokemonName::SILVALLYGHOST;
     state.side_one.get_active().types.0 = PokemonType::Ghost;
     state.side_two.get_active().types.0 = PokemonType::Normal;
 
@@ -8653,7 +8654,7 @@ fn test_trick_fails_versus_arceus_with_plate() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::SILVERPOWDER;
     state.side_two.get_active().item = Items::SKYPLATE;
-    state.side_two.get_active().id = "arceus".to_string();
+    state.side_two.get_active().id = PokemonName::ARCEUSFLYING;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -8673,7 +8674,7 @@ fn test_trick_fails_versus_silvally_with_memory() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::SILVERPOWDER;
     state.side_two.get_active().item = Items::BUGMEMORY;
-    state.side_two.get_active().id = "silvally".to_string();
+    state.side_two.get_active().id = PokemonName::SILVALLYBUG;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -8692,7 +8693,7 @@ fn test_trick_fails_versus_silvally_with_memory() {
 fn test_trick_fails_versus_ogerpon_cornerstone() {
     let mut state = State::default();
     state.side_two.get_active().item = Items::CORNERSTONEMASK;
-    state.side_two.get_active().id = "ogerponcornerstone".to_string();
+    state.side_two.get_active().id = PokemonName::OGERPONCORNERSTONE;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -8712,7 +8713,7 @@ fn test_trick_versus_arceus_without_plate() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::SILVERPOWDER;
     state.side_two.get_active().item = Items::LEFTOVERS;
-    state.side_two.get_active().id = "arceus".to_string();
+    state.side_two.get_active().id = PokemonName::ARCEUS;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -9323,7 +9324,7 @@ fn test_toxic_into_shedinja() {
     // makes sure that toxic always does at least 1 damage
     let mut state = State::default();
     state.side_one.get_active().types.0 = PokemonType::Poison;
-    state.side_two.get_active().id = "shedinja".to_string();
+    state.side_two.get_active().id = PokemonName::SHEDINJA;
     state.side_two.get_active().hp = 1;
     state.side_two.get_active().maxhp = 1;
     state.side_two.get_active().ability = Abilities::WONDERGUARD;
@@ -9552,7 +9553,7 @@ fn test_contact_multi_hit_move_versus_rockyhelmet() {
 #[cfg(any(feature = "gen7", feature = "gen8", feature = "gen9"))]
 fn test_souldew_20_percent_boost_on_dragon_move() {
     let mut state = State::default();
-    state.side_one.get_active().id = String::from("latios");
+    state.side_one.get_active().id = PokemonName::LATIOS;
     state.side_one.get_active().item = Items::SOULDEW;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -9575,7 +9576,7 @@ fn test_souldew_20_percent_boost_on_dragon_move() {
 #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
 fn test_earlier_gen_souldew_50_percent_boost_on_any_special_move() {
     let mut state = State::default();
-    state.side_one.get_active().id = String::from("latios");
+    state.side_one.get_active().id = PokemonName::LATIOS;
     state.side_one.get_active().item = Items::SOULDEW;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -12499,7 +12500,7 @@ fn test_armortail_against_non_priority() {
 fn test_thickclub() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::THICKCLUB;
-    state.side_one.get_active().id = "marowak".to_string();
+    state.side_one.get_active().id = PokemonName::MAROWAK;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,

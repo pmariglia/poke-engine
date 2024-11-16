@@ -191,7 +191,7 @@ impl Side {
 
         let mut pkmn_iter = self.pokemon.into_iter();
         while let Some(pkmn) = pkmn_iter.next() {
-            if pkmn.id.to_lowercase() == s && pkmn_iter.pokemon_index != self.active_index {
+            if pkmn.id.to_string() == s && pkmn_iter.pokemon_index != self.active_index {
                 return Some(MoveChoice::Switch(pkmn_iter.pokemon_index));
             }
         }
@@ -338,7 +338,7 @@ fn pprint_expectiminimax_result(
                 print!("{: >12}", s2_move_str.to_lowercase());
             }
             MoveChoice::Switch(s) => {
-                let s2_move_str = format!("{}", state.side_two.pokemon[*s].id.to_lowercase());
+                let s2_move_str = format!("{}", state.side_two.pokemon[*s].id.to_string());
                 print!("{: >12}", s2_move_str);
             }
             MoveChoice::None => {}
@@ -362,7 +362,7 @@ fn pprint_expectiminimax_result(
             }
             MoveChoice::Switch(s) => {
                 let pkmn_id = &state.side_one.pokemon[s].id;
-                print!("{:<12}", pkmn_id.to_lowercase());
+                print!("{:<12}", pkmn_id.to_string());
             }
             MoveChoice::None => {}
         }
@@ -396,7 +396,7 @@ fn pprint_expectiminimax_result(
             let pkmn_id = &state.side_one.pokemon[s].id;
             print!(
                 "\nSafest Choice: Switch {}, {}\n",
-                pkmn_id.to_lowercase(),
+                pkmn_id.to_string(),
                 safest_choice.1
             );
         }
