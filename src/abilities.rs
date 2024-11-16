@@ -8,10 +8,14 @@ use crate::generate_instructions::{add_remove_status_instructions, get_boost_ins
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeType,
-    ChangeWeather, DamageInstruction, HealInstruction, Instruction, StateInstructions,
+    ChangeWeather, DamageInstruction, FormeChangeInstruction, HealInstruction, Instruction,
+    StateInstructions,
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
-use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Side, Terrain};
+use crate::pokemon::PokemonName;
+use crate::state::{
+    FormeChange, PokemonBoostableStat, PokemonSideCondition, PokemonType, Side, Terrain,
+};
 use crate::state::{PokemonStatus, State};
 use crate::state::{PokemonVolatileStatus, SideReference, Weather};
 use std::cmp;
@@ -490,14 +494,61 @@ fn quarkdrive_volatile_from_side(side: &Side) -> PokemonVolatileStatus {
 
 pub fn ability_before_move(
     state: &mut State,
-    choice: &Choice,
+    choice: &mut Choice,
     side_ref: &SideReference,
     instructions: &mut StateInstructions,
 ) {
     let (attacking_side, defending_side) = state.get_both_sides(side_ref);
     let active_pkmn = attacking_side.get_active();
-    if defending_side.get_active_immutable().ability == Abilities::NEUTRALIZINGGAS {
-        return;
+    let defending_pkmn = defending_side.get_active();
+
+    match defending_pkmn.ability {
+        Abilities::NEUTRALIZINGGAS => {
+            return;
+        }
+
+        // Technically incorrect
+        // A move missing should not trigger this formechange
+        #[cfg(not(any(feature = "gen8", feature = "gen9")))]
+        Abilities::DISGUISE
+            if (choice.category == MoveCategory::Physical
+                || choice.category == MoveCategory::Special)
+                && (defending_pkmn.id != PokemonName::MIMIKYUBUSTED
+                    && defending_pkmn.id != PokemonName::MIMIKYUBUSTEDTOTEM) =>
+        {
+            choice.base_power = 0.0;
+            instructions
+                .instruction_list
+                .push(Instruction::FormeChange(FormeChangeInstruction {
+                    side_ref: side_ref.get_other_side(),
+                    forme_change: FormeChange::MimikyuBusted,
+                }));
+        }
+        #[cfg(any(feature = "gen8", feature = "gen9"))]
+        Abilities::DISGUISE
+            if (choice.category == MoveCategory::Physical
+                || choice.category == MoveCategory::Special)
+                && (defending_pkmn.id != PokemonName::MIMIKYUBUSTED
+                    && defending_pkmn.id != PokemonName::MIMIKYUBUSTEDTOTEM) =>
+        {
+            choice.base_power = 0.0;
+            instructions
+                .instruction_list
+                .push(Instruction::FormeChange(FormeChangeInstruction {
+                    side_ref: side_ref.get_other_side(),
+                    forme_change: FormeChange::MimikyuBusted,
+                }));
+            defending_pkmn.id = PokemonName::MIMIKYUBUSTED;
+            let dmg = cmp::min(defending_pkmn.hp, defending_pkmn.maxhp / 8);
+            instructions
+                .instruction_list
+                .push(Instruction::Damage(DamageInstruction {
+                    side_ref: side_ref.get_other_side(),
+                    damage_amount: dmg,
+                }));
+            defending_pkmn.hp -= dmg;
+        }
+        _ => {}
     }
     match active_pkmn.ability {
         Abilities::PROTEAN | Abilities::LIBERO => {

@@ -1,8 +1,8 @@
 use crate::choices::{Choices, MoveCategory};
 use crate::items::Items;
-use crate::state::SideReference;
 use crate::state::Terrain;
 use crate::state::Weather;
+use crate::state::{FormeChange, SideReference};
 use crate::state::{LastUsedMove, PokemonVolatileStatus};
 use crate::state::{PokemonBoostableStat, PokemonType};
 use crate::state::{PokemonIndex, PokemonSideCondition};
@@ -69,6 +69,7 @@ pub enum Instruction {
     SetRestTurns(SetSleepTurnsInstruction),
     SetSleepTurns(SetSleepTurnsInstruction),
     SetSubstituteHealth(SetSubstituteHealthInstruction),
+    FormeChange(FormeChangeInstruction),
     SetSideOneMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     ToggleBatonPassing(ToggleBatonPassingInstruction),
@@ -226,6 +227,9 @@ impl fmt::Debug for Instruction {
                     "SetSubstituteHealth {:?}: {:?} -> {:?}",
                     s.side_ref, s.old_health, s.new_health
                 )
+            }
+            Instruction::FormeChange(s) => {
+                write!(f, "FormeChange {:?}: {:?}", s.side_ref, s.forme_change)
             }
             Instruction::SetSideOneMoveSecondSwitchOutMove(s) => {
                 write!(
@@ -418,6 +422,12 @@ pub struct SetSubstituteHealthInstruction {
     pub side_ref: SideReference,
     pub new_health: i16,
     pub old_health: i16,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct FormeChangeInstruction {
+    pub side_ref: SideReference,
+    pub forme_change: FormeChange,
 }
 
 #[derive(Debug, PartialEq, Clone)]
