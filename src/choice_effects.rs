@@ -28,6 +28,23 @@ pub fn modify_choice(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     match attacker_choice.move_id {
+        Choices::REVERSAL => {
+            let attacker = attacking_side.get_active_immutable();
+            let hp_ratio = attacker.hp as f32 / attacker.maxhp as f32;
+            if hp_ratio >= 0.688 {
+                attacker_choice.base_power = 20.0;
+            } else if hp_ratio >= 0.354 {
+                attacker_choice.base_power = 40.0;
+            } else if hp_ratio >= 0.208 {
+                attacker_choice.base_power = 80.0;
+            } else if hp_ratio >= 0.104 {
+                attacker_choice.base_power = 100.0;
+            } else if hp_ratio >= 0.042 {
+                attacker_choice.base_power = 150.0;
+            } else {
+                attacker_choice.base_power = 200.0;
+            }
+        }
         Choices::AURAWHEEL => {
             if attacking_side.get_active_immutable().id == PokemonName::MORPEKOHANGRY {
                 attacker_choice.move_type = PokemonType::Dark;
@@ -172,7 +189,7 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 1.5;
             }
         }
-        #[cfg(any(feature = "gen4"))]
+        #[cfg(any(feature = "gen3", feature = "gen4"))]
         Choices::EXPLOSION | Choices::SELFDESTRUCT => {
             attacker_choice.base_power *= 2.0;
         }
@@ -326,6 +343,10 @@ pub fn modify_choice(
             if state.weather_is_active(&Weather::Sun) || state.weather_is_active(&Weather::HarshSun)
             {
                 attacker_choice.flags.charge = false;
+            } else if !state.weather_is_active(&Weather::Sun)
+                && state.weather.weather_type != Weather::None
+            {
+                attacker_choice.base_power /= 2.0;
             }
         }
         Choices::BLIZZARD => {
@@ -400,7 +421,7 @@ pub fn modify_choice(
             }
         }
 
-        #[cfg(any(feature = "gen4"))]
+        #[cfg(any(feature = "gen3", feature = "gen4"))]
         Choices::PAYBACK => {
             if !attacker_choice.first_move {
                 attacker_choice.base_power *= 2.0;

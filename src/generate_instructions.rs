@@ -43,10 +43,10 @@ use crate::{
 };
 use std::cmp;
 
-#[cfg(feature = "gen4")]
+#[cfg(any(feature = "gen4", feature = "gen3"))]
 pub const MAX_SLEEP_TURNS: i8 = 4;
 
-#[cfg(not(feature = "gen4"))]
+#[cfg(not(any(feature = "gen4", feature = "gen3")))]
 pub const MAX_SLEEP_TURNS: i8 = 3;
 
 fn chance_to_wake_up(turns_asleep: i8) -> f32 {
@@ -537,7 +537,7 @@ pub fn immune_to_status(
                     || target_pkmn.ability == Abilities::LIMBER
             }
 
-            #[cfg(any(feature = "gen4", feature = "gen5"))]
+            #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen3"))]
             PokemonStatus::Paralyze => target_pkmn.ability == Abilities::LIMBER,
 
             PokemonStatus::Poison | PokemonStatus::Toxic => {
@@ -1177,14 +1177,17 @@ fn move_has_no_effect(state: &State, choice: &Choice, attacking_side_ref: &SideR
     let (_attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     let defender = defending_side.get_active_immutable();
 
+    #[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
+    if choice.flags.powder
+        && choice.target == MoveTarget::Opponent
+        && defender.has_type(&PokemonType::Grass)
+    {
+        return true;
+    }
+
     if choice.move_type == PokemonType::Electric
         && choice.target == MoveTarget::Opponent
         && defender.has_type(&PokemonType::Ground)
-    {
-        return true;
-    } else if choice.flags.powder
-        && choice.target == MoveTarget::Opponent
-        && defender.has_type(&PokemonType::Grass)
     {
         return true;
     } else if choice.move_id == Choices::ENCORE {
@@ -2019,7 +2022,7 @@ fn get_effective_speed(state: &State, side_reference: &SideReference) -> i16 {
         _ => {}
     }
 
-    #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
+    #[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5", feature = "gen6"))]
     if active_pkmn.status == PokemonStatus::Paralyze && active_pkmn.ability != Abilities::QUICKFEET
     {
         boosted_speed *= 0.25;
@@ -2291,10 +2294,15 @@ fn add_end_of_turn_instructions(
 
         match active_pkmn.status {
             PokemonStatus::Burn => {
-                #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
+                #[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5", feature = "gen6"))]
                 let mut damage_factor = 0.125;
 
-                #[cfg(not(any(feature = "gen4", feature = "gen5", feature = "gen6")))]
+                #[cfg(not(any(
+                    feature = "gen3",
+                    feature = "gen4",
+                    feature = "gen5",
+                    feature = "gen6"
+                )))]
                 let mut damage_factor = 0.0625;
 
                 if active_pkmn.ability == Abilities::HEATPROOF {
@@ -2615,7 +2623,13 @@ fn add_end_of_turn_instructions(
             .contains(&PokemonVolatileStatus::PartiallyTrapped)
         {
             let active_pkmn = side.get_active();
+
+            #[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5"))]
+            let damage_amount = cmp::min((active_pkmn.maxhp as f32 / 16.0) as i16, active_pkmn.hp);
+
+            #[cfg(not(any(feature = "gen3", feature = "gen4", feature = "gen5")))]
             let damage_amount = cmp::min((active_pkmn.maxhp as f32 / 8.0) as i16, active_pkmn.hp);
+
             incoming_instructions
                 .instruction_list
                 .push(Instruction::Damage(DamageInstruction {
@@ -3185,7 +3199,22 @@ mod tests {
             StateInstructions::default(),
             &mut instructions,
         );
-        assert_eq!(instructions, vec![StateInstructions::default()])
+
+        #[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
+        let expected_instructions = vec![StateInstructions::default()];
+
+        #[cfg(not(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9")))]
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::None,
+                new_status: PokemonStatus::Sleep,
+            })],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
     }
 
     #[test]
@@ -7809,7 +7838,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
+    #[cfg(any(feature = "gen4", feature = "gen4", feature = "gen5", feature = "gen6"))]
     fn test_earlier_gen_speed_cutting_by_75_percent() {
         let mut state = State::default();
         state.side_one.get_active().status = PokemonStatus::Paralyze;
@@ -8736,7 +8765,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
+    #[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5", feature = "gen6"))]
     fn test_early_generation_burn_one_eigth() {
         let mut state = State::default();
         state.side_one.get_active().status = PokemonStatus::Burn;
@@ -9091,6 +9120,16 @@ mod tests {
             &SideReference::SideOne,
         );
 
+        #[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5"))]
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            })],
+        };
+
+        #[cfg(not(any(feature = "gen3", feature = "gen4", feature = "gen5")))]
         let expected_instructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![Instruction::Damage(DamageInstruction {

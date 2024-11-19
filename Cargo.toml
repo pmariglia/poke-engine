@@ -25,6 +25,7 @@ lazy_static = "1.4.0"
 
 [features]
 remove_low_chance_instructions = []
+gen3 = []
 gen4 = []
 gen5 = []
 gen6 = []

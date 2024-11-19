@@ -1,3 +1,5 @@
+#![cfg(not(feature = "gen3"))]
+
 use poke_engine::abilities::Abilities;
 use poke_engine::choices::{Choices, MOVES};
 use poke_engine::generate_instructions::{generate_instructions_from_move_pair, MAX_SLEEP_TURNS};
@@ -3237,9 +3239,124 @@ fn test_sitrus_berry_activate_after_taking_damage_when_slower() {
 }
 
 #[test]
-fn test_healing_move_after_sitrusberry() {
+fn test_petaya_berry_activate_after_taking_damage_when_slower() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::PETAYABERRY;
+    state.side_one.get_active().hp = 50;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: 1,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::PETAYABERRY,
+                new_item: Items::NONE,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_salac_berry_activate_after_taking_damage_when_slower() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::SALACBERRY;
+    state.side_one.get_active().hp = 50;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Speed,
+                amount: 1,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::SALACBERRY,
+                new_item: Items::NONE,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_liechi_berry_activate_after_taking_damage_when_slower() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::LIECHIBERRY;
+    state.side_one.get_active().hp = 50;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 1,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::LIECHIBERRY,
+                new_item: Items::NONE,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 72, // boosted damage
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_healing_move_after_sitrusberry_with_gluttony() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::SITRUSBERRY;
+    state.side_one.get_active().ability = Abilities::GLUTTONY;
     state.side_one.get_active().hp = 95;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -8252,10 +8369,30 @@ fn test_leechseed_into_grass_type() {
         Choices::SPLASH,
     );
 
-    let expected_instructions = vec![StateInstructions {
-        percentage: 100.0,
-        instruction_list: vec![],
-    }];
+    #[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
+    let expected_instructions = vec![StateInstructions::default()];
+
+    #[cfg(not(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9")))]
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 10.000002,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 90.0,
+            instruction_list: vec![
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    volatile_status: PokemonVolatileStatus::LeechSeed,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 12,
+                }),
+            ],
+        },
+    ];
+
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -12339,6 +12476,7 @@ fn test_steamengine() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_thermal_exchange() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::THERMALEXCHANGE;

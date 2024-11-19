@@ -118,6 +118,9 @@ pub enum Items {
     FOCUSSASH,
     LUMBERRY,
     SITRUSBERRY,
+    PETAYABERRY,
+    SALACBERRY,
+    LIECHIBERRY,
     NORMALGEM,
     BUGGEM,
     ELECTRICGEM,
@@ -286,6 +289,35 @@ fn sitrus_berry(
             new_item: Items::NONE,
         }));
     active_pkmn.item = Items::NONE;
+}
+
+fn boost_berry(
+    side_ref: &SideReference,
+    attacking_side: &mut Side,
+    stat: PokemonBoostableStat,
+    instructions: &mut StateInstructions,
+) {
+    if let Some(ins) = get_boost_instruction(&attacking_side, &stat, &1, side_ref, side_ref) {
+        match stat {
+            PokemonBoostableStat::Attack => attacking_side.attack_boost += 1,
+            PokemonBoostableStat::Defense => attacking_side.defense_boost += 1,
+            PokemonBoostableStat::SpecialAttack => attacking_side.special_attack_boost += 1,
+            PokemonBoostableStat::SpecialDefense => attacking_side.special_defense_boost += 1,
+            PokemonBoostableStat::Speed => attacking_side.speed_boost += 1,
+            PokemonBoostableStat::Accuracy => attacking_side.accuracy_boost += 1,
+            PokemonBoostableStat::Evasion => attacking_side.evasion_boost += 1,
+        }
+        instructions.instruction_list.push(ins);
+    }
+    let attacker = attacking_side.get_active();
+    instructions
+        .instruction_list
+        .push(Instruction::ChangeItem(ChangeItemInstruction {
+            side_ref: *side_ref,
+            current_item: attacker.item,
+            new_item: Items::NONE,
+        }));
+    attacking_side.get_active().item = Items::NONE;
 }
 
 pub fn item_before_move(
@@ -580,9 +612,33 @@ pub fn item_before_move(
         Items::LUMBERRY if active_pkmn.status != PokemonStatus::None => {
             lum_berry(side_ref, attacking_side, instructions)
         }
-        Items::SITRUSBERRY if active_pkmn.hp < active_pkmn.maxhp / 2 => {
+        Items::SITRUSBERRY
+            if active_pkmn.ability == Abilities::GLUTTONY
+                && active_pkmn.hp < active_pkmn.maxhp / 2 =>
+        {
             sitrus_berry(side_ref, attacking_side, instructions)
         }
+        Items::SITRUSBERRY if active_pkmn.hp < active_pkmn.maxhp / 4 => {
+            sitrus_berry(side_ref, attacking_side, instructions)
+        }
+        Items::PETAYABERRY if active_pkmn.hp < active_pkmn.maxhp / 4 => boost_berry(
+            side_ref,
+            attacking_side,
+            PokemonBoostableStat::SpecialAttack,
+            instructions,
+        ),
+        Items::LIECHIBERRY if active_pkmn.hp < active_pkmn.maxhp / 4 => boost_berry(
+            side_ref,
+            attacking_side,
+            PokemonBoostableStat::Attack,
+            instructions,
+        ),
+        Items::SALACBERRY if active_pkmn.hp < active_pkmn.maxhp / 4 => boost_berry(
+            side_ref,
+            attacking_side,
+            PokemonBoostableStat::Speed,
+            instructions,
+        ),
         Items::CUSTAPBERRY => {
             if active_pkmn.hp <= active_pkmn.maxhp / 4 {
                 active_pkmn.item = Items::NONE;
@@ -897,7 +953,7 @@ pub fn item_modify_attack_against(
             if defending_side.get_active_immutable().id == PokemonName::LATIOS
                 || defending_side.get_active_immutable().id == PokemonName::LATIAS
             {
-                #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
+                #[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5", feature = "gen6"))]
                 if attacking_choice.category == MoveCategory::Special {
                     attacking_choice.base_power /= 1.5;
                 }
@@ -1056,12 +1112,17 @@ pub fn item_modify_attack_being_used(
             if attacking_side.get_active_immutable().id == PokemonName::LATIOS
                 || attacking_side.get_active_immutable().id == PokemonName::LATIAS
             {
-                #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
+                #[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5", feature = "gen6"))]
                 if attacking_choice.category == MoveCategory::Special {
                     attacking_choice.base_power *= 1.5;
                 }
 
-                #[cfg(not(any(feature = "gen4", feature = "gen5", feature = "gen6")))]
+                #[cfg(not(any(
+                    feature = "gen3",
+                    feature = "gen4",
+                    feature = "gen5",
+                    feature = "gen6"
+                )))]
                 if attacking_choice.move_type == PokemonType::Dragon
                     || attacking_choice.move_type == PokemonType::Psychic
                 {

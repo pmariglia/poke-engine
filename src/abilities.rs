@@ -764,7 +764,12 @@ pub fn ability_after_damage_hit(
         }
         Abilities::ROUGHSKIN | Abilities::IRONBARBS => {
             if damage_dealt > 0 && choice.flags.contact {
+                #[cfg(feature = "gen3")]
+                let damage_dealt = cmp::min(attacking_pkmn.maxhp / 16, attacking_pkmn.hp);
+
+                #[cfg(not(feature = "gen3"))]
                 let damage_dealt = cmp::min(attacking_pkmn.maxhp / 8, attacking_pkmn.hp);
+
                 instructions
                     .instruction_list
                     .push(Instruction::Damage(DamageInstruction {
@@ -2058,6 +2063,28 @@ pub fn ability_modify_attack_against(
                 attacker_choice.base_power /= 1.5;
             }
         }
+        #[cfg(feature = "gen3")]
+        Abilities::EFFECTSPORE => {
+            if attacker_choice.flags.contact {
+                attacker_choice.add_or_create_secondaries(Secondary {
+                    chance: 3.30,
+                    target: MoveTarget::User,
+                    effect: Effect::Status(PokemonStatus::Poison),
+                });
+                attacker_choice.add_or_create_secondaries(Secondary {
+                    chance: 3.30,
+                    target: MoveTarget::User,
+                    effect: Effect::Status(PokemonStatus::Paralyze),
+                });
+                attacker_choice.add_or_create_secondaries(Secondary {
+                    chance: 3.30,
+                    target: MoveTarget::User,
+                    effect: Effect::Status(PokemonStatus::Sleep),
+                });
+            }
+        }
+
+        #[cfg(not(feature = "gen3"))]
         Abilities::EFFECTSPORE => {
             if attacker_choice.flags.contact {
                 attacker_choice.add_or_create_secondaries(Secondary {
@@ -2394,7 +2421,14 @@ pub fn ability_modify_attack_against(
             }
         }
         Abilities::VOLTABSORB => {
-            if attacker_choice.move_type == PokemonType::Electric {
+            #[cfg(feature = "gen3")]
+            let activate = attacker_choice.move_type == PokemonType::Electric
+                && attacker_choice.category != MoveCategory::Status;
+
+            #[cfg(not(feature = "gen3"))]
+            let activate = attacker_choice.move_type == PokemonType::Electric;
+
+            if activate {
                 attacker_choice.remove_all_effects();
                 attacker_choice.accuracy = 100.0;
                 attacker_choice.base_power = 0.0;
