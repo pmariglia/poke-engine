@@ -26,4 +26,4 @@ macro_rules! assert_unique_feature {
     }
 }
 
-assert_unique_feature!("gen3", "gen4", "gen5", "gen6", "gen7", "gen8", "gen9");
+assert_unique_feature!("gen2", "gen3", "gen4", "gen5", "gen6", "gen7", "gen8", "gen9");

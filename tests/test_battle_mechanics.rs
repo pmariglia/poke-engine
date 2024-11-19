@@ -1,4 +1,4 @@
-#![cfg(not(feature = "gen3"))]
+#![cfg(not(any(feature = "gen2", feature = "gen3")))]
 
 use poke_engine::abilities::Abilities;
 use poke_engine::choices::{Choices, MOVES};

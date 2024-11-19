@@ -41,6 +41,7 @@ pub enum Items {
     COLBURBERRY,
     CUSTAPBERRY,
     DRAGONFANG,
+    DRAGONSCALE,
     DREADPLATE,
     EARTHPLATE,
     ELECTRICSEED,
@@ -62,6 +63,8 @@ pub enum Items {
     MUSCLEBAND,
     MYSTICWATER,
     NEVERMELTICE,
+    PINKBOW,
+    POLKADOTBOW,
     OCCABERRY,
     ODDINCENSE,
     PASSHOBERRY,
@@ -75,6 +78,8 @@ pub enum Items {
     ROCKYHELMET,
     SEAINCENSE,
     SHARPBEAK,
+    SPELLTAG,
+    MIRACLESEED,
     SHELLBELL,
     SHUCABERRY,
     SILKSCARF,
@@ -90,6 +95,8 @@ pub enum Items {
     TOXICORB,
     TOXICPLATE,
     TWISTEDSPOON,
+    HARDROCK,
+    METALPOWDER,
     WACANBERRY,
     WAVEINCENSE,
     MAGNET,
@@ -890,6 +897,9 @@ pub fn item_modify_attack_against(
                 attacking_choice.base_power /= 1.5;
             }
         }
+        Items::METALPOWDER if attacking_side.get_active_immutable().id == PokemonName::DITTO => {
+            attacking_choice.base_power /= 1.5;
+        }
         Items::CELLBATTERY => {
             if attacking_choice.move_type == PokemonType::Electric {
                 attacking_choice.add_or_create_secondaries(Secondary {
@@ -988,16 +998,58 @@ pub fn item_modify_attack_being_used(
             }
             _ => {}
         },
+        #[cfg(any(feature = "gen2", feature = "gen3"))]
+        Items::BLACKBELT => {
+            if attacking_choice.move_type == PokemonType::Fighting {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
         Items::BLACKBELT => {
             if attacking_choice.move_type == PokemonType::Fighting {
                 attacking_choice.base_power *= 1.2;
             }
         }
+        #[cfg(any(feature = "gen2", feature = "gen3"))]
+        Items::BLACKGLASSES => {
+            if attacking_choice.move_type == PokemonType::Dark {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
         Items::BLACKGLASSES => {
             if attacking_choice.move_type == PokemonType::Dark {
                 attacking_choice.base_power *= 1.2;
             }
         }
+        #[cfg(any(feature = "gen2", feature = "gen3"))]
+        Items::CHARCOAL => {
+            if attacking_choice.move_type == PokemonType::Fire {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
         Items::CHARCOAL => {
             if attacking_choice.move_type == PokemonType::Fire {
                 attacking_choice.base_power *= 1.2;
@@ -1013,7 +1065,21 @@ pub fn item_modify_attack_being_used(
                 attacking_choice.base_power *= 1.5;
             }
         }
-        Items::DRAGONFANG => {
+        #[cfg(any(feature = "gen2", feature = "gen3"))]
+        Items::DRAGONFANG | Items::DRAGONSCALE => {
+            if attacking_choice.move_type == PokemonType::Dragon {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
+        Items::DRAGONFANG | Items::DRAGONSCALE => {
             if attacking_choice.move_type == PokemonType::Dragon {
                 attacking_choice.base_power *= 1.2;
             }
@@ -1044,6 +1110,20 @@ pub fn item_modify_attack_being_used(
                 }
             }
         }
+        #[cfg(any(feature = "gen2", feature = "gen3"))]
+        Items::METALCOAT => {
+            if attacking_choice.move_type == PokemonType::Steel {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
         Items::METALCOAT => {
             if attacking_choice.move_type == PokemonType::Steel {
                 attacking_choice.base_power *= 1.2;
@@ -1054,14 +1134,47 @@ pub fn item_modify_attack_being_used(
                 attacking_choice.base_power *= 1.1;
             }
         }
+        #[cfg(any(feature = "gen2", feature = "gen3"))]
+        Items::MYSTICWATER => {
+            if attacking_choice.move_type == PokemonType::Water {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
         Items::MYSTICWATER => {
             if attacking_choice.move_type == PokemonType::Water {
                 attacking_choice.base_power *= 1.2;
             }
         }
+        #[cfg(any(feature = "gen2", feature = "gen3"))]
+        Items::NEVERMELTICE => {
+            if attacking_choice.move_type == PokemonType::Ice {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
         Items::NEVERMELTICE => {
             if attacking_choice.move_type == PokemonType::Ice {
                 attacking_choice.base_power *= 1.2;
+            }
+        }
+        Items::PINKBOW | Items::POLKADOTBOW => {
+            if attacking_choice.move_type == PokemonType::Normal {
+                attacking_choice.base_power *= 1.1;
             }
         }
         Items::ODDINCENSE => {
@@ -1069,6 +1182,20 @@ pub fn item_modify_attack_being_used(
                 attacking_choice.base_power *= 1.2;
             }
         }
+        #[cfg(any(feature = "gen2", feature = "gen3"))]
+        Items::POISONBARB => {
+            if attacking_choice.move_type == PokemonType::Poison {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
         Items::POISONBARB => {
             if attacking_choice.move_type == PokemonType::Poison {
                 attacking_choice.base_power *= 1.2;
@@ -1085,6 +1212,20 @@ pub fn item_modify_attack_being_used(
                 attacking_choice.base_power *= 1.2;
             }
         }
+        #[cfg(any(feature = "gen2", feature = "gen3"))]
+        Items::SHARPBEAK => {
+            if attacking_choice.move_type == PokemonType::Flying {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
         Items::SHARPBEAK => {
             if attacking_choice.move_type == PokemonType::Flying {
                 attacking_choice.base_power *= 1.2;
@@ -1098,11 +1239,39 @@ pub fn item_modify_attack_being_used(
                 attacking_choice.base_power *= 1.2;
             }
         }
+        #[cfg(any(feature = "gen2", feature = "gen3"))]
+        Items::SILVERPOWDER => {
+            if attacking_choice.move_type == PokemonType::Bug {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
         Items::SILVERPOWDER => {
             if attacking_choice.move_type == PokemonType::Bug {
                 attacking_choice.base_power *= 1.2;
             }
         }
+        #[cfg(any(feature = "gen2", feature = "gen3"))]
+        Items::SOFTSAND => {
+            if attacking_choice.move_type == PokemonType::Ground {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
         Items::SOFTSAND => {
             if attacking_choice.move_type == PokemonType::Ground {
                 attacking_choice.base_power *= 1.2;
@@ -1187,8 +1356,41 @@ pub fn item_modify_attack_being_used(
             }
             _ => {}
         },
+        #[cfg(any(feature = "gen2", feature = "gen3"))]
         Items::TWISTEDSPOON => {
             if attacking_choice.move_type == PokemonType::Psychic {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
+        Items::TWISTEDSPOON => {
+            if attacking_choice.move_type == PokemonType::Psychic {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        #[cfg(any(feature = "gen2", feature = "gen3"))]
+        Items::HARDROCK => {
+            if attacking_choice.move_type == PokemonType::Rock {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
+        Items::HARDROCK => {
+            if attacking_choice.move_type == PokemonType::Rock {
                 attacking_choice.base_power *= 1.2;
             }
         }
@@ -1197,6 +1399,20 @@ pub fn item_modify_attack_being_used(
                 attacking_choice.base_power *= 1.2;
             }
         }
+        #[cfg(any(feature = "gen2", feature = "gen3"))]
+        Items::MAGNET => {
+            if attacking_choice.move_type == PokemonType::Electric {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
         Items::MAGNET => {
             if attacking_choice.move_type == PokemonType::Electric {
                 attacking_choice.base_power *= 1.2;

@@ -217,7 +217,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::AIRCUTTER,
                 Choice {
@@ -557,7 +557,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::ASSURANCE,
                 Choice {
@@ -655,7 +655,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::AURASPHERE,
                 Choice {
@@ -963,7 +963,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::BEATUP,
                 Choice {
@@ -1097,7 +1097,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::BIND,
                 Choice {
@@ -1288,7 +1288,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::BLIZZARD,
                 Choice {
@@ -1484,7 +1484,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::BONERUSH,
                 Choice {
@@ -1672,7 +1672,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::BUBBLE,
                 Choice {
@@ -1861,7 +1861,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::BULLETSEED,
                 Choice {
@@ -2128,7 +2128,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::CHATTER,
                 Choice {
@@ -2261,7 +2261,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::CLAMP,
                 Choice {
@@ -2689,7 +2689,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::COTTONSPORE,
                 Choice {
@@ -2769,7 +2769,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::COVET,
                 Choice {
@@ -2802,7 +2802,7 @@ lazy_static! {
                 },
             );
         }
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::CRABHAMMER,
                 Choice {
@@ -2891,7 +2891,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") {
             moves.insert(
                 Choices::CRUNCH,
                 Choice {
@@ -3071,7 +3071,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
             moves.insert(
                 Choices::DARKVOID,
                 Choice {
@@ -3254,7 +3254,7 @@ lazy_static! {
             },
         );
 
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
             moves.insert(
                 Choices::DIAMONDSTORM,
                 Choice {
@@ -3311,7 +3311,7 @@ lazy_static! {
                 },
             );
         }
-        if cfg!(feature = "gen3") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") {
             moves.insert(
                 Choices::DIG,
                 Choice {
@@ -3361,7 +3361,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::DISABLE,
                 Choice {
@@ -3433,7 +3433,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") {
             moves.insert(
                 Choices::DIVE,
                 Choice {
@@ -3500,7 +3500,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::DOOMDESIRE,
                 Choice {
@@ -3652,7 +3652,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::DRACOMETEOR,
                 Choice {
@@ -3847,7 +3847,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::DRAGONPULSE,
                 Choice {
@@ -3949,7 +3949,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::DRAINPUNCH,
                 Choice {
@@ -4421,7 +4421,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::ENERGYBALL,
                 Choice {
@@ -4750,7 +4750,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::FEINT,
                 Choice {
@@ -4796,7 +4796,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
             moves.insert(
                 Choices::FELLSTINGER,
                 Choice {
@@ -4925,7 +4925,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::FIREBLAST,
                 Choice {
@@ -5024,7 +5024,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::FIREPLEDGE,
                 Choice {
@@ -5076,7 +5076,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::FIRESPIN,
                 Choice {
@@ -5218,7 +5218,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::FLAMETHROWER,
                 Choice {
@@ -5510,7 +5510,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
             moves.insert(
                 Choices::FLYINGPRESS,
                 Choice {
@@ -5778,7 +5778,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::FROSTBREATH,
                 Choice {
@@ -5841,7 +5841,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::FURYCUTTER,
                 Choice {
@@ -5938,7 +5938,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::FUTURESIGHT,
                 Choice {
@@ -6051,7 +6051,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::GIGADRAIN,
                 Choice {
@@ -6191,7 +6191,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::GLARE,
                 Choice {
@@ -6277,7 +6277,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::GRASSPLEDGE,
                 Choice {
@@ -6512,7 +6512,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::GUNKSHOT,
                 Choice {
@@ -6893,7 +6893,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::HEATWAVE,
                 Choice {
@@ -6969,7 +6969,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::HEX,
                 Choice {
@@ -7478,7 +7478,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") {
             moves.insert(
                 Choices::HIGHJUMPKICK,
                 Choice {
@@ -7655,7 +7655,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::HURRICANE,
                 Choice {
@@ -7716,7 +7716,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::HYDROPUMP,
                 Choice {
@@ -7902,7 +7902,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::ICEBEAM,
                 Choice {
@@ -8092,7 +8092,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::ICICLESPEAR,
                 Choice {
@@ -8167,7 +8167,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::INCINERATE,
                 Choice {
@@ -8428,7 +8428,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") {
             moves.insert(
                 Choices::JUMPKICK,
                 Choice {
@@ -8558,7 +8558,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::KNOCKOFF,
                 Choice {
@@ -8652,7 +8652,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::LASTRESORT,
                 Choice {
@@ -8732,7 +8732,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") {
             moves.insert(
                 Choices::LEAFBLADE,
                 Choice {
@@ -8767,7 +8767,7 @@ lazy_static! {
                 },
             );
         }
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::LEAFSTORM,
                 Choice {
@@ -8849,7 +8849,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
             moves.insert(
                 Choices::LEECHLIFE,
                 Choice {
@@ -8929,7 +8929,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::LICK,
                 Choice {
@@ -9078,21 +9078,45 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        moves.insert(
-            Choices::LOWKICK,
-            Choice {
-                move_id: Choices::LOWKICK,
-                category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
-                flags: Flags {
-                    contact: true,
-                    protect: true,
+        if cfg!(feature = "gen2") {
+            moves.insert(
+                Choices::LOWKICK,
+                Choice {
+                    move_id: Choices::LOWKICK,
+                    category: MoveCategory::Physical,
+                    base_power: 50.0,
+                    accuracy: 90.0,
+                    move_type: PokemonType::Fighting,
+                    flags: Flags {
+                        contact: true,
+                        protect: true,
+                        ..Default::default()
+                    },
+                    secondaries: Some(vec![Secondary {
+                        chance: 30.0,
+                        target: MoveTarget::Opponent,
+                        effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    }]),
                     ..Default::default()
                 },
-                ..Default::default()
-            },
-        );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+            );
+        } else {
+            moves.insert(
+                Choices::LOWKICK,
+                Choice {
+                    move_id: Choices::LOWKICK,
+                    category: MoveCategory::Physical,
+                    move_type: PokemonType::Fighting,
+                    flags: Flags {
+                        contact: true,
+                        protect: true,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
+            );
+        }
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::LOWSWEEP,
                 Choice {
@@ -9395,7 +9419,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::MAGMASTORM,
                 Choice {
@@ -9830,7 +9854,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::METEORMASH,
                 Choice {
@@ -10309,7 +10333,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::MUDDYWATER,
                 Choice {
@@ -10463,7 +10487,7 @@ lazy_static! {
                 },
             );
         }
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
             moves.insert(
                 Choices::MYSTICALFIRE,
                 Choice {
@@ -10951,7 +10975,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") {
             moves.insert(
                 Choices::OUTRAGE,
                 Choice {
@@ -11007,7 +11031,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::OVERHEAT,
                 Choice {
@@ -11100,7 +11124,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
             moves.insert(
                 Choices::PARABOLICCHARGE,
                 Choice {
@@ -11232,7 +11256,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") {
             moves.insert(
                 Choices::PETALDANCE,
                 Choice {
@@ -11336,7 +11360,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::PINMISSILE,
                 Choice {
@@ -11451,7 +11475,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::POISONFANG,
                 Choice {
@@ -11496,7 +11520,7 @@ lazy_static! {
                 },
             );
         }
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::POISONGAS,
                 Choice {
@@ -11759,7 +11783,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::POWERGEM,
                 Choice {
@@ -12114,7 +12138,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::PSYCHOSHIFT,
                 Choice {
@@ -12209,7 +12233,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::PSYWAVE,
                 Choice {
@@ -12833,7 +12857,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::ROCKBLAST,
                 Choice {
@@ -12932,7 +12956,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") {
             moves.insert(
             Choices::ROCKSMASH,
             Choice {
@@ -13004,7 +13028,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::ROCKTOMB,
                 Choice {
@@ -13314,7 +13338,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::SANDTOMB,
                 Choice {
@@ -13416,7 +13440,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::SCARYFACE,
                 Choice {
@@ -14148,7 +14172,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::SKULLBASH,
                 Choice {
@@ -14408,7 +14432,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::SMELLINGSALTS,
                 Choice {
@@ -14441,7 +14465,7 @@ lazy_static! {
                 },
             );
         }
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::SMOG,
                 Choice {
@@ -14586,7 +14610,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::SNORE,
                 Choice {
@@ -15320,7 +15344,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::STORMTHROW,
                 Choice {
@@ -15442,7 +15466,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::STRUGGLEBUG,
                 Choice {
@@ -15561,7 +15585,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
             moves.insert(
                 Choices::SUCKERPUNCH,
                 Choice {
@@ -15699,7 +15723,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::SURF,
                 Choice {
@@ -15747,7 +15771,7 @@ lazy_static! {
             },
         );
 
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
             moves.insert(
                 Choices::SWAGGER,
                 Choice {
@@ -15912,7 +15936,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::SYNCHRONOISE,
                 Choice {
@@ -16011,7 +16035,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::TAILGLOW,
                 Choice {
@@ -16225,7 +16249,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::TECHNOBLAST,
                 Choice {
@@ -16378,7 +16402,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::THIEF,
                 Choice {
@@ -16443,7 +16467,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::THRASH,
                 Choice {
@@ -16503,7 +16527,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::THUNDER,
                 Choice {
@@ -16546,7 +16570,7 @@ lazy_static! {
                 },
             );
         }
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::THUNDERBOLT,
                 Choice {
@@ -16716,7 +16740,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
             moves.insert(
                 Choices::THUNDERWAVE,
                 Choice {
@@ -16859,7 +16883,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::TOXIC,
                 Choice {
@@ -17229,7 +17253,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::UPROAR,
                 Choice {
@@ -17384,7 +17408,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::VINEWHIP,
                 Choice {
@@ -17484,7 +17508,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::WAKEUPSLAP,
                 Choice {
@@ -17551,7 +17575,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::WATERPLEDGE,
                 Choice {
@@ -17603,7 +17627,7 @@ lazy_static! {
             },
         );
 
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") || cfg!(feature = "gen6") {
             moves.insert(
                 Choices::WATERSHURIKEN,
                 Choice {
@@ -17693,7 +17717,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::WHIRLPOOL,
                 Choice {
@@ -17859,7 +17883,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") || cfg!(feature = "gen5") {
             moves.insert(
                 Choices::WILLOWISP,
                 Choice {
@@ -18012,7 +18036,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
             moves.insert(
                 Choices::WRAP,
                 Choice {
@@ -18102,7 +18126,7 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        if cfg!(feature = "gen3") {
+        if cfg!(feature = "gen2") || cfg!(feature = "gen3") {
             moves.insert(
                 Choices::ZAPCANNON,
                 Choice {
@@ -18217,7 +18241,7 @@ lazy_static! {
             },
         );
 
-        #[cfg(feature = "gen3")]
+        #[cfg(any(feature = "gen2", feature = "gen3"))]
         undo_physical_special_split(&mut moves);
 
         moves

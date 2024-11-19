@@ -189,7 +189,7 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 1.5;
             }
         }
-        #[cfg(any(feature = "gen3", feature = "gen4"))]
+        #[cfg(any(feature = "gen2", feature = "gen3", feature = "gen4"))]
         Choices::EXPLOSION | Choices::SELFDESTRUCT => {
             attacker_choice.base_power *= 2.0;
         }
@@ -421,7 +421,7 @@ pub fn modify_choice(
             }
         }
 
-        #[cfg(any(feature = "gen3", feature = "gen4"))]
+        #[cfg(any(feature = "gen2", feature = "gen3", feature = "gen4"))]
         Choices::PAYBACK => {
             if !attacker_choice.first_move {
                 attacker_choice.base_power *= 2.0;
@@ -495,6 +495,7 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 1.3;
             }
         }
+        #[cfg(not(feature = "gen2"))]
         Choices::GRASSKNOT | Choices::LOWKICK => {
             let defender_active = defending_side.get_active_immutable();
             if defender_active.weight_kg < 10.0 {
