@@ -1247,28 +1247,21 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
 fn before_move(
     state: &mut State,
     choice: &mut Choice,
+    defender_choice: &Choice,
     attacking_side: &SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
     ability_before_move(state, choice, attacking_side, incoming_instructions);
     item_before_move(state, choice, attacking_side, incoming_instructions);
     choice_before_move(state, choice, attacking_side, incoming_instructions);
-}
 
-// Updates the attacker's Choice based on some special effects
-fn update_choice(
-    state: &State,
-    attacker_choice: &mut Choice,
-    defender_choice: &Choice,
-    attacking_side: &SideReference,
-) {
-    modify_choice(state, attacker_choice, defender_choice, attacking_side);
+    modify_choice(state, choice, defender_choice, attacking_side);
 
-    ability_modify_attack_being_used(state, attacker_choice, defender_choice, attacking_side);
-    ability_modify_attack_against(state, attacker_choice, defender_choice, attacking_side);
+    ability_modify_attack_being_used(state, choice, defender_choice, attacking_side);
+    ability_modify_attack_against(state, choice, defender_choice, attacking_side);
 
-    item_modify_attack_being_used(state, attacker_choice, attacking_side);
-    item_modify_attack_against(state, attacker_choice, attacking_side);
+    item_modify_attack_being_used(state, choice, attacking_side);
+    item_modify_attack_against(state, choice, attacking_side);
 
     /*
         TODO: this needs to be here because from_drag is called after the substitute volatilestatus
@@ -1278,20 +1271,20 @@ fn update_choice(
     if defending_side
         .volatile_statuses
         .contains(&PokemonVolatileStatus::Substitute)
-        && attacker_choice.category != MoveCategory::Status
+        && choice.category != MoveCategory::Status
     {
-        attacker_choice.flags.drag = false;
+        choice.flags.drag = false;
     }
 
     // Update Choice for `charge` moves
-    if attacker_choice.flags.charge {
-        let charge_volatile_status = charge_choice_to_volatile(&attacker_choice.move_id);
+    if choice.flags.charge {
+        let charge_volatile_status = charge_choice_to_volatile(&choice.move_id);
         if !attacking_side
             .volatile_statuses
             .contains(&charge_volatile_status)
         {
-            attacker_choice.remove_all_effects();
-            attacker_choice.volatile_status = Some(VolatileStatus {
+            choice.remove_all_effects();
+            choice.volatile_status = Some(VolatileStatus {
                 target: MoveTarget::User,
                 volatile_status: charge_volatile_status,
             });
@@ -1314,46 +1307,46 @@ fn update_choice(
         || defending_side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::SilkTrap))
-        && attacker_choice.flags.protect
+        && choice.flags.protect
     {
-        attacker_choice.remove_effects_for_protect();
-        if attacker_choice.crash.is_some() {
-            attacker_choice.accuracy = 0.0;
+        choice.remove_effects_for_protect();
+        if choice.crash.is_some() {
+            choice.accuracy = 0.0;
         }
 
         if defending_side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::SpikyShield)
-            && attacker_choice.flags.contact
+            && choice.flags.contact
         {
-            attacker_choice.heal = Some(Heal {
+            choice.heal = Some(Heal {
                 target: MoveTarget::User,
                 amount: -0.125,
             })
         } else if defending_side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::BanefulBunker)
-            && attacker_choice.flags.contact
+            && choice.flags.contact
         {
-            attacker_choice.status = Some(Status {
+            choice.status = Some(Status {
                 target: MoveTarget::User,
                 status: PokemonStatus::Poison,
             })
         } else if defending_side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::BurningBulwark)
-            && attacker_choice.flags.contact
+            && choice.flags.contact
         {
-            attacker_choice.status = Some(Status {
+            choice.status = Some(Status {
                 target: MoveTarget::User,
                 status: PokemonStatus::Burn,
             })
         } else if defending_side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::SilkTrap)
-            && attacker_choice.flags.contact
+            && choice.flags.contact
         {
-            attacker_choice.boost = Some(Boost {
+            choice.boost = Some(Boost {
                 target: MoveTarget::User,
                 boosts: StatBoosts {
                     attack: 0,
@@ -1655,8 +1648,13 @@ pub fn generate_instructions_from_move(
         return;
     }
 
-    before_move(state, choice, &attacking_side, &mut incoming_instructions);
-    update_choice(state, choice, defender_choice, &attacking_side);
+    before_move(
+        state,
+        choice,
+        defender_choice,
+        &attacking_side,
+        &mut incoming_instructions,
+    );
     if incoming_instructions.percentage == 0.0 {
         state.reverse_instructions(&incoming_instructions.instruction_list);
         return;
@@ -2969,14 +2967,9 @@ pub fn calculate_damage_rolls(
     before_move(
         &mut state,
         &mut choice,
-        attacking_side_ref,
-        &mut incoming_instructions,
-    );
-    update_choice(
-        &mut state,
-        &mut choice,
         defending_choice,
         attacking_side_ref,
+        &mut incoming_instructions,
     );
 
     if choice.move_id == Choices::FUTURESIGHT {
