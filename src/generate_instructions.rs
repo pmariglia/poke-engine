@@ -505,11 +505,12 @@ pub fn immune_to_status(
         true
     } else if state.terrain.terrain_type == Terrain::MistyTerrain && target_pkmn.is_grounded() {
         true
-    } else if target_side
+    } else if (target_side
         .volatile_statuses
         .contains(&PokemonVolatileStatus::Substitute)
+        || target_side.side_conditions.safeguard > 0)
         && status_target == &MoveTarget::Opponent
-    // substitute doesn't block if the target is yourself (eg. rest)
+    // substitute/safeguard don't block if the target is yourself (eg. rest)
     {
         true
     } else {

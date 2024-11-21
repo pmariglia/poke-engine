@@ -8758,6 +8758,7 @@ fn test_solarbeam_in_sun() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_thief() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::NONE;
@@ -8792,6 +8793,7 @@ fn test_thief() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_thief_does_not_steal_if_user_has_item() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::LEFTOVERS;
@@ -8814,6 +8816,7 @@ fn test_thief_does_not_steal_if_user_has_item() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_thief_does_not_steal_if_opponent_has_no_item() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::NONE;
@@ -8836,6 +8839,7 @@ fn test_thief_does_not_steal_if_opponent_has_no_item() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_thief_does_not_steal_if_hit_sub() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::NONE;
