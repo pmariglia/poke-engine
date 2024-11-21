@@ -8758,6 +8758,117 @@ fn test_solarbeam_in_sun() {
 }
 
 #[test]
+fn test_thief() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::NONE;
+    state.side_two.get_active().item = Items::EXPERTBELT;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::THIEF,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideTwo,
+                current_item: Items::EXPERTBELT,
+                new_item: Items::NONE,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::NONE,
+                new_item: Items::EXPERTBELT,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_thief_does_not_steal_if_user_has_item() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::LEFTOVERS;
+    state.side_two.get_active().item = Items::EXPERTBELT;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::THIEF,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 48,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_thief_does_not_steal_if_opponent_has_no_item() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::NONE;
+    state.side_two.get_active().item = Items::NONE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::THIEF,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 48,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_thief_does_not_steal_if_hit_sub() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::NONE;
+    state.side_two.get_active().item = Items::EXPERTBELT;
+    state
+        .side_two
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::Substitute);
+    state.side_two.substitute_health = 25;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::THIEF,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DamageSubstitute(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 25,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::Substitute,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_trick() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::SILVERPOWDER;

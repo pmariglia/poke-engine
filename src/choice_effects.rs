@@ -539,7 +539,7 @@ pub fn choice_after_damage_hit(
     instructions: &mut StateInstructions,
     hit_sub: bool,
 ) {
-    let (_attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
+    let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
     match choice.move_id {
         Choices::RAGINGBULL => {
             if defending_side.side_conditions.reflect > 0 {
@@ -592,6 +592,33 @@ pub fn choice_after_damage_hit(
                 });
                 instructions.instruction_list.push(instruction);
                 defender_active.item = Items::NONE;
+            }
+        }
+        Choices::THIEF => {
+            let attacker_active = attacking_side.get_active();
+            let defender_active = defending_side.get_active();
+            if defender_active.item_can_be_removed()
+                && defender_active.item != Items::NONE
+                && attacker_active.item == Items::NONE
+                && !hit_sub
+            {
+                let defender_item = defender_active.item;
+
+                let instruction = Instruction::ChangeItem(ChangeItemInstruction {
+                    side_ref: attacking_side_ref.get_other_side(),
+                    current_item: defender_item,
+                    new_item: Items::NONE,
+                });
+                instructions.instruction_list.push(instruction);
+                defender_active.item = Items::NONE;
+
+                let instruction = Instruction::ChangeItem(ChangeItemInstruction {
+                    side_ref: *attacking_side_ref,
+                    current_item: Items::NONE,
+                    new_item: defender_item,
+                });
+                instructions.instruction_list.push(instruction);
+                attacker_active.item = defender_item;
             }
         }
         Choices::CLEARSMOG => {
