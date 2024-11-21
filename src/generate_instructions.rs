@@ -540,7 +540,8 @@ pub fn immune_to_status(
                         Abilities::VITALSPIRIT,
                     ]
                     .contains(&target_pkmn.ability)
-                    || (status_target == &MoveTarget::Opponent && target_side.has_sleeping_pkmn())
+                    || (status_target == &MoveTarget::Opponent
+                        && target_side.has_alive_non_rested_sleeping_pkmn())
                 // sleep clause
             }
 

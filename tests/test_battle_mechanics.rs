@@ -7226,6 +7226,54 @@ fn test_sleep_clause_prevents_sleep_move_used_on_opponent() {
 }
 
 #[test]
+fn test_sleep_clause_doesnt_apply_to_rested_pokemon() {
+    let mut state = State::default();
+    state.side_two.pokemon[PokemonIndex::P1].status = PokemonStatus::Sleep;
+    state.side_two.pokemon[PokemonIndex::P1].rest_turns = 2;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPORE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+            side_ref: SideReference::SideTwo,
+            pokemon_index: PokemonIndex::P0,
+            old_status: PokemonStatus::None,
+            new_status: PokemonStatus::Sleep,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_sleep_clause_doesnt_apply_to_fainted_pokemon() {
+    let mut state = State::default();
+    state.side_two.pokemon[PokemonIndex::P1].status = PokemonStatus::Sleep;
+    state.side_two.pokemon[PokemonIndex::P1].hp = 0;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPORE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+            side_ref: SideReference::SideTwo,
+            pokemon_index: PokemonIndex::P0,
+            old_status: PokemonStatus::None,
+            new_status: PokemonStatus::Sleep,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_removing_sleep_via_healbell_sets_sleep_turns_to_zero() {
     let mut state = State::default();
     state.side_one.pokemon[PokemonIndex::P1].status = PokemonStatus::Sleep;

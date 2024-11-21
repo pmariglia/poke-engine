@@ -1063,9 +1063,9 @@ impl Side {
         }
     }
 
-    pub fn has_sleeping_pkmn(&self) -> bool {
+    pub fn has_alive_non_rested_sleeping_pkmn(&self) -> bool {
         for p in self.pokemon.into_iter() {
-            if p.status == PokemonStatus::Sleep {
+            if p.status == PokemonStatus::Sleep && p.hp > 0 && p.rest_turns == 0 {
                 return true;
             }
         }
