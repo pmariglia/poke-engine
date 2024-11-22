@@ -610,7 +610,7 @@ fn test_knockoff_cannot_remove_arceus_plate() {
 
 #[test]
 #[cfg(feature = "gen9")]
-fn test_knockoff_cannot_remove_ogerpon_mask() {
+fn test_knockoff_cannot_remove_ogerpon_mask_and_does_not_give_boost() {
     let mut state = State::default();
     state.side_one.get_active().id = PokemonName::OGERPONCORNERSTONE;
     state.side_one.get_active().item = Items::CORNERSTONEMASK;

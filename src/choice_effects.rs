@@ -370,7 +370,7 @@ pub fn modify_choice(
         Choices::KNOCKOFF => {
             // Bonus damage still applies if substitute is hit
             let defender = defending_side.get_active_immutable();
-            if defender.item_is_permanent() && defender.item != Items::NONE {
+            if !defender.item_is_permanent() && defender.item != Items::NONE {
                 attacker_choice.base_power *= 1.5;
             }
         }
