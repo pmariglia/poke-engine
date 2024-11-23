@@ -95,7 +95,7 @@ pub enum Items {
     TOXICORB,
     TOXICPLATE,
     TWISTEDSPOON,
-    HARDROCK,
+    HARDSTONE,
     METALPOWDER,
     WACANBERRY,
     WAVEINCENSE,
@@ -1376,7 +1376,7 @@ pub fn item_modify_attack_being_used(
             }
         }
         #[cfg(any(feature = "gen2", feature = "gen3"))]
-        Items::HARDROCK => {
+        Items::HARDSTONE => {
             if attacking_choice.move_type == PokemonType::Rock {
                 attacking_choice.base_power *= 1.1;
             }
@@ -1389,7 +1389,7 @@ pub fn item_modify_attack_being_used(
             feature = "gen8",
             feature = "gen9"
         ))]
-        Items::HARDROCK => {
+        Items::HARDSTONE => {
             if attacking_choice.move_type == PokemonType::Rock {
                 attacking_choice.base_power *= 1.2;
             }

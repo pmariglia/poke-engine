@@ -2049,7 +2049,7 @@ impl FromStr for Items {
             "TOXICORB" => Ok(Items::TOXICORB),
             "TOXICPLATE" => Ok(Items::TOXICPLATE),
             "TWISTEDSPOON" => Ok(Items::TWISTEDSPOON),
-            "HARDROCK" => Ok(Items::HARDROCK),
+            "HARDSTONE" => Ok(Items::HARDSTONE),
             "METALPOWDER" => Ok(Items::METALPOWDER),
             "WACANBERRY" => Ok(Items::WACANBERRY),
             "WAVEINCENSE" => Ok(Items::WAVEINCENSE),
