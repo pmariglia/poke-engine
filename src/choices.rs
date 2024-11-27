@@ -19298,7 +19298,8 @@ define_enum_with_from_str! {
         ZENHEADBUTT,
         ZINGZAP,
         ZIPPYZAP,
-    }
+    },
+    default = NONE
 }
 
 #[derive(Clone)]

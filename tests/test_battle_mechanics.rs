@@ -12,7 +12,7 @@ use poke_engine::instruction::{
     RemoveVolatileStatusInstruction, SetFutureSightInstruction,
     SetSecondMoveSwitchOutMoveInstruction, SetSleepTurnsInstruction,
     SetSubstituteHealthInstruction, SetWishInstruction, StateInstructions, SwitchInstruction,
-    ToggleBatonPassingInstruction, ToggleTerastallizedInstruction, ToggleTrickRoomInstruction,
+    ToggleBatonPassingInstruction, ToggleTrickRoomInstruction,
 };
 use poke_engine::items::Items;
 use poke_engine::pokemon::PokemonName;
@@ -21,6 +21,9 @@ use poke_engine::state::{
     PokemonMoveIndex, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus,
     SideReference, State, StateWeather, Terrain, Weather,
 };
+
+#[cfg(feature = "terastallization")]
+use poke_engine::instruction::ToggleTerastallizedInstruction;
 
 #[cfg(not(feature = "terastallization"))]
 use poke_engine::state::LastUsedMove;
@@ -11904,6 +11907,7 @@ fn test_scrappy_fighting_move_becomes_supereffective_against_ghost_normal() {
 }
 
 #[test]
+#[cfg(feature = "terastallization")]
 fn test_terastallizing() {
     let mut state = State::default();
     state.side_one.get_active().tera_type = PokemonType::GRASS;

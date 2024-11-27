@@ -24,6 +24,7 @@ use std::cmp;
 define_enum_with_from_str! {
     #[derive(PartialEq, Debug, Clone)]
     Abilities {
+        NONE,
         ARMORTAIL,
         RIPEN,
         TANGLEDFEET,
@@ -308,7 +309,6 @@ define_enum_with_from_str! {
         PERSISTENT,
         CHLOROPHYLL,
         SIMPLE,
-        NONE,
         PURIFYINGSALT,
         EMBODYASPECTWELLSPRING,
         EMBODYASPECTCORNERSTONE,
@@ -340,7 +340,8 @@ define_enum_with_from_str! {
         WELLBAKEDBODY,
         WINDPOWER,
         ZEROTOHERO,
-    }
+    },
+    default = NONE
 }
 
 // https://bulbapedia.bulbagarden.net/wiki/Ignoring_Abilities#Ignorable_Abilities

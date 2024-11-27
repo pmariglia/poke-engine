@@ -1,18 +1,47 @@
-mod damage_calc;
-
+#[cfg(feature = "gen2")]
+#[path = "gen2/abilities.rs"]
 pub mod abilities;
+#[cfg(feature = "gen2")]
+#[path = "gen2/choice_effects.rs"]
 pub mod choice_effects;
-pub mod choices;
+#[cfg(feature = "gen2")]
+#[path = "gen2/damage_calc.rs"]
+mod damage_calc;
+#[cfg(feature = "gen2")]
+#[path = "gen2/evaluate.rs"]
 pub mod evaluate;
+#[cfg(feature = "gen2")]
+#[path = "gen2/generate_instructions.rs"]
 pub mod generate_instructions;
+#[cfg(feature = "gen2")]
+#[path = "gen2/items.rs"]
+pub mod items;
+#[cfg(feature = "gen2")]
+#[path = "gen2/state.rs"]
+pub mod state;
+
+#[cfg(not(feature = "gen2"))]
+pub mod abilities;
+#[cfg(not(feature = "gen2"))]
+pub mod choice_effects;
+#[cfg(not(feature = "gen2"))]
+mod damage_calc;
+#[cfg(not(feature = "gen2"))]
+pub mod evaluate;
+#[cfg(not(feature = "gen2"))]
+pub mod generate_instructions;
+#[cfg(not(feature = "gen2"))]
+pub mod items;
+#[cfg(not(feature = "gen2"))]
+pub mod state;
+
+pub mod choices;
 pub mod instruction;
 pub mod io;
-pub mod items;
 pub mod mcts;
 pub mod pokemon;
 pub mod search;
 pub mod serialize;
-pub mod state;
 
 #[macro_export]
 macro_rules! assert_unique_feature {
@@ -28,6 +57,40 @@ macro_rules! assert_unique_feature {
 
 #[macro_export]
 macro_rules! define_enum_with_from_str {
+    // Case when a default variant is provided
+    (
+        $(#[$meta:meta])*
+        $name:ident {
+            $($variant:ident),+ $(,)?
+        },
+        default = $default_variant:ident
+    ) => {
+        $(#[$meta])*
+        pub enum $name {
+            $($variant),+
+        }
+
+        impl std::str::FromStr for $name {
+            type Err = ();
+
+            fn from_str(input: &str) -> Result<Self, Self::Err> {
+                match input.to_uppercase().as_str() {
+                    $(
+                        stringify!($variant) => Ok($name::$variant),
+                    )+
+                    _ => Ok($name::$default_variant),
+                }
+            }
+        }
+
+        impl std::fmt::Display for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                write!(f, "{:?}", self)
+            }
+        }
+    };
+
+    // Case when no default variant is provided
     (
         $(#[$meta:meta])*
         $name:ident {

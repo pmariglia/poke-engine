@@ -13,12 +13,12 @@ use std::ops::{Index, IndexMut};
 
 fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
     match boost_num {
-        -6 => stat_value * 2 / 8,
-        -5 => stat_value * 2 / 7,
-        -4 => stat_value * 2 / 6,
-        -3 => stat_value * 2 / 5,
-        -2 => stat_value * 2 / 4,
-        -1 => stat_value * 2 / 3,
+        -6 => stat_value * 25 / 100,
+        -5 => stat_value * 28 / 100,
+        -4 => stat_value * 33 / 100,
+        -3 => stat_value * 40 / 100,
+        -2 => stat_value * 50 / 100,
+        -1 => stat_value * 66 / 100,
         0 => stat_value,
         1 => stat_value * 3 / 2,
         2 => stat_value * 4 / 2,
@@ -546,7 +546,7 @@ impl Pokemon {
         vec: &mut Vec<MoveChoice>,
         last_used_move: &LastUsedMove,
         encored: bool,
-        can_tera: bool,
+        _: bool,
     ) {
         let mut iter = self.moves.into_iter();
         while let Some(p) = iter.next() {
@@ -576,9 +576,6 @@ impl Pokemon {
                     }
                 }
                 vec.push(MoveChoice::Move(iter.pokemon_move_index));
-                if can_tera {
-                    vec.push(MoveChoice::MoveTera(iter.pokemon_move_index));
-                }
             }
         }
     }
@@ -592,88 +589,20 @@ impl Pokemon {
         }
     }
 
-    #[cfg(feature = "terastallization")]
-    pub fn has_type(&self, pkmn_type: &PokemonType) -> bool {
-        if self.terastallized {
-            pkmn_type == &self.tera_type
-        } else {
-            pkmn_type == &self.types.0 || pkmn_type == &self.types.1
-        }
-    }
-
-    #[cfg(not(feature = "terastallization"))]
     pub fn has_type(&self, pkmn_type: &PokemonType) -> bool {
         pkmn_type == &self.types.0 || pkmn_type == &self.types.1
     }
 
     pub fn item_is_permanent(&self) -> bool {
-        match self.item {
-            Items::SPLASHPLATE => self.id == PokemonName::ARCEUSWATER,
-            Items::TOXICPLATE => self.id == PokemonName::ARCEUSPOISON,
-            Items::EARTHPLATE => self.id == PokemonName::ARCEUSGROUND,
-            Items::STONEPLATE => self.id == PokemonName::ARCEUSROCK,
-            Items::INSECTPLATE => self.id == PokemonName::ARCEUSBUG,
-            Items::SPOOKYPLATE => self.id == PokemonName::ARCEUSGHOST,
-            Items::IRONPLATE => self.id == PokemonName::ARCEUSSTEEL,
-            Items::FLAMEPLATE => self.id == PokemonName::ARCEUSFIRE,
-            Items::MEADOWPLATE => self.id == PokemonName::ARCEUSGRASS,
-            Items::ZAPPLATE => self.id == PokemonName::ARCEUSELECTRIC,
-            Items::MINDPLATE => self.id == PokemonName::ARCEUSPSYCHIC,
-            Items::ICICLEPLATE => self.id == PokemonName::ARCEUSICE,
-            Items::DRACOPLATE => self.id == PokemonName::ARCEUSDRAGON,
-            Items::DREADPLATE => self.id == PokemonName::ARCEUSDARK,
-            Items::FISTPLATE => self.id == PokemonName::ARCEUSFIGHTING,
-            Items::BLANKPLATE => self.id == PokemonName::ARCEUS,
-            Items::SKYPLATE => self.id == PokemonName::ARCEUSFLYING,
-            Items::PIXIEPLATE => self.id == PokemonName::ARCEUSFAIRY,
-            Items::BUGMEMORY => self.id == PokemonName::SILVALLYBUG,
-            Items::FIGHTINGMEMORY => self.id == PokemonName::SILVALLYFIGHTING,
-            Items::GHOSTMEMORY => self.id == PokemonName::SILVALLYGHOST,
-            Items::PSYCHICMEMORY => self.id == PokemonName::SILVALLYPSYCHIC,
-            Items::FLYINGMEMORY => self.id == PokemonName::SILVALLYFLYING,
-            Items::STEELMEMORY => self.id == PokemonName::SILVALLYSTEEL,
-            Items::ICEMEMORY => self.id == PokemonName::SILVALLYICE,
-            Items::POISONMEMORY => self.id == PokemonName::SILVALLYPOISON,
-            Items::FIREMEMORY => self.id == PokemonName::SILVALLYFIRE,
-            Items::DRAGONMEMORY => self.id == PokemonName::SILVALLYDRAGON,
-            Items::GROUNDMEMORY => self.id == PokemonName::SILVALLYGROUND,
-            Items::WATERMEMORY => self.id == PokemonName::SILVALLYWATER,
-            Items::DARKMEMORY => self.id == PokemonName::SILVALLYDARK,
-            Items::ROCKMEMORY => self.id == PokemonName::SILVALLYROCK,
-            Items::GRASSMEMORY => self.id == PokemonName::SILVALLYGRASS,
-            Items::FAIRYMEMORY => self.id == PokemonName::SILVALLYFAIRY,
-            Items::ELECTRICMEMORY => self.id == PokemonName::SILVALLYELECTRIC,
-            Items::CORNERSTONEMASK => {
-                self.id == PokemonName::OGERPONCORNERSTONE
-                    || self.id == PokemonName::OGERPONCORNERSTONETERA
-            }
-            Items::HEARTHFLAMEMASK => {
-                self.id == PokemonName::OGERPONHEARTHFLAME
-                    || self.id == PokemonName::OGERPONHEARTHFLAMETERA
-            }
-            Items::WELLSPRINGMASK => {
-                self.id == PokemonName::OGERPONWELLSPRING
-                    || self.id == PokemonName::OGERPONWELLSPRINGTERA
-            }
-            _ => false,
-        }
+        false
     }
 
     pub fn item_can_be_removed(&self) -> bool {
-        if self.ability == Abilities::STICKYHOLD {
-            return false;
-        }
         !self.item_is_permanent()
     }
 
     pub fn is_grounded(&self) -> bool {
-        if self.item == Items::IRONBALL {
-            return true;
-        }
-        if self.has_type(&PokemonType::FLYING)
-            || self.ability == Abilities::LEVITATE
-            || self.item == Items::AIRBALLOON
-        {
+        if self.has_type(&PokemonType::FLYING) {
             return false;
         }
         true
@@ -698,52 +627,24 @@ impl Pokemon {
             }
             PokemonVolatileStatus::SUBSTITUTE => self.hp > self.maxhp / 4,
             PokemonVolatileStatus::FLINCH => {
-                if !first_move || [Abilities::INNERFOCUS].contains(&self.ability) {
+                if !first_move {
                     return false;
                 }
                 true
             }
             PokemonVolatileStatus::PROTECT => first_move,
-            PokemonVolatileStatus::TAUNT
-            | PokemonVolatileStatus::TORMENT
-            | PokemonVolatileStatus::ENCORE
-            | PokemonVolatileStatus::DISABLE
-            | PokemonVolatileStatus::HEALBLOCK
-            | PokemonVolatileStatus::ATTRACT => self.ability != Abilities::AROMAVEIL,
-            PokemonVolatileStatus::YAWN => {
-                // immunity to yawn via sleep immunity is handled in `get_instructions_from_volatile_statuses`
-                !active_volatiles.contains(&PokemonVolatileStatus::YAWNSLEEPTHISTURN)
-            }
             _ => true,
         }
     }
 
     pub fn immune_to_stats_lowered_by_opponent(
         &self,
-        stat: &PokemonBoostableStat,
+        _stat: &PokemonBoostableStat,
         volatiles: &HashSet<PokemonVolatileStatus>,
     ) -> bool {
-        if [
-            Abilities::CLEARBODY,
-            Abilities::WHITESMOKE,
-            Abilities::FULLMETALBODY,
-        ]
-        .contains(&self.ability)
-            || ([Items::CLEARAMULET].contains(&self.item))
-        {
-            return true;
-        }
-
         if volatiles.contains(&PokemonVolatileStatus::SUBSTITUTE) {
             return true;
         }
-
-        if stat == &PokemonBoostableStat::Attack && self.ability == Abilities::HYPERCUTTER {
-            return true;
-        } else if stat == &PokemonBoostableStat::Accuracy && self.ability == Abilities::KEENEYE {
-            return true;
-        }
-
         false
     }
 }
@@ -1001,71 +902,26 @@ impl Side {
     }
 
     pub fn calculate_boosted_stat(&self, stat: PokemonBoostableStat) -> i16 {
-        /*
-        In Gen4, simple doubles the effective boost, without it visually being doubled
-        It will not boost beyond an effective value of 6 though.
-        */
         let active = self.get_active_immutable();
         match stat {
             PokemonBoostableStat::Attack => {
-                #[cfg(feature = "gen4")]
-                let boost = if active.ability == Abilities::SIMPLE {
-                    (self.attack_boost * 2).min(6).max(-6)
-                } else {
-                    self.attack_boost
-                };
-
-                #[cfg(not(feature = "gen4"))]
                 let boost = self.attack_boost;
-
                 multiply_boost(boost, active.attack)
             }
             PokemonBoostableStat::Defense => {
-                #[cfg(feature = "gen4")]
-                let boost = if active.ability == Abilities::SIMPLE {
-                    (self.defense_boost * 2).min(6).max(-6)
-                } else {
-                    self.defense_boost
-                };
-                #[cfg(not(feature = "gen4"))]
                 let boost = self.defense_boost;
-
                 multiply_boost(boost, active.defense)
             }
             PokemonBoostableStat::SpecialAttack => {
-                #[cfg(feature = "gen4")]
-                let boost = if active.ability == Abilities::SIMPLE {
-                    (self.special_attack_boost * 2).min(6).max(-6)
-                } else {
-                    self.special_attack_boost
-                };
-                #[cfg(not(feature = "gen4"))]
                 let boost = self.special_attack_boost;
-
                 multiply_boost(boost, active.special_attack)
             }
             PokemonBoostableStat::SpecialDefense => {
-                #[cfg(feature = "gen4")]
-                let boost = if active.ability == Abilities::SIMPLE {
-                    (self.special_defense_boost * 2).min(6).max(-6)
-                } else {
-                    self.special_defense_boost
-                };
-                #[cfg(not(feature = "gen4"))]
                 let boost = self.special_defense_boost;
-
                 multiply_boost(boost, active.special_defense)
             }
             PokemonBoostableStat::Speed => {
-                #[cfg(feature = "gen4")]
-                let boost = if active.ability == Abilities::SIMPLE {
-                    (self.speed_boost * 2).min(6).max(-6)
-                } else {
-                    self.speed_boost
-                };
-                #[cfg(not(feature = "gen4"))]
                 let boost = self.speed_boost;
-
                 multiply_boost(boost, active.speed)
             }
             _ => {
@@ -1083,19 +939,8 @@ impl Side {
         false
     }
 
-    #[cfg(not(feature = "terastallization"))]
     pub fn can_use_tera(&self) -> bool {
         false
-    }
-
-    #[cfg(feature = "terastallization")]
-    pub fn can_use_tera(&self) -> bool {
-        for p in self.pokemon.into_iter() {
-            if p.terastallized {
-                return false;
-            }
-        }
-        true
     }
 
     fn toggle_force_switch(&mut self) {
@@ -1114,27 +959,15 @@ impl Side {
         }
     }
 
-    pub fn trapped(&self, opponent_active: &Pokemon) -> bool {
-        let active_pkmn = self.get_active_immutable();
+    pub fn trapped(&self, _opponent_active: &Pokemon) -> bool {
         if self
             .volatile_statuses
             .contains(&PokemonVolatileStatus::LOCKEDMOVE)
         {
             return true;
-        }
-        if active_pkmn.item == Items::SHEDSHELL || active_pkmn.has_type(&PokemonType::GHOST) {
-            return false;
         } else if self
             .volatile_statuses
             .contains(&PokemonVolatileStatus::PARTIALLYTRAPPED)
-        {
-            return true;
-        } else if opponent_active.ability == Abilities::SHADOWTAG {
-            return true;
-        } else if opponent_active.ability == Abilities::ARENATRAP && active_pkmn.is_grounded() {
-            return true;
-        } else if opponent_active.ability == Abilities::MAGNETPULL
-            && active_pkmn.has_type(&PokemonType::STEEL)
         {
             return true;
         }
@@ -1620,13 +1453,7 @@ impl State {
     }
 
     pub fn weather_is_active(&self, weather: &Weather) -> bool {
-        let s1_active = self.side_one.get_active_immutable();
-        let s2_active = self.side_two.get_active_immutable();
         &self.weather.weather_type == weather
-            && s1_active.ability != Abilities::AIRLOCK
-            && s1_active.ability != Abilities::CLOUDNINE
-            && s2_active.ability != Abilities::AIRLOCK
-            && s2_active.ability != Abilities::CLOUDNINE
     }
 
     fn _state_contains_any_move(&self, moves: &[Choices]) -> bool {

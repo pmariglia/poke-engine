@@ -262,8 +262,8 @@ impl PyPokemon {
                 id: PokemonName::from_str(&id).unwrap(),
                 level,
                 types: (
-                    pokemontype::from_str(&types[0]),
-                    pokemontype::from_str(&types[1]),
+                    PokemonType::from_str(&types[0]).unwrap(),
+                    PokemonType::from_str(&types[1]).unwrap(),
                 ),
                 hp,
                 maxhp,
@@ -287,7 +287,7 @@ impl PyPokemon {
                     m5: moves[5].create_move(),
                 },
                 terastallized,
-                tera_type: pokemontype::from_str(&tera_type),
+                tera_type: PokemonType::from_str(&tera_type).unwrap(),
             },
         }
     }

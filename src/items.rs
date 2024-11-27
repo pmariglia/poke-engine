@@ -169,7 +169,8 @@ define_enum_with_from_str! {
         HEARTHFLAMEMASK,
         CORNERSTONEMASK,
         WIDELENS,
-    }
+    },
+    default = UNKNOWNITEM
 }
 
 pub fn get_choice_move_disable_instructions(

@@ -376,6 +376,10 @@ impl State {
     /// There's more to it, follow the code below to see a full example of a serialized state.
     /// */
     ///
+    /// if cfg!(feature = "gen2") {
+    ///    return;
+    /// }
+    ///
     /// use poke_engine::abilities::Abilities;
     /// use poke_engine::items::Items;
     /// use poke_engine::pokemon::PokemonName;
@@ -507,14 +511,18 @@ impl State {
     ///
     /// assert_eq!(state.side_one.get_active_immutable().id, PokemonName::ALAKAZAM);
     /// assert_eq!(state.side_one.get_active_immutable().weight_kg, 25.5);
-    /// assert_eq!(state.side_one.get_active_immutable().item, Items::LIFEORB);
-    /// assert_eq!(state.side_one.get_active_immutable().ability, Abilities::MAGICGUARD);
     /// assert_eq!(state.side_one.substitute_health, 0);
     /// assert_eq!(state.side_two.get_active_immutable().id, PokemonName::TERRAKION);
-    /// assert_eq!(state.side_two.get_active_immutable().item, Items::FOCUSSASH);
-    /// assert_eq!(state.side_two.get_active_immutable().ability, Abilities::JUSTIFIED);
     /// assert_eq!(state.trick_room.active, false);
     /// assert_eq!(state.team_preview, false);
+    ///
+    /// #[cfg(not(feature = "gen2"))]
+    /// {
+    ///     assert_eq!(state.side_two.get_active_immutable().item, Items::FOCUSSASH);
+    ///     assert_eq!(state.side_two.get_active_immutable().ability, Abilities::JUSTIFIED);
+    ///     assert_eq!(state.side_one.get_active_immutable().item, Items::LIFEORB);
+    ///     assert_eq!(state.side_one.get_active_immutable().ability, Abilities::MAGICGUARD);
+    /// }
     ///
     /// // the same state, but all in one line
     /// let serialized_state = "alakazam,100,Psychic,Typeless,251,251,MAGICGUARD,LIFEORB,121,148,353,206,365,None,0,0,25.5,PSYCHIC;false;16,GRASSKNOT;false;32,SHADOWBALL;false;24,HIDDENPOWERFIRE70;false;24,NONE;true;32,NONE;true;32,false,Normal=skarmory,100,Steel,Flying,271,271,STURDY,CUSTAPBERRY,259,316,104,177,262,None,0,0,25.5,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,NONE;true;32,NONE;true;32,false,Normal=tyranitar,100,Rock,Dark,404,404,SANDSTREAM,CHOPLEBERRY,305,256,203,327,159,None,0,0,25.5,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,NONE;true;32,NONE;true;32,false,Normal=mamoswine,100,Ice,Ground,362,362,THICKFAT,NEVERMELTICE,392,196,158,176,241,None,0,0,25.5,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,NONE;true;32,NONE;true;32,false,Normal=jellicent,100,Water,Ghost,404,404,WATERABSORB,AIRBALLOON,140,237,206,246,180,None,0,0,25.5,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,NONE;true;32,NONE;true;32,false,Normal=excadrill,100,Ground,Steel,362,362,SANDFORCE,CHOICESCARF,367,156,122,168,302,None,0,0,25.5,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,NONE;true;32,NONE;true;32,false,Normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0=0=0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=switch:0=false/terrakion,100,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,None,0,0,25.5,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,XSCISSOR;false;24,QUICKATTACK;false;48,false,Normal=lucario,100,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,None,0,0,25.5,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,ICEPUNCH;false;24,AURASPHERE;false;32,false,Normal=breloom,100,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,None,0,0,25.5,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,DRAINPUNCH;false;16,PROTECT;false;16,false,Normal=keldeo,100,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,None,0,0,25.5,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,HIDDENPOWERICE70;false;24,CALMMIND;false;32,false,Normal=conkeldurr,100,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,None,0,0,25.5,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,BULKUP;false;32,PAYBACK;false;16,false,Normal=toxicroak,100,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,None,0,0,25.5,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,POISONJAB;false;32,SUBSTITUTE;false;16,false,Normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0=0=0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=switch:0=false/none;5/none;5/false;5/false";
