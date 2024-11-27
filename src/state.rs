@@ -1,15 +1,15 @@
 use crate::abilities::Abilities;
 use crate::choices::{Choice, Choices, MoveCategory, MOVES};
-use core::panic;
-use std::collections::HashSet;
-use std::ops::{Index, IndexMut};
-
+use crate::define_enum_with_from_str;
 use crate::instruction::{
     BoostInstruction, ChangeSideConditionInstruction, EnableMoveInstruction, Instruction,
     RemoveVolatileStatusInstruction,
 };
 use crate::items::Items;
 use crate::pokemon::PokemonName;
+use core::panic;
+use std::collections::HashSet;
+use std::ops::{Index, IndexMut};
 
 fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
     match boost_num {
@@ -79,120 +79,124 @@ impl MoveChoice {
     }
 }
 
-#[derive(Debug, PartialEq, Copy, Clone, Hash)]
-pub enum PokemonStatus {
-    None,
-    Burn,
-    Sleep,
-    Freeze,
-    Paralyze,
-    Poison,
-    Toxic,
+define_enum_with_from_str! {
+    #[derive(Debug, PartialEq, Copy, Clone, Hash)]
+    PokemonStatus {
+        NONE,
+        BURN,
+        SLEEP,
+        FREEZE,
+        PARALYZE,
+        POISON,
+        TOXIC,
+    }
 }
 
-#[derive(PartialEq, Eq, Hash, Debug, Copy, Clone)]
-pub enum PokemonVolatileStatus {
-    None,
-    AquaRing,
-    Attract,
-    Autotomize,
-    BanefulBunker,
-    Bide,
-    Bounce,
-    BurningBulwark,
-    Charge,
-    Confusion,
-    Curse,
-    DefenseCurl,
-    DestinyBond,
-    Dig,
-    Disable,
-    Dive,
-    Electrify,
-    ElectroShot,
-    Embargo,
-    Encore,
-    Endure,
-    FlashFire,
-    Flinch,
-    Fly,
-    Focusenergy,
-    FollowMe,
-    Foresight,
-    Freezeshock,
-    GastroAcid,
-    Geomancy,
-    GlaiveRush,
-    Grudge,
-    HealBlock,
-    HelpingHand,
-    IceBurn,
-    Imprison,
-    Ingrain,
-    KingsShield,
-    LaserFocus,
-    LeechSeed,
-    LockedMove,
-    MagicCoat,
-    MagnetRise,
-    MaxGuard,
-    MeteorBeam,
-    Minimize,
-    MiracleEye,
-    MustRecharge,
-    Nightmare,
-    NoRetreat,
-    Octolock,
-    PartiallyTrapped,
-    Perish4,
-    Perish3,
-    Perish2,
-    Perish1,
-    PhantomForce,
-    Powder,
-    PowerShift,
-    PowerTrick,
-    Protect,
-    ProtosynthesisAtk,
-    ProtosynthesisDef,
-    ProtosynthesisSpa,
-    ProtosynthesisSpd,
-    ProtosynthesisSpe,
-    QuarkDriveAtk,
-    QuarkDriveDef,
-    QuarkDriveSpa,
-    QuarkDriveSpd,
-    QuarkDriveSpe,
-    Rage,
-    RagePowder,
-    RazorWind,
-    Roost,
-    SaltCure,
-    ShadowForce,
-    SkullBash,
-    SkyAttack,
-    SkyDrop,
-    SilkTrap,
-    SlowStart,
-    SmackDown,
-    Snatch,
-    SolarBeam,
-    SolarBlade,
-    SparklingAria,
-    SpikyShield,
-    Spotlight,
-    StockPile,
-    Substitute,
-    SyrupBomb,
-    TarShot,
-    Taunt,
-    Telekinesis,
-    ThroatChop,
-    Torment,
-    Unburden,
-    Uproar,
-    Yawn,
-    YawnSleepThisTurn,
+define_enum_with_from_str! {
+    #[derive(PartialEq, Eq, Hash, Debug, Copy, Clone)]
+    PokemonVolatileStatus {
+        NONE,
+        AQUARING,
+        ATTRACT,
+        AUTOTOMIZE,
+        BANEFULBUNKER,
+        BIDE,
+        BOUNCE,
+        BURNINGBULWARK,
+        CHARGE,
+        CONFUSION,
+        CURSE,
+        DEFENSECURL,
+        DESTINYBOND,
+        DIG,
+        DISABLE,
+        DIVE,
+        ELECTRIFY,
+        ELECTROSHOT,
+        EMBARGO,
+        ENCORE,
+        ENDURE,
+        FLASHFIRE,
+        FLINCH,
+        FLY,
+        FOCUSENERGY,
+        FOLLOWME,
+        FORESIGHT,
+        FREEZESHOCK,
+        GASTROACID,
+        GEOMANCY,
+        GLAIVERUSH,
+        GRUDGE,
+        HEALBLOCK,
+        HELPINGHAND,
+        ICEBURN,
+        IMPRISON,
+        INGRAIN,
+        KINGSSHIELD,
+        LASERFOCUS,
+        LEECHSEED,
+        LOCKEDMOVE,
+        MAGICCOAT,
+        MAGNETRISE,
+        MAXGUARD,
+        METEORBEAM,
+        MINIMIZE,
+        MIRACLEEYE,
+        MUSTRECHARGE,
+        NIGHTMARE,
+        NORETREAT,
+        OCTOLOCK,
+        PARTIALLYTRAPPED,
+        PERISH4,
+        PERISH3,
+        PERISH2,
+        PERISH1,
+        PHANTOMFORCE,
+        POWDER,
+        POWERSHIFT,
+        POWERTRICK,
+        PROTECT,
+        PROTOSYNTHESISATK,
+        PROTOSYNTHESISDEF,
+        PROTOSYNTHESISSPA,
+        PROTOSYNTHESISSPD,
+        PROTOSYNTHESISSPE,
+        QUARKDRIVEATK,
+        QUARKDRIVEDEF,
+        QUARKDRIVESPA,
+        QUARKDRIVESPD,
+        QUARKDRIVESPE,
+        RAGE,
+        RAGEPOWDER,
+        RAZORWIND,
+        ROOST,
+        SALTCURE,
+        SHADOWFORCE,
+        SKULLBASH,
+        SKYATTACK,
+        SKYDROP,
+        SILKTRAP,
+        SLOWSTART,
+        SMACKDOWN,
+        SNATCH,
+        SOLARBEAM,
+        SOLARBLADE,
+        SPARKLINGARIA,
+        SPIKYSHIELD,
+        SPOTLIGHT,
+        STOCKPILE,
+        SUBSTITUTE,
+        SYRUPBOMB,
+        TARSHOT,
+        TAUNT,
+        TELEKINESIS,
+        THROATCHOP,
+        TORMENT,
+        UNBURDEN,
+        UPROAR,
+        YAWN,
+        YAWNSLEEPTHISTURN,
+    }
 }
 
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
@@ -233,16 +237,18 @@ impl SideReference {
     }
 }
 
-#[derive(Debug, PartialEq, Copy, Clone)]
-pub enum Weather {
-    None,
-    Sun,
-    Rain,
-    Sand,
-    Hail,
-    Snow,
-    HarshSun,
-    HeavyRain,
+define_enum_with_from_str! {
+    #[derive(Debug, PartialEq, Copy, Clone)]
+    Weather {
+        NONE,
+        SUN,
+        RAIN,
+        SAND,
+        HAIL,
+        SNOW,
+        HARSHSUN,
+        HEAVYRAIN,
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -251,13 +257,15 @@ pub struct StateWeather {
     pub turns_remaining: i8,
 }
 
-#[derive(Debug, PartialEq, Copy, Clone)]
-pub enum Terrain {
-    None,
-    ElectricTerrain,
-    PsychicTerrain,
-    MistyTerrain,
-    GrassyTerrain,
+define_enum_with_from_str! {
+    #[derive(Debug, PartialEq, Copy, Clone)]
+    Terrain {
+        NONE,
+        ELECTRICTERRAIN,
+        PSYCHICTERRAIN,
+        MISTYTERRAIN,
+        GRASSYTERRAIN,
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -272,28 +280,30 @@ pub struct StateTrickRoom {
     pub turns_remaining: i8,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum PokemonType {
-    Normal,
-    Fire,
-    Water,
-    Electric,
-    Grass,
-    Ice,
-    Fighting,
-    Poison,
-    Ground,
-    Flying,
-    Psychic,
-    Bug,
-    Rock,
-    Ghost,
-    Dragon,
-    Dark,
-    Steel,
-    Fairy,
-    Stellar,
-    Typeless,
+define_enum_with_from_str! {
+    #[derive(Debug, Clone, Copy, PartialEq)]
+    PokemonType {
+        NORMAL,
+        FIRE,
+        WATER,
+        ELECTRIC,
+        GRASS,
+        ICE,
+        FIGHTING,
+        POISON,
+        GROUND,
+        FLYING,
+        PSYCHIC,
+        BUG,
+        ROCK,
+        GHOST,
+        DRAGON,
+        DARK,
+        STEEL,
+        FAIRY,
+        STELLAR,
+        TYPELESS,
+    }
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -659,7 +669,7 @@ impl Pokemon {
         if self.item == Items::IRONBALL {
             return true;
         }
-        if self.has_type(&PokemonType::Flying)
+        if self.has_type(&PokemonType::FLYING)
             || self.ability == Abilities::LEVITATE
             || self.item == Items::AIRBALLOON
         {
@@ -679,29 +689,29 @@ impl Pokemon {
         }
         match volatile_status {
             // grass immunity to leechseed covered by `powder`
-            PokemonVolatileStatus::LeechSeed => {
-                if active_volatiles.contains(&PokemonVolatileStatus::Substitute) {
+            PokemonVolatileStatus::LEECHSEED => {
+                if active_volatiles.contains(&PokemonVolatileStatus::SUBSTITUTE) {
                     return false;
                 }
                 true
             }
-            PokemonVolatileStatus::Substitute => self.hp > self.maxhp / 4,
-            PokemonVolatileStatus::Flinch => {
+            PokemonVolatileStatus::SUBSTITUTE => self.hp > self.maxhp / 4,
+            PokemonVolatileStatus::FLINCH => {
                 if !first_move || [Abilities::INNERFOCUS].contains(&self.ability) {
                     return false;
                 }
                 true
             }
-            PokemonVolatileStatus::Protect => first_move,
-            PokemonVolatileStatus::Taunt
-            | PokemonVolatileStatus::Torment
-            | PokemonVolatileStatus::Encore
-            | PokemonVolatileStatus::Disable
-            | PokemonVolatileStatus::HealBlock
-            | PokemonVolatileStatus::Attract => self.ability != Abilities::AROMAVEIL,
-            PokemonVolatileStatus::Yawn => {
+            PokemonVolatileStatus::PROTECT => first_move,
+            PokemonVolatileStatus::TAUNT
+            | PokemonVolatileStatus::TORMENT
+            | PokemonVolatileStatus::ENCORE
+            | PokemonVolatileStatus::DISABLE
+            | PokemonVolatileStatus::HEALBLOCK
+            | PokemonVolatileStatus::ATTRACT => self.ability != Abilities::AROMAVEIL,
+            PokemonVolatileStatus::YAWN => {
                 // immunity to yawn via sleep immunity is handled in `get_instructions_from_volatile_statuses`
-                !active_volatiles.contains(&PokemonVolatileStatus::YawnSleepThisTurn)
+                !active_volatiles.contains(&PokemonVolatileStatus::YAWNSLEEPTHISTURN)
             }
             _ => true,
         }
@@ -723,7 +733,7 @@ impl Pokemon {
             return true;
         }
 
-        if volatiles.contains(&PokemonVolatileStatus::Substitute) {
+        if volatiles.contains(&PokemonVolatileStatus::SUBSTITUTE) {
             return true;
         }
 
@@ -742,7 +752,7 @@ impl Default for Pokemon {
         Pokemon {
             id: PokemonName::RATTATA,
             level: 100,
-            types: (PokemonType::Normal, PokemonType::Typeless),
+            types: (PokemonType::NORMAL, PokemonType::TYPELESS),
             hp: 100,
             maxhp: 100,
             ability: Abilities::NONE,
@@ -752,12 +762,12 @@ impl Default for Pokemon {
             special_attack: 100,
             special_defense: 100,
             speed: 100,
-            status: PokemonStatus::None,
+            status: PokemonStatus::NONE,
             rest_turns: 0,
             sleep_turns: 0,
             weight_kg: 1.0,
             terastallized: false,
-            tera_type: PokemonType::Normal,
+            tera_type: PokemonType::NORMAL,
             moves: PokemonMoves {
                 m0: Default::default(),
                 m1: Default::default(),
@@ -1065,7 +1075,7 @@ impl Side {
 
     pub fn has_alive_non_rested_sleeping_pkmn(&self) -> bool {
         for p in self.pokemon.into_iter() {
-            if p.status == PokemonStatus::Sleep && p.hp > 0 && p.rest_turns == 0 {
+            if p.status == PokemonStatus::SLEEP && p.hp > 0 && p.rest_turns == 0 {
                 return true;
             }
         }
@@ -1107,15 +1117,15 @@ impl Side {
         let active_pkmn = self.get_active_immutable();
         if self
             .volatile_statuses
-            .contains(&PokemonVolatileStatus::LockedMove)
+            .contains(&PokemonVolatileStatus::LOCKEDMOVE)
         {
             return true;
         }
-        if active_pkmn.item == Items::SHEDSHELL || active_pkmn.has_type(&PokemonType::Ghost) {
+        if active_pkmn.item == Items::SHEDSHELL || active_pkmn.has_type(&PokemonType::GHOST) {
             return false;
         } else if self
             .volatile_statuses
-            .contains(&PokemonVolatileStatus::PartiallyTrapped)
+            .contains(&PokemonVolatileStatus::PARTIALLYTRAPPED)
         {
             return true;
         } else if opponent_active.ability == Abilities::SHADOWTAG {
@@ -1123,7 +1133,7 @@ impl Side {
         } else if opponent_active.ability == Abilities::ARENATRAP && active_pkmn.is_grounded() {
             return true;
         } else if opponent_active.ability == Abilities::MAGNETPULL
-            && active_pkmn.has_type(&PokemonType::Steel)
+            && active_pkmn.has_type(&PokemonType::STEEL)
         {
             return true;
         }
@@ -1287,11 +1297,11 @@ impl Default for State {
             side_one: Side::default(),
             side_two: Side::default(),
             weather: StateWeather {
-                weather_type: Weather::None,
+                weather_type: Weather::NONE,
                 turns_remaining: -1,
             },
             terrain: StateTerrain {
-                terrain_type: Terrain::None,
+                terrain_type: Terrain::NONE,
                 turns_remaining: 0,
             },
             trick_room: StateTrickRoom {
@@ -1380,7 +1390,7 @@ impl State {
         let encored = self
             .side_one
             .volatile_statuses
-            .contains(&PokemonVolatileStatus::Encore);
+            .contains(&PokemonVolatileStatus::ENCORE);
         self.side_one.get_active_immutable().add_available_moves(
             &mut side_one_options,
             &self.side_one.last_used_move,
@@ -1395,7 +1405,7 @@ impl State {
         let encored = self
             .side_two
             .volatile_statuses
-            .contains(&PokemonVolatileStatus::Encore);
+            .contains(&PokemonVolatileStatus::ENCORE);
         self.side_two.get_active_immutable().add_available_moves(
             &mut side_two_options,
             &self.side_two.last_used_move,
@@ -1511,10 +1521,10 @@ impl State {
         for pkmn_volatile_status in &side.volatile_statuses {
             // dont remove substitute or leechseed if batonpassing
             if baton_passing {
-                if pkmn_volatile_status == &PokemonVolatileStatus::Substitute {
+                if pkmn_volatile_status == &PokemonVolatileStatus::SUBSTITUTE {
                     should_preserve_substitute = true;
                     continue;
-                } else if pkmn_volatile_status == &PokemonVolatileStatus::LeechSeed {
+                } else if pkmn_volatile_status == &PokemonVolatileStatus::LEECHSEED {
                     should_preserve_leechseed = true;
                     continue;
                 }
@@ -1529,11 +1539,11 @@ impl State {
         side.volatile_statuses.drain();
         if should_preserve_leechseed {
             side.volatile_statuses
-                .insert(PokemonVolatileStatus::LeechSeed);
+                .insert(PokemonVolatileStatus::LEECHSEED);
         }
         if should_preserve_substitute {
             side.volatile_statuses
-                .insert(PokemonVolatileStatus::Substitute);
+                .insert(PokemonVolatileStatus::SUBSTITUTE);
         }
     }
 

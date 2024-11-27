@@ -65,7 +65,7 @@ fn test_force_switch_after_faint_does_not_trigger_end_of_turn() {
     state.side_one.get_active().hp = 0;
 
     // Hail shouldn't do any damage
-    state.weather.weather_type = Weather::Hail;
+    state.weather.weather_type = Weather::HAIL;
     state.weather.turns_remaining = 2;
 
     let side_one_move = MoveChoice::Switch(PokemonIndex::P1);
@@ -280,11 +280,11 @@ fn test_basic_flinching_functionality() {
                 }),
                 Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,
-                    volatile_status: PokemonVolatileStatus::Flinch,
+                    volatile_status: PokemonVolatileStatus::FLINCH,
                 }),
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,
-                    volatile_status: PokemonVolatileStatus::Flinch,
+                    volatile_status: PokemonVolatileStatus::FLINCH,
                 }),
             ],
         },
@@ -326,11 +326,11 @@ fn test_flinching_first_and_second_move() {
                 }),
                 Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,
-                    volatile_status: PokemonVolatileStatus::Flinch,
+                    volatile_status: PokemonVolatileStatus::FLINCH,
                 }),
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,
-                    volatile_status: PokemonVolatileStatus::Flinch,
+                    volatile_status: PokemonVolatileStatus::FLINCH,
                 }),
             ],
         },
@@ -379,11 +379,11 @@ fn test_flinching_on_move_that_can_miss() {
                 }),
                 Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,
-                    volatile_status: PokemonVolatileStatus::Flinch,
+                    volatile_status: PokemonVolatileStatus::FLINCH,
                 }),
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,
-                    volatile_status: PokemonVolatileStatus::Flinch,
+                    volatile_status: PokemonVolatileStatus::FLINCH,
                 }),
             ],
         },
@@ -406,11 +406,11 @@ fn test_using_protect_against_damaging_move() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -437,7 +437,7 @@ fn test_self_boosting_move_against_protect() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::Boost(BoostInstruction {
                 side_ref: SideReference::SideTwo,
@@ -446,7 +446,7 @@ fn test_self_boosting_move_against_protect() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -473,7 +473,7 @@ fn test_crash_move_into_protect() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -481,7 +481,7 @@ fn test_crash_move_into_protect() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -508,11 +508,11 @@ fn test_protect_stops_secondaries() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -540,11 +540,11 @@ fn test_protect_stops_after_damage_hit_callback() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -639,7 +639,7 @@ fn test_knockoff_boosts_damage_but_cannot_remove_if_sub_is_hit() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     state.side_one.substitute_health = 100;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -703,7 +703,7 @@ fn test_move_that_goes_through_protect() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -711,7 +711,7 @@ fn test_move_that_goes_through_protect() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -738,7 +738,7 @@ fn test_using_spikyshield_against_contact_move() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::SpikyShield,
+                volatile_status: PokemonVolatileStatus::SPIKYSHIELD,
             }),
             Instruction::Heal(HealInstruction {
                 side_ref: SideReference::SideTwo,
@@ -746,7 +746,7 @@ fn test_using_spikyshield_against_contact_move() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::SpikyShield,
+                volatile_status: PokemonVolatileStatus::SPIKYSHIELD,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -774,7 +774,7 @@ fn test_spikyshield_recoil_does_not_overkill() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::SpikyShield,
+                volatile_status: PokemonVolatileStatus::SPIKYSHIELD,
             }),
             Instruction::Heal(HealInstruction {
                 side_ref: SideReference::SideTwo,
@@ -782,7 +782,7 @@ fn test_spikyshield_recoil_does_not_overkill() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::SpikyShield,
+                volatile_status: PokemonVolatileStatus::SPIKYSHIELD,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -1241,8 +1241,8 @@ fn test_color_change_modifying_type() {
             }),
             Instruction::ChangeType(ChangeType {
                 side_ref: SideReference::SideOne,
-                new_types: (PokemonType::Water, PokemonType::Typeless),
-                old_types: (PokemonType::Normal, PokemonType::Typeless),
+                new_types: (PokemonType::WATER, PokemonType::TYPELESS),
+                old_types: (PokemonType::NORMAL, PokemonType::TYPELESS),
             }),
         ],
     }];
@@ -1275,8 +1275,8 @@ fn test_color_change_does_not_activate_when_fainting() {
 fn test_color_change_does_not_activate_if_type_is_already_the_same() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::COLORCHANGE;
-    state.side_one.get_active().types.0 = PokemonType::Grass;
-    state.side_one.get_active().types.1 = PokemonType::Water;
+    state.side_one.get_active().types.0 = PokemonType::GRASS;
+    state.side_one.get_active().types.1 = PokemonType::WATER;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -1405,7 +1405,7 @@ fn test_stamina_activating() {
 fn test_wellbakedbody_activating() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::WELLBAKEDBODY;
-    state.side_two.get_active().types.0 = PokemonType::Fire;
+    state.side_two.get_active().types.0 = PokemonType::FIRE;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -1429,7 +1429,7 @@ fn test_moldbreaker_ignores_wellbakedbody() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::MOLDBREAKER;
     state.side_two.get_active().ability = Abilities::WELLBAKEDBODY;
-    state.side_two.get_active().types.0 = PokemonType::Fire;
+    state.side_two.get_active().types.0 = PokemonType::FIRE;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -1527,11 +1527,11 @@ fn test_spikyshield_does_not_activate_on_non_contact_move() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::SpikyShield,
+                volatile_status: PokemonVolatileStatus::SPIKYSHIELD,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::SpikyShield,
+                volatile_status: PokemonVolatileStatus::SPIKYSHIELD,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -1558,13 +1558,13 @@ fn test_banefulbunker_poisons() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::BanefulBunker,
+                volatile_status: PokemonVolatileStatus::BANEFULBUNKER,
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideTwo,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::None,
-                new_status: PokemonStatus::Poison,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::POISON,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -1572,7 +1572,7 @@ fn test_banefulbunker_poisons() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::BanefulBunker,
+                volatile_status: PokemonVolatileStatus::BANEFULBUNKER,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -1600,13 +1600,13 @@ fn test_burning_bulwark_burns() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::BurningBulwark,
+                volatile_status: PokemonVolatileStatus::BURNINGBULWARK,
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideTwo,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::None,
-                new_status: PokemonStatus::Burn,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::BURN,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -1614,7 +1614,7 @@ fn test_burning_bulwark_burns() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::BurningBulwark,
+                volatile_status: PokemonVolatileStatus::BURNINGBULWARK,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -1642,7 +1642,7 @@ fn test_bypassing_protect_does_not_inflict_burn_against_burning_bulwark() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::BurningBulwark,
+                volatile_status: PokemonVolatileStatus::BURNINGBULWARK,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -1650,7 +1650,7 @@ fn test_bypassing_protect_does_not_inflict_burn_against_burning_bulwark() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::BurningBulwark,
+                volatile_status: PokemonVolatileStatus::BURNINGBULWARK,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -1665,7 +1665,7 @@ fn test_bypassing_protect_does_not_inflict_burn_against_burning_bulwark() {
 #[test]
 fn test_burning_bulwark_does_not_burn_fire_type() {
     let mut state = State::default();
-    state.side_two.get_active().types.0 = PokemonType::Fire;
+    state.side_two.get_active().types.0 = PokemonType::FIRE;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -1678,11 +1678,11 @@ fn test_burning_bulwark_does_not_burn_fire_type() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::BurningBulwark,
+                volatile_status: PokemonVolatileStatus::BURNINGBULWARK,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::BurningBulwark,
+                volatile_status: PokemonVolatileStatus::BURNINGBULWARK,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -1697,7 +1697,7 @@ fn test_burning_bulwark_does_not_burn_fire_type() {
 #[test]
 fn test_banefulbunker_cannot_poison_already_statused_target() {
     let mut state = State::default();
-    state.side_two.get_active().status = PokemonStatus::Poison;
+    state.side_two.get_active().status = PokemonStatus::POISON;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -1710,7 +1710,7 @@ fn test_banefulbunker_cannot_poison_already_statused_target() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::BanefulBunker,
+                volatile_status: PokemonVolatileStatus::BANEFULBUNKER,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -1718,7 +1718,7 @@ fn test_banefulbunker_cannot_poison_already_statused_target() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::BanefulBunker,
+                volatile_status: PokemonVolatileStatus::BANEFULBUNKER,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -1745,7 +1745,7 @@ fn test_silktrap() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::SilkTrap,
+                volatile_status: PokemonVolatileStatus::SILKTRAP,
             }),
             Instruction::Boost(BoostInstruction {
                 side_ref: SideReference::SideTwo,
@@ -1754,7 +1754,7 @@ fn test_silktrap() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::SilkTrap,
+                volatile_status: PokemonVolatileStatus::SILKTRAP,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -1863,7 +1863,7 @@ fn test_outrage_locking() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::LockedMove,
+                volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
             }),
         ],
     }];
@@ -1874,7 +1874,7 @@ fn test_outrage_locking() {
 fn test_judgement_typechange_with_arceus_multitype() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::SPOOKYPLATE;
-    state.side_two.get_active().types.0 = PokemonType::Normal;
+    state.side_two.get_active().types.0 = PokemonType::NORMAL;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -1894,8 +1894,8 @@ fn test_multiattack_typechange_with_silvally_drive() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::GHOSTMEMORY;
     state.side_one.get_active().id = PokemonName::SILVALLYGHOST;
-    state.side_one.get_active().types.0 = PokemonType::Ghost;
-    state.side_two.get_active().types.0 = PokemonType::Normal;
+    state.side_one.get_active().types.0 = PokemonType::GHOST;
+    state.side_two.get_active().types.0 = PokemonType::NORMAL;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -1991,7 +1991,7 @@ fn test_clearsmog_removes_boosts_on_target() {
 #[test]
 fn test_clearsmog_does_not_reset_boosts_if_defender_is_immune() {
     let mut state = State::default();
-    state.side_two.get_active().types.0 = PokemonType::Steel;
+    state.side_two.get_active().types.0 = PokemonType::STEEL;
     state.side_one.attack_boost = 3;
     state.side_one.defense_boost = -3;
     state.side_two.special_attack_boost = -2;
@@ -2013,7 +2013,7 @@ fn test_clearsmog_does_not_reset_boosts_if_defender_is_immune() {
 #[test]
 fn test_basic_healbell() {
     let mut state = State::default();
-    state.side_one.get_active().status = PokemonStatus::Poison;
+    state.side_one.get_active().status = PokemonStatus::POISON;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2026,8 +2026,8 @@ fn test_basic_healbell() {
         instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
             side_ref: SideReference::SideOne,
             pokemon_index: PokemonIndex::P0,
-            old_status: PokemonStatus::Poison,
-            new_status: PokemonStatus::None,
+            old_status: PokemonStatus::POISON,
+            new_status: PokemonStatus::NONE,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -2036,10 +2036,10 @@ fn test_basic_healbell() {
 #[test]
 fn test_healbell_with_multiple_reserves_statused() {
     let mut state = State::default();
-    state.side_one.get_active().status = PokemonStatus::Poison;
-    state.side_one.pokemon[PokemonIndex::P1].status = PokemonStatus::Burn;
-    state.side_one.pokemon[PokemonIndex::P3].status = PokemonStatus::Sleep;
-    state.side_one.pokemon[PokemonIndex::P5].status = PokemonStatus::Toxic;
+    state.side_one.get_active().status = PokemonStatus::POISON;
+    state.side_one.pokemon[PokemonIndex::P1].status = PokemonStatus::BURN;
+    state.side_one.pokemon[PokemonIndex::P3].status = PokemonStatus::SLEEP;
+    state.side_one.pokemon[PokemonIndex::P5].status = PokemonStatus::TOXIC;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2053,26 +2053,26 @@ fn test_healbell_with_multiple_reserves_statused() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::Poison,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::POISON,
+                new_status: PokemonStatus::NONE,
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P1,
-                old_status: PokemonStatus::Burn,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::BURN,
+                new_status: PokemonStatus::NONE,
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P3,
-                old_status: PokemonStatus::Sleep,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::SLEEP,
+                new_status: PokemonStatus::NONE,
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P5,
-                old_status: PokemonStatus::Toxic,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::TOXIC,
+                new_status: PokemonStatus::NONE,
             }),
         ],
     }];
@@ -2082,11 +2082,11 @@ fn test_healbell_with_multiple_reserves_statused() {
 #[test]
 fn test_healbell_when_one_reserve_was_rested() {
     let mut state = State::default();
-    state.side_one.get_active().status = PokemonStatus::Poison;
-    state.side_one.pokemon[PokemonIndex::P1].status = PokemonStatus::Burn;
-    state.side_one.pokemon[PokemonIndex::P3].status = PokemonStatus::Sleep;
+    state.side_one.get_active().status = PokemonStatus::POISON;
+    state.side_one.pokemon[PokemonIndex::P1].status = PokemonStatus::BURN;
+    state.side_one.pokemon[PokemonIndex::P3].status = PokemonStatus::SLEEP;
     state.side_one.pokemon[PokemonIndex::P3].rest_turns = 3;
-    state.side_one.pokemon[PokemonIndex::P5].status = PokemonStatus::Toxic;
+    state.side_one.pokemon[PokemonIndex::P5].status = PokemonStatus::TOXIC;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2100,20 +2100,20 @@ fn test_healbell_when_one_reserve_was_rested() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::Poison,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::POISON,
+                new_status: PokemonStatus::NONE,
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P1,
-                old_status: PokemonStatus::Burn,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::BURN,
+                new_status: PokemonStatus::NONE,
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P3,
-                old_status: PokemonStatus::Sleep,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::SLEEP,
+                new_status: PokemonStatus::NONE,
             }),
             Instruction::SetRestTurns(SetSleepTurnsInstruction {
                 side_ref: SideReference::SideOne,
@@ -2124,8 +2124,8 @@ fn test_healbell_when_one_reserve_was_rested() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P5,
-                old_status: PokemonStatus::Toxic,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::TOXIC,
+                new_status: PokemonStatus::NONE,
             }),
         ],
     }];
@@ -2147,11 +2147,11 @@ fn test_double_protect() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideTwo,
@@ -2188,7 +2188,7 @@ fn test_basic_substitute_usage() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
             Instruction::DamageSubstitute(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -2196,7 +2196,7 @@ fn test_basic_substitute_usage() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
         ],
     }];
@@ -2220,7 +2220,7 @@ fn test_destinybond_kills_on_knockout() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::DestinyBond,
+                volatile_status: PokemonVolatileStatus::DESTINYBOND,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -2241,7 +2241,7 @@ fn test_destinybond_against_toxic_damage_does_not_kill_opponent() {
     state.side_one.get_active().speed = 150;
     state.side_one.get_active().hp = 1;
 
-    state.side_two.get_active().types.0 = PokemonType::Poison;
+    state.side_two.get_active().types.0 = PokemonType::POISON;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2254,13 +2254,13 @@ fn test_destinybond_against_toxic_damage_does_not_kill_opponent() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::DestinyBond,
+                volatile_status: PokemonVolatileStatus::DESTINYBOND,
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::None,
-                new_status: PokemonStatus::Toxic,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::TOXIC,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -2282,7 +2282,7 @@ fn test_destinybond_volatile_is_removed_at_end_of_turn_if_not_fainted() {
     state.side_one.get_active().speed = 150;
     state.side_one.get_active().hp = 1;
 
-    state.side_two.get_active().types.0 = PokemonType::Poison;
+    state.side_two.get_active().types.0 = PokemonType::POISON;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2295,11 +2295,11 @@ fn test_destinybond_volatile_is_removed_at_end_of_turn_if_not_fainted() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::DestinyBond,
+                volatile_status: PokemonVolatileStatus::DESTINYBOND,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::DestinyBond,
+                volatile_status: PokemonVolatileStatus::DESTINYBOND,
             }),
         ],
     }];
@@ -2312,7 +2312,7 @@ fn test_using_substitute_when_it_is_already_up() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2333,7 +2333,7 @@ fn test_taking_damage_with_0_hp_sub_but_with_vs() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     state.side_one.substitute_health = 0;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -2351,7 +2351,7 @@ fn test_taking_damage_with_0_hp_sub_but_with_vs() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
         ],
     }];
@@ -2383,7 +2383,7 @@ fn test_substitute_does_not_let_secondary_status_effect_happen() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
             Instruction::DamageSubstitute(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -2391,7 +2391,7 @@ fn test_substitute_does_not_let_secondary_status_effect_happen() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
         ],
     }];
@@ -2424,7 +2424,7 @@ fn test_side_one_using_unboosting_move_versus_substitute() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
             Instruction::DamageSubstitute(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -2432,7 +2432,7 @@ fn test_side_one_using_unboosting_move_versus_substitute() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
         ],
     }];
@@ -2509,7 +2509,7 @@ fn test_side_one_self_unboost_versus_sub() {
                 }),
                 Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,
-                    volatile_status: PokemonVolatileStatus::Substitute,
+                    volatile_status: PokemonVolatileStatus::SUBSTITUTE,
                 }),
             ],
         },
@@ -2527,7 +2527,7 @@ fn test_side_one_self_unboost_versus_sub() {
                 }),
                 Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,
-                    volatile_status: PokemonVolatileStatus::Substitute,
+                    volatile_status: PokemonVolatileStatus::SUBSTITUTE,
                 }),
                 Instruction::DamageSubstitute(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -2535,7 +2535,7 @@ fn test_side_one_self_unboost_versus_sub() {
                 }),
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,
-                    volatile_status: PokemonVolatileStatus::Substitute,
+                    volatile_status: PokemonVolatileStatus::SUBSTITUTE,
                 }),
                 Instruction::Boost(BoostInstruction {
                     side_ref: SideReference::SideOne,
@@ -2573,7 +2573,7 @@ fn test_secondary_on_self_works_against_substitute() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
             Instruction::DamageSubstitute(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -2581,7 +2581,7 @@ fn test_secondary_on_self_works_against_substitute() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
             Instruction::Boost(BoostInstruction {
                 side_ref: SideReference::SideTwo,
@@ -2618,7 +2618,7 @@ fn test_move_goes_through_substitute() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -2655,7 +2655,7 @@ fn test_infiltrator_goes_through_substitute() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -2673,7 +2673,7 @@ fn test_using_protect_with_a_substitute() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     state.side_one.substitute_health = 25;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -2687,11 +2687,11 @@ fn test_using_protect_with_a_substitute() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -2710,7 +2710,7 @@ fn test_drag_move_against_substitute() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     state.side_one.substitute_health = 25;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -2733,7 +2733,7 @@ fn test_drag_move_against_substitute() {
                 }),
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    volatile_status: PokemonVolatileStatus::Substitute,
+                    volatile_status: PokemonVolatileStatus::SUBSTITUTE,
                 }),
             ],
         },
@@ -2803,7 +2803,7 @@ fn test_whirlwind_move_against_substitute() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     state.side_one.substitute_health = 25;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -2818,7 +2818,7 @@ fn test_whirlwind_move_against_substitute() {
             instruction_list: vec![
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    volatile_status: PokemonVolatileStatus::Substitute,
+                    volatile_status: PokemonVolatileStatus::SUBSTITUTE,
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
@@ -2832,7 +2832,7 @@ fn test_whirlwind_move_against_substitute() {
             instruction_list: vec![
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    volatile_status: PokemonVolatileStatus::Substitute,
+                    volatile_status: PokemonVolatileStatus::SUBSTITUTE,
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
@@ -2846,7 +2846,7 @@ fn test_whirlwind_move_against_substitute() {
             instruction_list: vec![
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    volatile_status: PokemonVolatileStatus::Substitute,
+                    volatile_status: PokemonVolatileStatus::SUBSTITUTE,
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
@@ -2860,7 +2860,7 @@ fn test_whirlwind_move_against_substitute() {
             instruction_list: vec![
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    volatile_status: PokemonVolatileStatus::Substitute,
+                    volatile_status: PokemonVolatileStatus::SUBSTITUTE,
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
@@ -2874,7 +2874,7 @@ fn test_whirlwind_move_against_substitute() {
             instruction_list: vec![
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    volatile_status: PokemonVolatileStatus::Substitute,
+                    volatile_status: PokemonVolatileStatus::SUBSTITUTE,
                 }),
                 Instruction::Switch(SwitchInstruction {
                     side_ref: SideReference::SideOne,
@@ -2913,7 +2913,7 @@ fn test_drag_move_against_protect_and_substitute() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     state.side_one.substitute_health = 25;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -2927,11 +2927,11 @@ fn test_drag_move_against_protect_and_substitute() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideOne,
@@ -3171,7 +3171,7 @@ fn test_normalgem_boosting_tackle() {
 fn test_chopleberry_damage_reduction() {
     let mut state = State::default();
     state.side_two.get_active().item = Items::CHOPLEBERRY;
-    state.side_two.get_active().types = (PokemonType::Normal, PokemonType::Typeless);
+    state.side_two.get_active().types = (PokemonType::NORMAL, PokemonType::TYPELESS);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -3460,7 +3460,7 @@ fn test_sitrus_berry_does_not_activate_if_above_half() {
 fn test_lumberry_curing_before_move() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::LUMBERRY;
-    state.side_one.get_active().status = PokemonStatus::Burn;
+    state.side_one.get_active().status = PokemonStatus::BURN;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -3474,8 +3474,8 @@ fn test_lumberry_curing_before_move() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::Burn,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::BURN,
+                new_status: PokemonStatus::NONE,
             }),
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideOne,
@@ -3531,14 +3531,14 @@ fn test_lum_cures_same_turn_when_slower() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::None,
-                new_status: PokemonStatus::Sleep,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::SLEEP,
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::Sleep,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::SLEEP,
+                new_status: PokemonStatus::NONE,
             }),
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideOne,
@@ -3577,14 +3577,14 @@ fn test_lum_cures_same_turn_when_faster() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::None,
-                new_status: PokemonStatus::Sleep,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::SLEEP,
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::Sleep,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::SLEEP,
+                new_status: PokemonStatus::NONE,
             }),
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideOne,
@@ -3600,7 +3600,7 @@ fn test_lum_cures_same_turn_when_faster() {
 fn test_chopleberry_damage_reduction_does_not_happen_on_water_move() {
     let mut state = State::default();
     state.side_two.get_active().item = Items::CHOPLEBERRY;
-    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Normal);
+    state.side_two.get_active().types = (PokemonType::FIRE, PokemonType::NORMAL);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -3622,7 +3622,7 @@ fn test_chopleberry_damage_reduction_does_not_happen_on_water_move() {
 fn test_chopleberry_damage_reduction_does_not_happen_if_not_supereffective() {
     let mut state = State::default();
     state.side_two.get_active().item = Items::CHOPLEBERRY;
-    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Typeless);
+    state.side_two.get_active().types = (PokemonType::FIRE, PokemonType::TYPELESS);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -3746,8 +3746,8 @@ fn test_choiceband_locking() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Burn,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::BURN,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -3832,8 +3832,8 @@ fn test_gorillatactics_locking() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Paralyze,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::PARALYZE,
                 }),
             ],
         },
@@ -3844,7 +3844,7 @@ fn test_gorillatactics_locking() {
 #[test]
 fn test_earthquake_hits_roosted_flying_type() {
     let mut state = State::default();
-    state.side_two.get_active().types = (PokemonType::Flying, PokemonType::Normal);
+    state.side_two.get_active().types = (PokemonType::FLYING, PokemonType::NORMAL);
     state.side_two.get_active().speed = 101;
     state.side_one.get_active().speed = 100;
 
@@ -3859,7 +3859,7 @@ fn test_earthquake_hits_roosted_flying_type() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Roost,
+                volatile_status: PokemonVolatileStatus::ROOST,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -3867,7 +3867,7 @@ fn test_earthquake_hits_roosted_flying_type() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Roost,
+                volatile_status: PokemonVolatileStatus::ROOST,
             }),
         ],
     }];
@@ -3970,7 +3970,7 @@ fn test_hydrosteam() {
     let mut state = State::default();
     state.side_two.get_active().hp = 300;
     state.side_two.get_active().maxhp = 300;
-    state.weather.weather_type = Weather::Sun;
+    state.weather.weather_type = Weather::SUN;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -3991,7 +3991,7 @@ fn test_hydrosteam() {
 #[test]
 fn test_weatherball_in_sun() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Sun;
+    state.weather.weather_type = Weather::SUN;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -4013,7 +4013,7 @@ fn test_weatherball_in_sun() {
 #[cfg(any(feature = "gen9"))]
 fn test_terrainpulse_gen9() {
     let mut state = State::default();
-    state.terrain.terrain_type = Terrain::ElectricTerrain;
+    state.terrain.terrain_type = Terrain::ELECTRICTERRAIN;
     state.side_two.get_active().maxhp = 300;
     state.side_two.get_active().hp = 300;
 
@@ -4036,7 +4036,7 @@ fn test_terrainpulse_gen9() {
 #[test]
 fn test_terablast_into_ghost_makes_normal_immune() {
     let mut state = State::default();
-    state.side_one.get_active().tera_type = PokemonType::Ghost;
+    state.side_one.get_active().tera_type = PokemonType::GHOST;
     state.side_one.get_active().terastallized = true;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -4055,7 +4055,7 @@ fn test_terablast_into_ghost_makes_normal_immune() {
 #[test]
 fn test_terablast_becomes_physical() {
     let mut state = State::default();
-    state.side_one.get_active().tera_type = PokemonType::Water;
+    state.side_one.get_active().tera_type = PokemonType::WATER;
     state.side_one.get_active().terastallized = true;
     state.side_one.get_active().attack = 150;
     state.side_two.get_active().maxhp = 300;
@@ -4081,7 +4081,7 @@ fn test_terablast_becomes_physical() {
 #[cfg(any(feature = "gen7"))]
 fn test_terrainpulse_gen7() {
     let mut state = State::default();
-    state.terrain.terrain_type = Terrain::ElectricTerrain;
+    state.terrain.terrain_type = Terrain::ELECTRICTERRAIN;
     state.side_two.get_active().maxhp = 300;
     state.side_two.get_active().hp = 300;
 
@@ -4104,7 +4104,7 @@ fn test_terrainpulse_gen7() {
 #[test]
 fn test_growth_in_sun() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Sun;
+    state.weather.weather_type = Weather::SUN;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -4235,7 +4235,7 @@ fn test_batonpass_with_leechseed() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::LeechSeed);
+        .insert(PokemonVolatileStatus::LEECHSEED);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -4265,7 +4265,7 @@ fn test_switching_from_batonpass_with_leechseed() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::LeechSeed);
+        .insert(PokemonVolatileStatus::LEECHSEED);
     state.side_one.force_switch = true;
     state.side_one.baton_passing = true;
 
@@ -4299,7 +4299,7 @@ fn test_non_baton_pass_switching_with_leechseed() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::LeechSeed);
+        .insert(PokemonVolatileStatus::LEECHSEED);
     state.side_one.force_switch = true;
     state.side_one.baton_passing = false;
 
@@ -4315,7 +4315,7 @@ fn test_non_baton_pass_switching_with_leechseed() {
             Instruction::ToggleSideOneForceSwitch,
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::LeechSeed,
+                volatile_status: PokemonVolatileStatus::LEECHSEED,
             }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
@@ -4333,7 +4333,7 @@ fn test_switching_from_batonpass_with_sub() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     state.side_one.substitute_health = 25;
     state.side_one.force_switch = true;
     state.side_one.baton_passing = true;
@@ -4368,7 +4368,7 @@ fn test_non_baton_pass_switching_with_sub() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::LeechSeed);
+        .insert(PokemonVolatileStatus::LEECHSEED);
     state.side_one.force_switch = true;
     state.side_one.baton_passing = false;
 
@@ -4384,7 +4384,7 @@ fn test_non_baton_pass_switching_with_sub() {
             Instruction::ToggleSideOneForceSwitch,
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::LeechSeed,
+                volatile_status: PokemonVolatileStatus::LEECHSEED,
             }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
@@ -4402,7 +4402,7 @@ fn test_protosynthesisatk_boosts_attack() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::ProtosynthesisAtk);
+        .insert(PokemonVolatileStatus::PROTOSYNTHESISATK);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -4424,7 +4424,7 @@ fn test_protosynthesisatk_boosts_attack() {
 fn test_protosynthesis_on_switchin_with_sun_up() {
     let mut state = State::default();
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::PROTOSYNTHESIS;
-    state.weather.weather_type = Weather::Sun;
+    state.weather.weather_type = Weather::SUN;
     state.weather.turns_remaining = -1;
 
     let vec_of_instructions = generate_instructions_with_state_assertion(
@@ -4443,7 +4443,7 @@ fn test_protosynthesis_on_switchin_with_sun_up() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::ProtosynthesisAtk,
+                volatile_status: PokemonVolatileStatus::PROTOSYNTHESISATK,
             }),
         ],
     }];
@@ -4455,7 +4455,7 @@ fn test_protosynthesis_on_switchin_with_booster_energy_and_sun_up() {
     let mut state = State::default();
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::PROTOSYNTHESIS;
     state.side_one.pokemon[PokemonIndex::P1].item = Items::BOOSTERENERGY; // should not be consumed
-    state.weather.weather_type = Weather::Sun;
+    state.weather.weather_type = Weather::SUN;
     state.weather.turns_remaining = -1;
 
     let vec_of_instructions = generate_instructions_with_state_assertion(
@@ -4474,7 +4474,7 @@ fn test_protosynthesis_on_switchin_with_booster_energy_and_sun_up() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::ProtosynthesisAtk,
+                volatile_status: PokemonVolatileStatus::PROTOSYNTHESISATK,
             }),
         ],
     }];
@@ -4486,7 +4486,7 @@ fn test_quarkdrive_on_switchin_with_booster_energy_and_terrain_up() {
     let mut state = State::default();
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::QUARKDRIVE;
     state.side_one.pokemon[PokemonIndex::P1].item = Items::BOOSTERENERGY; // should not be consumed
-    state.terrain.terrain_type = Terrain::ElectricTerrain;
+    state.terrain.terrain_type = Terrain::ELECTRICTERRAIN;
     state.terrain.turns_remaining = 5;
 
     let vec_of_instructions = generate_instructions_with_state_assertion(
@@ -4505,7 +4505,7 @@ fn test_quarkdrive_on_switchin_with_booster_energy_and_terrain_up() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::QuarkDriveAtk,
+                volatile_status: PokemonVolatileStatus::QUARKDRIVEATK,
             }),
         ],
     }];
@@ -4539,7 +4539,7 @@ fn test_protosynthesis_on_switchin_with_only_booster_energy() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::ProtosynthesisAtk,
+                volatile_status: PokemonVolatileStatus::PROTOSYNTHESISATK,
             }),
         ],
     }];
@@ -4573,7 +4573,7 @@ fn test_quarkdrive_on_switchin_with_only_booster_energy() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::QuarkDriveAtk,
+                volatile_status: PokemonVolatileStatus::QUARKDRIVEATK,
             }),
         ],
     }];
@@ -4585,7 +4585,7 @@ fn test_protosynthesis_on_switchin_with_defense_highest_stat_and_sun_up() {
     let mut state = State::default();
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::PROTOSYNTHESIS;
     state.side_one.pokemon[PokemonIndex::P1].defense = 300;
-    state.weather.weather_type = Weather::Sun;
+    state.weather.weather_type = Weather::SUN;
     state.weather.turns_remaining = -1;
 
     let vec_of_instructions = generate_instructions_with_state_assertion(
@@ -4604,7 +4604,7 @@ fn test_protosynthesis_on_switchin_with_defense_highest_stat_and_sun_up() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::ProtosynthesisDef,
+                volatile_status: PokemonVolatileStatus::PROTOSYNTHESISDEF,
             }),
         ],
     }];
@@ -4617,7 +4617,7 @@ fn test_protosynthesisatk_does_not_boost_spa() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::ProtosynthesisAtk);
+        .insert(PokemonVolatileStatus::PROTOSYNTHESISATK);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -4641,7 +4641,7 @@ fn test_protosynthesisspa_boosts_spa() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::ProtosynthesisSpa);
+        .insert(PokemonVolatileStatus::PROTOSYNTHESISSPA);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -4665,7 +4665,7 @@ fn test_protosynthesisspd_boosts_spd() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::ProtosynthesisSpd);
+        .insert(PokemonVolatileStatus::PROTOSYNTHESISSPD);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -4700,9 +4700,9 @@ fn test_chillyreception() {
         percentage: 100.0,
         instruction_list: vec![
             Instruction::ChangeWeather(ChangeWeather {
-                new_weather: Weather::Snow,
+                new_weather: Weather::SNOW,
                 new_weather_turns_remaining: 5,
-                previous_weather: Weather::None,
+                previous_weather: Weather::NONE,
                 previous_weather_turns_remaining: -1,
             }),
             Instruction::ToggleSideOneForceSwitch,
@@ -4759,11 +4759,11 @@ fn test_uturn_into_protect_does_not_cause_switchout() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideTwo,
@@ -4817,11 +4817,11 @@ fn test_partingshot_into_protect_does_not_cause_switchout() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideTwo,
@@ -4836,7 +4836,7 @@ fn test_partingshot_into_protect_does_not_cause_switchout() {
 #[test]
 fn test_faster_uturn_does_not_trigger_end_of_turn() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Sand; // would normally cause damage to both sides
+    state.weather.weather_type = Weather::SAND; // would normally cause damage to both sides
     state.side_one.get_active().speed = 150;
     state.side_two.get_active().speed = 100;
 
@@ -4958,7 +4958,7 @@ fn test_slower_uturn_with_opponent_move() {
 #[test]
 fn test_switch_out_move_does_not_trigger_end_of_turn() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Sand; // would normally cause damage to both sides
+    state.weather.weather_type = Weather::SAND; // would normally cause damage to both sides
     state.weather.turns_remaining = 5;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -5027,7 +5027,7 @@ fn test_switch_out_move_does_not_trigger_if_voltswitch_missed() {
     let mut state = State::default();
     state.side_one.get_active().speed = 150;
     state.side_two.get_active().speed = 100;
-    state.side_two.get_active().types.1 = PokemonType::Ground;
+    state.side_two.get_active().types.1 = PokemonType::GROUND;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -5145,7 +5145,7 @@ fn test_switch_out_move_flag_is_unset_after_next_move() {
 fn test_end_of_turn_triggered_when_switchout_flag_is_removed() {
     let mut state = State::default();
     state.weather = StateWeather {
-        weather_type: Weather::Sand,
+        weather_type: Weather::SAND,
         turns_remaining: -1,
     };
     state.side_one.force_switch = true;
@@ -5193,7 +5193,7 @@ fn test_end_of_turn_triggered_when_switchout_flag_is_removed() {
 fn test_end_of_turn_triggered_when_switchout_flag_is_removed_and_other_side_did_nothing() {
     let mut state = State::default();
     state.weather = StateWeather {
-        weather_type: Weather::Sand,
+        weather_type: Weather::SAND,
         turns_remaining: -1,
     };
     state.side_one.force_switch = true;
@@ -5559,7 +5559,7 @@ fn test_arenatrap_traps_opponent() {
 fn test_arenatrap_does_not_trap_flying() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::ARENATRAP;
-    state.side_two.get_active().types.1 = PokemonType::Flying;
+    state.side_two.get_active().types.1 = PokemonType::FLYING;
 
     let (side_one_moves, side_two_moves) = state.get_all_options();
 
@@ -5599,7 +5599,7 @@ fn test_arenatrap_does_not_trap_flying() {
 fn test_arenatrap_does_not_trap_ghost() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::ARENATRAP;
-    state.side_two.get_active().types.1 = PokemonType::Ghost;
+    state.side_two.get_active().types.1 = PokemonType::GHOST;
 
     let (side_one_moves, side_two_moves) = state.get_all_options();
 
@@ -5703,7 +5703,7 @@ fn test_lockedmove_prevents_switches() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::LockedMove);
+        .insert(PokemonVolatileStatus::LOCKEDMOVE);
 
     let (side_one_moves, _) = state.get_all_options();
     assert_eq!(
@@ -5773,7 +5773,7 @@ fn test_noretreat_with_vs_already() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::NoRetreat);
+        .insert(PokemonVolatileStatus::NORETREAT);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -5791,7 +5791,7 @@ fn test_noretreat_with_vs_already() {
 #[test]
 fn test_poltergeist() {
     let mut state = State::default();
-    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Dragon);
+    state.side_two.get_active().types = (PokemonType::FIRE, PokemonType::DRAGON);
     state.side_two.get_active().item = Items::BLUNDERPOLICY;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -5819,7 +5819,7 @@ fn test_poltergeist() {
 #[test]
 fn test_shoreup_in_sand() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Sand;
+    state.weather.weather_type = Weather::SAND;
     state.side_one.get_active().hp = 1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -5851,8 +5851,8 @@ fn test_shoreup_in_sand() {
 #[test]
 fn test_rock_spdef_in_sand() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Sand;
-    state.side_one.get_active().types.0 = PokemonType::Rock;
+    state.weather.weather_type = Weather::SAND;
+    state.side_one.get_active().types.0 = PokemonType::ROCK;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -5880,10 +5880,10 @@ fn test_rock_spdef_in_sand() {
 #[cfg(feature = "terastallization")]
 fn test_rock_does_not_get_spdef_when_terastallized_out_of_rock() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Sand;
-    state.side_one.get_active().types.0 = PokemonType::Rock;
+    state.weather.weather_type = Weather::SAND;
+    state.side_one.get_active().types.0 = PokemonType::ROCK;
     state.side_one.get_active().terastallized = true;
-    state.side_one.get_active().tera_type = PokemonType::Fire;
+    state.side_one.get_active().tera_type = PokemonType::FIRE;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -5916,7 +5916,7 @@ fn test_rock_does_not_get_spdef_when_terastallized_out_of_rock() {
 fn test_low_bp_move_boost_when_terastallizing() {
     let mut state = State::default();
     state.side_one.get_active().terastallized = true;
-    state.side_one.get_active().tera_type = PokemonType::Water;
+    state.side_one.get_active().tera_type = PokemonType::WATER;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -5937,8 +5937,8 @@ fn test_low_bp_move_boost_when_terastallizing() {
 #[test]
 fn test_ice_def_in_snow() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Snow;
-    state.side_one.get_active().types.0 = PokemonType::Ice;
+    state.weather.weather_type = Weather::SNOW;
+    state.side_one.get_active().types.0 = PokemonType::ICE;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -6107,11 +6107,11 @@ fn test_pp_not_decremented_when_flinched() {
                 }),
                 Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    volatile_status: PokemonVolatileStatus::Flinch,
+                    volatile_status: PokemonVolatileStatus::FLINCH,
                 }),
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    volatile_status: PokemonVolatileStatus::Flinch,
+                    volatile_status: PokemonVolatileStatus::FLINCH,
                 }),
             ],
         },
@@ -6134,8 +6134,8 @@ fn test_rock_spdef_in_sand_versus_secretsword_doesnt_change_damageroll() {
 
     // make them both immune to sand damage to make comparison of
     // instructions easier
-    state.side_one.get_active().types.0 = PokemonType::Rock;
-    state.side_two.get_active().types.0 = PokemonType::Rock;
+    state.side_one.get_active().types.0 = PokemonType::ROCK;
+    state.side_two.get_active().types.0 = PokemonType::ROCK;
 
     let first_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -6144,8 +6144,8 @@ fn test_rock_spdef_in_sand_versus_secretsword_doesnt_change_damageroll() {
     );
 
     // spdef gets boosted, but it shouldnt affect secretsword
-    state.weather.weather_type = Weather::Sand;
-    state.side_one.get_active().types.0 = PokemonType::Rock;
+    state.weather.weather_type = Weather::SAND;
+    state.side_one.get_active().types.0 = PokemonType::ROCK;
     let second_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
         Choices::SPLASH,
@@ -6190,7 +6190,7 @@ fn test_foulplay() {
 #[test]
 fn test_rain_turns_do_not_decrement_if_turns_remaining_are_negative() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Rain;
+    state.weather.weather_type = Weather::RAIN;
     state.weather.turns_remaining = -1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -6209,7 +6209,7 @@ fn test_rain_turns_do_not_decrement_if_turns_remaining_are_negative() {
 #[test]
 fn test_rain_turns_decrement_if_turns_remaining_are_greater_than_1() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Rain;
+    state.weather.weather_type = Weather::RAIN;
     state.weather.turns_remaining = 3;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -6228,7 +6228,7 @@ fn test_rain_turns_decrement_if_turns_remaining_are_greater_than_1() {
 #[test]
 fn test_rain_ends_if_turns_remaining_is_1() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Rain;
+    state.weather.weather_type = Weather::RAIN;
     state.weather.turns_remaining = 1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -6242,9 +6242,9 @@ fn test_rain_ends_if_turns_remaining_is_1() {
         instruction_list: vec![
             Instruction::DecrementWeatherTurnsRemaining,
             Instruction::ChangeWeather(ChangeWeather {
-                new_weather: Weather::None,
+                new_weather: Weather::NONE,
                 new_weather_turns_remaining: 0,
-                previous_weather: Weather::Rain,
+                previous_weather: Weather::RAIN,
                 previous_weather_turns_remaining: 0,
             }),
         ],
@@ -6255,7 +6255,7 @@ fn test_rain_ends_if_turns_remaining_is_1() {
 #[test]
 fn test_sand_does_not_inflict_damage_when_ending() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Sand;
+    state.weather.weather_type = Weather::SAND;
     state.weather.turns_remaining = 1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -6269,9 +6269,9 @@ fn test_sand_does_not_inflict_damage_when_ending() {
         instruction_list: vec![
             Instruction::DecrementWeatherTurnsRemaining,
             Instruction::ChangeWeather(ChangeWeather {
-                new_weather: Weather::None,
+                new_weather: Weather::NONE,
                 new_weather_turns_remaining: 0,
-                previous_weather: Weather::Sand,
+                previous_weather: Weather::SAND,
                 previous_weather_turns_remaining: 0,
             }),
         ],
@@ -6327,7 +6327,7 @@ fn test_trickroom_ends_when_decrementing_to_zero() {
 #[test]
 fn test_morningsun_in_rain() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Rain;
+    state.weather.weather_type = Weather::RAIN;
     state.side_one.get_active().hp = 1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -6349,7 +6349,7 @@ fn test_morningsun_in_rain() {
 #[test]
 fn test_morningsun_in_sun() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Sun;
+    state.weather.weather_type = Weather::SUN;
     state.side_one.get_active().hp = 1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -6435,7 +6435,7 @@ fn test_filletaway() {
 fn test_spdef_drop_does_not_affect_fainted_pkmn() {
     let mut state = State::default();
     state.side_two.get_active().hp = 1;
-    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Dragon);
+    state.side_two.get_active().types = (PokemonType::FIRE, PokemonType::DRAGON);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -6935,7 +6935,7 @@ fn test_seismictoss() {
 fn test_seismictoss_versus_ghost_type() {
     let mut state = State::default();
     state.side_one.get_active().level = 88;
-    state.side_two.get_active().types.0 = PokemonType::Ghost;
+    state.side_two.get_active().types.0 = PokemonType::GHOST;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -6994,7 +6994,7 @@ fn test_superfang_at_1hp() {
 fn test_superfang_versus_ghost_type() {
     let mut state = State::default();
     state.side_two.get_active().hp = 1;
-    state.side_two.get_active().types.0 = PokemonType::Ghost;
+    state.side_two.get_active().types.0 = PokemonType::GHOST;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -7038,8 +7038,8 @@ fn test_triattack() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Freeze,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::FREEZE,
                 }),
             ],
         },
@@ -7053,8 +7053,8 @@ fn test_triattack() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Burn,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::BURN,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -7072,8 +7072,8 @@ fn test_triattack() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Paralyze,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::PARALYZE,
                 }),
             ],
         },
@@ -7124,7 +7124,7 @@ fn test_endeavor_when_higher_hp_than_opponent() {
 fn test_endeavor_versus_ghost() {
     let mut state = State::default();
     state.side_one.get_active().hp = 1;
-    state.side_two.get_active().types.0 = PokemonType::Ghost;
+    state.side_two.get_active().types.0 = PokemonType::GHOST;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -7143,7 +7143,7 @@ fn test_endeavor_versus_ghost() {
 fn test_finalgambit_versus_ghost() {
     let mut state = State::default();
     state.side_one.get_active().hp = 100;
-    state.side_two.get_active().types.0 = PokemonType::Ghost;
+    state.side_two.get_active().types.0 = PokemonType::GHOST;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -7200,8 +7200,8 @@ fn test_basic_spore() {
         instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
             side_ref: SideReference::SideTwo,
             pokemon_index: PokemonIndex::P0,
-            old_status: PokemonStatus::None,
-            new_status: PokemonStatus::Sleep,
+            old_status: PokemonStatus::NONE,
+            new_status: PokemonStatus::SLEEP,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -7210,7 +7210,7 @@ fn test_basic_spore() {
 #[test]
 fn test_sleep_clause_prevents_sleep_move_used_on_opponent() {
     let mut state = State::default();
-    state.side_two.pokemon[PokemonIndex::P1].status = PokemonStatus::Sleep;
+    state.side_two.pokemon[PokemonIndex::P1].status = PokemonStatus::SLEEP;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -7228,7 +7228,7 @@ fn test_sleep_clause_prevents_sleep_move_used_on_opponent() {
 #[test]
 fn test_sleep_clause_doesnt_apply_to_rested_pokemon() {
     let mut state = State::default();
-    state.side_two.pokemon[PokemonIndex::P1].status = PokemonStatus::Sleep;
+    state.side_two.pokemon[PokemonIndex::P1].status = PokemonStatus::SLEEP;
     state.side_two.pokemon[PokemonIndex::P1].rest_turns = 2;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -7242,8 +7242,8 @@ fn test_sleep_clause_doesnt_apply_to_rested_pokemon() {
         instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
             side_ref: SideReference::SideTwo,
             pokemon_index: PokemonIndex::P0,
-            old_status: PokemonStatus::None,
-            new_status: PokemonStatus::Sleep,
+            old_status: PokemonStatus::NONE,
+            new_status: PokemonStatus::SLEEP,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -7252,7 +7252,7 @@ fn test_sleep_clause_doesnt_apply_to_rested_pokemon() {
 #[test]
 fn test_sleep_clause_doesnt_apply_to_fainted_pokemon() {
     let mut state = State::default();
-    state.side_two.pokemon[PokemonIndex::P1].status = PokemonStatus::Sleep;
+    state.side_two.pokemon[PokemonIndex::P1].status = PokemonStatus::SLEEP;
     state.side_two.pokemon[PokemonIndex::P1].hp = 0;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -7266,8 +7266,8 @@ fn test_sleep_clause_doesnt_apply_to_fainted_pokemon() {
         instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
             side_ref: SideReference::SideTwo,
             pokemon_index: PokemonIndex::P0,
-            old_status: PokemonStatus::None,
-            new_status: PokemonStatus::Sleep,
+            old_status: PokemonStatus::NONE,
+            new_status: PokemonStatus::SLEEP,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -7276,7 +7276,7 @@ fn test_sleep_clause_doesnt_apply_to_fainted_pokemon() {
 #[test]
 fn test_removing_sleep_via_healbell_sets_sleep_turns_to_zero() {
     let mut state = State::default();
-    state.side_one.pokemon[PokemonIndex::P1].status = PokemonStatus::Sleep;
+    state.side_one.pokemon[PokemonIndex::P1].status = PokemonStatus::SLEEP;
     state.side_one.pokemon[PokemonIndex::P1].sleep_turns = 1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -7291,8 +7291,8 @@ fn test_removing_sleep_via_healbell_sets_sleep_turns_to_zero() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P1,
-                old_status: PokemonStatus::Sleep,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::SLEEP,
+                new_status: PokemonStatus::NONE,
             }),
             Instruction::SetSleepTurns(SetSleepTurnsInstruction {
                 side_ref: SideReference::SideOne,
@@ -7326,8 +7326,8 @@ fn test_using_sleeppowder_as_faster_pkmn() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Sleep,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::SLEEP,
                 }),
                 Instruction::SetSleepTurns(SetSleepTurnsInstruction {
                     side_ref: SideReference::SideOne,
@@ -7345,7 +7345,7 @@ fn test_using_sleeppowder_as_faster_pkmn() {
 #[cfg(feature = "gen4")]
 fn test_gen4_one_turn_asleep_trying_to_wake_up() {
     let mut state = State::default();
-    state.side_one.get_active().status = PokemonStatus::Sleep;
+    state.side_one.get_active().status = PokemonStatus::SLEEP;
     state.side_one.get_active().sleep_turns = 1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -7370,8 +7370,8 @@ fn test_gen4_one_turn_asleep_trying_to_wake_up() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::Sleep,
-                    new_status: PokemonStatus::None,
+                    old_status: PokemonStatus::SLEEP,
+                    new_status: PokemonStatus::NONE,
                 }),
                 Instruction::SetSleepTurns(SetSleepTurnsInstruction {
                     side_ref: SideReference::SideOne,
@@ -7393,7 +7393,7 @@ fn test_gen4_one_turn_asleep_trying_to_wake_up() {
 #[cfg(feature = "gen5")]
 fn test_gen5_switchout_while_sleep_resets_rest_turns() {
     let mut state = State::default();
-    state.side_one.get_active().status = PokemonStatus::Sleep;
+    state.side_one.get_active().status = PokemonStatus::SLEEP;
     state.side_one.get_active().rest_turns = 1;
 
     let vec_of_instructions = generate_instructions_with_state_assertion(
@@ -7425,7 +7425,7 @@ fn test_gen5_switchout_while_sleep_resets_rest_turns() {
 #[cfg(feature = "gen5")]
 fn test_gen5_switchout_while_sleep_resets_sleep_turns() {
     let mut state = State::default();
-    state.side_one.get_active().status = PokemonStatus::Sleep;
+    state.side_one.get_active().status = PokemonStatus::SLEEP;
     state.side_one.get_active().sleep_turns = 1;
 
     let vec_of_instructions = generate_instructions_with_state_assertion(
@@ -7457,7 +7457,7 @@ fn test_gen5_switchout_while_sleep_resets_sleep_turns() {
 #[cfg(feature = "gen5")]
 fn test_gen5_one_turn_asleep_trying_to_wake_up() {
     let mut state = State::default();
-    state.side_one.get_active().status = PokemonStatus::Sleep;
+    state.side_one.get_active().status = PokemonStatus::SLEEP;
     state.side_one.get_active().sleep_turns = 1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -7482,8 +7482,8 @@ fn test_gen5_one_turn_asleep_trying_to_wake_up() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::Sleep,
-                    new_status: PokemonStatus::None,
+                    old_status: PokemonStatus::SLEEP,
+                    new_status: PokemonStatus::NONE,
                 }),
                 Instruction::SetSleepTurns(SetSleepTurnsInstruction {
                     side_ref: SideReference::SideOne,
@@ -7505,7 +7505,7 @@ fn test_gen5_one_turn_asleep_trying_to_wake_up() {
 #[cfg(feature = "gen5")]
 fn test_gen5_guaranteed_wake_up() {
     let mut state = State::default();
-    state.side_one.get_active().status = PokemonStatus::Sleep;
+    state.side_one.get_active().status = PokemonStatus::SLEEP;
     state.side_one.get_active().sleep_turns = 3;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -7520,8 +7520,8 @@ fn test_gen5_guaranteed_wake_up() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::Sleep,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::SLEEP,
+                new_status: PokemonStatus::NONE,
             }),
             Instruction::SetSleepTurns(SetSleepTurnsInstruction {
                 side_ref: SideReference::SideOne,
@@ -7541,7 +7541,7 @@ fn test_gen5_guaranteed_wake_up() {
 #[test]
 fn test_rest_can_be_used_if_sleep_clause_would_activate() {
     let mut state = State::default();
-    state.side_one.pokemon[PokemonIndex::P1].status = PokemonStatus::Sleep;
+    state.side_one.pokemon[PokemonIndex::P1].status = PokemonStatus::SLEEP;
     state.side_one.get_active().hp = 50;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -7556,8 +7556,8 @@ fn test_rest_can_be_used_if_sleep_clause_would_activate() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::None,
-                new_status: PokemonStatus::Sleep,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::SLEEP,
             }),
             Instruction::SetRestTurns(SetSleepTurnsInstruction {
                 side_ref: SideReference::SideOne,
@@ -7617,15 +7617,15 @@ fn test_yawn_gets_applied_and_swapped_with_next_turn_volatile() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Yawn,
+                volatile_status: PokemonVolatileStatus::YAWN,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Yawn,
+                volatile_status: PokemonVolatileStatus::YAWN,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::YawnSleepThisTurn,
+                volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
             }),
         ],
     }];
@@ -7638,7 +7638,7 @@ fn test_substitute_blocks_yawn() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
         Choices::YAWN,
@@ -7680,7 +7680,7 @@ fn test_protect_blocks_yawn() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
         Choices::YAWN,
@@ -7692,11 +7692,11 @@ fn test_protect_blocks_yawn() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideTwo,
@@ -7714,7 +7714,7 @@ fn test_yawn_sleep_next_turn_causes_pkmn_to_sleep() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::YawnSleepThisTurn);
+        .insert(PokemonVolatileStatus::YAWNSLEEPTHISTURN);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -7727,13 +7727,13 @@ fn test_yawn_sleep_next_turn_causes_pkmn_to_sleep() {
         instruction_list: vec![
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::YawnSleepThisTurn,
+                volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideTwo,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::None,
-                new_status: PokemonStatus::Sleep,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::SLEEP,
             }),
         ],
     }];
@@ -7746,7 +7746,7 @@ fn test_cannot_reapply_yawn_when_already_inflicted() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::YawnSleepThisTurn);
+        .insert(PokemonVolatileStatus::YAWNSLEEPTHISTURN);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -7759,13 +7759,13 @@ fn test_cannot_reapply_yawn_when_already_inflicted() {
         instruction_list: vec![
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::YawnSleepThisTurn,
+                volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideTwo,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::None,
-                new_status: PokemonStatus::Sleep,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::SLEEP,
             }),
         ],
     }];
@@ -7778,8 +7778,8 @@ fn test_yawn_is_removed_but_no_status_change_if_pkmn_already_statused() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::YawnSleepThisTurn);
-    state.side_two.get_active().status = PokemonStatus::Poison;
+        .insert(PokemonVolatileStatus::YAWNSLEEPTHISTURN);
+    state.side_two.get_active().status = PokemonStatus::POISON;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -7796,7 +7796,7 @@ fn test_yawn_is_removed_but_no_status_change_if_pkmn_already_statused() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::YawnSleepThisTurn,
+                volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
             }),
         ],
     }];
@@ -7806,7 +7806,7 @@ fn test_yawn_is_removed_but_no_status_change_if_pkmn_already_statused() {
 #[test]
 fn test_yawn_cannot_be_inflicted_with_an_existing_status() {
     let mut state = State::default();
-    state.side_two.get_active().status = PokemonStatus::Poison;
+    state.side_two.get_active().status = PokemonStatus::POISON;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -7863,7 +7863,7 @@ fn test_yawn_cannot_be_inflicted_to_vitalspirit() {
 #[test]
 fn test_priority_move_on_grounded_pkmn_in_psychicterrain() {
     let mut state = State::default();
-    state.terrain.terrain_type = Terrain::PsychicTerrain;
+    state.terrain.terrain_type = Terrain::PSYCHICTERRAIN;
     state.terrain.turns_remaining = 5;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -7882,8 +7882,8 @@ fn test_priority_move_on_grounded_pkmn_in_psychicterrain() {
 #[test]
 fn test_priority_move_on_non_grounded_pkmn_in_psychicterrain() {
     let mut state = State::default();
-    state.side_two.get_active().types.0 = PokemonType::Flying;
-    state.terrain.terrain_type = Terrain::PsychicTerrain;
+    state.side_two.get_active().types.0 = PokemonType::FLYING;
+    state.terrain.terrain_type = Terrain::PSYCHICTERRAIN;
     state.terrain.turns_remaining = 5;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -7909,7 +7909,7 @@ fn test_priority_move_on_non_grounded_pkmn_in_psychicterrain() {
 fn test_prankster_giving_higher_priority_in_psychicterrain() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::PRANKSTER;
-    state.terrain.terrain_type = Terrain::PsychicTerrain;
+    state.terrain.terrain_type = Terrain::PSYCHICTERRAIN;
     state.terrain.turns_remaining = 5;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -7928,7 +7928,7 @@ fn test_prankster_giving_higher_priority_in_psychicterrain() {
 #[test]
 fn test_yawn_cannot_be_inflicted_with_electricterrain() {
     let mut state = State::default();
-    state.terrain.terrain_type = Terrain::ElectricTerrain;
+    state.terrain.terrain_type = Terrain::ELECTRICTERRAIN;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -7946,7 +7946,7 @@ fn test_yawn_cannot_be_inflicted_with_electricterrain() {
 #[test]
 fn test_yawn_cannot_be_inflicted_with_mistyterrain() {
     let mut state = State::default();
-    state.terrain.terrain_type = Terrain::MistyTerrain;
+    state.terrain.terrain_type = Terrain::MISTYTERRAIN;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -7964,8 +7964,8 @@ fn test_yawn_cannot_be_inflicted_with_mistyterrain() {
 #[test]
 fn test_yawn_can_be_inflicted_with_electricterrain_on_nongrounded_pkmn() {
     let mut state = State::default();
-    state.terrain.terrain_type = Terrain::ElectricTerrain;
-    state.side_two.get_active().types.0 = PokemonType::Flying;
+    state.terrain.terrain_type = Terrain::ELECTRICTERRAIN;
+    state.side_two.get_active().types.0 = PokemonType::FLYING;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -7978,15 +7978,15 @@ fn test_yawn_can_be_inflicted_with_electricterrain_on_nongrounded_pkmn() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Yawn,
+                volatile_status: PokemonVolatileStatus::YAWN,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Yawn,
+                volatile_status: PokemonVolatileStatus::YAWN,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::YawnSleepThisTurn,
+                volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
             }),
         ],
     }];
@@ -7996,8 +7996,8 @@ fn test_yawn_can_be_inflicted_with_electricterrain_on_nongrounded_pkmn() {
 #[test]
 fn test_yawn_can_be_inflicted_with_mistyterrain_when_target_is_not_grounded() {
     let mut state = State::default();
-    state.terrain.terrain_type = Terrain::MistyTerrain;
-    state.side_two.get_active().types.0 = PokemonType::Flying;
+    state.terrain.terrain_type = Terrain::MISTYTERRAIN;
+    state.side_two.get_active().types.0 = PokemonType::FLYING;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -8010,15 +8010,15 @@ fn test_yawn_can_be_inflicted_with_mistyterrain_when_target_is_not_grounded() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Yawn,
+                volatile_status: PokemonVolatileStatus::YAWN,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Yawn,
+                volatile_status: PokemonVolatileStatus::YAWN,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::YawnSleepThisTurn,
+                volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
             }),
         ],
     }];
@@ -8039,27 +8039,27 @@ fn test_perish_gets_applied_to_both_sides() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Perish3,
+                volatile_status: PokemonVolatileStatus::PERISH3,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish3,
+                volatile_status: PokemonVolatileStatus::PERISH3,
             }),
         ],
     }];
@@ -8085,27 +8085,27 @@ fn test_perishbody_applies_on_contact_move() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Perish3,
+                volatile_status: PokemonVolatileStatus::PERISH3,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish3,
+                volatile_status: PokemonVolatileStatus::PERISH3,
             }),
         ],
     }];
@@ -8139,7 +8139,7 @@ fn test_perish_bypasses_sub() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     state.side_two.substitute_health = 50;
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -8152,27 +8152,27 @@ fn test_perish_bypasses_sub() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Perish3,
+                volatile_status: PokemonVolatileStatus::PERISH3,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish3,
+                volatile_status: PokemonVolatileStatus::PERISH3,
             }),
         ],
     }];
@@ -8193,27 +8193,27 @@ fn test_perish_bypasses_protect() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Perish3,
+                volatile_status: PokemonVolatileStatus::PERISH3,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideTwo,
@@ -8222,11 +8222,11 @@ fn test_perish_bypasses_protect() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish3,
+                volatile_status: PokemonVolatileStatus::PERISH3,
             }),
         ],
     }];
@@ -8248,15 +8248,15 @@ fn test_perish_cannot_be_applied_to_soundproof_pkmn() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish3,
+                volatile_status: PokemonVolatileStatus::PERISH3,
             }),
         ],
     }];
@@ -8269,7 +8269,7 @@ fn test_perish_cannot_be_applied_to_pkmn_with_a_perish_volatile() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Perish2);
+        .insert(PokemonVolatileStatus::PERISH2);
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
         Choices::PERISHSONG,
@@ -8281,23 +8281,23 @@ fn test_perish_cannot_be_applied_to_pkmn_with_a_perish_volatile() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Perish2,
+                volatile_status: PokemonVolatileStatus::PERISH2,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Perish1,
+                volatile_status: PokemonVolatileStatus::PERISH1,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish4,
+                volatile_status: PokemonVolatileStatus::PERISH4,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish3,
+                volatile_status: PokemonVolatileStatus::PERISH3,
             }),
         ],
     }];
@@ -8310,7 +8310,7 @@ fn test_perish1_causes_faint_end_of_turn() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Perish1);
+        .insert(PokemonVolatileStatus::PERISH1);
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
         Choices::SPLASH,
@@ -8333,7 +8333,7 @@ fn test_perish1_switching_out_prevents_faint() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Perish1);
+        .insert(PokemonVolatileStatus::PERISH1);
 
     let vec_of_instructions = generate_instructions_with_state_assertion(
         &mut state,
@@ -8346,7 +8346,7 @@ fn test_perish1_switching_out_prevents_faint() {
         instruction_list: vec![
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Perish1,
+                volatile_status: PokemonVolatileStatus::PERISH1,
             }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
@@ -8366,7 +8366,7 @@ fn test_leechseed_does_not_trigger_if_receiving_side_fainted_this_turn() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::LeechSeed);
+        .insert(PokemonVolatileStatus::LEECHSEED);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -8390,7 +8390,7 @@ fn test_leechseed_into_substitute() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     state.side_two.substitute_health = 10;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -8409,7 +8409,7 @@ fn test_leechseed_into_substitute() {
 #[test]
 fn test_leechseed_into_grass_type() {
     let mut state = State::default();
-    state.side_two.get_active().types.0 = PokemonType::Grass;
+    state.side_two.get_active().types.0 = PokemonType::GRASS;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -8431,7 +8431,7 @@ fn test_leechseed_into_grass_type() {
             instruction_list: vec![
                 Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,
-                    volatile_status: PokemonVolatileStatus::LeechSeed,
+                    volatile_status: PokemonVolatileStatus::LEECHSEED,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -8459,7 +8459,7 @@ fn test_solarbeam_not_in_sun() {
         instruction_list: vec![Instruction::ApplyVolatileStatus(
             ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::SolarBeam,
+                volatile_status: PokemonVolatileStatus::SOLARBEAM,
             },
         )],
     }];
@@ -8472,7 +8472,7 @@ fn test_solarbeam_with_active_volatile_status() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::SolarBeam);
+        .insert(PokemonVolatileStatus::SOLARBEAM);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -8485,7 +8485,7 @@ fn test_solarbeam_with_active_volatile_status() {
         instruction_list: vec![
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::SolarBeam,
+                volatile_status: PokemonVolatileStatus::SOLARBEAM,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -8673,7 +8673,7 @@ fn test_meteorbeam_charging() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::MeteorBeam,
+                volatile_status: PokemonVolatileStatus::METEORBEAM,
             }),
         ],
     }];
@@ -8686,7 +8686,7 @@ fn test_meteorbeam_executing() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::MeteorBeam);
+        .insert(PokemonVolatileStatus::METEORBEAM);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -8700,7 +8700,7 @@ fn test_meteorbeam_executing() {
             instruction_list: vec![Instruction::RemoveVolatileStatus(
                 RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    volatile_status: PokemonVolatileStatus::MeteorBeam,
+                    volatile_status: PokemonVolatileStatus::METEORBEAM,
                 },
             )],
         },
@@ -8709,7 +8709,7 @@ fn test_meteorbeam_executing() {
             instruction_list: vec![
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    volatile_status: PokemonVolatileStatus::MeteorBeam,
+                    volatile_status: PokemonVolatileStatus::METEORBEAM,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -8727,7 +8727,7 @@ fn test_electroshot_executing() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::ElectroShot);
+        .insert(PokemonVolatileStatus::ELECTROSHOT);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -8740,7 +8740,7 @@ fn test_electroshot_executing() {
         instruction_list: vec![
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::ElectroShot,
+                volatile_status: PokemonVolatileStatus::ELECTROSHOT,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -8787,7 +8787,7 @@ fn test_electroshot_executing_with_powerherb() {
 #[test]
 fn test_solarbeam_in_sun() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Sun;
+    state.weather.weather_type = Weather::SUN;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -8895,7 +8895,7 @@ fn test_thief_does_not_steal_if_hit_sub() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     state.side_two.substitute_health = 25;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -8913,7 +8913,7 @@ fn test_thief_does_not_steal_if_hit_sub() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
         ],
     }];
@@ -9078,7 +9078,7 @@ fn test_trick_against_substitute_fails() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     state.side_two.substitute_health = 10;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -9217,9 +9217,9 @@ fn test_sunnyday() {
         percentage: 100.0,
         instruction_list: vec![
             Instruction::ChangeWeather(ChangeWeather {
-                new_weather: Weather::Sun,
+                new_weather: Weather::SUN,
                 new_weather_turns_remaining: 5,
-                previous_weather: Weather::None,
+                previous_weather: Weather::NONE,
                 previous_weather_turns_remaining: -1,
             }),
             Instruction::DecrementWeatherTurnsRemaining,
@@ -9242,9 +9242,9 @@ fn test_snowscape() {
         percentage: 100.0,
         instruction_list: vec![
             Instruction::ChangeWeather(ChangeWeather {
-                new_weather: Weather::Snow,
+                new_weather: Weather::SNOW,
                 new_weather_turns_remaining: 5,
-                previous_weather: Weather::None,
+                previous_weather: Weather::NONE,
                 previous_weather_turns_remaining: -1,
             }),
             Instruction::DecrementWeatherTurnsRemaining,
@@ -9272,9 +9272,9 @@ fn test_sandspit() {
                 damage_amount: 48,
             }),
             Instruction::ChangeWeather(ChangeWeather {
-                new_weather: Weather::Sand,
+                new_weather: Weather::SAND,
                 new_weather_turns_remaining: 5,
-                previous_weather: Weather::None,
+                previous_weather: Weather::NONE,
                 previous_weather_turns_remaining: -1,
             }),
             Instruction::DecrementWeatherTurnsRemaining,
@@ -9365,9 +9365,9 @@ fn test_sandspit_does_not_activate_on_miss() {
                     damage_amount: 79,
                 }),
                 Instruction::ChangeWeather(ChangeWeather {
-                    new_weather: Weather::Sand,
+                    new_weather: Weather::SAND,
                     new_weather_turns_remaining: 5,
-                    previous_weather: Weather::None,
+                    previous_weather: Weather::NONE,
                     previous_weather_turns_remaining: -1,
                 }),
                 Instruction::DecrementWeatherTurnsRemaining,
@@ -9388,7 +9388,7 @@ fn test_sandspit_does_not_activate_on_miss() {
 #[test]
 fn test_focuspunch_after_not_getting_hit() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Sun;
+    state.weather.weather_type = Weather::SUN;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -9560,7 +9560,7 @@ fn test_heatcrash_highest_base_power() {
 #[cfg(feature = "gen9")]
 fn test_blizzard_in_hail() {
     let mut state = State::default();
-    state.weather.weather_type = Weather::Hail;
+    state.weather.weather_type = Weather::HAIL;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -9596,8 +9596,8 @@ fn test_blizzard_in_hail() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Freeze,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::FREEZE,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -9616,7 +9616,7 @@ fn test_blizzard_in_hail() {
 #[test]
 fn test_poisontype_using_toxic() {
     let mut state = State::default();
-    state.side_one.get_active().types.0 = PokemonType::Poison;
+    state.side_one.get_active().types.0 = PokemonType::POISON;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -9630,8 +9630,8 @@ fn test_poisontype_using_toxic() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideTwo,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::None,
-                new_status: PokemonStatus::Toxic,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::TOXIC,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -9684,8 +9684,8 @@ fn test_scenario_where_choice_gets_updated_on_second_move_that_has_branched_on_f
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Toxic,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::TOXIC,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -9714,7 +9714,7 @@ fn test_scenario_where_choice_gets_updated_on_second_move_that_has_branched_on_f
 fn test_toxic_into_shedinja() {
     // makes sure that toxic always does at least 1 damage
     let mut state = State::default();
-    state.side_one.get_active().types.0 = PokemonType::Poison;
+    state.side_one.get_active().types.0 = PokemonType::POISON;
     state.side_two.get_active().id = PokemonName::SHEDINJA;
     state.side_two.get_active().hp = 1;
     state.side_two.get_active().maxhp = 1;
@@ -9732,8 +9732,8 @@ fn test_toxic_into_shedinja() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideTwo,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::None,
-                new_status: PokemonStatus::Toxic,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::TOXIC,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -9803,7 +9803,7 @@ fn test_clangoroussoul_missing() {
 #[test]
 fn test_poltergeist_missing() {
     let mut state = State::default();
-    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Dragon);
+    state.side_two.get_active().types = (PokemonType::FIRE, PokemonType::DRAGON);
     state.side_two.get_active().item = Items::NONE;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -9825,7 +9825,7 @@ fn test_expert_belt_does_not_boost() {
     let mut state = State::default();
     state.side_two.get_active().hp = 300;
     state.side_two.get_active().maxhp = 300;
-    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Dragon);
+    state.side_two.get_active().types = (PokemonType::FIRE, PokemonType::DRAGON);
     state.side_one.get_active().item = Items::EXPERTBELT;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -9877,7 +9877,7 @@ fn test_multi_hit_move_where_first_hit_breaks_substitute() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -9894,7 +9894,7 @@ fn test_multi_hit_move_where_first_hit_breaks_substitute() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -10087,7 +10087,7 @@ fn test_triple_multihit_move_versus_substitute_and_rockyhelmet() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -10108,7 +10108,7 @@ fn test_triple_multihit_move_versus_substitute_and_rockyhelmet() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -10243,7 +10243,7 @@ fn test_lifeorb_on_non_damaging_move() {
 #[test]
 fn test_refresh_curing_status() {
     let mut state = State::default();
-    state.side_one.get_active().status = PokemonStatus::Burn;
+    state.side_one.get_active().status = PokemonStatus::BURN;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -10256,8 +10256,8 @@ fn test_refresh_curing_status() {
         instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
             side_ref: SideReference::SideOne,
             pokemon_index: PokemonIndex::P0,
-            old_status: PokemonStatus::Burn,
-            new_status: PokemonStatus::None,
+            old_status: PokemonStatus::BURN,
+            new_status: PokemonStatus::NONE,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -10328,7 +10328,7 @@ fn test_absorbbulb() {
 fn test_leafguard() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::LEAFGUARD;
-    state.weather.weather_type = Weather::Sun;
+    state.weather.weather_type = Weather::SUN;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -10589,7 +10589,7 @@ fn test_lightning_rod_versus_status_move() {
 fn test_prankster_into_dark_type() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::PRANKSTER;
-    state.side_two.get_active().types.0 = PokemonType::Dark;
+    state.side_two.get_active().types.0 = PokemonType::DARK;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -10609,7 +10609,7 @@ fn test_prankster_into_dark_type() {
 fn test_prankster_into_dark_type_earlier_gens() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::PRANKSTER;
-    state.side_two.get_active().types.0 = PokemonType::Dark;
+    state.side_two.get_active().types.0 = PokemonType::DARK;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -10622,8 +10622,8 @@ fn test_prankster_into_dark_type_earlier_gens() {
         instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
             side_ref: SideReference::SideTwo,
             pokemon_index: PokemonIndex::P0,
-            old_status: PokemonStatus::None,
-            new_status: PokemonStatus::Paralyze,
+            old_status: PokemonStatus::NONE,
+            new_status: PokemonStatus::PARALYZE,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -10633,7 +10633,7 @@ fn test_prankster_into_dark_type_earlier_gens() {
 fn test_prankster_damaging_move_innto_dark_type() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::PRANKSTER;
-    state.side_two.get_active().types.0 = PokemonType::Dark;
+    state.side_two.get_active().types.0 = PokemonType::DARK;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -10883,8 +10883,8 @@ fn test_magicbounce_with_status() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Burn,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::BURN,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideOne,
@@ -10900,7 +10900,7 @@ fn test_magicbounce_with_status() {
 fn test_marvelscale() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::MARVELSCALE;
-    state.side_two.get_active().status = PokemonStatus::Paralyze;
+    state.side_two.get_active().status = PokemonStatus::PARALYZE;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -11045,7 +11045,7 @@ fn test_overcoat_vs_powder_move() {
 fn test_overcoat_vs_weather_damage() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::OVERCOAT;
-    state.weather.weather_type = Weather::Hail;
+    state.weather.weather_type = Weather::HAIL;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -11092,8 +11092,8 @@ fn test_poisonpoint() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Poison,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::POISON,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideOne,
@@ -11259,7 +11259,7 @@ fn test_slowstart_activates_on_switch_in() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::SlowStart,
+                volatile_status: PokemonVolatileStatus::SLOWSTART,
             }),
         ],
     }];
@@ -11309,9 +11309,9 @@ fn test_drizzle() {
                 next_index: PokemonIndex::P1,
             }),
             Instruction::ChangeWeather(ChangeWeather {
-                new_weather: Weather::Rain,
+                new_weather: Weather::RAIN,
                 new_weather_turns_remaining: -1,
-                previous_weather: Weather::None,
+                previous_weather: Weather::NONE,
                 previous_weather_turns_remaining: -1,
             }),
         ],
@@ -11339,9 +11339,9 @@ fn test_electricsurge() {
                 next_index: PokemonIndex::P1,
             }),
             Instruction::ChangeTerrain(ChangeTerrain {
-                new_terrain: Terrain::ElectricTerrain,
+                new_terrain: Terrain::ELECTRICTERRAIN,
                 new_terrain_turns_remaining: 5,
-                previous_terrain: Terrain::None,
+                previous_terrain: Terrain::NONE,
                 previous_terrain_turns_remaining: 0,
             }),
             Instruction::DecrementTerrainTurnsRemaining,
@@ -11353,7 +11353,7 @@ fn test_electricsurge() {
 #[test]
 fn test_icespinner_removes_terrain() {
     let mut state = State::default();
-    state.terrain.terrain_type = Terrain::ElectricTerrain;
+    state.terrain.terrain_type = Terrain::ELECTRICTERRAIN;
     state.terrain.turns_remaining = 1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -11370,9 +11370,9 @@ fn test_icespinner_removes_terrain() {
                 damage_amount: 63,
             }),
             Instruction::ChangeTerrain(ChangeTerrain {
-                new_terrain: Terrain::None,
+                new_terrain: Terrain::NONE,
                 new_terrain_turns_remaining: 0,
-                previous_terrain: Terrain::ElectricTerrain,
+                previous_terrain: Terrain::ELECTRICTERRAIN,
                 previous_terrain_turns_remaining: 1,
             }),
         ],
@@ -11383,7 +11383,7 @@ fn test_icespinner_removes_terrain() {
 #[test]
 fn test_icespinner_does_not_remove_terrain_if_protected() {
     let mut state = State::default();
-    state.terrain.terrain_type = Terrain::ElectricTerrain;
+    state.terrain.terrain_type = Terrain::ELECTRICTERRAIN;
     state.terrain.turns_remaining = 3;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -11397,12 +11397,12 @@ fn test_icespinner_does_not_remove_terrain_if_protected() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::DecrementTerrainTurnsRemaining,
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideTwo,
@@ -11434,9 +11434,9 @@ fn test_hadronenegine_terrain_application() {
                 next_index: PokemonIndex::P1,
             }),
             Instruction::ChangeTerrain(ChangeTerrain {
-                new_terrain: Terrain::ElectricTerrain,
+                new_terrain: Terrain::ELECTRICTERRAIN,
                 new_terrain_turns_remaining: 5,
-                previous_terrain: Terrain::None,
+                previous_terrain: Terrain::NONE,
                 previous_terrain_turns_remaining: 0,
             }),
             Instruction::DecrementTerrainTurnsRemaining,
@@ -11465,9 +11465,9 @@ fn test_orichalcumpulse_weather_application() {
                 next_index: PokemonIndex::P1,
             }),
             Instruction::ChangeWeather(ChangeWeather {
-                new_weather: Weather::Sun,
+                new_weather: Weather::SUN,
                 new_weather_turns_remaining: -1,
-                previous_weather: Weather::None,
+                previous_weather: Weather::NONE,
                 previous_weather_turns_remaining: -1,
             }),
         ],
@@ -11583,9 +11583,9 @@ fn test_drought() {
                 next_index: PokemonIndex::P1,
             }),
             Instruction::ChangeWeather(ChangeWeather {
-                new_weather: Weather::Sun,
+                new_weather: Weather::SUN,
                 new_weather_turns_remaining: -1,
-                previous_weather: Weather::None,
+                previous_weather: Weather::NONE,
                 previous_weather_turns_remaining: -1,
             }),
         ],
@@ -11614,9 +11614,9 @@ fn test_pre_gen9_snowwarning() {
                 next_index: PokemonIndex::P1,
             }),
             Instruction::ChangeWeather(ChangeWeather {
-                new_weather: Weather::Hail,
+                new_weather: Weather::HAIL,
                 new_weather_turns_remaining: -1,
-                previous_weather: Weather::None,
+                previous_weather: Weather::NONE,
                 previous_weather_turns_remaining: -1,
             }),
             Instruction::Damage(DamageInstruction {
@@ -11653,9 +11653,9 @@ fn test_gen9_snowwarning() {
                 next_index: PokemonIndex::P1,
             }),
             Instruction::ChangeWeather(ChangeWeather {
-                new_weather: Weather::Snow,
+                new_weather: Weather::SNOW,
                 new_weather_turns_remaining: -1,
-                previous_weather: Weather::None,
+                previous_weather: Weather::NONE,
                 previous_weather_turns_remaining: -1,
             }),
         ],
@@ -11806,7 +11806,7 @@ fn test_scrappy_versus_intimidate() {
 fn test_scrappy_versus_ghost_type() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::SCRAPPY;
-    state.side_two.get_active().types.1 = PokemonType::Ghost;
+    state.side_two.get_active().types.1 = PokemonType::GHOST;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -11841,7 +11841,7 @@ fn test_ivycudgel_fire_against_flashfire() {
         instruction_list: vec![Instruction::ApplyVolatileStatus(
             ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::FlashFire,
+                volatile_status: PokemonVolatileStatus::FLASHFIRE,
             },
         )],
     }];
@@ -11852,7 +11852,7 @@ fn test_ivycudgel_fire_against_flashfire() {
 fn test_mindseye_versus_ghost_type() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::MINDSEYE;
-    state.side_two.get_active().types.1 = PokemonType::Ghost;
+    state.side_two.get_active().types.1 = PokemonType::GHOST;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -11874,8 +11874,8 @@ fn test_mindseye_versus_ghost_type() {
 fn test_scrappy_fighting_move_becomes_supereffective_against_ghost_normal() {
     let mut state = State::default();
 
-    state.side_two.get_active().types.0 = PokemonType::Normal;
-    state.side_two.get_active().types.1 = PokemonType::Typeless;
+    state.side_two.get_active().types.0 = PokemonType::NORMAL;
+    state.side_two.get_active().types.1 = PokemonType::TYPELESS;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -11884,7 +11884,7 @@ fn test_scrappy_fighting_move_becomes_supereffective_against_ghost_normal() {
     );
 
     state.side_one.get_active().ability = Abilities::SCRAPPY;
-    state.side_two.get_active().types.1 = PokemonType::Ghost;
+    state.side_two.get_active().types.1 = PokemonType::GHOST;
 
     let vec_of_instructions_after_scrappy = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -11906,8 +11906,8 @@ fn test_scrappy_fighting_move_becomes_supereffective_against_ghost_normal() {
 #[test]
 fn test_terastallizing() {
     let mut state = State::default();
-    state.side_one.get_active().tera_type = PokemonType::Grass;
-    state.side_two.get_active().tera_type = PokemonType::Fire;
+    state.side_one.get_active().tera_type = PokemonType::GRASS;
+    state.side_two.get_active().tera_type = PokemonType::FIRE;
     state.side_one.get_active().terastallized = false;
     state.side_two.get_active().terastallized = false;
     let vec_of_instructions = generate_instructions_with_state_assertion(
@@ -11936,7 +11936,7 @@ fn test_substitute_versus_intimidate() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     state.side_two.substitute_health = 25;
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::INTIMIDATE;
 
@@ -12087,7 +12087,7 @@ fn test_adrenaline_orb_activates_if_immune_to_intimidate() {
 #[test]
 fn test_terastallized_into_ghost_makes_immune_to_normal() {
     let mut state = State::default();
-    state.side_two.get_active().tera_type = PokemonType::Ghost;
+    state.side_two.get_active().tera_type = PokemonType::GHOST;
     state.side_two.get_active().terastallized = true;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -12106,7 +12106,7 @@ fn test_terastallized_into_ghost_makes_immune_to_normal() {
 #[test]
 fn test_normal_terastallized_into_stellar_remains_immune_to_ghost() {
     let mut state = State::default();
-    state.side_two.get_active().tera_type = PokemonType::Stellar;
+    state.side_two.get_active().tera_type = PokemonType::STELLAR;
     state.side_two.get_active().terastallized = true;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -12125,8 +12125,8 @@ fn test_normal_terastallized_into_stellar_remains_immune_to_ghost() {
 #[test]
 fn test_tera_double_stab() {
     let mut state = State::default();
-    state.side_one.get_active().types = (PokemonType::Normal, PokemonType::Typeless);
-    state.side_one.get_active().tera_type = PokemonType::Normal;
+    state.side_one.get_active().types = (PokemonType::NORMAL, PokemonType::TYPELESS);
+    state.side_one.get_active().tera_type = PokemonType::NORMAL;
     state.side_one.get_active().terastallized = true;
     state.side_two.get_active().hp = 500;
     state.side_two.get_active().maxhp = 500;
@@ -12150,8 +12150,8 @@ fn test_tera_double_stab() {
 #[test]
 fn test_tera_stab_without_an_original_type_in_tera_types() {
     let mut state = State::default();
-    state.side_one.get_active().types = (PokemonType::Grass, PokemonType::Typeless);
-    state.side_one.get_active().tera_type = PokemonType::Normal;
+    state.side_one.get_active().types = (PokemonType::GRASS, PokemonType::TYPELESS);
+    state.side_one.get_active().tera_type = PokemonType::NORMAL;
     state.side_one.get_active().terastallized = true;
     state.side_two.get_active().hp = 500;
     state.side_two.get_active().maxhp = 500;
@@ -12175,8 +12175,8 @@ fn test_tera_stab_without_an_original_type_in_tera_types() {
 #[test]
 fn test_tera_without_any_stab() {
     let mut state = State::default();
-    state.side_one.get_active().types = (PokemonType::Grass, PokemonType::Typeless);
-    state.side_one.get_active().tera_type = PokemonType::Water;
+    state.side_one.get_active().types = (PokemonType::GRASS, PokemonType::TYPELESS);
+    state.side_one.get_active().tera_type = PokemonType::WATER;
     state.side_one.get_active().terastallized = true;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -12198,8 +12198,8 @@ fn test_tera_without_any_stab() {
 #[test]
 fn test_tera_with_original_type_stab() {
     let mut state = State::default();
-    state.side_one.get_active().types = (PokemonType::Normal, PokemonType::Typeless);
-    state.side_one.get_active().tera_type = PokemonType::Water;
+    state.side_one.get_active().types = (PokemonType::NORMAL, PokemonType::TYPELESS);
+    state.side_one.get_active().tera_type = PokemonType::WATER;
     state.side_one.get_active().terastallized = true;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -12221,7 +12221,7 @@ fn test_tera_with_original_type_stab() {
 #[test]
 fn test_cannot_lose_tera_flying_type_with_roost() {
     let mut state = State::default();
-    state.side_two.get_active().tera_type = PokemonType::Flying;
+    state.side_two.get_active().tera_type = PokemonType::FLYING;
     state.side_two.get_active().terastallized = true;
 
     // ensure roost happens first
@@ -12239,11 +12239,11 @@ fn test_cannot_lose_tera_flying_type_with_roost() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Roost,
+                volatile_status: PokemonVolatileStatus::ROOST,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Roost,
+                volatile_status: PokemonVolatileStatus::ROOST,
             }),
         ],
     }];
@@ -12323,7 +12323,7 @@ fn test_weaknesspolicy() {
     state.side_two.get_active().item = Items::WEAKNESSPOLICY;
     state.side_two.get_active().hp = 200;
     state.side_two.get_active().maxhp = 200;
-    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Normal);
+    state.side_two.get_active().types = (PokemonType::FIRE, PokemonType::NORMAL);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -12365,7 +12365,7 @@ fn test_weaknesspolicy_does_not_overboost() {
     state.side_two.get_active().hp = 200;
     state.side_two.get_active().maxhp = 200;
     state.side_two.attack_boost = 5;
-    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Normal);
+    state.side_two.get_active().types = (PokemonType::FIRE, PokemonType::NORMAL);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -12404,7 +12404,7 @@ fn test_weaknesspolicy_does_not_overboost() {
 fn test_switching_in_with_grassyseed_in_grassy_terrain() {
     let mut state = State::default();
     state.side_two.pokemon[PokemonIndex::P1].item = Items::GRASSYSEED;
-    state.terrain.terrain_type = Terrain::GrassyTerrain;
+    state.terrain.terrain_type = Terrain::GRASSYTERRAIN;
     state.terrain.turns_remaining = 3;
 
     state
@@ -12447,7 +12447,7 @@ fn test_contrary_with_seed() {
     let mut state = State::default();
     state.side_two.pokemon[PokemonIndex::P1].item = Items::PSYCHICSEED;
     state.side_two.pokemon[PokemonIndex::P1].ability = Abilities::CONTRARY;
-    state.terrain.terrain_type = Terrain::PsychicTerrain;
+    state.terrain.terrain_type = Terrain::PSYCHICTERRAIN;
     state.terrain.turns_remaining = 3;
 
     state
@@ -12733,8 +12733,8 @@ fn test_throatspray_with_move_that_can_miss() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Sleep,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::SLEEP,
                 }),
                 Instruction::Boost(BoostInstruction {
                     side_ref: SideReference::SideOne,
@@ -12812,11 +12812,11 @@ fn test_upperhand_against_priority() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Flinch,
+                volatile_status: PokemonVolatileStatus::FLINCH,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Flinch,
+                volatile_status: PokemonVolatileStatus::FLINCH,
             }),
         ],
     }];
@@ -12939,8 +12939,8 @@ fn test_poisontouch_with_poisonjab() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Poison,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::POISON,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -12981,8 +12981,8 @@ fn test_toxic_chain() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Toxic,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::TOXIC,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -13028,8 +13028,8 @@ fn test_serenegrace_with_secondary() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Poison,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::POISON,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -13066,7 +13066,7 @@ fn test_technician() {
 fn test_hadronengine_boost() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::HADRONENGINE;
-    state.terrain.terrain_type = Terrain::ElectricTerrain;
+    state.terrain.terrain_type = Terrain::ELECTRICTERRAIN;
     state.terrain.turns_remaining = 5;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -13092,7 +13092,7 @@ fn test_hadronengine_boost() {
 fn test_orichalcum_boost() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::ORICHALCUMPULSE;
-    state.weather.weather_type = Weather::Sun;
+    state.weather.weather_type = Weather::SUN;
     state.weather.turns_remaining = -1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -13127,7 +13127,7 @@ fn test_unseenfist() {
         instruction_list: vec![
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -13135,7 +13135,7 @@ fn test_unseenfist() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Protect,
+                volatile_status: PokemonVolatileStatus::PROTECT,
             }),
             Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                 side_ref: SideReference::SideTwo,
@@ -13237,7 +13237,7 @@ fn test_taunt_into_glare() {
         instruction_list: vec![Instruction::ApplyVolatileStatus(
             ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Taunt,
+                volatile_status: PokemonVolatileStatus::TAUNT,
             },
         )],
     }];
@@ -13248,7 +13248,7 @@ fn test_taunt_into_glare() {
 #[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
 fn test_glare_into_electric_type() {
     let mut state = State::default();
-    state.side_two.get_active().types.1 = PokemonType::Electric;
+    state.side_two.get_active().types.1 = PokemonType::ELECTRIC;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -13267,7 +13267,7 @@ fn test_glare_into_electric_type() {
 #[cfg(any(feature = "gen4"))]
 fn test_gen4_glare_into_electric_type() {
     let mut state = State::default();
-    state.side_two.get_active().types.1 = PokemonType::Electric;
+    state.side_two.get_active().types.1 = PokemonType::ELECTRIC;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -13285,8 +13285,8 @@ fn test_gen4_glare_into_electric_type() {
             instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideTwo,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::None,
-                new_status: PokemonStatus::Paralyze,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::PARALYZE,
             })],
         },
     ];
@@ -13385,7 +13385,7 @@ fn test_mindblown_into_damp() {
 #[test]
 fn test_explosion_into_ghost_type() {
     let mut state = State::default();
-    state.side_two.get_active().types.0 = PokemonType::Ghost;
+    state.side_two.get_active().types.0 = PokemonType::GHOST;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -13545,7 +13545,7 @@ fn test_watercompaction() {
 #[cfg(any(feature = "gen4", feature = "gen5"))]
 fn test_gen5_or_earlier_ghost_versus_steel() {
     let mut state = State::default();
-    state.side_two.get_active().types = (PokemonType::Steel, PokemonType::Typeless);
+    state.side_two.get_active().types = (PokemonType::STEEL, PokemonType::TYPELESS);
 
     let vec_of_instructions =
         set_moves_on_pkmn_and_call_generate_instructions(&mut state, Choices::HEX, Choices::SPLASH);
@@ -13564,7 +13564,7 @@ fn test_gen5_or_earlier_ghost_versus_steel() {
 #[cfg(any(feature = "gen7", feature = "gen8"))]
 fn test_pixilate() {
     let mut state = State::default();
-    state.side_one.get_active().types = (PokemonType::Fairy, PokemonType::Typeless);
+    state.side_one.get_active().types = (PokemonType::FAIRY, PokemonType::TYPELESS);
     state.side_one.get_active().ability = Abilities::PIXILATE;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -13587,7 +13587,7 @@ fn test_pixilate() {
 #[cfg(feature = "gen6")]
 fn test_pixilate_gen6() {
     let mut state = State::default();
-    state.side_one.get_active().types = (PokemonType::Fairy, PokemonType::Typeless);
+    state.side_one.get_active().types = (PokemonType::FAIRY, PokemonType::TYPELESS);
     state.side_one.get_active().ability = Abilities::PIXILATE;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -13636,8 +13636,8 @@ fn test_transistor() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Paralyze,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::PARALYZE,
                 }),
             ],
         },
@@ -13681,8 +13681,8 @@ fn test_transistor_higher_boost_before_gen8() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Paralyze,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::PARALYZE,
                 }),
             ],
         },
@@ -13758,8 +13758,8 @@ fn test_mortalspin_poison_and_remove_hazards() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideTwo,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::None,
-                new_status: PokemonStatus::Poison,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::POISON,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -13887,8 +13887,8 @@ fn test_wonderguard_against_spore() {
         instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
             side_ref: SideReference::SideTwo,
             pokemon_index: PokemonIndex::P0,
-            old_status: PokemonStatus::None,
-            new_status: PokemonStatus::Sleep,
+            old_status: PokemonStatus::NONE,
+            new_status: PokemonStatus::SLEEP,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -13917,8 +13917,8 @@ fn test_wonderguard_against_willowisp() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Burn,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::BURN,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -13955,8 +13955,8 @@ fn test_wonderguard_1_hp_against_willowisp() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Burn,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::BURN,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -13974,7 +13974,7 @@ fn test_wonderguard_1hp_against_poison() {
     state.side_two.get_active().hp = 1;
     state.side_two.get_active().maxhp = 1;
     state.side_two.get_active().ability = Abilities::WONDERGUARD;
-    state.side_two.get_active().status = PokemonStatus::Poison;
+    state.side_two.get_active().status = PokemonStatus::POISON;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -13998,7 +13998,7 @@ fn test_wonderguard_1hp_against_toxic() {
     state.side_two.get_active().hp = 1;
     state.side_two.get_active().maxhp = 1;
     state.side_two.get_active().ability = Abilities::WONDERGUARD;
-    state.side_two.get_active().status = PokemonStatus::Toxic;
+    state.side_two.get_active().status = PokemonStatus::TOXIC;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -14045,8 +14045,8 @@ fn test_wonderskin_against_poisonpowder() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Poison,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::POISON,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
@@ -14085,7 +14085,7 @@ fn test_dryskin_in_rain() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::DRYSKIN;
     state.side_two.get_active().hp = 90;
-    state.weather.weather_type = Weather::Rain;
+    state.weather.weather_type = Weather::RAIN;
     state.weather.turns_remaining = -1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -14108,7 +14108,7 @@ fn test_dryskin_in_rain() {
 fn test_shedskin_end_of_turn() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::SHEDSKIN;
-    state.side_two.get_active().status = PokemonStatus::Poison;
+    state.side_two.get_active().status = PokemonStatus::POISON;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -14126,8 +14126,8 @@ fn test_shedskin_end_of_turn() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideTwo,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::Poison,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::POISON,
+                new_status: PokemonStatus::NONE,
             }),
         ],
     }];
@@ -14138,8 +14138,8 @@ fn test_shedskin_end_of_turn() {
 fn test_hydration_end_of_turn() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::HYDRATION;
-    state.side_two.get_active().status = PokemonStatus::Poison;
-    state.weather.weather_type = Weather::Rain;
+    state.side_two.get_active().status = PokemonStatus::POISON;
+    state.weather.weather_type = Weather::RAIN;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -14157,8 +14157,8 @@ fn test_hydration_end_of_turn() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideTwo,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::Poison,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::POISON,
+                new_status: PokemonStatus::NONE,
             }),
         ],
     }];
@@ -14169,10 +14169,10 @@ fn test_hydration_end_of_turn() {
 fn test_using_rest_with_existing_status_condition_and_hydration() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::HYDRATION;
-    state.side_one.get_active().status = PokemonStatus::Burn;
+    state.side_one.get_active().status = PokemonStatus::BURN;
     state.side_one.get_active().hp = 50;
     state.side_one.get_active().rest_turns = 0;
-    state.weather.weather_type = Weather::Rain;
+    state.weather.weather_type = Weather::RAIN;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -14186,8 +14186,8 @@ fn test_using_rest_with_existing_status_condition_and_hydration() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::Burn,
-                new_status: PokemonStatus::Sleep,
+                old_status: PokemonStatus::BURN,
+                new_status: PokemonStatus::SLEEP,
             }),
             Instruction::SetRestTurns(SetSleepTurnsInstruction {
                 side_ref: SideReference::SideOne,
@@ -14202,8 +14202,8 @@ fn test_using_rest_with_existing_status_condition_and_hydration() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::Sleep,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::SLEEP,
+                new_status: PokemonStatus::NONE,
             }),
             Instruction::SetRestTurns(SetSleepTurnsInstruction {
                 side_ref: SideReference::SideOne,
@@ -14220,7 +14220,7 @@ fn test_using_rest_with_existing_status_condition_and_hydration() {
 fn test_using_rest_with_existing_status_condition_and_shedskin() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::SHEDSKIN;
-    state.side_one.get_active().status = PokemonStatus::Burn;
+    state.side_one.get_active().status = PokemonStatus::BURN;
     state.side_one.get_active().hp = 50;
     state.side_one.get_active().rest_turns = 0;
 
@@ -14236,8 +14236,8 @@ fn test_using_rest_with_existing_status_condition_and_shedskin() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::Burn,
-                new_status: PokemonStatus::Sleep,
+                old_status: PokemonStatus::BURN,
+                new_status: PokemonStatus::SLEEP,
             }),
             Instruction::SetRestTurns(SetSleepTurnsInstruction {
                 side_ref: SideReference::SideOne,
@@ -14252,8 +14252,8 @@ fn test_using_rest_with_existing_status_condition_and_shedskin() {
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::Sleep,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::SLEEP,
+                new_status: PokemonStatus::NONE,
             }),
             Instruction::SetRestTurns(SetSleepTurnsInstruction {
                 side_ref: SideReference::SideOne,
@@ -14270,10 +14270,10 @@ fn test_using_rest_with_existing_status_condition_and_shedskin() {
 fn test_being_knocked_out_before_using_rest() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::HYDRATION;
-    state.side_one.get_active().status = PokemonStatus::Burn;
+    state.side_one.get_active().status = PokemonStatus::BURN;
     state.side_one.get_active().hp = 1;
     state.side_one.get_active().rest_turns = 0;
-    state.weather.weather_type = Weather::Rain;
+    state.weather.weather_type = Weather::RAIN;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -14295,7 +14295,7 @@ fn test_being_knocked_out_before_using_rest() {
 fn test_hydration_without_weather() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::HYDRATION;
-    state.side_two.get_active().status = PokemonStatus::Poison;
+    state.side_two.get_active().status = PokemonStatus::POISON;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -14317,7 +14317,7 @@ fn test_hydration_without_weather() {
 fn test_icebody_no_heal() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::ICEBODY;
-    state.weather.weather_type = Weather::Hail;
+    state.weather.weather_type = Weather::HAIL;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -14339,7 +14339,7 @@ fn test_icebody_no_heal() {
 fn test_icebody_heal() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::ICEBODY;
-    state.weather.weather_type = Weather::Hail;
+    state.weather.weather_type = Weather::HAIL;
     state.side_two.get_active().hp = 50;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -14368,7 +14368,7 @@ fn test_icebody_heal() {
 fn test_raindish_heal() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::RAINDISH;
-    state.weather.weather_type = Weather::Rain;
+    state.weather.weather_type = Weather::RAIN;
     state.side_two.get_active().hp = 50;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -14391,7 +14391,7 @@ fn test_raindish_heal() {
 fn test_solarpower_damage() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::SOLARPOWER;
-    state.weather.weather_type = Weather::Sun;
+    state.weather.weather_type = Weather::SUN;
     state.side_two.get_active().hp = 50;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -14414,7 +14414,7 @@ fn test_solarpower_damage() {
 fn test_baddreams() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::BADDREAMS;
-    state.side_two.get_active().status = PokemonStatus::Sleep;
+    state.side_two.get_active().status = PokemonStatus::SLEEP;
     state.side_two.get_active().sleep_turns = MAX_SLEEP_TURNS - 2;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -14445,8 +14445,8 @@ fn test_baddreams() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::Sleep,
-                    new_status: PokemonStatus::None,
+                    old_status: PokemonStatus::SLEEP,
+                    new_status: PokemonStatus::NONE,
                 }),
                 Instruction::SetSleepTurns(SetSleepTurnsInstruction {
                     side_ref: SideReference::SideTwo,
@@ -14463,7 +14463,7 @@ fn test_baddreams() {
 #[test]
 fn test_freeze_chance_to_thaw() {
     let mut state = State::default();
-    state.side_two.get_active().status = PokemonStatus::Freeze;
+    state.side_two.get_active().status = PokemonStatus::FREEZE;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -14481,8 +14481,8 @@ fn test_freeze_chance_to_thaw() {
             instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideTwo,
                 pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::Freeze,
-                new_status: PokemonStatus::None,
+                old_status: PokemonStatus::FREEZE,
+                new_status: PokemonStatus::NONE,
             })],
         },
     ];
@@ -14492,7 +14492,7 @@ fn test_freeze_chance_to_thaw() {
 #[test]
 fn test_sleeptalk_when_asleep_and_rest_turns_active() {
     let mut state = State::default();
-    state.side_one.get_active().status = PokemonStatus::Sleep;
+    state.side_one.get_active().status = PokemonStatus::SLEEP;
     state.side_one.get_active().rest_turns = 3;
     state
         .side_two
@@ -14561,7 +14561,7 @@ fn test_sleeptalk_when_asleep_and_rest_turns_active() {
                 }),
                 Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
-                    volatile_status: PokemonVolatileStatus::Curse,
+                    volatile_status: PokemonVolatileStatus::CURSE,
                 }),
                 Instruction::Boost(BoostInstruction {
                     side_ref: SideReference::SideOne,
@@ -14588,7 +14588,7 @@ fn test_sleeptalk_when_asleep_and_rest_turns_active() {
 fn test_baddreams_does_not_overkill() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::BADDREAMS;
-    state.side_two.get_active().status = PokemonStatus::Sleep;
+    state.side_two.get_active().status = PokemonStatus::SLEEP;
     state.side_two.get_active().sleep_turns = MAX_SLEEP_TURNS - 2;
     state.side_two.get_active().hp = 5;
 
@@ -14620,8 +14620,8 @@ fn test_baddreams_does_not_overkill() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideTwo,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::Sleep,
-                    new_status: PokemonStatus::None,
+                    old_status: PokemonStatus::SLEEP,
+                    new_status: PokemonStatus::NONE,
                 }),
                 Instruction::SetSleepTurns(SetSleepTurnsInstruction {
                     side_ref: SideReference::SideTwo,
@@ -14639,7 +14639,7 @@ fn test_baddreams_does_not_overkill() {
 fn test_filter() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::FILTER;
-    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Normal);
+    state.side_two.get_active().types = (PokemonType::FIRE, PokemonType::NORMAL);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -14661,7 +14661,7 @@ fn test_filter() {
 fn test_prismarmor() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::PRISMARMOR;
-    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Normal);
+    state.side_two.get_active().types = (PokemonType::FIRE, PokemonType::NORMAL);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -14684,9 +14684,9 @@ fn test_prismarmor() {
 fn test_prismarmor_respects_tera_type() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::PRISMARMOR;
-    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Normal);
+    state.side_two.get_active().types = (PokemonType::FIRE, PokemonType::NORMAL);
     state.side_two.get_active().terastallized = true;
-    state.side_two.get_active().tera_type = PokemonType::Normal;
+    state.side_two.get_active().tera_type = PokemonType::NORMAL;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -14733,8 +14733,8 @@ fn test_effectspore() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Sleep,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::SLEEP,
                 }),
             ],
         },
@@ -14748,8 +14748,8 @@ fn test_effectspore() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Paralyze,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::PARALYZE,
                 }),
             ],
         },
@@ -14763,8 +14763,8 @@ fn test_effectspore() {
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
                     pokemon_index: PokemonIndex::P0,
-                    old_status: PokemonStatus::None,
-                    new_status: PokemonStatus::Poison,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::POISON,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideOne,
@@ -14780,7 +14780,7 @@ fn test_effectspore() {
 fn test_flashfire() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::FLASHFIRE;
-    state.side_two.get_active().types = (PokemonType::Fire, PokemonType::Normal);
+    state.side_two.get_active().types = (PokemonType::FIRE, PokemonType::NORMAL);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -14793,7 +14793,7 @@ fn test_flashfire() {
         instruction_list: vec![Instruction::ApplyVolatileStatus(
             ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::FlashFire,
+                volatile_status: PokemonVolatileStatus::FLASHFIRE,
             },
         )],
     }];

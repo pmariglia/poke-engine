@@ -99,13 +99,13 @@ fn evaluate_pokemon(pokemon: &Pokemon) -> f32 {
     score += POKEMON_HP * pokemon.hp as f32 / pokemon.maxhp as f32;
 
     match pokemon.status {
-        PokemonStatus::Burn => score += evaluate_burned(pokemon),
-        PokemonStatus::Freeze => score += POKEMON_FROZEN,
-        PokemonStatus::Sleep => score += POKEMON_ASLEEP,
-        PokemonStatus::Paralyze => score += POKEMON_PARALYZED,
-        PokemonStatus::Toxic => score += POKEMON_TOXIC,
-        PokemonStatus::Poison => score += POKEMON_POISONED,
-        PokemonStatus::None => {}
+        PokemonStatus::BURN => score += evaluate_burned(pokemon),
+        PokemonStatus::FREEZE => score += POKEMON_FROZEN,
+        PokemonStatus::SLEEP => score += POKEMON_ASLEEP,
+        PokemonStatus::PARALYZE => score += POKEMON_PARALYZED,
+        PokemonStatus::TOXIC => score += POKEMON_TOXIC,
+        PokemonStatus::POISON => score += POKEMON_POISONED,
+        PokemonStatus::NONE => {}
     }
 
     score
@@ -150,17 +150,17 @@ pub fn evaluate(state: &State) -> f32 {
 
     for vs in state.side_one.volatile_statuses.iter() {
         match vs {
-            PokemonVolatileStatus::LeechSeed => score += LEECH_SEED,
-            PokemonVolatileStatus::Substitute => score += SUBSTITUTE,
-            PokemonVolatileStatus::Confusion => score += CONFUSION,
+            PokemonVolatileStatus::LEECHSEED => score += LEECH_SEED,
+            PokemonVolatileStatus::SUBSTITUTE => score += SUBSTITUTE,
+            PokemonVolatileStatus::CONFUSION => score += CONFUSION,
             _ => {}
         }
     }
     for vs in state.side_two.volatile_statuses.iter() {
         match vs {
-            PokemonVolatileStatus::LeechSeed => score -= LEECH_SEED,
-            PokemonVolatileStatus::Substitute => score -= SUBSTITUTE,
-            PokemonVolatileStatus::Confusion => score -= CONFUSION,
+            PokemonVolatileStatus::LEECHSEED => score -= LEECH_SEED,
+            PokemonVolatileStatus::SUBSTITUTE => score -= SUBSTITUTE,
+            PokemonVolatileStatus::CONFUSION => score -= CONFUSION,
             _ => {}
         }
     }

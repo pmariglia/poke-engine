@@ -241,7 +241,7 @@ fn test_metalburst_after_substitute_being_hit() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     state.side_one.substitute_health = 5;
 
     let vec_of_instructions = generate_instructions_from_move_pair(
@@ -265,7 +265,7 @@ fn test_metalburst_after_substitute_being_hit() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
         ],
     }];
@@ -461,7 +461,7 @@ fn test_mirrorcoat_after_physical_hit() {
 fn test_focuspunch_after_getting_hit() {
     let mut state = State::default();
     state.use_damage_dealt = true;
-    state.weather.weather_type = Weather::Sun;
+    state.weather.weather_type = Weather::SUN;
 
     state
         .side_one
@@ -503,7 +503,7 @@ fn test_focuspunch_after_substitute_getting_hit() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Substitute);
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
     state.side_one.substitute_health = 1;
 
     state
@@ -536,7 +536,7 @@ fn test_focuspunch_after_substitute_getting_hit() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,

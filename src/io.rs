@@ -276,7 +276,7 @@ pub fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
         let encored = state
             .side_one
             .volatile_statuses
-            .contains(&PokemonVolatileStatus::Encore);
+            .contains(&PokemonVolatileStatus::ENCORE);
         state.side_one.get_active_immutable().add_available_moves(
             &mut s1_options,
             &state.side_one.last_used_move,
@@ -297,7 +297,7 @@ pub fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
         let encored = state
             .side_two
             .volatile_statuses
-            .contains(&PokemonVolatileStatus::Encore);
+            .contains(&PokemonVolatileStatus::ENCORE);
         state.side_two.get_active_immutable().add_available_moves(
             &mut s2_options,
             &state.side_two.last_used_move,

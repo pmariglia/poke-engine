@@ -1,3 +1,4 @@
+use crate::define_enum_with_from_str;
 use crate::state::PokemonVolatileStatus;
 use crate::state::{PokemonBoostableStat, PokemonSideCondition};
 use crate::state::{PokemonIndex, PokemonStatus};
@@ -22,7 +23,7 @@ lazy_static! {
                 move_id: Choices::ABSORB,
                 base_power: 20.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     heal: true,
                     protect: true,
@@ -39,7 +40,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -54,7 +55,7 @@ lazy_static! {
                 move_id: Choices::ACID,
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -79,7 +80,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::ACIDARMOR,
                 target: MoveTarget::User,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -103,7 +104,7 @@ lazy_static! {
                 move_id: Choices::ACIDSPRAY,
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -130,7 +131,7 @@ lazy_static! {
                 move_id: Choices::ACROBATICS,
                 base_power: 55.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -144,7 +145,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::ACUPRESSURE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -157,7 +158,7 @@ lazy_static! {
                 move_id: Choices::AERIALACE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -174,7 +175,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     protect: true,
                     wind: true,
@@ -187,7 +188,7 @@ lazy_static! {
             Choices::AFTERYOU,
             Choice {
                 move_id: Choices::AFTERYOU,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -199,7 +200,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::AGILITY,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -225,7 +226,7 @@ lazy_static! {
                     accuracy: 95.0,
                     base_power: 55.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Flying,
+                    move_type: PokemonType::FLYING,
                     flags: Flags {
                         protect: true,
                         slicing: true,
@@ -243,7 +244,7 @@ lazy_static! {
                     accuracy: 95.0,
                     base_power: 60.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Flying,
+                    move_type: PokemonType::FLYING,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -259,7 +260,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 75.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     protect: true,
                     slicing: true,
@@ -268,7 +269,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -279,7 +280,7 @@ lazy_static! {
                 base_power: 80.0,
                 category: MoveCategory::Special,
                 move_id: Choices::ALLURINGVOICE,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     sound: true,
                     protect: true,
@@ -294,7 +295,7 @@ lazy_static! {
                 move_id: Choices::ALLYSWITCH,
                 priority: 2,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -306,7 +307,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::AMNESIA,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -330,7 +331,7 @@ lazy_static! {
                 move_id: Choices::ANCHORSHOT,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -345,7 +346,7 @@ lazy_static! {
                 move_id: Choices::ANCIENTPOWER,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -371,7 +372,7 @@ lazy_static! {
                 move_id: Choices::APPLEACID,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -397,7 +398,7 @@ lazy_static! {
                 move_id: Choices::AQUACUTTER,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     slicing: true,
@@ -413,7 +414,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -427,13 +428,13 @@ lazy_static! {
             Choice {
                 move_id: Choices::AQUARING,
                 target: MoveTarget::User,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::AquaRing,
+                    volatile_status: PokemonVolatileStatus::AQUARING,
                 }),
                 ..Default::default()
             },
@@ -444,7 +445,7 @@ lazy_static! {
                 move_id: Choices::AQUASTEP,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -472,7 +473,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -487,7 +488,7 @@ lazy_static! {
                 move_id: Choices::ARMORCANNON,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -501,7 +502,7 @@ lazy_static! {
                 move_id: Choices::ARMTHRUST,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -515,7 +516,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::AROMATHERAPY,
                 target: MoveTarget::User,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -527,7 +528,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::AROMATICMIST,
                 target: MoveTarget::User,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -550,7 +551,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::ASSIST,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -564,7 +565,7 @@ lazy_static! {
                     move_id: Choices::ASSURANCE,
                     base_power: 50.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -580,7 +581,7 @@ lazy_static! {
                     move_id: Choices::ASSURANCE,
                     base_power: 60.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -596,7 +597,7 @@ lazy_static! {
                 move_id: Choices::ASTONISH,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -605,7 +606,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -616,7 +617,7 @@ lazy_static! {
                 move_id: Choices::ASTRALBARRAGE,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -630,7 +631,7 @@ lazy_static! {
                 move_id: Choices::ATTACKORDER,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -642,7 +643,7 @@ lazy_static! {
             Choices::ATTRACT,
             Choice {
                 move_id: Choices::ATTRACT,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -650,7 +651,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Attract,
+                    volatile_status: PokemonVolatileStatus::ATTRACT,
                 }),
                 ..Default::default()
             },
@@ -662,7 +663,7 @@ lazy_static! {
                     move_id: Choices::AURASPHERE,
                     base_power: 90.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         bullet: true,
                                 protect: true,
@@ -679,7 +680,7 @@ lazy_static! {
                     move_id: Choices::AURASPHERE,
                     base_power: 80.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         bullet: true,
                                 protect: true,
@@ -696,7 +697,7 @@ lazy_static! {
                 move_id: Choices::AURAWHEEL,
                 base_power: 110.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -722,7 +723,7 @@ lazy_static! {
                 move_id: Choices::AURORABEAM,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -747,7 +748,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::AURORAVEIL,
                 target: MoveTarget::User,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -763,7 +764,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::AUTOTOMIZE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -788,7 +789,7 @@ lazy_static! {
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 priority: -4,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -804,7 +805,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -813,7 +814,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::CONFUSION),
                 }]),
                 crash: Some(0.5),
                 ..Default::default()
@@ -824,7 +825,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::BABYDOLLEYES,
                 priority: 1,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -851,7 +852,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -865,13 +866,13 @@ lazy_static! {
                 move_id: Choices::BANEFULBUNKER,
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::BanefulBunker,
+                    volatile_status: PokemonVolatileStatus::BANEFULBUNKER,
                 }),
                 ..Default::default()
             },
@@ -882,7 +883,7 @@ lazy_static! {
                 move_id: Choices::BARBBARRAGE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -890,7 +891,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 50.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Poison),
+                    effect: Effect::Status(PokemonStatus::POISON),
                 }]),
                 ..Default::default()
             },
@@ -902,7 +903,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -916,7 +917,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::BARRIER,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -939,7 +940,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::BATONPASS,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     pivot: true,
                     ..Default::default()
@@ -954,7 +955,7 @@ lazy_static! {
                 base_power: 100.0,
                 category: MoveCategory::Physical,
                 priority: -3,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -970,7 +971,7 @@ lazy_static! {
                     base_power: 10.0,
                     move_id: Choices::BEATUP,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -984,7 +985,7 @@ lazy_static! {
                 Choice {
                     move_id: Choices::BEATUP,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -999,7 +1000,7 @@ lazy_static! {
                 move_id: Choices::BEHEMOTHBASH,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1014,7 +1015,7 @@ lazy_static! {
                 move_id: Choices::BEHEMOTHBLADE,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1031,7 +1032,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -1044,7 +1045,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::BELLYDRUM,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -1070,7 +1071,7 @@ lazy_static! {
             Choices::BESTOW,
             Choice {
                 move_id: Choices::BESTOW,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -1084,7 +1085,7 @@ lazy_static! {
                 category: MoveCategory::Physical,
                 priority: 1,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1092,7 +1093,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Bide,
+                    volatile_status: PokemonVolatileStatus::BIDE,
                 }),
                 ..Default::default()
             },
@@ -1105,7 +1106,7 @@ lazy_static! {
                     accuracy: 75.0,
                     base_power: 15.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -1113,7 +1114,7 @@ lazy_static! {
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                        volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                     }),
                     ..Default::default()
                 },
@@ -1126,7 +1127,7 @@ lazy_static! {
                     accuracy: 85.0,
                     base_power: 15.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -1134,7 +1135,7 @@ lazy_static! {
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                        volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                     }),
                     ..Default::default()
                 },
@@ -1146,7 +1147,7 @@ lazy_static! {
                 move_id: Choices::BITE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -1156,7 +1157,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -1167,7 +1168,7 @@ lazy_static! {
                 move_id: Choices::BITTERBLADE,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1184,7 +1185,7 @@ lazy_static! {
                 move_id: Choices::BITTERMALICE,
                 base_power: 75.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -1211,7 +1212,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     recharge: true,
@@ -1227,7 +1228,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1236,7 +1237,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -1247,7 +1248,7 @@ lazy_static! {
                 move_id: Choices::BLAZINGTORQUE,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -1255,7 +1256,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -1267,7 +1268,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     protect: true,
                     wind: true,
@@ -1296,7 +1297,7 @@ lazy_static! {
                     accuracy: 70.0,
                     base_power: 120.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Ice,
+                    move_type: PokemonType::ICE,
                     flags: Flags {
                         protect: true,
                         wind: true,
@@ -1305,7 +1306,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Freeze),
+                        effect: Effect::Status(PokemonStatus::FREEZE),
                     }]),
                     ..Default::default()
                 },
@@ -1318,7 +1319,7 @@ lazy_static! {
                     accuracy: 70.0,
                     base_power: 110.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Ice,
+                    move_type: PokemonType::ICE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -1326,7 +1327,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Freeze),
+                        effect: Effect::Status(PokemonStatus::FREEZE),
                     }]),
                     ..Default::default()
                 },
@@ -1336,7 +1337,7 @@ lazy_static! {
             Choices::BLOCK,
             Choice {
                 move_id: Choices::BLOCK,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     reflectable: true,
                     ..Default::default()
@@ -1350,7 +1351,7 @@ lazy_static! {
                 move_id: Choices::BLOODMOON,
                 base_power: 140.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -1365,7 +1366,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 130.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -1373,7 +1374,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -1384,7 +1385,7 @@ lazy_static! {
                 move_id: Choices::BODYPRESS,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1399,7 +1400,7 @@ lazy_static! {
                 move_id: Choices::BODYSLAM,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1408,7 +1409,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -1419,7 +1420,7 @@ lazy_static! {
                 move_id: Choices::BOLTBEAK,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1435,7 +1436,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 130.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1444,7 +1445,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -1456,7 +1457,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -1464,7 +1465,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -1476,7 +1477,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -1492,7 +1493,7 @@ lazy_static! {
                     accuracy: 80.0,
                     base_power: 25.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Ground,
+                    move_type: PokemonType::GROUND,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -1508,7 +1509,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 25.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Ground,
+                    move_type: PokemonType::GROUND,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -1523,7 +1524,7 @@ lazy_static! {
                 move_id: Choices::BOOMBURST,
                 base_power: 140.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     sound: true,
@@ -1539,7 +1540,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     charge: true,
                     contact: true,
@@ -1549,7 +1550,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -1560,7 +1561,7 @@ lazy_static! {
                 move_id: Choices::BOUNCYBUBBLE,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     heal: true,
                     protect: true,
@@ -1576,7 +1577,7 @@ lazy_static! {
                 move_id: Choices::BRANCHPOKE,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1591,7 +1592,7 @@ lazy_static! {
                 move_id: Choices::BRAVEBIRD,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1607,7 +1608,7 @@ lazy_static! {
                 move_id: Choices::BREAKINGSWIPE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1634,7 +1635,7 @@ lazy_static! {
                 move_id: Choices::BRICKBREAK,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1649,7 +1650,7 @@ lazy_static! {
                 move_id: Choices::BRINE,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -1663,7 +1664,7 @@ lazy_static! {
                 move_id: Choices::BRUTALSWING,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1679,7 +1680,7 @@ lazy_static! {
                     move_id: Choices::BUBBLE,
                     base_power: 20.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -1706,7 +1707,7 @@ lazy_static! {
                     move_id: Choices::BUBBLE,
                     base_power: 40.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -1733,7 +1734,7 @@ lazy_static! {
                 move_id: Choices::BUBBLEBEAM,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -1759,7 +1760,7 @@ lazy_static! {
                 move_id: Choices::BUGBITE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1774,7 +1775,7 @@ lazy_static! {
                 move_id: Choices::BUGBUZZ,
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     protect: true,
                     sound: true,
@@ -1800,7 +1801,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::BULKUP,
                 target: MoveTarget::User,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -1824,7 +1825,7 @@ lazy_static! {
                 move_id: Choices::BULLDOZE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -1851,7 +1852,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -1868,7 +1869,7 @@ lazy_static! {
                     move_id: Choices::BULLETSEED,
                     base_power: 10.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                         bullet: true,
                             protect: true,
@@ -1884,7 +1885,7 @@ lazy_static! {
                     move_id: Choices::BULLETSEED,
                     base_power: 25.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                         bullet: true,
                             protect: true,
@@ -1899,14 +1900,14 @@ lazy_static! {
             Choice {
                 move_id: Choices::BURNINGBULWARK,
                 category: MoveCategory::Status,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 priority: 4,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::BurningBulwark,
+                    volatile_status: PokemonVolatileStatus::BURNINGBULWARK,
                 }),
                 ..Default::default()
             },
@@ -1917,7 +1918,7 @@ lazy_static! {
                 move_id: Choices::BURNINGJEALOUSY,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -1931,7 +1932,7 @@ lazy_static! {
                 move_id: Choices::BURNUP,
                 base_power: 130.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -1945,7 +1946,7 @@ lazy_static! {
                 move_id: Choices::BUZZYBUZZ,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -1953,7 +1954,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 100.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -1963,7 +1964,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::CALMMIND,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -1986,7 +1987,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::CAMOUFLAGE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -1997,7 +1998,7 @@ lazy_static! {
             Choices::CAPTIVATE,
             Choice {
                 move_id: Choices::CAPTIVATE,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -2024,7 +2025,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -2043,7 +2044,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::CELEBRATE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2055,7 +2056,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::CHARGE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2072,7 +2073,7 @@ lazy_static! {
                 }),
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Charge,
+                    volatile_status: PokemonVolatileStatus::CHARGE,
                 }),
                 ..Default::default()
             },
@@ -2084,7 +2085,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -2108,7 +2109,7 @@ lazy_static! {
             Choices::CHARM,
             Choice {
                 move_id: Choices::CHARM,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -2135,7 +2136,7 @@ lazy_static! {
                     move_id: Choices::CHATTER,
                     base_power: 65.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Flying,
+                    move_type: PokemonType::FLYING,
                     flags: Flags {
                                 protect: true,
                         sound: true,
@@ -2144,7 +2145,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 100.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                        effect: Effect::VolatileStatus(PokemonVolatileStatus::CONFUSION),
                     }]),
                     ..Default::default()
                 },
@@ -2156,7 +2157,7 @@ lazy_static! {
                     move_id: Choices::CHATTER,
                     base_power: 65.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Flying,
+                    move_type: PokemonType::FLYING,
                     flags: Flags {
                                 protect: true,
                         sound: true,
@@ -2165,7 +2166,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 100.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                        effect: Effect::VolatileStatus(PokemonVolatileStatus::CONFUSION),
                     }]),
                     ..Default::default()
                 },
@@ -2177,7 +2178,7 @@ lazy_static! {
                 move_id: Choices::CHILLINGWATER,
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -2201,7 +2202,7 @@ lazy_static! {
             Choices::CHILLYRECEPTION,
             Choice {
                 move_id: Choices::CHILLYRECEPTION,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     pivot: true,
                     ..Default::default()
@@ -2215,7 +2216,7 @@ lazy_static! {
                 move_id: Choices::CHIPAWAY,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -2231,7 +2232,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -2251,7 +2252,7 @@ lazy_static! {
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 priority: -6,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     drag: true,
@@ -2269,7 +2270,7 @@ lazy_static! {
                     accuracy: 75.0,
                     base_power: 35.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -2277,7 +2278,7 @@ lazy_static! {
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                        volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                     }),
                     ..Default::default()
                 },
@@ -2290,7 +2291,7 @@ lazy_static! {
                     accuracy: 85.0,
                     base_power: 35.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -2298,7 +2299,7 @@ lazy_static! {
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                        volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                     }),
                     ..Default::default()
                 },
@@ -2310,7 +2311,7 @@ lazy_static! {
                 move_id: Choices::CLANGINGSCALES,
                 base_power: 110.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     sound: true,
@@ -2335,7 +2336,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::CLANGOROUSSOUL,
                 target: MoveTarget::User,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     sound: true,
                     ..Default::default()
@@ -2349,7 +2350,7 @@ lazy_static! {
                 move_id: Choices::CLEARSMOG,
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -2363,7 +2364,7 @@ lazy_static! {
                 move_id: Choices::CLOSECOMBAT,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -2388,7 +2389,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::COACHING,
                 target: MoveTarget::User,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2411,7 +2412,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::COIL,
                 target: MoveTarget::User,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2435,7 +2436,7 @@ lazy_static! {
                 move_id: Choices::COLLISIONCOURSE,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -2450,7 +2451,7 @@ lazy_static! {
                 move_id: Choices::COMBATTORQUE,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -2458,7 +2459,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -2470,7 +2471,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 18.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -2485,7 +2486,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::COMEUPPANCE,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -2498,7 +2499,7 @@ lazy_static! {
             Choices::CONFIDE,
             Choice {
                 move_id: Choices::CONFIDE,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     reflectable: true,
                     sound: true,
@@ -2522,7 +2523,7 @@ lazy_static! {
             Choices::CONFUSERAY,
             Choice {
                 move_id: Choices::CONFUSERAY,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -2530,7 +2531,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Confusion,
+                    volatile_status: PokemonVolatileStatus::CONFUSION,
                 }),
                 ..Default::default()
             },
@@ -2541,7 +2542,7 @@ lazy_static! {
                 move_id: Choices::CONFUSION,
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -2549,7 +2550,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::CONFUSION),
                 }]),
                 ..Default::default()
             },
@@ -2560,7 +2561,7 @@ lazy_static! {
                 move_id: Choices::CONSTRICT,
                 base_power: 10.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -2586,7 +2587,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::CONVERSION,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2597,7 +2598,7 @@ lazy_static! {
             Choices::CONVERSION2,
             Choice {
                 move_id: Choices::CONVERSION2,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2609,7 +2610,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::COPYCAT,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2622,7 +2623,7 @@ lazy_static! {
                 move_id: Choices::COREENFORCER,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -2634,7 +2635,7 @@ lazy_static! {
             Choices::CORROSIVEGAS,
             Choice {
                 move_id: Choices::CORROSIVEGAS,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -2648,7 +2649,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::COSMICPOWER,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2671,7 +2672,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::COTTONGUARD,
                 target: MoveTarget::User,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2695,7 +2696,7 @@ lazy_static! {
                 Choice {
                     move_id: Choices::COTTONSPORE,
                     accuracy: 85.0,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                             powder: true,
                         protect: true,
@@ -2721,7 +2722,7 @@ lazy_static! {
                 Choices::COTTONSPORE,
                 Choice {
                     move_id: Choices::COTTONSPORE,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                             powder: true,
                         protect: true,
@@ -2749,7 +2750,7 @@ lazy_static! {
                 move_id: Choices::COUNTER,
                 category: MoveCategory::Physical,
                 priority: -5,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -2762,7 +2763,7 @@ lazy_static! {
             Choices::COURTCHANGE,
             Choice {
                 move_id: Choices::COURTCHANGE,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2776,7 +2777,7 @@ lazy_static! {
                     move_id: Choices::COVET,
                     base_power: 40.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -2792,7 +2793,7 @@ lazy_static! {
                     move_id: Choices::COVET,
                     base_power: 60.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -2810,7 +2811,7 @@ lazy_static! {
                     accuracy: 85.0,
                     base_power: 90.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -2827,7 +2828,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 100.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -2843,7 +2844,7 @@ lazy_static! {
                 move_id: Choices::CRAFTYSHIELD,
                 priority: 3,
                 target: MoveTarget::User,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -2861,7 +2862,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -2876,7 +2877,7 @@ lazy_static! {
                 move_id: Choices::CROSSPOISON,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -2886,7 +2887,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Poison),
+                    effect: Effect::Status(PokemonStatus::POISON),
                 }]),
                 ..Default::default()
             },
@@ -2898,7 +2899,7 @@ lazy_static! {
                     move_id: Choices::CRUNCH,
                     base_power: 80.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                         bite: true,
                         contact: true,
@@ -2928,7 +2929,7 @@ lazy_static! {
                     move_id: Choices::CRUNCH,
                     base_power: 80.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                         bite: true,
                         contact: true,
@@ -2958,7 +2959,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -2984,7 +2985,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::CRUSHGRIP,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -2997,7 +2998,7 @@ lazy_static! {
             Choices::CURSE,
             Choice {
                 move_id: Choices::CURSE,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -3014,7 +3015,7 @@ lazy_static! {
                 }),
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Curse,
+                    volatile_status: PokemonVolatileStatus::CURSE,
                 }),
                 ..Default::default()
             },
@@ -3026,7 +3027,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -3042,7 +3043,7 @@ lazy_static! {
                 move_id: Choices::DARKESTLARIAT,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -3057,7 +3058,7 @@ lazy_static! {
                 move_id: Choices::DARKPULSE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     pulse: true,
@@ -3066,7 +3067,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -3079,9 +3080,9 @@ lazy_static! {
                     accuracy: 80.0,
                     status: Some(Status {
                         target: MoveTarget::Opponent,
-                        status: PokemonStatus::Sleep,
+                        status: PokemonStatus::SLEEP,
                     }),
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -3098,9 +3099,9 @@ lazy_static! {
                     accuracy: 50.0,
                     status: Some(Status {
                         target: MoveTarget::Opponent,
-                        status: PokemonStatus::Sleep,
+                        status: PokemonStatus::SLEEP,
                     }),
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -3116,7 +3117,7 @@ lazy_static! {
                 move_id: Choices::DAZZLINGGLEAM,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -3128,7 +3129,7 @@ lazy_static! {
             Choices::DECORATE,
             Choice {
                 move_id: Choices::DECORATE,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -3151,7 +3152,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::DEFENDORDER,
                 target: MoveTarget::User,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -3174,7 +3175,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::DEFENSECURL,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -3191,7 +3192,7 @@ lazy_static! {
                 }),
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::DefenseCurl,
+                    volatile_status: PokemonVolatileStatus::DEFENSECURL,
                 }),
                 ..Default::default()
             },
@@ -3200,7 +3201,7 @@ lazy_static! {
             Choices::DEFOG,
             Choice {
                 move_id: Choices::DEFOG,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -3225,13 +3226,13 @@ lazy_static! {
             Choice {
                 move_id: Choices::DESTINYBOND,
                 target: MoveTarget::User,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::DestinyBond,
+                    volatile_status: PokemonVolatileStatus::DESTINYBOND,
                 }),
                 ..Default::default()
             },
@@ -3242,13 +3243,13 @@ lazy_static! {
                 move_id: Choices::DETECT,
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Protect,
+                    volatile_status: PokemonVolatileStatus::PROTECT,
                 }),
                 ..Default::default()
             },
@@ -3262,7 +3263,7 @@ lazy_static! {
                     accuracy: 95.0,
                     base_power: 100.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Rock,
+                    move_type: PokemonType::ROCK,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -3290,7 +3291,7 @@ lazy_static! {
                     accuracy: 95.0,
                     base_power: 100.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Rock,
+                    move_type: PokemonType::ROCK,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -3318,7 +3319,7 @@ lazy_static! {
                     move_id: Choices::DIG,
                     base_power: 60.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Ground,
+                    move_type: PokemonType::GROUND,
                     flags: Flags {
                         charge: true,
                         contact: true,
@@ -3335,7 +3336,7 @@ lazy_static! {
                     move_id: Choices::DIG,
                     base_power: 80.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Ground,
+                    move_type: PokemonType::GROUND,
                     flags: Flags {
                         charge: true,
                         contact: true,
@@ -3352,7 +3353,7 @@ lazy_static! {
                 move_id: Choices::DIRECLAW,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -3367,7 +3368,7 @@ lazy_static! {
                 Choice {
                     move_id: Choices::DISABLE,
                     accuracy: 80.0,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -3375,7 +3376,7 @@ lazy_static! {
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::Disable,
+                        volatile_status: PokemonVolatileStatus::DISABLE,
                     }),
                     ..Default::default()
                 },
@@ -3385,7 +3386,7 @@ lazy_static! {
                 Choices::DISABLE,
                 Choice {
                     move_id: Choices::DISABLE,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -3393,7 +3394,7 @@ lazy_static! {
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::Disable,
+                        volatile_status: PokemonVolatileStatus::DISABLE,
                     }),
                     ..Default::default()
                 },
@@ -3405,7 +3406,7 @@ lazy_static! {
                 move_id: Choices::DISARMINGVOICE,
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     protect: true,
                     sound: true,
@@ -3420,7 +3421,7 @@ lazy_static! {
                 move_id: Choices::DISCHARGE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -3428,7 +3429,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -3440,7 +3441,7 @@ lazy_static! {
                     move_id: Choices::DIVE,
                     base_power: 60.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                         charge: true,
                         contact: true,
@@ -3457,7 +3458,7 @@ lazy_static! {
                     move_id: Choices::DIVE,
                     base_power: 80.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                         charge: true,
                         contact: true,
@@ -3474,7 +3475,7 @@ lazy_static! {
                 move_id: Choices::DIZZYPUNCH,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -3484,7 +3485,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::CONFUSION),
                 }]),
                 ..Default::default()
             },
@@ -3493,7 +3494,7 @@ lazy_static! {
             Choices::DOODLE,
             Choice {
                 move_id: Choices::DOODLE,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -3508,7 +3509,7 @@ lazy_static! {
                     accuracy: 85.0,
                     base_power: 120.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Steel,
+                    move_type: PokemonType::STEEL,
                     flags: Flags {
                         ..Default::default()
                     },
@@ -3522,7 +3523,7 @@ lazy_static! {
                     move_id: Choices::DOOMDESIRE,
                     base_power: 140.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Steel,
+                    move_type: PokemonType::STEEL,
                     flags: Flags {
                         ..Default::default()
                     },
@@ -3536,7 +3537,7 @@ lazy_static! {
                 move_id: Choices::DOUBLEEDGE,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -3553,7 +3554,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 35.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -3568,7 +3569,7 @@ lazy_static! {
                 move_id: Choices::DOUBLEIRONBASH,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -3578,7 +3579,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -3589,7 +3590,7 @@ lazy_static! {
                 move_id: Choices::DOUBLEKICK,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -3604,7 +3605,7 @@ lazy_static! {
                 move_id: Choices::DOUBLESHOCK,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -3620,7 +3621,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -3634,7 +3635,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::DOUBLETEAM,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -3660,7 +3661,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 140.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Dragon,
+                    move_type: PokemonType::DRAGON,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -3687,7 +3688,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 130.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Dragon,
+                    move_type: PokemonType::DRAGON,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -3713,7 +3714,7 @@ lazy_static! {
                 move_id: Choices::DRAGONASCENT,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -3739,7 +3740,7 @@ lazy_static! {
                 move_id: Choices::DRAGONBREATH,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -3747,7 +3748,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -3758,7 +3759,7 @@ lazy_static! {
                 move_id: Choices::DRAGONCHEER,
                 base_power: 60.0,
                 category: MoveCategory::Status,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 target: MoveTarget::User,
                 flags: Flags {
                     ..Default::default()
@@ -3772,7 +3773,7 @@ lazy_static! {
                 move_id: Choices::DRAGONCLAW,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -3786,7 +3787,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::DRAGONDANCE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -3810,7 +3811,7 @@ lazy_static! {
                 move_id: Choices::DRAGONDARTS,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -3824,7 +3825,7 @@ lazy_static! {
                 move_id: Choices::DRAGONENERGY,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -3838,7 +3839,7 @@ lazy_static! {
                 move_id: Choices::DRAGONHAMMER,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -3854,7 +3855,7 @@ lazy_static! {
                     move_id: Choices::DRAGONPULSE,
                     base_power: 90.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Dragon,
+                    move_type: PokemonType::DRAGON,
                     flags: Flags {
                                 protect: true,
                         pulse: true,
@@ -3870,7 +3871,7 @@ lazy_static! {
                     move_id: Choices::DRAGONPULSE,
                     base_power: 85.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Dragon,
+                    move_type: PokemonType::DRAGON,
                     flags: Flags {
                                 protect: true,
                         pulse: true,
@@ -3885,7 +3886,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::DRAGONRAGE,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -3900,7 +3901,7 @@ lazy_static! {
                 accuracy: 75.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -3909,7 +3910,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -3922,7 +3923,7 @@ lazy_static! {
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 priority: -6,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     contact: true,
                     drag: true,
@@ -3938,7 +3939,7 @@ lazy_static! {
                 move_id: Choices::DRAININGKISS,
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     contact: true,
                     heal: true,
@@ -3956,7 +3957,7 @@ lazy_static! {
                     move_id: Choices::DRAINPUNCH,
                     base_power: 60.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                         heal: true,
@@ -3975,7 +3976,7 @@ lazy_static! {
                     move_id: Choices::DRAINPUNCH,
                     base_power: 75.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                         heal: true,
@@ -3994,7 +3995,7 @@ lazy_static! {
                 move_id: Choices::DREAMEATER,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     heal: true,
                     protect: true,
@@ -4010,7 +4011,7 @@ lazy_static! {
                 move_id: Choices::DRILLPECK,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -4026,7 +4027,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -4041,7 +4042,7 @@ lazy_static! {
                 move_id: Choices::DRUMBEATING,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4068,7 +4069,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -4084,7 +4085,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -4099,7 +4100,7 @@ lazy_static! {
                 move_id: Choices::DYNAMAXCANNON,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4114,7 +4115,7 @@ lazy_static! {
                 accuracy: 50.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -4124,7 +4125,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 100.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::CONFUSION),
                 }]),
                 ..Default::default()
             },
@@ -4135,7 +4136,7 @@ lazy_static! {
                 move_id: Choices::EARTHPOWER,
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4161,7 +4162,7 @@ lazy_static! {
                 move_id: Choices::EARTHQUAKE,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4175,7 +4176,7 @@ lazy_static! {
                 move_id: Choices::ECHOEDVOICE,
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     sound: true,
@@ -4188,7 +4189,7 @@ lazy_static! {
             Choices::EERIEIMPULSE,
             Choice {
                 move_id: Choices::EERIEIMPULSE,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -4214,7 +4215,7 @@ lazy_static! {
                 move_id: Choices::EERIESPELL,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     sound: true,
@@ -4230,7 +4231,7 @@ lazy_static! {
                 accuracy: 75.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -4243,7 +4244,7 @@ lazy_static! {
             Choices::ELECTRICTERRAIN,
             Choice {
                 move_id: Choices::ELECTRICTERRAIN,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -4254,14 +4255,14 @@ lazy_static! {
             Choices::ELECTRIFY,
             Choice {
                 move_id: Choices::ELECTRIFY,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Electrify,
+                    volatile_status: PokemonVolatileStatus::ELECTRIFY,
                 }),
                 ..Default::default()
             },
@@ -4271,7 +4272,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::ELECTROBALL,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -4286,7 +4287,7 @@ lazy_static! {
                 move_id: Choices::ELECTRODRIFT,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -4301,7 +4302,7 @@ lazy_static! {
                 move_id: Choices::ELECTROSHOT,
                 base_power: 130.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     charge: true,
                     protect: true,
@@ -4317,7 +4318,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 55.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4341,7 +4342,7 @@ lazy_static! {
             Choices::EMBARGO,
             Choice {
                 move_id: Choices::EMBARGO,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -4349,7 +4350,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Embargo,
+                    volatile_status: PokemonVolatileStatus::EMBARGO,
                 }),
                 ..Default::default()
             },
@@ -4360,7 +4361,7 @@ lazy_static! {
                 move_id: Choices::EMBER,
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4368,7 +4369,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -4377,7 +4378,7 @@ lazy_static! {
             Choices::ENCORE,
             Choice {
                 move_id: Choices::ENCORE,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -4385,7 +4386,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Encore,
+                    volatile_status: PokemonVolatileStatus::ENCORE,
                 }),
                 ..Default::default()
             },
@@ -4395,7 +4396,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::ENDEAVOR,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -4410,13 +4411,13 @@ lazy_static! {
                 move_id: Choices::ENDURE,
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Endure,
+                    volatile_status: PokemonVolatileStatus::ENDURE,
                 }),
                 ..Default::default()
             },
@@ -4428,7 +4429,7 @@ lazy_static! {
                     move_id: Choices::ENERGYBALL,
                     base_power: 80.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                         bullet: true,
                             protect: true,
@@ -4456,7 +4457,7 @@ lazy_static! {
                     move_id: Choices::ENERGYBALL,
                     base_power: 90.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                         bullet: true,
                             protect: true,
@@ -4482,7 +4483,7 @@ lazy_static! {
             Choices::ENTRAINMENT,
             Choice {
                 move_id: Choices::ENTRAINMENT,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -4497,7 +4498,7 @@ lazy_static! {
                 move_id: Choices::ERUPTION,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4511,7 +4512,7 @@ lazy_static! {
                 move_id: Choices::ESPERWING,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4538,7 +4539,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 160.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     recharge: true,
@@ -4553,7 +4554,7 @@ lazy_static! {
                 move_id: Choices::EXPANDINGFORCE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4567,7 +4568,7 @@ lazy_static! {
                 move_id: Choices::EXPLOSION,
                 base_power: 250.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4581,7 +4582,7 @@ lazy_static! {
                 move_id: Choices::EXTRASENSORY,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4589,7 +4590,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -4601,7 +4602,7 @@ lazy_static! {
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 priority: 2,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -4616,7 +4617,7 @@ lazy_static! {
                 move_id: Choices::FACADE,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -4629,7 +4630,7 @@ lazy_static! {
             Choices::FAIRYLOCK,
             Choice {
                 move_id: Choices::FAIRYLOCK,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -4642,7 +4643,7 @@ lazy_static! {
                 move_id: Choices::FAIRYWIND,
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     protect: true,
                     wind: true,
@@ -4658,7 +4659,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 3,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -4667,7 +4668,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 100.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -4676,7 +4677,7 @@ lazy_static! {
             Choices::FAKETEARS,
             Choice {
                 move_id: Choices::FAKETEARS,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -4702,7 +4703,7 @@ lazy_static! {
                 move_id: Choices::FALSESURRENDER,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -4717,7 +4718,7 @@ lazy_static! {
                 move_id: Choices::FALSESWIPE,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -4730,7 +4731,7 @@ lazy_static! {
             Choices::FEATHERDANCE,
             Choice {
                 move_id: Choices::FEATHERDANCE,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -4758,7 +4759,7 @@ lazy_static! {
                     base_power: 50.0,
                     category: MoveCategory::Physical,
                     priority: 2,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             ..Default::default()
                     },
@@ -4773,7 +4774,7 @@ lazy_static! {
                     base_power: 30.0,
                     category: MoveCategory::Physical,
                     priority: 2,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             ..Default::default()
                     },
@@ -4787,7 +4788,7 @@ lazy_static! {
                 move_id: Choices::FEINTATTACK,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -4803,7 +4804,7 @@ lazy_static! {
                     move_id: Choices::FELLSTINGER,
                     base_power: 30.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Bug,
+                    move_type: PokemonType::BUG,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -4819,7 +4820,7 @@ lazy_static! {
                     move_id: Choices::FELLSTINGER,
                     base_power: 50.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Bug,
+                    move_type: PokemonType::BUG,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -4835,7 +4836,7 @@ lazy_static! {
                 move_id: Choices::FICKLEBEAM,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4861,7 +4862,7 @@ lazy_static! {
                 move_id: Choices::FIERYDANCE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4887,7 +4888,7 @@ lazy_static! {
                 move_id: Choices::FIERYWRATH,
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4895,7 +4896,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -4905,7 +4906,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::FILLETAWAY,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -4917,7 +4918,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::FINALGAMBIT,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -4933,7 +4934,7 @@ lazy_static! {
                     accuracy: 85.0,
                     base_power: 120.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -4941,7 +4942,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Burn),
+                        effect: Effect::Status(PokemonStatus::BURN),
                     }]),
                     ..Default::default()
                 },
@@ -4954,7 +4955,7 @@ lazy_static! {
                     accuracy: 85.0,
                     base_power: 110.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -4962,7 +4963,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Burn),
+                        effect: Effect::Status(PokemonStatus::BURN),
                     }]),
                     ..Default::default()
                 },
@@ -4975,7 +4976,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -4986,12 +4987,12 @@ lazy_static! {
                     Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Burn),
+                        effect: Effect::Status(PokemonStatus::BURN),
                     },
                     Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                        effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                     },
                 ]),
                 ..Default::default()
@@ -5003,7 +5004,7 @@ lazy_static! {
                 move_id: Choices::FIRELASH,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5031,7 +5032,7 @@ lazy_static! {
                     move_id: Choices::FIREPLEDGE,
                     base_power: 50.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                                 protect: true,
                         ..Default::default()
@@ -5046,7 +5047,7 @@ lazy_static! {
                     move_id: Choices::FIREPLEDGE,
                     base_power: 80.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                                 protect: true,
                         ..Default::default()
@@ -5061,7 +5062,7 @@ lazy_static! {
                 move_id: Choices::FIREPUNCH,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5071,7 +5072,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -5084,14 +5085,14 @@ lazy_static! {
                     accuracy: 70.0,
                     base_power: 15.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                        volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                     }),
                     ..Default::default()
                 },
@@ -5104,14 +5105,14 @@ lazy_static! {
                     accuracy: 85.0,
                     base_power: 35.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                        volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                     }),
                     ..Default::default()
                 },
@@ -5124,7 +5125,7 @@ lazy_static! {
                 base_power: 0.0,
                 category: MoveCategory::Physical,
                 priority: 2,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5139,7 +5140,7 @@ lazy_static! {
                 move_id: Choices::FISHIOUSREND,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -5155,7 +5156,7 @@ lazy_static! {
                 move_id: Choices::FISSURE,
                 accuracy: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -5168,7 +5169,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::FLAIL,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5183,7 +5184,7 @@ lazy_static! {
                 move_id: Choices::FLAMEBURST,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -5197,7 +5198,7 @@ lazy_static! {
                 move_id: Choices::FLAMECHARGE,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5225,7 +5226,7 @@ lazy_static! {
                     move_id: Choices::FLAMETHROWER,
                     base_power: 95.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                         protect: true,
                         ..Default::default()
@@ -5233,7 +5234,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Burn),
+                        effect: Effect::Status(PokemonStatus::BURN),
                     }]),
                     ..Default::default()
                 },
@@ -5245,7 +5246,7 @@ lazy_static! {
                     move_id: Choices::FLAMETHROWER,
                     base_power: 90.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                         protect: true,
                         ..Default::default()
@@ -5253,7 +5254,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Burn),
+                        effect: Effect::Status(PokemonStatus::BURN),
                     }]),
                     ..Default::default()
                 },
@@ -5265,7 +5266,7 @@ lazy_static! {
                 move_id: Choices::FLAMEWHEEL,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5274,7 +5275,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -5285,7 +5286,7 @@ lazy_static! {
                 move_id: Choices::FLAREBLITZ,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5294,7 +5295,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 recoil: Some(0.33),
                 ..Default::default()
@@ -5304,7 +5305,7 @@ lazy_static! {
             Choices::FLASH,
             Choice {
                 move_id: Choices::FLASH,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -5330,7 +5331,7 @@ lazy_static! {
                 move_id: Choices::FLASHCANNON,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -5354,7 +5355,7 @@ lazy_static! {
             Choices::FLATTER,
             Choice {
                 move_id: Choices::FLATTER,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -5373,7 +5374,7 @@ lazy_static! {
                 }),
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Confusion,
+                    volatile_status: PokemonVolatileStatus::CONFUSION,
                 }),
                 ..Default::default()
             },
@@ -5385,7 +5386,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 130.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -5409,7 +5410,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::FLING,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -5423,7 +5424,7 @@ lazy_static! {
                 move_id: Choices::FLIPTURN,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5440,7 +5441,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5449,7 +5450,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -5458,7 +5459,7 @@ lazy_static! {
             Choices::FLORALHEALING,
             Choice {
                 move_id: Choices::FLORALHEALING,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     heal: true,
                     protect: true,
@@ -5472,7 +5473,7 @@ lazy_static! {
             Choices::FLOWERSHIELD,
             Choice {
                 move_id: Choices::FLOWERSHIELD,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -5485,7 +5486,7 @@ lazy_static! {
                 move_id: Choices::FLOWERTRICK,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -5500,7 +5501,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     charge: true,
                     contact: true,
@@ -5518,7 +5519,7 @@ lazy_static! {
                     accuracy: 95.0,
                     base_power: 80.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                                         protect: true,
@@ -5535,7 +5536,7 @@ lazy_static! {
                     accuracy: 95.0,
                     base_power: 100.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                                         protect: true,
@@ -5552,7 +5553,7 @@ lazy_static! {
                 accuracy: 70.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -5578,13 +5579,13 @@ lazy_static! {
             Choice {
                 move_id: Choices::FOCUSENERGY,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Focusenergy,
+                    volatile_status: PokemonVolatileStatus::FOCUSENERGY,
                 }),
                 ..Default::default()
             },
@@ -5596,7 +5597,7 @@ lazy_static! {
                 base_power: 150.0,
                 category: MoveCategory::Physical,
                 priority: -3,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5612,13 +5613,13 @@ lazy_static! {
                 move_id: Choices::FOLLOWME,
                 priority: 2,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::FollowMe,
+                    volatile_status: PokemonVolatileStatus::FOLLOWME,
                 }),
                 ..Default::default()
             },
@@ -5629,7 +5630,7 @@ lazy_static! {
                 move_id: Choices::FORCEPALM,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5638,7 +5639,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -5647,7 +5648,7 @@ lazy_static! {
             Choices::FORESIGHT,
             Choice {
                 move_id: Choices::FORESIGHT,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -5655,7 +5656,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Foresight,
+                    volatile_status: PokemonVolatileStatus::FORESIGHT,
                 }),
                 ..Default::default()
             },
@@ -5664,7 +5665,7 @@ lazy_static! {
             Choices::FORESTSCURSE,
             Choice {
                 move_id: Choices::FORESTSCURSE,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -5679,7 +5680,7 @@ lazy_static! {
                 move_id: Choices::FOULPLAY,
                 base_power: 95.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5694,7 +5695,7 @@ lazy_static! {
                 move_id: Choices::FREEZEDRY,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -5702,7 +5703,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Freeze),
+                    effect: Effect::Status(PokemonStatus::FREEZE),
                 }]),
                 ..Default::default()
             },
@@ -5714,7 +5715,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 140.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     charge: true,
                     protect: true,
@@ -5723,7 +5724,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -5734,7 +5735,7 @@ lazy_static! {
                 move_id: Choices::FREEZINGGLARE,
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -5742,7 +5743,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Freeze),
+                    effect: Effect::Status(PokemonStatus::FREEZE),
                 }]),
                 ..Default::default()
             },
@@ -5754,7 +5755,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -5769,7 +5770,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     recharge: true,
@@ -5786,7 +5787,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 40.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Ice,
+                    move_type: PokemonType::ICE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -5802,7 +5803,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 60.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Ice,
+                    move_type: PokemonType::ICE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -5816,7 +5817,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::FRUSTRATION,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5832,7 +5833,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5849,7 +5850,7 @@ lazy_static! {
                     accuracy: 95.0,
                     base_power: 10.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Bug,
+                    move_type: PokemonType::BUG,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -5867,7 +5868,7 @@ lazy_static! {
                     accuracy: 95.0,
                     base_power: 20.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Bug,
+                    move_type: PokemonType::BUG,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -5884,7 +5885,7 @@ lazy_static! {
                     accuracy: 95.0,
                     base_power: 40.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Bug,
+                    move_type: PokemonType::BUG,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -5901,7 +5902,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 18.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -5916,7 +5917,7 @@ lazy_static! {
                 move_id: Choices::FUSIONBOLT,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -5930,7 +5931,7 @@ lazy_static! {
                 move_id: Choices::FUSIONFLARE,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -5946,7 +5947,7 @@ lazy_static! {
                     move_id: Choices::FUTURESIGHT,
                     base_power: 80.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Psychic,
+                    move_type: PokemonType::PSYCHIC,
                     flags: Flags {
                         ..Default::default()
                     },
@@ -5960,7 +5961,7 @@ lazy_static! {
                     move_id: Choices::FUTURESIGHT,
                     base_power: 100.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Psychic,
+                    move_type: PokemonType::PSYCHIC,
                     flags: Flags {
                         ..Default::default()
                     },
@@ -5974,7 +5975,7 @@ lazy_static! {
                     move_id: Choices::FUTURESIGHT,
                     base_power: 120.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Psychic,
+                    move_type: PokemonType::PSYCHIC,
                     flags: Flags {
                         ..Default::default()
                     },
@@ -5986,7 +5987,7 @@ lazy_static! {
             Choices::GASTROACID,
             Choice {
                 move_id: Choices::GASTROACID,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -5994,7 +5995,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::GastroAcid,
+                    volatile_status: PokemonVolatileStatus::GASTROACID,
                 }),
                 ..Default::default()
             },
@@ -6006,7 +6007,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -6020,7 +6021,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::GEARUP,
                 target: MoveTarget::User,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -6032,7 +6033,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::GEOMANCY,
                 target: MoveTarget::User,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     charge: true,
                     ..Default::default()
@@ -6058,7 +6059,7 @@ lazy_static! {
                     move_id: Choices::GIGADRAIN,
                     base_power: 60.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                         heal: true,
                             protect: true,
@@ -6075,7 +6076,7 @@ lazy_static! {
                     move_id: Choices::GIGADRAIN,
                     base_power: 75.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                         heal: true,
                             protect: true,
@@ -6093,7 +6094,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -6109,7 +6110,7 @@ lazy_static! {
                 move_id: Choices::GIGATONHAMMER,
                 base_power: 160.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -6125,7 +6126,7 @@ lazy_static! {
                     move_id: Choices::GLACIALLANCE,
                     base_power: 120.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Ice,
+                    move_type: PokemonType::ICE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -6140,7 +6141,7 @@ lazy_static! {
                     move_id: Choices::GLACIALLANCE,
                     base_power: 130.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Ice,
+                    move_type: PokemonType::ICE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -6156,7 +6157,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -6182,7 +6183,7 @@ lazy_static! {
                 move_id: Choices::GLAIVERUSH,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -6199,9 +6200,9 @@ lazy_static! {
                     move_id: Choices::GLARE,
                     status: Some(Status {
                         target: MoveTarget::Opponent,
-                        status: PokemonStatus::Paralyze,
+                        status: PokemonStatus::PARALYZE,
                     }),
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -6218,9 +6219,9 @@ lazy_static! {
                     move_id: Choices::GLARE,
                     status: Some(Status {
                         target: MoveTarget::Opponent,
-                        status: PokemonStatus::Paralyze,
+                        status: PokemonStatus::PARALYZE,
                     }),
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -6236,9 +6237,9 @@ lazy_static! {
                     move_id: Choices::GLARE,
                     status: Some(Status {
                         target: MoveTarget::Opponent,
-                        status: PokemonStatus::Paralyze,
+                        status: PokemonStatus::PARALYZE,
                     }),
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -6255,7 +6256,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -6268,7 +6269,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::GRASSKNOT,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -6284,7 +6285,7 @@ lazy_static! {
                     move_id: Choices::GRASSPLEDGE,
                     base_power: 50.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                                 protect: true,
                         ..Default::default()
@@ -6299,7 +6300,7 @@ lazy_static! {
                     move_id: Choices::GRASSPLEDGE,
                     base_power: 80.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                                 protect: true,
                         ..Default::default()
@@ -6315,9 +6316,9 @@ lazy_static! {
                 accuracy: 55.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
-                    status: PokemonStatus::Sleep,
+                    status: PokemonStatus::SLEEP,
                 }),
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -6335,7 +6336,7 @@ lazy_static! {
                     move_id: Choices::GRASSYGLIDE,
                     base_power: 55.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -6351,7 +6352,7 @@ lazy_static! {
                     move_id: Choices::GRASSYGLIDE,
                     base_power: 70.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -6365,7 +6366,7 @@ lazy_static! {
             Choices::GRASSYTERRAIN,
             Choice {
                 move_id: Choices::GRASSYTERRAIN,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -6378,7 +6379,7 @@ lazy_static! {
                 move_id: Choices::GRAVAPPLE,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -6402,7 +6403,7 @@ lazy_static! {
             Choices::GRAVITY,
             Choice {
                 move_id: Choices::GRAVITY,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -6413,7 +6414,7 @@ lazy_static! {
             Choices::GROWL,
             Choice {
                 move_id: Choices::GROWL,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -6439,7 +6440,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::GROWTH,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -6462,13 +6463,13 @@ lazy_static! {
             Choice {
                 move_id: Choices::GRUDGE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Grudge,
+                    volatile_status: PokemonVolatileStatus::GRUDGE,
                 }),
                 ..Default::default()
             },
@@ -6477,7 +6478,7 @@ lazy_static! {
             Choices::GUARDSPLIT,
             Choice {
                 move_id: Choices::GUARDSPLIT,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -6489,7 +6490,7 @@ lazy_static! {
             Choices::GUARDSWAP,
             Choice {
                 move_id: Choices::GUARDSWAP,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -6503,7 +6504,7 @@ lazy_static! {
                 move_id: Choices::GUILLOTINE,
                 accuracy: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -6520,7 +6521,7 @@ lazy_static! {
                     accuracy: 70.0,
                     base_power: 120.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Poison,
+                    move_type: PokemonType::POISON,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -6528,7 +6529,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 30.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Poison),
+                        effect: Effect::Status(PokemonStatus::POISON),
                     }]),
                     ..Default::default()
                 },
@@ -6541,7 +6542,7 @@ lazy_static! {
                     accuracy: 80.0,
                     base_power: 120.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Poison,
+                    move_type: PokemonType::POISON,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -6549,7 +6550,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 30.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Poison),
+                        effect: Effect::Status(PokemonStatus::POISON),
                     }]),
                     ..Default::default()
                 },
@@ -6561,7 +6562,7 @@ lazy_static! {
                 move_id: Choices::GUST,
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     protect: true,
                     wind: true,
@@ -6575,7 +6576,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::GYROBALL,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     bullet: true,
                     contact: true,
@@ -6589,7 +6590,7 @@ lazy_static! {
             Choices::HAIL,
             Choice {
                 move_id: Choices::HAIL,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -6603,7 +6604,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -6629,7 +6630,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::HAPPYHOUR,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -6641,7 +6642,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::HARDEN,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -6664,7 +6665,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::HARDPRESS,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -6677,7 +6678,7 @@ lazy_static! {
             Choices::HAZE,
             Choice {
                 move_id: Choices::HAZE,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -6690,7 +6691,7 @@ lazy_static! {
                 move_id: Choices::HEADBUTT,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -6699,7 +6700,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -6710,7 +6711,7 @@ lazy_static! {
                 move_id: Choices::HEADCHARGE,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -6726,7 +6727,7 @@ lazy_static! {
                 move_id: Choices::HEADLONGRUSH,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -6754,7 +6755,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 150.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -6769,7 +6770,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::HEALBELL,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     sound: true,
                     ..Default::default()
@@ -6781,7 +6782,7 @@ lazy_static! {
             Choices::HEALBLOCK,
             Choice {
                 move_id: Choices::HEALBLOCK,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -6789,7 +6790,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::HealBlock,
+                    volatile_status: PokemonVolatileStatus::HEALBLOCK,
                 }),
                 ..Default::default()
             },
@@ -6799,7 +6800,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::HEALINGWISH,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -6820,7 +6821,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::HEALORDER,
                 target: MoveTarget::User,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -6836,7 +6837,7 @@ lazy_static! {
             Choices::HEALPULSE,
             Choice {
                 move_id: Choices::HEALPULSE,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     heal: true,
                     protect: true,
@@ -6853,7 +6854,7 @@ lazy_static! {
                 move_id: Choices::HEARTSTAMP,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -6862,7 +6863,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -6871,7 +6872,7 @@ lazy_static! {
             Choices::HEARTSWAP,
             Choice {
                 move_id: Choices::HEARTSWAP,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -6884,7 +6885,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::HEATCRASH,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -6901,7 +6902,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 100.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                         protect: true,
                         wind: true,
@@ -6910,7 +6911,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Burn),
+                        effect: Effect::Status(PokemonStatus::BURN),
                     }]),
                     ..Default::default()
                 },
@@ -6923,7 +6924,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 95.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                         protect: true,
                         wind: true,
@@ -6932,7 +6933,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Burn),
+                        effect: Effect::Status(PokemonStatus::BURN),
                     }]),
                     ..Default::default()
                 },
@@ -6943,7 +6944,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::HEAVYSLAM,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -6958,13 +6959,13 @@ lazy_static! {
                 move_id: Choices::HELPINGHAND,
                 priority: 5,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::HelpingHand,
+                    volatile_status: PokemonVolatileStatus::HELPINGHAND,
                 }),
                 ..Default::default()
             },
@@ -6976,7 +6977,7 @@ lazy_static! {
                     move_id: Choices::HEX,
                     base_power: 50.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Ghost,
+                    move_type: PokemonType::GHOST,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -6991,7 +6992,7 @@ lazy_static! {
                     move_id: Choices::HEX,
                     base_power: 65.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Ghost,
+                    move_type: PokemonType::GHOST,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -7006,7 +7007,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWER,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7020,7 +7021,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERBUG60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7034,7 +7035,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERBUG70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7048,7 +7049,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERDARK60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7062,7 +7063,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERDARK70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7076,7 +7077,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERDRAGON60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7090,7 +7091,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERDRAGON70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7104,7 +7105,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERELECTRIC60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7118,7 +7119,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERELECTRIC70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7132,7 +7133,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERFIGHTING60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7146,7 +7147,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERFIGHTING70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7160,7 +7161,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERFIRE60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7174,7 +7175,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERFIRE70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7188,7 +7189,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERFLYING60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7202,7 +7203,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERFLYING70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7216,7 +7217,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERGHOST60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7230,7 +7231,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERGHOST70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7244,7 +7245,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERGRASS60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7258,7 +7259,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERGRASS70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7272,7 +7273,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERGROUND60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7286,7 +7287,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERGROUND70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7300,7 +7301,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERICE60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7314,7 +7315,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERICE70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7328,7 +7329,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERPOISON60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7342,7 +7343,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERPOISON70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7356,7 +7357,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERPSYCHIC60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7370,7 +7371,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERPSYCHIC70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7384,7 +7385,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERROCK60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7398,7 +7399,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERROCK70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7412,7 +7413,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERSTEEL60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7426,7 +7427,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERSTEEL70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7440,7 +7441,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERWATER60,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7454,7 +7455,7 @@ lazy_static! {
                 move_id: Choices::HIDDENPOWERWATER70,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7469,7 +7470,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 95.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -7486,7 +7487,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 85.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -7505,7 +7506,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 100.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -7523,7 +7524,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 130.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -7540,7 +7541,7 @@ lazy_static! {
                 move_id: Choices::HOLDBACK,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -7554,7 +7555,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::HOLDHANDS,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -7566,7 +7567,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::HONECLAWS,
                 target: MoveTarget::User,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -7590,7 +7591,7 @@ lazy_static! {
                 move_id: Choices::HORNATTACK,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -7605,7 +7606,7 @@ lazy_static! {
                 move_id: Choices::HORNDRILL,
                 accuracy: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -7620,7 +7621,7 @@ lazy_static! {
                 move_id: Choices::HORNLEECH,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     contact: true,
                     heal: true,
@@ -7636,7 +7637,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::HOWL,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     sound: true,
                     ..Default::default()
@@ -7663,7 +7664,7 @@ lazy_static! {
                     accuracy: 70.0,
                     base_power: 120.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Flying,
+                    move_type: PokemonType::FLYING,
                     flags: Flags {
                         protect: true,
                         wind: true,
@@ -7672,7 +7673,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 30.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                        effect: Effect::VolatileStatus(PokemonVolatileStatus::CONFUSION),
                     }]),
                     ..Default::default()
                 },
@@ -7685,7 +7686,7 @@ lazy_static! {
                     accuracy: 70.0,
                     base_power: 110.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Flying,
+                    move_type: PokemonType::FLYING,
                     flags: Flags {
                         protect: true,
                         wind: true,
@@ -7694,7 +7695,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 30.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                        effect: Effect::VolatileStatus(PokemonVolatileStatus::CONFUSION),
                     }]),
                     ..Default::default()
                 },
@@ -7707,7 +7708,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     recharge: true,
@@ -7724,7 +7725,7 @@ lazy_static! {
                     accuracy: 80.0,
                     base_power: 120.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -7740,7 +7741,7 @@ lazy_static! {
                     accuracy: 80.0,
                     base_power: 110.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -7755,7 +7756,7 @@ lazy_static! {
                 move_id: Choices::HYDROSTEAM,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -7770,7 +7771,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     recharge: true,
@@ -7785,7 +7786,7 @@ lazy_static! {
                 move_id: Choices::HYPERDRILL,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     ..Default::default()
@@ -7800,7 +7801,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -7810,7 +7811,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -7821,7 +7822,7 @@ lazy_static! {
                 move_id: Choices::HYPERSPACEFURY,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -7845,7 +7846,7 @@ lazy_static! {
                 move_id: Choices::HYPERSPACEHOLE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -7858,7 +7859,7 @@ lazy_static! {
                 move_id: Choices::HYPERVOICE,
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     sound: true,
@@ -7874,9 +7875,9 @@ lazy_static! {
                 accuracy: 60.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
-                    status: PokemonStatus::Sleep,
+                    status: PokemonStatus::SLEEP,
                 }),
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -7892,7 +7893,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     bullet: true,
                     contact: true,
@@ -7909,7 +7910,7 @@ lazy_static! {
                     move_id: Choices::ICEBEAM,
                     base_power: 95.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Ice,
+                    move_type: PokemonType::ICE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -7917,7 +7918,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Freeze),
+                        effect: Effect::Status(PokemonStatus::FREEZE),
                     }]),
                     ..Default::default()
                 },
@@ -7929,7 +7930,7 @@ lazy_static! {
                     move_id: Choices::ICEBEAM,
                     base_power: 90.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Ice,
+                    move_type: PokemonType::ICE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -7937,7 +7938,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Freeze),
+                        effect: Effect::Status(PokemonStatus::FREEZE),
                     }]),
                     ..Default::default()
                 },
@@ -7950,7 +7951,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 140.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     charge: true,
                     protect: true,
@@ -7959,7 +7960,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -7971,7 +7972,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -7982,12 +7983,12 @@ lazy_static! {
                     Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Freeze),
+                        effect: Effect::Status(PokemonStatus::FREEZE),
                     },
                     Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                        effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                     },
                 ]),
                 ..Default::default()
@@ -8000,7 +8001,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -8027,7 +8028,7 @@ lazy_static! {
                 move_id: Choices::ICEPUNCH,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -8037,7 +8038,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Freeze),
+                    effect: Effect::Status(PokemonStatus::FREEZE),
                 }]),
                 ..Default::default()
             },
@@ -8049,7 +8050,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8063,7 +8064,7 @@ lazy_static! {
                 move_id: Choices::ICESPINNER,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -8079,7 +8080,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8087,7 +8088,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -8099,7 +8100,7 @@ lazy_static! {
                     move_id: Choices::ICICLESPEAR,
                     base_power: 10.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Ice,
+                    move_type: PokemonType::ICE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -8114,7 +8115,7 @@ lazy_static! {
                     move_id: Choices::ICICLESPEAR,
                     base_power: 25.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Ice,
+                    move_type: PokemonType::ICE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -8130,7 +8131,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 55.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     protect: true,
                     wind: true,
@@ -8156,13 +8157,13 @@ lazy_static! {
             Choice {
                 move_id: Choices::IMPRISON,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Imprison,
+                    volatile_status: PokemonVolatileStatus::IMPRISON,
                 }),
                 ..Default::default()
             },
@@ -8174,7 +8175,7 @@ lazy_static! {
                     move_id: Choices::INCINERATE,
                     base_power: 30.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -8189,7 +8190,7 @@ lazy_static! {
                     move_id: Choices::INCINERATE,
                     base_power: 60.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -8204,7 +8205,7 @@ lazy_static! {
                 move_id: Choices::INFERNALPARADE,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8212,7 +8213,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -8224,7 +8225,7 @@ lazy_static! {
                 accuracy: 50.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8232,7 +8233,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 100.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -8243,7 +8244,7 @@ lazy_static! {
                 move_id: Choices::INFESTATION,
                 base_power: 20.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -8251,7 +8252,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                    volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                 }),
                 ..Default::default()
             },
@@ -8261,13 +8262,13 @@ lazy_static! {
             Choice {
                 move_id: Choices::INGRAIN,
                 target: MoveTarget::User,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Ingrain,
+                    volatile_status: PokemonVolatileStatus::INGRAIN,
                 }),
                 ..Default::default()
             },
@@ -8276,7 +8277,7 @@ lazy_static! {
             Choices::INSTRUCT,
             Choice {
                 move_id: Choices::INSTRUCT,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8289,7 +8290,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::IONDELUGE,
                 priority: 1,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -8301,7 +8302,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::IRONDEFENSE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -8325,7 +8326,7 @@ lazy_static! {
                 move_id: Choices::IRONHEAD,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -8334,7 +8335,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -8346,7 +8347,7 @@ lazy_static! {
                 accuracy: 75.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -8373,7 +8374,7 @@ lazy_static! {
                 move_id: Choices::IVYCUDGEL,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8387,7 +8388,7 @@ lazy_static! {
                 move_id: Choices::JAWLOCK,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -8404,7 +8405,7 @@ lazy_static! {
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -8420,7 +8421,7 @@ lazy_static! {
                 move_id: Choices::JUDGMENT,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8436,7 +8437,7 @@ lazy_static! {
                     accuracy: 95.0,
                     base_power: 70.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                                 protect: true,
@@ -8455,7 +8456,7 @@ lazy_static! {
                     accuracy: 95.0,
                     base_power: 85.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                                 protect: true,
@@ -8473,7 +8474,7 @@ lazy_static! {
                     accuracy: 95.0,
                     base_power: 100.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                                 protect: true,
@@ -8489,7 +8490,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::JUNGLEHEALING,
                 target: MoveTarget::User,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -8507,7 +8508,7 @@ lazy_static! {
                 move_id: Choices::KARATECHOP,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -8521,7 +8522,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::KINESIS,
                 accuracy: 80.0,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -8547,13 +8548,13 @@ lazy_static! {
                 move_id: Choices::KINGSSHIELD,
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::KingsShield,
+                    volatile_status: PokemonVolatileStatus::KINGSSHIELD,
                 }),
                 ..Default::default()
             },
@@ -8565,7 +8566,7 @@ lazy_static! {
                     move_id: Choices::KNOCKOFF,
                     base_power: 20.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -8581,7 +8582,7 @@ lazy_static! {
                     move_id: Choices::KNOCKOFF,
                     base_power: 65.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -8597,7 +8598,7 @@ lazy_static! {
                 move_id: Choices::KOWTOWCLEAVE,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -8613,7 +8614,7 @@ lazy_static! {
                 move_id: Choices::LANDSWRATH,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8626,13 +8627,13 @@ lazy_static! {
             Choice {
                 move_id: Choices::LASERFOCUS,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::LaserFocus,
+                    volatile_status: PokemonVolatileStatus::LASERFOCUS,
                 }),
                 ..Default::default()
             },
@@ -8643,7 +8644,7 @@ lazy_static! {
                 move_id: Choices::LASHOUT,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -8659,7 +8660,7 @@ lazy_static! {
                     move_id: Choices::LASTRESORT,
                     base_power: 130.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -8675,7 +8676,7 @@ lazy_static! {
                     move_id: Choices::LASTRESORT,
                     base_power: 140.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -8691,7 +8692,7 @@ lazy_static! {
                 move_id: Choices::LASTRESPECTS,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8705,7 +8706,7 @@ lazy_static! {
                 move_id: Choices::LAVAPLUME,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8713,7 +8714,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -8724,7 +8725,7 @@ lazy_static! {
                 move_id: Choices::LEAFAGE,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8739,7 +8740,7 @@ lazy_static! {
                     move_id: Choices::LEAFBLADE,
                     base_power: 70.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -8756,7 +8757,7 @@ lazy_static! {
                     move_id: Choices::LEAFBLADE,
                     base_power: 90.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -8775,7 +8776,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 140.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -8802,7 +8803,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 130.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -8829,7 +8830,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -8856,7 +8857,7 @@ lazy_static! {
                     move_id: Choices::LEECHLIFE,
                     base_power: 20.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Bug,
+                    move_type: PokemonType::BUG,
                     flags: Flags {
                         contact: true,
                         heal: true,
@@ -8874,7 +8875,7 @@ lazy_static! {
                     move_id: Choices::LEECHLIFE,
                     base_power: 80.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Bug,
+                    move_type: PokemonType::BUG,
                     flags: Flags {
                         contact: true,
                         heal: true,
@@ -8891,7 +8892,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::LEECHSEED,
                 accuracy: 90.0,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     powder: true,
                     protect: true,
@@ -8900,7 +8901,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::LeechSeed,
+                    volatile_status: PokemonVolatileStatus::LEECHSEED,
                 }),
                 ..Default::default()
             },
@@ -8909,7 +8910,7 @@ lazy_static! {
             Choices::LEER,
             Choice {
                 move_id: Choices::LEER,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -8936,7 +8937,7 @@ lazy_static! {
                     move_id: Choices::LICK,
                     base_power: 20.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Ghost,
+                    move_type: PokemonType::GHOST,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -8945,7 +8946,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 30.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Paralyze),
+                        effect: Effect::Status(PokemonStatus::PARALYZE),
                     }]),
                     ..Default::default()
                 },
@@ -8957,7 +8958,7 @@ lazy_static! {
                     move_id: Choices::LICK,
                     base_power: 30.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Ghost,
+                    move_type: PokemonType::GHOST,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -8966,7 +8967,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 30.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Paralyze),
+                        effect: Effect::Status(PokemonStatus::PARALYZE),
                     }]),
                     ..Default::default()
                 },
@@ -8977,7 +8978,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::LIFEDEW,
                 target: MoveTarget::User,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -8996,7 +8997,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 140.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9010,7 +9011,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::LIGHTSCREEN,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -9027,7 +9028,7 @@ lazy_static! {
                 move_id: Choices::LIQUIDATION,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -9052,7 +9053,7 @@ lazy_static! {
             Choices::LOCKON,
             Choice {
                 move_id: Choices::LOCKON,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9067,9 +9068,9 @@ lazy_static! {
                 accuracy: 75.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
-                    status: PokemonStatus::Sleep,
+                    status: PokemonStatus::SLEEP,
                 }),
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -9086,7 +9087,7 @@ lazy_static! {
                     category: MoveCategory::Physical,
                     base_power: 50.0,
                     accuracy: 90.0,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -9095,7 +9096,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 30.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                        effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                     }]),
                     ..Default::default()
                 },
@@ -9106,7 +9107,7 @@ lazy_static! {
                 Choice {
                     move_id: Choices::LOWKICK,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -9123,7 +9124,7 @@ lazy_static! {
                     move_id: Choices::LOWSWEEP,
                     base_power: 60.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -9151,7 +9152,7 @@ lazy_static! {
                     move_id: Choices::LOWSWEEP,
                     base_power: 65.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -9178,7 +9179,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::LUCKYCHANT,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -9195,7 +9196,7 @@ lazy_static! {
                 move_id: Choices::LUMINACRASH,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9220,7 +9221,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::LUNARBLESSING,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -9237,7 +9238,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::LUNARDANCE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -9251,7 +9252,7 @@ lazy_static! {
                 move_id: Choices::LUNGE,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -9279,7 +9280,7 @@ lazy_static! {
                 move_id: Choices::LUSTERPURGE,
                 base_power: 95.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9306,7 +9307,7 @@ lazy_static! {
                     move_id: Choices::LUSTERPURGE,
                     base_power: 70.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Psychic,
+                    move_type: PokemonType::PSYCHIC,
                     flags: Flags {
                         protect: true,
                         ..Default::default()
@@ -9334,7 +9335,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -9350,7 +9351,7 @@ lazy_static! {
                 move_id: Choices::MAGICALLEAF,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9364,7 +9365,7 @@ lazy_static! {
                 move_id: Choices::MAGICALTORQUE,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9372,7 +9373,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::CONFUSION),
                 }]),
                 ..Default::default()
             },
@@ -9383,13 +9384,13 @@ lazy_static! {
                 move_id: Choices::MAGICCOAT,
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::MagicCoat,
+                    volatile_status: PokemonVolatileStatus::MAGICCOAT,
                 }),
                 ..Default::default()
             },
@@ -9398,7 +9399,7 @@ lazy_static! {
             Choices::MAGICPOWDER,
             Choice {
                 move_id: Choices::MAGICPOWDER,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     powder: true,
                     protect: true,
@@ -9412,7 +9413,7 @@ lazy_static! {
             Choices::MAGICROOM,
             Choice {
                 move_id: Choices::MAGICROOM,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -9427,14 +9428,14 @@ lazy_static! {
                     accuracy: 70.0,
                     base_power: 120.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                        volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                     }),
                     ..Default::default()
                 },
@@ -9447,14 +9448,14 @@ lazy_static! {
                     accuracy: 75.0,
                     base_power: 120.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                        volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                     }),
                     ..Default::default()
                 },
@@ -9467,14 +9468,14 @@ lazy_static! {
                     accuracy: 75.0,
                     base_power: 100.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                        volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                     }),
                     ..Default::default()
                 },
@@ -9486,7 +9487,7 @@ lazy_static! {
                 move_id: Choices::MAGNETBOMB,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -9500,7 +9501,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::MAGNETICFLUX,
                 target: MoveTarget::User,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -9512,13 +9513,13 @@ lazy_static! {
             Choice {
                 move_id: Choices::MAGNETRISE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::MagnetRise,
+                    volatile_status: PokemonVolatileStatus::MAGNETRISE,
                 }),
                 ..Default::default()
             },
@@ -9528,7 +9529,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::MAGNITUDE,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9542,7 +9543,7 @@ lazy_static! {
                 move_id: Choices::MAKEITRAIN,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9567,7 +9568,7 @@ lazy_static! {
                 move_id: Choices::MALIGNANTCHAIN,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9575,7 +9576,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 50.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Toxic),
+                    effect: Effect::Status(PokemonStatus::TOXIC),
                 }]),
                 ..Default::default()
             },
@@ -9585,7 +9586,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::MATBLOCK,
                 target: MoveTarget::User,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -9603,7 +9604,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9611,7 +9612,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 drain: Some(0.5),
                 ..Default::default()
@@ -9621,7 +9622,7 @@ lazy_static! {
             Choices::MEANLOOK,
             Choice {
                 move_id: Choices::MEANLOOK,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     reflectable: true,
                     ..Default::default()
@@ -9634,7 +9635,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::MEDITATE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -9656,7 +9657,7 @@ lazy_static! {
             Choices::MEFIRST,
             Choice {
                 move_id: Choices::MEFIRST,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9670,7 +9671,7 @@ lazy_static! {
                 move_id: Choices::MEGADRAIN,
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     heal: true,
                     protect: true,
@@ -9687,7 +9688,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -9703,7 +9704,7 @@ lazy_static! {
                 accuracy: 75.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -9719,7 +9720,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -9733,7 +9734,7 @@ lazy_static! {
             Choices::MEMENTO,
             Choice {
                 move_id: Choices::MEMENTO,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9761,7 +9762,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::METALBURST,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9776,7 +9777,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -9802,7 +9803,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::METALSOUND,
                 accuracy: 85.0,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -9829,7 +9830,7 @@ lazy_static! {
                 move_id: Choices::METEORASSAULT,
                 base_power: 150.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     protect: true,
                     recharge: true,
@@ -9845,7 +9846,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     charge: true,
                     protect: true,
@@ -9862,7 +9863,7 @@ lazy_static! {
                     accuracy: 85.0,
                     base_power: 100.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Steel,
+                    move_type: PokemonType::STEEL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -9892,7 +9893,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 90.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Steel,
+                    move_type: PokemonType::STEEL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -9920,7 +9921,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::METRONOME,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -9933,7 +9934,7 @@ lazy_static! {
                 move_id: Choices::MIGHTYCLEAVE,
                 base_power: 95.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     contact: true,
                     slicing: true,
@@ -9947,7 +9948,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::MILKDRINK,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -9963,7 +9964,7 @@ lazy_static! {
             Choices::MIMIC,
             Choice {
                 move_id: Choices::MIMIC,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9977,7 +9978,7 @@ lazy_static! {
                 move_id: Choices::MINDBLOWN,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -9989,7 +9990,7 @@ lazy_static! {
             Choices::MINDREADER,
             Choice {
                 move_id: Choices::MINDREADER,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10002,7 +10003,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::MINIMIZE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -10019,7 +10020,7 @@ lazy_static! {
                 }),
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Minimize,
+                    volatile_status: PokemonVolatileStatus::MINIMIZE,
                 }),
                 ..Default::default()
             },
@@ -10028,7 +10029,7 @@ lazy_static! {
             Choices::MIRACLEEYE,
             Choice {
                 move_id: Choices::MIRACLEEYE,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -10036,7 +10037,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::MiracleEye,
+                    volatile_status: PokemonVolatileStatus::MIRACLEEYE,
                 }),
                 ..Default::default()
             },
@@ -10047,7 +10048,7 @@ lazy_static! {
                 move_id: Choices::MIRRORCOAT,
                 category: MoveCategory::Special,
                 priority: -5,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10059,7 +10060,7 @@ lazy_static! {
             Choices::MIRRORMOVE,
             Choice {
                 move_id: Choices::MIRRORMOVE,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -10073,7 +10074,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10098,7 +10099,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::MIST,
                 target: MoveTarget::User,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -10116,7 +10117,7 @@ lazy_static! {
                     move_id: Choices::MISTBALL,
                     base_power: 95.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Psychic,
+                    move_type: PokemonType::PSYCHIC,
                     flags: Flags {
                         bullet: true,
                         protect: true,
@@ -10144,7 +10145,7 @@ lazy_static! {
                     move_id: Choices::MISTBALL,
                     base_power: 70.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Psychic,
+                    move_type: PokemonType::PSYCHIC,
                     flags: Flags {
                         bullet: true,
                         protect: true,
@@ -10172,7 +10173,7 @@ lazy_static! {
                 move_id: Choices::MISTYEXPLOSION,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10184,7 +10185,7 @@ lazy_static! {
             Choices::MISTYTERRAIN,
             Choice {
                 move_id: Choices::MISTYTERRAIN,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -10197,7 +10198,7 @@ lazy_static! {
                 move_id: Choices::MOONBLAST,
                 base_power: 95.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10223,7 +10224,7 @@ lazy_static! {
                 move_id: Choices::MOONGEISTBEAM,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10236,7 +10237,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::MOONLIGHT,
                 target: MoveTarget::User,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -10253,7 +10254,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::MORNINGSUN,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -10271,7 +10272,7 @@ lazy_static! {
                 move_id: Choices::MORTALSPIN,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -10280,7 +10281,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 100.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Poison),
+                    effect: Effect::Status(PokemonStatus::POISON),
                 }]),
                 ..Default::default()
             },
@@ -10292,7 +10293,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10300,7 +10301,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -10312,7 +10313,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -10341,7 +10342,7 @@ lazy_static! {
                     accuracy: 85.0,
                     base_power: 95.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                                 protect: true,
                         ..Default::default()
@@ -10369,7 +10370,7 @@ lazy_static! {
                     accuracy: 85.0,
                     base_power: 90.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                                 protect: true,
                         ..Default::default()
@@ -10397,7 +10398,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 55.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10423,7 +10424,7 @@ lazy_static! {
                 move_id: Choices::MUDSLAP,
                 base_power: 20.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10447,7 +10448,7 @@ lazy_static! {
             Choices::MUDSPORT,
             Choice {
                 move_id: Choices::MUDSPORT,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -10461,7 +10462,7 @@ lazy_static! {
                     move_id: Choices::MULTIATTACK,
                     base_power: 120.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -10477,7 +10478,7 @@ lazy_static! {
                     move_id: Choices::MULTIATTACK,
                     base_power: 90.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -10494,7 +10495,7 @@ lazy_static! {
                     move_id: Choices::MYSTICALFIRE,
                     base_power: 65.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -10521,7 +10522,7 @@ lazy_static! {
                     move_id: Choices::MYSTICALFIRE,
                     base_power: 75.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -10549,7 +10550,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10574,7 +10575,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::NASTYPLOT,
                 target: MoveTarget::User,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -10597,7 +10598,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::NATURALGIFT,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10609,7 +10610,7 @@ lazy_static! {
             Choices::NATUREPOWER,
             Choice {
                 move_id: Choices::NATUREPOWER,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -10622,7 +10623,7 @@ lazy_static! {
                 move_id: Choices::NATURESMADNESS,
                 accuracy: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10636,7 +10637,7 @@ lazy_static! {
                 move_id: Choices::NEEDLEARM,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -10645,7 +10646,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -10657,7 +10658,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 85.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10681,14 +10682,14 @@ lazy_static! {
             Choices::NIGHTMARE,
             Choice {
                 move_id: Choices::NIGHTMARE,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Nightmare,
+                    volatile_status: PokemonVolatileStatus::NIGHTMARE,
                 }),
                 ..Default::default()
             },
@@ -10698,7 +10699,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::NIGHTSHADE,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10712,7 +10713,7 @@ lazy_static! {
                 move_id: Choices::NIGHTSLASH,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -10726,7 +10727,7 @@ lazy_static! {
             Choices::NOBLEROAR,
             Choice {
                 move_id: Choices::NOBLEROAR,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -10752,7 +10753,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::NORETREAT,
                 target: MoveTarget::User,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -10769,7 +10770,7 @@ lazy_static! {
                 }),
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::NoRetreat,
+                    volatile_status: PokemonVolatileStatus::NORETREAT,
                 }),
                 ..Default::default()
             },
@@ -10779,7 +10780,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::NOTHING,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -10792,7 +10793,7 @@ lazy_static! {
                 move_id: Choices::NOXIOUSTORQUE,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10800,7 +10801,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Poison),
+                    effect: Effect::Status(PokemonStatus::POISON),
                 }]),
                 ..Default::default()
             },
@@ -10811,7 +10812,7 @@ lazy_static! {
                 move_id: Choices::NUZZLE,
                 base_power: 20.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -10820,7 +10821,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 100.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -10831,7 +10832,7 @@ lazy_static! {
                 move_id: Choices::OBLIVIONWING,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     heal: true,
                     protect: true,
@@ -10847,13 +10848,13 @@ lazy_static! {
                 move_id: Choices::OBSTRUCT,
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Protect,
+                    volatile_status: PokemonVolatileStatus::PROTECT,
                 }),
                 ..Default::default()
             },
@@ -10865,7 +10866,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -10890,14 +10891,14 @@ lazy_static! {
             Choices::OCTOLOCK,
             Choice {
                 move_id: Choices::OCTOLOCK,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Octolock,
+                    volatile_status: PokemonVolatileStatus::OCTOLOCK,
                 }),
                 ..Default::default()
             },
@@ -10906,7 +10907,7 @@ lazy_static! {
             Choices::ODORSLEUTH,
             Choice {
                 move_id: Choices::ODORSLEUTH,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -10914,7 +10915,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Foresight,
+                    volatile_status: PokemonVolatileStatus::FORESIGHT,
                 }),
                 ..Default::default()
             },
@@ -10925,7 +10926,7 @@ lazy_static! {
                 move_id: Choices::OMINOUSWIND,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10951,7 +10952,7 @@ lazy_static! {
                 move_id: Choices::ORDERUP,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -10966,7 +10967,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     pulse: true,
@@ -10982,7 +10983,7 @@ lazy_static! {
                     move_id: Choices::OUTRAGE,
                     base_power: 90.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Dragon,
+                    move_type: PokemonType::DRAGON,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -10990,7 +10991,7 @@ lazy_static! {
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::User,
-                        volatile_status: PokemonVolatileStatus::LockedMove,
+                        volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
                     }),
                     ..Default::default()
                 },
@@ -11002,7 +11003,7 @@ lazy_static! {
                     move_id: Choices::OUTRAGE,
                     base_power: 120.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Dragon,
+                    move_type: PokemonType::DRAGON,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -11010,7 +11011,7 @@ lazy_static! {
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::User,
-                        volatile_status: PokemonVolatileStatus::LockedMove,
+                        volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
                     }),
                     ..Default::default()
                 },
@@ -11022,7 +11023,7 @@ lazy_static! {
                 move_id: Choices::OVERDRIVE,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     sound: true,
@@ -11039,7 +11040,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 140.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -11066,7 +11067,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 130.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -11090,7 +11091,7 @@ lazy_static! {
             Choices::PAINSPLIT,
             Choice {
                 move_id: Choices::PAINSPLIT,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -11104,7 +11105,7 @@ lazy_static! {
                 move_id: Choices::PALEOWAVE,
                 base_power: 85.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -11131,7 +11132,7 @@ lazy_static! {
                     move_id: Choices::PARABOLICCHARGE,
                     base_power: 50.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Electric,
+                    move_type: PokemonType::ELECTRIC,
                     flags: Flags {
                         heal: true,
                             protect: true,
@@ -11148,7 +11149,7 @@ lazy_static! {
                     move_id: Choices::PARABOLICCHARGE,
                     base_power: 65.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Electric,
+                    move_type: PokemonType::ELECTRIC,
                     flags: Flags {
                         heal: true,
                             protect: true,
@@ -11163,7 +11164,7 @@ lazy_static! {
             Choices::PARTINGSHOT,
             Choice {
                 move_id: Choices::PARTINGSHOT,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -11191,7 +11192,7 @@ lazy_static! {
                 move_id: Choices::PAYBACK,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -11206,7 +11207,7 @@ lazy_static! {
                 move_id: Choices::PAYDAY,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -11220,7 +11221,7 @@ lazy_static! {
                 move_id: Choices::PECK,
                 base_power: 35.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -11233,7 +11234,7 @@ lazy_static! {
             Choices::PERISHSONG,
             Choice {
                 move_id: Choices::PERISHSONG,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     sound: true,
                     ..Default::default()
@@ -11247,7 +11248,7 @@ lazy_static! {
                 move_id: Choices::PETALBLIZZARD,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     wind: true,
@@ -11263,7 +11264,7 @@ lazy_static! {
                     move_id: Choices::PETALDANCE,
                     base_power: 70.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -11271,7 +11272,7 @@ lazy_static! {
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::User,
-                        volatile_status: PokemonVolatileStatus::LockedMove,
+                        volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
                     }),
                     ..Default::default()
                 },
@@ -11284,7 +11285,7 @@ lazy_static! {
                     move_id: Choices::PETALDANCE,
                     base_power: 90.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -11292,7 +11293,7 @@ lazy_static! {
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::User,
-                        volatile_status: PokemonVolatileStatus::LockedMove,
+                        volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
                     }),
                     ..Default::default()
                 },
@@ -11304,7 +11305,7 @@ lazy_static! {
                     move_id: Choices::PETALDANCE,
                     base_power: 120.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                         contact: true,
                                 protect: true,
@@ -11312,7 +11313,7 @@ lazy_static! {
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::User,
-                        volatile_status: PokemonVolatileStatus::LockedMove,
+                        volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
                     }),
                     ..Default::default()
                 },
@@ -11324,7 +11325,7 @@ lazy_static! {
                 move_id: Choices::PHANTOMFORCE,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     charge: true,
                     contact: true,
@@ -11339,7 +11340,7 @@ lazy_static! {
                 move_id: Choices::PHOTONGEYSER,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -11352,7 +11353,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::PIKAPAPOW,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -11368,7 +11369,7 @@ lazy_static! {
                     accuracy: 85.0,
                     base_power: 14.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Bug,
+                    move_type: PokemonType::BUG,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -11384,7 +11385,7 @@ lazy_static! {
                     accuracy: 95.0,
                     base_power: 25.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Bug,
+                    move_type: PokemonType::BUG,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -11399,7 +11400,7 @@ lazy_static! {
                 move_id: Choices::PLASMAFISTS,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -11413,7 +11414,7 @@ lazy_static! {
             Choices::PLAYNICE,
             Choice {
                 move_id: Choices::PLAYNICE,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     reflectable: true,
                     ..Default::default()
@@ -11439,7 +11440,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -11466,7 +11467,7 @@ lazy_static! {
                 move_id: Choices::PLUCK,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -11482,7 +11483,7 @@ lazy_static! {
                     move_id: Choices::POISONFANG,
                     base_power: 50.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Poison,
+                    move_type: PokemonType::POISON,
                     flags: Flags {
                         bite: true,
                         contact: true,
@@ -11492,7 +11493,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 30.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Toxic),
+                        effect: Effect::Status(PokemonStatus::TOXIC),
                     }]),
                     ..Default::default()
                 },
@@ -11504,7 +11505,7 @@ lazy_static! {
                     move_id: Choices::POISONFANG,
                     base_power: 50.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Poison,
+                    move_type: PokemonType::POISON,
                     flags: Flags {
                         bite: true,
                         contact: true,
@@ -11514,7 +11515,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 50.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Toxic),
+                        effect: Effect::Status(PokemonStatus::TOXIC),
                     }]),
                     ..Default::default()
                 },
@@ -11528,9 +11529,9 @@ lazy_static! {
                     accuracy: 55.0,
                     status: Some(Status {
                         target: MoveTarget::Opponent,
-                        status: PokemonStatus::Poison,
+                        status: PokemonStatus::POISON,
                     }),
-                    move_type: PokemonType::Poison,
+                    move_type: PokemonType::POISON,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -11547,9 +11548,9 @@ lazy_static! {
                     accuracy: 80.0,
                     status: Some(Status {
                         target: MoveTarget::Opponent,
-                        status: PokemonStatus::Poison,
+                        status: PokemonStatus::POISON,
                     }),
-                    move_type: PokemonType::Poison,
+                    move_type: PokemonType::POISON,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -11566,9 +11567,9 @@ lazy_static! {
                     accuracy: 90.0,
                     status: Some(Status {
                         target: MoveTarget::Opponent,
-                        status: PokemonStatus::Poison,
+                        status: PokemonStatus::POISON,
                     }),
-                    move_type: PokemonType::Poison,
+                    move_type: PokemonType::POISON,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -11584,7 +11585,7 @@ lazy_static! {
                 move_id: Choices::POISONJAB,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -11593,7 +11594,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Poison),
+                    effect: Effect::Status(PokemonStatus::POISON),
                 }]),
                 ..Default::default()
             },
@@ -11605,9 +11606,9 @@ lazy_static! {
                 accuracy: 75.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
-                    status: PokemonStatus::Poison,
+                    status: PokemonStatus::POISON,
                 }),
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     powder: true,
                     protect: true,
@@ -11623,7 +11624,7 @@ lazy_static! {
                 move_id: Choices::POISONSTING,
                 base_power: 15.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -11631,7 +11632,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Poison),
+                    effect: Effect::Status(PokemonStatus::POISON),
                 }]),
                 ..Default::default()
             },
@@ -11642,7 +11643,7 @@ lazy_static! {
                 move_id: Choices::POISONTAIL,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -11651,7 +11652,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Poison),
+                    effect: Effect::Status(PokemonStatus::POISON),
                 }]),
                 ..Default::default()
             },
@@ -11662,7 +11663,7 @@ lazy_static! {
                 move_id: Choices::POLLENPUFF,
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -11678,7 +11679,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 110.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -11693,7 +11694,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 20.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -11709,7 +11710,7 @@ lazy_static! {
                 move_id: Choices::POUNCE,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -11736,7 +11737,7 @@ lazy_static! {
                 move_id: Choices::POUND,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -11750,7 +11751,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::POWDER,
                 priority: 1,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     powder: true,
                     protect: true,
@@ -11759,7 +11760,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Powder,
+                    volatile_status: PokemonVolatileStatus::POWDER,
                 }),
                 ..Default::default()
             },
@@ -11770,7 +11771,7 @@ lazy_static! {
                 move_id: Choices::POWDERSNOW,
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -11778,7 +11779,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Freeze),
+                    effect: Effect::Status(PokemonStatus::FREEZE),
                 }]),
                 ..Default::default()
             },
@@ -11790,7 +11791,7 @@ lazy_static! {
                     move_id: Choices::POWERGEM,
                     base_power: 70.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Rock,
+                    move_type: PokemonType::ROCK,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -11805,7 +11806,7 @@ lazy_static! {
                     move_id: Choices::POWERGEM,
                     base_power: 80.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Rock,
+                    move_type: PokemonType::ROCK,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -11819,13 +11820,13 @@ lazy_static! {
             Choice {
                 move_id: Choices::POWERSHIFT,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::PowerShift,
+                    volatile_status: PokemonVolatileStatus::POWERSHIFT,
                 }),
                 ..Default::default()
             },
@@ -11834,7 +11835,7 @@ lazy_static! {
             Choices::POWERSPLIT,
             Choice {
                 move_id: Choices::POWERSPLIT,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -11846,7 +11847,7 @@ lazy_static! {
             Choices::POWERSWAP,
             Choice {
                 move_id: Choices::POWERSWAP,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -11859,13 +11860,13 @@ lazy_static! {
             Choice {
                 move_id: Choices::POWERTRICK,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::PowerTrick,
+                    volatile_status: PokemonVolatileStatus::POWERTRICK,
                 }),
                 ..Default::default()
             },
@@ -11876,7 +11877,7 @@ lazy_static! {
                 move_id: Choices::POWERTRIP,
                 base_power: 20.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -11891,7 +11892,7 @@ lazy_static! {
                 move_id: Choices::POWERUPPUNCH,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -11920,7 +11921,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -11936,7 +11937,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -11950,7 +11951,7 @@ lazy_static! {
                 move_id: Choices::PRESENT,
                 accuracy: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -11964,7 +11965,7 @@ lazy_static! {
                 move_id: Choices::PRISMATICLASER,
                 base_power: 160.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     recharge: true,
@@ -11979,13 +11980,13 @@ lazy_static! {
                 move_id: Choices::PROTECT,
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Protect,
+                    volatile_status: PokemonVolatileStatus::PROTECT,
                 }),
                 ..Default::default()
             },
@@ -11996,7 +11997,7 @@ lazy_static! {
                 move_id: Choices::PSYBEAM,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -12004,7 +12005,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::CONFUSION),
                 }]),
                 ..Default::default()
             },
@@ -12015,7 +12016,7 @@ lazy_static! {
                 move_id: Choices::PSYBLADE,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12031,7 +12032,7 @@ lazy_static! {
                 move_id: Choices::PSYCHIC,
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -12057,7 +12058,7 @@ lazy_static! {
                 move_id: Choices::PSYCHICFANGS,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -12073,7 +12074,7 @@ lazy_static! {
                 move_id: Choices::PSYCHICNOISE,
                 base_power: 75.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     sound: true,
@@ -12081,7 +12082,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::HealBlock,
+                    volatile_status: PokemonVolatileStatus::HEALBLOCK,
                 }),
                 ..Default::default()
             },
@@ -12090,7 +12091,7 @@ lazy_static! {
             Choices::PSYCHICTERRAIN,
             Choice {
                 move_id: Choices::PSYCHICTERRAIN,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12104,7 +12105,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 140.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -12129,7 +12130,7 @@ lazy_static! {
                 move_id: Choices::PSYCHOCUT,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     slicing: true,
@@ -12144,7 +12145,7 @@ lazy_static! {
                 Choice {
                     accuracy: 90.0,
                     move_id: Choices::PSYCHOSHIFT,
-                    move_type: PokemonType::Psychic,
+                    move_type: PokemonType::PSYCHIC,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -12157,7 +12158,7 @@ lazy_static! {
                 Choices::PSYCHOSHIFT,
                 Choice {
                     move_id: Choices::PSYCHOSHIFT,
-                    move_type: PokemonType::Psychic,
+                    move_type: PokemonType::PSYCHIC,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -12170,7 +12171,7 @@ lazy_static! {
             Choices::PSYCHUP,
             Choice {
                 move_id: Choices::PSYCHUP,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12184,7 +12185,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12211,7 +12212,7 @@ lazy_static! {
                 move_id: Choices::PSYSHOCK,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -12225,7 +12226,7 @@ lazy_static! {
                 move_id: Choices::PSYSTRIKE,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -12240,7 +12241,7 @@ lazy_static! {
                     accuracy: 90.0,
                     move_id: Choices::PSYWAVE,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Psychic,
+                    move_type: PokemonType::PSYCHIC,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -12254,7 +12255,7 @@ lazy_static! {
                 Choice {
                     move_id: Choices::PSYWAVE,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Psychic,
+                    move_type: PokemonType::PSYCHIC,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -12268,7 +12269,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::PUNISHMENT,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12281,7 +12282,7 @@ lazy_static! {
             Choices::PURIFY,
             Choice {
                 move_id: Choices::PURIFY,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     heal: true,
                     protect: true,
@@ -12297,7 +12298,7 @@ lazy_static! {
                 move_id: Choices::PURSUIT,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12313,7 +12314,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -12322,7 +12323,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -12331,7 +12332,7 @@ lazy_static! {
             Choices::QUASH,
             Choice {
                 move_id: Choices::QUASH,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -12346,7 +12347,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12361,7 +12362,7 @@ lazy_static! {
                 move_id: Choices::QUICKGUARD,
                 priority: 3,
                 target: MoveTarget::User,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12377,7 +12378,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::QUIVERDANCE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12401,7 +12402,7 @@ lazy_static! {
                 move_id: Choices::RAGE,
                 base_power: 20.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12416,7 +12417,7 @@ lazy_static! {
                 move_id: Choices::RAGEFIST,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12432,14 +12433,14 @@ lazy_static! {
                 move_id: Choices::RAGEPOWDER,
                 priority: 2,
                 target: MoveTarget::User,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     powder: true,
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::RagePowder,
+                    volatile_status: PokemonVolatileStatus::RAGEPOWDER,
                 }),
                 ..Default::default()
             },
@@ -12450,7 +12451,7 @@ lazy_static! {
                 move_id: Choices::RAGINGBULL,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12465,14 +12466,14 @@ lazy_static! {
                 move_id: Choices::RAGINGFURY,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::LockedMove,
+                    volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
                 }),
                 ..Default::default()
             },
@@ -12481,7 +12482,7 @@ lazy_static! {
             Choices::RAINDANCE,
             Choice {
                 move_id: Choices::RAINDANCE,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12496,7 +12497,7 @@ lazy_static! {
                     move_id: Choices::RAPIDSPIN,
                     base_power: 50.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -12524,7 +12525,7 @@ lazy_static! {
                     move_id: Choices::RAPIDSPIN,
                     base_power: 20.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -12542,7 +12543,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 55.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     slicing: true,
@@ -12558,7 +12559,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12586,7 +12587,7 @@ lazy_static! {
                 move_id: Choices::RAZORWIND,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     charge: true,
                     protect: true,
@@ -12600,7 +12601,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::RECHARGE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12612,7 +12613,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::RECOVER,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -12629,7 +12630,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::RECYCLE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12641,7 +12642,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::REFLECT,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12656,7 +12657,7 @@ lazy_static! {
             Choices::REFLECTTYPE,
             Choice {
                 move_id: Choices::REFLECTTYPE,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -12669,7 +12670,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::REFRESH,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12682,7 +12683,7 @@ lazy_static! {
                 move_id: Choices::RELICSONG,
                 base_power: 75.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     sound: true,
@@ -12691,7 +12692,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Sleep),
+                    effect: Effect::Status(PokemonStatus::SLEEP),
                 }]),
                 ..Default::default()
             },
@@ -12702,7 +12703,7 @@ lazy_static! {
                 move_id: Choices::REST,
                 status: None,  // Rest implemented in choice_special_effect()
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -12717,7 +12718,7 @@ lazy_static! {
                 move_id: Choices::RETALIATE,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12732,7 +12733,7 @@ lazy_static! {
                 move_id: Choices::RETURN,
                 base_power: 102.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12747,7 +12748,7 @@ lazy_static! {
                 move_id: Choices::RETURN102,
                 base_power: 102.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12762,7 +12763,7 @@ lazy_static! {
                 move_id: Choices::REVELATIONDANCE,
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -12777,7 +12778,7 @@ lazy_static! {
                 base_power: 60.0,
                 category: MoveCategory::Physical,
                 priority: -4,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12791,7 +12792,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::REVERSAL,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12805,7 +12806,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::REVIVALBLESSING,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12818,7 +12819,7 @@ lazy_static! {
                 move_id: Choices::RISINGVOLTAGE,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -12831,7 +12832,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::ROAR,
                 priority: -6,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     drag: true,
                     reflectable: true,
@@ -12848,7 +12849,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     recharge: true,
@@ -12865,7 +12866,7 @@ lazy_static! {
                     accuracy: 80.0,
                     base_power: 25.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Rock,
+                    move_type: PokemonType::ROCK,
                     flags: Flags {
                         bullet: true,
                             protect: true,
@@ -12882,7 +12883,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 25.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Rock,
+                    move_type: PokemonType::ROCK,
                     flags: Flags {
                         bullet: true,
                             protect: true,
@@ -12899,7 +12900,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12908,7 +12909,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::CONFUSION),
                 }]),
                 ..Default::default()
             },
@@ -12918,7 +12919,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::ROCKPOLISH,
                 target: MoveTarget::User,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -12943,7 +12944,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -12951,7 +12952,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -12963,7 +12964,7 @@ lazy_static! {
                 move_id: Choices::ROCKSMASH,
                 base_power: 20.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -12991,7 +12992,7 @@ lazy_static! {
                     move_id: Choices::ROCKSMASH,
                     base_power: 40.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -13020,7 +13021,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -13036,7 +13037,7 @@ lazy_static! {
                     accuracy: 80.0,
                     base_power: 50.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Rock,
+                    move_type: PokemonType::ROCK,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -13064,7 +13065,7 @@ lazy_static! {
                     accuracy: 95.0,
                     base_power: 60.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Rock,
+                    move_type: PokemonType::ROCK,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -13092,7 +13093,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 150.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -13106,7 +13107,7 @@ lazy_static! {
             Choices::ROLEPLAY,
             Choice {
                 move_id: Choices::ROLEPLAY,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -13120,7 +13121,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -13129,7 +13130,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -13141,7 +13142,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -13155,14 +13156,14 @@ lazy_static! {
             Choice {
                 move_id: Choices::ROOST,
                 target: MoveTarget::User,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Roost,
+                    volatile_status: PokemonVolatileStatus::ROOST,
                 }),
                 heal: Some(Heal {
                     target: MoveTarget::User,
@@ -13175,7 +13176,7 @@ lazy_static! {
             Choices::ROTOTILLER,
             Choice {
                 move_id: Choices::ROTOTILLER,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -13188,7 +13189,7 @@ lazy_static! {
                 move_id: Choices::ROUND,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     sound: true,
@@ -13203,7 +13204,7 @@ lazy_static! {
                 move_id: Choices::RUINATION,
                 accuracy: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -13218,7 +13219,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -13226,7 +13227,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 50.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -13237,7 +13238,7 @@ lazy_static! {
                 move_id: Choices::SACREDSWORD,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -13252,7 +13253,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SAFEGUARD,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -13269,14 +13270,14 @@ lazy_static! {
                 move_id: Choices::SALTCURE,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::SaltCure,
+                    volatile_status: PokemonVolatileStatus::SALTCURE,
                 }),
                 ..Default::default()
             },
@@ -13285,7 +13286,7 @@ lazy_static! {
             Choices::SANDATTACK,
             Choice {
                 move_id: Choices::SANDATTACK,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -13312,7 +13313,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     wind: true,
@@ -13321,7 +13322,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -13330,7 +13331,7 @@ lazy_static! {
             Choices::SANDSTORM,
             Choice {
                 move_id: Choices::SANDSTORM,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     wind: true,
                     ..Default::default()
@@ -13346,14 +13347,14 @@ lazy_static! {
                     accuracy: 70.0,
                     base_power: 15.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Ground,
+                    move_type: PokemonType::GROUND,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                        volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                     }),
                     ..Default::default()
                 },
@@ -13366,14 +13367,14 @@ lazy_static! {
                     accuracy: 85.0,
                     base_power: 35.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Ground,
+                    move_type: PokemonType::GROUND,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                        volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                     }),
                     ..Default::default()
                 },
@@ -13386,7 +13387,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -13401,7 +13402,7 @@ lazy_static! {
                 move_id: Choices::SCALD,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -13409,7 +13410,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -13421,7 +13422,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -13446,7 +13447,7 @@ lazy_static! {
                 Choice {
                     move_id: Choices::SCARYFACE,
                     accuracy: 90.0,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -13471,7 +13472,7 @@ lazy_static! {
                 Choices::SCARYFACE,
                 Choice {
                     move_id: Choices::SCARYFACE,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -13498,7 +13499,7 @@ lazy_static! {
                 move_id: Choices::SCORCHINGSANDS,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -13506,7 +13507,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -13517,7 +13518,7 @@ lazy_static! {
                 move_id: Choices::SCRATCH,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -13531,7 +13532,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SCREECH,
                 accuracy: 85.0,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -13558,7 +13559,7 @@ lazy_static! {
                 move_id: Choices::SEARINGSHOT,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -13567,7 +13568,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -13578,7 +13579,7 @@ lazy_static! {
                 move_id: Choices::SECRETPOWER,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -13586,7 +13587,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -13597,7 +13598,7 @@ lazy_static! {
                 move_id: Choices::SECRETSWORD,
                 base_power: 85.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     protect: true,
                     slicing: true,
@@ -13612,7 +13613,7 @@ lazy_static! {
                 move_id: Choices::SEEDBOMB,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -13628,7 +13629,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -13653,7 +13654,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SEISMICTOSS,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -13668,7 +13669,7 @@ lazy_static! {
                 move_id: Choices::SELFDESTRUCT,
                 base_power: 200.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -13682,7 +13683,7 @@ lazy_static! {
                 move_id: Choices::SHADOWBALL,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -13709,7 +13710,7 @@ lazy_static! {
                 move_id: Choices::SHADOWBONE,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -13735,7 +13736,7 @@ lazy_static! {
                 move_id: Choices::SHADOWCLAW,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -13750,7 +13751,7 @@ lazy_static! {
                 move_id: Choices::SHADOWFORCE,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     charge: true,
                     contact: true,
@@ -13765,7 +13766,7 @@ lazy_static! {
                 move_id: Choices::SHADOWPUNCH,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -13782,7 +13783,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Physical,
                 priority: 1,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -13798,7 +13799,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -13824,7 +13825,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SHARPEN,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -13847,14 +13848,14 @@ lazy_static! {
             Choice {
                 move_id: Choices::SHEDTAIL,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     pivot: true,
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Substitute,
+                    volatile_status: PokemonVolatileStatus::SUBSTITUTE,
                 }),
                 ..Default::default()
             },
@@ -13865,7 +13866,7 @@ lazy_static! {
                 move_id: Choices::SHEERCOLD,
                 accuracy: 30.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -13879,7 +13880,7 @@ lazy_static! {
                 move_id: Choices::SHELLSIDEARM,
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -13887,7 +13888,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Poison),
+                    effect: Effect::Status(PokemonStatus::POISON),
                 }]),
                 ..Default::default()
             },
@@ -13897,7 +13898,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SHELLSMASH,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -13922,7 +13923,7 @@ lazy_static! {
                 base_power: 150.0,
                 category: MoveCategory::Special,
                 priority: -3,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -13935,7 +13936,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SHELTER,
                 target: MoveTarget::User,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -13958,7 +13959,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SHIFTGEAR,
                 target: MoveTarget::User,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -13982,7 +13983,7 @@ lazy_static! {
                 move_id: Choices::SHOCKWAVE,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -13995,7 +13996,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SHOREUP,
                 target: MoveTarget::User,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -14013,7 +14014,7 @@ lazy_static! {
                 move_id: Choices::SIGNALBEAM,
                 base_power: 75.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -14021,7 +14022,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::CONFUSION),
                 }]),
                 ..Default::default()
             },
@@ -14032,13 +14033,13 @@ lazy_static! {
                 move_id: Choices::SILKTRAP,
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::SilkTrap,
+                    volatile_status: PokemonVolatileStatus::SILKTRAP,
                 }),
                 ..Default::default()
             },
@@ -14049,7 +14050,7 @@ lazy_static! {
                 move_id: Choices::SILVERWIND,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -14073,7 +14074,7 @@ lazy_static! {
             Choices::SIMPLEBEAM,
             Choice {
                 move_id: Choices::SIMPLEBEAM,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -14089,9 +14090,9 @@ lazy_static! {
                 accuracy: 55.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
-                    status: PokemonStatus::Sleep,
+                    status: PokemonStatus::SLEEP,
                 }),
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -14107,7 +14108,7 @@ lazy_static! {
                 move_id: Choices::SIZZLYSLIDE,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -14116,7 +14117,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 100.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -14125,7 +14126,7 @@ lazy_static! {
             Choices::SKETCH,
             Choice {
                 move_id: Choices::SKETCH,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -14136,7 +14137,7 @@ lazy_static! {
             Choices::SKILLSWAP,
             Choice {
                 move_id: Choices::SKILLSWAP,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -14151,7 +14152,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -14179,7 +14180,7 @@ lazy_static! {
                     move_id: Choices::SKULLBASH,
                     base_power: 100.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         charge: true,
                         contact: true,
@@ -14196,7 +14197,7 @@ lazy_static! {
                     move_id: Choices::SKULLBASH,
                     base_power: 130.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         charge: true,
                         contact: true,
@@ -14214,7 +14215,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 140.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     charge: true,
                     protect: true,
@@ -14223,7 +14224,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -14234,7 +14235,7 @@ lazy_static! {
                 move_id: Choices::SKYDROP,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     charge: true,
                     contact: true,
@@ -14251,7 +14252,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 85.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -14266,7 +14267,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SLACKOFF,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -14285,7 +14286,7 @@ lazy_static! {
                 accuracy: 75.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -14300,7 +14301,7 @@ lazy_static! {
                 move_id: Choices::SLASH,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -14317,9 +14318,9 @@ lazy_static! {
                 accuracy: 75.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
-                    status: PokemonStatus::Sleep,
+                    status: PokemonStatus::SLEEP,
                 }),
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     powder: true,
                     protect: true,
@@ -14334,7 +14335,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SLEEPTALK,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -14347,7 +14348,7 @@ lazy_static! {
                 move_id: Choices::SLUDGE,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -14355,7 +14356,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Poison),
+                    effect: Effect::Status(PokemonStatus::POISON),
                 }]),
                 ..Default::default()
             },
@@ -14366,7 +14367,7 @@ lazy_static! {
                 move_id: Choices::SLUDGEBOMB,
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -14375,7 +14376,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Poison),
+                    effect: Effect::Status(PokemonStatus::POISON),
                 }]),
                 ..Default::default()
             },
@@ -14386,7 +14387,7 @@ lazy_static! {
                 move_id: Choices::SLUDGEWAVE,
                 base_power: 95.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -14394,7 +14395,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Poison),
+                    effect: Effect::Status(PokemonStatus::POISON),
                 }]),
                 ..Default::default()
             },
@@ -14405,14 +14406,14 @@ lazy_static! {
                 move_id: Choices::SMACKDOWN,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::SmackDown,
+                    volatile_status: PokemonVolatileStatus::SMACKDOWN,
                 }),
                 ..Default::default()
             },
@@ -14423,7 +14424,7 @@ lazy_static! {
                 move_id: Choices::SMARTSTRIKE,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -14439,7 +14440,7 @@ lazy_static! {
                     move_id: Choices::SMELLINGSALTS,
                     base_power: 60.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -14455,7 +14456,7 @@ lazy_static! {
                     move_id: Choices::SMELLINGSALTS,
                     base_power: 70.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -14473,7 +14474,7 @@ lazy_static! {
                     accuracy: 70.0,
                     base_power: 20.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Poison,
+                    move_type: PokemonType::POISON,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -14481,7 +14482,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 40.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Poison),
+                        effect: Effect::Status(PokemonStatus::POISON),
                     }]),
                     ..Default::default()
                 },
@@ -14494,7 +14495,7 @@ lazy_static! {
                     accuracy: 70.0,
                     base_power: 30.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Poison,
+                    move_type: PokemonType::POISON,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -14502,7 +14503,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 40.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Poison),
+                        effect: Effect::Status(PokemonStatus::POISON),
                     }]),
                     ..Default::default()
                 },
@@ -14512,7 +14513,7 @@ lazy_static! {
             Choices::SMOKESCREEN,
             Choice {
                 move_id: Choices::SMOKESCREEN,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -14538,7 +14539,7 @@ lazy_static! {
                 move_id: Choices::SNAPTRAP,
                 base_power: 35.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -14546,7 +14547,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                    volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                 }),
                 ..Default::default()
             },
@@ -14558,7 +14559,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 55.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     sound: true,
@@ -14585,13 +14586,13 @@ lazy_static! {
                 move_id: Choices::SNATCH,
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Snatch,
+                    volatile_status: PokemonVolatileStatus::SNATCH,
                 }),
                 ..Default::default()
             },
@@ -14602,7 +14603,7 @@ lazy_static! {
                 move_id: Choices::SNIPESHOT,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -14617,7 +14618,7 @@ lazy_static! {
                     move_id: Choices::SNORE,
                     base_power: 40.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             protect: true,
                         sound: true,
@@ -14626,7 +14627,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 30.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                        effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                     }]),
                     ..Default::default()
                 },
@@ -14638,7 +14639,7 @@ lazy_static! {
                     move_id: Choices::SNORE,
                     base_power: 50.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             protect: true,
                         sound: true,
@@ -14647,7 +14648,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 30.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                        effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                     }]),
                     ..Default::default()
                 },
@@ -14657,7 +14658,7 @@ lazy_static! {
             Choices::SNOWSCAPE,
             Choice {
                 move_id: Choices::SNOWSCAPE,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -14668,7 +14669,7 @@ lazy_static! {
             Choices::SOAK,
             Choice {
                 move_id: Choices::SOAK,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -14682,7 +14683,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SOFTBOILED,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -14700,7 +14701,7 @@ lazy_static! {
                 move_id: Choices::SOLARBEAM,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     charge: true,
                     protect: true,
@@ -14715,7 +14716,7 @@ lazy_static! {
                 move_id: Choices::SOLARBLADE,
                 base_power: 125.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     charge: true,
                     contact: true,
@@ -14732,7 +14733,7 @@ lazy_static! {
                 move_id: Choices::SONICBOOM,
                 accuracy: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -14747,7 +14748,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -14761,7 +14762,7 @@ lazy_static! {
                 move_id: Choices::SPARK,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -14770,7 +14771,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -14781,7 +14782,7 @@ lazy_static! {
                 move_id: Choices::SPARKLINGARIA,
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     sound: true,
@@ -14790,7 +14791,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 100.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::SparklingAria),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::SPARKLINGARIA),
                 }]),
                 ..Default::default()
             },
@@ -14802,7 +14803,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -14816,7 +14817,7 @@ lazy_static! {
                 move_id: Choices::SPECTRALTHIEF,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -14829,7 +14830,7 @@ lazy_static! {
             Choices::SPEEDSWAP,
             Choice {
                 move_id: Choices::SPEEDSWAP,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -14841,7 +14842,7 @@ lazy_static! {
             Choices::SPICYEXTRACT,
             Choice {
                 move_id: Choices::SPICYEXTRACT,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -14865,7 +14866,7 @@ lazy_static! {
             Choices::SPIDERWEB,
             Choice {
                 move_id: Choices::SPIDERWEB,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -14880,7 +14881,7 @@ lazy_static! {
                 move_id: Choices::SPIKECANNON,
                 base_power: 20.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -14892,7 +14893,7 @@ lazy_static! {
             Choices::SPIKES,
             Choice {
                 move_id: Choices::SPIKES,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     reflectable: true,
                     ..Default::default()
@@ -14910,13 +14911,13 @@ lazy_static! {
                 move_id: Choices::SPIKYSHIELD,
                 priority: 4,
                 target: MoveTarget::User,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::SpikyShield,
+                    volatile_status: PokemonVolatileStatus::SPIKYSHIELD,
                 }),
                 ..Default::default()
             },
@@ -14927,7 +14928,7 @@ lazy_static! {
                 move_id: Choices::SPINOUT,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -14953,7 +14954,7 @@ lazy_static! {
                 move_id: Choices::SPIRITBREAK,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -14980,7 +14981,7 @@ lazy_static! {
                 move_id: Choices::SPIRITSHACKLE,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -14992,7 +14993,7 @@ lazy_static! {
             Choices::SPITE,
             Choice {
                 move_id: Choices::SPITE,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -15006,7 +15007,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SPITUP,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -15019,7 +15020,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SPLASH,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -15032,7 +15033,7 @@ lazy_static! {
                 move_id: Choices::SPLISHYSPLASH,
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -15040,7 +15041,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -15051,9 +15052,9 @@ lazy_static! {
                 move_id: Choices::SPORE,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
-                    status: PokemonStatus::Sleep,
+                    status: PokemonStatus::SLEEP,
                 }),
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     powder: true,
                     protect: true,
@@ -15068,7 +15069,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SPOTLIGHT,
                 priority: 3,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -15076,7 +15077,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Spotlight,
+                    volatile_status: PokemonVolatileStatus::SPOTLIGHT,
                 }),
                 ..Default::default()
             },
@@ -15088,7 +15089,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     protect: true,
                     wind: true,
@@ -15113,7 +15114,7 @@ lazy_static! {
             Choices::STEALTHROCK,
             Choice {
                 move_id: Choices::STEALTHROCK,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     reflectable: true,
                     ..Default::default()
@@ -15132,7 +15133,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 110.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -15140,7 +15141,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Burn),
+                    effect: Effect::Status(PokemonStatus::BURN),
                 }]),
                 ..Default::default()
             },
@@ -15151,7 +15152,7 @@ lazy_static! {
                 move_id: Choices::STEAMROLLER,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -15160,7 +15161,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -15172,7 +15173,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 140.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -15190,7 +15191,7 @@ lazy_static! {
                 move_id: Choices::STEELROLLER,
                 base_power: 130.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -15206,7 +15207,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -15231,7 +15232,7 @@ lazy_static! {
             Choices::STICKYWEB,
             Choice {
                 move_id: Choices::STICKYWEB,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     reflectable: true,
                     ..Default::default()
@@ -15248,13 +15249,13 @@ lazy_static! {
             Choice {
                 move_id: Choices::STOCKPILE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::StockPile,
+                    volatile_status: PokemonVolatileStatus::STOCKPILE,
                 }),
                 ..Default::default()
             },
@@ -15265,7 +15266,7 @@ lazy_static! {
                 move_id: Choices::STOMP,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -15274,7 +15275,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -15285,7 +15286,7 @@ lazy_static! {
                 move_id: Choices::STOMPINGTANTRUM,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -15301,7 +15302,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -15322,7 +15323,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -15336,7 +15337,7 @@ lazy_static! {
                 move_id: Choices::STOREDPOWER,
                 base_power: 20.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -15351,7 +15352,7 @@ lazy_static! {
                     move_id: Choices::STORMTHROW,
                     base_power: 40.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -15367,7 +15368,7 @@ lazy_static! {
                     move_id: Choices::STORMTHROW,
                     base_power: 60.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -15384,7 +15385,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 90.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -15392,7 +15393,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::CONFUSION),
                 }]),
                 ..Default::default()
             },
@@ -15403,7 +15404,7 @@ lazy_static! {
                 move_id: Choices::STRENGTH,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -15416,7 +15417,7 @@ lazy_static! {
             Choices::STRENGTHSAP,
             Choice {
                 move_id: Choices::STRENGTHSAP,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     heal: true,
                     protect: true,
@@ -15431,7 +15432,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::STRINGSHOT,
                 accuracy: 95.0,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -15457,7 +15458,7 @@ lazy_static! {
                 move_id: Choices::STRUGGLE,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -15473,7 +15474,7 @@ lazy_static! {
                     move_id: Choices::STRUGGLEBUG,
                     base_power: 30.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Bug,
+                    move_type: PokemonType::BUG,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -15500,7 +15501,7 @@ lazy_static! {
                     move_id: Choices::STRUGGLEBUG,
                     base_power: 50.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Bug,
+                    move_type: PokemonType::BUG,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -15526,7 +15527,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::STUFFCHEEKS,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -15540,9 +15541,9 @@ lazy_static! {
                 accuracy: 75.0,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
-                    status: PokemonStatus::Paralyze,
+                    status: PokemonStatus::PARALYZE,
                 }),
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     powder: true,
                     protect: true,
@@ -15559,7 +15560,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -15574,13 +15575,13 @@ lazy_static! {
             Choice {
                 move_id: Choices::SUBSTITUTE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::Substitute,
+                    volatile_status: PokemonVolatileStatus::SUBSTITUTE,
                 }),
                 ..Default::default()
             },
@@ -15593,7 +15594,7 @@ lazy_static! {
                     base_power: 80.0,
                     category: MoveCategory::Physical,
                     priority: 1,
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -15610,7 +15611,7 @@ lazy_static! {
                     base_power: 70.0,
                     category: MoveCategory::Physical,
                     priority: 1,
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -15624,7 +15625,7 @@ lazy_static! {
             Choices::SUNNYDAY,
             Choice {
                 move_id: Choices::SUNNYDAY,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -15637,7 +15638,7 @@ lazy_static! {
                 move_id: Choices::SUNSTEELSTRIKE,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -15653,7 +15654,7 @@ lazy_static! {
                 move_id: Choices::SUPERCELLSLAM,
                 base_power: 100.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -15669,7 +15670,7 @@ lazy_static! {
                 move_id: Choices::SUPERFANG,
                 accuracy: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -15684,7 +15685,7 @@ lazy_static! {
                 move_id: Choices::SUPERPOWER,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -15709,7 +15710,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SUPERSONIC,
                 accuracy: 55.0,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -15718,7 +15719,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Confusion,
+                    volatile_status: PokemonVolatileStatus::CONFUSION,
                 }),
                 ..Default::default()
             },
@@ -15730,7 +15731,7 @@ lazy_static! {
                     move_id: Choices::SURF,
                     base_power: 95.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                                 protect: true,
                         ..Default::default()
@@ -15745,7 +15746,7 @@ lazy_static! {
                     move_id: Choices::SURF,
                     base_power: 90.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                                 protect: true,
                         ..Default::default()
@@ -15760,7 +15761,7 @@ lazy_static! {
                 move_id: Choices::SURGINGSTRIKES,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -15777,7 +15778,7 @@ lazy_static! {
                 Choice {
                     move_id: Choices::SWAGGER,
                     accuracy: 85.0,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -15796,7 +15797,7 @@ lazy_static! {
                     }),
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::Confusion,
+                        volatile_status: PokemonVolatileStatus::CONFUSION,
                     }),
                     ..Default::default()
                 },
@@ -15807,7 +15808,7 @@ lazy_static! {
                 Choice {
                     move_id: Choices::SWAGGER,
                     accuracy: 90.0,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -15826,7 +15827,7 @@ lazy_static! {
                     }),
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::Confusion,
+                        volatile_status: PokemonVolatileStatus::CONFUSION,
                     }),
                     ..Default::default()
                 },
@@ -15837,7 +15838,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SWALLOW,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -15850,7 +15851,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SWEETKISS,
                 accuracy: 75.0,
-                move_type: PokemonType::Fairy,
+                move_type: PokemonType::FAIRY,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -15858,7 +15859,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Confusion,
+                    volatile_status: PokemonVolatileStatus::CONFUSION,
                 }),
                 ..Default::default()
             },
@@ -15867,7 +15868,7 @@ lazy_static! {
             Choices::SWEETSCENT,
             Choice {
                 move_id: Choices::SWEETSCENT,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -15893,7 +15894,7 @@ lazy_static! {
                 move_id: Choices::SWIFT,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -15905,7 +15906,7 @@ lazy_static! {
             Choices::SWITCHEROO,
             Choice {
                 move_id: Choices::SWITCHEROO,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -15918,7 +15919,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SWORDSDANCE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -15943,7 +15944,7 @@ lazy_static! {
                     move_id: Choices::SYNCHRONOISE,
                     base_power: 70.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Psychic,
+                    move_type: PokemonType::PSYCHIC,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -15958,7 +15959,7 @@ lazy_static! {
                     move_id: Choices::SYNCHRONOISE,
                     base_power: 120.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Psychic,
+                    move_type: PokemonType::PSYCHIC,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -15972,7 +15973,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::SYNTHESIS,
                 target: MoveTarget::User,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -15991,7 +15992,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -16000,7 +16001,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 100.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::SyrupBomb),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::SYRUPBOMB),
                 }]),
                 ..Default::default()
             },
@@ -16011,7 +16012,7 @@ lazy_static! {
                 move_id: Choices::TACHYONCUTTER,
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Steel,
+                move_type: PokemonType::STEEL,
                 flags: Flags {
                     protect: true,
                     slicing: true,
@@ -16026,7 +16027,7 @@ lazy_static! {
                 move_id: Choices::TACKLE,
                 base_power: 40.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -16041,7 +16042,7 @@ lazy_static! {
                 Choice {
                     move_id: Choices::TAILGLOW,
                     target: MoveTarget::User,
-                    move_type: PokemonType::Bug,
+                    move_type: PokemonType::BUG,
                     flags: Flags {
                             ..Default::default()
                     },
@@ -16065,7 +16066,7 @@ lazy_static! {
                 Choice {
                     move_id: Choices::TAILGLOW,
                     target: MoveTarget::User,
-                    move_type: PokemonType::Bug,
+                    move_type: PokemonType::BUG,
                     flags: Flags {
                             ..Default::default()
                     },
@@ -16091,7 +16092,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -16104,7 +16105,7 @@ lazy_static! {
             Choices::TAILWHIP,
             Choice {
                 move_id: Choices::TAILWHIP,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -16129,7 +16130,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::TAILWIND,
                 target: MoveTarget::User,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     wind: true,
                     ..Default::default()
@@ -16148,7 +16149,7 @@ lazy_static! {
                 accuracy: 85.0,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -16163,7 +16164,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::TAKEHEART,
                 target: MoveTarget::User,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -16174,7 +16175,7 @@ lazy_static! {
             Choices::TARSHOT,
             Choice {
                 move_id: Choices::TARSHOT,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -16193,7 +16194,7 @@ lazy_static! {
                 }),
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::TarShot,
+                    volatile_status: PokemonVolatileStatus::TARSHOT,
                 }),
                 ..Default::default()
             },
@@ -16202,7 +16203,7 @@ lazy_static! {
             Choices::TAUNT,
             Choice {
                 move_id: Choices::TAUNT,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -16210,7 +16211,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Taunt,
+                    volatile_status: PokemonVolatileStatus::TAUNT,
                 }),
                 ..Default::default()
             },
@@ -16219,7 +16220,7 @@ lazy_static! {
             Choices::TEARFULLOOK,
             Choice {
                 move_id: Choices::TEARFULLOOK,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     reflectable: true,
                     ..Default::default()
@@ -16242,7 +16243,7 @@ lazy_static! {
             Choices::TEATIME,
             Choice {
                 move_id: Choices::TEATIME,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -16256,7 +16257,7 @@ lazy_static! {
                     move_id: Choices::TECHNOBLAST,
                     base_power: 85.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -16271,7 +16272,7 @@ lazy_static! {
                     move_id: Choices::TECHNOBLAST,
                     base_power: 120.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -16284,14 +16285,14 @@ lazy_static! {
             Choices::TEETERDANCE,
             Choice {
                 move_id: Choices::TEETERDANCE,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Confusion,
+                    volatile_status: PokemonVolatileStatus::CONFUSION,
                 }),
                 ..Default::default()
             },
@@ -16300,7 +16301,7 @@ lazy_static! {
             Choices::TELEKINESIS,
             Choice {
                 move_id: Choices::TELEKINESIS,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -16308,7 +16309,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Telekinesis,
+                    volatile_status: PokemonVolatileStatus::TELEKINESIS,
                 }),
                 ..Default::default()
             },
@@ -16321,7 +16322,7 @@ lazy_static! {
                     move_id: Choices::TELEPORT,
                     priority: -6,
                     target: MoveTarget::User,
-                    move_type: PokemonType::Psychic,
+                    move_type: PokemonType::PSYCHIC,
                     flags: Flags {
                         pivot: true,
                         ..Default::default()
@@ -16336,7 +16337,7 @@ lazy_static! {
                     move_id: Choices::TELEPORT,
                     priority: 0,
                     target: MoveTarget::User,
-                    move_type: PokemonType::Psychic,
+                    move_type: PokemonType::PSYCHIC,
                     flags: Flags {
                         ..Default::default()
                     },
@@ -16350,7 +16351,7 @@ lazy_static! {
                 move_id: Choices::TEMPERFLARE,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -16365,7 +16366,7 @@ lazy_static! {
                 move_id: Choices::TERABLAST,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -16379,7 +16380,7 @@ lazy_static! {
                 move_id: Choices::TERASTARSTORM,
                 base_power: 120.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -16393,7 +16394,7 @@ lazy_static! {
                 move_id: Choices::TERRAINPULSE,
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     pulse: true,
@@ -16409,7 +16410,7 @@ lazy_static! {
                     move_id: Choices::THIEF,
                     base_power: 40.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -16425,7 +16426,7 @@ lazy_static! {
                     move_id: Choices::THIEF,
                     base_power: 60.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -16441,14 +16442,14 @@ lazy_static! {
                 move_id: Choices::THOUSANDARROWS,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::SmackDown,
+                    volatile_status: PokemonVolatileStatus::SMACKDOWN,
                 }),
                 ..Default::default()
             },
@@ -16459,7 +16460,7 @@ lazy_static! {
                 move_id: Choices::THOUSANDWAVES,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ground,
+                move_type: PokemonType::GROUND,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -16474,7 +16475,7 @@ lazy_static! {
                     move_id: Choices::THRASH,
                     base_power: 90.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -16482,7 +16483,7 @@ lazy_static! {
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::User,
-                        volatile_status: PokemonVolatileStatus::LockedMove,
+                        volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
                     }),
                     ..Default::default()
                 },
@@ -16494,7 +16495,7 @@ lazy_static! {
                     move_id: Choices::THRASH,
                     base_power: 120.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -16502,7 +16503,7 @@ lazy_static! {
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::User,
-                        volatile_status: PokemonVolatileStatus::LockedMove,
+                        volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
                     }),
                     ..Default::default()
                 },
@@ -16514,7 +16515,7 @@ lazy_static! {
                 move_id: Choices::THROATCHOP,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -16522,7 +16523,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::ThroatChop,
+                    volatile_status: PokemonVolatileStatus::THROATCHOP,
                 }),
                 ..Default::default()
             },
@@ -16535,7 +16536,7 @@ lazy_static! {
                     accuracy: 70.0,
                     base_power: 120.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Electric,
+                    move_type: PokemonType::ELECTRIC,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -16543,7 +16544,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 30.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Paralyze),
+                        effect: Effect::Status(PokemonStatus::PARALYZE),
                     }]),
                     ..Default::default()
                 },
@@ -16556,7 +16557,7 @@ lazy_static! {
                     accuracy: 70.0,
                     base_power: 110.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Electric,
+                    move_type: PokemonType::ELECTRIC,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -16564,7 +16565,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 30.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Paralyze),
+                        effect: Effect::Status(PokemonStatus::PARALYZE),
                     }]),
                     ..Default::default()
                 },
@@ -16577,7 +16578,7 @@ lazy_static! {
                     move_id: Choices::THUNDERBOLT,
                     base_power: 95.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Electric,
+                    move_type: PokemonType::ELECTRIC,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -16585,7 +16586,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Paralyze),
+                        effect: Effect::Status(PokemonStatus::PARALYZE),
                     }]),
                     ..Default::default()
                 },
@@ -16597,7 +16598,7 @@ lazy_static! {
                     move_id: Choices::THUNDERBOLT,
                     base_power: 90.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Electric,
+                    move_type: PokemonType::ELECTRIC,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -16605,7 +16606,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Paralyze),
+                        effect: Effect::Status(PokemonStatus::PARALYZE),
                     }]),
                     ..Default::default()
                 },
@@ -16618,14 +16619,14 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                    volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                 }),
                 ..Default::default()
             },
@@ -16636,7 +16637,7 @@ lazy_static! {
                 move_id: Choices::THUNDERCLAP,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -16651,7 +16652,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 65.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     bite: true,
                     contact: true,
@@ -16662,12 +16663,12 @@ lazy_static! {
                     Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Paralyze),
+                        effect: Effect::Status(PokemonStatus::PARALYZE),
                     },
                     Secondary {
                         chance: 10.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                        effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                     },
                 ]),
                 ..Default::default()
@@ -16679,7 +16680,7 @@ lazy_static! {
                 move_id: Choices::THUNDEROUSKICK,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -16706,7 +16707,7 @@ lazy_static! {
                 move_id: Choices::THUNDERPUNCH,
                 base_power: 75.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -16716,7 +16717,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -16727,7 +16728,7 @@ lazy_static! {
                 move_id: Choices::THUNDERSHOCK,
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -16735,7 +16736,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -16748,9 +16749,9 @@ lazy_static! {
                     accuracy: 100.0,
                     status: Some(Status {
                         target: MoveTarget::Opponent,
-                        status: PokemonStatus::Paralyze,
+                        status: PokemonStatus::PARALYZE,
                     }),
-                    move_type: PokemonType::Electric,
+                    move_type: PokemonType::ELECTRIC,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -16767,9 +16768,9 @@ lazy_static! {
                     accuracy: 90.0,
                     status: Some(Status {
                         target: MoveTarget::Opponent,
-                        status: PokemonStatus::Paralyze,
+                        status: PokemonStatus::PARALYZE,
                     }),
-                    move_type: PokemonType::Electric,
+                    move_type: PokemonType::ELECTRIC,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -16783,7 +16784,7 @@ lazy_static! {
             Choices::TICKLE,
             Choice {
                 move_id: Choices::TICKLE,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -16808,7 +16809,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::TIDYUP,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -16830,7 +16831,7 @@ lazy_static! {
             Choices::TOPSYTURVY,
             Choice {
                 move_id: Choices::TOPSYTURVY,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -16845,7 +16846,7 @@ lazy_static! {
                 move_id: Choices::TORCHSONG,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     protect: true,
                     sound: true,
@@ -16870,7 +16871,7 @@ lazy_static! {
             Choices::TORMENT,
             Choice {
                 move_id: Choices::TORMENT,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -16878,7 +16879,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Torment,
+                    volatile_status: PokemonVolatileStatus::TORMENT,
                 }),
                 ..Default::default()
             },
@@ -16891,9 +16892,9 @@ lazy_static! {
                     accuracy: 85.0,
                     status: Some(Status {
                         target: MoveTarget::Opponent,
-                        status: PokemonStatus::Toxic,
+                        status: PokemonStatus::TOXIC,
                     }),
-                    move_type: PokemonType::Poison,
+                    move_type: PokemonType::POISON,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -16910,9 +16911,9 @@ lazy_static! {
                     accuracy: 90.0,
                     status: Some(Status {
                         target: MoveTarget::Opponent,
-                        status: PokemonStatus::Toxic,
+                        status: PokemonStatus::TOXIC,
                     }),
-                    move_type: PokemonType::Poison,
+                    move_type: PokemonType::POISON,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -16926,7 +16927,7 @@ lazy_static! {
             Choices::TOXICSPIKES,
             Choice {
                 move_id: Choices::TOXICSPIKES,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     reflectable: true,
                     ..Default::default()
@@ -16944,9 +16945,9 @@ lazy_static! {
                 move_id: Choices::TOXICTHREAD,
                 status: Some(Status {
                     target: MoveTarget::Opponent,
-                    status: PokemonStatus::Poison,
+                    status: PokemonStatus::POISON,
                 }),
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -16972,7 +16973,7 @@ lazy_static! {
                 move_id: Choices::TRAILBLAZE,
                 base_power: 50.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -16997,7 +16998,7 @@ lazy_static! {
             Choices::TRANSFORM,
             Choice {
                 move_id: Choices::TRANSFORM,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -17010,7 +17011,7 @@ lazy_static! {
                 move_id: Choices::TRIATTACK,
                 base_power: 80.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -17022,17 +17023,17 @@ lazy_static! {
                         Secondary {
                             chance: 6.67,
                             target: MoveTarget::Opponent,
-                            effect: Effect::Status(PokemonStatus::Paralyze),
+                            effect: Effect::Status(PokemonStatus::PARALYZE),
                         },
                         Secondary {
                             chance: 6.67,
                             target: MoveTarget::Opponent,
-                            effect: Effect::Status(PokemonStatus::Burn),
+                            effect: Effect::Status(PokemonStatus::BURN),
                         },
                         Secondary {
                             chance: 6.67,
                             target: MoveTarget::Opponent,
-                            effect: Effect::Status(PokemonStatus::Freeze),
+                            effect: Effect::Status(PokemonStatus::FREEZE),
                         },
                     ]
                 ),
@@ -17043,7 +17044,7 @@ lazy_static! {
             Choices::TRICK,
             Choice {
                 move_id: Choices::TRICK,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -17055,7 +17056,7 @@ lazy_static! {
             Choices::TRICKORTREAT,
             Choice {
                 move_id: Choices::TRICKORTREAT,
-                move_type: PokemonType::Ghost,
+                move_type: PokemonType::GHOST,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -17069,7 +17070,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::TRICKROOM,
                 priority: -7,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -17082,7 +17083,7 @@ lazy_static! {
                 move_id: Choices::TRIPLEARROWS,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -17097,7 +17098,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 20.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Ice,
+                move_type: PokemonType::ICE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17113,7 +17114,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 30.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17129,7 +17130,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 10.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17144,7 +17145,7 @@ lazy_static! {
                 move_id: Choices::TROPKICK,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17170,7 +17171,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::TRUMPCARD,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17185,7 +17186,7 @@ lazy_static! {
                 move_id: Choices::TWINBEAM,
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -17199,7 +17200,7 @@ lazy_static! {
                 move_id: Choices::TWINEEDLE,
                 base_power: 25.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -17207,7 +17208,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Poison),
+                    effect: Effect::Status(PokemonStatus::POISON),
                 }]),
                 ..Default::default()
             },
@@ -17218,7 +17219,7 @@ lazy_static! {
                 move_id: Choices::TWISTER,
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Dragon,
+                move_type: PokemonType::DRAGON,
                 flags: Flags {
                     protect: true,
                     wind: true,
@@ -17227,7 +17228,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -17239,7 +17240,7 @@ lazy_static! {
                 base_power: 65.0,
                 priority: 3,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17248,7 +17249,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 100.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -17260,7 +17261,7 @@ lazy_static! {
                     move_id: Choices::UPROAR,
                     base_power: 50.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             protect: true,
                         sound: true,
@@ -17276,7 +17277,7 @@ lazy_static! {
                     move_id: Choices::UPROAR,
                     base_power: 90.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                             protect: true,
                         sound: true,
@@ -17292,7 +17293,7 @@ lazy_static! {
                 move_id: Choices::UTURN,
                 base_power: 70.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17309,7 +17310,7 @@ lazy_static! {
                 base_power: 40.0,
                 category: MoveCategory::Special,
                 priority: 1,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -17324,7 +17325,7 @@ lazy_static! {
                 accuracy: 95.0,
                 base_power: 180.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Fire,
+                move_type: PokemonType::FIRE,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17349,7 +17350,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::VEEVEEVOLLEY,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17362,7 +17363,7 @@ lazy_static! {
             Choices::VENOMDRENCH,
             Choice {
                 move_id: Choices::VENOMDRENCH,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -17377,7 +17378,7 @@ lazy_static! {
                 move_id: Choices::VENOSHOCK,
                 base_power: 65.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Poison,
+                move_type: PokemonType::POISON,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -17390,7 +17391,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::VICTORYDANCE,
                 target: MoveTarget::User,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -17415,7 +17416,7 @@ lazy_static! {
                     move_id: Choices::VINEWHIP,
                     base_power: 35.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -17431,7 +17432,7 @@ lazy_static! {
                     move_id: Choices::VINEWHIP,
                     base_power: 45.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Grass,
+                    move_type: PokemonType::GRASS,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -17447,7 +17448,7 @@ lazy_static! {
                 move_id: Choices::VISEGRIP,
                 base_power: 55.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17463,7 +17464,7 @@ lazy_static! {
                 base_power: 70.0,
                 category: MoveCategory::Physical,
                 priority: -1,
-                move_type: PokemonType::Fighting,
+                move_type: PokemonType::FIGHTING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17478,7 +17479,7 @@ lazy_static! {
                 move_id: Choices::VOLTSWITCH,
                 base_power: 70.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     pivot: true,
@@ -17493,7 +17494,7 @@ lazy_static! {
                 move_id: Choices::VOLTTACKLE,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17502,7 +17503,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 recoil: Some(0.33),
                 ..Default::default()
@@ -17515,7 +17516,7 @@ lazy_static! {
                     move_id: Choices::WAKEUPSLAP,
                     base_power: 60.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -17531,7 +17532,7 @@ lazy_static! {
                     move_id: Choices::WAKEUPSLAP,
                     base_power: 70.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Fighting,
+                    move_type: PokemonType::FIGHTING,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -17547,7 +17548,7 @@ lazy_static! {
                 move_id: Choices::WATERFALL,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17556,7 +17557,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -17567,7 +17568,7 @@ lazy_static! {
                 move_id: Choices::WATERGUN,
                 base_power: 40.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -17582,7 +17583,7 @@ lazy_static! {
                     move_id: Choices::WATERPLEDGE,
                     base_power: 50.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                                 protect: true,
                         ..Default::default()
@@ -17597,7 +17598,7 @@ lazy_static! {
                     move_id: Choices::WATERPLEDGE,
                     base_power: 80.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                                 protect: true,
                         ..Default::default()
@@ -17612,7 +17613,7 @@ lazy_static! {
                 move_id: Choices::WATERPULSE,
                 base_power: 60.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     pulse: true,
@@ -17621,7 +17622,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Confusion),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::CONFUSION),
                 }]),
                 ..Default::default()
             },
@@ -17635,7 +17636,7 @@ lazy_static! {
                     base_power: 15.0,
                     category: MoveCategory::Physical,
                     priority: 1,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -17651,7 +17652,7 @@ lazy_static! {
                     base_power: 15.0,
                     category: MoveCategory::Special,
                     priority: 1,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
@@ -17665,7 +17666,7 @@ lazy_static! {
             Choices::WATERSPORT,
             Choice {
                 move_id: Choices::WATERSPORT,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -17678,7 +17679,7 @@ lazy_static! {
                 move_id: Choices::WATERSPOUT,
                 base_power: 150.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -17692,7 +17693,7 @@ lazy_static! {
                 move_id: Choices::WAVECRASH,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17708,7 +17709,7 @@ lazy_static! {
                 move_id: Choices::WEATHERBALL,
                 base_power: 50.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     bullet: true,
                     protect: true,
@@ -17725,14 +17726,14 @@ lazy_static! {
                     accuracy: 70.0,
                     base_power: 15.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                        volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                     }),
                     ..Default::default()
                 },
@@ -17745,14 +17746,14 @@ lazy_static! {
                     accuracy: 85.0,
                     base_power: 35.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Water,
+                    move_type: PokemonType::WATER,
                     flags: Flags {
                             protect: true,
                         ..Default::default()
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                        volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                     }),
                     ..Default::default()
                 },
@@ -17763,7 +17764,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::WHIRLWIND,
                 priority: -6,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     drag: true,
                     reflectable: true,
@@ -17781,7 +17782,7 @@ lazy_static! {
                     move_id: Choices::WICKEDBLOW,
                     base_power: 75.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -17798,7 +17799,7 @@ lazy_static! {
                     move_id: Choices::WICKEDBLOW,
                     base_power: 80.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Dark,
+                    move_type: PokemonType::DARK,
                     flags: Flags {
                         contact: true,
                             protect: true,
@@ -17816,7 +17817,7 @@ lazy_static! {
                 move_id: Choices::WICKEDTORQUE,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Dark,
+                move_type: PokemonType::DARK,
                 flags: Flags {
                     protect: true,
                     ..Default::default()
@@ -17824,7 +17825,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 10.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Sleep),
+                    effect: Effect::Status(PokemonStatus::SLEEP),
                 }]),
                 ..Default::default()
             },
@@ -17835,7 +17836,7 @@ lazy_static! {
                 move_id: Choices::WIDEGUARD,
                 priority: 3,
                 target: MoveTarget::User,
-                move_type: PokemonType::Rock,
+                move_type: PokemonType::ROCK,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -17853,7 +17854,7 @@ lazy_static! {
                 accuracy: 80.0,
                 base_power: 100.0,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     protect: true,
                     wind: true,
@@ -17862,7 +17863,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::Status(PokemonStatus::Paralyze),
+                    effect: Effect::Status(PokemonStatus::PARALYZE),
                 }]),
                 ..Default::default()
             },
@@ -17873,7 +17874,7 @@ lazy_static! {
                 move_id: Choices::WILDCHARGE,
                 base_power: 90.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17891,9 +17892,9 @@ lazy_static! {
                     accuracy: 75.0,
                     status: Some(Status {
                         target: MoveTarget::Opponent,
-                        status: PokemonStatus::Burn,
+                        status: PokemonStatus::BURN,
                     }),
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -17910,9 +17911,9 @@ lazy_static! {
                     accuracy: 85.0,
                     status: Some(Status {
                         target: MoveTarget::Opponent,
-                        status: PokemonStatus::Burn,
+                        status: PokemonStatus::BURN,
                     }),
-                    move_type: PokemonType::Fire,
+                    move_type: PokemonType::FIRE,
                     flags: Flags {
                             protect: true,
                         reflectable: true,
@@ -17928,7 +17929,7 @@ lazy_static! {
                 move_id: Choices::WINGATTACK,
                 base_power: 60.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Flying,
+                move_type: PokemonType::FLYING,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -17942,7 +17943,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::WISH,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     heal: true,
                     ..Default::default()
@@ -17955,7 +17956,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::WITHDRAW,
                 target: MoveTarget::User,
-                move_type: PokemonType::Water,
+                move_type: PokemonType::WATER,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -17977,7 +17978,7 @@ lazy_static! {
             Choices::WONDERROOM,
             Choice {
                 move_id: Choices::WONDERROOM,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -17990,7 +17991,7 @@ lazy_static! {
                 move_id: Choices::WOODHAMMER,
                 base_power: 120.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -18005,7 +18006,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::WORKUP,
                 target: MoveTarget::User,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     ..Default::default()
                 },
@@ -18027,7 +18028,7 @@ lazy_static! {
             Choices::WORRYSEED,
             Choice {
                 move_id: Choices::WORRYSEED,
-                move_type: PokemonType::Grass,
+                move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -18044,7 +18045,7 @@ lazy_static! {
                     accuracy: 85.0,
                     base_power: 15.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -18052,7 +18053,7 @@ lazy_static! {
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                        volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                     }),
                     ..Default::default()
                 },
@@ -18065,7 +18066,7 @@ lazy_static! {
                     accuracy: 90.0,
                     base_power: 15.0,
                     category: MoveCategory::Physical,
-                    move_type: PokemonType::Normal,
+                    move_type: PokemonType::NORMAL,
                     flags: Flags {
                         contact: true,
                         protect: true,
@@ -18073,7 +18074,7 @@ lazy_static! {
                     },
                     volatile_status: Some(VolatileStatus {
                         target: MoveTarget::Opponent,
-                        volatile_status: PokemonVolatileStatus::PartiallyTrapped,
+                        volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
                     }),
                     ..Default::default()
                 },
@@ -18084,7 +18085,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::WRINGOUT,
                 category: MoveCategory::Special,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -18099,7 +18100,7 @@ lazy_static! {
                 move_id: Choices::XSCISSOR,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Bug,
+                move_type: PokemonType::BUG,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -18113,7 +18114,7 @@ lazy_static! {
             Choices::YAWN,
             Choice {
                 move_id: Choices::YAWN,
-                move_type: PokemonType::Normal,
+                move_type: PokemonType::NORMAL,
                 flags: Flags {
                     protect: true,
                     reflectable: true,
@@ -18121,7 +18122,7 @@ lazy_static! {
                 },
                 volatile_status: Some(VolatileStatus {
                     target: MoveTarget::Opponent,
-                    volatile_status: PokemonVolatileStatus::Yawn,
+                    volatile_status: PokemonVolatileStatus::YAWN,
                 }),
                 ..Default::default()
             },
@@ -18134,7 +18135,7 @@ lazy_static! {
                     accuracy: 50.0,
                     base_power: 100.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Electric,
+                    move_type: PokemonType::ELECTRIC,
                     flags: Flags {
                         bullet: true,
                         protect: true,
@@ -18143,7 +18144,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 100.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Paralyze),
+                        effect: Effect::Status(PokemonStatus::PARALYZE),
                     }]),
                     ..Default::default()
                 },
@@ -18156,7 +18157,7 @@ lazy_static! {
                     accuracy: 50.0,
                     base_power: 120.0,
                     category: MoveCategory::Special,
-                    move_type: PokemonType::Electric,
+                    move_type: PokemonType::ELECTRIC,
                     flags: Flags {
                         bullet: true,
                         protect: true,
@@ -18165,7 +18166,7 @@ lazy_static! {
                     secondaries: Some(vec![Secondary {
                         chance: 100.0,
                         target: MoveTarget::Opponent,
-                        effect: Effect::Status(PokemonStatus::Paralyze),
+                        effect: Effect::Status(PokemonStatus::PARALYZE),
                     }]),
                     ..Default::default()
                 },
@@ -18178,7 +18179,7 @@ lazy_static! {
                 accuracy: 90.0,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Psychic,
+                move_type: PokemonType::PSYCHIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -18187,7 +18188,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 20.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -18198,7 +18199,7 @@ lazy_static! {
                 move_id: Choices::ZINGZAP,
                 base_power: 80.0,
                 category: MoveCategory::Physical,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -18207,7 +18208,7 @@ lazy_static! {
                 secondaries: Some(vec![Secondary {
                     chance: 30.0,
                     target: MoveTarget::Opponent,
-                    effect: Effect::VolatileStatus(PokemonVolatileStatus::Flinch),
+                    effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
                 }]),
                 ..Default::default()
             },
@@ -18219,7 +18220,7 @@ lazy_static! {
                 base_power: 80.0,
                 category: MoveCategory::Physical,
                 priority: 2,
-                move_type: PokemonType::Electric,
+                move_type: PokemonType::ELECTRIC,
                 flags: Flags {
                     contact: true,
                     protect: true,
@@ -18409,893 +18410,895 @@ pub enum MultiAccuracyMove {
     TenHits,
 }
 
-#[derive(Eq, PartialEq, Debug, Hash, Copy, Clone)]
-pub enum Choices {
-    NONE,
-    ABSORB,
-    ACCELEROCK,
-    ACID,
-    ACIDARMOR,
-    ACIDSPRAY,
-    ACROBATICS,
-    ACUPRESSURE,
-    AERIALACE,
-    AEROBLAST,
-    AFTERYOU,
-    AGILITY,
-    AIRCUTTER,
-    AIRSLASH,
-    ALLURINGVOICE,
-    ALLYSWITCH,
-    AMNESIA,
-    ANCHORSHOT,
-    ANCIENTPOWER,
-    APPLEACID,
-    AQUACUTTER,
-    AQUAJET,
-    AQUARING,
-    AQUASTEP,
-    AQUATAIL,
-    ARMORCANNON,
-    ARMTHRUST,
-    AROMATHERAPY,
-    AROMATICMIST,
-    ASSIST,
-    ASSURANCE,
-    ASTONISH,
-    ASTRALBARRAGE,
-    ATTACKORDER,
-    ATTRACT,
-    AURASPHERE,
-    AURAWHEEL,
-    AURORABEAM,
-    AURORAVEIL,
-    AUTOTOMIZE,
-    AVALANCHE,
-    AXEKICK,
-    BABYDOLLEYES,
-    BADDYBAD,
-    BANEFULBUNKER,
-    BARBBARRAGE,
-    BARRAGE,
-    BARRIER,
-    BATONPASS,
-    BEAKBLAST,
-    BEATUP,
-    BEHEMOTHBASH,
-    BEHEMOTHBLADE,
-    BELCH,
-    BELLYDRUM,
-    BESTOW,
-    BIDE,
-    BIND,
-    BITE,
-    BITTERBLADE,
-    BITTERMALICE,
-    BLASTBURN,
-    BLAZEKICK,
-    BLAZINGTORQUE,
-    BLEAKWINDSTORM,
-    BLIZZARD,
-    BLOCK,
-    BLOODMOON,
-    BLUEFLARE,
-    BODYPRESS,
-    BODYSLAM,
-    BOLTBEAK,
-    BOLTSTRIKE,
-    BONECLUB,
-    BONEMERANG,
-    BONERUSH,
-    BOOMBURST,
-    BOUNCE,
-    BOUNCYBUBBLE,
-    BRANCHPOKE,
-    BRAVEBIRD,
-    BREAKINGSWIPE,
-    BRICKBREAK,
-    BRINE,
-    BRUTALSWING,
-    BUBBLE,
-    BUBBLEBEAM,
-    BUGBITE,
-    BUGBUZZ,
-    BULKUP,
-    BULLDOZE,
-    BULLETPUNCH,
-    BULLETSEED,
-    BURNINGBULWARK,
-    BURNINGJEALOUSY,
-    BURNUP,
-    BUZZYBUZZ,
-    CALMMIND,
-    CAMOUFLAGE,
-    CAPTIVATE,
-    CEASELESSEDGE,
-    CELEBRATE,
-    CHARGE,
-    CHARGEBEAM,
-    CHARM,
-    CHATTER,
-    CHILLINGWATER,
-    CHILLYRECEPTION,
-    CHIPAWAY,
-    CHLOROBLAST,
-    CIRCLETHROW,
-    CLAMP,
-    CLANGINGSCALES,
-    CLANGOROUSSOUL,
-    CLEARSMOG,
-    CLOSECOMBAT,
-    COACHING,
-    COIL,
-    COLLISIONCOURSE,
-    COMBATTORQUE,
-    COMETPUNCH,
-    COMEUPPANCE,
-    CONFIDE,
-    CONFUSERAY,
-    CONFUSION,
-    CONSTRICT,
-    CONVERSION,
-    CONVERSION2,
-    COPYCAT,
-    COREENFORCER,
-    CORROSIVEGAS,
-    COSMICPOWER,
-    COTTONGUARD,
-    COTTONSPORE,
-    COUNTER,
-    COURTCHANGE,
-    COVET,
-    CRABHAMMER,
-    CRAFTYSHIELD,
-    CROSSCHOP,
-    CROSSPOISON,
-    CRUNCH,
-    CRUSHCLAW,
-    CRUSHGRIP,
-    CURSE,
-    CUT,
-    DARKESTLARIAT,
-    DARKPULSE,
-    DARKVOID,
-    DAZZLINGGLEAM,
-    DECORATE,
-    DEFENDORDER,
-    DEFENSECURL,
-    DEFOG,
-    DESTINYBOND,
-    DETECT,
-    DIAMONDSTORM,
-    DIG,
-    DIRECLAW,
-    DISABLE,
-    DISARMINGVOICE,
-    DISCHARGE,
-    DIVE,
-    DIZZYPUNCH,
-    DOODLE,
-    DOOMDESIRE,
-    DOUBLEEDGE,
-    DOUBLEHIT,
-    DOUBLEIRONBASH,
-    DOUBLEKICK,
-    DOUBLESHOCK,
-    DOUBLESLAP,
-    DOUBLETEAM,
-    DRACOMETEOR,
-    DRAGONASCENT,
-    DRAGONBREATH,
-    DRAGONCHEER,
-    DRAGONCLAW,
-    DRAGONDANCE,
-    DRAGONDARTS,
-    DRAGONENERGY,
-    DRAGONHAMMER,
-    DRAGONPULSE,
-    DRAGONRAGE,
-    DRAGONRUSH,
-    DRAGONTAIL,
-    DRAININGKISS,
-    DRAINPUNCH,
-    DREAMEATER,
-    DRILLPECK,
-    DRILLRUN,
-    DRUMBEATING,
-    DUALCHOP,
-    DUALWINGBEAT,
-    DYNAMAXCANNON,
-    DYNAMICPUNCH,
-    EARTHPOWER,
-    EARTHQUAKE,
-    ECHOEDVOICE,
-    EERIEIMPULSE,
-    EERIESPELL,
-    EGGBOMB,
-    ELECTRICTERRAIN,
-    ELECTRIFY,
-    ELECTROBALL,
-    ELECTRODRIFT,
-    ELECTROSHOT,
-    ELECTROWEB,
-    EMBARGO,
-    EMBER,
-    ENCORE,
-    ENDEAVOR,
-    ENDURE,
-    ENERGYBALL,
-    ENTRAINMENT,
-    ERUPTION,
-    ESPERWING,
-    ETERNABEAM,
-    EXPANDINGFORCE,
-    EXPLOSION,
-    EXTRASENSORY,
-    EXTREMESPEED,
-    FACADE,
-    FAIRYLOCK,
-    FAIRYWIND,
-    FAKEOUT,
-    FAKETEARS,
-    FALSESURRENDER,
-    FALSESWIPE,
-    FEATHERDANCE,
-    FEINT,
-    FEINTATTACK,
-    FELLSTINGER,
-    FICKLEBEAM,
-    FIERYDANCE,
-    FIERYWRATH,
-    FILLETAWAY,
-    FINALGAMBIT,
-    FIREBLAST,
-    FIREFANG,
-    FIRELASH,
-    FIREPLEDGE,
-    FIREPUNCH,
-    FIRESPIN,
-    FIRSTIMPRESSION,
-    FISHIOUSREND,
-    FISSURE,
-    FLAIL,
-    FLAMEBURST,
-    FLAMECHARGE,
-    FLAMETHROWER,
-    FLAMEWHEEL,
-    FLAREBLITZ,
-    FLASH,
-    FLASHCANNON,
-    FLATTER,
-    FLEURCANNON,
-    FLING,
-    FLIPTURN,
-    FLOATYFALL,
-    FLORALHEALING,
-    FLOWERSHIELD,
-    FLOWERTRICK,
-    FLY,
-    FLYINGPRESS,
-    FOCUSBLAST,
-    FOCUSENERGY,
-    FOCUSPUNCH,
-    FOLLOWME,
-    FORCEPALM,
-    FORESIGHT,
-    FORESTSCURSE,
-    FOULPLAY,
-    FREEZEDRY,
-    FREEZESHOCK,
-    FREEZINGGLARE,
-    FREEZYFROST,
-    FRENZYPLANT,
-    FROSTBREATH,
-    FRUSTRATION,
-    FURYATTACK,
-    FURYCUTTER,
-    FURYSWIPES,
-    FUSIONBOLT,
-    FUSIONFLARE,
-    FUTURESIGHT,
-    GASTROACID,
-    GEARGRIND,
-    GEARUP,
-    GEOMANCY,
-    GIGADRAIN,
-    GIGAIMPACT,
-    GIGATONHAMMER,
-    GLACIALLANCE,
-    GLACIATE,
-    GLAIVERUSH,
-    GLARE,
-    GLITZYGLOW,
-    GRASSKNOT,
-    GRASSPLEDGE,
-    GRASSWHISTLE,
-    GRASSYGLIDE,
-    GRASSYTERRAIN,
-    GRAVAPPLE,
-    GRAVITY,
-    GROWL,
-    GROWTH,
-    GRUDGE,
-    GUARDSPLIT,
-    GUARDSWAP,
-    GUILLOTINE,
-    GUNKSHOT,
-    GUST,
-    GYROBALL,
-    HAIL,
-    HAMMERARM,
-    HAPPYHOUR,
-    HARDEN,
-    HARDPRESS,
-    HAZE,
-    HEADBUTT,
-    HEADCHARGE,
-    HEADLONGRUSH,
-    HEADSMASH,
-    HEALBELL,
-    HEALBLOCK,
-    HEALINGWISH,
-    HEALORDER,
-    HEALPULSE,
-    HEARTSTAMP,
-    HEARTSWAP,
-    HEATCRASH,
-    HEATWAVE,
-    HEAVYSLAM,
-    HELPINGHAND,
-    HEX,
-    HIDDENPOWER,
-    HIDDENPOWERBUG60,
-    HIDDENPOWERBUG70,
-    HIDDENPOWERDARK60,
-    HIDDENPOWERDARK70,
-    HIDDENPOWERDRAGON60,
-    HIDDENPOWERDRAGON70,
-    HIDDENPOWERELECTRIC60,
-    HIDDENPOWERELECTRIC70,
-    HIDDENPOWERFIGHTING60,
-    HIDDENPOWERFIGHTING70,
-    HIDDENPOWERFIRE60,
-    HIDDENPOWERFIRE70,
-    HIDDENPOWERFLYING60,
-    HIDDENPOWERFLYING70,
-    HIDDENPOWERGHOST60,
-    HIDDENPOWERGHOST70,
-    HIDDENPOWERGRASS60,
-    HIDDENPOWERGRASS70,
-    HIDDENPOWERGROUND60,
-    HIDDENPOWERGROUND70,
-    HIDDENPOWERICE60,
-    HIDDENPOWERICE70,
-    HIDDENPOWERPOISON60,
-    HIDDENPOWERPOISON70,
-    HIDDENPOWERPSYCHIC60,
-    HIDDENPOWERPSYCHIC70,
-    HIDDENPOWERROCK60,
-    HIDDENPOWERROCK70,
-    HIDDENPOWERSTEEL60,
-    HIDDENPOWERSTEEL70,
-    HIDDENPOWERWATER60,
-    HIDDENPOWERWATER70,
-    HIGHHORSEPOWER,
-    HIGHJUMPKICK,
-    HOLDBACK,
-    HOLDHANDS,
-    HONECLAWS,
-    HORNATTACK,
-    HORNDRILL,
-    HORNLEECH,
-    HOWL,
-    HURRICANE,
-    HYDROCANNON,
-    HYDROPUMP,
-    HYDROSTEAM,
-    HYPERBEAM,
-    HYPERDRILL,
-    HYPERFANG,
-    HYPERSPACEFURY,
-    HYPERSPACEHOLE,
-    HYPERVOICE,
-    HYPNOSIS,
-    ICEBALL,
-    ICEBEAM,
-    ICEBURN,
-    ICEFANG,
-    ICEHAMMER,
-    ICEPUNCH,
-    ICESHARD,
-    ICESPINNER,
-    ICICLECRASH,
-    ICICLESPEAR,
-    ICYWIND,
-    IMPRISON,
-    INCINERATE,
-    INFERNALPARADE,
-    INFERNO,
-    INFESTATION,
-    INGRAIN,
-    INSTRUCT,
-    IONDELUGE,
-    IRONDEFENSE,
-    IRONHEAD,
-    IRONTAIL,
-    IVYCUDGEL,
-    JAWLOCK,
-    JETPUNCH,
-    JUDGMENT,
-    JUMPKICK,
-    JUNGLEHEALING,
-    KARATECHOP,
-    KINESIS,
-    KINGSSHIELD,
-    KNOCKOFF,
-    KOWTOWCLEAVE,
-    LANDSWRATH,
-    LASERFOCUS,
-    LASHOUT,
-    LASTRESORT,
-    LASTRESPECTS,
-    LAVAPLUME,
-    LEAFAGE,
-    LEAFBLADE,
-    LEAFSTORM,
-    LEAFTORNADO,
-    LEECHLIFE,
-    LEECHSEED,
-    LEER,
-    LICK,
-    LIFEDEW,
-    LIGHTOFRUIN,
-    LIGHTSCREEN,
-    LIQUIDATION,
-    LOCKON,
-    LOVELYKISS,
-    LOWKICK,
-    LOWSWEEP,
-    LUCKYCHANT,
-    LUMINACRASH,
-    LUNARBLESSING,
-    LUNARDANCE,
-    LUNGE,
-    LUSTERPURGE,
-    MACHPUNCH,
-    MAGICALLEAF,
-    MAGICALTORQUE,
-    MAGICCOAT,
-    MAGICPOWDER,
-    MAGICROOM,
-    MAGMASTORM,
-    MAGNETBOMB,
-    MAGNETICFLUX,
-    MAGNETRISE,
-    MAGNITUDE,
-    MAKEITRAIN,
-    MALIGNANTCHAIN,
-    MATBLOCK,
-    MATCHAGOTCHA,
-    MEANLOOK,
-    MEDITATE,
-    MEFIRST,
-    MEGADRAIN,
-    MEGAHORN,
-    MEGAKICK,
-    MEGAPUNCH,
-    MEMENTO,
-    METALBURST,
-    METALCLAW,
-    METALSOUND,
-    METEORASSAULT,
-    METEORBEAM,
-    METEORMASH,
-    METRONOME,
-    MIGHTYCLEAVE,
-    MILKDRINK,
-    MIMIC,
-    MINDBLOWN,
-    MINDREADER,
-    MINIMIZE,
-    MIRACLEEYE,
-    MIRRORCOAT,
-    MIRRORMOVE,
-    MIRRORSHOT,
-    MIST,
-    MISTBALL,
-    MISTYEXPLOSION,
-    MISTYTERRAIN,
-    MOONBLAST,
-    MOONGEISTBEAM,
-    MOONLIGHT,
-    MORNINGSUN,
-    MORTALSPIN,
-    MOUNTAINGALE,
-    MUDBOMB,
-    MUDDYWATER,
-    MUDSHOT,
-    MUDSLAP,
-    MUDSPORT,
-    MULTIATTACK,
-    MYSTICALFIRE,
-    MYSTICALPOWER,
-    NASTYPLOT,
-    NATURALGIFT,
-    NATUREPOWER,
-    NATURESMADNESS,
-    NEEDLEARM,
-    NIGHTDAZE,
-    NIGHTMARE,
-    NIGHTSHADE,
-    NIGHTSLASH,
-    NOBLEROAR,
-    NORETREAT,
-    NOTHING,
-    NOXIOUSTORQUE,
-    NUZZLE,
-    OBLIVIONWING,
-    OBSTRUCT,
-    OCTAZOOKA,
-    OCTOLOCK,
-    ODORSLEUTH,
-    OMINOUSWIND,
-    ORDERUP,
-    ORIGINPULSE,
-    OUTRAGE,
-    OVERDRIVE,
-    OVERHEAT,
-    PAINSPLIT,
-    PALEOWAVE,
-    PARABOLICCHARGE,
-    PARTINGSHOT,
-    PAYBACK,
-    PAYDAY,
-    PECK,
-    PERISHSONG,
-    PETALBLIZZARD,
-    PETALDANCE,
-    PHANTOMFORCE,
-    PHOTONGEYSER,
-    PIKAPAPOW,
-    PINMISSILE,
-    PLASMAFISTS,
-    PLAYNICE,
-    PLAYROUGH,
-    PLUCK,
-    POISONFANG,
-    POISONGAS,
-    POISONJAB,
-    POISONPOWDER,
-    POISONSTING,
-    POISONTAIL,
-    POLLENPUFF,
-    POLTERGEIST,
-    POPULATIONBOMB,
-    POUNCE,
-    POUND,
-    POWDER,
-    POWDERSNOW,
-    POWERGEM,
-    POWERSHIFT,
-    POWERSPLIT,
-    POWERSWAP,
-    POWERTRICK,
-    POWERTRIP,
-    POWERUPPUNCH,
-    POWERWHIP,
-    PRECIPICEBLADES,
-    PRESENT,
-    PRISMATICLASER,
-    PROTECT,
-    PSYBEAM,
-    PSYBLADE,
-    PSYCHIC,
-    PSYCHICFANGS,
-    PSYCHICNOISE,
-    PSYCHICTERRAIN,
-    PSYCHOBOOST,
-    PSYCHOCUT,
-    PSYCHOSHIFT,
-    PSYCHUP,
-    PSYSHIELDBASH,
-    PSYSHOCK,
-    PSYSTRIKE,
-    PSYWAVE,
-    PUNISHMENT,
-    PURIFY,
-    PURSUIT,
-    PYROBALL,
-    QUASH,
-    QUICKATTACK,
-    QUICKGUARD,
-    QUIVERDANCE,
-    RAGE,
-    RAGEFIST,
-    RAGEPOWDER,
-    RAGINGBULL,
-    RAGINGFURY,
-    RAINDANCE,
-    RAPIDSPIN,
-    RAZORLEAF,
-    RAZORSHELL,
-    RAZORWIND,
-    RECHARGE,
-    RECOVER,
-    RECYCLE,
-    REFLECT,
-    REFLECTTYPE,
-    REFRESH,
-    RELICSONG,
-    REST,
-    RETALIATE,
-    RETURN,
-    RETURN102,
-    REVELATIONDANCE,
-    REVENGE,
-    REVERSAL,
-    REVIVALBLESSING,
-    RISINGVOLTAGE,
-    ROAR,
-    ROAROFTIME,
-    ROCKBLAST,
-    ROCKCLIMB,
-    ROCKPOLISH,
-    ROCKSLIDE,
-    ROCKSMASH,
-    ROCKTHROW,
-    ROCKTOMB,
-    ROCKWRECKER,
-    ROLEPLAY,
-    ROLLINGKICK,
-    ROLLOUT,
-    ROOST,
-    ROTOTILLER,
-    ROUND,
-    RUINATION,
-    SACREDFIRE,
-    SACREDSWORD,
-    SAFEGUARD,
-    SALTCURE,
-    SANDATTACK,
-    SANDSEARSTORM,
-    SANDSTORM,
-    SANDTOMB,
-    SAPPYSEED,
-    SCALD,
-    SCALESHOT,
-    SCARYFACE,
-    SCORCHINGSANDS,
-    SCRATCH,
-    SCREECH,
-    SEARINGSHOT,
-    SECRETPOWER,
-    SECRETSWORD,
-    SEEDBOMB,
-    SEEDFLARE,
-    SEISMICTOSS,
-    SELFDESTRUCT,
-    SHADOWBALL,
-    SHADOWBONE,
-    SHADOWCLAW,
-    SHADOWFORCE,
-    SHADOWPUNCH,
-    SHADOWSNEAK,
-    SHADOWSTRIKE,
-    SHARPEN,
-    SHEDTAIL,
-    SHEERCOLD,
-    SHELLSIDEARM,
-    SHELLSMASH,
-    SHELLTRAP,
-    SHELTER,
-    SHIFTGEAR,
-    SHOCKWAVE,
-    SHOREUP,
-    SIGNALBEAM,
-    SILKTRAP,
-    SILVERWIND,
-    SIMPLEBEAM,
-    SING,
-    SIZZLYSLIDE,
-    SKETCH,
-    SKILLSWAP,
-    SKITTERSMACK,
-    SKULLBASH,
-    SKYATTACK,
-    SKYDROP,
-    SKYUPPERCUT,
-    SLACKOFF,
-    SLAM,
-    SLASH,
-    SLEEPPOWDER,
-    SLEEPTALK,
-    SLUDGE,
-    SLUDGEBOMB,
-    SLUDGEWAVE,
-    SMACKDOWN,
-    SMARTSTRIKE,
-    SMELLINGSALTS,
-    SMOG,
-    SMOKESCREEN,
-    SNAPTRAP,
-    SNARL,
-    SNATCH,
-    SNIPESHOT,
-    SNORE,
-    SNOWSCAPE,
-    SOAK,
-    SOFTBOILED,
-    SOLARBEAM,
-    SOLARBLADE,
-    SONICBOOM,
-    SPACIALREND,
-    SPARK,
-    SPARKLINGARIA,
-    SPARKLYSWIRL,
-    SPECTRALTHIEF,
-    SPEEDSWAP,
-    SPICYEXTRACT,
-    SPIDERWEB,
-    SPIKECANNON,
-    SPIKES,
-    SPIKYSHIELD,
-    SPINOUT,
-    SPIRITBREAK,
-    SPIRITSHACKLE,
-    SPITE,
-    SPITUP,
-    SPLASH,
-    SPLISHYSPLASH,
-    SPORE,
-    SPOTLIGHT,
-    SPRINGTIDESTORM,
-    STEALTHROCK,
-    STEAMERUPTION,
-    STEAMROLLER,
-    STEELBEAM,
-    STEELROLLER,
-    STEELWING,
-    STICKYWEB,
-    STOCKPILE,
-    STOMP,
-    STOMPINGTANTRUM,
-    STONEAXE,
-    STONEEDGE,
-    STOREDPOWER,
-    STORMTHROW,
-    STRANGESTEAM,
-    STRENGTH,
-    STRENGTHSAP,
-    STRINGSHOT,
-    STRUGGLE,
-    STRUGGLEBUG,
-    STUFFCHEEKS,
-    STUNSPORE,
-    SUBMISSION,
-    SUBSTITUTE,
-    SUCKERPUNCH,
-    SUNNYDAY,
-    SUNSTEELSTRIKE,
-    SUPERCELLSLAM,
-    SUPERFANG,
-    SUPERPOWER,
-    SUPERSONIC,
-    SURF,
-    SURGINGSTRIKES,
-    SWAGGER,
-    SWALLOW,
-    SWEETKISS,
-    SWEETSCENT,
-    SWIFT,
-    SWITCHEROO,
-    SWORDSDANCE,
-    SYNCHRONOISE,
-    SYNTHESIS,
-    SYRUPBOMB,
-    TACHYONCUTTER,
-    TACKLE,
-    TAILGLOW,
-    TAILSLAP,
-    TAILWHIP,
-    TAILWIND,
-    TAKEDOWN,
-    TAKEHEART,
-    TARSHOT,
-    TAUNT,
-    TEARFULLOOK,
-    TEATIME,
-    TECHNOBLAST,
-    TEETERDANCE,
-    TELEKINESIS,
-    TELEPORT,
-    TEMPERFLARE,
-    TERABLAST,
-    TERASTARSTORM,
-    TERRAINPULSE,
-    THIEF,
-    THOUSANDARROWS,
-    THOUSANDWAVES,
-    THRASH,
-    THROATCHOP,
-    THUNDER,
-    THUNDERBOLT,
-    THUNDERCAGE,
-    THUNDERCLAP,
-    THUNDERFANG,
-    THUNDEROUSKICK,
-    THUNDERPUNCH,
-    THUNDERSHOCK,
-    THUNDERWAVE,
-    TICKLE,
-    TIDYUP,
-    TOPSYTURVY,
-    TORCHSONG,
-    TORMENT,
-    TOXIC,
-    TOXICSPIKES,
-    TOXICTHREAD,
-    TRAILBLAZE,
-    TRANSFORM,
-    TRIATTACK,
-    TRICK,
-    TRICKORTREAT,
-    TRICKROOM,
-    TRIPLEARROWS,
-    TRIPLEAXEL,
-    TRIPLEDIVE,
-    TRIPLEKICK,
-    TROPKICK,
-    TRUMPCARD,
-    TWINBEAM,
-    TWINEEDLE,
-    TWISTER,
-    UPPERHAND,
-    UPROAR,
-    UTURN,
-    VACUUMWAVE,
-    VCREATE,
-    VEEVEEVOLLEY,
-    VENOMDRENCH,
-    VENOSHOCK,
-    VICTORYDANCE,
-    VINEWHIP,
-    VISEGRIP,
-    VITALTHROW,
-    VOLTSWITCH,
-    VOLTTACKLE,
-    WAKEUPSLAP,
-    WATERFALL,
-    WATERGUN,
-    WATERPLEDGE,
-    WATERPULSE,
-    WATERSHURIKEN,
-    WATERSPORT,
-    WATERSPOUT,
-    WAVECRASH,
-    WEATHERBALL,
-    WHIRLPOOL,
-    WHIRLWIND,
-    WICKEDBLOW,
-    WICKEDTORQUE,
-    WIDEGUARD,
-    WILDBOLTSTORM,
-    WILDCHARGE,
-    WILLOWISP,
-    WINGATTACK,
-    WISH,
-    WITHDRAW,
-    WONDERROOM,
-    WOODHAMMER,
-    WORKUP,
-    WORRYSEED,
-    WRAP,
-    WRINGOUT,
-    XSCISSOR,
-    YAWN,
-    ZAPCANNON,
-    ZENHEADBUTT,
-    ZINGZAP,
-    ZIPPYZAP,
+define_enum_with_from_str! {
+    #[derive(Eq, PartialEq, Debug, Hash, Copy, Clone)]
+    Choices {
+        NONE,
+        ABSORB,
+        ACCELEROCK,
+        ACID,
+        ACIDARMOR,
+        ACIDSPRAY,
+        ACROBATICS,
+        ACUPRESSURE,
+        AERIALACE,
+        AEROBLAST,
+        AFTERYOU,
+        AGILITY,
+        AIRCUTTER,
+        AIRSLASH,
+        ALLURINGVOICE,
+        ALLYSWITCH,
+        AMNESIA,
+        ANCHORSHOT,
+        ANCIENTPOWER,
+        APPLEACID,
+        AQUACUTTER,
+        AQUAJET,
+        AQUARING,
+        AQUASTEP,
+        AQUATAIL,
+        ARMORCANNON,
+        ARMTHRUST,
+        AROMATHERAPY,
+        AROMATICMIST,
+        ASSIST,
+        ASSURANCE,
+        ASTONISH,
+        ASTRALBARRAGE,
+        ATTACKORDER,
+        ATTRACT,
+        AURASPHERE,
+        AURAWHEEL,
+        AURORABEAM,
+        AURORAVEIL,
+        AUTOTOMIZE,
+        AVALANCHE,
+        AXEKICK,
+        BABYDOLLEYES,
+        BADDYBAD,
+        BANEFULBUNKER,
+        BARBBARRAGE,
+        BARRAGE,
+        BARRIER,
+        BATONPASS,
+        BEAKBLAST,
+        BEATUP,
+        BEHEMOTHBASH,
+        BEHEMOTHBLADE,
+        BELCH,
+        BELLYDRUM,
+        BESTOW,
+        BIDE,
+        BIND,
+        BITE,
+        BITTERBLADE,
+        BITTERMALICE,
+        BLASTBURN,
+        BLAZEKICK,
+        BLAZINGTORQUE,
+        BLEAKWINDSTORM,
+        BLIZZARD,
+        BLOCK,
+        BLOODMOON,
+        BLUEFLARE,
+        BODYPRESS,
+        BODYSLAM,
+        BOLTBEAK,
+        BOLTSTRIKE,
+        BONECLUB,
+        BONEMERANG,
+        BONERUSH,
+        BOOMBURST,
+        BOUNCE,
+        BOUNCYBUBBLE,
+        BRANCHPOKE,
+        BRAVEBIRD,
+        BREAKINGSWIPE,
+        BRICKBREAK,
+        BRINE,
+        BRUTALSWING,
+        BUBBLE,
+        BUBBLEBEAM,
+        BUGBITE,
+        BUGBUZZ,
+        BULKUP,
+        BULLDOZE,
+        BULLETPUNCH,
+        BULLETSEED,
+        BURNINGBULWARK,
+        BURNINGJEALOUSY,
+        BURNUP,
+        BUZZYBUZZ,
+        CALMMIND,
+        CAMOUFLAGE,
+        CAPTIVATE,
+        CEASELESSEDGE,
+        CELEBRATE,
+        CHARGE,
+        CHARGEBEAM,
+        CHARM,
+        CHATTER,
+        CHILLINGWATER,
+        CHILLYRECEPTION,
+        CHIPAWAY,
+        CHLOROBLAST,
+        CIRCLETHROW,
+        CLAMP,
+        CLANGINGSCALES,
+        CLANGOROUSSOUL,
+        CLEARSMOG,
+        CLOSECOMBAT,
+        COACHING,
+        COIL,
+        COLLISIONCOURSE,
+        COMBATTORQUE,
+        COMETPUNCH,
+        COMEUPPANCE,
+        CONFIDE,
+        CONFUSERAY,
+        CONFUSION,
+        CONSTRICT,
+        CONVERSION,
+        CONVERSION2,
+        COPYCAT,
+        COREENFORCER,
+        CORROSIVEGAS,
+        COSMICPOWER,
+        COTTONGUARD,
+        COTTONSPORE,
+        COUNTER,
+        COURTCHANGE,
+        COVET,
+        CRABHAMMER,
+        CRAFTYSHIELD,
+        CROSSCHOP,
+        CROSSPOISON,
+        CRUNCH,
+        CRUSHCLAW,
+        CRUSHGRIP,
+        CURSE,
+        CUT,
+        DARKESTLARIAT,
+        DARKPULSE,
+        DARKVOID,
+        DAZZLINGGLEAM,
+        DECORATE,
+        DEFENDORDER,
+        DEFENSECURL,
+        DEFOG,
+        DESTINYBOND,
+        DETECT,
+        DIAMONDSTORM,
+        DIG,
+        DIRECLAW,
+        DISABLE,
+        DISARMINGVOICE,
+        DISCHARGE,
+        DIVE,
+        DIZZYPUNCH,
+        DOODLE,
+        DOOMDESIRE,
+        DOUBLEEDGE,
+        DOUBLEHIT,
+        DOUBLEIRONBASH,
+        DOUBLEKICK,
+        DOUBLESHOCK,
+        DOUBLESLAP,
+        DOUBLETEAM,
+        DRACOMETEOR,
+        DRAGONASCENT,
+        DRAGONBREATH,
+        DRAGONCHEER,
+        DRAGONCLAW,
+        DRAGONDANCE,
+        DRAGONDARTS,
+        DRAGONENERGY,
+        DRAGONHAMMER,
+        DRAGONPULSE,
+        DRAGONRAGE,
+        DRAGONRUSH,
+        DRAGONTAIL,
+        DRAININGKISS,
+        DRAINPUNCH,
+        DREAMEATER,
+        DRILLPECK,
+        DRILLRUN,
+        DRUMBEATING,
+        DUALCHOP,
+        DUALWINGBEAT,
+        DYNAMAXCANNON,
+        DYNAMICPUNCH,
+        EARTHPOWER,
+        EARTHQUAKE,
+        ECHOEDVOICE,
+        EERIEIMPULSE,
+        EERIESPELL,
+        EGGBOMB,
+        ELECTRICTERRAIN,
+        ELECTRIFY,
+        ELECTROBALL,
+        ELECTRODRIFT,
+        ELECTROSHOT,
+        ELECTROWEB,
+        EMBARGO,
+        EMBER,
+        ENCORE,
+        ENDEAVOR,
+        ENDURE,
+        ENERGYBALL,
+        ENTRAINMENT,
+        ERUPTION,
+        ESPERWING,
+        ETERNABEAM,
+        EXPANDINGFORCE,
+        EXPLOSION,
+        EXTRASENSORY,
+        EXTREMESPEED,
+        FACADE,
+        FAIRYLOCK,
+        FAIRYWIND,
+        FAKEOUT,
+        FAKETEARS,
+        FALSESURRENDER,
+        FALSESWIPE,
+        FEATHERDANCE,
+        FEINT,
+        FEINTATTACK,
+        FELLSTINGER,
+        FICKLEBEAM,
+        FIERYDANCE,
+        FIERYWRATH,
+        FILLETAWAY,
+        FINALGAMBIT,
+        FIREBLAST,
+        FIREFANG,
+        FIRELASH,
+        FIREPLEDGE,
+        FIREPUNCH,
+        FIRESPIN,
+        FIRSTIMPRESSION,
+        FISHIOUSREND,
+        FISSURE,
+        FLAIL,
+        FLAMEBURST,
+        FLAMECHARGE,
+        FLAMETHROWER,
+        FLAMEWHEEL,
+        FLAREBLITZ,
+        FLASH,
+        FLASHCANNON,
+        FLATTER,
+        FLEURCANNON,
+        FLING,
+        FLIPTURN,
+        FLOATYFALL,
+        FLORALHEALING,
+        FLOWERSHIELD,
+        FLOWERTRICK,
+        FLY,
+        FLYINGPRESS,
+        FOCUSBLAST,
+        FOCUSENERGY,
+        FOCUSPUNCH,
+        FOLLOWME,
+        FORCEPALM,
+        FORESIGHT,
+        FORESTSCURSE,
+        FOULPLAY,
+        FREEZEDRY,
+        FREEZESHOCK,
+        FREEZINGGLARE,
+        FREEZYFROST,
+        FRENZYPLANT,
+        FROSTBREATH,
+        FRUSTRATION,
+        FURYATTACK,
+        FURYCUTTER,
+        FURYSWIPES,
+        FUSIONBOLT,
+        FUSIONFLARE,
+        FUTURESIGHT,
+        GASTROACID,
+        GEARGRIND,
+        GEARUP,
+        GEOMANCY,
+        GIGADRAIN,
+        GIGAIMPACT,
+        GIGATONHAMMER,
+        GLACIALLANCE,
+        GLACIATE,
+        GLAIVERUSH,
+        GLARE,
+        GLITZYGLOW,
+        GRASSKNOT,
+        GRASSPLEDGE,
+        GRASSWHISTLE,
+        GRASSYGLIDE,
+        GRASSYTERRAIN,
+        GRAVAPPLE,
+        GRAVITY,
+        GROWL,
+        GROWTH,
+        GRUDGE,
+        GUARDSPLIT,
+        GUARDSWAP,
+        GUILLOTINE,
+        GUNKSHOT,
+        GUST,
+        GYROBALL,
+        HAIL,
+        HAMMERARM,
+        HAPPYHOUR,
+        HARDEN,
+        HARDPRESS,
+        HAZE,
+        HEADBUTT,
+        HEADCHARGE,
+        HEADLONGRUSH,
+        HEADSMASH,
+        HEALBELL,
+        HEALBLOCK,
+        HEALINGWISH,
+        HEALORDER,
+        HEALPULSE,
+        HEARTSTAMP,
+        HEARTSWAP,
+        HEATCRASH,
+        HEATWAVE,
+        HEAVYSLAM,
+        HELPINGHAND,
+        HEX,
+        HIDDENPOWER,
+        HIDDENPOWERBUG60,
+        HIDDENPOWERBUG70,
+        HIDDENPOWERDARK60,
+        HIDDENPOWERDARK70,
+        HIDDENPOWERDRAGON60,
+        HIDDENPOWERDRAGON70,
+        HIDDENPOWERELECTRIC60,
+        HIDDENPOWERELECTRIC70,
+        HIDDENPOWERFIGHTING60,
+        HIDDENPOWERFIGHTING70,
+        HIDDENPOWERFIRE60,
+        HIDDENPOWERFIRE70,
+        HIDDENPOWERFLYING60,
+        HIDDENPOWERFLYING70,
+        HIDDENPOWERGHOST60,
+        HIDDENPOWERGHOST70,
+        HIDDENPOWERGRASS60,
+        HIDDENPOWERGRASS70,
+        HIDDENPOWERGROUND60,
+        HIDDENPOWERGROUND70,
+        HIDDENPOWERICE60,
+        HIDDENPOWERICE70,
+        HIDDENPOWERPOISON60,
+        HIDDENPOWERPOISON70,
+        HIDDENPOWERPSYCHIC60,
+        HIDDENPOWERPSYCHIC70,
+        HIDDENPOWERROCK60,
+        HIDDENPOWERROCK70,
+        HIDDENPOWERSTEEL60,
+        HIDDENPOWERSTEEL70,
+        HIDDENPOWERWATER60,
+        HIDDENPOWERWATER70,
+        HIGHHORSEPOWER,
+        HIGHJUMPKICK,
+        HOLDBACK,
+        HOLDHANDS,
+        HONECLAWS,
+        HORNATTACK,
+        HORNDRILL,
+        HORNLEECH,
+        HOWL,
+        HURRICANE,
+        HYDROCANNON,
+        HYDROPUMP,
+        HYDROSTEAM,
+        HYPERBEAM,
+        HYPERDRILL,
+        HYPERFANG,
+        HYPERSPACEFURY,
+        HYPERSPACEHOLE,
+        HYPERVOICE,
+        HYPNOSIS,
+        ICEBALL,
+        ICEBEAM,
+        ICEBURN,
+        ICEFANG,
+        ICEHAMMER,
+        ICEPUNCH,
+        ICESHARD,
+        ICESPINNER,
+        ICICLECRASH,
+        ICICLESPEAR,
+        ICYWIND,
+        IMPRISON,
+        INCINERATE,
+        INFERNALPARADE,
+        INFERNO,
+        INFESTATION,
+        INGRAIN,
+        INSTRUCT,
+        IONDELUGE,
+        IRONDEFENSE,
+        IRONHEAD,
+        IRONTAIL,
+        IVYCUDGEL,
+        JAWLOCK,
+        JETPUNCH,
+        JUDGMENT,
+        JUMPKICK,
+        JUNGLEHEALING,
+        KARATECHOP,
+        KINESIS,
+        KINGSSHIELD,
+        KNOCKOFF,
+        KOWTOWCLEAVE,
+        LANDSWRATH,
+        LASERFOCUS,
+        LASHOUT,
+        LASTRESORT,
+        LASTRESPECTS,
+        LAVAPLUME,
+        LEAFAGE,
+        LEAFBLADE,
+        LEAFSTORM,
+        LEAFTORNADO,
+        LEECHLIFE,
+        LEECHSEED,
+        LEER,
+        LICK,
+        LIFEDEW,
+        LIGHTOFRUIN,
+        LIGHTSCREEN,
+        LIQUIDATION,
+        LOCKON,
+        LOVELYKISS,
+        LOWKICK,
+        LOWSWEEP,
+        LUCKYCHANT,
+        LUMINACRASH,
+        LUNARBLESSING,
+        LUNARDANCE,
+        LUNGE,
+        LUSTERPURGE,
+        MACHPUNCH,
+        MAGICALLEAF,
+        MAGICALTORQUE,
+        MAGICCOAT,
+        MAGICPOWDER,
+        MAGICROOM,
+        MAGMASTORM,
+        MAGNETBOMB,
+        MAGNETICFLUX,
+        MAGNETRISE,
+        MAGNITUDE,
+        MAKEITRAIN,
+        MALIGNANTCHAIN,
+        MATBLOCK,
+        MATCHAGOTCHA,
+        MEANLOOK,
+        MEDITATE,
+        MEFIRST,
+        MEGADRAIN,
+        MEGAHORN,
+        MEGAKICK,
+        MEGAPUNCH,
+        MEMENTO,
+        METALBURST,
+        METALCLAW,
+        METALSOUND,
+        METEORASSAULT,
+        METEORBEAM,
+        METEORMASH,
+        METRONOME,
+        MIGHTYCLEAVE,
+        MILKDRINK,
+        MIMIC,
+        MINDBLOWN,
+        MINDREADER,
+        MINIMIZE,
+        MIRACLEEYE,
+        MIRRORCOAT,
+        MIRRORMOVE,
+        MIRRORSHOT,
+        MIST,
+        MISTBALL,
+        MISTYEXPLOSION,
+        MISTYTERRAIN,
+        MOONBLAST,
+        MOONGEISTBEAM,
+        MOONLIGHT,
+        MORNINGSUN,
+        MORTALSPIN,
+        MOUNTAINGALE,
+        MUDBOMB,
+        MUDDYWATER,
+        MUDSHOT,
+        MUDSLAP,
+        MUDSPORT,
+        MULTIATTACK,
+        MYSTICALFIRE,
+        MYSTICALPOWER,
+        NASTYPLOT,
+        NATURALGIFT,
+        NATUREPOWER,
+        NATURESMADNESS,
+        NEEDLEARM,
+        NIGHTDAZE,
+        NIGHTMARE,
+        NIGHTSHADE,
+        NIGHTSLASH,
+        NOBLEROAR,
+        NORETREAT,
+        NOTHING,
+        NOXIOUSTORQUE,
+        NUZZLE,
+        OBLIVIONWING,
+        OBSTRUCT,
+        OCTAZOOKA,
+        OCTOLOCK,
+        ODORSLEUTH,
+        OMINOUSWIND,
+        ORDERUP,
+        ORIGINPULSE,
+        OUTRAGE,
+        OVERDRIVE,
+        OVERHEAT,
+        PAINSPLIT,
+        PALEOWAVE,
+        PARABOLICCHARGE,
+        PARTINGSHOT,
+        PAYBACK,
+        PAYDAY,
+        PECK,
+        PERISHSONG,
+        PETALBLIZZARD,
+        PETALDANCE,
+        PHANTOMFORCE,
+        PHOTONGEYSER,
+        PIKAPAPOW,
+        PINMISSILE,
+        PLASMAFISTS,
+        PLAYNICE,
+        PLAYROUGH,
+        PLUCK,
+        POISONFANG,
+        POISONGAS,
+        POISONJAB,
+        POISONPOWDER,
+        POISONSTING,
+        POISONTAIL,
+        POLLENPUFF,
+        POLTERGEIST,
+        POPULATIONBOMB,
+        POUNCE,
+        POUND,
+        POWDER,
+        POWDERSNOW,
+        POWERGEM,
+        POWERSHIFT,
+        POWERSPLIT,
+        POWERSWAP,
+        POWERTRICK,
+        POWERTRIP,
+        POWERUPPUNCH,
+        POWERWHIP,
+        PRECIPICEBLADES,
+        PRESENT,
+        PRISMATICLASER,
+        PROTECT,
+        PSYBEAM,
+        PSYBLADE,
+        PSYCHIC,
+        PSYCHICFANGS,
+        PSYCHICNOISE,
+        PSYCHICTERRAIN,
+        PSYCHOBOOST,
+        PSYCHOCUT,
+        PSYCHOSHIFT,
+        PSYCHUP,
+        PSYSHIELDBASH,
+        PSYSHOCK,
+        PSYSTRIKE,
+        PSYWAVE,
+        PUNISHMENT,
+        PURIFY,
+        PURSUIT,
+        PYROBALL,
+        QUASH,
+        QUICKATTACK,
+        QUICKGUARD,
+        QUIVERDANCE,
+        RAGE,
+        RAGEFIST,
+        RAGEPOWDER,
+        RAGINGBULL,
+        RAGINGFURY,
+        RAINDANCE,
+        RAPIDSPIN,
+        RAZORLEAF,
+        RAZORSHELL,
+        RAZORWIND,
+        RECHARGE,
+        RECOVER,
+        RECYCLE,
+        REFLECT,
+        REFLECTTYPE,
+        REFRESH,
+        RELICSONG,
+        REST,
+        RETALIATE,
+        RETURN,
+        RETURN102,
+        REVELATIONDANCE,
+        REVENGE,
+        REVERSAL,
+        REVIVALBLESSING,
+        RISINGVOLTAGE,
+        ROAR,
+        ROAROFTIME,
+        ROCKBLAST,
+        ROCKCLIMB,
+        ROCKPOLISH,
+        ROCKSLIDE,
+        ROCKSMASH,
+        ROCKTHROW,
+        ROCKTOMB,
+        ROCKWRECKER,
+        ROLEPLAY,
+        ROLLINGKICK,
+        ROLLOUT,
+        ROOST,
+        ROTOTILLER,
+        ROUND,
+        RUINATION,
+        SACREDFIRE,
+        SACREDSWORD,
+        SAFEGUARD,
+        SALTCURE,
+        SANDATTACK,
+        SANDSEARSTORM,
+        SANDSTORM,
+        SANDTOMB,
+        SAPPYSEED,
+        SCALD,
+        SCALESHOT,
+        SCARYFACE,
+        SCORCHINGSANDS,
+        SCRATCH,
+        SCREECH,
+        SEARINGSHOT,
+        SECRETPOWER,
+        SECRETSWORD,
+        SEEDBOMB,
+        SEEDFLARE,
+        SEISMICTOSS,
+        SELFDESTRUCT,
+        SHADOWBALL,
+        SHADOWBONE,
+        SHADOWCLAW,
+        SHADOWFORCE,
+        SHADOWPUNCH,
+        SHADOWSNEAK,
+        SHADOWSTRIKE,
+        SHARPEN,
+        SHEDTAIL,
+        SHEERCOLD,
+        SHELLSIDEARM,
+        SHELLSMASH,
+        SHELLTRAP,
+        SHELTER,
+        SHIFTGEAR,
+        SHOCKWAVE,
+        SHOREUP,
+        SIGNALBEAM,
+        SILKTRAP,
+        SILVERWIND,
+        SIMPLEBEAM,
+        SING,
+        SIZZLYSLIDE,
+        SKETCH,
+        SKILLSWAP,
+        SKITTERSMACK,
+        SKULLBASH,
+        SKYATTACK,
+        SKYDROP,
+        SKYUPPERCUT,
+        SLACKOFF,
+        SLAM,
+        SLASH,
+        SLEEPPOWDER,
+        SLEEPTALK,
+        SLUDGE,
+        SLUDGEBOMB,
+        SLUDGEWAVE,
+        SMACKDOWN,
+        SMARTSTRIKE,
+        SMELLINGSALTS,
+        SMOG,
+        SMOKESCREEN,
+        SNAPTRAP,
+        SNARL,
+        SNATCH,
+        SNIPESHOT,
+        SNORE,
+        SNOWSCAPE,
+        SOAK,
+        SOFTBOILED,
+        SOLARBEAM,
+        SOLARBLADE,
+        SONICBOOM,
+        SPACIALREND,
+        SPARK,
+        SPARKLINGARIA,
+        SPARKLYSWIRL,
+        SPECTRALTHIEF,
+        SPEEDSWAP,
+        SPICYEXTRACT,
+        SPIDERWEB,
+        SPIKECANNON,
+        SPIKES,
+        SPIKYSHIELD,
+        SPINOUT,
+        SPIRITBREAK,
+        SPIRITSHACKLE,
+        SPITE,
+        SPITUP,
+        SPLASH,
+        SPLISHYSPLASH,
+        SPORE,
+        SPOTLIGHT,
+        SPRINGTIDESTORM,
+        STEALTHROCK,
+        STEAMERUPTION,
+        STEAMROLLER,
+        STEELBEAM,
+        STEELROLLER,
+        STEELWING,
+        STICKYWEB,
+        STOCKPILE,
+        STOMP,
+        STOMPINGTANTRUM,
+        STONEAXE,
+        STONEEDGE,
+        STOREDPOWER,
+        STORMTHROW,
+        STRANGESTEAM,
+        STRENGTH,
+        STRENGTHSAP,
+        STRINGSHOT,
+        STRUGGLE,
+        STRUGGLEBUG,
+        STUFFCHEEKS,
+        STUNSPORE,
+        SUBMISSION,
+        SUBSTITUTE,
+        SUCKERPUNCH,
+        SUNNYDAY,
+        SUNSTEELSTRIKE,
+        SUPERCELLSLAM,
+        SUPERFANG,
+        SUPERPOWER,
+        SUPERSONIC,
+        SURF,
+        SURGINGSTRIKES,
+        SWAGGER,
+        SWALLOW,
+        SWEETKISS,
+        SWEETSCENT,
+        SWIFT,
+        SWITCHEROO,
+        SWORDSDANCE,
+        SYNCHRONOISE,
+        SYNTHESIS,
+        SYRUPBOMB,
+        TACHYONCUTTER,
+        TACKLE,
+        TAILGLOW,
+        TAILSLAP,
+        TAILWHIP,
+        TAILWIND,
+        TAKEDOWN,
+        TAKEHEART,
+        TARSHOT,
+        TAUNT,
+        TEARFULLOOK,
+        TEATIME,
+        TECHNOBLAST,
+        TEETERDANCE,
+        TELEKINESIS,
+        TELEPORT,
+        TEMPERFLARE,
+        TERABLAST,
+        TERASTARSTORM,
+        TERRAINPULSE,
+        THIEF,
+        THOUSANDARROWS,
+        THOUSANDWAVES,
+        THRASH,
+        THROATCHOP,
+        THUNDER,
+        THUNDERBOLT,
+        THUNDERCAGE,
+        THUNDERCLAP,
+        THUNDERFANG,
+        THUNDEROUSKICK,
+        THUNDERPUNCH,
+        THUNDERSHOCK,
+        THUNDERWAVE,
+        TICKLE,
+        TIDYUP,
+        TOPSYTURVY,
+        TORCHSONG,
+        TORMENT,
+        TOXIC,
+        TOXICSPIKES,
+        TOXICTHREAD,
+        TRAILBLAZE,
+        TRANSFORM,
+        TRIATTACK,
+        TRICK,
+        TRICKORTREAT,
+        TRICKROOM,
+        TRIPLEARROWS,
+        TRIPLEAXEL,
+        TRIPLEDIVE,
+        TRIPLEKICK,
+        TROPKICK,
+        TRUMPCARD,
+        TWINBEAM,
+        TWINEEDLE,
+        TWISTER,
+        UPPERHAND,
+        UPROAR,
+        UTURN,
+        VACUUMWAVE,
+        VCREATE,
+        VEEVEEVOLLEY,
+        VENOMDRENCH,
+        VENOSHOCK,
+        VICTORYDANCE,
+        VINEWHIP,
+        VISEGRIP,
+        VITALTHROW,
+        VOLTSWITCH,
+        VOLTTACKLE,
+        WAKEUPSLAP,
+        WATERFALL,
+        WATERGUN,
+        WATERPLEDGE,
+        WATERPULSE,
+        WATERSHURIKEN,
+        WATERSPORT,
+        WATERSPOUT,
+        WAVECRASH,
+        WEATHERBALL,
+        WHIRLPOOL,
+        WHIRLWIND,
+        WICKEDBLOW,
+        WICKEDTORQUE,
+        WIDEGUARD,
+        WILDBOLTSTORM,
+        WILDCHARGE,
+        WILLOWISP,
+        WINGATTACK,
+        WISH,
+        WITHDRAW,
+        WONDERROOM,
+        WOODHAMMER,
+        WORKUP,
+        WORRYSEED,
+        WRAP,
+        WRINGOUT,
+        XSCISSOR,
+        YAWN,
+        ZAPCANNON,
+        ZENHEADBUTT,
+        ZINGZAP,
+        ZIPPYZAP,
+    }
 }
 
 #[derive(Clone)]
@@ -19423,7 +19426,7 @@ impl Default for Choice {
             move_id: Choices::NONE,
             move_index: PokemonMoveIndex::M0,
             switch_id: PokemonIndex::P0,
-            move_type: PokemonType::Normal,
+            move_type: PokemonType::NORMAL,
             accuracy: 100.0,
             category: MoveCategory::Status,
             base_power: 0.0,
@@ -19453,15 +19456,15 @@ pub fn undo_physical_special_split(moves: &mut HashMap<Choices, Choice>) {
             continue;
         }
         match choice.move_type {
-            PokemonType::Normal
-            | PokemonType::Fighting
-            | PokemonType::Poison
-            | PokemonType::Ground
-            | PokemonType::Flying
-            | PokemonType::Bug
-            | PokemonType::Rock
-            | PokemonType::Ghost
-            | PokemonType::Steel => {
+            PokemonType::NORMAL
+            | PokemonType::FIGHTING
+            | PokemonType::POISON
+            | PokemonType::GROUND
+            | PokemonType::FLYING
+            | PokemonType::BUG
+            | PokemonType::ROCK
+            | PokemonType::GHOST
+            | PokemonType::STEEL => {
                 choice.category = MoveCategory::Physical;
             }
             _ => {

@@ -108,7 +108,7 @@ impl PySide {
     ) -> Self {
         let mut vs_hashset = HashSet::new();
         for vs in volatile_statuses {
-            vs_hashset.insert(PokemonVolatileStatus::deserialize(&vs));
+            vs_hashset.insert(PokemonVolatileStatus::from_str(&vs).unwrap());
         }
         while pokemon.len() < 6 {
             pokemon.push(PyPokemon::create_fainted());
@@ -262,8 +262,8 @@ impl PyPokemon {
                 id: PokemonName::from_str(&id).unwrap(),
                 level,
                 types: (
-                    PokemonType::deserialize(&types[0]),
-                    PokemonType::deserialize(&types[1]),
+                    pokemontype::from_str(&types[0]),
+                    pokemontype::from_str(&types[1]),
                 ),
                 hp,
                 maxhp,
@@ -274,7 +274,7 @@ impl PyPokemon {
                 special_attack,
                 special_defense,
                 speed,
-                status: PokemonStatus::deserialize(&status),
+                status: PokemonStatus::from_str(&status).unwrap(),
                 rest_turns,
                 sleep_turns,
                 weight_kg,
@@ -287,7 +287,7 @@ impl PyPokemon {
                     m5: moves[5].create_move(),
                 },
                 terastallized,
-                tera_type: PokemonType::deserialize(&tera_type),
+                tera_type: pokemontype::from_str(&tera_type),
             },
         }
     }

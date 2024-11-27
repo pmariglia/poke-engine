@@ -156,7 +156,7 @@ fn test_encore_causes_get_all_options_to_only_allow_last_used_move() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Encore);
+        .insert(PokemonVolatileStatus::ENCORE);
     state.side_one.last_used_move = LastUsedMove::Move(PokemonMoveIndex::M0);
     state
         .side_one
@@ -187,7 +187,7 @@ fn test_encore_and_arenatrapped_together() {
     state
         .side_one
         .volatile_statuses
-        .insert(PokemonVolatileStatus::Encore);
+        .insert(PokemonVolatileStatus::ENCORE);
     state.side_one.last_used_move = LastUsedMove::Move(PokemonMoveIndex::M0);
     state
         .side_one
@@ -246,7 +246,7 @@ fn test_encore_slow() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Encore,
+                volatile_status: PokemonVolatileStatus::ENCORE,
             }),
         ],
     }];
@@ -313,7 +313,7 @@ fn test_encore_slow_into_substitute() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Substitute,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
             Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
                 side_ref: SideReference::SideOne,
@@ -322,7 +322,7 @@ fn test_encore_slow_into_substitute() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Encore,
+                volatile_status: PokemonVolatileStatus::ENCORE,
             }),
         ],
     }];
@@ -519,7 +519,7 @@ fn test_fast_encore_into_using_a_different_move_from_lum() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Encore,
+                volatile_status: PokemonVolatileStatus::ENCORE,
             }),
             // no setting last used move for s2 because it didn't change
             Instruction::Boost(BoostInstruction {
@@ -569,12 +569,12 @@ fn test_fakeout_first_turn_switched_in() {
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Flinch,
+                volatile_status: PokemonVolatileStatus::FLINCH,
             }),
             // no setting last used move for s2 because it flinched and didnt get to use a move
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::Flinch,
+                volatile_status: PokemonVolatileStatus::FLINCH,
             }),
         ],
     }];

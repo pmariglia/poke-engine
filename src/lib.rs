@@ -26,4 +26,38 @@ macro_rules! assert_unique_feature {
     }
 }
 
+#[macro_export]
+macro_rules! define_enum_with_from_str {
+    (
+        $(#[$meta:meta])*
+        $name:ident {
+            $($variant:ident),+ $(,)?
+        }
+    ) => {
+        $(#[$meta])*
+        pub enum $name {
+            $($variant),+
+        }
+
+        impl std::str::FromStr for $name {
+            type Err = ();
+
+            fn from_str(input: &str) -> Result<Self, Self::Err> {
+                match input.to_uppercase().as_str() {
+                    $(
+                        stringify!($variant) => Ok($name::$variant),
+                    )+
+                    _ => panic!("Invalid {}: {}", stringify!($name), input.to_uppercase().as_str()),
+                }
+            }
+        }
+
+        impl std::fmt::Display for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                write!(f, "{:?}", self)
+            }
+        }
+    };
+}
+
 assert_unique_feature!("gen2", "gen3", "gen4", "gen5", "gen6", "gen7", "gen8", "gen9");
