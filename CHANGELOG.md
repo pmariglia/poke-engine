@@ -1,5 +1,84 @@
 # Changelog
 
+## [v0.0.17](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.17) - 2024-11-28
+
+### Features
+
+- Ogerpon masks cant be removed - ([ac16f27](https://github.com/pmariglia/poke-engine/commit/ac16f2731822d556f9841826e5236c093487d870))
+
+- GriseousCore as GriseousOrb clone - ([036e011](https://github.com/pmariglia/poke-engine/commit/036e0118626fecaa2342f6b0b7edff05e8bff9b1))
+
+- Allow 'switch' to signify switching in damage calc - ([db7c22a](https://github.com/pmariglia/poke-engine/commit/db7c22a988ac9aa5701dec547f0c871829fc3c82))
+
+- Add LUSTROUSGLOBE - ([7095f90](https://github.com/pmariglia/poke-engine/commit/7095f90192aa2c9c03766415c2b06d80268dbb57))
+
+- Charge 2x electric move - ([9743ea0](https://github.com/pmariglia/poke-engine/commit/9743ea03bd1fecd1f7f4dfdf0195e746c7bb47c1))
+
+- Implement ADAMANTCRYSTAL - ([848de22](https://github.com/pmariglia/poke-engine/commit/848de22cdd70dd58042bf37a0ae555db9f8ff57f))
+
+- Implement aurawheel type switch - ([dde8bb2](https://github.com/pmariglia/poke-engine/commit/dde8bb29fcf185c6cafb6da700b115ce7546a73e))
+
+- Implement forme_change instruction - ([9ed3888](https://github.com/pmariglia/poke-engine/commit/9ed3888b453b84760d51acd709c1290c9f14a4a0))
+
+- Implement gen3 stuff - ([6c51891](https://github.com/pmariglia/poke-engine/commit/6c518915732d2822582527d307a8525239a9e4f2))
+
+- Gen2 support - ([27c48cd](https://github.com/pmariglia/poke-engine/commit/27c48cdfec6d7848ec99b3bf6572ab6ce264ed2b))
+
+- Implement thief - ([61de20e](https://github.com/pmariglia/poke-engine/commit/61de20e5933d3584feefab2796b0fb47013cf8ed))
+
+- Safeguard protects from status if they are coming from the opponent's move - ([b4908ac](https://github.com/pmariglia/poke-engine/commit/b4908ac05a3ae6076a11a7566b345485d1bf20db))
+
+- Gen2 splitting of code - ([83af057](https://github.com/pmariglia/poke-engine/commit/83af05741da686553970c10c44529d51ca8e0443))
+
+
+### Bug Fixes
+
+- Has_type checks tera-type if terastallized - ([80dde9b](https://github.com/pmariglia/poke-engine/commit/80dde9b9609eebc71f08d940203da272534e1a34))
+
+- Hp based ability boosts are less than or equal, not less-than - ([b633045](https://github.com/pmariglia/poke-engine/commit/b6330450a56234842eb4e7d23aad9f6378feeff0))
+
+- Type_effectiveness_modifier checks tera-type - ([def932d](https://github.com/pmariglia/poke-engine/commit/def932db9b27af710b99601ad58e79e31f37276f))
+
+- Knockoff damage boost is based on item being permanent - ([3b5b578](https://github.com/pmariglia/poke-engine/commit/3b5b578cecb3616235b955ab0d416b9dfe9ed86e))
+
+- Supreme overlord should count fainted pkmn - ([e64ff95](https://github.com/pmariglia/poke-engine/commit/e64ff95e894685b72cbf53276ec6cb557c14077d))
+
+- Some mechanics bugfixes: - ([baf31f6](https://github.com/pmariglia/poke-engine/commit/baf31f6539ed4d730ee17daa6d0c5611cde987b9))
+
+- Sheerforce boosted by certain volatiles - ([71d3d4d](https://github.com/pmariglia/poke-engine/commit/71d3d4d1e4a24c48a515edd2348c5fa9c60a8018))
+
+- Imports behind feature - ([f940363](https://github.com/pmariglia/poke-engine/commit/f94036311e8eae4f34b016228fc7bfda38ce1a7c))
+
+- Allow switch move when calculating damage through python bindings - ([3143d1a](https://github.com/pmariglia/poke-engine/commit/3143d1a2ce9642264210e05005cec12d734c737c))
+
+- AlluringVoice is a special move (howd that happen lol) - ([2586dd5](https://github.com/pmariglia/poke-engine/commit/2586dd560eecf09e5108dd16ae8f2001ffde24d7))
+
+- Lusterpurge bp boost in gen9 - ([f66d135](https://github.com/pmariglia/poke-engine/commit/f66d135f22f8eedaca4a50d424b925c958aa7edc))
+
+- Mistball bp boost gen9 - ([0042e7e](https://github.com/pmariglia/poke-engine/commit/0042e7e63fe8b5234943e84f3b183b538e9f15fa))
+
+- Psychic Terrain makes priority moves have no effect - ([c9ef19f](https://github.com/pmariglia/poke-engine/commit/c9ef19fdfea13dd7bb64598ade6a83261f625e54))
+
+- Sleep clause shouldn't count fainted pkmn - ([528745c](https://github.com/pmariglia/poke-engine/commit/528745cc9d4e80827279395d1d76fad25afc8d6b))
+
+- Change logic to align with the meaning of item_is_permanent - ([5d06959](https://github.com/pmariglia/poke-engine/commit/5d06959d7a630ab7ac1668649dac1787e5824a2b))
+
+- Hardrock -> hardstone - ([900edce](https://github.com/pmariglia/poke-engine/commit/900edcea331fef282d4198322a9111dd57e8cf5b))
+
+
+### Miscellaneous Tasks
+
+- Remove remove_low_chance_instructions - ([64828d9](https://github.com/pmariglia/poke-engine/commit/64828d9c07b12ac42de88485806a5d2dd66a73e5))
+
+- Delete 3000 lines of serialization code - ([07bd935](https://github.com/pmariglia/poke-engine/commit/07bd935de7c1ef040ab55cd13e3a07a750dfe151))
+
+
+### Refactor
+
+- Create enum for PokemonName - ([5e05e6a](https://github.com/pmariglia/poke-engine/commit/5e05e6aa35194a252a1595c5474f08f3f96b0870))
+
+- Combine before_move and modify_move - ([589af92](https://github.com/pmariglia/poke-engine/commit/589af92ecaaaef10e58a40031438f829aaad1e0d))
+
 ## [v0.0.16](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.16) - 2024-11-10
 
 ### Features
