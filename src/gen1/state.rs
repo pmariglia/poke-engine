@@ -8,6 +8,7 @@ use crate::instruction::{
 use crate::items::Items;
 use crate::pokemon::PokemonName;
 use core::panic;
+use std::cmp;
 use std::collections::HashSet;
 use std::ops::{Index, IndexMut};
 use std::str::FromStr;
@@ -520,24 +521,17 @@ pub struct Pokemon {
 }
 
 impl Pokemon {
-    pub fn get_stat_from_boostable_stat(&self, stat: PokemonBoostableStat) -> i16 {
-        match stat {
-            PokemonBoostableStat::Attack => self.attack,
-            PokemonBoostableStat::Defense => self.defense,
-            PokemonBoostableStat::SpecialAttack => self.special_attack,
-            PokemonBoostableStat::SpecialDefense => self.special_defense,
-            PokemonBoostableStat::Speed => self.speed,
-            _ => panic!("Not implemented"),
-        }
-    }
-    pub fn get_sleep_talk_choices(&self) -> Vec<Choice> {
-        let mut vec = Vec::with_capacity(4);
-        for p in self.moves.into_iter() {
-            if p.id != Choices::SLEEPTALK && p.id != Choices::NONE {
-                vec.push(p.choice.clone());
-            }
-        }
-        vec
+    pub fn crit_rate(&self, move_id: &Choices) -> f32 {
+        let crit_multiplier = match move_id {
+            Choices::SLASH => 8,
+            Choices::CRABHAMMER => 8,
+            Choices::RAZORLEAF => 8,
+            Choices::KARATECHOP => 8,
+            _ => 1,
+        };
+        let crit_rate = crit_multiplier * self.id.base_speed() / 2;
+        let crit_rate = cmp::min(crit_rate, 255);
+        crit_rate as f32 / 255.0
     }
     pub fn replace_move(&mut self, move_index: PokemonMoveIndex, new_move_name: Choices) {
         self.moves[&move_index].choice = MOVES.get(&new_move_name).unwrap().to_owned();
@@ -547,8 +541,8 @@ impl Pokemon {
     pub fn add_available_moves(
         &self,
         vec: &mut Vec<MoveChoice>,
-        last_used_move: &LastUsedMove,
-        encored: bool,
+        _last_used_move: &LastUsedMove,
+        _encored: bool,
         _can_tera: bool,
     ) {
         let mut iter = self.moves.into_iter();
@@ -559,24 +553,6 @@ impl Pokemon {
                     && p.id == Choices::NONE
                 {
                     break;
-                }
-
-                match last_used_move {
-                    LastUsedMove::Move(last_used_move) => {
-                        if encored && last_used_move != &iter.pokemon_move_index {
-                            continue;
-                        } else if (self.moves[last_used_move].id == Choices::BLOODMOON
-                            || self.moves[last_used_move].id == Choices::GIGATONHAMMER)
-                            && &iter.pokemon_move_index == last_used_move
-                        {
-                            continue;
-                        }
-                    }
-                    _ => {
-                        // there are some situations where you switched out and got encored into
-                        // a move from a different pokemon because you also have that move.
-                        // just assume nothing is locked in this case
-                    }
                 }
                 vec.push(MoveChoice::Move(iter.pokemon_move_index));
             }
@@ -875,29 +851,14 @@ pub struct Side {
 }
 
 impl Side {
-    pub fn calculate_highest_stat(&self) -> PokemonBoostableStat {
-        let mut highest_stat = PokemonBoostableStat::Attack;
-        let mut highest_stat_value = self.calculate_boosted_stat(PokemonBoostableStat::Attack);
-        for stat in [
-            PokemonBoostableStat::Defense,
-            PokemonBoostableStat::SpecialAttack,
-            PokemonBoostableStat::SpecialDefense,
-            PokemonBoostableStat::Speed,
-        ] {
-            let stat_value = self.calculate_boosted_stat(stat);
-            if stat_value > highest_stat_value {
-                highest_stat = stat;
-                highest_stat_value = stat_value;
-            }
-        }
-        highest_stat
-    }
     pub fn get_boost_from_boost_enum(&self, boost_enum: &PokemonBoostableStat) -> i8 {
         match boost_enum {
             PokemonBoostableStat::Attack => self.attack_boost,
             PokemonBoostableStat::Defense => self.defense_boost,
             PokemonBoostableStat::SpecialAttack => self.special_attack_boost,
-            PokemonBoostableStat::SpecialDefense => self.special_defense_boost,
+            PokemonBoostableStat::SpecialDefense => {
+                panic!("Cannot Boost spd in gen1. spa is used for spc")
+            }
             PokemonBoostableStat::Speed => self.speed_boost,
             PokemonBoostableStat::Evasion => self.evasion_boost,
             PokemonBoostableStat::Accuracy => self.accuracy_boost,
@@ -920,8 +881,7 @@ impl Side {
                 multiply_boost(boost, active.special_attack)
             }
             PokemonBoostableStat::SpecialDefense => {
-                let boost = self.special_defense_boost;
-                multiply_boost(boost, active.special_defense)
+                panic!("Cannot Boost spd in gen1. spa is used for spc")
             }
             PokemonBoostableStat::Speed => {
                 let boost = self.speed_boost;
@@ -1227,18 +1187,14 @@ impl State {
         if self
             .side_one
             .volatile_statuses
-            .contains(&crate::state::PokemonVolatileStatus::MUSTRECHARGE)
+            .contains(&PokemonVolatileStatus::MUSTRECHARGE)
         {
             side_one_options.push(MoveChoice::None);
         } else {
-            let encored = self
-                .side_one
-                .volatile_statuses
-                .contains(&PokemonVolatileStatus::ENCORE);
             self.side_one.get_active_immutable().add_available_moves(
                 &mut side_one_options,
                 &self.side_one.last_used_move,
-                encored,
+                false,
                 self.side_one.can_use_tera(),
             );
             if !self.side_one.trapped(side_two_active) {
@@ -1253,14 +1209,10 @@ impl State {
         {
             side_two_options.push(MoveChoice::None);
         } else {
-            let encored = self
-                .side_two
-                .volatile_statuses
-                .contains(&PokemonVolatileStatus::ENCORE);
             self.side_two.get_active_immutable().add_available_moves(
                 &mut side_two_options,
                 &self.side_two.last_used_move,
-                encored,
+                false,
                 self.side_two.can_use_tera(),
             );
             if !self.side_two.trapped(side_one_active) {
@@ -1355,13 +1307,13 @@ impl State {
             side.side_conditions.toxic_count = 0;
         }
         let active = side.get_active();
-        if active.status == crate::state::PokemonStatus::TOXIC {
-            active.status = crate::state::PokemonStatus::POISON;
+        if active.status == PokemonStatus::TOXIC {
+            active.status = PokemonStatus::POISON;
             vec_to_add_to.push(Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: *side_ref,
                 pokemon_index: side.active_index,
-                old_status: crate::state::PokemonStatus::TOXIC,
-                new_status: crate::state::PokemonStatus::POISON,
+                old_status: PokemonStatus::TOXIC,
+                new_status: PokemonStatus::POISON,
             }));
         }
     }
@@ -1370,22 +1322,9 @@ impl State {
         &mut self,
         side_ref: &SideReference,
         vec_to_add_to: &mut Vec<Instruction>,
-        baton_passing: bool,
     ) {
         let side = self.get_side(side_ref);
-        let mut should_preserve_leechseed = false;
-        let mut should_preserve_substitute = false;
         for pkmn_volatile_status in &side.volatile_statuses {
-            // dont remove substitute or leechseed if batonpassing
-            if baton_passing {
-                if pkmn_volatile_status == &PokemonVolatileStatus::SUBSTITUTE {
-                    should_preserve_substitute = true;
-                    continue;
-                } else if pkmn_volatile_status == &PokemonVolatileStatus::LEECHSEED {
-                    should_preserve_leechseed = true;
-                    continue;
-                }
-            }
             vec_to_add_to.push(Instruction::RemoveVolatileStatus(
                 RemoveVolatileStatusInstruction {
                     side_ref: *side_ref,
@@ -1394,14 +1333,6 @@ impl State {
             ));
         }
         side.volatile_statuses.drain();
-        if should_preserve_leechseed {
-            side.volatile_statuses
-                .insert(PokemonVolatileStatus::LEECHSEED);
-        }
-        if should_preserve_substitute {
-            side.volatile_statuses
-                .insert(PokemonVolatileStatus::SUBSTITUTE);
-        }
     }
 
     pub fn reset_boosts(&mut self, side_ref: &SideReference, vec_to_add_to: &mut Vec<Instruction>) {
@@ -1432,15 +1363,6 @@ impl State {
                 amount: -1 * side.special_attack_boost,
             }));
             side.special_attack_boost = 0;
-        }
-
-        if side.special_defense_boost != 0 {
-            vec_to_add_to.push(Instruction::Boost(BoostInstruction {
-                side_ref: *side_ref,
-                stat: PokemonBoostableStat::SpecialDefense,
-                amount: -1 * side.special_defense_boost,
-            }));
-            side.special_defense_boost = 0;
         }
 
         if side.speed_boost != 0 {
@@ -1493,38 +1415,12 @@ impl State {
         false
     }
 
-    pub fn set_damage_dealt_flag(&mut self) {
-        if self._state_contains_any_move(&[
-            Choices::COUNTER,
-            Choices::MIRRORCOAT,
-            Choices::METALBURST,
-            Choices::COMEUPPANCE,
-            Choices::FOCUSPUNCH,
-        ]) {
-            self.use_damage_dealt = true
-        }
-    }
-
-    pub fn set_last_used_move_flag(&mut self) {
-        if self._state_contains_any_move(&[
-            Choices::ENCORE,
-            Choices::FAKEOUT,
-            Choices::FIRSTIMPRESSION,
-            Choices::BLOODMOON,
-            Choices::GIGATONHAMMER,
-        ]) {
-            self.use_last_used_move = true
-        }
-    }
-
+    // TODO: Change this so that only the turn in consideration sets these flags
+    // TODO: Check opponent's move is counter
     pub fn set_conditional_mechanics(&mut self) {
-        /*
-        These mechanics are not always relevant but when they are it
-        is important that they are enabled. Enabling them all the time would
-        suffer about a 20% performance hit.
-        */
-        self.set_damage_dealt_flag();
-        self.set_last_used_move_flag();
+        if self._state_contains_any_move(&[Choices::COUNTER]) {
+            self.use_damage_dealt = true;
+        }
     }
 
     fn damage(&mut self, side_ref: &SideReference, amount: i16) {
@@ -1595,7 +1491,9 @@ impl State {
             PokemonBoostableStat::Attack => side.attack_boost += amount,
             PokemonBoostableStat::Defense => side.defense_boost += amount,
             PokemonBoostableStat::SpecialAttack => side.special_attack_boost += amount,
-            PokemonBoostableStat::SpecialDefense => side.special_defense_boost += amount,
+            PokemonBoostableStat::SpecialDefense => {
+                panic!("Cannot Boost spd in gen1. spa is used for spc")
+            }
             PokemonBoostableStat::Speed => side.speed_boost += amount,
             PokemonBoostableStat::Evasion => side.evasion_boost += amount,
             PokemonBoostableStat::Accuracy => side.accuracy_boost += amount,
@@ -2136,74 +2034,6 @@ impl Move {
     }
 }
 
-impl Pokemon {
-    pub fn serialize(&self) -> String {
-        format!(
-            "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
-            self.id,
-            self.level,
-            self.types.0.to_string(),
-            self.types.1.to_string(),
-            self.hp,
-            self.maxhp,
-            self.ability.to_string(),
-            self.item.to_string(),
-            self.attack,
-            self.defense,
-            self.special_attack,
-            self.special_defense,
-            self.speed,
-            self.status.to_string(),
-            self.rest_turns,
-            self.sleep_turns,
-            self.weight_kg,
-            self.moves.m0.serialize(),
-            self.moves.m1.serialize(),
-            self.moves.m2.serialize(),
-            self.moves.m3.serialize(),
-            self.moves.m4.serialize(),
-            self.moves.m5.serialize(),
-            self.terastallized,
-            self.tera_type.to_string(),
-        )
-    }
-
-    pub fn deserialize(serialized: &str) -> Pokemon {
-        let split: Vec<&str> = serialized.split(",").collect();
-        Pokemon {
-            id: PokemonName::from_str(split[0]).unwrap(),
-            level: split[1].parse::<i8>().unwrap(),
-            types: (
-                PokemonType::from_str(split[2]).unwrap(),
-                PokemonType::from_str(split[3]).unwrap(),
-            ),
-            hp: split[4].parse::<i16>().unwrap(),
-            maxhp: split[5].parse::<i16>().unwrap(),
-            ability: Abilities::from_str(split[6]).unwrap(),
-            item: Items::from_str(split[7]).unwrap(),
-            attack: split[8].parse::<i16>().unwrap(),
-            defense: split[9].parse::<i16>().unwrap(),
-            special_attack: split[10].parse::<i16>().unwrap(),
-            special_defense: split[11].parse::<i16>().unwrap(),
-            speed: split[12].parse::<i16>().unwrap(),
-            status: PokemonStatus::from_str(split[13]).unwrap(),
-            rest_turns: split[14].parse::<i8>().unwrap(),
-            sleep_turns: split[15].parse::<i8>().unwrap(),
-            weight_kg: split[16].parse::<f32>().unwrap(),
-            moves: PokemonMoves {
-                m0: Move::deserialize(split[17]),
-                m1: Move::deserialize(split[18]),
-                m2: Move::deserialize(split[19]),
-                m3: Move::deserialize(split[20]),
-                m4: Move::deserialize(split[21]),
-                m5: Move::deserialize(split[22]),
-            },
-            terastallized: split[23].parse::<bool>().unwrap(),
-            tera_type: PokemonType::from_str(split[24]).unwrap(),
-        }
-    }
-}
-
 impl LastUsedMove {
     pub fn serialize(&self) -> String {
         match self {
@@ -2454,6 +2284,75 @@ impl StateTrickRoom {
     }
 }
 
+impl Pokemon {
+    pub fn serialize(&self) -> String {
+        format!(
+            "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
+            self.id,
+            self.level,
+            self.types.0.to_string(),
+            self.types.1.to_string(),
+            self.hp,
+            self.maxhp,
+            self.ability.to_string(),
+            self.item.to_string(),
+            self.attack,
+            self.defense,
+            self.special_attack,
+            self.special_defense,
+            self.speed,
+            self.status.to_string(),
+            self.rest_turns,
+            self.sleep_turns,
+            self.weight_kg,
+            self.moves.m0.serialize(),
+            self.moves.m1.serialize(),
+            self.moves.m2.serialize(),
+            self.moves.m3.serialize(),
+            self.moves.m4.serialize(),
+            self.moves.m5.serialize(),
+            self.terastallized,
+            self.tera_type.to_string(),
+        )
+    }
+
+    pub fn deserialize(serialized: &str) -> Pokemon {
+        let split: Vec<&str> = serialized.split(",").collect();
+        let pkmn_id = PokemonName::from_str(split[0]).unwrap();
+        Pokemon {
+            id: pkmn_id,
+            level: split[1].parse::<i8>().unwrap(),
+            types: (
+                PokemonType::from_str(split[2]).unwrap(),
+                PokemonType::from_str(split[3]).unwrap(),
+            ),
+            hp: split[4].parse::<i16>().unwrap(),
+            maxhp: split[5].parse::<i16>().unwrap(),
+            ability: Abilities::from_str(split[6]).unwrap(),
+            item: Items::from_str(split[7]).unwrap(),
+            attack: split[8].parse::<i16>().unwrap(),
+            defense: split[9].parse::<i16>().unwrap(),
+            special_attack: split[10].parse::<i16>().unwrap(),
+            special_defense: split[11].parse::<i16>().unwrap(),
+            speed: split[12].parse::<i16>().unwrap(),
+            status: PokemonStatus::from_str(split[13]).unwrap(),
+            rest_turns: split[14].parse::<i8>().unwrap(),
+            sleep_turns: split[15].parse::<i8>().unwrap(),
+            weight_kg: split[16].parse::<f32>().unwrap(),
+            moves: PokemonMoves {
+                m0: Move::deserialize(split[17]),
+                m1: Move::deserialize(split[18]),
+                m2: Move::deserialize(split[19]),
+                m3: Move::deserialize(split[20]),
+                m4: Move::deserialize(split[21]),
+                m5: Move::deserialize(split[22]),
+            },
+            terastallized: split[23].parse::<bool>().unwrap(),
+            tera_type: PokemonType::from_str(split[24]).unwrap(),
+        }
+    }
+}
+
 impl State {
     pub fn serialize(&self) -> String {
         format!(
@@ -2549,11 +2448,11 @@ impl State {
     /// "Normal=",
     ///
     /// // all remaining Pokémon shown in 1 line for brevity
-    /// "skarmory,100,Steel,Flying,271,271,STURDY,CUSTAPBERRY,259,316,104,177,262,None,0,0,25.5,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,NONE;true;32,NONE;true;32,false,Normal=",
-    /// "tyranitar,100,Rock,Dark,404,404,SANDSTREAM,CHOPLEBERRY,305,256,203,327,159,None,0,0,25.5,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,NONE;true;32,NONE;true;32,false,Normal=",
-    /// "mamoswine,100,Ice,Ground,362,362,THICKFAT,NEVERMELTICE,392,196,158,176,241,None,0,0,25.5,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,NONE;true;32,NONE;true;32,false,Normal=",
-    /// "jellicent,100,Water,Ghost,404,404,WATERABSORB,AIRBALLOON,140,237,206,246,180,None,0,0,25.5,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,NONE;true;32,NONE;true;32,false,Normal=",
-    /// "excadrill,100,Ground,Steel,362,362,SANDFORCE,CHOICESCARF,367,156,122,168,302,None,0,0,25.5,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,NONE;true;32,NONE;true;32,false,Normal=",
+    /// "mewtwo,100,Steel,Flying,271,271,STURDY,CUSTAPBERRY,259,316,104,177,262,None,0,0,25.5,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,NONE;true;32,NONE;true;32,false,Normal=",
+    /// "mew,100,Rock,Dark,404,404,SANDSTREAM,CHOPLEBERRY,305,256,203,327,159,None,0,0,25.5,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,NONE;true;32,NONE;true;32,false,Normal=",
+    /// "venusaur,100,Ice,Ground,362,362,THICKFAT,NEVERMELTICE,392,196,158,176,241,None,0,0,25.5,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,NONE;true;32,NONE;true;32,false,Normal=",
+    /// "pikachu,100,Water,Ghost,404,404,WATERABSORB,AIRBALLOON,140,237,206,246,180,None,0,0,25.5,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,NONE;true;32,NONE;true;32,false,Normal=",
+    /// "snorlax,100,Ground,Steel,362,362,SANDFORCE,CHOICESCARF,367,156,122,168,302,None,0,0,25.5,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,NONE;true;32,NONE;true;32,false,Normal=",
     ///
     /// // active-index. This is the index of the active Pokémon in the side's Pokémon array
     /// "0=",
@@ -2599,7 +2498,7 @@ impl State {
     /// "false/",
     ///
     /// // SIDE 2, all in one line for brevity
-    /// "terrakion,100,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,None,0,0,25.5,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,XSCISSOR;false;24,QUICKATTACK;false;48,false,Normal=lucario,100,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,None,0,0,25.5,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,ICEPUNCH;false;24,AURASPHERE;false;32,false,Normal=breloom,100,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,None,0,0,25.5,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,DRAINPUNCH;false;16,PROTECT;false;16,false,Normal=keldeo,100,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,None,0,0,25.5,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,HIDDENPOWERICE70;false;24,CALMMIND;false;32,false,Normal=conkeldurr,100,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,None,0,0,25.5,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,BULKUP;false;32,PAYBACK;false;16,false,Normal=toxicroak,100,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,None,0,0,25.5,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,POISONJAB;false;32,SUBSTITUTE;false;16,false,Normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0=0=0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=switch:0=false/",
+    /// "charizard,100,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,None,0,0,25.5,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,XSCISSOR;false;24,QUICKATTACK;false;48,false,Normal=pikachu,100,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,None,0,0,25.5,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,ICEPUNCH;false;24,AURASPHERE;false;32,false,Normal=blastoise,100,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,None,0,0,25.5,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,DRAINPUNCH;false;16,PROTECT;false;16,false,Normal=tauros,100,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,None,0,0,25.5,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,HIDDENPOWERICE70;false;24,CALMMIND;false;32,false,Normal=raichu,100,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,None,0,0,25.5,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,BULKUP;false;32,PAYBACK;false;16,false,Normal=persian,100,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,None,0,0,25.5,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,POISONJAB;false;32,SUBSTITUTE;false;16,false,Normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0=0=0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=switch:0=false/",
     ///
     /// // weather is a string representing the weather type and the number of turns remaining
     /// "none;5/",
@@ -2620,22 +2519,9 @@ impl State {
     /// assert_eq!(state.side_one.get_active_immutable().id, PokemonName::ALAKAZAM);
     /// assert_eq!(state.side_one.get_active_immutable().weight_kg, 25.5);
     /// assert_eq!(state.side_one.substitute_health, 0);
-    /// assert_eq!(state.side_two.get_active_immutable().id, PokemonName::TERRAKION);
+    /// assert_eq!(state.side_two.get_active_immutable().id, PokemonName::CHARIZARD);
     /// assert_eq!(state.trick_room.active, false);
     /// assert_eq!(state.team_preview, false);
-    ///
-    /// #[cfg(not(any(feature = "gen1", feature = "gen2")))]
-    /// {
-    ///     assert_eq!(state.side_two.get_active_immutable().item, Items::FOCUSSASH);
-    ///     assert_eq!(state.side_two.get_active_immutable().ability, Abilities::JUSTIFIED);
-    ///     assert_eq!(state.side_one.get_active_immutable().item, Items::LIFEORB);
-    ///     assert_eq!(state.side_one.get_active_immutable().ability, Abilities::MAGICGUARD);
-    /// }
-    ///
-    /// // the same state, but all in one line
-    /// let serialized_state = "alakazam,100,Psychic,Typeless,251,251,MAGICGUARD,LIFEORB,121,148,353,206,365,None,0,0,25.5,PSYCHIC;false;16,GRASSKNOT;false;32,SHADOWBALL;false;24,HIDDENPOWERFIRE70;false;24,NONE;true;32,NONE;true;32,false,Normal=skarmory,100,Steel,Flying,271,271,STURDY,CUSTAPBERRY,259,316,104,177,262,None,0,0,25.5,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,NONE;true;32,NONE;true;32,false,Normal=tyranitar,100,Rock,Dark,404,404,SANDSTREAM,CHOPLEBERRY,305,256,203,327,159,None,0,0,25.5,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,NONE;true;32,NONE;true;32,false,Normal=mamoswine,100,Ice,Ground,362,362,THICKFAT,NEVERMELTICE,392,196,158,176,241,None,0,0,25.5,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,NONE;true;32,NONE;true;32,false,Normal=jellicent,100,Water,Ghost,404,404,WATERABSORB,AIRBALLOON,140,237,206,246,180,None,0,0,25.5,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,NONE;true;32,NONE;true;32,false,Normal=excadrill,100,Ground,Steel,362,362,SANDFORCE,CHOICESCARF,367,156,122,168,302,None,0,0,25.5,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,NONE;true;32,NONE;true;32,false,Normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0=0=0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=switch:0=false/terrakion,100,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,None,0,0,25.5,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,XSCISSOR;false;24,QUICKATTACK;false;48,false,Normal=lucario,100,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,None,0,0,25.5,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,ICEPUNCH;false;24,AURASPHERE;false;32,false,Normal=breloom,100,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,None,0,0,25.5,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,DRAINPUNCH;false;16,PROTECT;false;16,false,Normal=keldeo,100,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,None,0,0,25.5,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,HIDDENPOWERICE70;false;24,CALMMIND;false;32,false,Normal=conkeldurr,100,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,None,0,0,25.5,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,BULKUP;false;32,PAYBACK;false;16,false,Normal=toxicroak,100,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,None,0,0,25.5,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,POISONJAB;false;32,SUBSTITUTE;false;16,false,Normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0=0=0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=switch:0=false/none;5/none;5/false;5/false";
-    /// let state2 = State::deserialize(serialized_state);
-    /// assert_eq!(state.serialize(), state2.serialize());
     ///
     /// ```
     pub fn deserialize(serialized: &str) -> State {

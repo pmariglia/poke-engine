@@ -35,7 +35,7 @@ const TYPE_MATCHUP_DAMAGE_MULTIPICATION: [[f32; 19]; 19] = [
 ];
 
 #[rustfmt::skip]
-#[cfg(any(feature = "gen5",feature = "gen4", feature = "gen3", feature = "gen2"))]
+#[cfg(any(feature = "gen5",feature = "gen4", feature = "gen3"))]
 const TYPE_MATCHUP_DAMAGE_MULTIPICATION: [[f32; 19]; 19] = [
 /*         0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18  */
 /*  0 */ [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.0, 1.0, 1.0, 0.5, 1.0, 1.0],

@@ -189,7 +189,7 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 1.5;
             }
         }
-        #[cfg(any(feature = "gen2", feature = "gen3", feature = "gen4"))]
+        #[cfg(any(feature = "gen3", feature = "gen4"))]
         Choices::EXPLOSION | Choices::SELFDESTRUCT => {
             attacker_choice.base_power *= 2.0;
         }
@@ -421,7 +421,7 @@ pub fn modify_choice(
             }
         }
 
-        #[cfg(any(feature = "gen2", feature = "gen3", feature = "gen4"))]
+        #[cfg(any(feature = "gen3", feature = "gen4"))]
         Choices::PAYBACK => {
             if !attacker_choice.first_move {
                 attacker_choice.base_power *= 2.0;
@@ -495,7 +495,6 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 1.3;
             }
         }
-        #[cfg(not(feature = "gen2"))]
         Choices::GRASSKNOT | Choices::LOWKICK => {
             let defender_active = defending_side.get_active_immutable();
             if defender_active.weight_kg < 10.0 {
@@ -540,6 +539,16 @@ pub fn choice_after_damage_hit(
     hit_sub: bool,
 ) {
     let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
+    if choice.flags.recharge {
+        let instruction = Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+            side_ref: attacking_side_ref.clone(),
+            volatile_status: PokemonVolatileStatus::MUSTRECHARGE,
+        });
+        instructions.instruction_list.push(instruction);
+        attacking_side
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::MUSTRECHARGE);
+    }
     match choice.move_id {
         Choices::RAGINGBULL => {
             if defending_side.side_conditions.reflect > 0 {

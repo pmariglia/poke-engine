@@ -1,45 +1,33 @@
+use crate::choice_effects::choice_after_damage_hit;
 use crate::choice_effects::{
-    charge_choice_to_volatile, choice_after_damage_hit, choice_before_move, choice_hazard_clear,
-    choice_special_effect, modify_choice,
+    charge_choice_to_volatile, choice_before_move, choice_special_effect, modify_choice,
 };
 use crate::choices::{
-    Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, SideCondition, Status,
-    VolatileStatus, MOVES,
+    Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, Status, VolatileStatus,
 };
-use crate::instruction::SetDamageDealtSideOneInstruction;
 use crate::instruction::{
-    ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-    ChangeSideConditionInstruction, ChangeWeather, DecrementRestTurnsInstruction, HealInstruction,
-    RemoveVolatileStatusInstruction, SetSecondMoveSwitchOutMoveInstruction,
-    SetSleepTurnsInstruction, ToggleBatonPassingInstruction,
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeSideConditionInstruction,
+    DecrementRestTurnsInstruction, HealInstruction, RemoveVolatileStatusInstruction,
+    SetSleepTurnsInstruction,
 };
-use crate::instruction::{DecrementFutureSightInstruction, SetDamageDealtSideTwoInstruction};
-use crate::instruction::{DecrementPPInstruction, SetLastUsedMoveInstruction};
-use crate::state::PokemonMoveIndex;
-
-use crate::damage_calc::calculate_futuresight_damage;
-use crate::items::{
-    item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used, Items,
+use crate::instruction::{
+    DecrementPPInstruction, SetDamageDealtSideOneInstruction, SetDamageDealtSideTwoInstruction,
 };
 use crate::state::{
-    LastUsedMove, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition,
-    PokemonType, Side,
+    MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonType, Side,
 };
 use crate::{
     choices::{Choice, MoveCategory},
-    damage_calc::{calculate_damage, type_effectiveness_modifier, DamageRolls},
+    damage_calc::{calculate_damage, DamageRolls},
     instruction::{
         ChangeStatusInstruction, DamageInstruction, Instruction, StateInstructions,
         SwitchInstruction,
     },
-    state::{PokemonStatus, PokemonVolatileStatus, SideReference, State, Weather},
+    state::{PokemonStatus, PokemonVolatileStatus, SideReference, State},
 };
 use std::cmp;
 
-pub const MAX_SLEEP_TURNS: i8 = 6;
-pub const SANDSTORM_PERCENT_DAMAGE: f32 = 0.125;
-pub const BURN_PERCENT_DAMAGE: f32 = 0.125;
-pub const TRAPPED_PERCENT_DAMAGE: f32 = 0.0625;
+pub const MAX_SLEEP_TURNS: i8 = 7;
 
 fn chance_to_wake_up(turns_asleep: i8) -> f32 {
     if turns_asleep == 0 {
@@ -49,50 +37,83 @@ fn chance_to_wake_up(turns_asleep: i8) -> f32 {
     }
 }
 
-fn set_last_used_move_as_switch(
-    side: &mut Side,
-    new_pokemon_index: PokemonIndex,
-    switching_side_ref: SideReference,
+fn reset_damage_dealt(
+    side: &Side,
+    side_reference: &SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
-    incoming_instructions
-        .instruction_list
-        .push(Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
-            side_ref: switching_side_ref,
-            last_used_move: LastUsedMove::Switch(new_pokemon_index),
-            previous_last_used_move: side.last_used_move,
-        }));
-    side.last_used_move = LastUsedMove::Switch(new_pokemon_index);
-}
-
-fn set_last_used_move_as_move(
-    side: &mut Side,
-    used_move: PokemonMoveIndex,
-    switching_side_ref: SideReference,
-    incoming_instructions: &mut StateInstructions,
-) {
-    if side
-        .volatile_statuses
-        .contains(&PokemonVolatileStatus::FLINCH)
+    if side.damage_dealt.damage != 0
+        || side.damage_dealt.move_category != MoveCategory::Physical
+        || side.damage_dealt.hit_substitute
     {
-        return;
-    }
-    match side.last_used_move {
-        LastUsedMove::Move(last_used_move) => {
-            if last_used_move == used_move {
-                return;
+        match side_reference {
+            SideReference::SideOne => {
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::SetDamageDealtSideOne(
+                        SetDamageDealtSideOneInstruction {
+                            damage_change: -1 * side.damage_dealt.damage,
+                            move_category: MoveCategory::Physical,
+                            previous_move_category: side.damage_dealt.move_category,
+                            toggle_hit_substitute: side.damage_dealt.hit_substitute,
+                        },
+                    ));
+            }
+            SideReference::SideTwo => {
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::SetDamageDealtSideTwo(
+                        SetDamageDealtSideTwoInstruction {
+                            damage_change: -1 * side.damage_dealt.damage,
+                            move_category: MoveCategory::Physical,
+                            previous_move_category: side.damage_dealt.move_category,
+                            toggle_hit_substitute: side.damage_dealt.hit_substitute,
+                        },
+                    ));
             }
         }
-        _ => {}
     }
-    incoming_instructions
-        .instruction_list
-        .push(Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
-            side_ref: switching_side_ref,
-            last_used_move: LastUsedMove::Move(used_move),
-            previous_last_used_move: side.last_used_move,
-        }));
-    side.last_used_move = LastUsedMove::Move(used_move);
+}
+
+fn set_damage_dealt(
+    attacking_side: &mut Side,
+    attacking_side_ref: &SideReference,
+    damage_dealt: i16,
+    choice: &Choice,
+    hit_substitute: bool,
+    incoming_instructions: &mut StateInstructions,
+) {
+    match attacking_side_ref {
+        SideReference::SideOne => {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::SetDamageDealtSideOne(
+                    SetDamageDealtSideOneInstruction {
+                        damage_change: damage_dealt - attacking_side.damage_dealt.damage,
+                        move_category: choice.category,
+                        previous_move_category: attacking_side.damage_dealt.move_category,
+                        toggle_hit_substitute: attacking_side.damage_dealt.hit_substitute
+                            != hit_substitute,
+                    },
+                ));
+        }
+        SideReference::SideTwo => {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::SetDamageDealtSideTwo(
+                    SetDamageDealtSideTwoInstruction {
+                        damage_change: damage_dealt - attacking_side.damage_dealt.damage,
+                        move_category: choice.category,
+                        previous_move_category: attacking_side.damage_dealt.move_category,
+                        toggle_hit_substitute: attacking_side.damage_dealt.hit_substitute
+                            != hit_substitute,
+                    },
+                ));
+        }
+    }
+    attacking_side.damage_dealt.damage = damage_dealt;
+    attacking_side.damage_dealt.move_category = choice.category;
+    attacking_side.damage_dealt.hit_substitute = hit_substitute;
 }
 
 pub fn generate_instructions_from_switch(
@@ -101,7 +122,6 @@ pub fn generate_instructions_from_switch(
     switching_side_ref: SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
-    let should_last_used_move = state.use_last_used_move;
     state.apply_instructions(&incoming_instructions.instruction_list);
 
     let side = state.get_side(&switching_side_ref);
@@ -121,32 +141,6 @@ pub fn generate_instructions_from_switch(
         }
     }
 
-    let mut baton_passing = false;
-    if side.baton_passing {
-        baton_passing = true;
-        side.baton_passing = false;
-        match switching_side_ref {
-            SideReference::SideOne => {
-                incoming_instructions
-                    .instruction_list
-                    .push(Instruction::ToggleBatonPassing(
-                        ToggleBatonPassingInstruction {
-                            side_ref: SideReference::SideOne,
-                        },
-                    ));
-            }
-            SideReference::SideTwo => {
-                incoming_instructions
-                    .instruction_list
-                    .push(Instruction::ToggleBatonPassing(
-                        ToggleBatonPassingInstruction {
-                            side_ref: SideReference::SideTwo,
-                        },
-                    ));
-            }
-        }
-    }
-
     state.re_enable_disabled_moves(
         &switching_side_ref,
         &mut incoming_instructions.instruction_list,
@@ -154,18 +148,15 @@ pub fn generate_instructions_from_switch(
     state.remove_volatile_statuses_on_switch(
         &switching_side_ref,
         &mut incoming_instructions.instruction_list,
-        baton_passing,
     );
     state.reset_toxic(
         &switching_side_ref,
         &mut incoming_instructions.instruction_list,
     );
-    if !baton_passing {
-        state.reset_boosts(
-            &switching_side_ref,
-            &mut incoming_instructions.instruction_list,
-        );
-    }
+    state.reset_boosts(
+        &switching_side_ref,
+        &mut incoming_instructions.instruction_list,
+    );
 
     let switch_instruction = Instruction::Switch(SwitchInstruction {
         side_ref: switching_side_ref,
@@ -179,56 +170,7 @@ pub fn generate_instructions_from_switch(
         .instruction_list
         .push(switch_instruction);
 
-    if should_last_used_move {
-        set_last_used_move_as_switch(
-            side,
-            new_pokemon_index,
-            switching_side_ref,
-            incoming_instructions,
-        );
-    }
-
-    let switched_in_pkmn = side.get_active_immutable();
-    if side.side_conditions.spikes > 0 && switched_in_pkmn.is_grounded() {
-        let dmg_amount = cmp::min(
-            switched_in_pkmn.maxhp * side.side_conditions.spikes as i16 / 8,
-            switched_in_pkmn.hp,
-        );
-        let spikes_dmg_instruction = Instruction::Damage(DamageInstruction {
-            side_ref: switching_side_ref,
-            damage_amount: dmg_amount,
-        });
-        side.get_active().hp -= dmg_amount;
-        incoming_instructions
-            .instruction_list
-            .push(spikes_dmg_instruction);
-    }
-
     state.reverse_instructions(&incoming_instructions.instruction_list);
-}
-
-fn generate_instructions_from_side_conditions(
-    state: &mut State,
-    side_condition: &SideCondition,
-    attacking_side_reference: &SideReference,
-    incoming_instructions: &mut StateInstructions,
-) {
-    let affected_side_ref;
-    match side_condition.target {
-        MoveTarget::Opponent => affected_side_ref = attacking_side_reference.get_other_side(),
-        MoveTarget::User => affected_side_ref = *attacking_side_reference,
-    }
-
-    let affected_side = state.get_side(&affected_side_ref);
-    if affected_side.get_side_condition(side_condition.condition) < 1 {
-        let ins = Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
-            side_ref: affected_side_ref,
-            side_condition: side_condition.condition,
-            amount: 1,
-        });
-        affected_side.update_side_condition(side_condition.condition, 1);
-        incoming_instructions.instruction_list.push(ins);
-    }
 }
 
 fn get_instructions_from_volatile_statuses(
@@ -550,26 +492,7 @@ fn get_instructions_from_secondaries(
                             &mut secondary_hit_instructions,
                         );
                     }
-                    Effect::RemoveItem => {
-                        let secondary_target_side_ref: SideReference;
-                        match secondary.target {
-                            MoveTarget::Opponent => {
-                                secondary_target_side_ref = side_reference.get_other_side();
-                            }
-                            MoveTarget::User => {
-                                secondary_target_side_ref = *side_reference;
-                            }
-                        }
-                        let target_pkmn = state.get_side(&secondary_target_side_ref).get_active();
-                        secondary_hit_instructions
-                            .instruction_list
-                            .push(Instruction::ChangeItem(ChangeItemInstruction {
-                                side_ref: secondary_target_side_ref,
-                                current_item: target_pkmn.item.clone(),
-                                new_item: Items::NONE,
-                            }));
-                        target_pkmn.item = Items::NONE;
-                    }
+                    Effect::RemoveItem => {}
                 }
                 state.reverse_instructions(&secondary_hit_instructions.instruction_list);
                 return_instruction_list.insert(i, secondary_hit_instructions);
@@ -617,7 +540,7 @@ fn check_move_hit_or_miss(
     state: &mut State,
     choice: &Choice,
     attacking_side_ref: &SideReference,
-    damage: Option<i16>,
+    damage: Option<(i16, i16)>,
     incoming_instructions: &mut StateInstructions,
     frozen_instructions: &mut Vec<StateInstructions>,
 ) {
@@ -633,7 +556,7 @@ fn check_move_hit_or_miss(
     let attacking_pokemon = attacking_side.get_active_immutable();
 
     let mut percent_hit = (choice.accuracy / 100.0).min(1.0);
-    if Some(0) == damage {
+    if Some((0, 0)) == damage {
         percent_hit = 0.0;
     }
 
@@ -657,126 +580,12 @@ fn check_move_hit_or_miss(
     incoming_instructions.update_percentage(percent_hit);
 }
 
-fn get_instructions_from_drag(
-    state: &mut State,
-    attacking_side_reference: &SideReference,
-    incoming_instructions: StateInstructions,
-    frozen_instructions: &mut Vec<StateInstructions>,
-) {
-    let defending_side = state.get_side(&attacking_side_reference.get_other_side());
-    if defending_side.get_active_immutable().hp == 0 {
-        state.reverse_instructions(&incoming_instructions.instruction_list);
-        frozen_instructions.push(incoming_instructions);
-        return;
-    }
-
-    let defending_side_alive_reserve_indices = defending_side.get_alive_pkmn_indices();
-
-    state.reverse_instructions(&incoming_instructions.instruction_list);
-
-    let num_alive_reserve = defending_side_alive_reserve_indices.len();
-    if num_alive_reserve == 0 {
-        frozen_instructions.push(incoming_instructions);
-        return;
-    }
-
-    for pkmn_id in defending_side_alive_reserve_indices {
-        let mut cloned_instructions = incoming_instructions.clone();
-        generate_instructions_from_switch(
-            state,
-            pkmn_id,
-            attacking_side_reference.get_other_side(),
-            &mut cloned_instructions,
-        );
-        cloned_instructions.update_percentage(1.0 / num_alive_reserve as f32);
-        frozen_instructions.push(cloned_instructions);
-    }
-}
-
-fn reset_damage_dealt(
-    side: &Side,
-    side_reference: &SideReference,
-    incoming_instructions: &mut StateInstructions,
-) {
-    if side.damage_dealt.damage != 0
-        || side.damage_dealt.move_category != MoveCategory::Physical
-        || side.damage_dealt.hit_substitute
-    {
-        match side_reference {
-            SideReference::SideOne => {
-                incoming_instructions
-                    .instruction_list
-                    .push(Instruction::SetDamageDealtSideOne(
-                        SetDamageDealtSideOneInstruction {
-                            damage_change: -1 * side.damage_dealt.damage,
-                            move_category: MoveCategory::Physical,
-                            previous_move_category: side.damage_dealt.move_category,
-                            toggle_hit_substitute: side.damage_dealt.hit_substitute,
-                        },
-                    ));
-            }
-            SideReference::SideTwo => {
-                incoming_instructions
-                    .instruction_list
-                    .push(Instruction::SetDamageDealtSideTwo(
-                        SetDamageDealtSideTwoInstruction {
-                            damage_change: -1 * side.damage_dealt.damage,
-                            move_category: MoveCategory::Physical,
-                            previous_move_category: side.damage_dealt.move_category,
-                            toggle_hit_substitute: side.damage_dealt.hit_substitute,
-                        },
-                    ));
-            }
-        }
-    }
-}
-
-fn set_damage_dealt(
-    attacking_side: &mut Side,
-    attacking_side_ref: &SideReference,
-    damage_dealt: i16,
-    choice: &Choice,
-    hit_substitute: bool,
-    incoming_instructions: &mut StateInstructions,
-) {
-    match attacking_side_ref {
-        SideReference::SideOne => {
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::SetDamageDealtSideOne(
-                    SetDamageDealtSideOneInstruction {
-                        damage_change: damage_dealt - attacking_side.damage_dealt.damage,
-                        move_category: choice.category,
-                        previous_move_category: attacking_side.damage_dealt.move_category,
-                        toggle_hit_substitute: attacking_side.damage_dealt.hit_substitute
-                            != hit_substitute,
-                    },
-                ));
-        }
-        SideReference::SideTwo => {
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::SetDamageDealtSideTwo(
-                    SetDamageDealtSideTwoInstruction {
-                        damage_change: damage_dealt - attacking_side.damage_dealt.damage,
-                        move_category: choice.category,
-                        previous_move_category: attacking_side.damage_dealt.move_category,
-                        toggle_hit_substitute: attacking_side.damage_dealt.hit_substitute
-                            != hit_substitute,
-                    },
-                ));
-        }
-    }
-    attacking_side.damage_dealt.damage = damage_dealt;
-    attacking_side.damage_dealt.move_category = choice.category;
-    attacking_side.damage_dealt.hit_substitute = hit_substitute;
-}
-
 fn generate_instructions_from_damage(
-    mut state: &mut State,
+    state: &mut State,
     choice: &Choice,
     calculated_damage: i16,
     attacking_side_ref: &SideReference,
+    should_use_damage_dealt: bool,
     mut incoming_instructions: &mut StateInstructions,
 ) -> bool {
     let mut hit_sub = false;
@@ -801,7 +610,6 @@ fn generate_instructions_from_damage(
 
     let percent_hit = (choice.accuracy / 100.0).min(1.0);
     if percent_hit > 0.0 {
-        let should_use_damage_dealt = state.use_damage_dealt;
         let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
         let damage_dealt;
         if defending_side
@@ -850,15 +658,9 @@ fn generate_instructions_from_damage(
 
             hit_sub = true;
         } else {
-            let attacking_pokemon = attacking_side.get_active();
             let defending_pokemon = defending_side.get_active();
-            let mut knocked_out = false;
             damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
             if damage_dealt != 0 {
-                if damage_dealt >= defending_pokemon.hp {
-                    knocked_out = true;
-                }
-
                 let damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: attacking_side_ref.get_other_side(),
                     damage_amount: damage_dealt,
@@ -867,22 +669,6 @@ fn generate_instructions_from_damage(
                 incoming_instructions
                     .instruction_list
                     .push(damage_instruction);
-
-                if knocked_out
-                    && defending_side
-                        .volatile_statuses
-                        .contains(&PokemonVolatileStatus::DESTINYBOND)
-                {
-                    let damage_instruction = Instruction::Damage(DamageInstruction {
-                        side_ref: *attacking_side_ref,
-                        damage_amount: attacking_pokemon.hp,
-                    });
-                    attacking_pokemon.hp = 0;
-                    incoming_instructions
-                        .instruction_list
-                        .push(damage_instruction);
-                }
-
                 if should_use_damage_dealt {
                     set_damage_dealt(
                         attacking_side,
@@ -927,7 +713,7 @@ fn generate_instructions_from_damage(
                 .push(recoil_instruction);
         }
         choice_after_damage_hit(
-            &mut state,
+            state,
             &choice,
             attacking_side_ref,
             &mut incoming_instructions,
@@ -945,15 +731,6 @@ fn move_has_no_effect(state: &State, choice: &Choice, attacking_side_ref: &SideR
         && defender.has_type(&PokemonType::GROUND)
     {
         return true;
-    } else if choice.move_id == Choices::ENCORE {
-        return match state
-            .get_side_immutable(&attacking_side_ref.get_other_side())
-            .last_used_move
-        {
-            LastUsedMove::None => true,
-            LastUsedMove::Move(_) => false,
-            LastUsedMove::Switch(_) => true,
-        };
     }
     false
 }
@@ -980,13 +757,9 @@ pub fn before_move(
     incoming_instructions: &mut StateInstructions,
 ) {
     choice_before_move(state, choice, attacking_side, incoming_instructions);
-
     modify_choice(state, choice, defender_choice, attacking_side);
 
-    item_modify_attack_being_used(state, choice, attacking_side);
-    item_modify_attack_against(state, choice, attacking_side);
-
-    let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side);
+    let (attacking_side, _defending_side) = state.get_both_sides_immutable(attacking_side);
     // Update Choice for `charge` moves
     if choice.flags.charge {
         let charge_volatile_status = charge_choice_to_volatile(&choice.move_id);
@@ -999,17 +772,6 @@ pub fn before_move(
                 target: MoveTarget::User,
                 volatile_status: charge_volatile_status,
             });
-        }
-    }
-    // modify choice if defender has protect active
-    if defending_side
-        .volatile_statuses
-        .contains(&PokemonVolatileStatus::PROTECT)
-        && choice.flags.protect
-    {
-        choice.remove_effects_for_protect();
-        if choice.crash.is_some() {
-            choice.accuracy = 0.0;
         }
     }
 }
@@ -1034,20 +796,9 @@ fn generate_instructions_from_existing_status_conditions(
             incoming_instructions.update_percentage(0.75);
         }
         PokemonStatus::FREEZE => {
-            let mut still_frozen_instruction = incoming_instructions.clone();
-            still_frozen_instruction.update_percentage(0.80);
-            final_instructions.push(still_frozen_instruction);
-
-            incoming_instructions.update_percentage(0.20);
-            attacker_active.status = PokemonStatus::NONE;
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::ChangeStatus(ChangeStatusInstruction {
-                    side_ref: attacking_side_ref.clone(),
-                    pokemon_index: current_active_index,
-                    old_status: PokemonStatus::FREEZE,
-                    new_status: PokemonStatus::NONE,
-                }));
+            // Gen1 cannot thaw on your own
+            final_instructions.push(incoming_instructions.clone());
+            incoming_instructions.update_percentage(0.0);
         }
         PokemonStatus::SLEEP => {
             match attacker_active.rest_turns {
@@ -1074,6 +825,8 @@ fn generate_instructions_from_existing_status_conditions(
                                 new_turns: 0,
                                 previous_turns: current_sleep_turns,
                             }));
+                        final_instructions.push(incoming_instructions.clone());
+                        incoming_instructions.update_percentage(0.0);
                     } else if chance_to_wake == 0.0 {
                         let mut still_asleep_instruction = incoming_instructions.clone();
                         still_asleep_instruction.update_percentage(1.0);
@@ -1121,6 +874,8 @@ fn generate_instructions_from_existing_status_conditions(
                                 new_turns: 0,
                                 previous_turns: current_sleep_turns,
                             }));
+                        final_instructions.push(incoming_instructions.clone());
+                        incoming_instructions.update_percentage(0.0);
                     }
                 }
                 // Pokemon is asleep because of Rest, and will wake up this turn
@@ -1142,6 +897,8 @@ fn generate_instructions_from_existing_status_conditions(
                                 side_ref: *attacking_side_ref,
                             },
                         ));
+                    final_instructions.push(incoming_instructions.clone());
+                    incoming_instructions.update_percentage(0.0);
                 }
                 // Pokemon is asleep because of Rest, and will stay asleep this turn
                 2 | 3 => {
@@ -1212,7 +969,6 @@ pub fn generate_instructions_from_move(
             &mut incoming_instructions,
         );
     }
-
     if choice.category == MoveCategory::Switch {
         generate_instructions_from_switch(
             state,
@@ -1243,45 +999,7 @@ pub fn generate_instructions_from_move(
         return;
     }
 
-    // TODO: test first-turn dragontail missing - it should not trigger this early return
-    if !choice.first_move && defender_choice.flags.drag {
-        final_instructions.push(incoming_instructions);
-        return;
-    }
-
     state.apply_instructions(&incoming_instructions.instruction_list);
-
-    let side = state.get_side_immutable(&attacking_side);
-    if side
-        .volatile_statuses
-        .contains(&PokemonVolatileStatus::ENCORE)
-    {
-        match side.last_used_move {
-            LastUsedMove::Move(last_used_move) => {
-                if choice.move_index != last_used_move {
-                    *choice = MOVES
-                        .get(&side.get_active_immutable().moves[&last_used_move].id)
-                        .unwrap()
-                        .clone();
-                    choice.move_index = last_used_move;
-                }
-            }
-            _ => panic!("Encore should not be active when last used move is not a move"),
-        }
-    }
-
-    if !choice.first_move
-        && state
-            .get_side(&attacking_side.get_other_side())
-            .force_switch
-    {
-        state
-            .get_side(&attacking_side)
-            .switch_out_move_second_saved_move = choice.move_id;
-        state.reverse_instructions(&incoming_instructions.instruction_list);
-        final_instructions.push(incoming_instructions);
-        return;
-    }
 
     if state
         .get_side_immutable(&attacking_side)
@@ -1344,45 +1062,16 @@ pub fn generate_instructions_from_move(
         active.moves[&choice.move_index].pp -= pp_decrement_amount;
     }
 
-    if state.use_last_used_move {
-        set_last_used_move_as_move(
-            state.get_side(&attacking_side),
-            choice.move_index,
-            attacking_side,
-            &mut incoming_instructions,
-        );
-    }
-
-    if !choice.sleep_talk_move {
-        generate_instructions_from_existing_status_conditions(
-            state,
-            &attacking_side,
-            &mut incoming_instructions,
-            &mut final_instructions,
-        );
-    }
+    generate_instructions_from_existing_status_conditions(
+        state,
+        &attacking_side,
+        &mut incoming_instructions,
+        &mut final_instructions,
+    );
     let attacker = state
         .get_side_immutable(&attacking_side)
         .get_active_immutable();
-    if choice.move_id == Choices::SLEEPTALK && attacker.status == PokemonStatus::SLEEP {
-        let new_choices = attacker.get_sleep_talk_choices();
-        state.reverse_instructions(&incoming_instructions.instruction_list);
-        let num_choices = new_choices.len() as f32;
-        for mut new_choice in new_choices {
-            new_choice.sleep_talk_move = true;
-            let mut sleep_talk_instructions = incoming_instructions.clone();
-            sleep_talk_instructions.update_percentage(1.0 / num_choices);
-            generate_instructions_from_move(
-                state,
-                &mut new_choice,
-                defender_choice,
-                attacking_side,
-                sleep_talk_instructions,
-                &mut final_instructions,
-            );
-        }
-        return;
-    } else if attacker.status == PokemonStatus::SLEEP && !choice.sleep_talk_move {
+    if attacker.status == PokemonStatus::SLEEP {
         state.reverse_instructions(&incoming_instructions.instruction_list);
         if incoming_instructions.percentage > 0.0 {
             final_instructions.push(incoming_instructions);
@@ -1395,8 +1084,14 @@ pub fn generate_instructions_from_move(
         final_instructions.push(incoming_instructions);
         return;
     }
+    choice_special_effect(
+        state,
+        &choice,
+        &defender_choice,
+        &attacking_side,
+        &mut incoming_instructions,
+    );
     let damage = calculate_damage(state, &attacking_side, &choice, DamageRolls::Average);
-    choice_special_effect(state, &choice, &attacking_side, &mut incoming_instructions);
     check_move_hit_or_miss(
         state,
         &choice,
@@ -1426,180 +1121,165 @@ pub fn generate_instructions_from_move(
         MultiHitMove::TwoToFiveHits => {
             hit_count = 3;
         }
-        MultiHitMove::PopulationBomb => {
-            // population bomb checks accuracy each time but lets approximate
-            hit_count = 9;
+        _ => {
+            hit_count = 1;
         }
     }
     let mut hit_sub: bool = false;
-    for _ in 0..hit_count {
-        if let Some(damages_dealt) = damage {
-            hit_sub = generate_instructions_from_damage(
+    let set_damage_dealt = defender_choice.move_id == Choices::COUNTER
+        && (choice.move_type == PokemonType::NORMAL || choice.move_type == PokemonType::FIGHTING);
+
+    let (mut average_damage, mut average_crit_damage) = (0, 0);
+    let does_damage;
+    if let Some((regular_damage, crit_damage)) = damage {
+        average_damage = regular_damage;
+        average_crit_damage = crit_damage;
+        does_damage = true
+    } else {
+        does_damage = false;
+    }
+
+    let (attacker_side, defender_side) = state.get_both_sides(&attacking_side);
+    let crit_instructions: Option<StateInstructions>;
+
+    // Only calculate crit if regular damage doesn't KO
+    if average_damage < defender_side.get_active().hp {
+        let crit_rate = attacker_side.get_active().crit_rate(&choice.move_id);
+        let mut crit = incoming_instructions.clone();
+        crit.update_percentage(crit_rate);
+        crit_instructions = Some(crit);
+        incoming_instructions.update_percentage(1.0 - crit_rate);
+    } else {
+        crit_instructions = None
+    }
+
+    // Non-Crit
+    if incoming_instructions.percentage != 0.0 {
+        for _ in 0..hit_count {
+            if does_damage {
+                hit_sub = generate_instructions_from_damage(
+                    state,
+                    &choice,
+                    average_damage,
+                    &attacking_side,
+                    set_damage_dealt,
+                    &mut incoming_instructions,
+                );
+            }
+            if let Some(volatile_status) = &choice.volatile_status {
+                get_instructions_from_volatile_statuses(
+                    state,
+                    &choice,
+                    volatile_status,
+                    &attacking_side,
+                    &mut incoming_instructions,
+                );
+            }
+            if let Some(status) = &choice.status {
+                get_instructions_from_status_effects(
+                    state,
+                    status,
+                    &attacking_side,
+                    &mut incoming_instructions,
+                    hit_sub,
+                );
+            }
+            if let Some(heal) = &choice.heal {
+                get_instructions_from_heal(
+                    state,
+                    heal,
+                    &attacking_side,
+                    &mut incoming_instructions,
+                );
+            }
+        }
+        if let Some(boost) = &choice.boost {
+            get_instructions_from_boosts(state, boost, &attacking_side, &mut incoming_instructions);
+        }
+
+        if let Some(secondaries_vec) = &choice.secondaries {
+            state.reverse_instructions(&incoming_instructions.instruction_list);
+            let instructions_vec_after_secondaries = get_instructions_from_secondaries(
                 state,
                 &choice,
-                damages_dealt,
+                secondaries_vec,
                 &attacking_side,
-                &mut incoming_instructions,
-            );
-        }
-        if let Some(side_condition) = &choice.side_condition {
-            generate_instructions_from_side_conditions(
-                state,
-                side_condition,
-                &attacking_side,
-                &mut incoming_instructions,
-            );
-        }
-        choice_hazard_clear(state, &choice, &attacking_side, &mut incoming_instructions);
-        if let Some(volatile_status) = &choice.volatile_status {
-            get_instructions_from_volatile_statuses(
-                state,
-                &choice,
-                volatile_status,
-                &attacking_side,
-                &mut incoming_instructions,
-            );
-        }
-        if let Some(status) = &choice.status {
-            get_instructions_from_status_effects(
-                state,
-                status,
-                &attacking_side,
-                &mut incoming_instructions,
+                incoming_instructions,
                 hit_sub,
             );
+            final_instructions.extend(instructions_vec_after_secondaries);
+        } else {
+            state.reverse_instructions(&incoming_instructions.instruction_list);
+            final_instructions.push(incoming_instructions);
         }
-        if let Some(heal) = &choice.heal {
-            get_instructions_from_heal(state, heal, &attacking_side, &mut incoming_instructions);
-        }
-    } // end multi-hit
-      // this is wrong, but I am deciding it is good enough for this engine (for now)
-      // each multi-hit move should trigger a chance for a secondary effect,
-      // but the way this engine was structured makes it difficult to implement
-      // without some performance hits.
-
-    if let Some(boost) = &choice.boost {
-        get_instructions_from_boosts(state, boost, &attacking_side, &mut incoming_instructions);
-    }
-
-    if choice.flags.drag {
-        get_instructions_from_drag(
-            state,
-            &attacking_side,
-            incoming_instructions,
-            &mut final_instructions,
-        );
-        combine_duplicate_instructions(&mut final_instructions);
-        return;
-    }
-
-    // Only entered if the move causes a switch-out
-    // U-turn, Volt Switch, Baton Pass, etc.
-    // This deals with a bunch of flags that are required for the next turn to run properly
-    if choice.flags.pivot {
-        match attacking_side {
-            SideReference::SideOne => {
-                if state.side_one.visible_alive_pkmn() > 1 {
-                    if choice.move_id == Choices::BATONPASS {
-                        state.side_one.baton_passing = !state.side_one.baton_passing;
-                        incoming_instructions.instruction_list.push(
-                            Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
-                                side_ref: SideReference::SideOne,
-                            }),
-                        );
-                    }
-                    state.side_one.force_switch = !state.side_one.force_switch;
-                    incoming_instructions
-                        .instruction_list
-                        .push(Instruction::ToggleSideOneForceSwitch);
-
-                    if choice.first_move {
-                        incoming_instructions.instruction_list.push(
-                            Instruction::SetSideTwoMoveSecondSwitchOutMove(
-                                SetSecondMoveSwitchOutMoveInstruction {
-                                    new_choice: defender_choice.move_id,
-                                    previous_choice: state
-                                        .side_two
-                                        .switch_out_move_second_saved_move,
-                                },
-                            ),
-                        );
-                        state.side_two.switch_out_move_second_saved_move = defender_choice.move_id;
-                    } else {
-                        incoming_instructions.instruction_list.push(
-                            Instruction::SetSideTwoMoveSecondSwitchOutMove(
-                                SetSecondMoveSwitchOutMoveInstruction {
-                                    new_choice: Choices::NONE,
-                                    previous_choice: state
-                                        .side_two
-                                        .switch_out_move_second_saved_move,
-                                },
-                            ),
-                        );
-                        state.side_two.switch_out_move_second_saved_move = defender_choice.move_id;
-                    }
-                }
-            }
-            SideReference::SideTwo => {
-                if state.side_two.visible_alive_pkmn() > 1 {
-                    if choice.move_id == Choices::BATONPASS {
-                        state.side_two.baton_passing = !state.side_two.baton_passing;
-                        incoming_instructions.instruction_list.push(
-                            Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
-                                side_ref: SideReference::SideTwo,
-                            }),
-                        );
-                    }
-                    state.side_two.force_switch = !state.side_two.force_switch;
-                    incoming_instructions
-                        .instruction_list
-                        .push(Instruction::ToggleSideTwoForceSwitch);
-
-                    if choice.first_move {
-                        incoming_instructions.instruction_list.push(
-                            Instruction::SetSideOneMoveSecondSwitchOutMove(
-                                SetSecondMoveSwitchOutMoveInstruction {
-                                    new_choice: defender_choice.move_id,
-                                    previous_choice: state
-                                        .side_one
-                                        .switch_out_move_second_saved_move,
-                                },
-                            ),
-                        );
-                        state.side_one.switch_out_move_second_saved_move = defender_choice.move_id;
-                    } else {
-                        incoming_instructions.instruction_list.push(
-                            Instruction::SetSideOneMoveSecondSwitchOutMove(
-                                SetSecondMoveSwitchOutMoveInstruction {
-                                    new_choice: Choices::NONE,
-                                    previous_choice: state
-                                        .side_one
-                                        .switch_out_move_second_saved_move,
-                                },
-                            ),
-                        );
-                        state.side_one.switch_out_move_second_saved_move = defender_choice.move_id;
-                    }
-                }
-            }
-        }
-    }
-
-    if let Some(secondaries_vec) = &choice.secondaries {
-        state.reverse_instructions(&incoming_instructions.instruction_list);
-        let instructions_vec_after_secondaries = get_instructions_from_secondaries(
-            state,
-            &choice,
-            secondaries_vec,
-            &attacking_side,
-            incoming_instructions,
-            hit_sub,
-        );
-        final_instructions.extend(instructions_vec_after_secondaries);
     } else {
         state.reverse_instructions(&incoming_instructions.instruction_list);
-        final_instructions.push(incoming_instructions);
     }
+
+    // Crit
+    if let Some(mut crit_instructions) = crit_instructions {
+        if crit_instructions.percentage != 0.0 {
+            state.apply_instructions(&crit_instructions.instruction_list);
+            for _ in 0..hit_count {
+                if does_damage {
+                    hit_sub = generate_instructions_from_damage(
+                        state,
+                        &choice,
+                        average_crit_damage,
+                        &attacking_side,
+                        set_damage_dealt,
+                        &mut crit_instructions,
+                    );
+                }
+                if let Some(volatile_status) = &choice.volatile_status {
+                    get_instructions_from_volatile_statuses(
+                        state,
+                        &choice,
+                        volatile_status,
+                        &attacking_side,
+                        &mut crit_instructions,
+                    );
+                }
+                if let Some(status) = &choice.status {
+                    get_instructions_from_status_effects(
+                        state,
+                        status,
+                        &attacking_side,
+                        &mut crit_instructions,
+                        hit_sub,
+                    );
+                }
+                if let Some(heal) = &choice.heal {
+                    get_instructions_from_heal(
+                        state,
+                        heal,
+                        &attacking_side,
+                        &mut crit_instructions,
+                    );
+                }
+            }
+
+            if let Some(boost) = &choice.boost {
+                get_instructions_from_boosts(state, boost, &attacking_side, &mut crit_instructions);
+            }
+            if let Some(secondaries_vec) = &choice.secondaries {
+                state.reverse_instructions(&crit_instructions.instruction_list);
+                let instructions_vec_after_secondaries = get_instructions_from_secondaries(
+                    state,
+                    &choice,
+                    secondaries_vec,
+                    &attacking_side,
+                    crit_instructions,
+                    hit_sub,
+                );
+                final_instructions.extend(instructions_vec_after_secondaries);
+            } else {
+                state.reverse_instructions(&crit_instructions.instruction_list);
+                final_instructions.push(crit_instructions);
+            }
+        }
+    }
+
     combine_duplicate_instructions(&mut final_instructions);
     return;
 }
@@ -1644,9 +1324,9 @@ pub fn side_one_moves_first(
     {
         return side_one_effective_speed > side_two_effective_speed;
     } else if side_one_choice.category == MoveCategory::Switch {
-        return side_two_choice.move_id != Choices::PURSUIT;
+        return true;
     } else if side_two_choice.category == MoveCategory::Switch {
-        return side_one_choice.move_id == Choices::PURSUIT;
+        return false;
     }
 
     if side_one_choice.priority == side_two_choice.priority {
@@ -1658,7 +1338,7 @@ pub fn side_one_moves_first(
 
 pub fn add_end_of_turn_instructions(
     state: &mut State,
-    mut incoming_instructions: &mut StateInstructions,
+    incoming_instructions: &mut StateInstructions,
     _side_one_choice: &Choice,
     _side_two_choice: &Choice,
     first_move_side: &SideReference,
@@ -1670,85 +1350,6 @@ pub fn add_end_of_turn_instructions(
     }
 
     let sides = [first_move_side, &first_move_side.get_other_side()];
-
-    // Weather decrement / dissipation
-    if state.weather.turns_remaining > 0 && state.weather.weather_type != Weather::NONE {
-        let weather_dissipate_instruction = Instruction::DecrementWeatherTurnsRemaining;
-        incoming_instructions
-            .instruction_list
-            .push(weather_dissipate_instruction);
-        state.weather.turns_remaining -= 1;
-        if state.weather.turns_remaining == 0 {
-            let weather_end_instruction = Instruction::ChangeWeather(ChangeWeather {
-                new_weather: Weather::NONE,
-                new_weather_turns_remaining: 0,
-                previous_weather: state.weather.weather_type,
-                previous_weather_turns_remaining: 0,
-            });
-            incoming_instructions
-                .instruction_list
-                .push(weather_end_instruction);
-            state.weather.weather_type = Weather::NONE;
-        }
-    }
-
-    // Weather Damage
-    for side_ref in sides {
-        if state.weather_is_active(&Weather::SAND) {
-            let active_pkmn = state.get_side(side_ref).get_active();
-            if active_pkmn.hp == 0
-                || active_pkmn.has_type(&PokemonType::GROUND)
-                || active_pkmn.has_type(&PokemonType::STEEL)
-                || active_pkmn.has_type(&PokemonType::ROCK)
-            {
-                continue;
-            }
-            let damage_amount = cmp::min(
-                (active_pkmn.maxhp as f32 * SANDSTORM_PERCENT_DAMAGE) as i16,
-                active_pkmn.hp,
-            );
-            let sand_damage_instruction = Instruction::Damage(DamageInstruction {
-                side_ref: *side_ref,
-                damage_amount: damage_amount,
-            });
-            active_pkmn.hp -= damage_amount;
-            incoming_instructions
-                .instruction_list
-                .push(sand_damage_instruction);
-        }
-    }
-
-    // future sight
-    for side_ref in sides {
-        let (attacking_side, defending_side) = state.get_both_sides(side_ref);
-        if attacking_side.future_sight.0 > 0 {
-            let decrement_future_sight_instruction =
-                Instruction::DecrementFutureSight(DecrementFutureSightInstruction {
-                    side_ref: *side_ref,
-                });
-            if attacking_side.future_sight.0 == 1 {
-                let mut damage = calculate_futuresight_damage(
-                    &attacking_side,
-                    &defending_side,
-                    &attacking_side.future_sight.1,
-                );
-                let defender = defending_side.get_active();
-                damage = cmp::min(damage, defender.hp);
-                let future_sight_damage_instruction = Instruction::Damage(DamageInstruction {
-                    side_ref: side_ref.get_other_side(),
-                    damage_amount: damage,
-                });
-                incoming_instructions
-                    .instruction_list
-                    .push(future_sight_damage_instruction);
-                defender.hp -= damage;
-            }
-            attacking_side.future_sight.0 -= 1;
-            incoming_instructions
-                .instruction_list
-                .push(decrement_future_sight_instruction);
-        }
-    }
 
     // status damage
     for side_ref in sides {
@@ -1762,10 +1363,7 @@ pub fn add_end_of_turn_instructions(
         match active_pkmn.status {
             PokemonStatus::BURN => {
                 let damage_amount = cmp::max(
-                    cmp::min(
-                        (active_pkmn.maxhp as f32 * BURN_PERCENT_DAMAGE) as i16,
-                        active_pkmn.hp,
-                    ),
+                    cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp),
                     1,
                 );
                 let burn_damage_instruction = Instruction::Damage(DamageInstruction {
@@ -1780,7 +1378,7 @@ pub fn add_end_of_turn_instructions(
             PokemonStatus::POISON => {
                 let damage_amount = cmp::max(
                     1,
-                    cmp::min((active_pkmn.maxhp as f32 * 0.125) as i16, active_pkmn.hp),
+                    cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp),
                 );
 
                 let poison_damage_instruction = Instruction::Damage(DamageInstruction {
@@ -1824,16 +1422,6 @@ pub fn add_end_of_turn_instructions(
         }
     }
 
-    // item end-of-turn effects
-    for side_ref in sides {
-        let side = state.get_side(side_ref);
-        let active_pkmn = side.get_active();
-        if active_pkmn.hp == 0 {
-            continue;
-        }
-        item_end_of_turn(state, side_ref, &mut incoming_instructions);
-    }
-
     // leechseed sap
     for side_ref in sides {
         let (leechseed_side, other_side) = state.get_both_sides(side_ref);
@@ -1847,7 +1435,8 @@ pub fn add_end_of_turn_instructions(
                 continue;
             }
 
-            let health_sapped = cmp::min((active_pkmn.maxhp as f32 * 0.125) as i16, active_pkmn.hp);
+            let health_sapped =
+                cmp::min((active_pkmn.maxhp as f32 * 0.0625) as i16, active_pkmn.hp);
             let damage_ins = Instruction::Damage(DamageInstruction {
                 side_ref: *side_ref,
                 damage_amount: health_sapped,
@@ -1870,101 +1459,12 @@ pub fn add_end_of_turn_instructions(
         }
     }
 
-    // volatile statuses
+    // volatile status damage
     for side_ref in sides {
         let side = state.get_side(side_ref);
-        if side.get_active().hp == 0 {
+        let active_pkmn = side.get_active();
+        if active_pkmn.hp == 0 {
             continue;
-        }
-
-        if side
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::PERISH1)
-        {
-            let active_pkmn = side.get_active();
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::Damage(DamageInstruction {
-                    side_ref: *side_ref,
-                    damage_amount: active_pkmn.hp,
-                }));
-            active_pkmn.hp = 0;
-        }
-
-        if side
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::PERISH2)
-        {
-            side.volatile_statuses
-                .remove(&PokemonVolatileStatus::PERISH2);
-            side.volatile_statuses
-                .insert(PokemonVolatileStatus::PERISH1);
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::RemoveVolatileStatus(
-                    RemoveVolatileStatusInstruction {
-                        side_ref: *side_ref,
-                        volatile_status: PokemonVolatileStatus::PERISH2,
-                    },
-                ));
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::ApplyVolatileStatus(
-                    ApplyVolatileStatusInstruction {
-                        side_ref: *side_ref,
-                        volatile_status: PokemonVolatileStatus::PERISH1,
-                    },
-                ));
-        }
-        if side
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::PERISH3)
-        {
-            side.volatile_statuses
-                .remove(&PokemonVolatileStatus::PERISH3);
-            side.volatile_statuses
-                .insert(PokemonVolatileStatus::PERISH2);
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::RemoveVolatileStatus(
-                    RemoveVolatileStatusInstruction {
-                        side_ref: *side_ref,
-                        volatile_status: PokemonVolatileStatus::PERISH3,
-                    },
-                ));
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::ApplyVolatileStatus(
-                    ApplyVolatileStatusInstruction {
-                        side_ref: *side_ref,
-                        volatile_status: PokemonVolatileStatus::PERISH2,
-                    },
-                ));
-        }
-        if side
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::PERISH4)
-        {
-            side.volatile_statuses
-                .remove(&PokemonVolatileStatus::PERISH4);
-            side.volatile_statuses
-                .insert(PokemonVolatileStatus::PERISH3);
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::RemoveVolatileStatus(
-                    RemoveVolatileStatusInstruction {
-                        side_ref: *side_ref,
-                        volatile_status: PokemonVolatileStatus::PERISH4,
-                    },
-                ));
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::ApplyVolatileStatus(
-                    ApplyVolatileStatusInstruction {
-                        side_ref: *side_ref,
-                        volatile_status: PokemonVolatileStatus::PERISH3,
-                    },
-                ));
         }
 
         if side
@@ -1982,78 +1482,7 @@ pub fn add_end_of_turn_instructions(
                     },
                 ));
         }
-        if side
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::DESTINYBOND)
-        {
-            side.volatile_statuses
-                .remove(&PokemonVolatileStatus::DESTINYBOND);
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::RemoveVolatileStatus(
-                    RemoveVolatileStatusInstruction {
-                        side_ref: *side_ref,
-                        volatile_status: PokemonVolatileStatus::DESTINYBOND,
-                    },
-                ));
-        }
-
-        if side
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::PARTIALLYTRAPPED)
-        {
-            let active_pkmn = side.get_active();
-
-            let damage_amount = cmp::min(
-                (active_pkmn.maxhp as f32 * TRAPPED_PERCENT_DAMAGE) as i16,
-                active_pkmn.hp,
-            );
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::Damage(DamageInstruction {
-                    side_ref: *side_ref,
-                    damage_amount,
-                }));
-            active_pkmn.hp -= damage_amount;
-        }
-
-        if side
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::PROTECT)
-        {
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::RemoveVolatileStatus(
-                    RemoveVolatileStatusInstruction {
-                        side_ref: *side_ref,
-                        volatile_status: PokemonVolatileStatus::PROTECT,
-                    },
-                ));
-            side.volatile_statuses
-                .remove(&PokemonVolatileStatus::PROTECT);
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::ChangeSideCondition(
-                    ChangeSideConditionInstruction {
-                        side_ref: *side_ref,
-                        side_condition: PokemonSideCondition::Protect,
-                        amount: 1,
-                    },
-                ));
-            side.side_conditions.protect += 1;
-        } else if side.side_conditions.protect > 0 {
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::ChangeSideCondition(
-                    ChangeSideConditionInstruction {
-                        side_ref: *side_ref,
-                        side_condition: PokemonSideCondition::Protect,
-                        amount: -1 * side.side_conditions.protect,
-                    },
-                ));
-            side.side_conditions.protect -= side.side_conditions.protect;
-        }
-    } // end volatile statuses
+    }
 
     state.reverse_instructions(&incoming_instructions.instruction_list);
 }
@@ -2189,15 +1618,12 @@ pub fn calculate_damage_rolls(
     mut state: State,
     attacking_side_ref: &SideReference,
     mut choice: Choice,
-    mut defending_choice: &Choice,
+    defending_choice: &Choice,
 ) -> Option<Vec<i16>> {
     let mut incoming_instructions = StateInstructions::default();
 
     if choice.flags.charge {
         choice.flags.charge = false;
-    }
-    if choice.move_id == Choices::FAKEOUT {
-        state.get_side(attacking_side_ref).last_used_move = LastUsedMove::Switch(PokemonIndex::P0);
     }
 
     let attacker_active = state
@@ -2207,52 +1633,13 @@ pub fn calculate_damage_rolls(
         .get_side_immutable(&attacking_side_ref.get_other_side())
         .get_active_immutable();
     match choice.move_id {
-        Choices::SEISMICTOSS => {
-            if type_effectiveness_modifier(&PokemonType::NORMAL, &defender_active) == 0.0 {
-                return None;
-            }
+        Choices::SEISMICTOSS | Choices::NIGHTSHADE => {
+            // Gen1 Seismic Toss / Night Shade do not check type effectiveness
             return Some(vec![attacker_active.level as i16]);
         }
-        Choices::NIGHTSHADE => {
-            if type_effectiveness_modifier(&PokemonType::GHOST, &defender_active) == 0.0 {
-                return None;
-            }
-            return Some(vec![attacker_active.level as i16]);
-        }
-        Choices::FINALGAMBIT => {
-            if type_effectiveness_modifier(&PokemonType::GHOST, &defender_active) == 0.0 {
-                return None;
-            }
-            return Some(vec![attacker_active.hp]);
-        }
-        Choices::ENDEAVOR => {
-            if type_effectiveness_modifier(&PokemonType::GHOST, &defender_active) == 0.0
-                || defender_active.hp <= attacker_active.hp
-            {
-                return None;
-            }
-            return Some(vec![defender_active.hp - attacker_active.hp]);
-        }
-        Choices::PAINSPLIT => {
-            if type_effectiveness_modifier(&PokemonType::GHOST, &defender_active) == 0.0
-                || defender_active.hp <= attacker_active.hp
-            {
-                return None;
-            }
-            return Some(vec![
-                defender_active.hp - (attacker_active.hp + defender_active.hp) / 2,
-            ]);
-        }
-        Choices::SUPERFANG
-            if type_effectiveness_modifier(&PokemonType::NORMAL, &defender_active) == 0.0 =>
-        {
-            return None;
-        }
-        Choices::SUPERFANG | Choices::NATURESMADNESS | Choices::RUINATION => {
+        Choices::SUPERFANG => {
+            // Gen1 Super Fang does not check type effectiveness
             return Some(vec![defender_active.hp / 2]);
-        }
-        Choices::SUCKERPUNCH | Choices::THUNDERCLAP => {
-            defending_choice = MOVES.get(&Choices::TACKLE).unwrap();
         }
 
         _ => {}
@@ -2266,12 +1653,10 @@ pub fn calculate_damage_rolls(
         &mut incoming_instructions,
     );
 
-    if choice.move_id == Choices::FUTURESIGHT {
-        choice = MOVES.get(&Choices::FUTURESIGHT)?.clone();
-    }
-
     let mut return_vec = Vec::with_capacity(16);
-    if let Some(damage) = calculate_damage(&state, attacking_side_ref, &choice, DamageRolls::Max) {
+    if let Some((damage, _crit_damage)) =
+        calculate_damage(&state, attacking_side_ref, &choice, DamageRolls::Max)
+    {
         let damage = damage as f32;
         return_vec.push((damage * 0.85) as i16);
         return_vec.push((damage * 0.86) as i16);

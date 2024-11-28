@@ -17,6 +17,9 @@ fmt:
 	cargo fmt
 	ruff format poke-engine-py
 
+gen1:
+	cargo build --release --features gen1 --no-default-features
+
 gen2:
 	cargo build --release --features gen2 --no-default-features
 
@@ -54,6 +57,7 @@ test: pytest
 	cargo test --no-default-features --features "gen4"
 	cargo test --no-default-features --features "gen3"
 	cargo test --no-default-features --features "gen2"
+	cargo test --no-default-features --features "gen1"
 
 install_ci:
 	pip install -r poke-engine-py/requirements.txt
@@ -74,5 +78,6 @@ test_ci:
 	cargo test --no-default-features --features "gen4"
 	cargo test --no-default-features --features "gen3"
 	cargo test --no-default-features --features "gen2"
+	cargo test --no-default-features --features "gen1"
 
 ci: install_ci fmt_ci test_ci

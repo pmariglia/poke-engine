@@ -1,3 +1,28 @@
+#[cfg(feature = "gen1")]
+#[path = "gen1/abilities.rs"]
+pub mod abilities;
+#[cfg(feature = "gen1")]
+#[path = "gen1/base_stats.rs"]
+pub mod base_stats;
+#[cfg(feature = "gen1")]
+#[path = "gen1/choice_effects.rs"]
+pub mod choice_effects;
+#[cfg(feature = "gen1")]
+#[path = "gen1/damage_calc.rs"]
+mod damage_calc;
+#[cfg(feature = "gen1")]
+#[path = "gen1/evaluate.rs"]
+pub mod evaluate;
+#[cfg(feature = "gen1")]
+#[path = "gen1/generate_instructions.rs"]
+pub mod generate_instructions;
+#[cfg(feature = "gen1")]
+#[path = "gen1/items.rs"]
+pub mod items;
+#[cfg(feature = "gen1")]
+#[path = "gen1/state.rs"]
+pub mod state;
+
 #[cfg(feature = "gen2")]
 #[path = "gen2/abilities.rs"]
 pub mod abilities;
@@ -20,19 +45,19 @@ pub mod items;
 #[path = "gen2/state.rs"]
 pub mod state;
 
-#[cfg(not(feature = "gen2"))]
+#[cfg(not(any(feature = "gen2", feature = "gen1")))]
 pub mod abilities;
-#[cfg(not(feature = "gen2"))]
+#[cfg(not(any(feature = "gen2", feature = "gen1")))]
 pub mod choice_effects;
-#[cfg(not(feature = "gen2"))]
+#[cfg(not(any(feature = "gen2", feature = "gen1")))]
 mod damage_calc;
-#[cfg(not(feature = "gen2"))]
+#[cfg(not(any(feature = "gen2", feature = "gen1")))]
 pub mod evaluate;
-#[cfg(not(feature = "gen2"))]
+#[cfg(not(any(feature = "gen2", feature = "gen1")))]
 pub mod generate_instructions;
-#[cfg(not(feature = "gen2"))]
+#[cfg(not(any(feature = "gen2", feature = "gen1")))]
 pub mod items;
-#[cfg(not(feature = "gen2"))]
+#[cfg(not(any(feature = "gen2", feature = "gen1")))]
 pub mod state;
 
 pub mod choices;
@@ -41,7 +66,6 @@ pub mod io;
 pub mod mcts;
 pub mod pokemon;
 pub mod search;
-pub mod serialize;
 
 #[macro_export]
 macro_rules! assert_unique_feature {

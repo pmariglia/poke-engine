@@ -1,4 +1,4 @@
-#![cfg(not(any(feature = "gen2", feature = "gen3")))]
+#![cfg(not(any(feature = "gen1", feature = "gen2", feature = "gen3")))]
 
 use poke_engine::abilities::Abilities;
 use poke_engine::choices::{Choices, MOVES};
@@ -28,7 +28,7 @@ use poke_engine::instruction::ToggleTerastallizedInstruction;
 #[cfg(not(feature = "terastallization"))]
 use poke_engine::state::LastUsedMove;
 
-fn generate_instructions_with_state_assertion(
+pub fn generate_instructions_with_state_assertion(
     state: &mut State,
     side_one_move: &MoveChoice,
     side_two_move: &MoveChoice,
@@ -14885,4 +14885,92 @@ fn test_battle_is_over_when_side_two_has_unrevealed_pkmn() {
     state.side_two.pokemon[PokemonIndex::P5].level = 1;
 
     assert_eq!(state.battle_is_over(), 0.0);
+}
+
+#[test]
+fn test_hyperbeam_sets_mustrecharge() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 500;
+    state.side_two.get_active().maxhp = 500;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::HYPERBEAM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 10.000002,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 90.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 177,
+                }),
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::MUSTRECHARGE,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_using_none_with_mustrecharge_removes_volatile() {
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::MUSTRECHARGE);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::NONE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::RemoveVolatileStatus(
+            RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::MUSTRECHARGE,
+            },
+        )],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(not(feature = "terastallization"))]
+fn test_mustrecharge_move_only_allows_none() {
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::MUSTRECHARGE);
+
+    let options = state.get_all_options();
+
+    let expected_options = (
+        vec![MoveChoice::None],
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+    );
+    assert_eq!(expected_options, options);
 }
