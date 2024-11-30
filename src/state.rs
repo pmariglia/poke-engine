@@ -1,3 +1,5 @@
+use num_enum::FromPrimitive;
+
 use crate::abilities::Abilities;
 use crate::choices::{Choice, Choices, MoveCategory, MOVES};
 use crate::define_enum_with_from_str;
@@ -781,8 +783,10 @@ impl Default for Pokemon {
     }
 }
 
-#[derive(Debug, Copy, PartialEq, Clone, Eq, Hash)]
+#[derive(Debug, Copy, PartialEq, Clone, Eq, Hash, FromPrimitive)]
+#[repr(u8)]
 pub enum PokemonIndex {
+    #[default]
     P0,
     P1,
     P2,

@@ -22,6 +22,7 @@ debug = 1
 clap = { version = "4.5.4", features = ["derive"] }
 rand = "0.8.4"
 lazy_static = "1.4.0"
+num_enum = "0.7.3"
 
 [features]
 remove_low_chance_instructions = []
