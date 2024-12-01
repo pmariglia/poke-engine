@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.0.18](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.18) - 2024-12-01
+
+### Features
+
+- Gen1 compatibility - ([0ee705c](https://github.com/pmariglia/poke-engine/commit/0ee705ccfdc33766c4bcb8f1dadce253bf3f69e2))
+
 ## [v0.0.17](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.17) - 2024-11-28
 
 ### Features
