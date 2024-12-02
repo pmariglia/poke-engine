@@ -168,5 +168,5 @@ Available commands:
 When running directly, the engine parses the state of the game from a string.
 
 Properly representing the state of a Pokémon battle gets really complicated.
-See the doctest for `State::deserialize` in [serialize.rs](src/serialize.rs)
+See the doctest for `State::deserialize` in [state.rs](src/state.rs)
 for the source of truth on how to parse a state string.
