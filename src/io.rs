@@ -658,6 +658,7 @@ pub fn main() {
                     &mut state,
                     &s1_movechoice,
                     &s2_movechoice,
+                    true,
                 );
                 pprint_state_instruction_vector(&instructions);
             }
@@ -790,8 +791,12 @@ fn command_loop(mut io_data: IOData) {
                         continue;
                     }
                 }
-                let instructions =
-                    generate_instructions_from_move_pair(&mut io_data.state, &s1_move, &s2_move);
+                let instructions = generate_instructions_from_move_pair(
+                    &mut io_data.state,
+                    &s1_move,
+                    &s2_move,
+                    true,
+                );
                 pprint_state_instruction_vector(&instructions);
                 io_data.last_instructions_generated = instructions;
             }

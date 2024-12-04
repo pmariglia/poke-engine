@@ -52,7 +52,7 @@ pub fn expectiminimax_search(
 
             let mut score = 0.0;
             let instructions =
-                generate_instructions_from_move_pair(state, &side_one_move, &side_two_move);
+                generate_instructions_from_move_pair(state, &side_one_move, &side_two_move, false);
             if depth == 0 {
                 for instruction in instructions.iter() {
                     state.apply_instructions(&instruction.instruction_list);

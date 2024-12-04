@@ -471,6 +471,28 @@ fn get_instructions_from_boosts(
     }
 }
 
+fn compare_health_with_damage_multiples(max_damage: i16, health: i16) -> (i16, i16) {
+    let max_damage_f32 = max_damage as f32;
+    let health_f32 = health as f32;
+
+    let mut total_less_than = 0;
+    let mut num_less_than = 0;
+    let mut num_greater_than = 0;
+    let increment = max_damage as f32 * 0.01;
+    let mut damage = max_damage_f32 * 0.85;
+    for _ in 0..16 {
+        if damage < health_f32 {
+            total_less_than += damage as i16;
+            num_less_than += 1;
+        } else if damage > health_f32 {
+            num_greater_than += 1;
+        }
+        damage += increment;
+    }
+
+    (total_less_than / num_less_than, num_greater_than)
+}
+
 fn get_instructions_from_secondaries(
     state: &mut State,
     attacker_choice: &Choice,
@@ -1204,6 +1226,7 @@ pub fn generate_instructions_from_move(
     attacking_side: SideReference,
     mut incoming_instructions: StateInstructions,
     mut final_instructions: &mut Vec<StateInstructions>,
+    branch_if_roll_kills: bool,
 ) {
     if state.use_damage_dealt {
         reset_damage_dealt(
@@ -1379,6 +1402,7 @@ pub fn generate_instructions_from_move(
                 attacking_side,
                 sleep_talk_instructions,
                 &mut final_instructions,
+                false,
             );
         }
         return;
@@ -1395,7 +1419,7 @@ pub fn generate_instructions_from_move(
         final_instructions.push(incoming_instructions);
         return;
     }
-    let damage = calculate_damage(state, &attacking_side, &choice, DamageRolls::Average);
+    let damage = calculate_damage(state, &attacking_side, &choice, DamageRolls::Max);
     choice_special_effect(state, &choice, &attacking_side, &mut incoming_instructions);
     check_move_hit_or_miss(
         state,
@@ -1431,175 +1455,69 @@ pub fn generate_instructions_from_move(
             hit_count = 9;
         }
     }
-    let mut hit_sub: bool = false;
-    for _ in 0..hit_count {
-        if let Some(damages_dealt) = damage {
-            hit_sub = generate_instructions_from_damage(
-                state,
-                &choice,
-                damages_dealt,
-                &attacking_side,
-                &mut incoming_instructions,
-            );
-        }
-        if let Some(side_condition) = &choice.side_condition {
-            generate_instructions_from_side_conditions(
-                state,
-                side_condition,
-                &attacking_side,
-                &mut incoming_instructions,
-            );
-        }
-        choice_hazard_clear(state, &choice, &attacking_side, &mut incoming_instructions);
-        if let Some(volatile_status) = &choice.volatile_status {
-            get_instructions_from_volatile_statuses(
-                state,
-                &choice,
-                volatile_status,
-                &attacking_side,
-                &mut incoming_instructions,
-            );
-        }
-        if let Some(status) = &choice.status {
-            get_instructions_from_status_effects(
-                state,
-                status,
-                &attacking_side,
-                &mut incoming_instructions,
-                hit_sub,
-            );
-        }
-        if let Some(heal) = &choice.heal {
-            get_instructions_from_heal(state, heal, &attacking_side, &mut incoming_instructions);
-        }
-    } // end multi-hit
-      // this is wrong, but I am deciding it is good enough for this engine (for now)
-      // each multi-hit move should trigger a chance for a secondary effect,
-      // but the way this engine was structured makes it difficult to implement
-      // without some performance hits.
 
-    if let Some(boost) = &choice.boost {
-        get_instructions_from_boosts(state, boost, &attacking_side, &mut incoming_instructions);
+    let (_attacker_side, defender_side) = state.get_both_sides(&attacking_side);
+    let defender_active = defender_side.get_active();
+    let mut does_damage = false;
+    let (mut kill_damage, mut no_kill_damage) = (0, 0);
+    let mut kill_instructions: Option<StateInstructions> = None;
+    if let Some(max_damage_dealt) = damage {
+        does_damage = true;
+        let avg_damage_dealt = (max_damage_dealt as f32 * 0.925) as i16;
+        let min_damage_dealt = (max_damage_dealt as f32 * 0.85) as i16;
+        if branch_if_roll_kills
+            && max_damage_dealt >= defender_active.hp
+            && min_damage_dealt < defender_active.hp
+        {
+            let (average_non_kill_damage, num_kill_rolls) =
+                compare_health_with_damage_multiples(max_damage_dealt, defender_active.hp);
+
+            let mut kill_ins = incoming_instructions.clone();
+            kill_ins.update_percentage(num_kill_rolls as f32 / 16.0);
+            kill_instructions = Some(kill_ins);
+            kill_damage = defender_active.hp;
+
+            incoming_instructions.update_percentage((16 - num_kill_rolls) as f32 / 16.0);
+            no_kill_damage = average_non_kill_damage;
+        } else {
+            no_kill_damage = avg_damage_dealt;
+        }
     }
 
-    if choice.flags.drag {
-        get_instructions_from_drag(
+    if incoming_instructions.percentage != 0.0 {
+        run_move(
             state,
-            &attacking_side,
+            attacking_side,
             incoming_instructions,
+            hit_count,
+            does_damage,
+            no_kill_damage,
+            choice,
+            defender_choice,
             &mut final_instructions,
         );
-        combine_duplicate_instructions(&mut final_instructions);
-        return;
+    } else {
+        state.reverse_instructions(&incoming_instructions.instruction_list);
     }
 
-    // Only entered if the move causes a switch-out
-    // U-turn, Volt Switch, Baton Pass, etc.
-    // This deals with a bunch of flags that are required for the next turn to run properly
-    if choice.flags.pivot {
-        match attacking_side {
-            SideReference::SideOne => {
-                if state.side_one.visible_alive_pkmn() > 1 {
-                    if choice.move_id == Choices::BATONPASS {
-                        state.side_one.baton_passing = !state.side_one.baton_passing;
-                        incoming_instructions.instruction_list.push(
-                            Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
-                                side_ref: SideReference::SideOne,
-                            }),
-                        );
-                    }
-                    state.side_one.force_switch = !state.side_one.force_switch;
-                    incoming_instructions
-                        .instruction_list
-                        .push(Instruction::ToggleSideOneForceSwitch);
-
-                    if choice.first_move {
-                        incoming_instructions.instruction_list.push(
-                            Instruction::SetSideTwoMoveSecondSwitchOutMove(
-                                SetSecondMoveSwitchOutMoveInstruction {
-                                    new_choice: defender_choice.move_id,
-                                    previous_choice: state
-                                        .side_two
-                                        .switch_out_move_second_saved_move,
-                                },
-                            ),
-                        );
-                        state.side_two.switch_out_move_second_saved_move = defender_choice.move_id;
-                    } else {
-                        incoming_instructions.instruction_list.push(
-                            Instruction::SetSideTwoMoveSecondSwitchOutMove(
-                                SetSecondMoveSwitchOutMoveInstruction {
-                                    new_choice: Choices::NONE,
-                                    previous_choice: state
-                                        .side_two
-                                        .switch_out_move_second_saved_move,
-                                },
-                            ),
-                        );
-                        state.side_two.switch_out_move_second_saved_move = defender_choice.move_id;
-                    }
-                }
-            }
-            SideReference::SideTwo => {
-                if state.side_two.visible_alive_pkmn() > 1 {
-                    if choice.move_id == Choices::BATONPASS {
-                        state.side_two.baton_passing = !state.side_two.baton_passing;
-                        incoming_instructions.instruction_list.push(
-                            Instruction::ToggleBatonPassing(ToggleBatonPassingInstruction {
-                                side_ref: SideReference::SideTwo,
-                            }),
-                        );
-                    }
-                    state.side_two.force_switch = !state.side_two.force_switch;
-                    incoming_instructions
-                        .instruction_list
-                        .push(Instruction::ToggleSideTwoForceSwitch);
-
-                    if choice.first_move {
-                        incoming_instructions.instruction_list.push(
-                            Instruction::SetSideOneMoveSecondSwitchOutMove(
-                                SetSecondMoveSwitchOutMoveInstruction {
-                                    new_choice: defender_choice.move_id,
-                                    previous_choice: state
-                                        .side_one
-                                        .switch_out_move_second_saved_move,
-                                },
-                            ),
-                        );
-                        state.side_one.switch_out_move_second_saved_move = defender_choice.move_id;
-                    } else {
-                        incoming_instructions.instruction_list.push(
-                            Instruction::SetSideOneMoveSecondSwitchOutMove(
-                                SetSecondMoveSwitchOutMoveInstruction {
-                                    new_choice: Choices::NONE,
-                                    previous_choice: state
-                                        .side_one
-                                        .switch_out_move_second_saved_move,
-                                },
-                            ),
-                        );
-                        state.side_one.switch_out_move_second_saved_move = defender_choice.move_id;
-                    }
-                }
-            }
+    // A branch representing where a roll kills the target
+    if let Some(kill_ins) = kill_instructions {
+        if kill_ins.percentage != 0.0 {
+            state.apply_instructions(&kill_ins.instruction_list);
+            run_move(
+                state,
+                attacking_side,
+                kill_ins,
+                hit_count,
+                does_damage,
+                kill_damage,
+                choice,
+                defender_choice,
+                &mut final_instructions,
+            );
         }
     }
 
-    if let Some(secondaries_vec) = &choice.secondaries {
-        state.reverse_instructions(&incoming_instructions.instruction_list);
-        let instructions_vec_after_secondaries = get_instructions_from_secondaries(
-            state,
-            &choice,
-            secondaries_vec,
-            &attacking_side,
-            incoming_instructions,
-            hit_sub,
-        );
-        final_instructions.extend(instructions_vec_after_secondaries);
-    } else {
-        state.reverse_instructions(&incoming_instructions.instruction_list);
-        final_instructions.push(incoming_instructions);
-    }
     combine_duplicate_instructions(&mut final_instructions);
     return;
 }
@@ -2063,10 +1981,192 @@ fn end_of_turn_triggered(side_one_move: &MoveChoice, side_two_move: &MoveChoice)
         && !(side_one_move == &MoveChoice::None && matches!(side_two_move, &MoveChoice::Switch(_)))
 }
 
+fn run_move(
+    state: &mut State,
+    attacking_side: SideReference,
+    mut instructions: StateInstructions,
+    hit_count: i8,
+    does_damage: bool,
+    damage_amount: i16,
+    choice: &Choice,
+    defender_choice: &Choice,
+    final_instructions: &mut Vec<StateInstructions>,
+) {
+    let mut hit_sub = false;
+    for _ in 0..hit_count {
+        if does_damage {
+            hit_sub = generate_instructions_from_damage(
+                state,
+                &choice,
+                damage_amount,
+                &attacking_side,
+                &mut instructions,
+            );
+        }
+        if let Some(side_condition) = &choice.side_condition {
+            generate_instructions_from_side_conditions(
+                state,
+                side_condition,
+                &attacking_side,
+                &mut instructions,
+            );
+        }
+        choice_hazard_clear(state, &choice, &attacking_side, &mut instructions);
+        if let Some(volatile_status) = &choice.volatile_status {
+            get_instructions_from_volatile_statuses(
+                state,
+                &choice,
+                volatile_status,
+                &attacking_side,
+                &mut instructions,
+            );
+        }
+        if let Some(status) = &choice.status {
+            get_instructions_from_status_effects(
+                state,
+                status,
+                &attacking_side,
+                &mut instructions,
+                hit_sub,
+            );
+        }
+        if let Some(heal) = &choice.heal {
+            get_instructions_from_heal(state, heal, &attacking_side, &mut instructions);
+        }
+    } // end multi-hit
+      // this is wrong, but I am deciding it is good enough for this engine (for now)
+      // each multi-hit move should trigger a chance for a secondary effect,
+      // but the way this engine was structured makes it difficult to implement
+      // without some performance hits.
+
+    if let Some(boost) = &choice.boost {
+        get_instructions_from_boosts(state, boost, &attacking_side, &mut instructions);
+    }
+
+    if choice.flags.drag {
+        get_instructions_from_drag(state, &attacking_side, instructions, final_instructions);
+        combine_duplicate_instructions(final_instructions);
+        return;
+    }
+
+    // Only entered if the move causes a switch-out
+    // U-turn, Volt Switch, Baton Pass, etc.
+    // This deals with a bunch of flags that are required for the next turn to run properly
+    if choice.flags.pivot {
+        match attacking_side {
+            SideReference::SideOne => {
+                if state.side_one.visible_alive_pkmn() > 1 {
+                    if choice.move_id == Choices::BATONPASS {
+                        state.side_one.baton_passing = !state.side_one.baton_passing;
+                        instructions
+                            .instruction_list
+                            .push(Instruction::ToggleBatonPassing(
+                                ToggleBatonPassingInstruction {
+                                    side_ref: SideReference::SideOne,
+                                },
+                            ));
+                    }
+                    state.side_one.force_switch = !state.side_one.force_switch;
+                    instructions
+                        .instruction_list
+                        .push(Instruction::ToggleSideOneForceSwitch);
+
+                    if choice.first_move {
+                        instructions.instruction_list.push(
+                            Instruction::SetSideTwoMoveSecondSwitchOutMove(
+                                SetSecondMoveSwitchOutMoveInstruction {
+                                    new_choice: defender_choice.move_id,
+                                    previous_choice: state
+                                        .side_two
+                                        .switch_out_move_second_saved_move,
+                                },
+                            ),
+                        );
+                        state.side_two.switch_out_move_second_saved_move = defender_choice.move_id;
+                    } else {
+                        instructions.instruction_list.push(
+                            Instruction::SetSideTwoMoveSecondSwitchOutMove(
+                                SetSecondMoveSwitchOutMoveInstruction {
+                                    new_choice: Choices::NONE,
+                                    previous_choice: state
+                                        .side_two
+                                        .switch_out_move_second_saved_move,
+                                },
+                            ),
+                        );
+                        state.side_two.switch_out_move_second_saved_move = defender_choice.move_id;
+                    }
+                }
+            }
+            SideReference::SideTwo => {
+                if state.side_two.visible_alive_pkmn() > 1 {
+                    if choice.move_id == Choices::BATONPASS {
+                        state.side_two.baton_passing = !state.side_two.baton_passing;
+                        instructions
+                            .instruction_list
+                            .push(Instruction::ToggleBatonPassing(
+                                ToggleBatonPassingInstruction {
+                                    side_ref: SideReference::SideTwo,
+                                },
+                            ));
+                    }
+                    state.side_two.force_switch = !state.side_two.force_switch;
+                    instructions
+                        .instruction_list
+                        .push(Instruction::ToggleSideTwoForceSwitch);
+
+                    if choice.first_move {
+                        instructions.instruction_list.push(
+                            Instruction::SetSideOneMoveSecondSwitchOutMove(
+                                SetSecondMoveSwitchOutMoveInstruction {
+                                    new_choice: defender_choice.move_id,
+                                    previous_choice: state
+                                        .side_one
+                                        .switch_out_move_second_saved_move,
+                                },
+                            ),
+                        );
+                        state.side_one.switch_out_move_second_saved_move = defender_choice.move_id;
+                    } else {
+                        instructions.instruction_list.push(
+                            Instruction::SetSideOneMoveSecondSwitchOutMove(
+                                SetSecondMoveSwitchOutMoveInstruction {
+                                    new_choice: Choices::NONE,
+                                    previous_choice: state
+                                        .side_one
+                                        .switch_out_move_second_saved_move,
+                                },
+                            ),
+                        );
+                        state.side_one.switch_out_move_second_saved_move = defender_choice.move_id;
+                    }
+                }
+            }
+        }
+    }
+
+    if let Some(secondaries_vec) = &choice.secondaries {
+        state.reverse_instructions(&instructions.instruction_list);
+        let instructions_vec_after_secondaries = get_instructions_from_secondaries(
+            state,
+            &choice,
+            secondaries_vec,
+            &attacking_side,
+            instructions,
+            hit_sub,
+        );
+        final_instructions.extend(instructions_vec_after_secondaries);
+    } else {
+        state.reverse_instructions(&instructions.instruction_list);
+        final_instructions.push(instructions);
+    }
+}
+
 pub fn generate_instructions_from_move_pair(
     state: &mut State,
     side_one_move: &MoveChoice,
     side_two_move: &MoveChoice,
+    branch_if_roll_kills: bool,
 ) -> Vec<StateInstructions> {
     /*
     - get Choice structs from moves
@@ -2127,6 +2227,7 @@ pub fn generate_instructions_from_move_pair(
             SideReference::SideOne,
             incoming_instructions,
             &mut state_instructions_vec,
+            branch_if_roll_kills,
         );
         side_two_choice.first_move = false;
         let mut i = 0;
@@ -2140,6 +2241,7 @@ pub fn generate_instructions_from_move_pair(
                 SideReference::SideTwo,
                 state_instruction,
                 &mut state_instructions_vec,
+                branch_if_roll_kills,
             );
             i += 1;
         }
@@ -2152,6 +2254,7 @@ pub fn generate_instructions_from_move_pair(
             SideReference::SideTwo,
             incoming_instructions,
             &mut state_instructions_vec,
+            branch_if_roll_kills,
         );
         side_one_choice.first_move = false;
         let mut i = 0;
@@ -2165,6 +2268,7 @@ pub fn generate_instructions_from_move_pair(
                 SideReference::SideOne,
                 state_instruction,
                 &mut state_instructions_vec,
+                branch_if_roll_kills,
             );
             i += 1;
         }

@@ -27,6 +27,7 @@ fn test_last_used_move_is_set_on_switch() {
         &mut state,
         &MoveChoice::Switch(PokemonIndex::P1),
         &MoveChoice::None,
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -64,6 +65,7 @@ fn test_last_used_move_is_set_on_move() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -116,6 +118,7 @@ fn test_last_used_move_overwritten_when_dragged_out() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -227,6 +230,7 @@ fn test_encore_slow() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -294,6 +298,7 @@ fn test_encore_slow_into_substitute() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -371,6 +376,7 @@ fn test_encore_fast_fails_with_lastusedmove_equal_to_switch() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -419,6 +425,7 @@ fn test_encore_fast_fails_with_lastusedmove_equal_to_none() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -459,6 +466,7 @@ fn test_encore_second_fails_when_opponent_switches() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Switch(PokemonIndex::P1),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -509,6 +517,7 @@ fn test_fast_encore_into_using_a_different_move_from_lum() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -555,6 +564,7 @@ fn test_fakeout_first_turn_switched_in() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -603,6 +613,7 @@ fn test_fakeout_with_last_used_move_of_non_switch() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {

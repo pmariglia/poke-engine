@@ -961,6 +961,7 @@ pub fn generate_instructions_from_move(
     attacking_side: SideReference,
     mut incoming_instructions: StateInstructions,
     mut final_instructions: &mut Vec<StateInstructions>,
+    _branch_if_roll_kills: bool,
 ) {
     if state.use_damage_dealt {
         reset_damage_dealt(
@@ -1496,6 +1497,7 @@ pub fn generate_instructions_from_move_pair(
     state: &mut State,
     side_one_move: &MoveChoice,
     side_two_move: &MoveChoice,
+    branch_if_roll_kills: bool,
 ) -> Vec<StateInstructions> {
     /*
     - get Choice structs from moves
@@ -1556,6 +1558,7 @@ pub fn generate_instructions_from_move_pair(
             SideReference::SideOne,
             incoming_instructions,
             &mut state_instructions_vec,
+            branch_if_roll_kills,
         );
         side_two_choice.first_move = false;
         let mut i = 0;
@@ -1569,6 +1572,7 @@ pub fn generate_instructions_from_move_pair(
                 SideReference::SideTwo,
                 state_instruction,
                 &mut state_instructions_vec,
+                branch_if_roll_kills,
             );
             i += 1;
         }
@@ -1581,6 +1585,7 @@ pub fn generate_instructions_from_move_pair(
             SideReference::SideTwo,
             incoming_instructions,
             &mut state_instructions_vec,
+            branch_if_roll_kills,
         );
         side_one_choice.first_move = false;
         let mut i = 0;
@@ -1594,6 +1599,7 @@ pub fn generate_instructions_from_move_pair(
                 SideReference::SideOne,
                 state_instruction,
                 &mut state_instructions_vec,
+                branch_if_roll_kills,
             );
             i += 1;
         }

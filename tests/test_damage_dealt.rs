@@ -29,6 +29,7 @@ fn test_previous_damage_dealt_resets_and_then_goes_to_a_new_value() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -77,6 +78,7 @@ fn test_counter_after_physical_hit() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -119,6 +121,7 @@ fn test_metalburst_after_physical_move() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -161,6 +164,7 @@ fn test_comeuppance_after_physical_move() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -203,6 +207,7 @@ fn test_metalburst_after_special_move() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -250,6 +255,7 @@ fn test_metalburst_after_substitute_being_hit() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -294,6 +300,7 @@ fn test_metalburst_fails_moving_first() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -332,6 +339,7 @@ fn test_metalburst_after_status_move() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -359,6 +367,7 @@ fn test_counter_after_special_hit() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -397,6 +406,7 @@ fn test_mirrorcoat_after_special_hit() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -439,6 +449,7 @@ fn test_mirrorcoat_after_physical_hit() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -478,6 +489,7 @@ fn test_focuspunch_after_getting_hit() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -521,6 +533,7 @@ fn test_focuspunch_after_substitute_getting_hit() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {
@@ -573,6 +586,7 @@ fn test_focuspunch_after_status_move() {
         &mut state,
         &MoveChoice::Move(PokemonMoveIndex::M0),
         &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
     );
 
     let expected_instructions = vec![StateInstructions {

@@ -21,7 +21,8 @@ pub fn generate_instructions_with_state_assertion(
     side_two_move: &MoveChoice,
 ) -> Vec<StateInstructions> {
     let before_state_string = format!("{:?}", state);
-    let instructions = generate_instructions_from_move_pair(state, side_one_move, side_two_move);
+    let instructions =
+        generate_instructions_from_move_pair(state, side_one_move, side_two_move, false);
     let after_state_string = format!("{:?}", state);
     assert_eq!(before_state_string, after_state_string);
     instructions

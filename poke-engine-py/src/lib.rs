@@ -470,7 +470,7 @@ fn gi(
         }
     }
     let instructions =
-        generate_instructions_from_move_pair(&mut py_state.state, &s1_move, &s2_move);
+        generate_instructions_from_move_pair(&mut py_state.state, &s1_move, &s2_move, true);
     let py_instructions = instructions
         .iter()
         .map(|i| PyStateInstructions::from_state_instructions(i.clone()))
