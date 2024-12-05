@@ -19032,6 +19032,7 @@ pub enum MultiAccuracyMove {
 }
 
 define_enum_with_from_str! {
+    #[repr(u16)]
     #[derive(Eq, PartialEq, Debug, Hash, Copy, Clone)]
     Choices {
         NONE,

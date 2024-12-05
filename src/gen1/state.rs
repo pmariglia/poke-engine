@@ -82,6 +82,7 @@ impl MoveChoice {
 }
 
 define_enum_with_from_str! {
+    #[repr(u8)]
     #[derive(Debug, PartialEq, Copy, Clone, Hash)]
     PokemonStatus {
         NONE,
@@ -95,6 +96,7 @@ define_enum_with_from_str! {
 }
 
 define_enum_with_from_str! {
+    #[repr(u8)]
     #[derive(PartialEq, Eq, Hash, Debug, Copy, Clone)]
     PokemonVolatileStatus {
         NONE,
@@ -243,6 +245,7 @@ impl SideReference {
 }
 
 define_enum_with_from_str! {
+    #[repr(u8)]
     #[derive(Debug, PartialEq, Copy, Clone)]
     Weather {
         NONE,
@@ -263,6 +266,7 @@ pub struct StateWeather {
 }
 
 define_enum_with_from_str! {
+    #[repr(u8)]
     #[derive(Debug, PartialEq, Copy, Clone)]
     Terrain {
         NONE,
@@ -286,6 +290,7 @@ pub struct StateTrickRoom {
 }
 
 define_enum_with_from_str! {
+    #[repr(u8)]
     #[derive(Debug, Clone, Copy, PartialEq)]
     PokemonType {
         NORMAL,

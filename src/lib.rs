@@ -83,12 +83,14 @@ macro_rules! assert_unique_feature {
 macro_rules! define_enum_with_from_str {
     // Case when a default variant is provided
     (
+        #[repr($repr:ident)]
         $(#[$meta:meta])*
         $name:ident {
             $($variant:ident),+ $(,)?
         },
         default = $default_variant:ident
     ) => {
+        #[repr($repr)]
         $(#[$meta])*
         pub enum $name {
             $($variant),+
@@ -112,15 +114,33 @@ macro_rules! define_enum_with_from_str {
                 write!(f, "{:?}", self)
             }
         }
+
+        impl From<$repr> for $name {
+            fn from(value: $repr) -> $name {
+                match value {
+                    $(
+                        x if x == $name::$variant as $repr => $name::$variant,
+                    )+
+                    _ => $name::$default_variant,
+                }
+            }
+        }
+        impl Into<$repr> for $name {
+            fn into(self) -> $repr {
+                self as $repr
+            }
+        }
     };
 
     // Case when no default variant is provided
     (
+        #[repr($repr:ident)]
         $(#[$meta:meta])*
         $name:ident {
             $($variant:ident),+ $(,)?
         }
     ) => {
+        #[repr($repr)]
         $(#[$meta])*
         pub enum $name {
             $($variant),+
@@ -142,6 +162,22 @@ macro_rules! define_enum_with_from_str {
         impl std::fmt::Display for $name {
             fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
                 write!(f, "{:?}", self)
+            }
+        }
+
+        impl From<$repr> for $name {
+            fn from(value: $repr) -> $name {
+                match value {
+                    $(
+                        x if x == $name::$variant as $repr => $name::$variant,
+                    )+
+                    _ => panic!("Invalid {}: {}", stringify!($name), value),
+                }
+            }
+        }
+        impl Into<$repr> for $name {
+            fn into(self) -> $repr {
+                self as $repr
             }
         }
     };

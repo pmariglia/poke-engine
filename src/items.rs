@@ -15,6 +15,7 @@ use crate::state::{PokemonStatus, SideReference};
 use std::cmp;
 
 define_enum_with_from_str! {
+    #[repr(u8)]
     #[derive(Debug, PartialEq, Clone, Copy)]
     Items {
         NONE,

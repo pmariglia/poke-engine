@@ -22,6 +22,7 @@ use crate::state::{PokemonVolatileStatus, SideReference, Weather};
 use std::cmp;
 
 define_enum_with_from_str! {
+    #[repr(u16)]
     #[derive(PartialEq, Debug, Clone)]
     Abilities {
         NONE,
