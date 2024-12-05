@@ -2715,7 +2715,6 @@ fn run_move(
             != Abilities::GUARDDOG
     {
         get_instructions_from_drag(state, &attacking_side, instructions, final_instructions);
-        combine_duplicate_instructions(final_instructions);
         return;
     }
 
