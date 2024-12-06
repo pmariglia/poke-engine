@@ -698,7 +698,7 @@ impl Pokemon {
         }
         match volatile_status {
             // grass immunity to leechseed covered by `powder`
-            PokemonVolatileStatus::LEECHSEED => {
+            PokemonVolatileStatus::LEECHSEED | PokemonVolatileStatus::CONFUSION => {
                 if active_volatiles.contains(&PokemonVolatileStatus::SUBSTITUTE) {
                     return false;
                 }

@@ -551,8 +551,30 @@ fn test_miracleberry_cures_paralysis_and_attack_does_not_branch() {
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 48,
-            })
+            }),
         ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_confuseray_into_substitute() {
+    let mut state = State::default();
+    state
+        .side_two
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
+    state.side_two.substitute_health = 20;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::CONFUSERAY,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -571,14 +593,12 @@ fn test_mint_berry_does_not_cure_paralysis() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::NONE,
-                new_status: PokemonStatus::PARALYZE,
-            }),
-        ],
+        instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+            side_ref: SideReference::SideOne,
+            pokemon_index: PokemonIndex::P0,
+            old_status: PokemonStatus::NONE,
+            new_status: PokemonStatus::PARALYZE,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

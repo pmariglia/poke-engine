@@ -64,6 +64,28 @@ fn set_moves_on_pkmn_and_call_generate_instructions(
 }
 
 #[test]
+fn test_confuseray_into_substitute() {
+    let mut state = State::default();
+    state
+        .side_two
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
+    state.side_two.substitute_health = 20;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::CONFUSERAY,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_branch_when_a_roll_can_kill() {
     let mut state = State::default();
     state.side_two.get_active().hp = 50;
