@@ -1,8 +1,11 @@
 #![allow(unused_variables)]
-use super::instruction::{DisableMoveInstruction, HealInstruction, Instruction, StateInstructions};
-use super::state::SideReference;
+use super::instruction::{
+    ChangeItemInstruction, ChangeStatusInstruction, DisableMoveInstruction, HealInstruction,
+    Instruction, StateInstructions,
+};
 use super::state::State;
 use super::state::{Pokemon, PokemonType};
+use super::state::{PokemonStatus, Side, SideReference};
 use crate::choices::{Choice, Choices};
 use crate::define_enum_with_from_str;
 use crate::pokemon::PokemonName;
@@ -35,8 +38,62 @@ define_enum_with_from_str! {
         HARDSTONE,
         MAGNET,
         LIGHTBALL,
+        MIRACLEBERRY,
+        MINTBERRY,
     },
     default = UNKNOWNITEM
+}
+
+fn miracle_berry(
+    side_ref: &SideReference,
+    attacking_side: &mut Side,
+    instructions: &mut StateInstructions,
+) {
+    let active_index = attacking_side.active_index;
+    let active_pkmn = attacking_side.get_active();
+    instructions
+        .instruction_list
+        .push(Instruction::ChangeStatus(ChangeStatusInstruction {
+            side_ref: *side_ref,
+            pokemon_index: active_index,
+            new_status: PokemonStatus::NONE,
+            old_status: active_pkmn.status,
+        }));
+    active_pkmn.status = PokemonStatus::NONE;
+    instructions
+        .instruction_list
+        .push(Instruction::ChangeItem(ChangeItemInstruction {
+            side_ref: *side_ref,
+            current_item: Items::MIRACLEBERRY,
+            new_item: Items::NONE,
+        }));
+    active_pkmn.item = Items::NONE;
+}
+
+fn mint_berry(
+    side_ref: &SideReference,
+    attacking_side: &mut Side,
+    instructions: &mut StateInstructions,
+) {
+    let active_index = attacking_side.active_index;
+    let active_pkmn = attacking_side.get_active();
+    instructions
+        .instruction_list
+        .push(Instruction::ChangeStatus(ChangeStatusInstruction {
+            side_ref: *side_ref,
+            pokemon_index: active_index,
+            new_status: PokemonStatus::NONE,
+            old_status: active_pkmn.status,
+        }));
+    active_pkmn.status = PokemonStatus::NONE;
+    instructions
+        .instruction_list
+        .push(Instruction::ChangeItem(ChangeItemInstruction {
+            side_ref: *side_ref,
+            current_item: Items::MINTBERRY,
+            new_item: Items::NONE,
+        }));
+    active_pkmn.item = Items::NONE;
 }
 
 pub fn get_choice_move_disable_instructions(
@@ -55,6 +112,26 @@ pub fn get_choice_move_disable_instructions(
         }
     }
     moves_to_disable
+}
+
+pub fn item_before_move(
+    state: &mut State,
+    choice: &mut Choice,
+    side_ref: &SideReference,
+    instructions: &mut StateInstructions,
+) {
+    let (attacking_side, defending_side) = state.get_both_sides(side_ref);
+    let active_pkmn = attacking_side.get_active();
+    let defending_pkmn = defending_side.get_active();
+    match active_pkmn.item {
+        Items::MIRACLEBERRY if active_pkmn.status != PokemonStatus::NONE => {
+            miracle_berry(side_ref, attacking_side, instructions)
+        }
+        Items::MINTBERRY if active_pkmn.status == PokemonStatus::SLEEP => {
+            mint_berry(side_ref, attacking_side, instructions)
+        }
+        _ => {}
+    }
 }
 
 pub fn item_end_of_turn(
@@ -76,6 +153,12 @@ pub fn item_end_of_turn(
                 attacker.hp += heal_amount;
                 instructions.instruction_list.push(ins);
             }
+        }
+        Items::MIRACLEBERRY if active_pkmn.status != PokemonStatus::NONE => {
+            miracle_berry(side_ref, attacking_side, instructions)
+        }
+        Items::MINTBERRY if active_pkmn.status == PokemonStatus::SLEEP => {
+            mint_berry(side_ref, attacking_side, instructions)
         }
         _ => {}
     }

@@ -19,7 +19,8 @@ use crate::state::PokemonMoveIndex;
 
 use crate::damage_calc::calculate_futuresight_damage;
 use crate::items::{
-    item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used, Items,
+    item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
+    Items,
 };
 use crate::state::{
     LastUsedMove, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition,
@@ -1001,6 +1002,7 @@ pub fn before_move(
     attacking_side: &SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
+    item_before_move(state, choice, attacking_side, incoming_instructions);
     choice_before_move(state, choice, attacking_side, incoming_instructions);
 
     modify_choice(state, choice, defender_choice, attacking_side);
