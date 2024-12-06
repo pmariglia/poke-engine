@@ -347,7 +347,9 @@ pub fn immune_to_status(
         // Specific status immunity
         match status {
             PokemonStatus::BURN => target_pkmn.has_type(&PokemonType::FIRE),
-            PokemonStatus::FREEZE => target_pkmn.has_type(&PokemonType::ICE),
+            PokemonStatus::FREEZE => {
+                target_pkmn.has_type(&PokemonType::ICE) || target_side.has_alive_frozen_pokemon()
+            }
             PokemonStatus::SLEEP => {
                 // sleep clause
                 status_target == &MoveTarget::Opponent

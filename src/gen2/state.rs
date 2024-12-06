@@ -947,6 +947,15 @@ impl Side {
         false
     }
 
+    pub fn has_alive_frozen_pokemon(&self) -> bool {
+        for p in self.pokemon.into_iter() {
+            if p.status == PokemonStatus::FREEZE && p.hp > 0 {
+                return true;
+            }
+        }
+        false
+    }
+
     pub fn can_use_tera(&self) -> bool {
         false
     }
