@@ -60,7 +60,7 @@ pub enum Instruction {
     ChangeItem(ChangeItemInstruction),
     DisableMove(DisableMoveInstruction),
     EnableMove(EnableMoveInstruction),
-    SetWish(SetWishInstruction),
+    ChangeWish(ChangeWishInstruction),
     DecrementWish(DecrementWishInstruction),
     SetFutureSight(SetFutureSightInstruction),
     DecrementFutureSight(DecrementFutureSightInstruction),
@@ -68,7 +68,7 @@ pub enum Instruction {
     DecrementRestTurns(DecrementRestTurnsInstruction),
     SetRestTurns(SetSleepTurnsInstruction),
     SetSleepTurns(SetSleepTurnsInstruction),
-    SetSubstituteHealth(SetSubstituteHealthInstruction),
+    ChangeSubstituteHealth(ChangeSubsituteHealthInstruction),
     FormeChange(FormeChangeInstruction),
     SetSideOneMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
@@ -177,7 +177,7 @@ impl fmt::Debug for Instruction {
             Instruction::EnableMove(e) => {
                 write!(f, "EnableMove {:?}: {:?}", e.side_ref, e.move_index)
             }
-            Instruction::SetWish(s) => {
+            Instruction::ChangeWish(s) => {
                 write!(f, "SetWish {:?}: {:?}", s.side_ref, s.wish_amount_change)
             }
             Instruction::DecrementWish(d) => {
@@ -217,7 +217,7 @@ impl fmt::Debug for Instruction {
                     s.side_ref, s.pokemon_index, s.previous_turns, s.new_turns
                 )
             }
-            Instruction::SetSubstituteHealth(s) => {
+            Instruction::ChangeSubstituteHealth(s) => {
                 write!(
                     f,
                     "SetSubstituteHealth {:?}: {:?}",
@@ -359,7 +359,7 @@ pub struct SetSecondMoveSwitchOutMoveInstruction {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct SetWishInstruction {
+pub struct ChangeWishInstruction {
     pub side_ref: SideReference,
     pub wish_amount_change: i16,
 }
@@ -413,7 +413,7 @@ pub struct DamageInstruction {
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct SetSubstituteHealthInstruction {
+pub struct ChangeSubsituteHealthInstruction {
     pub side_ref: SideReference,
     pub health_change: i16,
 }

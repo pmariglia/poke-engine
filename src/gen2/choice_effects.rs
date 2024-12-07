@@ -3,9 +3,9 @@ use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::{add_remove_status_instructions, get_boost_amount};
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeWeather, DamageInstruction,
-    HealInstruction, Instruction, SetFutureSightInstruction, SetSleepTurnsInstruction,
-    SetSubstituteHealthInstruction, StateInstructions,
+    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeSubsituteHealthInstruction,
+    ChangeWeather, DamageInstruction, HealInstruction, Instruction, SetFutureSightInstruction,
+    SetSleepTurnsInstruction, StateInstructions,
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::state::{
@@ -482,7 +482,7 @@ pub fn choice_special_effect(
                     damage_amount: sub_target_health,
                 });
                 let set_sub_health_instruction =
-                    Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                    Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
                         side_ref: attacking_side_ref.clone(),
                         health_change: sub_target_health - sub_current_health,
                     });

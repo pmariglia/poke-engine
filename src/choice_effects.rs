@@ -4,10 +4,10 @@ use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeWeather,
-    DamageInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction,
-    SetFutureSightInstruction, SetSleepTurnsInstruction, SetSubstituteHealthInstruction,
-    SetWishInstruction, StateInstructions, ToggleTrickRoomInstruction,
+    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeSubsituteHealthInstruction,
+    ChangeTerrain, ChangeWeather, ChangeWishInstruction, DamageInstruction, HealInstruction,
+    Instruction, RemoveVolatileStatusInstruction, SetFutureSightInstruction,
+    SetSleepTurnsInstruction, StateInstructions, ToggleTrickRoomInstruction,
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::pokemon::PokemonName;
@@ -874,8 +874,8 @@ pub fn choice_hazard_clear(
             {
                 instructions
                     .instruction_list
-                    .push(Instruction::SetSubstituteHealth(
-                        SetSubstituteHealthInstruction {
+                    .push(Instruction::ChangeSubstituteHealth(
+                        ChangeSubsituteHealthInstruction {
                             side_ref: SideReference::SideOne,
                             health_change: -1 * state.side_one.substitute_health,
                         },
@@ -901,8 +901,8 @@ pub fn choice_hazard_clear(
             {
                 instructions
                     .instruction_list
-                    .push(Instruction::SetSubstituteHealth(
-                        SetSubstituteHealthInstruction {
+                    .push(Instruction::ChangeSubstituteHealth(
+                        ChangeSubsituteHealthInstruction {
                             side_ref: SideReference::SideTwo,
                             health_change: -1 * state.side_two.substitute_health,
                         },
@@ -1070,13 +1070,13 @@ pub fn choice_special_effect(
         Choices::WISH => {
             if attacking_side.wish.0 == 0 {
                 let previous_wish_amount = attacking_side.wish.1;
-                instructions
-                    .instruction_list
-                    .push(Instruction::SetWish(SetWishInstruction {
+                instructions.instruction_list.push(Instruction::ChangeWish(
+                    ChangeWishInstruction {
                         side_ref: *attacking_side_ref,
                         wish_amount_change: attacking_side.get_active_immutable().maxhp / 2
                             - previous_wish_amount,
-                    }));
+                    },
+                ));
                 attacking_side.wish = (2, attacking_side.get_active_immutable().maxhp / 2);
             }
         }
@@ -1291,7 +1291,7 @@ pub fn choice_special_effect(
                     damage_amount: sub_target_health,
                 });
                 let set_sub_health_instruction =
-                    Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                    Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
                         side_ref: attacking_side_ref.clone(),
                         health_change: sub_target_health - sub_current_health,
                     });

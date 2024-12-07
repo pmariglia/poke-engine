@@ -9,7 +9,7 @@ use poke_engine::instruction::{
 };
 
 #[cfg(not(feature = "terastallization"))]
-use poke_engine::instruction::SetSubstituteHealthInstruction;
+use poke_engine::instruction::ChangeSubsituteHealthInstruction;
 
 #[cfg(not(feature = "terastallization"))]
 use poke_engine::abilities::Abilities;
@@ -313,7 +313,7 @@ fn test_encore_slow_into_substitute() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 25,
             }),
-            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+            Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
                 side_ref: SideReference::SideTwo,
                 health_change: 25,
             }),

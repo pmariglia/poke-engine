@@ -1,7 +1,7 @@
 use crate::choices::{Choice, Choices, MoveTarget};
 use crate::instruction::{
-    ApplyVolatileStatusInstruction, ChangeStatusInstruction, DamageInstruction, HealInstruction,
-    Instruction, SetSleepTurnsInstruction, SetSubstituteHealthInstruction, StateInstructions,
+    ApplyVolatileStatusInstruction, ChangeStatusInstruction, ChangeSubsituteHealthInstruction,
+    DamageInstruction, HealInstruction, Instruction, SetSleepTurnsInstruction, StateInstructions,
 };
 use crate::items::get_choice_move_disable_instructions;
 use crate::state::{
@@ -168,7 +168,7 @@ pub fn choice_special_effect(
                     damage_amount: sub_target_health,
                 });
                 let set_sub_health_instruction =
-                    Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                    Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
                         side_ref: attacking_side_ref.clone(),
                         health_change: sub_target_health - sub_current_health,
                     });

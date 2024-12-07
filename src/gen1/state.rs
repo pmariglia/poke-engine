@@ -1785,7 +1785,7 @@ impl State {
             Instruction::DisableMove(instruction) => {
                 self.disable_move(&instruction.side_ref, &instruction.move_index)
             }
-            Instruction::SetWish(instruction) => {
+            Instruction::ChangeWish(instruction) => {
                 self.set_wish(&instruction.side_ref, instruction.wish_amount_change);
             }
             Instruction::DecrementWish(instruction) => {
@@ -1800,7 +1800,7 @@ impl State {
             Instruction::DamageSubstitute(instruction) => {
                 self.damage_substitute(&instruction.side_ref, instruction.damage_amount);
             }
-            Instruction::SetSubstituteHealth(instruction) => {
+            Instruction::ChangeSubstituteHealth(instruction) => {
                 self.set_substitute_health(&instruction.side_ref, instruction.health_change);
             }
             Instruction::SetRestTurns(instruction) => {
@@ -1938,7 +1938,7 @@ impl State {
             Instruction::ChangeItem(instruction) => {
                 self.change_item(&instruction.side_ref, instruction.current_item)
             }
-            Instruction::SetWish(instruction) => {
+            Instruction::ChangeWish(instruction) => {
                 self.unset_wish(&instruction.side_ref, instruction.wish_amount_change)
             }
             Instruction::DecrementWish(instruction) => self.increment_wish(&instruction.side_ref),
@@ -1951,7 +1951,7 @@ impl State {
             Instruction::DamageSubstitute(instruction) => {
                 self.heal_substitute(&instruction.side_ref, instruction.damage_amount);
             }
-            Instruction::SetSubstituteHealth(instruction) => {
+            Instruction::ChangeSubstituteHealth(instruction) => {
                 self.set_substitute_health(&instruction.side_ref, instruction.health_change);
             }
             Instruction::SetRestTurns(instruction) => {

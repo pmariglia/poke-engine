@@ -3139,8 +3139,8 @@ mod tests {
     use crate::choices::{Choices, MOVES};
     use crate::instruction::{
         ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-        ChangeStatusInstruction, ChangeTerrain, DamageInstruction, EnableMoveInstruction,
-        SetSubstituteHealthInstruction, SwitchInstruction,
+        ChangeStatusInstruction, ChangeSubsituteHealthInstruction, ChangeTerrain,
+        DamageInstruction, EnableMoveInstruction, SwitchInstruction,
     };
     use crate::state::{
         Move, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, SideReference, State, Terrain,
@@ -5062,7 +5062,7 @@ mod tests {
                     side_condition: PokemonSideCondition::Stealthrock,
                     amount: -1,
                 }),
-                Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
                     side_ref: SideReference::SideOne,
                     health_change: -10,
                 }),
@@ -5070,7 +5070,7 @@ mod tests {
                     side_ref: SideReference::SideOne,
                     volatile_status: PokemonVolatileStatus::SUBSTITUTE,
                 }),
-                Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
                     side_ref: SideReference::SideTwo,
                     health_change: -25,
                 }),

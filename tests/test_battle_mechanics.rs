@@ -5,14 +5,14 @@ use poke_engine::choices::{Choices, MOVES};
 use poke_engine::generate_instructions::{generate_instructions_from_move_pair, MAX_SLEEP_TURNS};
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeType,
-    ChangeWeather, DamageInstruction, DecrementFutureSightInstruction, DecrementPPInstruction,
-    DecrementRestTurnsInstruction, DecrementWishInstruction, DisableMoveInstruction,
-    EnableMoveInstruction, FormeChangeInstruction, HealInstruction, Instruction,
-    RemoveVolatileStatusInstruction, SetFutureSightInstruction,
-    SetSecondMoveSwitchOutMoveInstruction, SetSleepTurnsInstruction,
-    SetSubstituteHealthInstruction, SetWishInstruction, StateInstructions, SwitchInstruction,
-    ToggleBatonPassingInstruction, ToggleTrickRoomInstruction,
+    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeSubsituteHealthInstruction,
+    ChangeTerrain, ChangeType, ChangeWeather, ChangeWishInstruction, DamageInstruction,
+    DecrementFutureSightInstruction, DecrementPPInstruction, DecrementRestTurnsInstruction,
+    DecrementWishInstruction, DisableMoveInstruction, EnableMoveInstruction,
+    FormeChangeInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction,
+    SetFutureSightInstruction, SetSecondMoveSwitchOutMoveInstruction, SetSleepTurnsInstruction,
+    StateInstructions, SwitchInstruction, ToggleBatonPassingInstruction,
+    ToggleTrickRoomInstruction,
 };
 use poke_engine::items::Items;
 use poke_engine::pokemon::PokemonName;
@@ -2447,7 +2447,7 @@ fn test_basic_substitute_usage() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 25,
             }),
-            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+            Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
                 side_ref: SideReference::SideOne,
                 health_change: 25,
             }),
@@ -2641,7 +2641,7 @@ fn test_substitute_does_not_let_secondary_status_effect_happen() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 25,
             }),
-            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+            Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
                 side_ref: SideReference::SideOne,
                 health_change: 25,
             }),
@@ -2681,7 +2681,7 @@ fn test_side_one_using_unboosting_move_versus_substitute() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 25,
             }),
-            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+            Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
                 side_ref: SideReference::SideTwo,
                 health_change: 25,
             }),
@@ -2765,7 +2765,7 @@ fn test_side_one_self_unboost_versus_sub() {
                     side_ref: SideReference::SideTwo,
                     damage_amount: 25,
                 }),
-                Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
                     side_ref: SideReference::SideTwo,
                     health_change: 25,
                 }),
@@ -2782,7 +2782,7 @@ fn test_side_one_self_unboost_versus_sub() {
                     side_ref: SideReference::SideTwo,
                     damage_amount: 25,
                 }),
-                Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+                Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
                     side_ref: SideReference::SideTwo,
                     health_change: 25,
                 }),
@@ -2827,7 +2827,7 @@ fn test_secondary_on_self_works_against_substitute() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 25,
             }),
-            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+            Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
                 side_ref: SideReference::SideOne,
                 health_change: 25,
             }),
@@ -2871,7 +2871,7 @@ fn test_move_goes_through_substitute() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 25,
             }),
-            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+            Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
                 side_ref: SideReference::SideOne,
                 health_change: 25,
             }),
@@ -2907,7 +2907,7 @@ fn test_infiltrator_goes_through_substitute() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 25,
             }),
-            Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
+            Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
                 side_ref: SideReference::SideOne,
                 health_change: 25,
             }),
@@ -6957,7 +6957,7 @@ fn test_using_wish() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::SetWish(SetWishInstruction {
+            Instruction::ChangeWish(ChangeWishInstruction {
                 side_ref: SideReference::SideOne,
                 wish_amount_change: state.side_one.get_active().maxhp / 2,
             }),
@@ -6983,7 +6983,7 @@ fn test_using_wish_with_pre_existing_wish_amount() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::SetWish(SetWishInstruction {
+            Instruction::ChangeWish(ChangeWishInstruction {
                 side_ref: SideReference::SideOne,
                 wish_amount_change: state.side_one.get_active().maxhp / 2 - 75, // -25
             }),
