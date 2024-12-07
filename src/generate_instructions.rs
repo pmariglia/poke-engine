@@ -5064,8 +5064,7 @@ mod tests {
                 }),
                 Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
                     side_ref: SideReference::SideOne,
-                    new_health: 0,
-                    old_health: 10,
+                    health_change: -10,
                 }),
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
@@ -5073,8 +5072,7 @@ mod tests {
                 }),
                 Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
                     side_ref: SideReference::SideTwo,
-                    new_health: 0,
-                    old_health: 25,
+                    health_change: -25,
                 }),
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,

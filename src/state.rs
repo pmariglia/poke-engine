@@ -1886,7 +1886,7 @@ impl State {
     }
 
     fn set_substitute_health(&mut self, side_reference: &SideReference, amount: i16) {
-        self.get_side(side_reference).substitute_health = amount;
+        self.get_side(side_reference).substitute_health += amount;
     }
 
     fn decrement_rest_turn(&mut self, side_reference: &SideReference) {
@@ -2062,7 +2062,7 @@ impl State {
                 self.damage_substitute(&instruction.side_ref, instruction.damage_amount);
             }
             Instruction::SetSubstituteHealth(instruction) => {
-                self.set_substitute_health(&instruction.side_ref, instruction.new_health);
+                self.set_substitute_health(&instruction.side_ref, instruction.health_change);
             }
             Instruction::SetRestTurns(instruction) => {
                 self.set_rest_turn(
@@ -2213,7 +2213,7 @@ impl State {
                 self.heal_substitute(&instruction.side_ref, instruction.damage_amount);
             }
             Instruction::SetSubstituteHealth(instruction) => {
-                self.set_substitute_health(&instruction.side_ref, instruction.old_health);
+                self.set_substitute_health(&instruction.side_ref, -1 * instruction.health_change);
             }
             Instruction::SetRestTurns(instruction) => {
                 self.set_rest_turn(

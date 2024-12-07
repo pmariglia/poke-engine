@@ -220,8 +220,8 @@ impl fmt::Debug for Instruction {
             Instruction::SetSubstituteHealth(s) => {
                 write!(
                     f,
-                    "SetSubstituteHealth {:?}: {:?} -> {:?}",
-                    s.side_ref, s.old_health, s.new_health
+                    "SetSubstituteHealth {:?}: {:?}",
+                    s.side_ref, s.health_change,
                 )
             }
             Instruction::FormeChange(s) => {
@@ -415,8 +415,7 @@ pub struct DamageInstruction {
 #[derive(Debug, PartialEq, Clone)]
 pub struct SetSubstituteHealthInstruction {
     pub side_ref: SideReference,
-    pub new_health: i16,
-    pub old_health: i16,
+    pub health_change: i16,
 }
 
 #[derive(Debug, PartialEq, Clone)]

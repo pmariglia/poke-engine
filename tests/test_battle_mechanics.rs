@@ -2449,8 +2449,7 @@ fn test_basic_substitute_usage() {
             }),
             Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
                 side_ref: SideReference::SideOne,
-                new_health: 25,
-                old_health: 0,
+                health_change: 25,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
@@ -2644,8 +2643,7 @@ fn test_substitute_does_not_let_secondary_status_effect_happen() {
             }),
             Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
                 side_ref: SideReference::SideOne,
-                new_health: 25,
-                old_health: 0,
+                health_change: 25,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
@@ -2685,8 +2683,7 @@ fn test_side_one_using_unboosting_move_versus_substitute() {
             }),
             Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
                 side_ref: SideReference::SideTwo,
-                new_health: 25,
-                old_health: 0,
+                health_change: 25,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
@@ -2770,8 +2767,7 @@ fn test_side_one_self_unboost_versus_sub() {
                 }),
                 Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
                     side_ref: SideReference::SideTwo,
-                    new_health: 25,
-                    old_health: 0,
+                    health_change: 25,
                 }),
                 Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,
@@ -2788,8 +2784,7 @@ fn test_side_one_self_unboost_versus_sub() {
                 }),
                 Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
                     side_ref: SideReference::SideTwo,
-                    new_health: 25,
-                    old_health: 0,
+                    health_change: 25,
                 }),
                 Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,
@@ -2834,8 +2829,7 @@ fn test_secondary_on_self_works_against_substitute() {
             }),
             Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
                 side_ref: SideReference::SideOne,
-                new_health: 25,
-                old_health: 0,
+                health_change: 25,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
@@ -2879,8 +2873,7 @@ fn test_move_goes_through_substitute() {
             }),
             Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
                 side_ref: SideReference::SideOne,
-                new_health: 25,
-                old_health: 0,
+                health_change: 25,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
@@ -2916,8 +2909,7 @@ fn test_infiltrator_goes_through_substitute() {
             }),
             Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
                 side_ref: SideReference::SideOne,
-                new_health: 25,
-                old_health: 0,
+                health_change: 25,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,

@@ -484,8 +484,7 @@ pub fn choice_special_effect(
                 let set_sub_health_instruction =
                     Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
                         side_ref: attacking_side_ref.clone(),
-                        new_health: sub_target_health,
-                        old_health: sub_current_health,
+                        health_change: sub_target_health - sub_current_health,
                     });
                 let apply_vs_instruction =
                     Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {

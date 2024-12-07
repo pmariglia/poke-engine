@@ -877,8 +877,7 @@ pub fn choice_hazard_clear(
                     .push(Instruction::SetSubstituteHealth(
                         SetSubstituteHealthInstruction {
                             side_ref: SideReference::SideOne,
-                            new_health: 0,
-                            old_health: state.side_one.substitute_health,
+                            health_change: -1 * state.side_one.substitute_health,
                         },
                     ));
                 instructions
@@ -905,8 +904,7 @@ pub fn choice_hazard_clear(
                     .push(Instruction::SetSubstituteHealth(
                         SetSubstituteHealthInstruction {
                             side_ref: SideReference::SideTwo,
-                            new_health: 0,
-                            old_health: state.side_two.substitute_health,
+                            health_change: -1 * state.side_two.substitute_health,
                         },
                     ));
                 instructions
@@ -1295,8 +1293,7 @@ pub fn choice_special_effect(
                 let set_sub_health_instruction =
                     Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
                         side_ref: attacking_side_ref.clone(),
-                        new_health: sub_target_health,
-                        old_health: sub_current_health,
+                        health_change: sub_target_health - sub_current_health,
                     });
                 let apply_vs_instruction =
                     Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {

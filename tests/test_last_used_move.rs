@@ -315,8 +315,7 @@ fn test_encore_slow_into_substitute() {
             }),
             Instruction::SetSubstituteHealth(SetSubstituteHealthInstruction {
                 side_ref: SideReference::SideTwo,
-                new_health: 25,
-                old_health: 0,
+                health_change: 25,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
