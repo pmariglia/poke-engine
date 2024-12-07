@@ -7469,6 +7469,31 @@ fn test_finalgambit() {
 }
 
 #[test]
+fn test_using_move_while_asleep_does_not_decrement_pp() {
+    let mut state = State::default();
+    state.side_one.get_active().status = PokemonStatus::SLEEP;
+    state.side_one.get_active().sleep_turns = 0;
+    state.side_one.get_active().moves[&PokemonMoveIndex::M0] = Move {
+        id: Choices::TACKLE,
+        disabled: false,
+        pp: 1,
+        choice: Default::default(),
+    };
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_basic_spore() {
     let mut state = State::default();
 
