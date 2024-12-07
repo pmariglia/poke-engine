@@ -1071,12 +1071,13 @@ pub fn choice_special_effect(
         }
         Choices::WISH => {
             if attacking_side.wish.0 == 0 {
+                let previous_wish_amount = attacking_side.wish.1;
                 instructions
                     .instruction_list
                     .push(Instruction::SetWish(SetWishInstruction {
                         side_ref: *attacking_side_ref,
-                        wish_amount: attacking_side.get_active_immutable().maxhp / 2,
-                        previous_wish_amount: 0,
+                        wish_amount_change: attacking_side.get_active_immutable().maxhp / 2
+                            - previous_wish_amount,
                     }));
                 attacking_side.wish = (2, attacking_side.get_active_immutable().maxhp / 2);
             }

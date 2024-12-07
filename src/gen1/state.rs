@@ -1574,14 +1574,14 @@ impl State {
         self.get_side(side_reference).get_active().moves[move_index].disabled = true;
     }
 
-    fn set_wish(&mut self, side_reference: &SideReference, amount: i16) {
+    fn set_wish(&mut self, side_reference: &SideReference, wish_amount_change: i16) {
         self.get_side(side_reference).wish.0 = 2;
-        self.get_side(side_reference).wish.1 = amount;
+        self.get_side(side_reference).wish.1 += wish_amount_change;
     }
 
-    fn unset_wish(&mut self, side_reference: &SideReference, previous_wish_amount: i16) {
+    fn unset_wish(&mut self, side_reference: &SideReference, wish_amount_change: i16) {
         self.get_side(side_reference).wish.0 = 0;
-        self.get_side(side_reference).wish.1 = previous_wish_amount;
+        self.get_side(side_reference).wish.1 -= wish_amount_change;
     }
 
     fn increment_wish(&mut self, side_reference: &SideReference) {
@@ -1786,7 +1786,7 @@ impl State {
                 self.disable_move(&instruction.side_ref, &instruction.move_index)
             }
             Instruction::SetWish(instruction) => {
-                self.set_wish(&instruction.side_ref, instruction.wish_amount);
+                self.set_wish(&instruction.side_ref, instruction.wish_amount_change);
             }
             Instruction::DecrementWish(instruction) => {
                 self.decrement_wish(&instruction.side_ref);
@@ -1939,7 +1939,7 @@ impl State {
                 self.change_item(&instruction.side_ref, instruction.current_item)
             }
             Instruction::SetWish(instruction) => {
-                self.unset_wish(&instruction.side_ref, instruction.previous_wish_amount)
+                self.unset_wish(&instruction.side_ref, instruction.wish_amount_change)
             }
             Instruction::DecrementWish(instruction) => self.increment_wish(&instruction.side_ref),
             Instruction::SetFutureSight(instruction) => {

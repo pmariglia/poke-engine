@@ -6967,8 +6967,33 @@ fn test_using_wish() {
         instruction_list: vec![
             Instruction::SetWish(SetWishInstruction {
                 side_ref: SideReference::SideOne,
-                wish_amount: state.side_one.get_active().maxhp / 2,
-                previous_wish_amount: 0,
+                wish_amount_change: state.side_one.get_active().maxhp / 2,
+            }),
+            Instruction::DecrementWish(DecrementWishInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_using_wish_with_pre_existing_wish_amount() {
+    let mut state = State::default();
+    state.side_one.wish = (0, 75);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::WISH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::SetWish(SetWishInstruction {
+                side_ref: SideReference::SideOne,
+                wish_amount_change: state.side_one.get_active().maxhp / 2 - 75, // -25
             }),
             Instruction::DecrementWish(DecrementWishInstruction {
                 side_ref: SideReference::SideOne,

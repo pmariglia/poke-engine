@@ -178,11 +178,7 @@ impl fmt::Debug for Instruction {
                 write!(f, "EnableMove {:?}: {:?}", e.side_ref, e.move_index)
             }
             Instruction::SetWish(s) => {
-                write!(
-                    f,
-                    "SetWish {:?}: {:?} -> {:?}",
-                    s.side_ref, s.previous_wish_amount, s.wish_amount
-                )
+                write!(f, "SetWish {:?}: {:?}", s.side_ref, s.wish_amount_change)
             }
             Instruction::DecrementWish(d) => {
                 write!(f, "DecrementWish {:?}", d.side_ref)
@@ -365,8 +361,7 @@ pub struct SetSecondMoveSwitchOutMoveInstruction {
 #[derive(Debug, PartialEq, Clone)]
 pub struct SetWishInstruction {
     pub side_ref: SideReference,
-    pub wish_amount: i16,
-    pub previous_wish_amount: i16,
+    pub wish_amount_change: i16,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -506,4 +501,16 @@ pub struct ChangeType {
     pub side_ref: SideReference,
     pub new_types: (PokemonType, PokemonType),
     pub old_types: (PokemonType, PokemonType),
+}
+
+#[cfg(test)]
+mod test {
+    use super::Instruction;
+
+    // Make sure that the size of the Instruction enum doesn't change
+    #[test]
+    fn test_instruction_size() {
+        assert_eq!(size_of::<Instruction>(), 8);
+        assert_eq!(align_of::<Instruction>(), 2);
+    }
 }
