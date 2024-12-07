@@ -6758,29 +6758,55 @@ lazy_static! {
                 ..Default::default()
             },
         );
-        moves.insert(
-            Choices::GROWTH,
-            Choice {
-                move_id: Choices::GROWTH,
-                target: MoveTarget::User,
-                move_type: PokemonType::NORMAL,
-                flags: Flags {
+        if cfg!(feature = "gen1") || cfg!(feature = "gen2") || cfg!(feature = "gen3") || cfg!(feature = "gen4") {
+            moves.insert(
+                Choices::GROWTH,
+                Choice {
+                    move_id: Choices::GROWTH,
+                    target: MoveTarget::User,
+                    move_type: PokemonType::NORMAL,
+                    flags: Flags {
+                        ..Default::default()
+                    },
+                    boost: Some(Boost {
+                        target: MoveTarget::User,
+                        boosts: StatBoosts {
+                            attack: 0,
+                            defense: 0,
+                            special_attack: 1,
+                            special_defense: 0,
+                            speed: 0,
+                            accuracy: 0,
+                        },
+                    }),
                     ..Default::default()
                 },
-                boost: Some(Boost {
+            );
+        } else {
+            moves.insert(
+                Choices::GROWTH,
+                Choice {
+                    move_id: Choices::GROWTH,
                     target: MoveTarget::User,
-                    boosts: StatBoosts {
-                        attack: 1,
-                        defense: 0,
-                        special_attack: 1,
-                        special_defense: 0,
-                        speed: 0,
-                        accuracy: 0,
+                    move_type: PokemonType::NORMAL,
+                    flags: Flags {
+                        ..Default::default()
                     },
-                }),
-                ..Default::default()
-            },
-        );
+                    boost: Some(Boost {
+                        target: MoveTarget::User,
+                        boosts: StatBoosts {
+                            attack: 1,
+                            defense: 0,
+                            special_attack: 1,
+                            special_defense: 0,
+                            speed: 0,
+                            accuracy: 0,
+                        },
+                    }),
+                    ..Default::default()
+                },
+            );
+        }
         moves.insert(
             Choices::GRUDGE,
             Choice {
