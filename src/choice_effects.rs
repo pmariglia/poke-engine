@@ -994,7 +994,7 @@ pub fn choice_special_effect(
                     .instruction_list
                     .push(Instruction::Damage(DamageInstruction {
                         side_ref: *attacking_side_ref,
-                        damage_amount: attacker.hp - attacker.maxhp / 2,
+                        damage_amount: attacker.maxhp / 2,
                     }));
                 instructions
                     .instruction_list
