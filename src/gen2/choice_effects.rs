@@ -1,16 +1,16 @@
 use crate::choices::{Choice, Choices, Heal, MoveCategory, MoveTarget};
 use crate::damage_calc::type_effectiveness_modifier;
-use crate::generate_instructions::add_remove_status_instructions;
+use crate::generate_instructions::{add_remove_status_instructions, get_boost_amount};
 use crate::instruction::{
-    ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeSideConditionInstruction,
-    ChangeStatusInstruction, ChangeWeather, DamageInstruction, HealInstruction, Instruction,
-    SetFutureSightInstruction, SetSleepTurnsInstruction, SetSubstituteHealthInstruction,
-    StateInstructions,
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
+    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeWeather, DamageInstruction,
+    HealInstruction, Instruction, SetFutureSightInstruction, SetSleepTurnsInstruction,
+    SetSubstituteHealthInstruction, StateInstructions,
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::state::{
-    pokemon_index_iter, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus,
-    SideReference, State, Weather,
+    pokemon_index_iter, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType,
+    PokemonVolatileStatus, SideReference, State, Weather,
 };
 use std::cmp;
 
@@ -267,6 +267,40 @@ pub fn choice_special_effect(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
     match choice.move_id {
+        Choices::BELLYDRUM => {
+            let boost_amount = 6 - attacking_side.attack_boost;
+            let attacker = attacking_side.get_active();
+            if attacker.hp > attacker.maxhp / 2 {
+                instructions
+                    .instruction_list
+                    .push(Instruction::Damage(DamageInstruction {
+                        side_ref: *attacking_side_ref,
+                        damage_amount: attacker.hp - attacker.maxhp / 2,
+                    }));
+                instructions
+                    .instruction_list
+                    .push(Instruction::Boost(BoostInstruction {
+                        side_ref: *attacking_side_ref,
+                        stat: PokemonBoostableStat::Attack,
+                        amount: boost_amount,
+                    }));
+                attacker.hp -= attacker.maxhp / 2;
+                attacking_side.attack_boost = 6;
+            } else {
+                let boost_amount =
+                    get_boost_amount(attacking_side, &PokemonBoostableStat::Attack, 2);
+                if boost_amount != 0 {
+                    instructions
+                        .instruction_list
+                        .push(Instruction::Boost(BoostInstruction {
+                            side_ref: *attacking_side_ref,
+                            stat: PokemonBoostableStat::Attack,
+                            amount: boost_amount,
+                        }));
+                    attacking_side.attack_boost += boost_amount;
+                }
+            }
+        }
         Choices::COUNTER => {
             if defending_side.damage_dealt.move_category == MoveCategory::Physical
                 && !defending_side

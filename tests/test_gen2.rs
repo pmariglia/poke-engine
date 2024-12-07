@@ -558,6 +558,128 @@ fn test_miracleberry_cures_paralysis_and_attack_does_not_branch() {
 }
 
 #[test]
+fn test_bellydrum() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::BELLYDRUM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 50,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_bellydrum_with_negative_prior_boost() {
+    let mut state = State::default();
+    state.side_one.attack_boost = -1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::BELLYDRUM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 50,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 7,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_bellydrum_below_50_percent_boosts_by_2_bug() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 49;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::BELLYDRUM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Boost(BoostInstruction {
+            side_ref: SideReference::SideOne,
+            stat: PokemonBoostableStat::Attack,
+            amount: 2,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_bellydrum_below_50_percent_boosts_by_2_bug_does_not_overboost() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 49;
+    state.side_one.attack_boost = 5;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::BELLYDRUM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Boost(BoostInstruction {
+            side_ref: SideReference::SideOne,
+            stat: PokemonBoostableStat::Attack,
+            amount: 1,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_bellydrum_at_exactly_50_percent() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 50;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::BELLYDRUM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Boost(BoostInstruction {
+            side_ref: SideReference::SideOne,
+            stat: PokemonBoostableStat::Attack,
+            amount: 2,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_freeze_clause() {
     let mut state = State::default();
     state.side_two.pokemon[PokemonIndex::P1].status = PokemonStatus::FREEZE;

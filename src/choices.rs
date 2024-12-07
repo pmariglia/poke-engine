@@ -1160,21 +1160,6 @@ lazy_static! {
                 flags: Flags {
                     ..Default::default()
                 },
-                boost: Some(Boost {
-                    target: MoveTarget::User,
-                    boosts: StatBoosts {
-                        attack: 6,
-                        defense: 0,
-                        special_attack: 0,
-                        special_defense: 0,
-                        speed: 0,
-                        accuracy: 0,
-                    },
-                }),
-                heal: Some(Heal {
-                    target: MoveTarget::User,
-                    amount: -0.5,
-                }),
                 ..Default::default()
             },
         );
