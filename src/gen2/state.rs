@@ -1369,13 +1369,13 @@ impl State {
             side.side_conditions.toxic_count = 0;
         }
         let active = side.get_active();
-        if active.status == crate::state::PokemonStatus::TOXIC {
-            active.status = crate::state::PokemonStatus::POISON;
+        if active.status == PokemonStatus::TOXIC {
+            active.status = PokemonStatus::POISON;
             vec_to_add_to.push(Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: *side_ref,
                 pokemon_index: side.active_index,
-                old_status: crate::state::PokemonStatus::TOXIC,
-                new_status: crate::state::PokemonStatus::POISON,
+                old_status: PokemonStatus::TOXIC,
+                new_status: PokemonStatus::POISON,
             }));
         }
     }

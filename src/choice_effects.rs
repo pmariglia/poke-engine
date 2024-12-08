@@ -539,6 +539,7 @@ pub fn choice_after_damage_hit(
     hit_sub: bool,
 ) {
     let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
+    let attacker_active = attacking_side.get_active();
     if choice.flags.recharge {
         let instruction = Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
             side_ref: attacking_side_ref.clone(),
@@ -548,6 +549,17 @@ pub fn choice_after_damage_hit(
         attacking_side
             .volatile_statuses
             .insert(PokemonVolatileStatus::MUSTRECHARGE);
+
+    // Recharging and truant are mutually exclusive, with recharge taking priority
+    } else if attacker_active.ability == Abilities::TRUANT {
+        let instruction = Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+            side_ref: attacking_side_ref.clone(),
+            volatile_status: PokemonVolatileStatus::TRUANT,
+        });
+        instructions.instruction_list.push(instruction);
+        attacking_side
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::TRUANT);
     }
     match choice.move_id {
         Choices::RAGINGBULL => {

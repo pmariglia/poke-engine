@@ -15193,6 +15193,125 @@ fn test_battle_is_over_when_side_two_has_unrevealed_pkmn() {
 }
 
 #[test]
+fn test_truant_sets_truant_volatile() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::TRUANT;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::TRUANT,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_using_none_with_truant_removes_volatile() {
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::TRUANT);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::NONE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::RemoveVolatileStatus(
+            RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::TRUANT,
+            },
+        )],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_switching_with_truant_removes_volatile() {
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::TRUANT);
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::TRUANT,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(not(feature = "terastallization"))]
+fn test_truant_only_allows_none_or_switch() {
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::TRUANT);
+
+    let options = state.get_all_options();
+
+    let expected_options = (
+        vec![
+            MoveChoice::None,
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+    );
+    assert_eq!(expected_options, options);
+}
+
+#[test]
 fn test_hyperbeam_sets_mustrecharge() {
     let mut state = State::default();
     state.side_two.get_active().hp = 500;
@@ -15201,6 +15320,41 @@ fn test_hyperbeam_sets_mustrecharge() {
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
         Choices::HYPERBEAM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 10.000002,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 90.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 177,
+                }),
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::MUSTRECHARGE,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_gigaimpact_with_truant_only_sets_mustrecharge() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 500;
+    state.side_two.get_active().maxhp = 500;
+    state.side_one.get_active().ability = Abilities::TRUANT;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::GIGAIMPACT,
         Choices::SPLASH,
     );
 
