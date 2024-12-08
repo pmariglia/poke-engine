@@ -1305,7 +1305,9 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::GRISEOUSORB | Items::GRISEOUSCORE => {
-            if attacking_side.get_active_immutable().id == PokemonName::GIRATINAORIGIN {
+            if [PokemonName::GIRATINAORIGIN, PokemonName::GIRATINA]
+                .contains(&attacking_side.get_active_immutable().id)
+            {
                 if attacking_choice.move_type == PokemonType::DRAGON
                     || attacking_choice.move_type == PokemonType::GHOST
                 {
@@ -1314,7 +1316,9 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::LUSTROUSORB | Items::LUSTROUSGLOBE => {
-            if attacking_side.get_active_immutable().id == PokemonName::PALKIAORIGIN {
+            if [PokemonName::PALKIAORIGIN, PokemonName::PALKIA]
+                .contains(&attacking_side.get_active_immutable().id)
+            {
                 if attacking_choice.move_type == PokemonType::DRAGON
                     || attacking_choice.move_type == PokemonType::WATER
                 {
@@ -1323,7 +1327,9 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::ADAMANTORB | Items::ADAMANTCRYSTAL => {
-            if attacking_side.get_active_immutable().id == PokemonName::DIALGAORIGIN {
+            if [PokemonName::DIALGAORIGIN, PokemonName::DIALGA]
+                .contains(&attacking_side.get_active_immutable().id)
+            {
                 if attacking_choice.move_type == PokemonType::DRAGON
                     || attacking_choice.move_type == PokemonType::STEEL
                 {
