@@ -312,7 +312,8 @@ define_enum_with_from_str! {
         FAIRY,
         STELLAR,
         TYPELESS,
-    }
+    },
+    default = TYPELESS
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
