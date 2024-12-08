@@ -908,7 +908,7 @@ impl Side {
 
     pub fn has_alive_frozen_pokemon(&self) -> bool {
         for p in self.pokemon.into_iter() {
-            if p.status == crate::state::PokemonStatus::FREEZE && p.hp > 0 {
+            if p.status == PokemonStatus::FREEZE && p.hp > 0 {
                 return true;
             }
         }

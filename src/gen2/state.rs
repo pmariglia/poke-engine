@@ -1241,7 +1241,7 @@ impl State {
         if self
             .side_one
             .volatile_statuses
-            .contains(&crate::state::PokemonVolatileStatus::MUSTRECHARGE)
+            .contains(&PokemonVolatileStatus::MUSTRECHARGE)
         {
             side_one_options.push(MoveChoice::None);
         } else {
