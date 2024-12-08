@@ -87,7 +87,7 @@ fn type_enum_to_type_matchup_int(type_enum: &PokemonType) -> usize {
         PokemonType::STEEL => 16,
         PokemonType::FAIRY => 17,
         PokemonType::TYPELESS => 18,
-        PokemonType::STELLAR => panic!("Stellar is not a valid type for type calculations"),
+        PokemonType::STELLAR => 18, // Stellar is typeless for type effectiveness
     }
 }
 
