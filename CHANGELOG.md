@@ -1,5 +1,43 @@
 # Changelog
 
+## [v0.0.19](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.19) - 2024-12-08
+
+### Features
+
+- Branch if damage is a range to kill - ([11e8f32](https://github.com/pmariglia/poke-engine/commit/11e8f3222382d721bed3df8eae48bff60e7fe665))
+
+- Force repr for enums defined by define_enum_with_from_str. Implement into() and from() - ([84933a6](https://github.com/pmariglia/poke-engine/commit/84933a6ea443e2fb1f8566415e68aeaaf9d2f24d))
+
+- Gen2 berries: Mint & Miracle - ([c3ecd64](https://github.com/pmariglia/poke-engine/commit/c3ecd649912d6057d2ffd10f88c0c530657a6ef1))
+
+- Freeze clause gen1/2 - ([7406b37](https://github.com/pmariglia/poke-engine/commit/7406b37835eae8d165a5667873aea50fda6e98e6))
+
+
+### Bug Fixes
+
+- Don't combine duplicate instructions in run_move - ([e9a6858](https://github.com/pmariglia/poke-engine/commit/e9a68583c36796d27df74b17760c98f525a0606d))
+
+- Confusion stopped by substitute - ([7df6916](https://github.com/pmariglia/poke-engine/commit/7df69161a42a4083afb51b38d65f2c5babf0a98d))
+
+- Refactor belly drum to actually work - ([a84f3b2](https://github.com/pmariglia/poke-engine/commit/a84f3b2410dcf04f7e00999367f2209f82bb88c1))
+
+- Growth doesnt boost attack in earlier gens - ([3df5146](https://github.com/pmariglia/poke-engine/commit/3df51460cc61f2b2a132afc1899b7f23402423e3))
+
+- Bellydrum damage instruction should do half HP - ([9219ae0](https://github.com/pmariglia/poke-engine/commit/9219ae0a4b08b7b0adb176862b3a7924f2b79daa))
+
+- Refactor wish instruction to use 2 bytes less - ([5b1573d](https://github.com/pmariglia/poke-engine/commit/5b1573d71a2ac1b581728e0f630f5d1febc3be93))
+
+- Refactor substitute instruction to use 2 bytes less - ([a7036d8](https://github.com/pmariglia/poke-engine/commit/a7036d8a810adc7b1a678cc8c3c35c3815539ee8))
+
+- Stellar is typeless for dmg calc - ([4986805](https://github.com/pmariglia/poke-engine/commit/49868058bedd65dbc506fd8c00a275da8eef5654))
+
+
+### Miscellaneous Tasks
+
+- Readme serialize -> state - ([5d3b71d](https://github.com/pmariglia/poke-engine/commit/5d3b71d0cb96191ca5747917819c6ee17d1018fa))
+
+- Add test to make sure pp not decremented when asleep - ([4a08839](https://github.com/pmariglia/poke-engine/commit/4a088399e1c844f82b5f916b6c663a0058b92b75))
+
 ## [v0.0.18](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.18) - 2024-12-01
 
 ### Features
