@@ -617,7 +617,7 @@ pub fn ability_after_damage_hit(
                 defending_pkmn.item = Items::NONE;
             }
         }
-        Abilities::MOXIE | Abilities::CHILLINGNEIGH => {
+        Abilities::MOXIE | Abilities::CHILLINGNEIGH | Abilities::ASONEGLASTRIER => {
             if damage_dealt > 0 && defending_side.get_active_immutable().hp == 0 {
                 if let Some(boost_instruction) = get_boost_instruction(
                     &attacking_side,
@@ -631,7 +631,7 @@ pub fn ability_after_damage_hit(
                 }
             }
         }
-        Abilities::GRIMNEIGH => {
+        Abilities::GRIMNEIGH | Abilities::ASONESPECTRIER => {
             if damage_dealt > 0 && defending_side.get_active_immutable().hp == 0 {
                 if let Some(boost_instruction) = get_boost_instruction(
                     &attacking_side,
