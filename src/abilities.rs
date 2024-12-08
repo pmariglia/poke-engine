@@ -593,6 +593,42 @@ pub fn ability_after_damage_hit(
         return;
     }
     match active_pkmn.ability {
+        Abilities::BATTLEBOND => {
+            if damage_dealt > 0 && defending_side.get_active_immutable().hp == 0 {
+                let mut instructions_vec = Vec::with_capacity(3);
+                if let Some(boost_instruction) = get_boost_instruction(
+                    &attacking_side,
+                    &PokemonBoostableStat::Attack,
+                    &1,
+                    side_ref,
+                    side_ref,
+                ) {
+                    instructions_vec.push(boost_instruction);
+                }
+                if let Some(boost_instruction) = get_boost_instruction(
+                    &attacking_side,
+                    &PokemonBoostableStat::SpecialAttack,
+                    &1,
+                    side_ref,
+                    side_ref,
+                ) {
+                    instructions_vec.push(boost_instruction);
+                }
+                if let Some(boost_instruction) = get_boost_instruction(
+                    &attacking_side,
+                    &PokemonBoostableStat::Speed,
+                    &1,
+                    side_ref,
+                    side_ref,
+                ) {
+                    instructions_vec.push(boost_instruction);
+                }
+                for i in instructions_vec {
+                    state.apply_one_instruction(&i);
+                    instructions.instruction_list.push(i);
+                }
+            }
+        }
         Abilities::MAGICIAN | Abilities::PICKPOCKET => {
             let defending_pkmn = defending_side.get_active();
             if damage_dealt > 0
