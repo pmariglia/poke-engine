@@ -1,5 +1,27 @@
 # Changelog
 
+## [v0.0.20](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.20) - 2024-12-12
+
+### Features
+
+- Truant and its interaction with recharge moves - ([d285b48](https://github.com/pmariglia/poke-engine/commit/d285b48b1e8abe6f1152ae53d24c91861ae9bd5b))
+
+- Implement damage roll branching for mcts depths 0 and 1 - ([7dcdad8](https://github.com/pmariglia/poke-engine/commit/7dcdad8cf3efc6ce50a3fa093f1f18c90c742dc2))
+
+- Asoneglastrier / asonespectrier have the effects of chillingneigh / grimneigh - ([44145d2](https://github.com/pmariglia/poke-engine/commit/44145d221b9bbd102e1134db4a066e9385c413a1))
+
+- Battlebond gen9 - ([05f838d](https://github.com/pmariglia/poke-engine/commit/05f838d33c994d23aad48f8c18804d8b20c32e2a))
+
+
+### Bug Fixes
+
+- Orbs/globes affect all formes - ([f263a05](https://github.com/pmariglia/poke-engine/commit/f263a0541c79128fcbc466b0a8d062123963ec04))
+
+
+### Miscellaneous Tasks
+
+- Remove crate::* usages that my editor liked to insert - ([d2aafb3](https://github.com/pmariglia/poke-engine/commit/d2aafb3d98e55e0be0307b41aec0e1caf3a831a0))
+
 ## [v0.0.19](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.19) - 2024-12-08
 
 ### Features
