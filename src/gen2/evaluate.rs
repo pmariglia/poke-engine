@@ -37,14 +37,9 @@ const CONFUSION: f32 = -20.0;
 
 const REFLECT: f32 = 20.0;
 const LIGHT_SCREEN: f32 = 20.0;
-const STICKY_WEB: f32 = -25.0;
-const AURORA_VEIL: f32 = 40.0;
 const SAFE_GUARD: f32 = 5.0;
-const TAILWIND: f32 = 7.0;
 
-const STEALTH_ROCK: f32 = -10.0;
 const SPIKES: f32 = -7.0;
-const TOXIC_SPIKES: f32 = -7.0;
 
 fn evaluate_burned(pokemon: &Pokemon) -> f32 {
     // burn is not as punishing in certain situations
@@ -150,15 +145,8 @@ pub fn evaluate(state: &State) -> f32 {
     score += get_boost_multiplier(state.side_one.speed_boost) * POKEMON_SPEED_BOOST;
     score += state.side_one.side_conditions.reflect as f32 * REFLECT;
     score += state.side_one.side_conditions.light_screen as f32 * LIGHT_SCREEN;
-    score += state.side_one.side_conditions.sticky_web as f32 * STICKY_WEB;
-    score += state.side_one.side_conditions.aurora_veil as f32 * AURORA_VEIL;
     score += state.side_one.side_conditions.safeguard as f32 * SAFE_GUARD;
-    score += state.side_one.side_conditions.tailwind as f32 * TAILWIND;
-    score +=
-        state.side_one.side_conditions.stealth_rock as f32 * STEALTH_ROCK * side_one_alive_count;
     score += state.side_one.side_conditions.spikes as f32 * SPIKES * side_one_alive_count;
-    score +=
-        state.side_one.side_conditions.toxic_spikes as f32 * TOXIC_SPIKES * side_one_alive_count;
 
     score -= get_boost_multiplier(state.side_two.attack_boost) * POKEMON_ATTACK_BOOST;
     score -= get_boost_multiplier(state.side_two.defense_boost) * POKEMON_DEFENSE_BOOST;
@@ -169,15 +157,8 @@ pub fn evaluate(state: &State) -> f32 {
     score -= get_boost_multiplier(state.side_two.speed_boost) * POKEMON_SPEED_BOOST;
     score -= state.side_two.side_conditions.reflect as f32 * REFLECT;
     score -= state.side_two.side_conditions.light_screen as f32 * LIGHT_SCREEN;
-    score -= state.side_two.side_conditions.sticky_web as f32 * STICKY_WEB;
-    score -= state.side_two.side_conditions.aurora_veil as f32 * AURORA_VEIL;
     score -= state.side_two.side_conditions.safeguard as f32 * SAFE_GUARD;
-    score -= state.side_two.side_conditions.tailwind as f32 * TAILWIND;
-    score -=
-        state.side_two.side_conditions.stealth_rock as f32 * STEALTH_ROCK * side_two_alive_count;
     score -= state.side_two.side_conditions.spikes as f32 * SPIKES * side_two_alive_count;
-    score -=
-        state.side_two.side_conditions.toxic_spikes as f32 * TOXIC_SPIKES * side_two_alive_count;
 
     score
 }
