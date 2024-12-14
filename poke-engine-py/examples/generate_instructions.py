@@ -2,8 +2,9 @@ from poke_engine import generate_instructions
 
 from example_state import state
 
-instructions = generate_instructions(state, "ember", "tackle")
+instructions = generate_instructions(state, "ember", "squirtle")
 
 for i in instructions:
     print(i.percentage)
-    print(i.instruction_list)
+    for ins in i.instruction_list:
+        print(f"\t{ins}")

@@ -7,7 +7,7 @@ use poke_engine::choices::{Choices, MoveCategory, MOVES};
 use poke_engine::generate_instructions::{
     calculate_both_damage_rolls, generate_instructions_from_move_pair,
 };
-use poke_engine::instruction::StateInstructions;
+use poke_engine::instruction::{Instruction, StateInstructions};
 use poke_engine::io::io_get_all_options;
 use poke_engine::items::Items;
 use poke_engine::mcts::{perform_mcts, MctsResult, MctsSideResult};
@@ -62,6 +62,16 @@ impl PyState {
         };
         state.set_conditional_mechanics();
         PyState { state }
+    }
+
+    fn apply_one_instruction(&mut self, instruction: PyInstruction) {
+        self.state.apply_one_instruction(&instruction.instruction);
+    }
+
+    fn apply_instructions(&mut self, instructions: Vec<PyInstruction>) {
+        for instruction in instructions {
+            self.apply_one_instruction(instruction);
+        }
     }
 
     fn to_string(&self) -> String {
@@ -425,20 +435,49 @@ fn id(mut py_state: PyState, duration_ms: u64) -> PyResult<PyIterativeDeepeningR
 }
 
 #[derive(Clone)]
-#[pyclass(get_all, set_all)]
+#[pyclass(name = "Instruction")]
+struct PyInstruction {
+    pub instruction: Instruction
+}
+
+#[pymethods]
+impl PyInstruction {
+    fn __str__(&self) -> PyResult<String> {
+        Ok(format!("{:?}", self.instruction))
+    }
+}
+
+impl PyInstruction {
+    fn from_instruction(instruction: Instruction) -> Self {
+        PyInstruction {
+            instruction
+        }
+    }
+}
+
+#[derive(Clone)]
+#[pyclass(name = "StateInstructions")]
 struct PyStateInstructions {
+    #[pyo3(get)]
     pub percentage: f32,
-    pub instruction_list: Vec<String>,
+    pub instruction_list: Vec<PyInstruction>,
+}
+
+#[pymethods]
+impl PyStateInstructions {
+    #[getter]
+    fn get_instruction_list(&self) -> PyResult<Vec<PyInstruction>> {
+        Ok(self.instruction_list.clone())
+    }
 }
 
 impl PyStateInstructions {
     fn from_state_instructions(instructions: StateInstructions) -> Self {
         PyStateInstructions {
             percentage: instructions.percentage,
-            instruction_list: instructions
-                .instruction_list
-                .iter()
-                .map(|i| format!("{:?}", i))
+            instruction_list: instructions.instruction_list
+                .into_iter()
+                .map(|i| PyInstruction::from_instruction(i))
                 .collect(),
         }
     }
@@ -548,5 +587,7 @@ fn py_poke_engine(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PySideConditions>()?;
     m.add_class::<PyPokemon>()?;
     m.add_class::<PyMove>()?;
+    m.add_class::<PyStateInstructions>()?;
+    m.add_class::<PyInstruction>()?;
     Ok(())
 }
