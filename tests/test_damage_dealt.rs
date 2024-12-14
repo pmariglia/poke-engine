@@ -144,6 +144,90 @@ fn test_counter_cannot_hit_ghost_type() {
 }
 
 #[test]
+#[cfg(feature = "gen3")]
+fn test_counter_reflects_special_hiddenpower() {
+    let mut state = State::default();
+    state.use_damage_dealt = true;
+
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::COUNTER);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::HIDDENPOWERWATER70);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 55,
+            }),
+            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+                damage_change: 55,
+                move_category: MoveCategory::Special,
+                previous_move_category: MoveCategory::Physical,
+                toggle_hit_substitute: false,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 100,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(feature = "gen3")]
+fn test_mirrorcoat_does_not_reflect_special_hiddenpower() {
+    let mut state = State::default();
+    state.use_damage_dealt = true;
+
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::MIRRORCOAT);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::HIDDENPOWERWATER70);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 55,
+            }),
+            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+                damage_change: 55,
+                move_category: MoveCategory::Special,
+                previous_move_category: MoveCategory::Physical,
+                toggle_hit_substitute: false,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_metalburst_after_physical_move() {
     let mut state = State::default();
     state.use_damage_dealt = true;

@@ -262,6 +262,7 @@ pub fn choice_hazard_clear(
 pub fn choice_special_effect(
     state: &mut State,
     choice: &Choice,
+    defender_choice: &Choice,
     attacking_side_ref: &SideReference,
     instructions: &mut StateInstructions,
 ) {
@@ -302,7 +303,8 @@ pub fn choice_special_effect(
             }
         }
         Choices::COUNTER => {
-            if defending_side.damage_dealt.move_category == MoveCategory::Physical
+            if (defending_side.damage_dealt.move_category == MoveCategory::Physical
+                || defender_choice.move_id.is_hiddenpower())
                 && !defending_side
                     .get_active_immutable()
                     .has_type(&PokemonType::GHOST)
@@ -327,6 +329,7 @@ pub fn choice_special_effect(
                 && !defending_side
                     .get_active_immutable()
                     .has_type(&PokemonType::DARK)
+                && !defender_choice.move_id.is_hiddenpower()
             {
                 let damage_amount = cmp::min(
                     defending_side.damage_dealt.damage * 2,

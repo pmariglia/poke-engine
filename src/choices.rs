@@ -19935,6 +19935,47 @@ define_enum_with_from_str! {
     default = NONE
 }
 
+impl Choices {
+    pub fn is_hiddenpower(&self) -> bool {
+        match self {
+            Choices::HIDDENPOWER
+            | Choices::HIDDENPOWERBUG60
+            | Choices::HIDDENPOWERBUG70
+            | Choices::HIDDENPOWERDARK60
+            | Choices::HIDDENPOWERDARK70
+            | Choices::HIDDENPOWERDRAGON60
+            | Choices::HIDDENPOWERDRAGON70
+            | Choices::HIDDENPOWERELECTRIC60
+            | Choices::HIDDENPOWERELECTRIC70
+            | Choices::HIDDENPOWERFIGHTING60
+            | Choices::HIDDENPOWERFIGHTING70
+            | Choices::HIDDENPOWERFIRE60
+            | Choices::HIDDENPOWERFIRE70
+            | Choices::HIDDENPOWERFLYING60
+            | Choices::HIDDENPOWERFLYING70
+            | Choices::HIDDENPOWERGHOST60
+            | Choices::HIDDENPOWERGHOST70
+            | Choices::HIDDENPOWERGRASS60
+            | Choices::HIDDENPOWERGRASS70
+            | Choices::HIDDENPOWERGROUND60
+            | Choices::HIDDENPOWERGROUND70
+            | Choices::HIDDENPOWERICE60
+            | Choices::HIDDENPOWERICE70
+            | Choices::HIDDENPOWERPOISON60
+            | Choices::HIDDENPOWERPOISON70
+            | Choices::HIDDENPOWERPSYCHIC60
+            | Choices::HIDDENPOWERPSYCHIC70
+            | Choices::HIDDENPOWERROCK60
+            | Choices::HIDDENPOWERROCK70
+            | Choices::HIDDENPOWERSTEEL60
+            | Choices::HIDDENPOWERSTEEL70
+            | Choices::HIDDENPOWERWATER60
+            | Choices::HIDDENPOWERWATER70 => true,
+            _ => false,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct Choice {
     // Basic move information

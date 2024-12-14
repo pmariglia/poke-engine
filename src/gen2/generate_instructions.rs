@@ -1424,7 +1424,13 @@ pub fn generate_instructions_from_move(
         return;
     }
     let damage = calculate_damage(state, &attacking_side, &choice, DamageRolls::Max);
-    choice_special_effect(state, &choice, &attacking_side, &mut incoming_instructions);
+    choice_special_effect(
+        state,
+        &choice,
+        defender_choice,
+        &attacking_side,
+        &mut incoming_instructions,
+    );
     check_move_hit_or_miss(
         state,
         &choice,
