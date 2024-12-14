@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.0.21](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.21) - 2024-12-14
+
+### Performance
+
+- Gen1 evaluation tuning - ([d0e6b34](https://github.com/pmariglia/poke-engine/commit/d0e6b34384947b9080a0c40edd3ec89667ad3c85))
+
+
+### Miscellaneous Tasks
+
+- Remove gen2 unused eval values - ([ce96591](https://github.com/pmariglia/poke-engine/commit/ce965918a312a9504b0fcf240506e8dca6d1c3d5))
+
 ## [v0.0.20](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.20) - 2024-12-12
 
 ### Features
