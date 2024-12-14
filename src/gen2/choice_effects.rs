@@ -305,7 +305,7 @@ pub fn choice_special_effect(
             if defending_side.damage_dealt.move_category == MoveCategory::Physical
                 && !defending_side
                     .get_active_immutable()
-                    .has_type(&PokemonType::FIGHTING)
+                    .has_type(&PokemonType::GHOST)
             {
                 let damage_amount = cmp::min(
                     defending_side.damage_dealt.damage * 2,

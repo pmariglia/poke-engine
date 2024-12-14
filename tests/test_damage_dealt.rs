@@ -7,7 +7,7 @@ use poke_engine::instruction::{
     SetDamageDealtSideOneInstruction, SetDamageDealtSideTwoInstruction, StateInstructions,
 };
 use poke_engine::state::{
-    MoveChoice, PokemonMoveIndex, PokemonVolatileStatus, SideReference, State, Weather,
+    MoveChoice, PokemonMoveIndex, PokemonType, PokemonVolatileStatus, SideReference, State, Weather,
 };
 
 #[test]
@@ -97,6 +97,46 @@ fn test_counter_after_physical_hit() {
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 96,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_counter_cannot_hit_ghost_type() {
+    let mut state = State::default();
+    state.use_damage_dealt = true;
+    state.side_two.get_active().types.0 = PokemonType::GHOST;
+
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::COUNTER);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::TACKLE);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 32,
+            }),
+            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+                damage_change: 32,
+                move_category: MoveCategory::Physical,
+                previous_move_category: MoveCategory::Physical,
+                toggle_hit_substitute: false,
             }),
         ],
     }];
