@@ -437,7 +437,7 @@ fn id(mut py_state: PyState, duration_ms: u64) -> PyResult<PyIterativeDeepeningR
 #[derive(Clone)]
 #[pyclass(name = "Instruction")]
 struct PyInstruction {
-    pub instruction: Instruction
+    pub instruction: Instruction,
 }
 
 #[pymethods]
@@ -449,9 +449,7 @@ impl PyInstruction {
 
 impl PyInstruction {
     fn from_instruction(instruction: Instruction) -> Self {
-        PyInstruction {
-            instruction
-        }
+        PyInstruction { instruction }
     }
 }
 
@@ -475,7 +473,8 @@ impl PyStateInstructions {
     fn from_state_instructions(instructions: StateInstructions) -> Self {
         PyStateInstructions {
             percentage: instructions.percentage,
-            instruction_list: instructions.instruction_list
+            instruction_list: instructions
+                .instruction_list
                 .into_iter()
                 .map(|i| PyInstruction::from_instruction(i))
                 .collect(),

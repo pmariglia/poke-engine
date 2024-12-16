@@ -15296,7 +15296,7 @@ fn test_truant_sets_truant_volatile() {
 }
 
 #[test]
-fn test_using_none_with_truant_removes_volatile() {
+fn test_using_move_with_truant_removes_volatile() {
     let mut state = State::default();
     state
         .side_one
@@ -15305,7 +15305,7 @@ fn test_using_none_with_truant_removes_volatile() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        Choices::NONE,
+        Choices::TACKLE,
         Choices::SPLASH,
     );
 
@@ -15350,41 +15350,6 @@ fn test_switching_with_truant_removes_volatile() {
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
-}
-
-#[test]
-#[cfg(not(feature = "terastallization"))]
-fn test_truant_only_allows_none_or_switch() {
-    let mut state = State::default();
-    state
-        .side_one
-        .volatile_statuses
-        .insert(PokemonVolatileStatus::TRUANT);
-
-    let options = state.get_all_options();
-
-    let expected_options = (
-        vec![
-            MoveChoice::None,
-            MoveChoice::Switch(PokemonIndex::P1),
-            MoveChoice::Switch(PokemonIndex::P2),
-            MoveChoice::Switch(PokemonIndex::P3),
-            MoveChoice::Switch(PokemonIndex::P4),
-            MoveChoice::Switch(PokemonIndex::P5),
-        ],
-        vec![
-            MoveChoice::Move(PokemonMoveIndex::M0),
-            MoveChoice::Move(PokemonMoveIndex::M1),
-            MoveChoice::Move(PokemonMoveIndex::M2),
-            MoveChoice::Move(PokemonMoveIndex::M3),
-            MoveChoice::Switch(PokemonIndex::P1),
-            MoveChoice::Switch(PokemonIndex::P2),
-            MoveChoice::Switch(PokemonIndex::P3),
-            MoveChoice::Switch(PokemonIndex::P4),
-            MoveChoice::Switch(PokemonIndex::P5),
-        ],
-    );
-    assert_eq!(expected_options, options);
 }
 
 #[test]

@@ -1404,15 +1404,6 @@ impl State {
             .contains(&PokemonVolatileStatus::MUSTRECHARGE)
         {
             side_one_options.push(MoveChoice::None);
-        } else if self
-            .side_one
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::TRUANT)
-        {
-            side_one_options.push(MoveChoice::None);
-            if !self.side_one.trapped(side_two_active) {
-                self.side_one.add_switches(&mut side_one_options);
-            }
         } else {
             let encored = self
                 .side_one
@@ -1435,15 +1426,6 @@ impl State {
             .contains(&PokemonVolatileStatus::MUSTRECHARGE)
         {
             side_two_options.push(MoveChoice::None);
-        } else if self
-            .side_two
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::TRUANT)
-        {
-            side_two_options.push(MoveChoice::None);
-            if !self.side_two.trapped(side_one_active) {
-                self.side_two.add_switches(&mut side_two_options);
-            }
         } else {
             let encored = self
                 .side_two

@@ -1590,9 +1590,10 @@ pub fn generate_instructions_from_move(
         return;
     }
 
+    let attacker_side = state.get_side(&attacking_side);
+
     if choice.move_id == Choices::NONE {
-        if state
-            .get_side(&attacking_side)
+        if attacker_side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::MUSTRECHARGE)
         {
@@ -1604,20 +1605,23 @@ pub fn generate_instructions_from_move(
                         volatile_status: PokemonVolatileStatus::MUSTRECHARGE,
                     },
                 ));
-        } else if state
-            .get_side(&attacking_side)
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::TRUANT)
-        {
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::RemoveVolatileStatus(
-                    RemoveVolatileStatusInstruction {
-                        side_ref: attacking_side,
-                        volatile_status: PokemonVolatileStatus::TRUANT,
-                    },
-                ));
         }
+        final_instructions.push(incoming_instructions);
+        return;
+    }
+
+    if attacker_side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::TRUANT)
+    {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::RemoveVolatileStatus(
+                RemoveVolatileStatusInstruction {
+                    side_ref: attacking_side,
+                    volatile_status: PokemonVolatileStatus::TRUANT,
+                },
+            ));
         final_instructions.push(incoming_instructions);
         return;
     }
