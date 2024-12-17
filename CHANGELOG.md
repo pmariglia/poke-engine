@@ -1,5 +1,20 @@
 # Changelog
 
+## [v0.0.22](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.22) - 2024-12-17
+
+### Bug Fixes
+
+- Ghost are immune to counter, not fighting - ([168934c](https://github.com/pmariglia/poke-engine/commit/168934c9ba806fb3f17b6d9061efd791de3884ef))
+
+- Gen2 counter/mirrorcoat interactions with hiddenpower - ([b068ebe](https://github.com/pmariglia/poke-engine/commit/b068ebebe33188cc013be968d76c0d352419ad8a))
+
+- Truant should allow you to use whatever move you want, but not execute that move - ([5385c04](https://github.com/pmariglia/poke-engine/commit/5385c04e4754a2ed25fcce557d4c303496fd0ba0))
+
+
+### Miscellaneous Tasks
+
+- Some groundwork for instruction generation on the python side - ([446faa2](https://github.com/pmariglia/poke-engine/commit/446faa2d2bb227f1916ff2bee8e59f774903f001))
+
 ## [v0.0.21](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.21) - 2024-12-14
 
 ### Performance
