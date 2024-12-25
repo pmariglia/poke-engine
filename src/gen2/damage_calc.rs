@@ -172,16 +172,7 @@ fn common_pkmn_damage_calc(
     damage_modifier *= _type_effectiveness_modifier(&choice.move_type, &defender_types);
     damage_modifier *= weather_modifier(&choice.move_type, weather);
     damage_modifier *= stab_modifier(&choice.move_type, &attacker);
-    damage_modifier *= burn_modifier(&choice.category, &attacker.status);
     damage_modifier *= volatile_status_modifier(defending_side);
-
-    if defending_side.side_conditions.reflect > 0 && choice.category == MoveCategory::Physical {
-        damage_modifier *= 0.5
-    } else if defending_side.side_conditions.light_screen > 0
-        && choice.category == MoveCategory::Special
-    {
-        damage_modifier *= 0.5
-    }
 
     damage * damage_modifier
 }
@@ -196,43 +187,102 @@ pub fn calculate_damage(
     attacking_side: &SideReference,
     choice: &Choice,
     _damage_rolls: DamageRolls,
-) -> Option<i16> {
+) -> Option<(i16, i16)> {
     if choice.category == MoveCategory::Status || choice.category == MoveCategory::Switch {
         return None;
     } else if choice.base_power == 0.0 {
-        return Some(0);
+        return Some((0, 0));
     }
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side);
     let attacker = attacking_side.get_active_immutable();
     let defender = defending_side.get_active_immutable();
 
-    let (attacking_stat, defending_stat);
+    let (crit_attacking_stat, crit_defending_stat, boosted_attacking_stat, boosted_defending_stat);
+    let mut gen2_crit_ignore_effects = false;
     if choice.category == MoveCategory::Physical {
-        attacking_stat = attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
-        defending_stat = defending_side.calculate_boosted_stat(PokemonBoostableStat::Defense);
+        boosted_attacking_stat =
+            attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
+        boosted_defending_stat =
+            defending_side.calculate_boosted_stat(PokemonBoostableStat::Defense);
+        if defending_side.defense_boost >= attacking_side.attack_boost {
+            gen2_crit_ignore_effects = true;
+            crit_attacking_stat = boosted_attacking_stat;
+            crit_defending_stat = boosted_defending_stat;
+        } else {
+            crit_attacking_stat = attacker.attack;
+            crit_defending_stat = defender.defense;
+        }
     } else {
-        attacking_stat = attacking_side.calculate_boosted_stat(PokemonBoostableStat::SpecialAttack);
-        defending_stat =
+        boosted_attacking_stat =
+            attacking_side.calculate_boosted_stat(PokemonBoostableStat::SpecialAttack);
+        boosted_defending_stat =
             defending_side.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
+        if defending_side.special_defense_boost >= attacking_side.special_attack_boost {
+            gen2_crit_ignore_effects = true;
+            crit_attacking_stat = boosted_attacking_stat;
+            crit_defending_stat = boosted_defending_stat;
+        } else {
+            crit_attacking_stat = attacker.special_attack;
+            crit_defending_stat = defender.special_defense;
+        }
     }
 
     let mut damage = common_pkmn_damage_calc(
         attacker,
-        attacking_stat,
+        boosted_attacking_stat,
         defending_side,
         defender,
-        defending_stat,
+        boosted_defending_stat,
         &state.weather.weather_type,
         choice,
     );
-
-    match _damage_rolls {
-        DamageRolls::Average => damage = damage.floor() * 0.925,
-        DamageRolls::Min => damage = damage.floor() * 0.85,
-        DamageRolls::Max => damage = damage.floor(),
+    // burn modifier is not common when considering crit
+    damage *= burn_modifier(&choice.category, &attacker.status);
+    if defending_side.side_conditions.reflect > 0 && choice.category == MoveCategory::Physical {
+        damage *= 0.5
+    } else if defending_side.side_conditions.light_screen > 0
+        && choice.category == MoveCategory::Special
+    {
+        damage *= 0.5
     }
 
-    Some(damage as i16)
+    let mut crit_damage = common_pkmn_damage_calc(
+        attacker,
+        crit_attacking_stat,
+        defending_side,
+        defender,
+        crit_defending_stat,
+        &state.weather.weather_type,
+        choice,
+    );
+    if !gen2_crit_ignore_effects {
+        crit_damage *= burn_modifier(&choice.category, &attacker.status);
+        if defending_side.side_conditions.reflect > 0 && choice.category == MoveCategory::Physical {
+            crit_damage *= 0.5
+        } else if defending_side.side_conditions.light_screen > 0
+            && choice.category == MoveCategory::Special
+        {
+            crit_damage *= 0.5
+        }
+    }
+    crit_damage *= 2.0;
+
+    match _damage_rolls {
+        DamageRolls::Average => {
+            damage = damage.floor() * 0.925;
+            crit_damage = crit_damage.floor() * 0.925
+        }
+        DamageRolls::Min => {
+            damage = damage.floor() * 0.85;
+            crit_damage = crit_damage.floor() * 0.85
+        }
+        DamageRolls::Max => {
+            damage = damage.floor();
+            crit_damage = crit_damage.floor()
+        }
+    }
+
+    Some((damage as i16, crit_damage as i16))
 }
 
 pub fn calculate_futuresight_damage(

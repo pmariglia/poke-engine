@@ -2,7 +2,10 @@
 
 use poke_engine::abilities::Abilities;
 use poke_engine::choices::{Choices, MOVES};
-use poke_engine::generate_instructions::{generate_instructions_from_move_pair, MAX_SLEEP_TURNS};
+use poke_engine::damage_calc::CRIT_MULTIPLIER;
+use poke_engine::generate_instructions::{
+    generate_instructions_from_move_pair, BASE_CRIT_CHANCE, MAX_SLEEP_TURNS,
+};
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeSubsituteHealthInstruction,
@@ -86,6 +89,140 @@ fn test_confuseray_into_substitute() {
 }
 
 #[test]
+fn test_branch_on_crit() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 100;
+
+    let move_one = Choices::WATERGUN;
+    let move_two = Choices::SPLASH;
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_one);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_two);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        true,
+    );
+
+    let expected_damage = 32;
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0 * (1.0 - BASE_CRIT_CHANCE),
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: expected_damage,
+            })],
+        },
+        StateInstructions {
+            percentage: 100.0 * BASE_CRIT_CHANCE,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: (CRIT_MULTIPLIER * expected_damage as f32).floor() as i16,
+            })],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_highcrit_move() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 100;
+
+    let move_one = Choices::RAZORLEAF;
+    let move_two = Choices::SPLASH;
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_one);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_two);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        true,
+    );
+
+    let expected_damage = 44;
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 5.000001,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 83.125,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: expected_damage,
+            })],
+        },
+        StateInstructions {
+            percentage: 11.875,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: (CRIT_MULTIPLIER * expected_damage as f32).round() as i16,
+            })],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_crit_does_not_overkill() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 65;
+
+    let move_one = Choices::TACKLE;
+    let move_two = Choices::SPLASH;
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_one);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_two);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        true,
+    );
+
+    let expected_damage = 48;
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: (1.0 - BASE_CRIT_CHANCE) * 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: expected_damage,
+            })],
+        },
+        StateInstructions {
+            percentage: BASE_CRIT_CHANCE * 100.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 65,
+            })],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(feature = "gen9")]
 fn test_branch_when_a_roll_can_kill() {
     let mut state = State::default();
     state.side_two.get_active().hp = 50;
@@ -110,16 +247,17 @@ fn test_branch_when_a_roll_can_kill() {
 
     // This damage roll is 44-52, so it can kill
     // Normally without considering the roll, the damage is 48 (0.925 * 52)
+    // The roll itself has a 25% chance of killing but the extra chance is accounting for a crit
     let expected_instructions = vec![
         StateInstructions {
-            percentage: 75.00,
+            percentage: 70.833336,
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 46,
             })],
         },
         StateInstructions {
-            percentage: 25.00,
+            percentage: 29.166666,
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 50,
@@ -130,6 +268,7 @@ fn test_branch_when_a_roll_can_kill() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_branch_when_a_roll_can_kill_on_the_low_side() {
     let mut state = State::default();
     state.side_two.get_active().hp = 45;
@@ -156,14 +295,14 @@ fn test_branch_when_a_roll_can_kill_on_the_low_side() {
     // Normally without considering the roll, the damage is 48 (0.925 * 52)
     let expected_instructions = vec![
         StateInstructions {
-            percentage: 12.50,
+            percentage: 8.333331,
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 44,
             })],
         },
         StateInstructions {
-            percentage: 87.50,
+            percentage: 91.66667,
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 45,

@@ -9,7 +9,7 @@ pub mod base_stats;
 pub mod choice_effects;
 #[cfg(feature = "gen1")]
 #[path = "gen1/damage_calc.rs"]
-mod damage_calc;
+pub mod damage_calc;
 #[cfg(feature = "gen1")]
 #[path = "gen1/evaluate.rs"]
 pub mod evaluate;
@@ -31,7 +31,7 @@ pub mod abilities;
 pub mod choice_effects;
 #[cfg(feature = "gen2")]
 #[path = "gen2/damage_calc.rs"]
-mod damage_calc;
+pub mod damage_calc;
 #[cfg(feature = "gen2")]
 #[path = "gen2/evaluate.rs"]
 pub mod evaluate;
@@ -50,7 +50,7 @@ pub mod abilities;
 #[cfg(not(any(feature = "gen2", feature = "gen1")))]
 pub mod choice_effects;
 #[cfg(not(any(feature = "gen2", feature = "gen1")))]
-mod damage_calc;
+pub mod damage_calc;
 #[cfg(not(any(feature = "gen2", feature = "gen1")))]
 pub mod evaluate;
 #[cfg(not(any(feature = "gen2", feature = "gen1")))]

@@ -59,6 +59,12 @@ const TYPE_MATCHUP_DAMAGE_MULTIPICATION: [[f32; 19]; 19] = [
 /* 18 */ [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 ];
 
+#[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5"))]
+pub const CRIT_MULTIPLIER: f32 = 2.0;
+
+#[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
+pub const CRIT_MULTIPLIER: f32 = 1.5;
+
 #[allow(dead_code)]
 pub enum DamageRolls {
     Average,
@@ -333,14 +339,32 @@ fn get_attacking_and_defending_stats(
     defending_side: &Side,
     state: &State,
     choice: &Choice,
-) -> (i16, i16) {
+) -> (i16, i16, i16, i16) {
     let mut should_calc_attacker_boost = true;
     let mut should_calc_defender_boost = true;
     let defending_stat;
-    let (attacking_final_stat, mut defending_final_stat);
+    let (
+        attacking_final_stat,
+        mut defending_final_stat,
+        mut crit_attacking_stat,
+        mut crit_defending_stat,
+    );
 
     match choice.category {
         MoveCategory::Physical => {
+            if attacking_side.attack_boost > 0 {
+                crit_attacking_stat =
+                    attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
+            } else {
+                crit_attacking_stat = attacker.attack;
+            }
+            if defending_side.defense_boost <= 0 {
+                crit_defending_stat =
+                    defending_side.calculate_boosted_stat(PokemonBoostableStat::Defense);
+            } else {
+                crit_defending_stat = defender.defense;
+            }
+
             // Unaware checks
             if defender.ability == Abilities::UNAWARE {
                 should_calc_attacker_boost = false;
@@ -359,6 +383,7 @@ fn get_attacking_and_defending_stats(
                 } else {
                     attacking_final_stat = defender.attack;
                 }
+                crit_attacking_stat = defending_side.get_active_immutable().attack;
             } else if choice.move_id == Choices::BODYPRESS {
                 if should_calc_attacker_boost {
                     attacking_final_stat =
@@ -366,6 +391,7 @@ fn get_attacking_and_defending_stats(
                 } else {
                     attacking_final_stat = attacker.defense;
                 }
+                crit_attacking_stat = attacking_side.get_active_immutable().defense;
             } else if should_calc_attacker_boost {
                 attacking_final_stat =
                     attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
@@ -383,6 +409,19 @@ fn get_attacking_and_defending_stats(
             }
         }
         MoveCategory::Special => {
+            if attacking_side.special_attack_boost > 0 {
+                crit_attacking_stat =
+                    attacking_side.calculate_boosted_stat(PokemonBoostableStat::SpecialAttack);
+            } else {
+                crit_attacking_stat = attacker.special_attack;
+            }
+            if defending_side.special_defense_boost <= 0 {
+                crit_defending_stat =
+                    defending_side.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
+            } else {
+                crit_defending_stat = defender.special_defense;
+            }
+
             // Unaware checks
             if defender.ability == Abilities::UNAWARE {
                 should_calc_attacker_boost = false;
@@ -405,6 +444,13 @@ fn get_attacking_and_defending_stats(
                 || choice.move_id == Choices::SECRETSWORD
                 || choice.move_id == Choices::PSYSTRIKE
             {
+                if defending_side.defense_boost <= 0 {
+                    crit_defending_stat =
+                        defending_side.calculate_boosted_stat(PokemonBoostableStat::Defense);
+                } else {
+                    crit_defending_stat = defender.defense;
+                }
+
                 defending_stat = PokemonBoostableStat::Defense;
                 if should_calc_defender_boost {
                     defending_final_stat =
@@ -445,7 +491,12 @@ fn get_attacking_and_defending_stats(
         defending_final_stat = (defending_final_stat as f32 * 1.5) as i16;
     }
 
-    (attacking_final_stat, defending_final_stat)
+    (
+        attacking_final_stat,
+        defending_final_stat,
+        crit_attacking_stat,
+        crit_defending_stat,
+    )
 }
 
 fn common_pkmn_damage_calc(
@@ -486,20 +537,6 @@ fn common_pkmn_damage_calc(
     damage_modifier *= volatile_status_modifier(&choice, attacking_side, defending_side);
     damage_modifier *= terrain_modifier(terrain, attacker, defender, &choice);
 
-    if attacker.ability != Abilities::INFILTRATOR {
-        if defending_side.side_conditions.aurora_veil > 0 {
-            damage_modifier *= 0.5
-        } else if defending_side.side_conditions.reflect > 0
-            && choice.category == MoveCategory::Physical
-        {
-            damage_modifier *= 0.5
-        } else if defending_side.side_conditions.light_screen > 0
-            && choice.category == MoveCategory::Special
-        {
-            damage_modifier *= 0.5
-        }
-    }
-
     damage * damage_modifier
 }
 
@@ -513,23 +550,24 @@ pub fn calculate_damage(
     attacking_side: &SideReference,
     choice: &Choice,
     _damage_rolls: DamageRolls,
-) -> Option<i16> {
+) -> Option<(i16, i16)> {
     if choice.category == MoveCategory::Status || choice.category == MoveCategory::Switch {
         return None;
     } else if choice.base_power == 0.0 {
-        return Some(0);
+        return Some((0, 0));
     }
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side);
     let attacker = attacking_side.get_active_immutable();
     let defender = defending_side.get_active_immutable();
-    let (attacking_stat, defending_stat) = get_attacking_and_defending_stats(
-        attacker,
-        defender,
-        attacking_side,
-        defending_side,
-        state,
-        &choice,
-    );
+    let (attacking_stat, defending_stat, crit_attacking_stat, crit_defending_stat) =
+        get_attacking_and_defending_stats(
+            attacker,
+            defender,
+            attacking_side,
+            defending_side,
+            state,
+            &choice,
+        );
 
     let mut damage = common_pkmn_damage_calc(
         attacking_side,
@@ -542,14 +580,49 @@ pub fn calculate_damage(
         &state.terrain.terrain_type,
         choice,
     );
-
-    match _damage_rolls {
-        DamageRolls::Average => damage = damage.floor() * 0.925,
-        DamageRolls::Min => damage = damage.floor() * 0.85,
-        DamageRolls::Max => damage = damage.floor(),
+    if attacker.ability != Abilities::INFILTRATOR {
+        if defending_side.side_conditions.aurora_veil > 0 {
+            damage *= 0.5
+        } else if defending_side.side_conditions.reflect > 0
+            && choice.category == MoveCategory::Physical
+        {
+            damage *= 0.5
+        } else if defending_side.side_conditions.light_screen > 0
+            && choice.category == MoveCategory::Special
+        {
+            damage *= 0.5
+        }
     }
 
-    Some(damage as i16)
+    let mut crit_damage = common_pkmn_damage_calc(
+        attacking_side,
+        attacker,
+        crit_attacking_stat,
+        defending_side,
+        defender,
+        crit_defending_stat,
+        &state.weather.weather_type,
+        &state.terrain.terrain_type,
+        choice,
+    );
+    crit_damage *= CRIT_MULTIPLIER;
+
+    match _damage_rolls {
+        DamageRolls::Average => {
+            damage = damage.floor() * 0.925;
+            crit_damage = crit_damage.floor() * 0.925;
+        }
+        DamageRolls::Min => {
+            damage = damage.floor() * 0.85;
+            crit_damage = crit_damage.floor() * 0.85;
+        }
+        DamageRolls::Max => {
+            damage = damage.floor();
+            crit_damage = crit_damage.floor();
+        }
+    }
+
+    Some((damage as i16, crit_damage as i16))
 }
 
 pub fn calculate_futuresight_damage(
@@ -560,7 +633,7 @@ pub fn calculate_futuresight_damage(
     let attacking_stat = attacking_side.pokemon[attacking_side_pokemon_index].special_attack;
     let defending_stat = defending_side.get_active_immutable().special_defense;
     let attacker = attacking_side.get_active_immutable();
-    let damage = common_pkmn_damage_calc(
+    let mut damage = common_pkmn_damage_calc(
         attacking_side,
         attacker,
         attacking_stat,
@@ -571,6 +644,11 @@ pub fn calculate_futuresight_damage(
         &Terrain::NONE,
         MOVES.get(&Choices::FUTURESIGHT).unwrap(),
     );
+    if attacker.ability != Abilities::INFILTRATOR {
+        if defending_side.side_conditions.light_screen > 0 {
+            damage *= 0.5
+        }
+    }
 
     (damage * 0.925) as i16
 }
@@ -604,7 +682,7 @@ mod tests {
         );
 
         // level 100 tackle with 100 base stats across the board (attacker & defender)
-        assert_eq!(32, dmg.unwrap());
+        assert_eq!(32, dmg.unwrap().0);
     }
 
     #[test]
@@ -644,7 +722,7 @@ mod tests {
             DamageRolls::Average,
         );
 
-        assert_eq!(0, dmg.unwrap());
+        assert_eq!(0, dmg.unwrap().0);
     }
 
     #[test]
@@ -666,7 +744,7 @@ mod tests {
             DamageRolls::Average,
         );
 
-        assert_eq!(48, dmg.unwrap());
+        assert_eq!(48, dmg.unwrap().0);
     }
 
     #[test]
@@ -689,7 +767,7 @@ mod tests {
             DamageRolls::Average,
         );
 
-        assert_eq!(32, dmg.unwrap());
+        assert_eq!(32, dmg.unwrap().0);
     }
 
     #[test]
@@ -711,7 +789,7 @@ mod tests {
             DamageRolls::Average,
         );
 
-        assert_eq!(64, dmg.unwrap());
+        assert_eq!(64, dmg.unwrap().0);
     }
 
     #[test]
@@ -733,7 +811,7 @@ mod tests {
             DamageRolls::Average,
         );
 
-        assert_eq!(15, dmg.unwrap());
+        assert_eq!(15, dmg.unwrap().0);
     }
 
     macro_rules! weather_tests {
@@ -753,7 +831,7 @@ mod tests {
                     choice.category = MoveCategory::Special;
                     let dmg = calculate_damage(&state, &SideReference::SideOne, &choice, DamageRolls::Average);
 
-                    assert_eq!(expected_damage_amount, dmg.unwrap());
+                    assert_eq!(expected_damage_amount, dmg.unwrap().0);
                 }
              )*
         }
@@ -787,7 +865,7 @@ mod tests {
                     choice.category = MoveCategory::Special;
                     let dmg = calculate_damage(&state, &SideReference::SideOne, &choice, DamageRolls::Average);
 
-                    assert_eq!(expected_damage_amount, dmg.unwrap());
+                    assert_eq!(expected_damage_amount, dmg.unwrap().0);
                 }
              )*
         }
@@ -814,7 +892,7 @@ mod tests {
                     choice.base_power = 40.0;
                     let dmg = calculate_damage(&state, &SideReference::SideOne, &choice, DamageRolls::Average);
 
-                    assert_eq!(expected_damage_amount, dmg.unwrap());
+                    assert_eq!(expected_damage_amount, dmg.unwrap().0);
                 }
              )*
         }
@@ -843,7 +921,7 @@ mod tests {
                     choice.move_type = PokemonType::TYPELESS;
                     let dmg = calculate_damage(&state, &SideReference::SideOne, &choice, DamageRolls::Average);
 
-                    assert_eq!(expected_damage_amount, dmg.unwrap());
+                    assert_eq!(expected_damage_amount, dmg.unwrap().0);
                 }
              )*
         }
@@ -878,7 +956,7 @@ mod tests {
                     choice.base_power = 40.0;
                     let dmg = calculate_damage(&state, &SideReference::SideOne, &choice, DamageRolls::Average);
 
-                    assert_eq!(expected_damage_amount, dmg.unwrap());
+                    assert_eq!(expected_damage_amount, dmg.unwrap().0);
                 }
              )*
         }
