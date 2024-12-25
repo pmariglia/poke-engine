@@ -5,3 +5,5 @@
 *.so
 **__pycache**
 poke-engine-py/docs/build/
+.DS_Store
+output.txt
