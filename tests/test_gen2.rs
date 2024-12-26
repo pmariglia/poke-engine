@@ -76,14 +76,14 @@ fn test_branch_when_a_roll_can_kill() {
     // Normally without considering the roll, the damage is 48 (0.925 * 52)
     let expected_instructions = vec![
         StateInstructions {
-            percentage: 68.359375,
+            percentage: 70.01953,
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 46,
             })],
         },
         StateInstructions {
-            percentage: 31.640625,
+            percentage: 29.980469,
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 50,
@@ -252,14 +252,14 @@ fn test_branch_when_a_roll_can_kill_on_the_low_side() {
     // totalling a 94.14% chance of killing
     let expected_instructions = vec![
         StateInstructions {
-            percentage: 5.859375,
+            percentage: 11.669922,
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 44,
             })],
         },
         StateInstructions {
-            percentage: 94.140625,
+            percentage: 88.33008,
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 45,

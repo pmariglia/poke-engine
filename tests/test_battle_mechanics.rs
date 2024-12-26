@@ -250,14 +250,14 @@ fn test_branch_when_a_roll_can_kill() {
     // The roll itself has a 25% chance of killing but the extra chance is accounting for a crit
     let expected_instructions = vec![
         StateInstructions {
-            percentage: 70.833336,
+            percentage: 71.875,
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 46,
             })],
         },
         StateInstructions {
-            percentage: 29.166666,
+            percentage: 28.125,
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 50,
@@ -295,14 +295,14 @@ fn test_branch_when_a_roll_can_kill_on_the_low_side() {
     // Normally without considering the roll, the damage is 48 (0.925 * 52)
     let expected_instructions = vec![
         StateInstructions {
-            percentage: 8.333331,
+            percentage: 11.979169,
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 44,
             })],
         },
         StateInstructions {
-            percentage: 91.66667,
+            percentage: 88.02083,
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 45,

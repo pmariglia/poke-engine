@@ -1858,7 +1858,7 @@ pub fn generate_instructions_from_move(
             } else {
                 BASE_CRIT_CHANCE
             };
-            let branch_chance = (num_kill_rolls as f32 / 16.0) + crit_rate;
+            let branch_chance = ((1.0 - crit_rate) * (num_kill_rolls as f32 / 16.0)) + crit_rate;
 
             let mut branch_ins = incoming_instructions.clone();
             branch_ins.update_percentage(branch_chance);
