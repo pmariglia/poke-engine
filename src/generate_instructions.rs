@@ -43,6 +43,12 @@ use crate::{
 };
 use std::cmp;
 
+#[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5", feature = "gen6"))]
+pub const BASE_CRIT_CHANCE: f32 = 1.0 / 16.0;
+
+#[cfg(any(feature = "gen7", feature = "gen8", feature = "gen9"))]
+pub const BASE_CRIT_CHANCE: f32 = 1.0 / 24.0;
+
 #[cfg(any(feature = "gen3", feature = "gen4"))]
 pub const MAX_SLEEP_TURNS: i8 = 4;
 
@@ -838,7 +844,7 @@ fn check_move_hit_or_miss(
     state: &mut State,
     choice: &Choice,
     attacking_side_ref: &SideReference,
-    damage: Option<i16>,
+    damage: Option<(i16, i16)>,
     incoming_instructions: &mut StateInstructions,
     frozen_instructions: &mut Vec<StateInstructions>,
 ) {
@@ -854,7 +860,7 @@ fn check_move_hit_or_miss(
     let attacking_pokemon = attacking_side.get_active_immutable();
 
     let mut percent_hit = (choice.accuracy / 100.0).min(1.0);
-    if Some(0) == damage {
+    if Some((0, 0)) == damage {
         percent_hit = 0.0;
     }
 
@@ -1569,7 +1575,7 @@ pub fn generate_instructions_from_move(
     attacking_side: SideReference,
     mut incoming_instructions: StateInstructions,
     mut final_instructions: &mut Vec<StateInstructions>,
-    branch_if_roll_kills: bool,
+    branch_on_damage: bool,
 ) {
     if state.use_damage_dealt {
         reset_damage_dealt(
@@ -1833,28 +1839,48 @@ pub fn generate_instructions_from_move(
     let (_attacker_side, defender_side) = state.get_both_sides(&attacking_side);
     let defender_active = defender_side.get_active();
     let mut does_damage = false;
-    let (mut kill_damage, mut no_kill_damage) = (0, 0);
-    let mut kill_instructions: Option<StateInstructions> = None;
-    if let Some(max_damage_dealt) = damage {
+    let (mut branch_damage, mut regular_damage) = (0, 0);
+    let mut branch_instructions: Option<StateInstructions> = None;
+    if let Some((max_damage_dealt, max_crit_damage)) = damage {
         does_damage = true;
         let avg_damage_dealt = (max_damage_dealt as f32 * 0.925) as i16;
         let min_damage_dealt = (max_damage_dealt as f32 * 0.85) as i16;
-        if branch_if_roll_kills
+        if branch_on_damage
             && max_damage_dealt >= defender_active.hp
             && min_damage_dealt < defender_active.hp
         {
             let (average_non_kill_damage, num_kill_rolls) =
                 compare_health_with_damage_multiples(max_damage_dealt, defender_active.hp);
 
-            let mut kill_ins = incoming_instructions.clone();
-            kill_ins.update_percentage(num_kill_rolls as f32 / 16.0);
-            kill_instructions = Some(kill_ins);
-            kill_damage = defender_active.hp;
+            // the chance of a kill is the chance of the roll killing + the chance of a crit
+            let crit_rate = if choice.move_id.increased_crit_ratio() {
+                1.0 / 8.0
+            } else {
+                BASE_CRIT_CHANCE
+            };
+            let branch_chance = ((1.0 - crit_rate) * (num_kill_rolls as f32 / 16.0)) + crit_rate;
 
-            incoming_instructions.update_percentage((16 - num_kill_rolls) as f32 / 16.0);
-            no_kill_damage = average_non_kill_damage;
+            let mut branch_ins = incoming_instructions.clone();
+            branch_ins.update_percentage(branch_chance);
+            branch_instructions = Some(branch_ins);
+            branch_damage = defender_active.hp;
+
+            incoming_instructions.update_percentage(1.0 - branch_chance);
+            regular_damage = average_non_kill_damage;
+        } else if branch_on_damage && max_damage_dealt < defender_active.hp {
+            let crit_rate = if choice.move_id.increased_crit_ratio() {
+                1.0 / 8.0
+            } else {
+                BASE_CRIT_CHANCE
+            };
+            let mut branch_ins = incoming_instructions.clone();
+            branch_ins.update_percentage(crit_rate);
+            branch_instructions = Some(branch_ins);
+            branch_damage = (max_crit_damage as f32 * 0.925) as i16;
+            incoming_instructions.update_percentage(1.0 - crit_rate);
+            regular_damage = (max_damage_dealt as f32 * 0.925) as i16;
         } else {
-            no_kill_damage = avg_damage_dealt;
+            regular_damage = avg_damage_dealt;
         }
     }
 
@@ -1865,7 +1891,7 @@ pub fn generate_instructions_from_move(
             incoming_instructions,
             hit_count,
             does_damage,
-            no_kill_damage,
+            regular_damage,
             choice,
             defender_choice,
             &mut final_instructions,
@@ -1874,17 +1900,17 @@ pub fn generate_instructions_from_move(
         state.reverse_instructions(&incoming_instructions.instruction_list);
     }
 
-    // A branch representing where a roll kills the target
-    if let Some(kill_ins) = kill_instructions {
-        if kill_ins.percentage != 0.0 {
-            state.apply_instructions(&kill_ins.instruction_list);
+    // A branch representing either a roll that kills the opponent or a crit
+    if let Some(branch_ins) = branch_instructions {
+        if branch_ins.percentage != 0.0 {
+            state.apply_instructions(&branch_ins.instruction_list);
             run_move(
                 state,
                 attacking_side,
-                kill_ins,
+                branch_ins,
                 hit_count,
                 does_damage,
-                kill_damage,
+                branch_damage,
                 choice,
                 defender_choice,
                 &mut final_instructions,
@@ -2852,7 +2878,7 @@ pub fn generate_instructions_from_move_pair(
     state: &mut State,
     side_one_move: &MoveChoice,
     side_two_move: &MoveChoice,
-    branch_if_roll_kills: bool,
+    branch_on_damage: bool,
 ) -> Vec<StateInstructions> {
     /*
     - get Choice structs from moves
@@ -2947,7 +2973,7 @@ pub fn generate_instructions_from_move_pair(
             SideReference::SideOne,
             incoming_instructions,
             &mut state_instructions_vec,
-            branch_if_roll_kills,
+            branch_on_damage,
         );
         side_two_choice.first_move = false;
         let mut i = 0;
@@ -2961,7 +2987,7 @@ pub fn generate_instructions_from_move_pair(
                 SideReference::SideTwo,
                 state_instruction,
                 &mut state_instructions_vec,
-                branch_if_roll_kills,
+                branch_on_damage,
             );
             i += 1;
         }
@@ -2974,7 +3000,7 @@ pub fn generate_instructions_from_move_pair(
             SideReference::SideTwo,
             incoming_instructions,
             &mut state_instructions_vec,
-            branch_if_roll_kills,
+            branch_on_damage,
         );
         side_one_choice.first_move = false;
         let mut i = 0;
@@ -2988,7 +3014,7 @@ pub fn generate_instructions_from_move_pair(
                 SideReference::SideOne,
                 state_instruction,
                 &mut state_instructions_vec,
-                branch_if_roll_kills,
+                branch_on_damage,
             );
             i += 1;
         }
@@ -3095,7 +3121,9 @@ pub fn calculate_damage_rolls(
     }
 
     let mut return_vec = Vec::with_capacity(16);
-    if let Some(damage) = calculate_damage(&state, attacking_side_ref, &choice, DamageRolls::Max) {
+    if let Some((damage, _crit_damage)) =
+        calculate_damage(&state, attacking_side_ref, &choice, DamageRolls::Max)
+    {
         let damage = damage as f32;
         return_vec.push((damage * 0.85) as i16);
         return_vec.push((damage * 0.86) as i16);

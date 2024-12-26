@@ -119,13 +119,9 @@ impl Node {
         {
             return self as *mut Node;
         }
-        let should_branch_on_roll_killing = self.root || (*self.parent).root;
-        let mut new_instructions = generate_instructions_from_move_pair(
-            state,
-            s1_move,
-            s2_move,
-            should_branch_on_roll_killing,
-        );
+        let should_branch_on_damage = self.root || (*self.parent).root;
+        let mut new_instructions =
+            generate_instructions_from_move_pair(state, s1_move, s2_move, should_branch_on_damage);
         let mut this_pair_vec = Vec::with_capacity(2);
         for state_instructions in new_instructions.drain(..) {
             state.apply_instructions(&state_instructions.instruction_list);

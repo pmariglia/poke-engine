@@ -19974,6 +19974,37 @@ impl Choices {
             _ => false,
         }
     }
+    pub fn increased_crit_ratio(&self) -> bool {
+        match self {
+            Choices::AEROBLAST
+            | Choices::AIRCUTTER
+            | Choices::AQUACUTTER
+            | Choices::ATTACKORDER
+            | Choices::BLAZEKICK
+            | Choices::CRABHAMMER
+            | Choices::CROSSCHOP
+            | Choices::CROSSPOISON
+            | Choices::DIRECLAW
+            | Choices::DRILLRUN
+            | Choices::ESPERWING
+            | Choices::IVYCUDGEL
+            | Choices::KARATECHOP
+            | Choices::LEAFBLADE
+            | Choices::NIGHTSLASH
+            | Choices::POISONTAIL
+            | Choices::PSYCHOCUT
+            | Choices::RAZORLEAF
+            | Choices::RAZORWIND
+            | Choices::SHADOWCLAW
+            | Choices::SKYATTACK
+            | Choices::SLASH
+            | Choices::SNIPESHOT
+            | Choices::SPACIALREND
+            | Choices::STONEEDGE
+            | Choices::TRIPLEARROWS => true,
+            _ => false,
+        }
+    }
 }
 
 #[derive(Clone)]
