@@ -6,8 +6,7 @@ from ._poke_engine import (
     Side as _Side,
     SideConditions as _SideConditions,
     Pokemon as _Pokemon,
-    Move as _Move,
-    state_from_string as _state_from_string,
+    Move as _Move
 )
 
 
@@ -363,7 +362,3 @@ class State:
 
     def to_string(self):
         return self._into_rust_obj().to_string()
-
-    @classmethod
-    def from_string(cls, state_str: str):
-        return _state_from_string(state_str)

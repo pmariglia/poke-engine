@@ -77,6 +77,55 @@ impl PyState {
     fn to_string(&self) -> String {
         self.state.serialize()
     }
+
+    #[getter]
+    fn get_side_one(&self) -> PyResult<PySide> {
+        Ok(PySide {
+            side: self.state.side_one.clone(),
+        })
+    }
+
+    #[getter]
+    fn get_side_two(&self) -> PyResult<PySide> {
+        Ok(PySide {
+            side: self.state.side_two.clone(),
+        })
+    }
+
+    #[getter]
+    fn get_weather(&self) -> String {
+        self.state.weather.weather_type.to_string()
+    }
+
+    #[getter]
+    fn get_weather_turns_remaining(&self) -> i8 {
+        self.state.weather.turns_remaining
+    }
+
+    #[getter]
+    fn get_terrain(&self) -> String {
+        self.state.terrain.terrain_type.to_string()
+    }
+
+    #[getter]
+    fn get_terrain_turns_remaining(&self) -> i8 {
+        self.state.terrain.turns_remaining
+    }
+
+    #[getter]
+    fn get_trick_room(&self) -> bool {
+        self.state.trick_room.active
+    }
+
+    #[getter]
+    fn get_trick_room_turns_remaining(&self) -> i8 {
+        self.state.trick_room.turns_remaining
+    }
+
+    #[getter]
+    fn get_team_preview(&self) -> bool {
+        self.state.team_preview
+    }
 }
 
 #[derive(Clone)]
@@ -159,6 +208,129 @@ impl PySide {
             },
         }
     }
+
+    #[getter]
+    fn get_active_index(&self) -> String {
+        self.side.active_index.serialize()
+    }
+
+    #[getter]
+    fn get_baton_passing(&self) -> bool {
+        self.side.baton_passing
+    }
+
+    #[getter]
+    fn get_pokemon(&self) -> Vec<PyPokemon> {
+        vec![
+            PyPokemon {
+                pokemon: self.side.pokemon.p0.clone(),
+            },
+            PyPokemon {
+                pokemon: self.side.pokemon.p1.clone(),
+            },
+            PyPokemon {
+                pokemon: self.side.pokemon.p2.clone(),
+            },
+            PyPokemon {
+                pokemon: self.side.pokemon.p3.clone(),
+            },
+            PyPokemon {
+                pokemon: self.side.pokemon.p4.clone(),
+            },
+            PyPokemon {
+                pokemon: self.side.pokemon.p5.clone(),
+            },
+        ]
+    }
+
+    #[getter]
+    fn get_side_conditions(&self) -> PyResult<PySideConditions> {
+        Ok(PySideConditions {
+            side_conditions: self.side.side_conditions.clone(),
+        })
+    }
+
+    #[getter]
+    fn get_wish(&self) -> (i8, i16) {
+        self.side.wish
+    }
+
+    #[getter]
+    fn get_future_sight(&self) -> (i8, String) {
+        (
+            self.side.future_sight.0,
+            self.side.future_sight.1.serialize(),
+        )
+    }
+
+    #[getter]
+    fn get_force_switch(&self) -> bool {
+        self.side.force_switch
+    }
+
+    #[getter]
+    fn get_force_trapped(&self) -> bool {
+        self.side.force_trapped
+    }
+
+    #[getter]
+    fn get_volatile_statuses(&self) -> Vec<String> {
+        self.side
+            .volatile_statuses
+            .iter()
+            .map(|vs| vs.to_string())
+            .collect()
+    }
+
+    #[getter]
+    fn get_substitute_health(&self) -> i16 {
+        self.side.substitute_health
+    }
+
+    #[getter]
+    fn get_attack_boost(&self) -> i8 {
+        self.side.attack_boost
+    }
+
+    #[getter]
+    fn get_defense_boost(&self) -> i8 {
+        self.side.defense_boost
+    }
+
+    #[getter]
+    fn get_special_attack_boost(&self) -> i8 {
+        self.side.special_attack_boost
+    }
+
+    #[getter]
+    fn get_special_defense_boost(&self) -> i8 {
+        self.side.special_defense_boost
+    }
+
+    #[getter]
+    fn get_speed_boost(&self) -> i8 {
+        self.side.speed_boost
+    }
+
+    #[getter]
+    fn get_accuracy_boost(&self) -> i8 {
+        self.side.accuracy_boost
+    }
+
+    #[getter]
+    fn get_evasion_boost(&self) -> i8 {
+        self.side.evasion_boost
+    }
+
+    #[getter]
+    fn get_last_used_move(&self) -> String {
+        self.side.last_used_move.serialize()
+    }
+
+    #[getter]
+    fn get_switch_out_move_second_saved_move(&self) -> String {
+        self.side.switch_out_move_second_saved_move.to_string()
+    }
 }
 
 #[derive(Clone)]
@@ -220,6 +392,100 @@ impl PySideConditions {
                 wide_guard,
             },
         }
+    }
+    #[getter]
+    fn get_aurora_veil(&self) -> i8 {
+        self.side_conditions.aurora_veil
+    }
+
+    #[getter]
+    fn get_crafty_shield(&self) -> i8 {
+        self.side_conditions.crafty_shield
+    }
+
+    #[getter]
+    fn get_healing_wish(&self) -> i8 {
+        self.side_conditions.healing_wish
+    }
+
+    #[getter]
+    fn get_light_screen(&self) -> i8 {
+        self.side_conditions.light_screen
+    }
+
+    #[getter]
+    fn get_lucky_chant(&self) -> i8 {
+        self.side_conditions.lucky_chant
+    }
+
+    #[getter]
+    fn get_lunar_dance(&self) -> i8 {
+        self.side_conditions.lunar_dance
+    }
+
+    #[getter]
+    fn get_mat_block(&self) -> i8 {
+        self.side_conditions.mat_block
+    }
+
+    #[getter]
+    fn get_mist(&self) -> i8 {
+        self.side_conditions.mist
+    }
+
+    #[getter]
+    fn get_protect(&self) -> i8 {
+        self.side_conditions.protect
+    }
+
+    #[getter]
+    fn get_quick_guard(&self) -> i8 {
+        self.side_conditions.quick_guard
+    }
+
+    #[getter]
+    fn get_reflect(&self) -> i8 {
+        self.side_conditions.reflect
+    }
+
+    #[getter]
+    fn get_safeguard(&self) -> i8 {
+        self.side_conditions.safeguard
+    }
+
+    #[getter]
+    fn get_spikes(&self) -> i8 {
+        self.side_conditions.spikes
+    }
+
+    #[getter]
+    fn get_stealth_rock(&self) -> i8 {
+        self.side_conditions.stealth_rock
+    }
+
+    #[getter]
+    fn get_sticky_web(&self) -> i8 {
+        self.side_conditions.sticky_web
+    }
+
+    #[getter]
+    fn get_tailwind(&self) -> i8 {
+        self.side_conditions.tailwind
+    }
+
+    #[getter]
+    fn get_toxic_count(&self) -> i8 {
+        self.side_conditions.toxic_count
+    }
+
+    #[getter]
+    fn get_toxic_spikes(&self) -> i8 {
+        self.side_conditions.toxic_spikes
+    }
+
+    #[getter]
+    fn get_wide_guard(&self) -> i8 {
+        self.side_conditions.wide_guard
     }
 }
 
@@ -301,6 +567,122 @@ impl PyPokemon {
             },
         }
     }
+    #[getter]
+    fn get_id(&self) -> String {
+        self.pokemon.id.to_string()
+    }
+
+    #[getter]
+    fn get_level(&self) -> i8 {
+        self.pokemon.level
+    }
+
+    #[getter]
+    fn get_types(&self) -> [String; 2] {
+        [
+            self.pokemon.types.0.to_string(),
+            self.pokemon.types.1.to_string(),
+        ]
+    }
+
+    #[getter]
+    fn get_hp(&self) -> i16 {
+        self.pokemon.hp
+    }
+
+    #[getter]
+    fn get_maxhp(&self) -> i16 {
+        self.pokemon.maxhp
+    }
+
+    #[getter]
+    fn get_ability(&self) -> String {
+        self.pokemon.ability.to_string()
+    }
+
+    #[getter]
+    fn get_item(&self) -> String {
+        self.pokemon.item.to_string()
+    }
+
+    #[getter]
+    fn get_attack(&self) -> i16 {
+        self.pokemon.attack
+    }
+
+    #[getter]
+    fn get_defense(&self) -> i16 {
+        self.pokemon.defense
+    }
+
+    #[getter]
+    fn get_special_attack(&self) -> i16 {
+        self.pokemon.special_attack
+    }
+
+    #[getter]
+    fn get_special_defense(&self) -> i16 {
+        self.pokemon.special_defense
+    }
+
+    #[getter]
+    fn get_speed(&self) -> i16 {
+        self.pokemon.speed
+    }
+
+    #[getter]
+    fn get_status(&self) -> String {
+        self.pokemon.status.to_string()
+    }
+
+    #[getter]
+    fn get_rest_turns(&self) -> i8 {
+        self.pokemon.rest_turns
+    }
+
+    #[getter]
+    fn get_sleep_turns(&self) -> i8 {
+        self.pokemon.sleep_turns
+    }
+
+    #[getter]
+    fn get_weight_kg(&self) -> f32 {
+        self.pokemon.weight_kg
+    }
+
+    #[getter]
+    fn get_moves(&self) -> Vec<PyMove> {
+        vec![
+            PyMove {
+                mv: self.pokemon.moves.m0.clone(),
+            },
+            PyMove {
+                mv: self.pokemon.moves.m1.clone(),
+            },
+            PyMove {
+                mv: self.pokemon.moves.m2.clone(),
+            },
+            PyMove {
+                mv: self.pokemon.moves.m3.clone(),
+            },
+            PyMove {
+                mv: self.pokemon.moves.m4.clone(),
+            },
+            PyMove {
+                mv: self.pokemon.moves.m5.clone(),
+            },
+        ]
+    }
+
+    #[getter]
+    fn get_terastallized(&self) -> bool {
+        self.pokemon.terastallized
+    }
+
+    #[getter]
+    fn get_tera_type(&self) -> String {
+        self.pokemon.tera_type.to_string()
+    }
 }
 
 #[derive(Clone)]
@@ -334,6 +716,20 @@ impl PyMove {
                 choice: MOVES.get(&choice).unwrap().clone(),
             },
         }
+    }
+    #[getter]
+    fn get_id(&self) -> String {
+        self.mv.id.to_string()
+    }
+
+    #[getter]
+    fn get_disabled(&self) -> bool {
+        self.mv.disabled
+    }
+
+    #[getter]
+    fn get_pp(&self) -> i8 {
+        self.mv.pp
     }
 }
 

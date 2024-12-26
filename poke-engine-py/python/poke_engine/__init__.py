@@ -5,15 +5,16 @@ from .state import (
     Side,
     SideConditions,
     Pokemon,
-    Move,
+    Move
 )
 
 # noinspection PyUnresolvedReferences
 from ._poke_engine import (
     gi as _gi,
     calculate_damage as _calculate_damage,
+    state_from_string as _state_from_string,
     mcts as _mcts,
-    id as _id,
+    id as _id
 )
 
 
@@ -185,6 +186,104 @@ def calculate_damage(
     """
     return _calculate_damage(state._into_rust_obj(), s1_move, s2_move, s1_moves_first)
 
+def state_from_string(state_str: str) -> State:
+    """
+    Create a State object from its string representation
+
+    :param state_str: String representation of the state
+    :type state_str: str
+    :return: A State object with _into_rust_obj method
+    :rtype: State
+    """
+    rust_state = _state_from_string(state_str)
+    
+    def convert_move(rust_move) -> Move:
+        return Move(
+            id=rust_move.id,
+            disabled=rust_move.disabled,
+            pp=rust_move.pp
+        )
+    
+    def convert_pokemon(rust_pokemon) -> Pokemon:
+        return Pokemon(
+            id=rust_pokemon.id,
+            level=rust_pokemon.level,
+            types=rust_pokemon.types,
+            hp=rust_pokemon.hp,
+            maxhp=rust_pokemon.maxhp,
+            ability=rust_pokemon.ability,
+            item=rust_pokemon.item,
+            attack=rust_pokemon.attack,
+            defense=rust_pokemon.defense,
+            special_attack=rust_pokemon.special_attack,
+            special_defense=rust_pokemon.special_defense,
+            speed=rust_pokemon.speed,
+            status=rust_pokemon.status,
+            rest_turns=rust_pokemon.rest_turns,
+            sleep_turns=rust_pokemon.sleep_turns,
+            weight_kg=rust_pokemon.weight_kg,
+            moves=[convert_move(m) for m in rust_pokemon.moves],
+            terastallized=rust_pokemon.terastallized,
+            tera_type=rust_pokemon.tera_type
+        )
+    
+    def convert_side_conditions(rust_side_conditions) -> SideConditions:
+        return SideConditions(
+            aurora_veil=rust_side_conditions.aurora_veil,
+            crafty_shield=rust_side_conditions.crafty_shield,
+            healing_wish=rust_side_conditions.healing_wish,
+            light_screen=rust_side_conditions.light_screen,
+            lucky_chant=rust_side_conditions.lucky_chant,
+            lunar_dance=rust_side_conditions.lunar_dance,
+            mat_block=rust_side_conditions.mat_block,
+            mist=rust_side_conditions.mist,
+            protect=rust_side_conditions.protect,
+            quick_guard=rust_side_conditions.quick_guard,
+            reflect=rust_side_conditions.reflect,
+            safeguard=rust_side_conditions.safeguard,
+            spikes=rust_side_conditions.spikes,
+            stealth_rock=rust_side_conditions.stealth_rock,
+            sticky_web=rust_side_conditions.sticky_web,
+            tailwind=rust_side_conditions.tailwind,
+            toxic_count=rust_side_conditions.toxic_count,
+            toxic_spikes=rust_side_conditions.toxic_spikes,
+            wide_guard=rust_side_conditions.wide_guard
+        )
+    
+    def convert_side(rust_side) -> Side:
+        return Side(
+            active_index=rust_side.active_index,
+            baton_passing=rust_side.baton_passing,
+            pokemon=[convert_pokemon(p) for p in rust_side.pokemon],
+            side_conditions=convert_side_conditions(rust_side.side_conditions),
+            wish=rust_side.wish,
+            future_sight=rust_side.future_sight,
+            force_switch=rust_side.force_switch,
+            force_trapped=rust_side.force_trapped,
+            volatile_statuses=rust_side.volatile_statuses,
+            substitute_health=rust_side.substitute_health,
+            attack_boost=rust_side.attack_boost,
+            defense_boost=rust_side.defense_boost,
+            special_attack_boost=rust_side.special_attack_boost,
+            special_defense_boost=rust_side.special_defense_boost,
+            speed_boost=rust_side.speed_boost,
+            accuracy_boost=rust_side.accuracy_boost,
+            evasion_boost=rust_side.evasion_boost,
+            last_used_move=rust_side.last_used_move,
+            switch_out_move_second_saved_move=rust_side.switch_out_move_second_saved_move
+        )
+
+    return State(
+        side_one=convert_side(rust_state.side_one),
+        side_two=convert_side(rust_state.side_two),
+        weather=rust_state.weather,
+        weather_turns_remaining=rust_state.weather_turns_remaining,
+        terrain=rust_state.terrain,
+        terrain_turns_remaining=rust_state.terrain_turns_remaining,
+        trick_room=rust_state.trick_room,
+        trick_room_turns_remaining=rust_state.trick_room_turns_remaining,
+        team_preview=rust_state.team_preview
+    )
 
 __all__ = [
     "State",
@@ -199,4 +298,5 @@ __all__ = [
     "monte_carlo_tree_search",
     "iterative_deepening_expectiminimax",
     "calculate_damage",
+    "state_from_string"
 ]
