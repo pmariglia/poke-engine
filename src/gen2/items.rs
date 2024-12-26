@@ -114,9 +114,8 @@ pub fn get_choice_move_disable_instructions(
     moves_to_disable
 }
 
-pub fn item_before_move(
+pub fn pinch_berry(
     state: &mut State,
-    choice: &mut Choice,
     side_ref: &SideReference,
     instructions: &mut StateInstructions,
 ) {

@@ -26,7 +26,7 @@ use crate::state::PokemonMoveIndex;
 use crate::damage_calc::calculate_futuresight_damage;
 use crate::items::{
     item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
-    item_on_switch_in, Items,
+    item_on_switch_in, pinch_berry, Items,
 };
 use crate::state::{
     LastUsedMove, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition,
@@ -1704,6 +1704,20 @@ pub fn generate_instructions_from_move(
         return;
     }
 
+    // This engine does not have a common place to check for when a pinch berry should activate,
+    // but pinch berries being checked before each move (right here) and at the end of the turn
+    // should be sufficient
+    pinch_berry(state, &mut incoming_instructions);
+
+    if !choice.sleep_talk_move {
+        generate_instructions_from_existing_status_conditions(
+            state,
+            &attacking_side,
+            &mut incoming_instructions,
+            &mut final_instructions,
+        );
+    }
+
     before_move(
         state,
         choice,
@@ -1747,14 +1761,6 @@ pub fn generate_instructions_from_move(
         );
     }
 
-    if !choice.sleep_talk_move {
-        generate_instructions_from_existing_status_conditions(
-            state,
-            &attacking_side,
-            &mut incoming_instructions,
-            &mut final_instructions,
-        );
-    }
     let attacker = state
         .get_side_immutable(&attacking_side)
         .get_active_immutable();
@@ -2341,7 +2347,8 @@ fn add_end_of_turn_instructions(
         }
     }
 
-    // ability/item end-of-turn effects
+    // ability/item end-of-turn effects, which includes pinch berries
+    pinch_berry(state, incoming_instructions);
     for side_ref in sides {
         let side = state.get_side(side_ref);
         let active_pkmn = side.get_active();

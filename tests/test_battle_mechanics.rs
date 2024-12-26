@@ -652,6 +652,44 @@ fn test_bellydrum() {
 }
 
 #[test]
+fn test_bellydrum_with_gluttony_and_sitrusberry() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::GLUTTONY;
+    state.side_one.get_active().item = Items::SITRUSBERRY;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::BELLYDRUM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 50,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 6,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 25,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::SITRUSBERRY,
+                new_item: Items::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_bellydrum_at_75_percent() {
     let mut state = State::default();
     state.side_one.get_active().hp = 75;
@@ -3750,6 +3788,46 @@ fn test_petaya_berry_activate_after_taking_damage_when_slower() {
 }
 
 #[test]
+fn test_petaya_berry_activate_with_gluttony_when_slower() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::PETAYABERRY;
+    state.side_one.get_active().ability = Abilities::GLUTTONY;
+    state.side_one.get_active().hp = 90;
+    state.side_one.get_active().maxhp = 90;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: 1,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::PETAYABERRY,
+                new_item: Items::NONE,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_salac_berry_activate_after_taking_damage_when_slower() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::SALACBERRY;
@@ -3792,6 +3870,46 @@ fn test_liechi_berry_activate_after_taking_damage_when_slower() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::LIECHIBERRY;
     state.side_one.get_active().hp = 50;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 1,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::LIECHIBERRY,
+                new_item: Items::NONE,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 72, // boosted damage
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_liechi_berry_activate_with_gluttony_after_taking_damage_when_slower() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::LIECHIBERRY;
+    state.side_one.get_active().ability = Abilities::GLUTTONY;
+    state.side_one.get_active().hp = 90;
+    state.side_one.get_active().maxhp = 90;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -13924,6 +14042,39 @@ fn test_explosion_into_ghost_type() {
             damage_amount: 100,
         })],
     }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_explosion_while_paralysed() {
+    let mut state = State::default();
+    state.side_one.get_active().status = PokemonStatus::PARALYZE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::EXPLOSION,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 25.0,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 75.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 100,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 100,
+                }),
+            ],
+        },
+    ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
