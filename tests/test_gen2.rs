@@ -449,6 +449,241 @@ fn test_sleeptalk_rest_has_no_effect_at_full_hp() {
 }
 
 #[test]
+fn test_guaranteed_to_stay_asleep_sleeptalk_move_when_not_rested() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 50;
+
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::SLEEPTALK);
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M1, Choices::REST);
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M2, Choices::TACKLE);
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M3, Choices::CURSE);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SLEEPTALK,
+        Choices::SPORE,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 33.333336,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::SLEEP,
+                }),
+                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    new_turns: 1,
+                    previous_turns: 0,
+                }),
+                Instruction::SetRestTurns(SetSleepTurnsInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    new_turns: 3,
+                    previous_turns: 0,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 50,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 33.333336,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::SLEEP,
+                }),
+                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    new_turns: 1,
+                    previous_turns: 0,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 33.333336,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    old_status: PokemonStatus::NONE,
+                    new_status: PokemonStatus::SLEEP,
+                }),
+                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    new_turns: 1,
+                    previous_turns: 0,
+                }),
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::CURSE,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Attack,
+                    amount: 1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Defense,
+                    amount: 1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: -1,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_small_chance_to_awaken_sleeptalk_move_when_not_rested() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 50;
+    state.side_one.get_active().status = PokemonStatus::SLEEP;
+    state.side_one.get_active().sleep_turns = 1;
+
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::SLEEPTALK);
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M1, Choices::REST);
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M2, Choices::TACKLE);
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M3, Choices::CURSE);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SLEEPTALK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 16.666668,
+            instruction_list: vec![
+                Instruction::ChangeStatus(ChangeStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    old_status: PokemonStatus::SLEEP,
+                    new_status: PokemonStatus::NONE,
+                }),
+                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    new_turns: 0,
+                    previous_turns: 1,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 27.777777,
+            instruction_list: vec![
+                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    new_turns: 2,
+                    previous_turns: 1,
+                }),
+                Instruction::SetRestTurns(SetSleepTurnsInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    new_turns: 3,
+                    previous_turns: 0,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 50,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 27.777777,
+            instruction_list: vec![
+                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    new_turns: 2,
+                    previous_turns: 1,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 27.777777,
+            instruction_list: vec![
+                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                    side_ref: SideReference::SideOne,
+                    pokemon_index: PokemonIndex::P0,
+                    new_turns: 2,
+                    previous_turns: 1,
+                }),
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::CURSE,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Attack,
+                    amount: 1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Defense,
+                    amount: 1,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: -1,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_sleeptalk_can_call_rest() {
     let mut state = State::default();
     state.side_one.get_active().status = PokemonStatus::SLEEP;
