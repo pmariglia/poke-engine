@@ -1044,6 +1044,7 @@ pub fn before_move(
 fn generate_instructions_from_existing_status_conditions(
     state: &mut State,
     attacking_side_ref: &SideReference,
+    attacker_choice: &Choice,
     incoming_instructions: &mut StateInstructions,
     final_instructions: &mut Vec<StateInstructions>,
 ) {
@@ -1102,52 +1103,98 @@ fn generate_instructions_from_existing_status_conditions(
                                 previous_turns: current_sleep_turns,
                             }));
                     } else if chance_to_wake == 0.0 {
-                        let mut still_asleep_instruction = incoming_instructions.clone();
-                        still_asleep_instruction.update_percentage(1.0);
-                        still_asleep_instruction
-                            .instruction_list
-                            .push(Instruction::SetSleepTurns(SetSleepTurnsInstruction {
-                                side_ref: *attacking_side_ref,
-                                pokemon_index: current_active_index,
-                                new_turns: current_sleep_turns + 1,
-                                previous_turns: current_sleep_turns,
-                            }));
-                        final_instructions.push(still_asleep_instruction);
-                        incoming_instructions.update_percentage(0.0);
+                        if attacker_choice.move_id == Choices::SLEEPTALK {
+                            // if we are using sleeptalk we want to continue using this move
+                            incoming_instructions.instruction_list.push(
+                                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                                    side_ref: *attacking_side_ref,
+                                    pokemon_index: current_active_index,
+                                    new_turns: current_sleep_turns + 1,
+                                    previous_turns: current_sleep_turns,
+                                }),
+                            );
+                        } else {
+                            let mut still_asleep_instruction = incoming_instructions.clone();
+                            still_asleep_instruction.update_percentage(1.0);
+                            still_asleep_instruction.instruction_list.push(
+                                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                                    side_ref: *attacking_side_ref,
+                                    pokemon_index: current_active_index,
+                                    new_turns: current_sleep_turns + 1,
+                                    previous_turns: current_sleep_turns,
+                                }),
+                            );
+                            final_instructions.push(still_asleep_instruction);
+                            incoming_instructions.update_percentage(0.0);
+                        }
                     } else {
-                        // still asleep
-                        let mut still_asleep_instruction = incoming_instructions.clone();
-                        still_asleep_instruction.update_percentage(1.0 - chance_to_wake);
-                        still_asleep_instruction
-                            .instruction_list
-                            .push(Instruction::SetSleepTurns(SetSleepTurnsInstruction {
-                                side_ref: *attacking_side_ref,
-                                pokemon_index: current_active_index,
-                                new_turns: current_sleep_turns + 1,
-                                previous_turns: current_sleep_turns,
-                            }));
-                        final_instructions.push(still_asleep_instruction);
-
-                        // wakes up
-                        incoming_instructions.update_percentage(chance_to_wake);
-                        attacker_active.status = PokemonStatus::NONE;
-                        attacker_active.sleep_turns = 0;
-                        incoming_instructions
-                            .instruction_list
-                            .push(Instruction::ChangeStatus(ChangeStatusInstruction {
-                                side_ref: *attacking_side_ref,
-                                pokemon_index: current_active_index,
-                                old_status: PokemonStatus::SLEEP,
-                                new_status: PokemonStatus::NONE,
-                            }));
-                        incoming_instructions
-                            .instruction_list
-                            .push(Instruction::SetSleepTurns(SetSleepTurnsInstruction {
-                                side_ref: *attacking_side_ref,
-                                pokemon_index: current_active_index,
-                                new_turns: 0,
-                                previous_turns: current_sleep_turns,
-                            }));
+                        // This code deals with the situation where there is a chance to wake up
+                        // as well as a chance to stay asleep.
+                        // This logic will branch the state and one branch will represent where
+                        // nothing happens and the other will represent where something happens
+                        // Normally "nothing happens" means you stay asleep and "something happens"
+                        // means you wake up. If the move is sleeptalk these are reversed.
+                        let do_nothing_percentage;
+                        let mut do_nothing_instructions = incoming_instructions.clone();
+                        if attacker_choice.move_id == Choices::SLEEPTALK {
+                            do_nothing_percentage = chance_to_wake;
+                            do_nothing_instructions.instruction_list.push(
+                                Instruction::ChangeStatus(ChangeStatusInstruction {
+                                    side_ref: *attacking_side_ref,
+                                    pokemon_index: current_active_index,
+                                    old_status: PokemonStatus::SLEEP,
+                                    new_status: PokemonStatus::NONE,
+                                }),
+                            );
+                            do_nothing_instructions.instruction_list.push(
+                                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                                    side_ref: *attacking_side_ref,
+                                    pokemon_index: current_active_index,
+                                    new_turns: 0,
+                                    previous_turns: current_sleep_turns,
+                                }),
+                            );
+                            incoming_instructions.instruction_list.push(
+                                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                                    side_ref: *attacking_side_ref,
+                                    pokemon_index: current_active_index,
+                                    new_turns: current_sleep_turns + 1,
+                                    previous_turns: current_sleep_turns,
+                                }),
+                            );
+                            attacker_active.sleep_turns += 1;
+                        } else {
+                            do_nothing_percentage = 1.0 - chance_to_wake;
+                            do_nothing_instructions.instruction_list.push(
+                                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                                    side_ref: *attacking_side_ref,
+                                    pokemon_index: current_active_index,
+                                    new_turns: current_sleep_turns + 1,
+                                    previous_turns: current_sleep_turns,
+                                }),
+                            );
+                            incoming_instructions
+                                .instruction_list
+                                .push(Instruction::ChangeStatus(ChangeStatusInstruction {
+                                    side_ref: *attacking_side_ref,
+                                    pokemon_index: current_active_index,
+                                    old_status: PokemonStatus::SLEEP,
+                                    new_status: PokemonStatus::NONE,
+                                }));
+                            incoming_instructions.instruction_list.push(
+                                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                                    side_ref: *attacking_side_ref,
+                                    pokemon_index: current_active_index,
+                                    new_turns: 0,
+                                    previous_turns: current_sleep_turns,
+                                }),
+                            );
+                            attacker_active.status = PokemonStatus::NONE;
+                            attacker_active.sleep_turns = 0;
+                        }
+                        do_nothing_instructions.update_percentage(do_nothing_percentage);
+                        incoming_instructions.update_percentage(1.0 - do_nothing_percentage);
+                        final_instructions.push(do_nothing_instructions);
                     }
                 }
                 // Pokemon is asleep because of Rest, and will wake up this turn
@@ -1385,6 +1432,7 @@ pub fn generate_instructions_from_move(
         generate_instructions_from_existing_status_conditions(
             state,
             &attacking_side,
+            &choice,
             &mut incoming_instructions,
             &mut final_instructions,
         );
