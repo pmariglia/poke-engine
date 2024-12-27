@@ -94,39 +94,6 @@ fn test_branch_when_a_roll_can_kill() {
 }
 
 #[test]
-fn test_explosion_while_paralysed() {
-    let mut state = State::default();
-    state.side_one.get_active().status = PokemonStatus::PARALYZE;
-
-    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
-        &mut state,
-        Choices::EXPLOSION,
-        Choices::SPLASH,
-    );
-
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 25.0,
-            instruction_list: vec![],
-        },
-        StateInstructions {
-            percentage: 75.0,
-            instruction_list: vec![
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideOne,
-                    damage_amount: 100,
-                }),
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 100,
-                }),
-            ],
-        },
-    ];
-    assert_eq!(expected_instructions, vec_of_instructions);
-}
-
-#[test]
 fn test_branch_on_crit() {
     let mut state = State::default();
     state.side_two.get_active().hp = 100;

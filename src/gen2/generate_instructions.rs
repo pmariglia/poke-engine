@@ -19,7 +19,8 @@ use crate::state::PokemonMoveIndex;
 
 use crate::damage_calc::calculate_futuresight_damage;
 use crate::items::{
-    item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used, pinch_berry, Items,
+    item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
+    Items,
 };
 use crate::state::{
     LastUsedMove, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition,
@@ -1004,6 +1005,7 @@ pub fn before_move(
     attacking_side: &SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
+    item_before_move(state, choice, attacking_side, incoming_instructions);
     choice_before_move(state, choice, attacking_side, incoming_instructions);
 
     modify_choice(state, choice, defender_choice, attacking_side);
@@ -1388,6 +1390,13 @@ pub fn generate_instructions_from_move(
         return;
     }
 
+    before_move(
+        state,
+        choice,
+        defender_choice,
+        &attacking_side,
+        &mut incoming_instructions,
+    );
     if incoming_instructions.percentage == 0.0 {
         state.reverse_instructions(&incoming_instructions.instruction_list);
         return;
@@ -1419,8 +1428,6 @@ pub fn generate_instructions_from_move(
         );
     }
 
-    pinch_berry(state, &attacking_side, &mut incoming_instructions);
-
     if !choice.sleep_talk_move {
         generate_instructions_from_existing_status_conditions(
             state,
@@ -1430,15 +1437,6 @@ pub fn generate_instructions_from_move(
             &mut final_instructions,
         );
     }
-
-    before_move(
-        state,
-        choice,
-        defender_choice,
-        &attacking_side,
-        &mut incoming_instructions,
-    );
-
     let attacker = state
         .get_side_immutable(&attacking_side)
         .get_active_immutable();

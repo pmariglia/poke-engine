@@ -332,144 +332,6 @@ fn boost_berry(
     attacking_side.get_active().item = Items::NONE;
 }
 
-/*
-This engine does not have a common place to check for when a pinch berry should activate, but
-this function being called in the right places should be accurate enough for a simulation
-*/
-pub fn pinch_berry(state: &mut State, instructions: &mut StateInstructions) {
-    let side_one_active = state.side_one.get_active();
-    match side_one_active.item {
-        Items::SITRUSBERRY
-            if side_one_active.ability == Abilities::GLUTTONY
-                && side_one_active.hp <= side_one_active.maxhp / 2 =>
-        {
-            sitrus_berry(&SideReference::SideOne, &mut state.side_one, instructions)
-        }
-        Items::SITRUSBERRY if side_one_active.hp <= side_one_active.maxhp / 4 => {
-            sitrus_berry(&SideReference::SideOne, &mut state.side_one, instructions)
-        }
-        Items::LUMBERRY if side_one_active.status != PokemonStatus::NONE => {
-            lum_berry(&SideReference::SideOne, &mut state.side_one, instructions)
-        }
-        Items::PETAYABERRY
-            if (side_one_active.ability == Abilities::GLUTTONY
-                && side_one_active.hp <= side_one_active.maxhp / 2)
-                || (side_one_active.hp <= side_one_active.maxhp / 4) =>
-        {
-            boost_berry(
-                &SideReference::SideOne,
-                &mut state.side_one,
-                PokemonBoostableStat::SpecialAttack,
-                instructions,
-            );
-        }
-        Items::LIECHIBERRY
-            if (side_one_active.ability == Abilities::GLUTTONY
-                && side_one_active.hp <= side_one_active.maxhp / 2)
-                || (side_one_active.hp <= side_one_active.maxhp / 4) =>
-        {
-            boost_berry(
-                &SideReference::SideOne,
-                &mut state.side_one,
-                PokemonBoostableStat::Attack,
-                instructions,
-            );
-        }
-        Items::SALACBERRY
-            if (side_one_active.ability == Abilities::GLUTTONY
-                && side_one_active.hp <= side_one_active.maxhp / 2)
-                || (side_one_active.hp <= side_one_active.maxhp / 4) =>
-        {
-            boost_berry(
-                &SideReference::SideOne,
-                &mut state.side_one,
-                PokemonBoostableStat::Speed,
-                instructions,
-            );
-        }
-        Items::CUSTAPBERRY
-            if (side_one_active.ability == Abilities::GLUTTONY
-                && side_one_active.hp <= side_one_active.maxhp / 2)
-                || (side_one_active.hp <= side_one_active.maxhp / 4) =>
-        {
-            side_one_active.item = Items::NONE;
-            instructions
-                .instruction_list
-                .push(Instruction::ChangeItem(ChangeItemInstruction {
-                    side_ref: SideReference::SideOne,
-                    current_item: Items::CUSTAPBERRY,
-                    new_item: Items::NONE,
-                }));
-        }
-        _ => {}
-    }
-
-    let side_two_active = state.side_two.get_active();
-    match side_two_active.item {
-        Items::SITRUSBERRY
-            if (side_two_active.ability == Abilities::GLUTTONY
-                && side_two_active.hp <= side_two_active.maxhp / 2)
-                || side_two_active.hp <= side_two_active.maxhp / 4 =>
-        {
-            sitrus_berry(&SideReference::SideTwo, &mut state.side_two, instructions)
-        }
-        Items::LUMBERRY if side_two_active.status != PokemonStatus::NONE => {
-            lum_berry(&SideReference::SideTwo, &mut state.side_two, instructions)
-        }
-        Items::PETAYABERRY
-            if (side_two_active.ability == Abilities::GLUTTONY
-                && side_two_active.hp <= side_two_active.maxhp / 2)
-                || (side_two_active.hp <= side_two_active.maxhp / 4) =>
-        {
-            boost_berry(
-                &SideReference::SideTwo,
-                &mut state.side_two,
-                PokemonBoostableStat::SpecialAttack,
-                instructions,
-            );
-        }
-        Items::LIECHIBERRY
-            if (side_two_active.ability == Abilities::GLUTTONY
-                && side_two_active.hp <= side_two_active.maxhp / 2)
-                || (side_two_active.hp <= side_two_active.maxhp / 4) =>
-        {
-            boost_berry(
-                &SideReference::SideTwo,
-                &mut state.side_two,
-                PokemonBoostableStat::Attack,
-                instructions,
-            );
-        }
-        Items::SALACBERRY
-            if (side_two_active.ability == Abilities::GLUTTONY
-                && side_two_active.hp <= side_two_active.maxhp / 2)
-                || (side_two_active.hp <= side_two_active.maxhp / 4) =>
-        {
-            boost_berry(
-                &SideReference::SideTwo,
-                &mut state.side_two,
-                PokemonBoostableStat::Speed,
-                instructions,
-            );
-        }
-        Items::CUSTAPBERRY
-            if (side_two_active.ability == Abilities::GLUTTONY
-                && side_two_active.hp <= side_two_active.maxhp / 2)
-                || (side_two_active.hp <= side_two_active.maxhp / 4) =>
-        {
-            side_two_active.item = Items::NONE;
-            instructions
-                .instruction_list
-                .push(Instruction::ChangeItem(ChangeItemInstruction {
-                    side_ref: SideReference::SideTwo,
-                    current_item: Items::CUSTAPBERRY,
-                    new_item: Items::NONE,
-                }));
-        }
-        _ => {}
-    }
-}
-
 pub fn item_before_move(
     state: &mut State,
     choice: &mut Choice,
@@ -759,6 +621,48 @@ pub fn item_before_move(
             PokemonType::FAIRY,
             instructions,
         ),
+        Items::LUMBERRY if active_pkmn.status != PokemonStatus::NONE => {
+            lum_berry(side_ref, attacking_side, instructions)
+        }
+        Items::SITRUSBERRY
+            if active_pkmn.ability == Abilities::GLUTTONY
+                && active_pkmn.hp < active_pkmn.maxhp / 2 =>
+        {
+            sitrus_berry(side_ref, attacking_side, instructions)
+        }
+        Items::SITRUSBERRY if active_pkmn.hp < active_pkmn.maxhp / 4 => {
+            sitrus_berry(side_ref, attacking_side, instructions)
+        }
+        Items::PETAYABERRY if active_pkmn.hp < active_pkmn.maxhp / 4 => boost_berry(
+            side_ref,
+            attacking_side,
+            PokemonBoostableStat::SpecialAttack,
+            instructions,
+        ),
+        Items::LIECHIBERRY if active_pkmn.hp < active_pkmn.maxhp / 4 => boost_berry(
+            side_ref,
+            attacking_side,
+            PokemonBoostableStat::Attack,
+            instructions,
+        ),
+        Items::SALACBERRY if active_pkmn.hp < active_pkmn.maxhp / 4 => boost_berry(
+            side_ref,
+            attacking_side,
+            PokemonBoostableStat::Speed,
+            instructions,
+        ),
+        Items::CUSTAPBERRY => {
+            if active_pkmn.hp <= active_pkmn.maxhp / 4 {
+                active_pkmn.item = Items::NONE;
+                instructions.instruction_list.push(Instruction::ChangeItem(
+                    ChangeItemInstruction {
+                        side_ref: *side_ref,
+                        current_item: Items::CUSTAPBERRY,
+                        new_item: Items::NONE,
+                    },
+                ));
+            }
+        }
         Items::CHOICESPECS | Items::CHOICEBAND | Items::CHOICESCARF => {
             let ins = get_choice_move_disable_instructions(active_pkmn, side_ref, &choice.move_id);
             for i in ins {
