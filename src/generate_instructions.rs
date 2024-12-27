@@ -1900,12 +1900,19 @@ pub fn generate_instructions_from_move(
             let (average_non_kill_damage, num_kill_rolls) =
                 compare_health_with_damage_multiples(max_damage_dealt, defender_active.hp);
 
-            // the chance of a kill is the chance of the roll killing + the chance of a crit
-            let crit_rate = if choice.move_id.increased_crit_ratio() {
+            let crit_rate = if defender_active.ability == Abilities::BATTLEARMOR
+                || defender_active.ability == Abilities::SHELLARMOR
+            {
+                0.0
+            } else if choice.move_id.guaranteed_crit() {
+                1.0
+            } else if choice.move_id.increased_crit_ratio() {
                 1.0 / 8.0
             } else {
                 BASE_CRIT_CHANCE
             };
+
+            // the chance of a branch is the chance of the roll killing + the chance of a crit
             let branch_chance = ((1.0 - crit_rate) * (num_kill_rolls as f32 / 16.0)) + crit_rate;
 
             let mut branch_ins = incoming_instructions.clone();
@@ -1916,7 +1923,13 @@ pub fn generate_instructions_from_move(
             incoming_instructions.update_percentage(1.0 - branch_chance);
             regular_damage = average_non_kill_damage;
         } else if branch_on_damage && max_damage_dealt < defender_active.hp {
-            let crit_rate = if choice.move_id.increased_crit_ratio() {
+            let crit_rate = if defender_active.ability == Abilities::BATTLEARMOR
+                || defender_active.ability == Abilities::SHELLARMOR
+            {
+                0.0
+            } else if choice.move_id.guaranteed_crit() {
+                1.0
+            } else if choice.move_id.increased_crit_ratio() {
                 1.0 / 8.0
             } else {
                 BASE_CRIT_CHANCE

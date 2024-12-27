@@ -20005,6 +20005,16 @@ impl Choices {
             _ => false,
         }
     }
+    pub fn guaranteed_crit(&self) -> bool {
+        match self {
+            Choices::WICKEDBLOW
+            | Choices::SURGINGSTRIKES
+            | Choices::FLOWERTRICK
+            | Choices::STORMTHROW
+            | Choices::FROSTBREATH => true,
+            _ => false,
+        }
+    }
 }
 
 #[derive(Clone)]
