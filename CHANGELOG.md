@@ -1,5 +1,25 @@
 # Changelog
 
+## [v0.0.23](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.23) - 2024-12-28
+
+### Features
+
+- Consider critical strikes - ([4cc71a1](https://github.com/pmariglia/poke-engine/commit/4cc71a173cf53c6d8a82ddfdd227590359a0e1e2))
+
+- Guaranteed Crit moves and BattleArmor / ShellArmor abilities - ([942d812](https://github.com/pmariglia/poke-engine/commit/942d812d5741f316df9d34be73c987994c68c9a2))
+
+
+### Bug Fixes
+
+- Check para/sleep/confusion before "before_move()" - ([c1de340](https://github.com/pmariglia/poke-engine/commit/c1de3409ff6e0daa8920678b6d34e2b0931376d4))
+
+- SleepTalk works when a pokemon is asleep without rest - ([c041f23](https://github.com/pmariglia/poke-engine/commit/c041f234656bea8783d72b5b1ef101bd934edd0f))
+
+
+### Revert
+
+- "fix: Check para/sleep/confusion before "before_move()"" - ([7eecfa9](https://github.com/pmariglia/poke-engine/commit/7eecfa99dd9fea85edee3fb191147e05aff241d7))
+
 ## [v0.0.22](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.22) - 2024-12-17
 
 ### Bug Fixes
