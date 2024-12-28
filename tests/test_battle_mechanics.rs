@@ -762,6 +762,78 @@ fn test_bellydrum() {
 }
 
 #[test]
+fn test_bellydrum_with_sitrus_berry_and_gluttony_at_even_amount_of_max_hp() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 100;
+    state.side_one.get_active().maxhp = 100;
+    state.side_one.get_active().ability = Abilities::GLUTTONY;
+    state.side_one.get_active().item = Items::SITRUSBERRY;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::BELLYDRUM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 50,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 6,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 25,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::SITRUSBERRY,
+                new_item: Items::NONE,
+            })
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_bellydrum_with_sitrus_berry_and_gluttony_at_odd_amount_of_max_hp() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 101;
+    state.side_one.get_active().maxhp = 101;
+    state.side_one.get_active().ability = Abilities::GLUTTONY;
+    state.side_one.get_active().item = Items::SITRUSBERRY;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::BELLYDRUM,
+        Choices::SPLASH,
+    );
+
+    // Berry should not activate
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 50,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_bellydrum_at_75_percent() {
     let mut state = State::default();
     state.side_one.get_active().hp = 75;

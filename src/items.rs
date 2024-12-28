@@ -626,26 +626,26 @@ pub fn item_before_move(
         }
         Items::SITRUSBERRY
             if active_pkmn.ability == Abilities::GLUTTONY
-                && active_pkmn.hp < active_pkmn.maxhp / 2 =>
+                && active_pkmn.hp <= active_pkmn.maxhp / 2 =>
         {
             sitrus_berry(side_ref, attacking_side, instructions)
         }
-        Items::SITRUSBERRY if active_pkmn.hp < active_pkmn.maxhp / 4 => {
+        Items::SITRUSBERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => {
             sitrus_berry(side_ref, attacking_side, instructions)
         }
-        Items::PETAYABERRY if active_pkmn.hp < active_pkmn.maxhp / 4 => boost_berry(
+        Items::PETAYABERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => boost_berry(
             side_ref,
             attacking_side,
             PokemonBoostableStat::SpecialAttack,
             instructions,
         ),
-        Items::LIECHIBERRY if active_pkmn.hp < active_pkmn.maxhp / 4 => boost_berry(
+        Items::LIECHIBERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => boost_berry(
             side_ref,
             attacking_side,
             PokemonBoostableStat::Attack,
             instructions,
         ),
-        Items::SALACBERRY if active_pkmn.hp < active_pkmn.maxhp / 4 => boost_berry(
+        Items::SALACBERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => boost_berry(
             side_ref,
             attacking_side,
             PokemonBoostableStat::Speed,
@@ -788,7 +788,7 @@ pub fn item_end_of_turn(
         Items::LUMBERRY if active_pkmn.status != PokemonStatus::NONE => {
             lum_berry(side_ref, attacking_side, instructions)
         }
-        Items::SITRUSBERRY if active_pkmn.hp < active_pkmn.maxhp / 2 => {
+        Items::SITRUSBERRY if active_pkmn.hp <= active_pkmn.maxhp / 2 => {
             sitrus_berry(side_ref, attacking_side, instructions)
         }
         Items::BLACKSLUDGE => {
