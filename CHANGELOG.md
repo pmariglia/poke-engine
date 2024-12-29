@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.0.24](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.24) - 2024-12-29
+
+### Features
+
+- [**breaking**] ChangeStat Instructions, Natures & EVs, Minior/MiniorMeteor FormeChange - ([6330453](https://github.com/pmariglia/poke-engine/commit/6330453d04c71f0540f23b92d1cd9907d22b9fbc))
+
+
+### Bug Fixes
+
+- Less-than-or-equal for activating berries based on HP - ([8f36e81](https://github.com/pmariglia/poke-engine/commit/8f36e81428b99ee54dfa433c138b4b07595d3165))
+
+- Formatting - ([5c13f9c](https://github.com/pmariglia/poke-engine/commit/5c13f9c7d031c4a17aa59391bf54757a535dbf8a))
+
 ## [v0.0.23](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.23) - 2024-12-28
 
 ### Features
