@@ -1,8 +1,9 @@
 use crate::choices::{Choices, MoveCategory};
 use crate::items::Items;
+use crate::pokemon::PokemonName;
+use crate::state::SideReference;
 use crate::state::Terrain;
 use crate::state::Weather;
-use crate::state::{FormeChange, SideReference};
 use crate::state::{LastUsedMove, PokemonVolatileStatus};
 use crate::state::{PokemonBoostableStat, PokemonType};
 use crate::state::{PokemonIndex, PokemonSideCondition};
@@ -245,7 +246,7 @@ impl fmt::Debug for Instruction {
                 )
             }
             Instruction::FormeChange(s) => {
-                write!(f, "FormeChange {:?}: {:?}", s.side_ref, s.forme_change)
+                write!(f, "FormeChange {:?}: {:?}", s.side_ref, s.new_forme)
             }
             Instruction::SetSideOneMoveSecondSwitchOutMove(s) => {
                 write!(
@@ -447,7 +448,8 @@ pub struct ChangeSubsituteHealthInstruction {
 #[derive(Debug, PartialEq, Clone)]
 pub struct FormeChangeInstruction {
     pub side_ref: SideReference,
-    pub forme_change: FormeChange,
+    pub new_forme: PokemonName,
+    pub previous_forme: PokemonName,
 }
 
 #[derive(Debug, PartialEq, Clone)]

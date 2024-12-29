@@ -14,9 +14,7 @@ use crate::instruction::{
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::pokemon::PokemonName;
-use crate::state::{
-    FormeChange, PokemonBoostableStat, PokemonSideCondition, PokemonType, Side, Terrain,
-};
+use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Side, Terrain};
 use crate::state::{PokemonStatus, State};
 use crate::state::{PokemonVolatileStatus, SideReference, Weather};
 use std::cmp;
@@ -526,8 +524,10 @@ pub fn ability_before_move(
                 .instruction_list
                 .push(Instruction::FormeChange(FormeChangeInstruction {
                     side_ref: side_ref.get_other_side(),
-                    forme_change: FormeChange::MimikyuBusted,
+                    previous_forme: defending_pkmn.id,
+                    new_forme: PokemonName::MIMIKYUBUSTED,
                 }));
+            defending_pkmn.id = PokemonName::MIMIKYUBUSTED;
         }
         #[cfg(any(feature = "gen8", feature = "gen9"))]
         Abilities::DISGUISE
@@ -541,7 +541,8 @@ pub fn ability_before_move(
                 .instruction_list
                 .push(Instruction::FormeChange(FormeChangeInstruction {
                     side_ref: side_ref.get_other_side(),
-                    forme_change: FormeChange::MimikyuBusted,
+                    previous_forme: defending_pkmn.id,
+                    new_forme: PokemonName::MIMIKYUBUSTED,
                 }));
             defending_pkmn.id = PokemonName::MIMIKYUBUSTED;
             let dmg = cmp::min(defending_pkmn.hp, defending_pkmn.maxhp / 8);
@@ -897,11 +898,12 @@ pub fn ability_on_switch_out(
     }
     match active_pkmn.ability {
         Abilities::HUNGERSWITCH => {
-            if active_pkmn.id != PokemonName::MORPEKO {
+            if active_pkmn.id == PokemonName::MORPEKOHANGRY && !active_pkmn.terastallized {
                 instructions.instruction_list.push(Instruction::FormeChange(
                     FormeChangeInstruction {
                         side_ref: *side_ref,
-                        forme_change: FormeChange::Morpeko,
+                        new_forme: PokemonName::MORPEKO,
+                        previous_forme: PokemonName::MORPEKOHANGRY,
                     },
                 ));
                 active_pkmn.id = PokemonName::MORPEKO;
@@ -954,7 +956,8 @@ pub fn ability_end_of_turn(
                 instructions.instruction_list.push(Instruction::FormeChange(
                     FormeChangeInstruction {
                         side_ref: *side_ref,
-                        forme_change: FormeChange::MorpekoHangry,
+                        new_forme: PokemonName::MORPEKOHANGRY,
+                        previous_forme: PokemonName::MORPEKO,
                     },
                 ));
                 active_pkmn.id = PokemonName::MORPEKOHANGRY;
@@ -962,7 +965,8 @@ pub fn ability_end_of_turn(
                 instructions.instruction_list.push(Instruction::FormeChange(
                     FormeChangeInstruction {
                         side_ref: *side_ref,
-                        forme_change: FormeChange::Morpeko,
+                        new_forme: PokemonName::MORPEKO,
+                        previous_forme: PokemonName::MORPEKOHANGRY,
                     },
                 ));
                 active_pkmn.id = PokemonName::MORPEKO;
@@ -975,7 +979,8 @@ pub fn ability_end_of_turn(
                 instructions.instruction_list.push(Instruction::FormeChange(
                     FormeChangeInstruction {
                         side_ref: *side_ref,
-                        forme_change: FormeChange::MiniorCore,
+                        new_forme: PokemonName::MINIOR,
+                        previous_forme: active_pkmn.id,
                     },
                 ));
                 active_pkmn.id = PokemonName::MINIOR;
@@ -986,7 +991,8 @@ pub fn ability_end_of_turn(
                 instructions.instruction_list.push(Instruction::FormeChange(
                     FormeChangeInstruction {
                         side_ref: *side_ref,
-                        forme_change: FormeChange::MiniorMeteor,
+                        new_forme: PokemonName::MINIORMETEOR,
+                        previous_forme: active_pkmn.id,
                     },
                 ));
                 active_pkmn.id = PokemonName::MINIORMETEOR;

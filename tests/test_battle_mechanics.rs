@@ -20,9 +20,9 @@ use poke_engine::instruction::{
 use poke_engine::items::Items;
 use poke_engine::pokemon::PokemonName;
 use poke_engine::state::{
-    pokemon_index_iter, FormeChange, Move, MoveChoice, PokemonBoostableStat, PokemonIndex,
-    PokemonMoveIndex, PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus,
-    SideReference, State, StateWeather, Terrain, Weather,
+    pokemon_index_iter, Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
+    PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State,
+    StateWeather, Terrain, Weather,
 };
 
 #[cfg(feature = "terastallization")]
@@ -3015,7 +3015,8 @@ fn test_minior_formechange() {
             }),
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                forme_change: FormeChange::MiniorCore,
+                new_forme: PokemonName::MINIOR,
+                previous_forme: PokemonName::MINIORMETEOR,
             }),
             Instruction::ChangeAttack(ChangeStatInstruction {
                 side_ref: SideReference::SideOne,
@@ -3058,7 +3059,8 @@ fn test_morpeko_reverts_to_fullbelly_when_switching_out() {
         instruction_list: vec![
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                forme_change: FormeChange::Morpeko,
+                new_forme: PokemonName::MORPEKO,
+                previous_forme: PokemonName::MORPEKOHANGRY,
             }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
@@ -3108,7 +3110,8 @@ fn test_morpeko_formechange_end_of_turn() {
         percentage: 100.0,
         instruction_list: vec![Instruction::FormeChange(FormeChangeInstruction {
             side_ref: SideReference::SideOne,
-            forme_change: FormeChange::MorpekoHangry,
+            new_forme: PokemonName::MORPEKOHANGRY,
+            previous_forme: PokemonName::MORPEKO,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -3150,7 +3153,8 @@ fn test_morpekohangry_formechange_end_of_turn() {
         percentage: 100.0,
         instruction_list: vec![Instruction::FormeChange(FormeChangeInstruction {
             side_ref: SideReference::SideOne,
-            forme_change: FormeChange::Morpeko,
+            new_forme: PokemonName::MORPEKO,
+            previous_forme: PokemonName::MORPEKOHANGRY,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -3187,7 +3191,8 @@ fn test_minior_meteor_formechange_when_healing() {
             }),
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                forme_change: FormeChange::MiniorMeteor,
+                new_forme: PokemonName::MINIORMETEOR,
+                previous_forme: PokemonName::MINIOR,
             }),
             Instruction::ChangeAttack(ChangeStatInstruction {
                 side_ref: SideReference::SideOne,
@@ -10380,7 +10385,8 @@ fn test_mimikyu_with_disguise_formechange_on_damaging_move() {
         percentage: 100.0,
         instruction_list: vec![Instruction::FormeChange(FormeChangeInstruction {
             side_ref: SideReference::SideOne,
-            forme_change: FormeChange::MimikyuBusted,
+            new_forme: PokemonName::MIMIKYUBUSTED,
+            previous_forme: PokemonName::MIMIKYU,
         })],
     }];
 
@@ -10414,7 +10420,8 @@ fn test_mimikyu_busting_does_not_overkill() {
         percentage: 100.0,
         instruction_list: vec![Instruction::FormeChange(FormeChangeInstruction {
             side_ref: SideReference::SideOne,
-            forme_change: FormeChange::MimikyuBusted,
+            new_forme: PokemonName::MIMIKYUBUSTED,
+            previous_forme: PokemonName::MIMIKYU,
         })],
     }];
 

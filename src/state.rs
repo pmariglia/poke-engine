@@ -2068,46 +2068,6 @@ impl State {
         }
     }
 
-    fn forme_change(&mut self, side_ref: &SideReference, forme: FormeChange) {
-        match forme {
-            // technically the totem forme makes this different but we aren't changing
-            // things like height/weight here
-            FormeChange::MimikyuBusted => {
-                self.get_side(side_ref).get_active().id = PokemonName::MIMIKYUBUSTED
-            }
-            FormeChange::MiniorMeteor => {
-                self.get_side(side_ref).get_active().id = PokemonName::MINIORMETEOR
-            }
-            FormeChange::MiniorCore => {
-                self.get_side(side_ref).get_active().id = PokemonName::MINIOR
-            }
-            FormeChange::Morpeko => self.get_side(side_ref).get_active().id = PokemonName::MORPEKO,
-            FormeChange::MorpekoHangry => {
-                self.get_side(side_ref).get_active().id = PokemonName::MORPEKOHANGRY
-            }
-        }
-    }
-
-    fn undo_forme_change(&mut self, side_ref: &SideReference, forme: FormeChange) {
-        match forme {
-            FormeChange::MimikyuBusted => {
-                self.get_side(side_ref).get_active().id = PokemonName::MIMIKYU
-            }
-            FormeChange::MiniorMeteor => {
-                self.get_side(side_ref).get_active().id = PokemonName::MINIOR
-            }
-            FormeChange::MiniorCore => {
-                self.get_side(side_ref).get_active().id = PokemonName::MINIORMETEOR
-            }
-            FormeChange::Morpeko => {
-                self.get_side(side_ref).get_active().id = PokemonName::MORPEKOHANGRY
-            }
-            FormeChange::MorpekoHangry => {
-                self.get_side(side_ref).get_active().id = PokemonName::MORPEKO
-            }
-        }
-    }
-
     pub fn apply_instructions(&mut self, instructions: &Vec<Instruction>) {
         for i in instructions {
             self.apply_one_instruction(i)
@@ -2273,7 +2233,7 @@ impl State {
                 &instruction.amount,
             ),
             Instruction::FormeChange(instruction) => {
-                self.forme_change(&instruction.side_ref, instruction.forme_change);
+                self.get_side(&instruction.side_ref).get_active().id = instruction.new_forme;
             }
         }
     }
@@ -2443,19 +2403,10 @@ impl State {
                 &instruction.amount,
             ),
             Instruction::FormeChange(instruction) => {
-                self.undo_forme_change(&instruction.side_ref, instruction.forme_change);
+                self.get_side(&instruction.side_ref).get_active().id = instruction.previous_forme;
             }
         }
     }
-}
-
-#[derive(Debug, PartialEq, Copy, Clone)]
-pub enum FormeChange {
-    MimikyuBusted,
-    MiniorCore,
-    MiniorMeteor,
-    Morpeko,
-    MorpekoHangry,
 }
 
 impl Move {

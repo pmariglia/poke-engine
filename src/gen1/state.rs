@@ -1739,24 +1739,6 @@ impl State {
         }
     }
 
-    fn forme_change(&mut self, side_ref: &SideReference, forme: FormeChange) {
-        match forme {
-            // technically the totem forme makes this different but we aren't changing
-            // things like height/weight here
-            FormeChange::MimikyuBusted => {
-                self.get_side(side_ref).get_active().id = PokemonName::MIMIKYUBUSTED
-            }
-        }
-    }
-
-    fn undo_forme_change(&mut self, side_ref: &SideReference, forme: FormeChange) {
-        match forme {
-            FormeChange::MimikyuBusted => {
-                self.get_side(side_ref).get_active().id = PokemonName::MIMIKYU
-            }
-        }
-    }
-
     pub fn apply_instructions(&mut self, instructions: &Vec<Instruction>) {
         for i in instructions {
             self.apply_one_instruction(i)
@@ -1921,9 +1903,7 @@ impl State {
                 &instruction.move_index,
                 &instruction.amount,
             ),
-            Instruction::FormeChange(instruction) => {
-                self.forme_change(&instruction.side_ref, instruction.forme_change);
-            }
+            Instruction::FormeChange(_) => {}
         }
     }
 
@@ -2091,16 +2071,9 @@ impl State {
                 &instruction.move_index,
                 &instruction.amount,
             ),
-            Instruction::FormeChange(instruction) => {
-                self.undo_forme_change(&instruction.side_ref, instruction.forme_change);
-            }
+            Instruction::FormeChange(_) => {}
         }
     }
-}
-
-#[derive(Debug, PartialEq, Copy, Clone)]
-pub enum FormeChange {
-    MimikyuBusted,
 }
 
 impl Move {

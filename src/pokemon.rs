@@ -2,7 +2,7 @@ use crate::define_enum_with_from_str;
 
 define_enum_with_from_str! {
     #[repr(u16)]
-    #[derive(Clone, Debug, PartialEq)]
+    #[derive(Clone, Copy, Debug, PartialEq)]
     PokemonName {
         NONE,
         BULBASAUR,
