@@ -795,7 +795,7 @@ fn test_bellydrum_with_sitrus_berry_and_gluttony_at_even_amount_of_max_hp() {
                 side_ref: SideReference::SideOne,
                 current_item: Items::SITRUSBERRY,
                 new_item: Items::NONE,
-            })
+            }),
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
