@@ -896,6 +896,17 @@ pub fn ability_on_switch_out(
         return;
     }
     match active_pkmn.ability {
+        Abilities::HUNGERSWITCH => {
+            if active_pkmn.id != PokemonName::MORPEKO {
+                instructions.instruction_list.push(Instruction::FormeChange(
+                    FormeChangeInstruction {
+                        side_ref: *side_ref,
+                        forme_change: FormeChange::Morpeko,
+                    },
+                ));
+                active_pkmn.id = PokemonName::MORPEKO;
+            }
+        }
         Abilities::NATURALCURE => {
             if active_pkmn.status != PokemonStatus::NONE {
                 let status = active_pkmn.status.clone();
@@ -938,6 +949,25 @@ pub fn ability_end_of_turn(
         return;
     }
     match active_pkmn.ability {
+        Abilities::HUNGERSWITCH => {
+            if active_pkmn.id == PokemonName::MORPEKO && !active_pkmn.terastallized {
+                instructions.instruction_list.push(Instruction::FormeChange(
+                    FormeChangeInstruction {
+                        side_ref: *side_ref,
+                        forme_change: FormeChange::MorpekoHangry,
+                    },
+                ));
+                active_pkmn.id = PokemonName::MORPEKOHANGRY;
+            } else if active_pkmn.id == PokemonName::MORPEKOHANGRY && !active_pkmn.terastallized {
+                instructions.instruction_list.push(Instruction::FormeChange(
+                    FormeChangeInstruction {
+                        side_ref: *side_ref,
+                        forme_change: FormeChange::Morpeko,
+                    },
+                ));
+                active_pkmn.id = PokemonName::MORPEKO;
+            }
+        }
         Abilities::SHIELDSDOWN => {
             if active_pkmn.hp <= active_pkmn.maxhp / 2
                 && active_pkmn.id == PokemonName::MINIORMETEOR

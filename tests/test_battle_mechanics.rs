@@ -3043,6 +3043,120 @@ fn test_minior_formechange() {
 }
 
 #[test]
+fn test_morpeko_reverts_to_fullbelly_when_switching_out() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::MORPEKOHANGRY;
+    state.side_one.get_active().ability = Abilities::HUNGERSWITCH;
+
+    let side_one_move = MoveChoice::Switch(PokemonIndex::P1);
+    let side_two_move = MoveChoice::None;
+    let vec_of_instructions =
+        generate_instructions_with_state_assertion(&mut state, &side_one_move, &side_two_move);
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                forme_change: FormeChange::Morpeko,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_morpeko_does_not_change_forme_when_switching_out_if_already_full_belly() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::MORPEKO;
+    state.side_one.get_active().ability = Abilities::HUNGERSWITCH;
+
+    let side_one_move = MoveChoice::Switch(PokemonIndex::P1);
+    let side_two_move = MoveChoice::None;
+    let vec_of_instructions =
+        generate_instructions_with_state_assertion(&mut state, &side_one_move, &side_two_move);
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Switch(SwitchInstruction {
+            side_ref: SideReference::SideOne,
+            previous_index: PokemonIndex::P0,
+            next_index: PokemonIndex::P1,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_morpeko_formechange_end_of_turn() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::MORPEKO;
+    state.side_one.get_active().ability = Abilities::HUNGERSWITCH;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::FormeChange(FormeChangeInstruction {
+            side_ref: SideReference::SideOne,
+            forme_change: FormeChange::MorpekoHangry,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_hungerswitch_does_not_activate_when_teratsallized() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::MORPEKO;
+    state.side_one.get_active().terastallized = true;
+    state.side_one.get_active().ability = Abilities::HUNGERSWITCH;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_morpekohangry_formechange_end_of_turn() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::MORPEKOHANGRY;
+    state.side_one.get_active().ability = Abilities::HUNGERSWITCH;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::FormeChange(FormeChangeInstruction {
+            side_ref: SideReference::SideOne,
+            forme_change: FormeChange::Morpeko,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_minior_meteor_formechange_when_healing() {
     let mut state = State::default();
     state.side_one.get_active().hp = 40;

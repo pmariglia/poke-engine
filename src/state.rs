@@ -2081,6 +2081,10 @@ impl State {
             FormeChange::MiniorCore => {
                 self.get_side(side_ref).get_active().id = PokemonName::MINIOR
             }
+            FormeChange::Morpeko => self.get_side(side_ref).get_active().id = PokemonName::MORPEKO,
+            FormeChange::MorpekoHangry => {
+                self.get_side(side_ref).get_active().id = PokemonName::MORPEKOHANGRY
+            }
         }
     }
 
@@ -2094,6 +2098,12 @@ impl State {
             }
             FormeChange::MiniorCore => {
                 self.get_side(side_ref).get_active().id = PokemonName::MINIORMETEOR
+            }
+            FormeChange::Morpeko => {
+                self.get_side(side_ref).get_active().id = PokemonName::MORPEKOHANGRY
+            }
+            FormeChange::MorpekoHangry => {
+                self.get_side(side_ref).get_active().id = PokemonName::MORPEKO
             }
         }
     }
@@ -2444,6 +2454,8 @@ pub enum FormeChange {
     MimikyuBusted,
     MiniorCore,
     MiniorMeteor,
+    Morpeko,
+    MorpekoHangry,
 }
 
 impl Move {
