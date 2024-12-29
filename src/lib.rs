@@ -27,6 +27,9 @@ pub mod state;
 #[path = "gen2/abilities.rs"]
 pub mod abilities;
 #[cfg(feature = "gen2")]
+#[path = "gen2/base_stats.rs"]
+pub mod base_stats;
+#[cfg(feature = "gen2")]
 #[path = "gen2/choice_effects.rs"]
 pub mod choice_effects;
 #[cfg(feature = "gen2")]
@@ -47,6 +50,8 @@ pub mod state;
 
 #[cfg(not(any(feature = "gen2", feature = "gen1")))]
 pub mod abilities;
+#[cfg(not(any(feature = "gen2", feature = "gen1")))]
+pub mod base_stats;
 #[cfg(not(any(feature = "gen2", feature = "gen1")))]
 pub mod choice_effects;
 #[cfg(not(any(feature = "gen2", feature = "gen1")))]

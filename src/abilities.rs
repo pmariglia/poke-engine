@@ -938,6 +938,31 @@ pub fn ability_end_of_turn(
         return;
     }
     match active_pkmn.ability {
+        Abilities::SHIELDSDOWN => {
+            if active_pkmn.hp <= active_pkmn.maxhp / 2
+                && active_pkmn.id == PokemonName::MINIORMETEOR
+            {
+                instructions.instruction_list.push(Instruction::FormeChange(
+                    FormeChangeInstruction {
+                        side_ref: *side_ref,
+                        forme_change: FormeChange::MiniorCore,
+                    },
+                ));
+                active_pkmn.id = PokemonName::MINIOR;
+                active_pkmn.recalculate_stats(side_ref, instructions);
+            }
+            if active_pkmn.hp > active_pkmn.maxhp / 2 && active_pkmn.id != PokemonName::MINIORMETEOR
+            {
+                instructions.instruction_list.push(Instruction::FormeChange(
+                    FormeChangeInstruction {
+                        side_ref: *side_ref,
+                        forme_change: FormeChange::MiniorMeteor,
+                    },
+                ));
+                active_pkmn.id = PokemonName::MINIORMETEOR;
+                active_pkmn.recalculate_stats(side_ref, instructions);
+            }
+        }
         Abilities::BADDREAMS => {
             let defender = defending_side.get_active();
             if defender.status == PokemonStatus::SLEEP {

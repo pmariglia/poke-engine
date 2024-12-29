@@ -58,6 +58,11 @@ pub enum Instruction {
     DecrementTerrainTurnsRemaining,
     ChangeType(ChangeType),
     ChangeItem(ChangeItemInstruction),
+    ChangeAttack(ChangeStatInstruction),
+    ChangeDefense(ChangeStatInstruction),
+    ChangeSpecialAttack(ChangeStatInstruction),
+    ChangeSpecialDefense(ChangeStatInstruction),
+    ChangeSpeed(ChangeStatInstruction),
     DisableMove(DisableMoveInstruction),
     EnableMove(EnableMoveInstruction),
     ChangeWish(ChangeWishInstruction),
@@ -170,6 +175,21 @@ impl fmt::Debug for Instruction {
                     "ChangeItem {:?}: {:?} -> {:?}",
                     c.side_ref, c.current_item, c.new_item
                 )
+            }
+            Instruction::ChangeAttack(c) => {
+                write!(f, "ChangeAttack {:?}: {}", c.side_ref, c.amount)
+            }
+            Instruction::ChangeDefense(c) => {
+                write!(f, "ChangeDefense {:?}: {}", c.side_ref, c.amount)
+            }
+            Instruction::ChangeSpecialAttack(c) => {
+                write!(f, "ChangeSpecialAttack {:?}: {}", c.side_ref, c.amount)
+            }
+            Instruction::ChangeSpecialDefense(c) => {
+                write!(f, "ChangeSpecialDefense {:?}: {}", c.side_ref, c.amount)
+            }
+            Instruction::ChangeSpeed(c) => {
+                write!(f, "ChangeSpeed {:?}: {}", c.side_ref, c.amount)
             }
             Instruction::DisableMove(d) => {
                 write!(f, "DisableMove {:?}: {:?}", d.side_ref, d.move_index)
@@ -398,6 +418,12 @@ pub struct ChangeItemInstruction {
     pub side_ref: SideReference,
     pub current_item: Items,
     pub new_item: Items,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ChangeStatInstruction {
+    pub side_ref: SideReference,
+    pub amount: i16,
 }
 
 #[derive(Debug, PartialEq, Clone)]

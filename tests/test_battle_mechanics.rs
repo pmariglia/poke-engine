@@ -8,14 +8,14 @@ use poke_engine::generate_instructions::{
 };
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeSubsituteHealthInstruction,
-    ChangeTerrain, ChangeType, ChangeWeather, ChangeWishInstruction, DamageInstruction,
-    DecrementFutureSightInstruction, DecrementPPInstruction, DecrementRestTurnsInstruction,
-    DecrementWishInstruction, DisableMoveInstruction, EnableMoveInstruction,
-    FormeChangeInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction,
-    SetFutureSightInstruction, SetSecondMoveSwitchOutMoveInstruction, SetSleepTurnsInstruction,
-    StateInstructions, SwitchInstruction, ToggleBatonPassingInstruction,
-    ToggleTrickRoomInstruction,
+    ChangeSideConditionInstruction, ChangeStatInstruction, ChangeStatusInstruction,
+    ChangeSubsituteHealthInstruction, ChangeTerrain, ChangeType, ChangeWeather,
+    ChangeWishInstruction, DamageInstruction, DecrementFutureSightInstruction,
+    DecrementPPInstruction, DecrementRestTurnsInstruction, DecrementWishInstruction,
+    DisableMoveInstruction, EnableMoveInstruction, FormeChangeInstruction, HealInstruction,
+    Instruction, RemoveVolatileStatusInstruction, SetFutureSightInstruction,
+    SetSecondMoveSwitchOutMoveInstruction, SetSleepTurnsInstruction, StateInstructions,
+    SwitchInstruction, ToggleBatonPassingInstruction, ToggleTrickRoomInstruction,
 };
 use poke_engine::items::Items;
 use poke_engine::pokemon::PokemonName;
@@ -2985,6 +2985,117 @@ fn test_using_substitute_when_it_is_already_up() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_minior_formechange() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 60;
+    state.side_one.get_active().ability = Abilities::SHIELDSDOWN;
+    state.side_one.get_active().id = PokemonName::MINIORMETEOR;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::TACKLE,
+    );
+
+    // This pokemon starts at 100 stats all over,
+    // so the change-X instructions are relative to that
+    // lv. 100 minior-core neutral nature with 85 evs in all stats has the final stats:
+    // 282/257/177/257/177/297, however HP does not change
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                forme_change: FormeChange::MiniorCore,
+            }),
+            Instruction::ChangeAttack(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 157,
+            }),
+            Instruction::ChangeDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 77,
+            }),
+            Instruction::ChangeSpecialAttack(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 157,
+            }),
+            Instruction::ChangeSpecialDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 77,
+            }),
+            Instruction::ChangeSpeed(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 197,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_minior_meteor_formechange_when_healing() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 40;
+    state.side_one.get_active().ability = Abilities::SHIELDSDOWN;
+    state.side_one.get_active().id = PokemonName::MINIOR;
+    state.side_one.get_active().attack = 200;
+    state.side_one.get_active().defense = 200;
+    state.side_one.get_active().special_attack = 200;
+    state.side_one.get_active().special_defense = 200;
+    state.side_one.get_active().speed = 200;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::RECOVER,
+        Choices::SPLASH,
+    );
+
+    // This pokemon starts at 100 stats all over,
+    // so the change-X instructions are relative to that
+    // lv. 100 minior-meteor neutral nature with 85 evs in all stats has the final stats:
+    // 282/257/177/257/177/297, however HP does not change
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 50,
+            }),
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                forme_change: FormeChange::MiniorMeteor,
+            }),
+            Instruction::ChangeAttack(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: -23,
+            }),
+            Instruction::ChangeDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 57,
+            }),
+            Instruction::ChangeSpecialAttack(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: -23,
+            }),
+            Instruction::ChangeSpecialDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 57,
+            }),
+            Instruction::ChangeSpeed(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: -23,
+            }),
+        ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

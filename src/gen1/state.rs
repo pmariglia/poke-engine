@@ -83,6 +83,38 @@ impl MoveChoice {
 
 define_enum_with_from_str! {
     #[repr(u8)]
+    #[derive(Debug, PartialEq, Clone)]
+    PokemonNature {
+        HARDY,
+        LONELY,
+        ADAMANT,
+        NAUGHTY,
+        BRAVE,
+        BOLD,
+        DOCILE,
+        IMPISH,
+        LAX,
+        RELAXED,
+        MODEST,
+        MILD,
+        BASHFUL,
+        RASH,
+        QUIET,
+        CALM,
+        GENTLE,
+        CAREFUL,
+        QUIRKY,
+        SASSY,
+        TIMID,
+        HASTY,
+        JOLLY,
+        NAIVE,
+        SERIOUS
+    }
+}
+
+define_enum_with_from_str! {
+    #[repr(u8)]
     #[derive(Debug, PartialEq, Copy, Clone, Hash)]
     PokemonStatus {
         NONE,
@@ -511,6 +543,8 @@ pub struct Pokemon {
     pub maxhp: i16,
     pub ability: Abilities,
     pub item: Items,
+    pub nature: PokemonNature,
+    pub evs: (u8, u8, u8, u8, u8, u8),
     pub attack: i16,
     pub defense: i16,
     pub special_attack: i16,
@@ -642,6 +676,8 @@ impl Default for Pokemon {
             maxhp: 100,
             ability: Abilities::NONE,
             item: Items::NONE,
+            nature: PokemonNature::SERIOUS,
+            evs: (85, 85, 85, 85, 85, 85),
             attack: 100,
             defense: 100,
             special_attack: 100,
@@ -1779,6 +1815,25 @@ impl State {
             Instruction::ChangeItem(instruction) => {
                 self.change_item(&instruction.side_ref, instruction.new_item)
             }
+            Instruction::ChangeAttack(instruction) => {
+                self.get_side(&instruction.side_ref).get_active().attack += instruction.amount;
+            }
+            Instruction::ChangeDefense(instruction) => {
+                self.get_side(&instruction.side_ref).get_active().defense += instruction.amount;
+            }
+            Instruction::ChangeSpecialAttack(instruction) => {
+                self.get_side(&instruction.side_ref)
+                    .get_active()
+                    .special_attack += instruction.amount;
+            }
+            Instruction::ChangeSpecialDefense(instruction) => {
+                self.get_side(&instruction.side_ref)
+                    .get_active()
+                    .special_defense += instruction.amount;
+            }
+            Instruction::ChangeSpeed(instruction) => {
+                self.get_side(&instruction.side_ref).get_active().speed += instruction.amount;
+            }
             Instruction::EnableMove(instruction) => {
                 self.enable_move(&instruction.side_ref, &instruction.move_index)
             }
@@ -1937,6 +1992,25 @@ impl State {
             }
             Instruction::ChangeItem(instruction) => {
                 self.change_item(&instruction.side_ref, instruction.current_item)
+            }
+            Instruction::ChangeAttack(instruction) => {
+                self.get_side(&instruction.side_ref).get_active().attack -= instruction.amount;
+            }
+            Instruction::ChangeDefense(instruction) => {
+                self.get_side(&instruction.side_ref).get_active().defense -= instruction.amount;
+            }
+            Instruction::ChangeSpecialAttack(instruction) => {
+                self.get_side(&instruction.side_ref)
+                    .get_active()
+                    .special_attack -= instruction.amount;
+            }
+            Instruction::ChangeSpecialDefense(instruction) => {
+                self.get_side(&instruction.side_ref)
+                    .get_active()
+                    .special_defense -= instruction.amount;
+            }
+            Instruction::ChangeSpeed(instruction) => {
+                self.get_side(&instruction.side_ref).get_active().speed -= instruction.amount;
             }
             Instruction::ChangeWish(instruction) => {
                 self.unset_wish(&instruction.side_ref, instruction.wish_amount_change)
@@ -2343,6 +2417,9 @@ impl Pokemon {
             maxhp: split[5].parse::<i16>().unwrap(),
             ability: Abilities::from_str(split[6]).unwrap(),
             item: Items::from_str(split[7]).unwrap(),
+            // nature/evs unused in gen1 so no need to parse from input
+            nature: PokemonNature::SERIOUS,
+            evs: (85, 85, 85, 85, 85, 85),
             attack: split[8].parse::<i16>().unwrap(),
             defense: split[9].parse::<i16>().unwrap(),
             special_attack: split[10].parse::<i16>().unwrap(),

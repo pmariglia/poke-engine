@@ -14,9 +14,9 @@ use poke_engine::mcts::{perform_mcts, MctsResult, MctsSideResult};
 use poke_engine::pokemon::PokemonName;
 use poke_engine::search::iterative_deepen_expectiminimax;
 use poke_engine::state::{
-    LastUsedMove, Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoves, PokemonStatus,
-    PokemonType, PokemonVolatileStatus, Side, SideConditions, SidePokemon, State, StateTerrain,
-    StateTrickRoom, StateWeather, Terrain, Weather,
+    LastUsedMove, Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoves, PokemonNature,
+    PokemonStatus, PokemonType, PokemonVolatileStatus, Side, SideConditions, SidePokemon, State,
+    StateTerrain, StateTrickRoom, StateWeather, Terrain, Weather,
 };
 use std::str::FromStr;
 use std::time::Duration;
@@ -251,6 +251,8 @@ impl PyPokemon {
         maxhp: i16,
         ability: String,
         item: String,
+        nature: String,
+        evs: (u8, u8, u8, u8, u8, u8),
         attack: i16,
         defense: i16,
         special_attack: i16,
@@ -279,6 +281,8 @@ impl PyPokemon {
                 maxhp,
                 ability: Abilities::from_str(&ability).unwrap(),
                 item: Items::from_str(&item).unwrap(),
+                nature: PokemonNature::from_str(&nature).unwrap(),
+                evs: (evs.0, evs.1, evs.2, evs.3, evs.4, evs.5),
                 attack,
                 defense,
                 special_attack,
