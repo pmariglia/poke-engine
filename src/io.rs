@@ -13,6 +13,7 @@ use std::io::Write;
 use std::process::exit;
 use std::str::FromStr;
 use std::sync::{Arc, Mutex};
+
 struct IOData {
     state: State,
     instruction_list: Vec<Vec<Instruction>>,

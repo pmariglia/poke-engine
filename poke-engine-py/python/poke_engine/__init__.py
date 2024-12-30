@@ -5,7 +5,7 @@ from .state import (
     Side,
     SideConditions,
     Pokemon,
-    Move
+    Move,
 )
 
 # noinspection PyUnresolvedReferences
@@ -14,7 +14,7 @@ from ._poke_engine import (
     calculate_damage as _calculate_damage,
     state_from_string as _state_from_string,
     mcts as _mcts,
-    id as _id
+    id as _id,
 )
 
 
