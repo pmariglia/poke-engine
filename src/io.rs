@@ -38,62 +38,6 @@ enum SubCommand {
 }
 
 #[derive(Parser)]
-struct DebugMCTS {
-    #[clap(short = 'f', long, required = true)]
-    input_file: String,
-
-    #[clap(short, long, default_value_t = 1000)]
-    iterations: u32,
-
-    #[clap(short = 'p', long, default_value_t = 100)]
-    print_frequency: u32,
-
-    #[clap(short, long)]
-    output: Option<String>,
-}
-
-// CLI Arguments
-#[derive(Parser)]
-struct RegularMCTS {
-    #[clap(short = 'f', long, required = true)]
-    input_file: String,
-
-    #[clap(short, long)]
-    iterations: Option<u32>,
-
-    #[clap(short, long)]
-    time_limit: Option<f64>,
-}
-
-#[derive(Parser)]
-struct DebugMCTSST {
-    #[clap(short = 'f', long, required = true)]
-    input_file: String,
-
-    #[clap(short, long, default_value_t = 1000)]
-    iterations: u32,
-
-    #[clap(short = 'p', long, default_value_t = 100)]
-    print_frequency: u32,
-
-    #[clap(short, long)]
-    output: Option<String>,
-}
-
-// CLI Arguments
-#[derive(Parser)]
-struct RegularMCTSST {
-    #[clap(short = 'f', long, required = true)]
-    input_file: String,
-
-    #[clap(short, long)]
-    iterations: Option<u32>,
-
-    #[clap(short, long)]
-    time_limit: Option<f64>,
-}
-
-#[derive(Parser)]
 struct Expectiminimax {
     #[clap(short, long, required = true)]
     state: String,
