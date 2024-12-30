@@ -64,8 +64,6 @@ pub mod choices;
 pub mod instruction;
 pub mod io;
 pub mod mcts;
-pub mod mcts_exp;
-pub mod mcts_st;
 pub mod pokemon;
 pub mod search;
 

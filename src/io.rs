@@ -5,8 +5,6 @@ use crate::generate_instructions::{
 };
 use crate::instruction::{Instruction, StateInstructions};
 use crate::mcts::{perform_mcts, MctsResult};
-use crate::mcts_exp::{debug_mcts, perform_mcts_search};
-use crate::mcts_st::{debug_mcts_st, perform_mcts_search_st};
 use crate::search::{expectiminimax_search, iterative_deepen_expectiminimax, pick_safest};
 use crate::state::{MoveChoice, Pokemon, PokemonVolatileStatus, Side, SideConditions, State};
 use clap::Parser;
@@ -38,10 +36,6 @@ enum SubCommand {
     MonteCarloTreeSearch(MonteCarloTreeSearch),
     CalculateDamage(CalculateDamage),
     GenerateInstructions(GenerateInstructions),
-    DebugMCTS(DebugMCTS),
-    RegularMCTS(RegularMCTS),
-    DebugMCTSST(DebugMCTSST),
-    RegularMCTSST(RegularMCTSST),
 }
 
 #[derive(Parser)]
@@ -633,52 +627,6 @@ pub fn main() {
             exit(0);
         }
         Some(subcmd) => match subcmd {
-            SubCommand::RegularMCTS(args) => {
-                let state_string =
-                    std::fs::read_to_string(&args.input_file).expect("Failed to read input file");
-                let state_string = state_string.trim();
-                let mut state = State::deserialize(state_string);
-
-                // Convert time_limit from seconds to Duration if provided
-                let time_limit = args.time_limit.map(|secs| Duration::from_secs_f64(secs));
-
-                perform_mcts_search(&mut state, args.iterations, time_limit);
-            }
-            SubCommand::DebugMCTS(debug_mcts_args) => {
-                let state_string = std::fs::read_to_string(&debug_mcts_args.input_file)
-                    .expect("Failed to read input file");
-                let state_string = state_string.trim();
-                state = State::deserialize(state_string);
-                debug_mcts(
-                    &mut state,
-                    debug_mcts_args.iterations,
-                    debug_mcts_args.print_frequency,
-                    debug_mcts_args.output.as_deref(),
-                );
-            }
-            SubCommand::RegularMCTSST(args) => {
-                let state_string =
-                    std::fs::read_to_string(&args.input_file).expect("Failed to read input file");
-                let state_string = state_string.trim();
-                let mut state = State::deserialize(state_string);
-
-                // Convert time_limit from seconds to Duration if provided
-                let time_limit = args.time_limit.map(|secs| Duration::from_secs_f64(secs));
-
-                perform_mcts_search_st(&mut state, args.iterations, time_limit);
-            }
-            SubCommand::DebugMCTSST(debug_mcts_args) => {
-                let state_string = std::fs::read_to_string(&debug_mcts_args.input_file)
-                    .expect("Failed to read input file");
-                let state_string = state_string.trim();
-                state = State::deserialize(state_string);
-                debug_mcts_st(
-                    &mut state,
-                    debug_mcts_args.iterations,
-                    debug_mcts_args.print_frequency,
-                    debug_mcts_args.output.as_deref(),
-                );
-            }
             SubCommand::Expectiminimax(expectiminimax) => {
                 state = State::deserialize(expectiminimax.state.as_str());
                 (side_one_options, side_two_options) = io_get_all_options(&state);
