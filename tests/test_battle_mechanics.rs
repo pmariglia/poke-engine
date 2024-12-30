@@ -179,6 +179,116 @@ fn test_highcrit_move() {
 }
 
 #[test]
+fn test_wickedblow_always_crits_without_a_branch() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 500;
+    state.side_two.get_active().maxhp = 500;
+
+    let move_one = Choices::WICKEDBLOW;
+    let move_two = Choices::SPLASH;
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_one);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_two);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        true,
+    );
+
+    assert_eq!(1, vec_of_instructions.len());
+}
+
+#[test]
+fn test_wickedblow_always_ignores_defensive_boost_on_opponent_because_of_crit() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 500;
+    state.side_two.get_active().maxhp = 500;
+    state.side_two.defense_boost = 1;
+
+    let move_one = Choices::WICKEDBLOW;
+    let move_two = Choices::SPLASH;
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_one);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_two);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        true,
+    );
+
+    assert_eq!(1, vec_of_instructions.len());
+}
+
+#[test]
+fn test_wickedblow_cannot_crit_on_shellarmor() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 500;
+    state.side_two.get_active().maxhp = 500;
+    state.side_two.get_active().ability = Abilities::SHELLARMOR;
+
+    let move_one = Choices::WICKEDBLOW;
+    let move_two = Choices::SPLASH;
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_one);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_two);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        true,
+    );
+
+    assert_eq!(1, vec_of_instructions.len());
+}
+
+#[test]
+fn test_surgingstrikes_always_crits_without_a_branch() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 500;
+    state.side_two.get_active().maxhp = 500;
+
+    let move_one = Choices::SURGINGSTRIKES;
+    let move_two = Choices::SPLASH;
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_one);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_two);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        true,
+    );
+
+    assert_eq!(1, vec_of_instructions.len());
+}
+
+#[test]
 fn test_crit_does_not_overkill() {
     let mut state = State::default();
     state.side_two.get_active().hp = 65;
