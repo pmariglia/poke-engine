@@ -516,8 +516,8 @@ pub fn ability_before_move(
         Abilities::DISGUISE
             if (choice.category == MoveCategory::Physical
                 || choice.category == MoveCategory::Special)
-                && (defending_pkmn.id != PokemonName::MIMIKYUBUSTED
-                    && defending_pkmn.id != PokemonName::MIMIKYUBUSTEDTOTEM) =>
+                && (defending_pkmn.id == PokemonName::MIMIKYU
+                    || defending_pkmn.id == PokemonName::MIMIKYUTOTEM) =>
         {
             choice.base_power = 0.0;
             instructions
@@ -533,8 +533,8 @@ pub fn ability_before_move(
         Abilities::DISGUISE
             if (choice.category == MoveCategory::Physical
                 || choice.category == MoveCategory::Special)
-                && (defending_pkmn.id != PokemonName::MIMIKYUBUSTED
-                    && defending_pkmn.id != PokemonName::MIMIKYUBUSTEDTOTEM) =>
+                && (defending_pkmn.id == PokemonName::MIMIKYU
+                    || defending_pkmn.id == PokemonName::MIMIKYUTOTEM) =>
         {
             choice.base_power = 0.0;
             instructions
