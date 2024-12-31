@@ -509,7 +509,23 @@ pub fn ability_before_move(
         Abilities::NEUTRALIZINGGAS => {
             return;
         }
-
+        // Incomplete: IceFace should not stop secondaries, but setting base_power to 0 makes
+        // secondaries not apply in this engine
+        Abilities::ICEFACE => {
+            if defending_pkmn.id == PokemonName::EISCUE && choice.category == MoveCategory::Physical
+            {
+                choice.base_power = 0.0;
+                instructions.instruction_list.push(Instruction::FormeChange(
+                    FormeChangeInstruction {
+                        side_ref: side_ref.get_other_side(),
+                        previous_forme: defending_pkmn.id,
+                        new_forme: PokemonName::EISCUENOICE,
+                    },
+                ));
+                defending_pkmn.id = PokemonName::EISCUENOICE;
+                defending_pkmn.recalculate_stats(&side_ref.get_other_side(), instructions);
+            }
+        }
         // Technically incorrect
         // A move missing should not trigger this formechange
         #[cfg(not(any(feature = "gen8", feature = "gen9")))]
@@ -1191,6 +1207,22 @@ pub fn ability_on_switch_in(
         return;
     }
     match active_pkmn.ability {
+        Abilities::ICEFACE => {
+            if active_pkmn.id == PokemonName::EISCUENOICE && state.weather_is_active(&Weather::HAIL)
+                || state.weather_is_active(&Weather::SNOW)
+            {
+                let active_pkmn = state.get_side(side_ref).get_active();
+                instructions.instruction_list.push(Instruction::FormeChange(
+                    FormeChangeInstruction {
+                        side_ref: *side_ref,
+                        previous_forme: active_pkmn.id,
+                        new_forme: PokemonName::EISCUE,
+                    },
+                ));
+                active_pkmn.id = PokemonName::EISCUE;
+                active_pkmn.recalculate_stats(side_ref, instructions);
+            }
+        }
         Abilities::PROTOSYNTHESIS => {
             let sun_is_active = state.weather_is_active(&Weather::SUN);
             let attacking_side = state.get_side(side_ref);
