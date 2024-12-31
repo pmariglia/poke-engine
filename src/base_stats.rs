@@ -9,6 +9,8 @@ impl PokemonName {
         match self {
             PokemonName::MINIOR => (60, 100, 60, 100, 60, 120),
             PokemonName::MINIORMETEOR => (60, 60, 100, 60, 100, 60),
+            PokemonName::WISHIWASHI => (45, 20, 20, 25, 25, 40),
+            PokemonName::WISHIWASHISCHOOL => (45, 140, 130, 140, 135, 30),
             _ => panic!("Base stats not implemented for {}", self),
         }
     }

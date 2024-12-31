@@ -999,6 +999,32 @@ pub fn ability_end_of_turn(
                 active_pkmn.recalculate_stats(side_ref, instructions);
             }
         }
+        Abilities::SCHOOLING => {
+            if active_pkmn.hp <= active_pkmn.maxhp / 4
+                && active_pkmn.id == PokemonName::WISHIWASHISCHOOL
+            {
+                instructions.instruction_list.push(Instruction::FormeChange(
+                    FormeChangeInstruction {
+                        side_ref: *side_ref,
+                        new_forme: PokemonName::WISHIWASHI,
+                        previous_forme: active_pkmn.id,
+                    },
+                ));
+                active_pkmn.id = PokemonName::WISHIWASHI;
+                active_pkmn.recalculate_stats(side_ref, instructions);
+            }
+            if active_pkmn.hp > active_pkmn.maxhp / 4 && active_pkmn.id == PokemonName::WISHIWASHI {
+                instructions.instruction_list.push(Instruction::FormeChange(
+                    FormeChangeInstruction {
+                        side_ref: *side_ref,
+                        new_forme: PokemonName::WISHIWASHISCHOOL,
+                        previous_forme: active_pkmn.id,
+                    },
+                ));
+                active_pkmn.id = PokemonName::WISHIWASHISCHOOL;
+                active_pkmn.recalculate_stats(side_ref, instructions);
+            }
+        }
         Abilities::BADDREAMS => {
             let defender = defending_side.get_active();
             if defender.status == PokemonStatus::SLEEP {

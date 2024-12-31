@@ -12,7 +12,7 @@ use std::collections::HashSet;
 use std::ops::{Index, IndexMut};
 use std::str::FromStr;
 
-fn common_pkmn_stat_calc(stat: i16, ev: i16, level: i16) -> i16 {
+fn common_pkmn_stat_calc(stat: u16, ev: u16, level: u16) -> u16 {
     // 31 IV always used
     ((2 * stat + 31 + (ev / 4)) * level) / 100
 }
@@ -617,14 +617,19 @@ impl Pokemon {
     pub fn calculate_stats_from_base_stats(&self) -> (i16, i16, i16, i16, i16, i16) {
         let base_stats = self.id.base_stats();
         (
-            common_pkmn_stat_calc(base_stats.0, self.evs.0 as i16, self.level as i16)
-                + self.level as i16
-                + 10,
-            common_pkmn_stat_calc(base_stats.1, self.evs.1 as i16, self.level as i16) + 5,
-            common_pkmn_stat_calc(base_stats.2, self.evs.2 as i16, self.level as i16) + 5,
-            common_pkmn_stat_calc(base_stats.3, self.evs.3 as i16, self.level as i16) + 5,
-            common_pkmn_stat_calc(base_stats.4, self.evs.4 as i16, self.level as i16) + 5,
-            common_pkmn_stat_calc(base_stats.5, self.evs.5 as i16, self.level as i16) + 5,
+            (common_pkmn_stat_calc(base_stats.0 as u16, self.evs.0 as u16, self.level as u16)
+                + self.level as u16
+                + 10) as i16,
+            (common_pkmn_stat_calc(base_stats.1 as u16, self.evs.1 as u16, self.level as u16) + 5)
+                as i16,
+            (common_pkmn_stat_calc(base_stats.2 as u16, self.evs.2 as u16, self.level as u16) + 5)
+                as i16,
+            (common_pkmn_stat_calc(base_stats.3 as u16, self.evs.3 as u16, self.level as u16) + 5)
+                as i16,
+            (common_pkmn_stat_calc(base_stats.4 as u16, self.evs.4 as u16, self.level as u16) + 5)
+                as i16,
+            (common_pkmn_stat_calc(base_stats.5 as u16, self.evs.5 as u16, self.level as u16) + 5)
+                as i16,
         )
     }
     pub fn get_stat_from_boostable_stat(&self, stat: PokemonBoostableStat) -> i16 {

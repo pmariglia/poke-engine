@@ -2990,6 +2990,114 @@ fn test_using_substitute_when_it_is_already_up() {
 }
 
 #[test]
+fn test_schooling_when_falling_below_25_percent() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 60;
+    state.side_one.get_active().ability = Abilities::SCHOOLING;
+    state.side_one.get_active().id = PokemonName::WISHIWASHISCHOOL;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::TACKLE,
+    );
+
+    // This pokemon starts at 100 stats all over,
+    // so the change-X instructions are relative to that
+    // lv. 100 wishiwashi neutral nature with 85 evs in all stats has the final stats:
+    // 252/97/97/107/107/137, however HP does not change
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                new_forme: PokemonName::WISHIWASHI,
+                previous_forme: PokemonName::WISHIWASHISCHOOL,
+            }),
+            Instruction::ChangeAttack(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: -3,
+            }),
+            Instruction::ChangeDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: -3,
+            }),
+            Instruction::ChangeSpecialAttack(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 7,
+            }),
+            Instruction::ChangeSpecialDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 7,
+            }),
+            Instruction::ChangeSpeed(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 37,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_schooling_when_falling_going_above_25_percent() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 20;
+    state.side_one.get_active().ability = Abilities::SCHOOLING;
+    state.side_one.get_active().id = PokemonName::WISHIWASHI;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::RECOVER,
+        Choices::SPLASH,
+    );
+
+    // This pokemon starts at 100 stats all over,
+    // so the change-X instructions are relative to that
+    // lv. 100 wishiwashi-school neutral nature with 85 evs in all stats has the final stats:
+    // 252/337/317/337/327/117, however HP does not change
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 50,
+            }),
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                new_forme: PokemonName::WISHIWASHISCHOOL,
+                previous_forme: PokemonName::WISHIWASHI,
+            }),
+            Instruction::ChangeAttack(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 237,
+            }),
+            Instruction::ChangeDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 217,
+            }),
+            Instruction::ChangeSpecialAttack(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 237,
+            }),
+            Instruction::ChangeSpecialDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 227,
+            }),
+            Instruction::ChangeSpeed(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 17,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_minior_formechange() {
     let mut state = State::default();
     state.side_one.get_active().hp = 60;
