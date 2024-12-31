@@ -897,6 +897,19 @@ pub fn ability_on_switch_out(
         return;
     }
     match active_pkmn.ability {
+        Abilities::ZEROTOHERO => {
+            if active_pkmn.id == PokemonName::PALAFIN {
+                instructions.instruction_list.push(Instruction::FormeChange(
+                    FormeChangeInstruction {
+                        side_ref: *side_ref,
+                        new_forme: PokemonName::PALAFINHERO,
+                        previous_forme: PokemonName::PALAFIN,
+                    },
+                ));
+                active_pkmn.id = PokemonName::PALAFINHERO;
+                active_pkmn.recalculate_stats(side_ref, instructions);
+            }
+        }
         Abilities::HUNGERSWITCH => {
             if active_pkmn.id == PokemonName::MORPEKOHANGRY && !active_pkmn.terastallized {
                 instructions.instruction_list.push(Instruction::FormeChange(

@@ -3152,6 +3152,55 @@ fn test_minior_formechange() {
 }
 
 #[test]
+fn test_palafin_formechange_on_switchout() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::PALAFIN;
+    state.side_one.get_active().ability = Abilities::ZEROTOHERO;
+
+    let side_one_move = MoveChoice::Switch(PokemonIndex::P1);
+    let side_two_move = MoveChoice::None;
+    let vec_of_instructions =
+        generate_instructions_with_state_assertion(&mut state, &side_one_move, &side_two_move);
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                new_forme: PokemonName::PALAFINHERO,
+                previous_forme: PokemonName::PALAFIN,
+            }),
+            Instruction::ChangeAttack(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 277,
+            }),
+            Instruction::ChangeDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 151,
+            }),
+            Instruction::ChangeSpecialAttack(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 169,
+            }),
+            Instruction::ChangeSpecialDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 131,
+            }),
+            Instruction::ChangeSpeed(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 157,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_morpeko_reverts_to_fullbelly_when_switching_out() {
     let mut state = State::default();
     state.side_one.get_active().id = PokemonName::MORPEKOHANGRY;
