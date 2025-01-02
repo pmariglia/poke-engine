@@ -14,6 +14,9 @@ use crate::state::{PokemonBoostableStat, State, Terrain};
 use crate::state::{PokemonStatus, SideReference};
 use std::cmp;
 
+#[cfg(feature = "gen4")]
+use crate::state::PokemonVolatileStatus;
+
 define_enum_with_from_str! {
     #[repr(u8)]
     #[derive(Debug, PartialEq, Clone, Copy)]
@@ -1106,6 +1109,21 @@ pub fn item_modify_attack_being_used(
         Items::LIFEORB => {
             if attacking_choice.category != MoveCategory::Status {
                 attacking_choice.base_power *= 1.3;
+
+                #[cfg(feature = "gen4")]
+                if !defending_side
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::SUBSTITUTE)
+                    && attacking_side.get_active_immutable().ability != Abilities::MAGICGUARD
+                {
+                    attacking_choice.add_or_create_secondaries(Secondary {
+                        chance: 100.0,
+                        effect: Effect::Heal(-0.1),
+                        target: MoveTarget::User,
+                    });
+                }
+
+                #[cfg(not(feature = "gen4"))]
                 if attacking_side.get_active_immutable().ability != Abilities::MAGICGUARD {
                     attacking_choice.add_or_create_secondaries(Secondary {
                         chance: 100.0,
