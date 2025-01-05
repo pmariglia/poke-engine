@@ -61,6 +61,12 @@ pub const MAX_SLEEP_TURNS: i8 = 4;
 ))]
 pub const MAX_SLEEP_TURNS: i8 = 3;
 
+#[cfg(any(feature = "gen7", feature = "gen8", feature = "gen9"))]
+pub const HIT_SELF_IN_CONFUSION_CHANCE: f32 = 1.0 / 3.0;
+
+#[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5", feature = "gen6"))]
+pub const HIT_SELF_IN_CONFUSION_CHANCE: f32 = 1.0 / 2.0;
+
 fn chance_to_wake_up(turns_asleep: i8) -> f32 {
     if turns_asleep == 0 {
         0.0
@@ -1583,7 +1589,7 @@ fn generate_instructions_from_existing_status_conditions(
         .contains(&PokemonVolatileStatus::CONFUSION)
     {
         let mut hit_yourself_instruction = incoming_instructions.clone();
-        hit_yourself_instruction.update_percentage(0.50);
+        hit_yourself_instruction.update_percentage(HIT_SELF_IN_CONFUSION_CHANCE);
 
         let attacking_stat = attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
         let defending_stat = attacking_side.calculate_boosted_stat(PokemonBoostableStat::Defense);
@@ -1611,7 +1617,7 @@ fn generate_instructions_from_existing_status_conditions(
 
         final_instructions.push(hit_yourself_instruction);
 
-        incoming_instructions.update_percentage(0.50);
+        incoming_instructions.update_percentage(1.0 - HIT_SELF_IN_CONFUSION_CHANCE);
     }
 }
 
@@ -7484,12 +7490,12 @@ mod tests {
         let mut incoming_instructions = StateInstructions::default();
 
         let expected_instructions = StateInstructions {
-            percentage: 50.0,
+            percentage: 100.0 * (1.0 - HIT_SELF_IN_CONFUSION_CHANCE),
             instruction_list: vec![],
         };
 
         let expected_frozen_instructions = &mut vec![StateInstructions {
-            percentage: 50.0,
+            percentage: 100.0 * (HIT_SELF_IN_CONFUSION_CHANCE),
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
                 damage_amount: 35,
@@ -7524,7 +7530,7 @@ mod tests {
         })];
 
         let expected_instructions = StateInstructions {
-            percentage: 50.0,
+            percentage: 100.0 * (1.0 - HIT_SELF_IN_CONFUSION_CHANCE),
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
                 damage_amount: 1,
@@ -7532,7 +7538,7 @@ mod tests {
         };
 
         let expected_frozen_instructions = &mut vec![StateInstructions {
-            percentage: 50.0,
+            percentage: 100.0 * HIT_SELF_IN_CONFUSION_CHANCE,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideOne,
@@ -7574,7 +7580,7 @@ mod tests {
         })];
 
         let expected_instructions = StateInstructions {
-            percentage: 50.0,
+            percentage: 100.0 * (1.0 - HIT_SELF_IN_CONFUSION_CHANCE),
             instruction_list: vec![Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
                 damage_amount: 1,
@@ -7582,7 +7588,7 @@ mod tests {
         };
 
         let expected_frozen_instructions = &mut vec![StateInstructions {
-            percentage: 50.0,
+            percentage: 100.0 * HIT_SELF_IN_CONFUSION_CHANCE,
             instruction_list: vec![
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideOne,
@@ -7697,7 +7703,7 @@ mod tests {
         let mut incoming_instructions = StateInstructions::default();
 
         let expected_instructions = StateInstructions {
-            percentage: 50.0,
+            percentage: 100.0 * (1.0 - HIT_SELF_IN_CONFUSION_CHANCE),
             instruction_list: vec![
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
@@ -7715,7 +7721,7 @@ mod tests {
         };
 
         let expected_frozen_instructions = &mut vec![StateInstructions {
-            percentage: 50.0,
+            percentage: 100.0 * HIT_SELF_IN_CONFUSION_CHANCE,
             instruction_list: vec![
                 Instruction::ChangeStatus(ChangeStatusInstruction {
                     side_ref: SideReference::SideOne,
