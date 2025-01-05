@@ -407,6 +407,41 @@ fn get_instructions_from_boosts(
             attacking_side_reference,
             &target_side_ref,
         ) {
+            // gen1 burn & paralysis nullify if self boosting attack or speed respectively
+            if pkmn_boostable_stat == &PokemonBoostableStat::Attack
+                && side.get_active_immutable().status == PokemonStatus::BURN
+                && attacking_side_reference == &target_side_ref
+                && !side
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::GEN1BURNNULLIFY)
+            {
+                let burn_nullify_ins =
+                    Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                        side_ref: *attacking_side_reference,
+                        volatile_status: PokemonVolatileStatus::GEN1BURNNULLIFY,
+                    });
+                state.apply_one_instruction(&burn_nullify_ins);
+                incoming_instructions
+                    .instruction_list
+                    .push(burn_nullify_ins);
+            } else if pkmn_boostable_stat == &PokemonBoostableStat::Speed
+                && side.get_active_immutable().status == PokemonStatus::PARALYZE
+                && attacking_side_reference == &target_side_ref
+                && !side
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::GEN1PARALYSISNULLIFY)
+            {
+                let paralysis_nullify_ins =
+                    Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                        side_ref: *attacking_side_reference,
+                        volatile_status: PokemonVolatileStatus::GEN1PARALYSISNULLIFY,
+                    });
+                state.apply_one_instruction(&paralysis_nullify_ins);
+                incoming_instructions
+                    .instruction_list
+                    .push(paralysis_nullify_ins);
+            }
+
             state.apply_one_instruction(&boost_instruction);
             incoming_instructions
                 .instruction_list
@@ -1307,7 +1342,12 @@ fn get_effective_speed(state: &State, side_reference: &SideReference) -> i16 {
     let active_pkmn = side.get_active_immutable();
 
     let mut boosted_speed = side.calculate_boosted_stat(PokemonBoostableStat::Speed) as f32;
-    if active_pkmn.status == PokemonStatus::PARALYZE {
+
+    if active_pkmn.status == PokemonStatus::PARALYZE
+        && !side
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::GEN1PARALYSISNULLIFY)
+    {
         boosted_speed *= 0.25;
     }
 

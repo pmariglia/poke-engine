@@ -199,7 +199,12 @@ pub fn calculate_damage(
         boosted_defending_stat,
         choice,
     );
-    damage *= burn_modifier(&choice.category, &attacker.status);
+    if !attacking_side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::GEN1BURNNULLIFY)
+    {
+        damage *= burn_modifier(&choice.category, &attacker.status);
+    }
     damage *= volatile_status_modifier(defending_side, &choice);
 
     let mut crit_damage =

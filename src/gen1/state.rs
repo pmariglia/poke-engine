@@ -234,6 +234,9 @@ define_enum_with_from_str! {
         UPROAR,
         YAWN,
         YAWNSLEEPTHISTURN,
+
+        GEN1BURNNULLIFY,
+        GEN1PARALYSISNULLIFY,
     },
     default = NONE
 }

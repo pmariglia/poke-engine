@@ -1,15 +1,18 @@
 #![cfg(feature = "gen1")]
 
-use poke_engine::choices::Choices;
 use poke_engine::choices::MoveCategory;
-use poke_engine::generate_instructions::{generate_instructions_from_move_pair, MAX_SLEEP_TURNS};
+use poke_engine::choices::{Choices, MOVES};
+use poke_engine::generate_instructions::{
+    generate_instructions_from_move_pair, side_one_moves_first, MAX_SLEEP_TURNS,
+};
 use poke_engine::instruction::{
-    ApplyVolatileStatusInstruction, ChangeStatusInstruction, DamageInstruction,
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeStatusInstruction, DamageInstruction,
     DecrementRestTurnsInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction,
     SetDamageDealtSideOneInstruction, SetDamageDealtSideTwoInstruction, SetSleepTurnsInstruction,
     StateInstructions, SwitchInstruction,
 };
 use poke_engine::pokemon::PokemonName;
+use poke_engine::state::PokemonBoostableStat;
 use poke_engine::state::{
     MoveChoice, PokemonIndex, PokemonMoveIndex, PokemonStatus, PokemonType, PokemonVolatileStatus,
     SideReference, State,
@@ -48,6 +51,225 @@ fn set_moves_on_pkmn_and_call_generate_instructions(
         &MoveChoice::Move(PokemonMoveIndex::M0),
     );
     instructions
+}
+
+#[test]
+fn test_paralysis_nullify_ignores_paralysis() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 100;
+    state.side_one.speed_boost = 2;
+    state.side_one.get_active().status = PokemonStatus::PARALYZE;
+    state.side_two.get_active().speed = 195;
+
+    let s1_choice = MOVES.get(&Choices::TACKLE).unwrap().clone();
+    let s2_choice = MOVES.get(&Choices::TACKLE).unwrap().clone();
+
+    let side_one_moves_first_before_volatile = side_one_moves_first(&state, &s1_choice, &s2_choice);
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::GEN1PARALYSISNULLIFY);
+    let side_one_moves_first_after_volatile = side_one_moves_first(&state, &s1_choice, &s2_choice);
+
+    // assert side one moves first is different, because the nullify volatile should cause paralysis to be ignored
+    assert_ne!(
+        side_one_moves_first_before_volatile,
+        side_one_moves_first_after_volatile
+    );
+}
+
+#[test]
+fn test_gen1_swordsdance_while_burned_volatile_increases_damage() {
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::GEN1BURNNULLIFY);
+    state.side_one.get_active().status = PokemonStatus::BURN;
+    state.side_one.attack_boost = 2;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    // 48 damage normally
+    // 2x damage with swords dance, and burn is ignored
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 95,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_gen1_swordsdance_while_burned_sets_burn_nullify_volatile() {
+    let mut state = State::default();
+    state.side_one.get_active().status = PokemonStatus::BURN;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SWORDSDANCE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::GEN1BURNNULLIFY,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 2,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_does_not_set_burn_nullify_if_already_exists() {
+    let mut state = State::default();
+    state.side_one.get_active().status = PokemonStatus::BURN;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::GEN1BURNNULLIFY);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SWORDSDANCE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: 2,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_gen1_agility_while_paralyzed_sets_paralysis_nullify_volatile() {
+    let mut state = State::default();
+    state.side_one.get_active().status = PokemonStatus::PARALYZE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::AGILITY,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 25.0,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 75.0,
+            instruction_list: vec![
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::GEN1PARALYSISNULLIFY,
+                }),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: 2,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_does_not_set_paralysisnullify_if_already_exists() {
+    let mut state = State::default();
+    state.side_one.get_active().status = PokemonStatus::PARALYZE;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::GEN1PARALYSISNULLIFY);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::AGILITY,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 25.0,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 75.0,
+            instruction_list: vec![Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Speed,
+                amount: 2,
+            })],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_gen1_agility_while_burned_does_not_set_burn_nullify_volatile() {
+    let mut state = State::default();
+    state.side_one.get_active().status = PokemonStatus::BURN;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::AGILITY,
+        Choices::SPLASH,
+    );
+
+    // 48 damage normally
+    // 2x damage with swords dance, and burn is ignored
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Speed,
+                amount: 2,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
