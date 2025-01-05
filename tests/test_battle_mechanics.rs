@@ -2898,6 +2898,88 @@ fn test_destinybond_kills_on_knockout() {
 }
 
 #[test]
+#[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5", feature = "gen6"))]
+fn test_earlier_gen_nothing_happens_if_destinybond_is_used_while_already_having_destinybond() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::DESTINYBOND);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DESTINYBOND,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(feature = "gen7", feature = "gen8", feature = "gen9",))]
+fn test_later_gen_destinybond_cannot_be_used_twice_in_a_row() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::DESTINYBOND);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DESTINYBOND,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::RemoveVolatileStatus(
+            RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::DESTINYBOND,
+            },
+        )],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_destinybond_is_removed_if_non_destinybond_is_used() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::DESTINYBOND);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::DESTINYBOND,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_destinybond_against_toxic_damage_does_not_kill_opponent() {
     let mut state = State::default();
     state.side_one.get_active().speed = 150;
@@ -2939,7 +3021,7 @@ fn test_destinybond_against_toxic_damage_does_not_kill_opponent() {
 }
 
 #[test]
-fn test_destinybond_volatile_is_removed_at_end_of_turn_if_not_fainted() {
+fn test_destinybond_volatile_is_not_removed_at_end_of_turn() {
     let mut state = State::default();
     state.side_one.get_active().speed = 150;
     state.side_one.get_active().hp = 1;
@@ -2954,16 +3036,12 @@ fn test_destinybond_volatile_is_removed_at_end_of_turn_if_not_fainted() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+        instruction_list: vec![Instruction::ApplyVolatileStatus(
+            ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::DESTINYBOND,
-            }),
-            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
-                side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::DESTINYBOND,
-            }),
-        ],
+            },
+        )],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

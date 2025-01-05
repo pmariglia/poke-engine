@@ -1978,21 +1978,6 @@ pub fn add_end_of_turn_instructions(
                     },
                 ));
         }
-        if side
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::DESTINYBOND)
-        {
-            side.volatile_statuses
-                .remove(&PokemonVolatileStatus::DESTINYBOND);
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::RemoveVolatileStatus(
-                    RemoveVolatileStatusInstruction {
-                        side_ref: *side_ref,
-                        volatile_status: PokemonVolatileStatus::DESTINYBOND,
-                    },
-                ));
-        }
 
         if side
             .volatile_statuses

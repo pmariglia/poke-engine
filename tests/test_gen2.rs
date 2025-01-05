@@ -651,6 +651,59 @@ fn test_small_chance_to_awaken_sleeptalk_move_when_not_rested() {
 }
 
 #[test]
+fn test_destinybond_is_removed_if_non_destinybond_is_used() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::DESTINYBOND);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::DESTINYBOND,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_nothing_happens_if_destinybond_is_used_while_already_having_destinybond() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::DESTINYBOND);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DESTINYBOND,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_sleeptalk_can_call_rest() {
     let mut state = State::default();
     state.side_one.get_active().status = PokemonStatus::SLEEP;

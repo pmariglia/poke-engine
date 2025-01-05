@@ -11,6 +11,7 @@ use crate::instruction::{
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::pokemon::PokemonName;
+use crate::state::Side;
 use crate::state::{
     pokemon_index_iter, LastUsedMove, PokemonBoostableStat, PokemonSideCondition, PokemonStatus,
     PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather,
@@ -666,6 +667,63 @@ pub fn choice_after_damage_hit(
     }
 }
 
+#[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5", feature = "gen6"))]
+fn destinybond_before_move(
+    attacking_side: &mut Side,
+    attacking_side_ref: &SideReference,
+    choice: &Choice,
+    instructions: &mut StateInstructions,
+) {
+    // gens 2-6 destinybond is only removed if you are not using destinybond
+    // destinybond is preserved, even if used twice in a row
+    if choice.move_id != Choices::DESTINYBOND
+        && attacking_side
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::DESTINYBOND)
+    {
+        instructions
+            .instruction_list
+            .push(Instruction::RemoveVolatileStatus(
+                RemoveVolatileStatusInstruction {
+                    side_ref: *attacking_side_ref,
+                    volatile_status: PokemonVolatileStatus::DESTINYBOND,
+                },
+            ));
+        attacking_side
+            .volatile_statuses
+            .remove(&PokemonVolatileStatus::DESTINYBOND);
+    }
+}
+
+#[cfg(any(feature = "gen7", feature = "gen8", feature = "gen9"))]
+fn destinybond_before_move(
+    attacking_side: &mut Side,
+    attacking_side_ref: &SideReference,
+    choice: &mut Choice,
+    instructions: &mut StateInstructions,
+) {
+    // gens 7+ destinybond cannot be used if destinybond is active
+    if attacking_side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::DESTINYBOND)
+    {
+        instructions
+            .instruction_list
+            .push(Instruction::RemoveVolatileStatus(
+                RemoveVolatileStatusInstruction {
+                    side_ref: *attacking_side_ref,
+                    volatile_status: PokemonVolatileStatus::DESTINYBOND,
+                },
+            ));
+        attacking_side
+            .volatile_statuses
+            .remove(&PokemonVolatileStatus::DESTINYBOND);
+        if choice.move_id == Choices::DESTINYBOND {
+            choice.remove_all_effects();
+        }
+    }
+}
+
 pub fn choice_before_move(
     state: &mut State,
     choice: &mut Choice,
@@ -673,6 +731,9 @@ pub fn choice_before_move(
     instructions: &mut StateInstructions,
 ) {
     let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
+
+    destinybond_before_move(attacking_side, attacking_side_ref, choice, instructions);
+
     let attacker = attacking_side.get_active();
     let defender = defending_side.get_active_immutable();
 

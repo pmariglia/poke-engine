@@ -4,13 +4,14 @@ use crate::generate_instructions::{add_remove_status_instructions, get_boost_amo
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeSubsituteHealthInstruction,
-    ChangeWeather, DamageInstruction, HealInstruction, Instruction, SetFutureSightInstruction,
-    SetSleepTurnsInstruction, StateInstructions,
+    ChangeWeather, DamageInstruction, HealInstruction, Instruction,
+    RemoveVolatileStatusInstruction, SetFutureSightInstruction, SetSleepTurnsInstruction,
+    StateInstructions,
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::state::{
     pokemon_index_iter, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType,
-    PokemonVolatileStatus, SideReference, State, Weather,
+    PokemonVolatileStatus, Side, SideReference, State, Weather,
 };
 use std::cmp;
 
@@ -146,6 +147,33 @@ pub fn choice_after_damage_hit(
     }
 }
 
+fn destinybond_before_move(
+    attacking_side: &mut Side,
+    attacking_side_ref: &SideReference,
+    choice: &Choice,
+    instructions: &mut StateInstructions,
+) {
+    // gens 2-6 destinybond is only removed if you are not using destinybond
+    // destinybond is preserved, even if used twice in a row
+    if choice.move_id != Choices::DESTINYBOND
+        && attacking_side
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::DESTINYBOND)
+    {
+        instructions
+            .instruction_list
+            .push(Instruction::RemoveVolatileStatus(
+                RemoveVolatileStatusInstruction {
+                    side_ref: *attacking_side_ref,
+                    volatile_status: PokemonVolatileStatus::DESTINYBOND,
+                },
+            ));
+        attacking_side
+            .volatile_statuses
+            .remove(&PokemonVolatileStatus::DESTINYBOND);
+    }
+}
+
 pub fn choice_before_move(
     state: &mut State,
     choice: &mut Choice,
@@ -153,6 +181,9 @@ pub fn choice_before_move(
     instructions: &mut StateInstructions,
 ) {
     let attacking_side = state.get_side(attacking_side_ref);
+
+    destinybond_before_move(attacking_side, attacking_side_ref, choice, instructions);
+
     let attacker = attacking_side.get_active();
 
     match choice.move_id {
