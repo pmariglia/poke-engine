@@ -1749,7 +1749,13 @@ pub fn ability_modify_attack_being_used(
         }
         Abilities::ADAPTABILITY => {
             if attacking_pkmn.has_type(&attacker_choice.move_type) {
-                attacker_choice.base_power *= 4.0 / 3.0;
+                if attacking_pkmn.terastallized
+                    && attacker_choice.move_type == attacking_pkmn.tera_type
+                {
+                    attacker_choice.base_power *= 2.25 / 2.0;
+                } else {
+                    attacker_choice.base_power *= 2.0 / 1.5;
+                }
             }
         }
         Abilities::LONGREACH => {
