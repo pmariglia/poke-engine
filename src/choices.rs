@@ -17233,6 +17233,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::THUNDERCLAP,
                 base_power: 70.0,
+                priority: 1,
                 category: MoveCategory::Special,
                 move_type: PokemonType::ELECTRIC,
                 flags: Flags {
