@@ -20095,7 +20095,12 @@ impl Choice {
             _ => MultiHitMove::None,
         }
     }
-
+    pub fn targets_special_defense(&self) -> bool {
+        self.category == MoveCategory::Special
+            && !(self.move_id == Choices::PSYSHOCK
+                || self.move_id == Choices::SECRETSWORD
+                || self.move_id == Choices::PSYSTRIKE)
+    }
     pub fn add_or_create_secondaries(&mut self, secondary: Secondary) {
         if let Some(secondaries) = &mut self.secondaries {
             secondaries.push(secondary);

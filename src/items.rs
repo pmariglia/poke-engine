@@ -901,7 +901,7 @@ pub fn item_modify_attack_against(
             }
         }
         Items::ASSAULTVEST => {
-            if attacking_choice.category == MoveCategory::Special {
+            if attacking_choice.targets_special_defense() {
                 attacking_choice.base_power /= 1.5;
             }
         }
