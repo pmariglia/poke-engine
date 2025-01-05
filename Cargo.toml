@@ -33,7 +33,7 @@ gen5 = []
 gen6 = []
 gen7 = []
 gen8 = []
-gen9 = []
+gen9 = ["terastallization"]
 terastallization = ["gen9"]
 
 default = []
