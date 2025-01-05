@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.0.26](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.26) - 2025-01-05
+
+### Features
+
+- Gen1 stat modification glitches - ([bf08c28](https://github.com/pmariglia/poke-engine/commit/bf08c287b2359e571125d26371d0cba1eef98c98))
+
+
+### Bug Fixes
+
+- Gen4 lifeorb does not do recoil when hitting a substitute - ([fc240f6](https://github.com/pmariglia/poke-engine/commit/fc240f63f9c27b634b062d0c051711cc563ff28b))
+
+- Thunderclap is increased priority - ([32c040a](https://github.com/pmariglia/poke-engine/commit/32c040a6667d86cf45c6585849e4d07ea0c4b3e4))
+
 ## [v0.0.25](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.25) - 2024-12-31
 
 ### Features
