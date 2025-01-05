@@ -2054,7 +2054,8 @@ pub fn ability_modify_attack_against(
         return;
     }
     if (attacking_pkmn.ability == Abilities::MOLDBREAKER
-        || attacking_pkmn.ability == Abilities::MYCELIUMMIGHT
+        || (attacking_pkmn.ability == Abilities::MYCELIUMMIGHT
+            && attacker_choice.category == MoveCategory::Status)
         || attacking_pkmn.ability == Abilities::TERAVOLT
         || attacking_pkmn.ability == Abilities::TURBOBLAZE)
         && mold_breaker_ignores(&target_pkmn.ability)
