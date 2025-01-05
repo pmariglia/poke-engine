@@ -253,11 +253,15 @@ pub fn io_get_all_options(state: &State) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
 
         let mut pkmn_iter = state.side_one.pokemon.into_iter();
         while let Some(_) = pkmn_iter.next() {
-            s1_options.push(MoveChoice::Switch(pkmn_iter.pokemon_index));
+            if state.side_one.pokemon[pkmn_iter.pokemon_index].hp > 0 {
+                s1_options.push(MoveChoice::Switch(pkmn_iter.pokemon_index));
+            }
         }
         let mut pkmn_iter = state.side_two.pokemon.into_iter();
         while let Some(_) = pkmn_iter.next() {
-            s2_options.push(MoveChoice::Switch(pkmn_iter.pokemon_index));
+            if state.side_two.pokemon[pkmn_iter.pokemon_index].hp > 0 {
+                s2_options.push(MoveChoice::Switch(pkmn_iter.pokemon_index));
+            }
         }
         return (s1_options, s2_options);
     }
