@@ -243,7 +243,11 @@ pub fn modify_choice(
             }
         }
         Choices::REVELATIONDANCE => {
-            attacker_choice.move_type = attacking_side.get_active_immutable().types.0;
+            if attacking_side.get_active_immutable().terastallized {
+                attacker_choice.move_type = attacking_side.get_active_immutable().tera_type;
+            } else {
+                attacker_choice.move_type = attacking_side.get_active_immutable().types.0;
+            }
         }
         Choices::RISINGVOLTAGE => {
             if state.terrain.terrain_type == Terrain::ELECTRICTERRAIN {

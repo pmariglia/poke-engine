@@ -7925,6 +7925,26 @@ fn test_wish_healing_end_of_turn() {
 }
 
 #[test]
+fn test_revelationdance_is_set_to_tera_type_when_terastallized() {
+    let mut state = State::default();
+    state.side_one.get_active().terastallized = true;
+    state.side_one.get_active().tera_type = PokemonType::GROUND;
+    state.side_two.get_active().types.0 = PokemonType::FLYING; // should be immune to ground type revelationdance
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::REVELATIONDANCE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_wish_does_not_overheal() {
     let mut state = State::default();
     state.side_one.wish = (1, 50);
