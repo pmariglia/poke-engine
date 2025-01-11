@@ -5896,6 +5896,24 @@ fn test_uturn_into_protect_does_not_cause_switchout() {
 }
 
 #[test]
+fn test_flipturn_into_dryskin_does_not_trigger_switchout() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::DRYSKIN;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::FLIPTURN,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_uturn_into_fainted_pkmn_does_not_cause_switchout() {
     let mut state = State::default();
     state.side_two.get_active().hp = 1;

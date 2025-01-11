@@ -19011,6 +19011,27 @@ impl Default for Flags {
     }
 }
 
+impl Flags {
+    pub fn clear_all(&mut self) {
+        self.bite = false;
+        self.bullet = false;
+        self.charge = false;
+        self.contact = false;
+        self.drag = false;
+        self.heal = false;
+        self.powder = false;
+        self.protect = false;
+        self.pulse = false;
+        self.punch = false;
+        self.recharge = false;
+        self.reflectable = false;
+        self.slicing = false;
+        self.sound = false;
+        self.pivot = false;
+        self.wind = false;
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Secondary {
     pub chance: f32,
@@ -20132,6 +20153,7 @@ impl Choice {
     }
     pub fn remove_all_effects(&mut self) {
         self.category = MoveCategory::Status;
+        self.flags.clear_all();
         self.base_power = 0.0;
         self.accuracy = 100.0;
         self.heal = None;
