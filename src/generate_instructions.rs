@@ -1888,6 +1888,11 @@ pub fn generate_instructions_from_move(
                 6
             };
         }
+        MultiHitMove::TripleAxel => {
+            // triple axel checks accuracy each time but until multi-accuracy is implemented this
+            // is the best we can do
+            hit_count = 3
+        }
     }
 
     let (_attacker_side, defender_side) = state.get_both_sides(&attacking_side);

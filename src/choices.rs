@@ -19034,6 +19034,7 @@ pub enum MultiHitMove {
     TripleHit,
     TwoToFiveHits,
     PopulationBomb,
+    TripleAxel,
 }
 
 #[derive(PartialEq)]
@@ -20091,7 +20092,11 @@ impl Choice {
             Choices::TWINBEAM => MultiHitMove::DoubleHit,
             Choices::TWINEEDLE => MultiHitMove::DoubleHit,
             Choices::WATERSHURIKEN => MultiHitMove::TwoToFiveHits,
+
+            // These are multi-accuracy
+            // but until that is implemented we approximate them as multi-hit
             Choices::POPULATIONBOMB => MultiHitMove::PopulationBomb,
+            Choices::TRIPLEAXEL => MultiHitMove::TripleAxel,
             _ => MultiHitMove::None,
         }
     }

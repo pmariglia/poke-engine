@@ -1509,9 +1509,9 @@ pub fn generate_instructions_from_move(
         MultiHitMove::TwoToFiveHits => {
             hit_count = 3;
         }
-        MultiHitMove::PopulationBomb => {
+        _ => {
             // population bomb checks accuracy each time but lets approximate
-            hit_count = 9;
+            hit_count = 1;
         }
     }
 
