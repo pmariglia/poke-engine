@@ -1,5 +1,47 @@
 # Changelog
 
+## [v0.0.27](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.27) - 2025-01-12
+
+### Features
+
+- Triple-axel is treated as triple-hit move - ([c26f0ab](https://github.com/pmariglia/poke-engine/commit/c26f0ab9368312e1dbf11e9426dde7532d3a3c7d))
+
+- Implement miracleseed and spelltag - ([1672f71](https://github.com/pmariglia/poke-engine/commit/1672f71e62204065014168f9d0f2fc6f2e8ee3cc))
+
+- Loadeddice giving 4 hits - ([db90a52](https://github.com/pmariglia/poke-engine/commit/db90a5215387df2a8704b935cb07c6b7ebb08bdd))
+
+
+### Bug Fixes
+
+- Dont switch to 0hp pokemon in team preview - ([7e9bfab](https://github.com/pmariglia/poke-engine/commit/7e9bfab59c29b60e03f98ec465f66953a6884e0c))
+
+- Re-implement DestinyBond Correctly - ([5ed81fc](https://github.com/pmariglia/poke-engine/commit/5ed81fcd0d5b948b6ed65bcd22b9a6f151b9fd4e))
+
+- Gen9 activates tera - ([c80439d](https://github.com/pmariglia/poke-engine/commit/c80439dd3e18e604a77c85a1167757590db80a15))
+
+- Gen7+ hit self in confusion is 1/3 instead of 1/2 - ([11fa285](https://github.com/pmariglia/poke-engine/commit/11fa2858741c05caf7b61b1579cc88e45338622d))
+
+- Adaptability and terastallization boost is 2.25 - ([3720436](https://github.com/pmariglia/poke-engine/commit/3720436d5e991770e0dfe9a9d021e8d32d89ace1))
+
+- Assaultvest does not lower damage if special move targets defense - ([7a1825d](https://github.com/pmariglia/poke-engine/commit/7a1825d825d806b02d514b093c32b57e2eb9654d))
+
+- Mycelium might ability ignoring only applies when using status moves - ([15b23f1](https://github.com/pmariglia/poke-engine/commit/15b23f15797c8ddc6c4b4b6429da31c7c6276a61))
+
+- Clearing all effects of a move gets rid of all flags - ([6c46a55](https://github.com/pmariglia/poke-engine/commit/6c46a55a863c307f56c829258d02f4da8755dd1f))
+
+- Revelationdance uses tera type if terastallized - ([e7cdb76](https://github.com/pmariglia/poke-engine/commit/e7cdb766ada4658244567bc05ee8c0f58ad8aea9))
+
+- Terastallization base power floor happens before anything else - ([a1e2e47](https://github.com/pmariglia/poke-engine/commit/a1e2e4709aa550bb27d37bf7a63bbf5d5434db3d))
+
+- Tera penalty 50 -> 75 - ([5eab0ec](https://github.com/pmariglia/poke-engine/commit/5eab0ecaaeb93b13c4457e268f937dc1d8517e20))
+
+- StrengthSap fails at -6 attack on defender - ([5f7d149](https://github.com/pmariglia/poke-engine/commit/5f7d14910598c5983af51c5cb8cafcd23f799bf3))
+
+
+### Revert
+
+- Gen1 status eval increases - ([f203757](https://github.com/pmariglia/poke-engine/commit/f203757f37bcef0eb319b8064c6296cf16f2513d))
+
 ## [v0.0.26](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.26) - 2025-01-05
 
 ### Features
