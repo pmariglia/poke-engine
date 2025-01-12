@@ -1293,6 +1293,7 @@ lazy_static! {
                     contact: true,
                     protect: true,
                     slicing: true,
+                    heal: true,
                     ..Default::default()
                 },
                 drain: Some(0.5),
@@ -10011,6 +10012,7 @@ lazy_static! {
                 move_type: PokemonType::GRASS,
                 flags: Flags {
                     protect: true,
+                    heal: true,
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
@@ -13282,6 +13284,7 @@ lazy_static! {
                 target: MoveTarget::User,
                 move_type: PokemonType::NORMAL,
                 flags: Flags {
+                    heal: true,
                     ..Default::default()
                 },
                 ..Default::default()

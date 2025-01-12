@@ -1273,6 +1273,12 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
         .contains(&PokemonVolatileStatus::FLINCH)
     {
         return true;
+    } else if choice.flags.heal
+        && attacking_side
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::HEALBLOCK)
+    {
+        return true;
     }
     false
 }
