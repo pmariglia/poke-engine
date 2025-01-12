@@ -1903,6 +1903,8 @@ pub fn generate_instructions_from_move(
             hit_count =
                 if state.get_side(&attacking_side).get_active().ability == Abilities::SKILLLINK {
                     5
+                } else if state.get_side(&attacking_side).get_active().item == Items::LOADEDDICE {
+                    4
                 } else {
                     3 // too lazy to implement branching here. Average is 3.2 so this is a fine approximation
                 };

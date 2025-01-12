@@ -173,6 +173,7 @@ define_enum_with_from_str! {
         HEARTHFLAMEMASK,
         CORNERSTONEMASK,
         WIDELENS,
+        LOADEDDICE,
     },
     default = UNKNOWNITEM
 }
