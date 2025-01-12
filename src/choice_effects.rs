@@ -276,13 +276,15 @@ pub fn modify_choice(
                     accuracy: 0,
                 },
             });
-            let defender_attack =
-                defending_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
-            let attacker_maxhp = attacking_side.get_active_immutable().maxhp;
-            attacker_choice.heal = Some(Heal {
-                target: MoveTarget::User,
-                amount: defender_attack as f32 / attacker_maxhp as f32,
-            });
+            if defending_side.attack_boost != -6 {
+                let defender_attack =
+                    defending_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
+                let attacker_maxhp = attacking_side.get_active_immutable().maxhp;
+                attacker_choice.heal = Some(Heal {
+                    target: MoveTarget::User,
+                    amount: defender_attack as f32 / attacker_maxhp as f32,
+                });
+            }
         }
         Choices::TERABLAST => {
             let active = attacking_side.get_active_immutable();

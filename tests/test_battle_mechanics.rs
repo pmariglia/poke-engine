@@ -9133,6 +9133,26 @@ fn test_strengthsap() {
 }
 
 #[test]
+fn test_strengthsap_fails_at_negative_6_boost_on_opponent() {
+    let mut state = State::default();
+    state.side_one.get_active().maxhp = 500;
+    state.side_one.get_active().hp = 100;
+    state.side_two.attack_boost = -6;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::STRENGTHSAP,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_yawn_gets_applied_and_swapped_with_next_turn_volatile() {
     let mut state = State::default();
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
