@@ -1300,6 +1300,44 @@ pub fn item_modify_attack_being_used(
                 attacking_choice.base_power *= 1.2;
             }
         }
+        #[cfg(feature = "gen3")]
+        Items::SPELLTAG => {
+            if attacking_choice.move_type == PokemonType::GHOST {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
+        Items::SPELLTAG => {
+            if attacking_choice.move_type == PokemonType::GHOST {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
+        #[cfg(feature = "gen3")]
+        Items::MIRACLESEED => {
+            if attacking_choice.move_type == PokemonType::GRASS {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        #[cfg(any(
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
+        Items::MIRACLESEED => {
+            if attacking_choice.move_type == PokemonType::GRASS {
+                attacking_choice.base_power *= 1.2;
+            }
+        }
         Items::SOULDEW => {
             if attacking_side.get_active_immutable().id == PokemonName::LATIOS
                 || attacking_side.get_active_immutable().id == PokemonName::LATIAS

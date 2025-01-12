@@ -33,6 +33,8 @@ define_enum_with_from_str! {
         SHARPBEAK,
         SILVERPOWDER,
         SOFTSAND,
+        MIRACLESEED,
+        SPELLTAG,
         THICKCLUB,
         TWISTEDSPOON,
         HARDSTONE,
@@ -242,6 +244,16 @@ pub fn item_modify_attack_being_used(
         }
         Items::SOFTSAND => {
             if attacking_choice.move_type == PokemonType::GROUND {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        Items::SPELLTAG => {
+            if attacking_choice.move_type == PokemonType::GHOST {
+                attacking_choice.base_power *= 1.1;
+            }
+        }
+        Items::MIRACLESEED => {
+            if attacking_choice.move_type == PokemonType::GRASS {
                 attacking_choice.base_power *= 1.1;
             }
         }
