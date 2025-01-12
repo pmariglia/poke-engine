@@ -4,7 +4,7 @@ use crate::state::{Pokemon, PokemonStatus, PokemonVolatileStatus, State};
 
 const POKEMON_ALIVE: f32 = 30.0;
 const POKEMON_HP: f32 = 100.0;
-const USED_TERA: f32 = -50.0;
+const USED_TERA: f32 = -75.0;
 
 const POKEMON_ATTACK_BOOST: f32 = 30.0;
 const POKEMON_DEFENSE_BOOST: f32 = 15.0;
