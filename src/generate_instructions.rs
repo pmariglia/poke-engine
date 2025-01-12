@@ -43,6 +43,9 @@ use crate::{
 };
 use std::cmp;
 
+#[cfg(feature = "terastallization")]
+use crate::choices::MultiAccuracyMove;
+
 #[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5", feature = "gen6"))]
 pub const BASE_CRIT_CHANCE: f32 = 1.0 / 16.0;
 
@@ -1274,6 +1277,27 @@ fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideRefe
     false
 }
 
+#[cfg(feature = "terastallization")]
+fn terastallized_base_power_floor(
+    state: &mut State,
+    choice: &mut Choice,
+    attacking_side: &SideReference,
+) {
+    let attacker = state
+        .get_side_immutable(attacking_side)
+        .get_active_immutable();
+
+    if attacker.terastallized
+        && choice.move_type == attacker.tera_type
+        && choice.base_power < 60.0
+        && choice.priority <= 0
+        && choice.multi_hit() == MultiHitMove::None
+        && choice.multi_accuracy() == MultiAccuracyMove::None
+    {
+        choice.base_power = 60.0;
+    }
+}
+
 fn before_move(
     state: &mut State,
     choice: &mut Choice,
@@ -1281,6 +1305,9 @@ fn before_move(
     attacking_side: &SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
+    #[cfg(feature = "terastallization")]
+    terastallized_base_power_floor(state, choice, attacking_side);
+
     ability_before_move(state, choice, attacking_side, incoming_instructions);
     item_before_move(state, choice, attacking_side, incoming_instructions);
     choice_before_move(state, choice, attacking_side, incoming_instructions);

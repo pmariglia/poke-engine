@@ -18,9 +18,6 @@ use crate::state::{
 };
 use std::cmp;
 
-#[cfg(feature = "terastallization")]
-use crate::choices::{MultiAccuracyMove, MultiHitMove};
-
 pub fn modify_choice(
     state: &State,
     attacker_choice: &mut Choice,
@@ -740,17 +737,6 @@ pub fn choice_before_move(
 
     let attacker = attacking_side.get_active();
     let defender = defending_side.get_active_immutable();
-
-    #[cfg(feature = "terastallization")]
-    if attacker.terastallized
-        && choice.move_type == attacker.tera_type
-        && choice.base_power < 60.0
-        && choice.priority <= 0
-        && choice.multi_hit() == MultiHitMove::None
-        && choice.multi_accuracy() == MultiAccuracyMove::None
-    {
-        choice.base_power = 60.0;
-    }
 
     match choice.move_id {
         Choices::FUTURESIGHT => {
