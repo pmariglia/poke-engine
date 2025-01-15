@@ -514,7 +514,10 @@ pub fn ability_before_move(
         Abilities::ICEFACE => {
             if defending_pkmn.id == PokemonName::EISCUE && choice.category == MoveCategory::Physical
             {
-                choice.base_power = 0.0;
+                // hacky - changing the move to a status move makes it do no
+                // damage but preserve secondary effects
+                // due to some bad choices I made I cannot just set base_power to 0
+                choice.category = MoveCategory::Status;
                 instructions.instruction_list.push(Instruction::FormeChange(
                     FormeChangeInstruction {
                         side_ref: side_ref.get_other_side(),

@@ -10702,6 +10702,165 @@ fn test_iceface_eiscue_taking_physical_hit() {
 }
 
 #[test]
+fn test_iceface_eiscue_taking_uturn() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::EISCUE;
+    state.side_one.get_active().ability = Abilities::ICEFACE;
+    state.side_one.get_active().attack = 217;
+    state.side_one.get_active().special_attack = 187;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::UTURN,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                new_forme: PokemonName::EISCUENOICE,
+                previous_forme: PokemonName::EISCUE,
+            }),
+            Instruction::ChangeDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 97,
+            }),
+            Instruction::ChangeSpecialDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 57,
+            }),
+            Instruction::ChangeSpeed(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 217,
+            }),
+            Instruction::ToggleSideTwoForceSwitch,
+            Instruction::SetSideOneMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
+                new_choice: Choices::SPLASH,
+                previous_choice: Choices::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_iceface_against_move_with_secondary() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::EISCUE;
+    state.side_one.get_active().ability = Abilities::ICEFACE;
+    state.side_one.get_active().attack = 217;
+    state.side_one.get_active().special_attack = 187;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::POWERUPPUNCH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                new_forme: PokemonName::EISCUENOICE,
+                previous_forme: PokemonName::EISCUE,
+            }),
+            Instruction::ChangeDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 97,
+            }),
+            Instruction::ChangeSpecialDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 57,
+            }),
+            Instruction::ChangeSpeed(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 217,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Attack,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_iceface_against_move_with_possible_secondary() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::EISCUE;
+    state.side_one.get_active().ability = Abilities::ICEFACE;
+    state.side_one.get_active().attack = 217;
+    state.side_one.get_active().special_attack = 187;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::IRONHEAD,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 70.0,
+            instruction_list: vec![
+                Instruction::FormeChange(FormeChangeInstruction {
+                    side_ref: SideReference::SideOne,
+                    new_forme: PokemonName::EISCUENOICE,
+                    previous_forme: PokemonName::EISCUE,
+                }),
+                Instruction::ChangeDefense(ChangeStatInstruction {
+                    side_ref: SideReference::SideOne,
+                    amount: 97,
+                }),
+                Instruction::ChangeSpecialDefense(ChangeStatInstruction {
+                    side_ref: SideReference::SideOne,
+                    amount: 57,
+                }),
+                Instruction::ChangeSpeed(ChangeStatInstruction {
+                    side_ref: SideReference::SideOne,
+                    amount: 217,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 30.000002,
+            instruction_list: vec![
+                Instruction::FormeChange(FormeChangeInstruction {
+                    side_ref: SideReference::SideOne,
+                    new_forme: PokemonName::EISCUENOICE,
+                    previous_forme: PokemonName::EISCUE,
+                }),
+                Instruction::ChangeDefense(ChangeStatInstruction {
+                    side_ref: SideReference::SideOne,
+                    amount: 97,
+                }),
+                Instruction::ChangeSpecialDefense(ChangeStatInstruction {
+                    side_ref: SideReference::SideOne,
+                    amount: 57,
+                }),
+                Instruction::ChangeSpeed(ChangeStatInstruction {
+                    side_ref: SideReference::SideOne,
+                    amount: 217,
+                }),
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::FLINCH,
+                }),
+                Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::FLINCH,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_iceface_eiscuenoice_switching_into_snow() {
     let mut state = State::default();
     state.side_two.get_active().types.0 = PokemonType::ICE;
