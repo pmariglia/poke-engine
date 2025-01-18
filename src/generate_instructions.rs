@@ -1808,12 +1808,13 @@ pub fn generate_instructions_from_move(
     let (attacker_side, defender_side) = state.get_both_sides(&attacking_side);
     let active = attacker_side.get_active();
     if active.moves[&choice.move_index].pp < 10 {
-        let pp_decrement_amount =
-            if defender_side.get_active_immutable().ability == Abilities::PRESSURE {
-                2
-            } else {
-                1
-            };
+        let pp_decrement_amount = if choice.target == MoveTarget::Opponent
+            && defender_side.get_active_immutable().ability == Abilities::PRESSURE
+        {
+            2
+        } else {
+            1
+        };
         incoming_instructions
             .instruction_list
             .push(Instruction::DecrementPP(DecrementPPInstruction {

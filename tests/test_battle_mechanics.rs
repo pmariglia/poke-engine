@@ -7142,6 +7142,45 @@ fn test_pressure_caused_double_pp_decrement() {
 }
 
 #[test]
+fn test_pressure_does_not_cause_pp_decrement_if_move_targets_self() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::PRESSURE;
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::RECOVER);
+    state.side_one.get_active().moves[&PokemonMoveIndex::M0].pp = 5;
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::SPLASH);
+    state.side_two.get_active().moves[&PokemonMoveIndex::M0].pp = 1;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DecrementPP(DecrementPPInstruction {
+                side_ref: SideReference::SideTwo,
+                move_index: PokemonMoveIndex::M0,
+                amount: 1,
+            }),
+            Instruction::DecrementPP(DecrementPPInstruction {
+                side_ref: SideReference::SideOne,
+                move_index: PokemonMoveIndex::M0,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_pp_decremented() {
     let mut state = State::default();
     state
