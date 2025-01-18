@@ -54,6 +54,102 @@ fn set_moves_on_pkmn_and_call_generate_instructions(
 }
 
 #[test]
+fn test_bodyslam_cannot_paralyze_normal_type() {
+    let mut state = State::default();
+    state.side_two.get_active().types.0 = PokemonType::NORMAL;
+    state.side_two.get_active().hp = 500;
+    state.side_two.get_active().maxhp = 500;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::BODYSLAM,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 100,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_thunderbolt_cannot_paralyze_electric_type() {
+    let mut state = State::default();
+    state.side_two.get_active().types.0 = PokemonType::ELECTRIC;
+    state.side_two.get_active().hp = 500;
+    state.side_two.get_active().maxhp = 500;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::THUNDERBOLT,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 37,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_thunderwave_can_paralyze_electric_type() {
+    let mut state = State::default();
+    state.side_two.get_active().types.0 = PokemonType::ELECTRIC;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::THUNDERWAVE,
+        Choices::SPLASH,
+    );
+
+    // This test is really just to make sure there is no bug with implementing
+    // the "normal types cannot be paralyzed by bodyslam" logic
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+            side_ref: SideReference::SideTwo,
+            pokemon_index: PokemonIndex::P0,
+            old_status: PokemonStatus::NONE,
+            new_status: PokemonStatus::PARALYZE,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_thunderwave_can_paralyze_normal_type() {
+    let mut state = State::default();
+    state.side_two.get_active().types.0 = PokemonType::NORMAL;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::THUNDERWAVE,
+        Choices::SPLASH,
+    );
+
+    // This test is really just to make sure there is no bug with implementing
+    // the "normal types cannot be paralyzed by bodyslam" logic
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+            side_ref: SideReference::SideTwo,
+            pokemon_index: PokemonIndex::P0,
+            old_status: PokemonStatus::NONE,
+            new_status: PokemonStatus::PARALYZE,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_paralysis_nullify_ignores_paralysis() {
     let mut state = State::default();
     state.side_one.get_active().speed = 100;

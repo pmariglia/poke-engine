@@ -267,9 +267,11 @@ pub fn add_remove_status_instructions(
 
 pub fn immune_to_status(
     state: &State,
+    attacker_choice: &Choice,
     status_target: &MoveTarget,
     target_side_ref: &SideReference,
     status: &PokemonStatus,
+    from_secondary: bool,
 ) -> bool {
     let target_side = state.get_side_immutable(target_side_ref);
     let target_pkmn = target_side.get_active_immutable();
@@ -296,7 +298,11 @@ pub fn immune_to_status(
                 status_target == &MoveTarget::Opponent
                     && target_side.has_alive_non_rested_sleeping_pkmn()
             }
-
+            PokemonStatus::PARALYZE => {
+                // gen1 paralysis cannot be applied from a secondary effect if one of
+                // the defender's types is the same as the move's type
+                from_secondary && target_pkmn.has_type(&attacker_choice.move_type)
+            }
             PokemonStatus::POISON | PokemonStatus::TOXIC => {
                 target_pkmn.has_type(&PokemonType::POISON)
                     || target_pkmn.has_type(&PokemonType::STEEL)
@@ -309,9 +315,11 @@ pub fn immune_to_status(
 fn get_instructions_from_status_effects(
     state: &mut State,
     status: &Status,
+    attacker_choice: &Choice,
     attacking_side_reference: &SideReference,
     incoming_instructions: &mut StateInstructions,
     hit_sub: bool,
+    from_secondary: bool,
 ) {
     let target_side_ref: SideReference;
     match status.target {
@@ -319,7 +327,16 @@ fn get_instructions_from_status_effects(
         MoveTarget::User => target_side_ref = *attacking_side_reference,
     }
 
-    if hit_sub || immune_to_status(state, &status.target, &target_side_ref, &status.status) {
+    if hit_sub
+        || immune_to_status(
+            state,
+            attacker_choice,
+            &status.target,
+            &target_side_ref,
+            &status.status,
+            from_secondary,
+        )
+    {
         return;
     }
 
@@ -513,9 +530,11 @@ fn get_instructions_from_secondaries(
                                 target: secondary.target.clone(),
                                 status: status.clone(),
                             },
+                            attacker_choice,
                             side_reference,
                             &mut secondary_hit_instructions,
                             hit_sub,
+                            true,
                         );
                     }
                     Effect::Heal(heal_amount) => {
@@ -1217,9 +1236,11 @@ pub fn generate_instructions_from_move(
                 get_instructions_from_status_effects(
                     state,
                     status,
+                    choice,
                     &attacking_side,
                     &mut incoming_instructions,
                     hit_sub,
+                    false,
                 );
             }
             if let Some(heal) = &choice.heal {
@@ -1282,9 +1303,11 @@ pub fn generate_instructions_from_move(
                     get_instructions_from_status_effects(
                         state,
                         status,
+                        choice,
                         &attacking_side,
                         &mut crit_instructions,
                         hit_sub,
+                        false,
                     );
                 }
                 if let Some(heal) = &choice.heal {
