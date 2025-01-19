@@ -19,6 +19,12 @@ use crate::state::{PokemonStatus, State};
 use crate::state::{PokemonVolatileStatus, SideReference, Weather};
 use std::cmp;
 
+#[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5"))]
+pub const WEATHER_ABILITY_TURNS: i8 = -1;
+
+#[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
+pub const WEATHER_ABILITY_TURNS: i8 = 5;
+
 define_enum_with_from_str! {
     #[repr(u16)]
     #[derive(PartialEq, Debug, Clone)]
@@ -766,12 +772,12 @@ pub fn ability_after_damage_hit(
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
                         new_weather: Weather::SAND,
-                        new_weather_turns_remaining: 5,
+                        new_weather_turns_remaining: WEATHER_ABILITY_TURNS,
                         previous_weather: state.weather.weather_type,
                         previous_weather_turns_remaining: state.weather.turns_remaining,
                     }));
                 state.weather.weather_type = Weather::SAND;
-                state.weather.turns_remaining = 5;
+                state.weather.turns_remaining = WEATHER_ABILITY_TURNS;
             }
         }
         Abilities::SEEDSOWER => {
@@ -966,6 +972,34 @@ pub fn ability_on_switch_out(
                         heal_amount: hp_recovered,
                     }));
                 active_pkmn.hp += hp_recovered;
+            }
+        }
+        Abilities::PRIMORDIALSEA => {
+            if state.weather.weather_type == Weather::HEAVYRAIN {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeWeather(ChangeWeather {
+                        new_weather: Weather::NONE,
+                        new_weather_turns_remaining: -1,
+                        previous_weather: state.weather.weather_type,
+                        previous_weather_turns_remaining: state.weather.turns_remaining,
+                    }));
+                state.weather.weather_type = Weather::NONE;
+                state.weather.turns_remaining = -1;
+            }
+        }
+        Abilities::DESOLATELAND => {
+            if state.weather.weather_type == Weather::HARSHSUN {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeWeather(ChangeWeather {
+                        new_weather: Weather::NONE,
+                        new_weather_turns_remaining: -1,
+                        previous_weather: state.weather.weather_type,
+                        previous_weather_turns_remaining: state.weather.turns_remaining,
+                    }));
+                state.weather.weather_type = Weather::NONE;
+                state.weather.turns_remaining = -1;
             }
         }
         _ => {}
@@ -1328,12 +1362,12 @@ pub fn ability_on_switch_in(
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
                         new_weather: Weather::SUN,
-                        new_weather_turns_remaining: -1,
+                        new_weather_turns_remaining: WEATHER_ABILITY_TURNS,
                         previous_weather: state.weather.weather_type,
                         previous_weather_turns_remaining: state.weather.turns_remaining,
                     }));
                 state.weather.weather_type = Weather::SUN;
-                state.weather.turns_remaining = -1;
+                state.weather.turns_remaining = WEATHER_ABILITY_TURNS;
             }
         }
         Abilities::DESOLATELAND => {
@@ -1342,12 +1376,12 @@ pub fn ability_on_switch_in(
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
                         new_weather: Weather::HARSHSUN,
-                        new_weather_turns_remaining: 5,
+                        new_weather_turns_remaining: -1,
                         previous_weather: state.weather.weather_type,
                         previous_weather_turns_remaining: state.weather.turns_remaining,
                     }));
                 state.weather.weather_type = Weather::HARSHSUN;
-                state.weather.turns_remaining = 5;
+                state.weather.turns_remaining = -1;
             }
         }
         Abilities::MISTYSURGE => {
@@ -1370,12 +1404,12 @@ pub fn ability_on_switch_in(
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
                         new_weather: Weather::SAND,
-                        new_weather_turns_remaining: -1,
+                        new_weather_turns_remaining: WEATHER_ABILITY_TURNS,
                         previous_weather: state.weather.weather_type,
                         previous_weather_turns_remaining: state.weather.turns_remaining,
                     }));
                 state.weather.weather_type = Weather::SAND;
-                state.weather.turns_remaining = -1;
+                state.weather.turns_remaining = WEATHER_ABILITY_TURNS;
             }
         }
         Abilities::INTIMIDATE => {
@@ -1498,12 +1532,12 @@ pub fn ability_on_switch_in(
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
                         new_weather: Weather::HEAVYRAIN,
-                        new_weather_turns_remaining: 5,
+                        new_weather_turns_remaining: -1,
                         previous_weather: state.weather.weather_type,
                         previous_weather_turns_remaining: state.weather.turns_remaining,
                     }));
                 state.weather.weather_type = Weather::HEAVYRAIN;
-                state.weather.turns_remaining = 5;
+                state.weather.turns_remaining = -1;
             }
         }
         Abilities::SCREENCLEANER => {
@@ -1591,12 +1625,12 @@ pub fn ability_on_switch_in(
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
                         new_weather: weather_type,
-                        new_weather_turns_remaining: -1,
+                        new_weather_turns_remaining: WEATHER_ABILITY_TURNS,
                         previous_weather: state.weather.weather_type,
                         previous_weather_turns_remaining: state.weather.turns_remaining,
                     }));
                 state.weather.weather_type = weather_type;
-                state.weather.turns_remaining = -1;
+                state.weather.turns_remaining = WEATHER_ABILITY_TURNS;
             }
         }
         Abilities::PSYCHICSURGE => {
@@ -1619,12 +1653,12 @@ pub fn ability_on_switch_in(
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
                         new_weather: Weather::RAIN,
-                        new_weather_turns_remaining: -1,
+                        new_weather_turns_remaining: WEATHER_ABILITY_TURNS,
                         previous_weather: state.weather.weather_type,
                         previous_weather_turns_remaining: state.weather.turns_remaining,
                     }));
                 state.weather.weather_type = Weather::RAIN;
-                state.weather.turns_remaining = -1;
+                state.weather.turns_remaining = WEATHER_ABILITY_TURNS;
             }
         }
         _ => {}
