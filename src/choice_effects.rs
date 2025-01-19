@@ -147,7 +147,7 @@ pub fn modify_choice(
                 });
             }
         }
-        Choices::FAKEOUT => match attacking_side.last_used_move {
+        Choices::FAKEOUT | Choices::FIRSTIMPRESSION => match attacking_side.last_used_move {
             LastUsedMove::Move(_) => attacker_choice.remove_all_effects(),
             _ => {}
         },

@@ -591,6 +591,7 @@ fn test_fakeout_first_turn_switched_in() {
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
+
 #[test]
 fn test_fakeout_with_last_used_move_of_non_switch() {
     let mut state = State::default();
@@ -622,6 +623,97 @@ fn test_fakeout_with_last_used_move_of_non_switch() {
                 side_ref: SideReference::SideTwo,
                 last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
                 previous_last_used_move: LastUsedMove::None,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_firstimpression_first_turn_switched_in() {
+    let mut state = State::default();
+    state.use_last_used_move = true;
+    state.side_one.get_active().speed = 200;
+    state.side_two.get_active().speed = 100;
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::FIRSTIMPRESSION);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::TACKLE);
+
+    state.side_one.last_used_move = LastUsedMove::Switch(PokemonIndex::P0);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
+                side_ref: SideReference::SideOne,
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::Switch(PokemonIndex::P0),
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 71,
+            }),
+            Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
+                side_ref: SideReference::SideTwo,
+                previous_last_used_move: LastUsedMove::None,
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_firstimpression_with_last_used_move_of_non_switch() {
+    let mut state = State::default();
+    state.use_last_used_move = true;
+    state.side_one.get_active().speed = 200;
+    state.side_two.get_active().speed = 100;
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::FIRSTIMPRESSION);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::TACKLE);
+
+    state.side_one.last_used_move = LastUsedMove::Move(PokemonMoveIndex::M0);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        false,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
+                side_ref: SideReference::SideTwo,
+                previous_last_used_move: LastUsedMove::None,
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,

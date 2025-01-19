@@ -5446,7 +5446,7 @@ lazy_static! {
             Choices::FIRSTIMPRESSION,
             Choice {
                 move_id: Choices::FIRSTIMPRESSION,
-                base_power: 0.0,
+                base_power: 90.0,
                 category: MoveCategory::Physical,
                 priority: 2,
                 move_type: PokemonType::BUG,
