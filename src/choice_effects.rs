@@ -825,7 +825,7 @@ pub fn choice_hazard_clear(
     attacking_side_ref: &SideReference,
     instructions: &mut StateInstructions,
 ) {
-    let (attacking_side, _defending_side) = state.get_both_sides(attacking_side_ref);
+    let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
     match choice.move_id {
         Choices::COURTCHANGE => {
             let mut instruction_list = vec![];
@@ -868,7 +868,9 @@ pub fn choice_hazard_clear(
                 instructions.instruction_list.push(i)
             }
         }
-        Choices::DEFOG => {
+        Choices::DEFOG
+            if defending_side.get_active_immutable().ability != Abilities::GOODASGOLD =>
+        {
             if state.terrain.terrain_type != Terrain::NONE {
                 instructions
                     .instruction_list
