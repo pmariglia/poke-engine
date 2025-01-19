@@ -17706,6 +17706,25 @@ lazy_static! {
                     protect: true,
                     ..Default::default()
                 },
+                secondaries: Some(vec![
+                    Secondary {
+                        chance: 50.0,
+                        target: MoveTarget::Opponent,
+                        effect: Effect::Boost(StatBoosts {
+                            attack: 0,
+                            defense: -1,
+                            special_attack: 0,
+                            special_defense: 0,
+                            speed: 0,
+                            accuracy: 0,
+                        }),
+                    },
+                    Secondary {
+                        chance: 30.0,
+                        target: MoveTarget::Opponent,
+                        effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
+                    },
+                ]),
                 ..Default::default()
             },
         );
