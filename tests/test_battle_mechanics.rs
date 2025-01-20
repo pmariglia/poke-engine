@@ -3279,6 +3279,234 @@ fn test_palafin_formechange_on_switchout() {
 }
 
 #[test]
+fn test_cramorant_forme_revert_on_switchout() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::CRAMORANTGULPING;
+    state.side_one.get_active().ability = Abilities::GULPMISSILE;
+
+    let side_one_move = MoveChoice::Switch(PokemonIndex::P1);
+    let side_two_move = MoveChoice::None;
+    let vec_of_instructions =
+        generate_instructions_with_state_assertion(&mut state, &side_one_move, &side_two_move);
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                new_forme: PokemonName::CRAMORANT,
+                previous_forme: PokemonName::CRAMORANTGULPING,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_cramorant_damage_and_def_drop_from_gulping_on_being_hit() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::CRAMORANTGULPING;
+    state.side_one.get_active().ability = Abilities::GULPMISSILE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                new_forme: PokemonName::CRAMORANT,
+                previous_forme: PokemonName::CRAMORANTGULPING,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 25,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Defense,
+                amount: -1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_cramorant_damage_and_paralysis_from_gorging_on_being_hit() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::CRAMORANTGORGING;
+    state.side_one.get_active().ability = Abilities::GULPMISSILE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                new_forme: PokemonName::CRAMORANT,
+                previous_forme: PokemonName::CRAMORANTGORGING,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 25,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::PARALYZE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_previous_status_makes_immune_to_paralysis() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::CRAMORANTGORGING;
+    state.side_one.get_active().ability = Abilities::GULPMISSILE;
+    state.side_two.get_active().status = PokemonStatus::POISON;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                new_forme: PokemonName::CRAMORANT,
+                previous_forme: PokemonName::CRAMORANTGORGING,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 25,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 12,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_cramorant_formechange_gulping_when_using_surf() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::CRAMORANT;
+    state.side_one.get_active().ability = Abilities::GULPMISSILE;
+    state.side_two.get_active().hp = 71;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SURF,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                new_forme: PokemonName::CRAMORANTGULPING,
+                previous_forme: PokemonName::CRAMORANT,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 71,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_cramorant_formechange_gorging_when_using_surf() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::CRAMORANT;
+    state.side_one.get_active().ability = Abilities::GULPMISSILE;
+    state.side_one.get_active().hp = 1;
+    state.side_two.get_active().hp = 71;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SURF,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                new_forme: PokemonName::CRAMORANTGORGING,
+                previous_forme: PokemonName::CRAMORANT,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 71,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_cramorant_no_formechange_when_fainted() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::CRAMORANT;
+    state.side_one.get_active().ability = Abilities::GULPMISSILE;
+    state.side_one.get_active().hp = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SURF,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 1,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_morpeko_reverts_to_fullbelly_when_switching_out() {
     let mut state = State::default();
     state.side_one.get_active().id = PokemonName::MORPEKOHANGRY;

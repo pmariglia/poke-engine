@@ -246,7 +246,11 @@ impl fmt::Debug for Instruction {
                 )
             }
             Instruction::FormeChange(s) => {
-                write!(f, "FormeChange {:?}: {:?}", s.side_ref, s.new_forme)
+                write!(
+                    f,
+                    "FormeChange {:?}: {:?} -> {:?}",
+                    s.side_ref, s.previous_forme, s.new_forme
+                )
             }
             Instruction::SetSideOneMoveSecondSwitchOutMove(s) => {
                 write!(

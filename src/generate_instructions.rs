@@ -1031,7 +1031,7 @@ fn set_damage_dealt(
 
 fn generate_instructions_from_damage(
     mut state: &mut State,
-    choice: &Choice,
+    choice: &mut Choice,
     calculated_damage: i16,
     attacking_side_ref: &SideReference,
     mut incoming_instructions: &mut StateInstructions,
@@ -2788,7 +2788,7 @@ fn run_move(
     hit_count: i8,
     does_damage: bool,
     damage_amount: i16,
-    choice: &Choice,
+    choice: &mut Choice,
     defender_choice: &Choice,
     final_instructions: &mut Vec<StateInstructions>,
 ) {
@@ -2797,7 +2797,7 @@ fn run_move(
         if does_damage {
             hit_sub = generate_instructions_from_damage(
                 state,
-                &choice,
+                choice,
                 damage_amount,
                 &attacking_side,
                 &mut instructions,

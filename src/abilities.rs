@@ -582,6 +582,25 @@ pub fn ability_before_move(
         _ => {}
     }
     match active_pkmn.ability {
+        Abilities::GULPMISSILE => {
+            if active_pkmn.id == PokemonName::CRAMORANT
+                && (choice.move_id == Choices::SURF || choice.move_id == Choices::DIVE)
+            {
+                let new_forme = if active_pkmn.hp > active_pkmn.maxhp / 2 {
+                    PokemonName::CRAMORANTGULPING
+                } else {
+                    PokemonName::CRAMORANTGORGING
+                };
+                instructions.instruction_list.push(Instruction::FormeChange(
+                    FormeChangeInstruction {
+                        side_ref: *side_ref,
+                        new_forme,
+                        previous_forme: PokemonName::CRAMORANT,
+                    },
+                ));
+                active_pkmn.id = new_forme;
+            }
+        }
         Abilities::PROTEAN | Abilities::LIBERO => {
             if !active_pkmn.has_type(&choice.move_type) && !active_pkmn.terastallized {
                 let ins = Instruction::ChangeType(ChangeType {
@@ -606,7 +625,7 @@ pub fn ability_before_move(
 
 pub fn ability_after_damage_hit(
     state: &mut State,
-    choice: &Choice,
+    choice: &mut Choice,
     side_ref: &SideReference,
     damage_dealt: i16,
     instructions: &mut StateInstructions,
@@ -724,6 +743,48 @@ pub fn ability_after_damage_hit(
     let attacking_pkmn = attacking_side.get_active();
     let defending_pkmn = defending_side.get_active();
     match defending_pkmn.ability {
+        Abilities::GULPMISSILE => {
+            if damage_dealt > 0
+                && [PokemonName::CRAMORANTGORGING, PokemonName::CRAMORANTGULPING]
+                    .contains(&defending_pkmn.id)
+            {
+                instructions.instruction_list.push(Instruction::FormeChange(
+                    FormeChangeInstruction {
+                        side_ref: side_ref.get_other_side(),
+                        previous_forme: defending_pkmn.id,
+                        new_forme: PokemonName::CRAMORANT,
+                    },
+                ));
+
+                let damage_dealt = cmp::min(attacking_pkmn.maxhp / 4, attacking_pkmn.hp);
+                instructions
+                    .instruction_list
+                    .push(Instruction::Damage(DamageInstruction {
+                        side_ref: *side_ref,
+                        damage_amount: damage_dealt,
+                    }));
+                attacking_pkmn.hp -= damage_dealt;
+
+                if defending_pkmn.id == PokemonName::CRAMORANTGULPING {
+                    if let Some(boost_instruction) = get_boost_instruction(
+                        &attacking_side,
+                        &PokemonBoostableStat::Defense,
+                        &-1,
+                        &side_ref.get_other_side(),
+                        side_ref,
+                    ) {
+                        state.apply_one_instruction(&boost_instruction);
+                        instructions.instruction_list.push(boost_instruction);
+                    }
+                } else if defending_pkmn.id == PokemonName::CRAMORANTGORGING {
+                    choice.add_or_create_secondaries(Secondary {
+                        chance: 100.0,
+                        target: MoveTarget::User,
+                        effect: Effect::Status(PokemonStatus::PARALYZE),
+                    })
+                }
+            }
+        }
         Abilities::COLORCHANGE => {
             if damage_dealt > 0
                 && defending_pkmn.hp != 0
@@ -922,6 +983,18 @@ pub fn ability_on_switch_out(
         return;
     }
     match active_pkmn.ability {
+        Abilities::GULPMISSILE => {
+            if active_pkmn.id != PokemonName::CRAMORANT {
+                instructions.instruction_list.push(Instruction::FormeChange(
+                    FormeChangeInstruction {
+                        side_ref: *side_ref,
+                        new_forme: PokemonName::CRAMORANT,
+                        previous_forme: active_pkmn.id,
+                    },
+                ));
+                active_pkmn.id = PokemonName::CRAMORANT;
+            }
+        }
         Abilities::ZEROTOHERO => {
             if active_pkmn.id == PokemonName::PALAFIN {
                 instructions.instruction_list.push(Instruction::FormeChange(
