@@ -235,6 +235,7 @@ define_enum_with_from_str! {
         THROATCHOP,
         TRUANT,
         TORMENT,
+        TYPECHANGE,
         UNBURDEN,
         UPROAR,
         YAWN,

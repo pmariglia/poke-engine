@@ -9578,6 +9578,176 @@ fn test_strengthsap_fails_at_negative_6_boost_on_opponent() {
 }
 
 #[test]
+fn test_doubleshock_fails_when_not_electric_type() {
+    let mut state = State::default();
+    state.side_one.get_active().types = (PokemonType::NORMAL, PokemonType::TYPELESS);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DOUBLESHOCK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(feature = "terastallization")]
+fn test_tera_electric_always_allows_doubleshock_with_no_typechange_volatile() {
+    let mut state = State::default();
+    state.side_one.get_active().types = (PokemonType::NORMAL, PokemonType::TYPELESS);
+    state.side_one.get_active().tera_type = PokemonType::ELECTRIC;
+    state.side_one.get_active().terastallized = true;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DOUBLESHOCK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 100,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_doubleshock_removes_type_0_electric() {
+    let mut state = State::default();
+    state.side_one.get_active().types = (PokemonType::ELECTRIC, PokemonType::TYPELESS);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DOUBLESHOCK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 100,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::TYPECHANGE,
+            }),
+            Instruction::ChangeType(ChangeType {
+                side_ref: SideReference::SideOne,
+                new_types: (PokemonType::TYPELESS, PokemonType::TYPELESS),
+                old_types: (PokemonType::ELECTRIC, PokemonType::TYPELESS),
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_doubleshock_removes_type_1_electric() {
+    let mut state = State::default();
+    state.side_one.get_active().types = (PokemonType::FIGHTING, PokemonType::ELECTRIC);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DOUBLESHOCK,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 100,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::TYPECHANGE,
+            }),
+            Instruction::ChangeType(ChangeType {
+                side_ref: SideReference::SideOne,
+                new_types: (PokemonType::FIGHTING, PokemonType::TYPELESS),
+                old_types: (PokemonType::FIGHTING, PokemonType::ELECTRIC),
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_burnup_removes_type_0_fire() {
+    let mut state = State::default();
+    state.side_one.get_active().types = (PokemonType::FIRE, PokemonType::TYPELESS);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::BURNUP,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 100,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::TYPECHANGE,
+            }),
+            Instruction::ChangeType(ChangeType {
+                side_ref: SideReference::SideOne,
+                new_types: (PokemonType::TYPELESS, PokemonType::TYPELESS),
+                old_types: (PokemonType::FIRE, PokemonType::TYPELESS),
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_burnup_removes_type_1_fire() {
+    let mut state = State::default();
+    state.side_one.get_active().types = (PokemonType::FIGHTING, PokemonType::FIRE);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::BURNUP,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 100,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::TYPECHANGE,
+            }),
+            Instruction::ChangeType(ChangeType {
+                side_ref: SideReference::SideOne,
+                new_types: (PokemonType::FIGHTING, PokemonType::TYPELESS),
+                old_types: (PokemonType::FIGHTING, PokemonType::FIRE),
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_yawn_gets_applied_and_swapped_with_next_turn_volatile() {
     let mut state = State::default();
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
