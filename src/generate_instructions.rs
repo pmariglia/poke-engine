@@ -1116,14 +1116,18 @@ fn generate_instructions_from_damage(
 
             hit_sub = true;
         } else {
+            let has_endure = defending_side
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::ENDURE);
             let attacking_pokemon = attacking_side.get_active();
             let defending_pokemon = defending_side.get_active();
             let mut knocked_out = false;
             damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
             if damage_dealt != 0 {
-                if (defending_pokemon.ability == Abilities::STURDY
-                    || defending_pokemon.item == Items::FOCUSSASH)
-                    && defending_pokemon.maxhp == defending_pokemon.hp
+                if has_endure
+                    || ((defending_pokemon.ability == Abilities::STURDY
+                        || defending_pokemon.item == Items::FOCUSSASH)
+                        && defending_pokemon.maxhp == defending_pokemon.hp)
                 {
                     damage_dealt -= 1;
                 }
@@ -2729,6 +2733,7 @@ fn add_end_of_turn_instructions(
             PokemonVolatileStatus::BURNINGBULWARK,
             PokemonVolatileStatus::SPIKYSHIELD,
             PokemonVolatileStatus::SILKTRAP,
+            PokemonVolatileStatus::ENDURE,
         ];
 
         let mut protect_vs = None;
