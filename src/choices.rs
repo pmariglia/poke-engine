@@ -17733,7 +17733,7 @@ lazy_static! {
             Choice {
                 move_id: Choices::TRIPLEAXEL,
                 accuracy: 90.0,
-                base_power: 20.0,
+                base_power: 40.0,
                 category: MoveCategory::Physical,
                 move_type: PokemonType::ICE,
                 flags: Flags {
