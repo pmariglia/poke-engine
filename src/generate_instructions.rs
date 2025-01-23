@@ -2128,6 +2128,10 @@ fn modify_choice_priority(state: &State, side_reference: &SideReference, choice:
     let side = state.get_side_immutable(side_reference);
     let active_pkmn = side.get_active_immutable();
 
+    if choice.move_id == Choices::GRASSYGLIDE && state.terrain_is_active(&Terrain::GRASSYTERRAIN) {
+        choice.priority += 1;
+    }
+
     match active_pkmn.ability {
         Abilities::PRANKSTER if choice.category == MoveCategory::Status => choice.priority += 1,
         Abilities::GALEWINGS

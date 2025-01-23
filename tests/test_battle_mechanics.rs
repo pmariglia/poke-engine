@@ -10070,6 +10070,55 @@ fn test_prankster_giving_higher_priority_in_psychicterrain() {
 }
 
 #[test]
+fn test_grassyglide_in_grassyterrain_increased_priority() {
+    let mut state = State::default();
+    state.terrain.terrain_type = Terrain::GRASSYTERRAIN;
+    state.terrain.turns_remaining = 5;
+    state.side_one.get_active().hp = 1;
+    state.side_two.get_active().hp = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::GRASSYGLIDE,
+        Choices::TACKLE, // no chance to run this even though side_two is faster
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 1,
+            }),
+            Instruction::DecrementTerrainTurnsRemaining,
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_grassyglide_not_in_grassyterrain_increased_priority() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 1;
+    state.side_two.get_active().hp = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::GRASSYGLIDE,
+        Choices::TACKLE, // no chance to run this even though side_two is faster
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 1,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_yawn_cannot_be_inflicted_with_electricterrain() {
     let mut state = State::default();
     state.terrain.terrain_type = Terrain::ELECTRICTERRAIN;
