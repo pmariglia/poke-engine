@@ -3,7 +3,7 @@
 use poke_engine::choices::MoveCategory;
 use poke_engine::choices::{Choices, MOVES};
 use poke_engine::generate_instructions::{
-    generate_instructions_from_move_pair, side_one_moves_first, MAX_SLEEP_TURNS,
+    generate_instructions_from_move_pair, moves_first, MAX_SLEEP_TURNS,
 };
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeStatusInstruction, DamageInstruction,
@@ -73,6 +73,149 @@ fn test_bodyslam_cannot_paralyze_normal_type() {
             damage_amount: 100,
         })],
     }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_same_speed_branch() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 100;
+    state.side_one.get_active().hp = 1;
+    state.side_two.get_active().speed = 100;
+    state.side_two.get_active().hp = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 1,
+            })],
+        },
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 1,
+            })],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_same_speed_branch_with_residuals() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 100;
+    state.side_one.get_active().hp = 1;
+    state.side_one.get_active().status = PokemonStatus::BURN;
+    state.side_two.get_active().speed = 100;
+    state.side_two.get_active().hp = 1;
+    state.side_two.get_active().status = PokemonStatus::BURN;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 1,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 1,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 1,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 1,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_same_speed_branch_with_residuals_for_both_sides() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 100;
+    state.side_one.get_active().hp = 100;
+    state.side_one.get_active().status = PokemonStatus::BURN;
+    state.side_two.get_active().speed = 100;
+    state.side_two.get_active().hp = 100;
+    state.side_two.get_active().status = PokemonStatus::BURN;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 24,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 24,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 6,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 6,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 24,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 24,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 6,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 6,
+                }),
+            ],
+        },
+    ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -160,18 +303,16 @@ fn test_paralysis_nullify_ignores_paralysis() {
     let s1_choice = MOVES.get(&Choices::TACKLE).unwrap().clone();
     let s2_choice = MOVES.get(&Choices::TACKLE).unwrap().clone();
 
-    let side_one_moves_first_before_volatile = side_one_moves_first(&state, &s1_choice, &s2_choice);
+    let moves_first = moves_first(&state, &s1_choice, &s2_choice);
     state
         .side_one
         .volatile_statuses
         .insert(PokemonVolatileStatus::GEN1PARALYSISNULLIFY);
-    let side_one_moves_first_after_volatile = side_one_moves_first(&state, &s1_choice, &s2_choice);
+    let moves_first_after_volatile =
+        poke_engine::generate_instructions::moves_first(&state, &s1_choice, &s2_choice);
 
     // assert side one moves first is different, because the nullify volatile should cause paralysis to be ignored
-    assert_ne!(
-        side_one_moves_first_before_volatile,
-        side_one_moves_first_after_volatile
-    );
+    assert_ne!(moves_first, moves_first_after_volatile);
 }
 
 #[test]

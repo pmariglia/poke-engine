@@ -332,6 +332,149 @@ fn test_crit_does_not_overkill() {
 }
 
 #[test]
+fn test_same_speed_branch() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 100;
+    state.side_one.get_active().hp = 1;
+    state.side_two.get_active().speed = 100;
+    state.side_two.get_active().hp = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 1,
+            })],
+        },
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 1,
+            })],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_same_speed_branch_with_residuals() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 100;
+    state.side_one.get_active().hp = 1;
+    state.side_one.get_active().item = Items::LEFTOVERS;
+    state.side_two.get_active().speed = 100;
+    state.side_two.get_active().hp = 1;
+    state.side_two.get_active().item = Items::LEFTOVERS;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 1,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 6,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 1,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideTwo,
+                    heal_amount: 6,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_same_speed_branch_with_residuals_for_both_sides() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 100;
+    state.side_one.get_active().hp = 100;
+    state.side_one.get_active().item = Items::LEFTOVERS;
+    state.side_two.get_active().speed = 100;
+    state.side_two.get_active().hp = 100;
+    state.side_two.get_active().item = Items::LEFTOVERS;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 48,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 6,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideTwo,
+                    heal_amount: 6,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 48,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideTwo,
+                    heal_amount: 6,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 6,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 #[cfg(feature = "gen9")]
 fn test_branch_when_a_roll_can_kill() {
     let mut state = State::default();
@@ -536,7 +679,7 @@ fn test_compound_eyes_does_not_cause_instructions_with_more_than_100_percent() {
 #[test]
 fn test_move_pair_instruction_generation_where_first_move_branches() {
     let mut state = State::default();
-    state.side_one.get_active().speed = 101;
+    state.side_one.get_active().speed = 200;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,

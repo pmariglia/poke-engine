@@ -83,6 +83,16 @@ impl MoveChoice {
 
 define_enum_with_from_str! {
     #[repr(u8)]
+    #[derive(Debug, PartialEq, Copy, Clone)]
+    SideMovesFirst {
+        SideOne,
+        SideTwo,
+        SpeedTie
+    }
+}
+
+define_enum_with_from_str! {
+    #[repr(u8)]
     #[derive(Debug, PartialEq, Clone)]
     PokemonNature {
         HARDY,
@@ -1142,7 +1152,7 @@ pub struct State {
 
 impl Default for State {
     fn default() -> State {
-        State {
+        let mut s = State {
             side_one: Side::default(),
             side_two: Side::default(),
             weather: StateWeather {
@@ -1160,7 +1170,11 @@ impl Default for State {
             team_preview: false,
             use_damage_dealt: false,
             use_last_used_move: false,
-        }
+        };
+
+        // many tests rely on the speed of side 2's active pokemon being greater than side_one's
+        s.side_two.get_active().speed += 1;
+        s
     }
 }
 
