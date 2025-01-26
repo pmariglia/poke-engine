@@ -1,5 +1,38 @@
 # Changelog
 
+## [v0.0.28](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.28) - 2025-01-26
+
+### Features
+
+- HealBlock volatile prevents healing moves - ([9bec851](https://github.com/pmariglia/poke-engine/commit/9bec85114359df8a221bfd2631aaf7255fe078a4))
+
+- Gen1 paralysis cannot be applied from secondary if one of the defender's types is the same as the move's type - ([74f5ce0](https://github.com/pmariglia/poke-engine/commit/74f5ce0143dd1cda134dca0651f4cb132cbb1289))
+
+- Triplearrows multi secondaries - ([5d324d7](https://github.com/pmariglia/poke-engine/commit/5d324d7bd93c62502c386191af3d971d23c88636))
+
+- Firstimpression - ([2730a0b](https://github.com/pmariglia/poke-engine/commit/2730a0b9518a4ff6ca5691a1807011183610fb3f))
+
+- Cramorant's GulpMissile - ([a276f97](https://github.com/pmariglia/poke-engine/commit/a276f97e9f6c0abd84ecb7f46ffdcb8017b712aa))
+
+- Doubleshock and burnup - ([4058439](https://github.com/pmariglia/poke-engine/commit/4058439c640c73a246d4584f52d512f637b288bc))
+
+- Endure - ([bdf7cf7](https://github.com/pmariglia/poke-engine/commit/bdf7cf715061499a539526c406c9c8ebbbc4d97b))
+
+- Grassyglide - ([4f26234](https://github.com/pmariglia/poke-engine/commit/4f262347f59b4a0bf5e6a45da86bdf24e1baf910))
+
+- Speed Ties - ([d8c7970](https://github.com/pmariglia/poke-engine/commit/d8c79704397af1016064ffde730253ae167faffc))
+
+
+### Bug Fixes
+
+- Iceface lets secondary effects happen - ([b2d38b2](https://github.com/pmariglia/poke-engine/commit/b2d38b29262ffbb764e1f64128de38d733c75f19))
+
+- Pressure only decrements PP when the move targets the pkmn with pressure - ([ee27e7e](https://github.com/pmariglia/poke-engine/commit/ee27e7e2e05b863d154f06b1367a39786011fa2f))
+
+- Defog fails vs good as gold - ([6f62087](https://github.com/pmariglia/poke-engine/commit/6f62087c750f1e961105ffe622ae8bac045f05fa))
+
+- Tripleaxel does 40 damage per hit - ([e9aa044](https://github.com/pmariglia/poke-engine/commit/e9aa044ad2b671d9fe8d102f5dca851f953dcf69))
+
 ## [v0.0.27](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.27) - 2025-01-12
 
 ### Features
