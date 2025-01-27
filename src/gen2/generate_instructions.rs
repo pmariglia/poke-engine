@@ -106,7 +106,7 @@ pub fn generate_instructions_from_switch(
     let should_last_used_move = state.use_last_used_move;
     state.apply_instructions(&incoming_instructions.instruction_list);
 
-    let side = state.get_side(&switching_side_ref);
+    let (side, opposite_side) = state.get_both_sides(&switching_side_ref);
     if side.force_switch {
         side.force_switch = false;
         match switching_side_ref {
@@ -147,6 +147,23 @@ pub fn generate_instructions_from_switch(
                     ));
             }
         }
+    }
+
+    if opposite_side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::PARTIALLYTRAPPED)
+    {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::RemoveVolatileStatus(
+                RemoveVolatileStatusInstruction {
+                    side_ref: switching_side_ref.get_other_side(),
+                    volatile_status: PokemonVolatileStatus::PARTIALLYTRAPPED,
+                },
+            ));
+        opposite_side
+            .volatile_statuses
+            .remove(&PokemonVolatileStatus::PARTIALLYTRAPPED);
     }
 
     state.re_enable_disabled_moves(
