@@ -552,6 +552,7 @@ pub struct Pokemon {
     pub id: PokemonName,
     pub level: i8,
     pub types: (PokemonType, PokemonType),
+    pub base_types: (PokemonType, PokemonType),
     pub hp: i16,
     pub maxhp: i16,
     pub ability: Abilities,
@@ -685,6 +686,7 @@ impl Default for Pokemon {
             id: PokemonName::NONE,
             level: 100,
             types: (PokemonType::NORMAL, PokemonType::TYPELESS),
+            base_types: (PokemonType::NORMAL, PokemonType::TYPELESS),
             hp: 100,
             maxhp: 100,
             ability: Abilities::NONE,
@@ -2364,11 +2366,13 @@ impl StateTrickRoom {
 impl Pokemon {
     pub fn serialize(&self) -> String {
         format!(
-            "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
+            "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
             self.id,
             self.level,
             self.types.0.to_string(),
             self.types.1.to_string(),
+            self.base_types.0.to_string(),
+            self.base_types.1.to_string(),
             self.hp,
             self.maxhp,
             self.ability.to_string(),
@@ -2395,40 +2399,43 @@ impl Pokemon {
 
     pub fn deserialize(serialized: &str) -> Pokemon {
         let split: Vec<&str> = serialized.split(",").collect();
-        let pkmn_id = PokemonName::from_str(split[0]).unwrap();
         Pokemon {
-            id: pkmn_id,
+            id: PokemonName::from_str(split[0]).unwrap(),
             level: split[1].parse::<i8>().unwrap(),
             types: (
                 PokemonType::from_str(split[2]).unwrap(),
                 PokemonType::from_str(split[3]).unwrap(),
             ),
-            hp: split[4].parse::<i16>().unwrap(),
-            maxhp: split[5].parse::<i16>().unwrap(),
-            ability: Abilities::from_str(split[6]).unwrap(),
-            item: Items::from_str(split[7]).unwrap(),
-            // nature/evs unused in gen1 so no need to parse from input
+            base_types: (
+                PokemonType::from_str(split[4]).unwrap(),
+                PokemonType::from_str(split[5]).unwrap(),
+            ),
+            hp: split[6].parse::<i16>().unwrap(),
+            maxhp: split[7].parse::<i16>().unwrap(),
+            ability: Abilities::from_str(split[8]).unwrap(),
+            item: Items::from_str(split[9]).unwrap(),
+            // nature/evs unused in gen2 so no need to parse from input
             nature: PokemonNature::SERIOUS,
             evs: (85, 85, 85, 85, 85, 85),
-            attack: split[8].parse::<i16>().unwrap(),
-            defense: split[9].parse::<i16>().unwrap(),
-            special_attack: split[10].parse::<i16>().unwrap(),
-            special_defense: split[11].parse::<i16>().unwrap(),
-            speed: split[12].parse::<i16>().unwrap(),
-            status: PokemonStatus::from_str(split[13]).unwrap(),
-            rest_turns: split[14].parse::<i8>().unwrap(),
-            sleep_turns: split[15].parse::<i8>().unwrap(),
-            weight_kg: split[16].parse::<f32>().unwrap(),
+            attack: split[10].parse::<i16>().unwrap(),
+            defense: split[11].parse::<i16>().unwrap(),
+            special_attack: split[12].parse::<i16>().unwrap(),
+            special_defense: split[13].parse::<i16>().unwrap(),
+            speed: split[14].parse::<i16>().unwrap(),
+            status: PokemonStatus::from_str(split[15]).unwrap(),
+            rest_turns: split[16].parse::<i8>().unwrap(),
+            sleep_turns: split[17].parse::<i8>().unwrap(),
+            weight_kg: split[18].parse::<f32>().unwrap(),
             moves: PokemonMoves {
-                m0: Move::deserialize(split[17]),
-                m1: Move::deserialize(split[18]),
-                m2: Move::deserialize(split[19]),
-                m3: Move::deserialize(split[20]),
-                m4: Move::deserialize(split[21]),
-                m5: Move::deserialize(split[22]),
+                m0: Move::deserialize(split[19]),
+                m1: Move::deserialize(split[20]),
+                m2: Move::deserialize(split[21]),
+                m3: Move::deserialize(split[22]),
+                m4: Move::deserialize(split[23]),
+                m5: Move::deserialize(split[24]),
             },
-            terastallized: split[23].parse::<bool>().unwrap(),
-            tera_type: PokemonType::from_str(split[24]).unwrap(),
+            terastallized: split[25].parse::<bool>().unwrap(),
+            tera_type: PokemonType::from_str(split[26]).unwrap(),
         }
     }
 }
@@ -2463,10 +2470,6 @@ impl State {
     /// There's more to it, follow the code below to see a full example of a serialized state.
     /// */
     ///
-    /// if cfg!(feature = "gen2") {
-    ///    return;
-    /// }
-    ///
     /// use poke_engine::abilities::Abilities;
     /// use poke_engine::items::Items;
     /// use poke_engine::pokemon::PokemonName;
@@ -2488,6 +2491,10 @@ impl State {
     /// "Psychic,",
     ///
     /// // type2
+    /// "Typeless,",
+    ///
+    /// // base_types 1 and 2. These are needed to revert to the correct type when switching out after being typechanged
+    /// "Psychic,",
     /// "Typeless,",
     ///
     /// // hp
@@ -2528,11 +2535,11 @@ impl State {
     /// "Normal=",
     ///
     /// // all remaining Pokémon shown in 1 line for brevity
-    /// "mewtwo,100,Steel,Flying,271,271,STURDY,CUSTAPBERRY,259,316,104,177,262,None,0,0,25.5,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,NONE;true;32,NONE;true;32,false,Normal=",
-    /// "mew,100,Rock,Dark,404,404,SANDSTREAM,CHOPLEBERRY,305,256,203,327,159,None,0,0,25.5,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,NONE;true;32,NONE;true;32,false,Normal=",
-    /// "venusaur,100,Ice,Ground,362,362,THICKFAT,NEVERMELTICE,392,196,158,176,241,None,0,0,25.5,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,NONE;true;32,NONE;true;32,false,Normal=",
-    /// "pikachu,100,Water,Ghost,404,404,WATERABSORB,AIRBALLOON,140,237,206,246,180,None,0,0,25.5,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,NONE;true;32,NONE;true;32,false,Normal=",
-    /// "snorlax,100,Ground,Steel,362,362,SANDFORCE,CHOICESCARF,367,156,122,168,302,None,0,0,25.5,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,NONE;true;32,NONE;true;32,false,Normal=",
+    /// "mewtwo,100,Steel,Flying,Steel,Flying,271,271,STURDY,CUSTAPBERRY,259,316,104,177,262,None,0,0,25.5,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,NONE;true;32,NONE;true;32,false,Normal=",
+    /// "mew,100,Rock,Dark,Rock,Dark,404,404,SANDSTREAM,CHOPLEBERRY,305,256,203,327,159,None,0,0,25.5,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,NONE;true;32,NONE;true;32,false,Normal=",
+    /// "venusaur,100,Ice,Ground,Ice,Ground,362,362,THICKFAT,NEVERMELTICE,392,196,158,176,241,None,0,0,25.5,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,NONE;true;32,NONE;true;32,false,Normal=",
+    /// "pikachu,100,Water,Ghost,Water,Ghost,404,404,WATERABSORB,AIRBALLOON,140,237,206,246,180,None,0,0,25.5,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,NONE;true;32,NONE;true;32,false,Normal=",
+    /// "snorlax,100,Ground,Steel,Ground,Steel,362,362,SANDFORCE,CHOICESCARF,367,156,122,168,302,None,0,0,25.5,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,NONE;true;32,NONE;true;32,false,Normal=",
     ///
     /// // active-index. This is the index of the active Pokémon in the side's Pokémon array
     /// "0=",
@@ -2578,7 +2585,7 @@ impl State {
     /// "false/",
     ///
     /// // SIDE 2, all in one line for brevity
-    /// "charizard,100,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,None,0,0,25.5,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,XSCISSOR;false;24,QUICKATTACK;false;48,false,Normal=pikachu,100,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,None,0,0,25.5,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,ICEPUNCH;false;24,AURASPHERE;false;32,false,Normal=blastoise,100,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,None,0,0,25.5,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,DRAINPUNCH;false;16,PROTECT;false;16,false,Normal=tauros,100,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,None,0,0,25.5,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,HIDDENPOWERICE70;false;24,CALMMIND;false;32,false,Normal=raichu,100,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,None,0,0,25.5,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,BULKUP;false;32,PAYBACK;false;16,false,Normal=persian,100,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,None,0,0,25.5,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,POISONJAB;false;32,SUBSTITUTE;false;16,false,Normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0=0=0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=switch:0=false/",
+    /// "charizard,100,Rock,Fighting,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,None,0,0,25.5,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,XSCISSOR;false;24,QUICKATTACK;false;48,false,Normal=pikachu,100,Fighting,Steel,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,None,0,0,25.5,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,ICEPUNCH;false;24,AURASPHERE;false;32,false,Normal=blastoise,100,Grass,Fighting,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,None,0,0,25.5,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,DRAINPUNCH;false;16,PROTECT;false;16,false,Normal=tauros,100,Water,Fighting,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,None,0,0,25.5,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,HIDDENPOWERICE70;false;24,CALMMIND;false;32,false,Normal=raichu,100,Fighting,Typeless,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,None,0,0,25.5,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,BULKUP;false;32,PAYBACK;false;16,false,Normal=persian,100,Poison,Fighting,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,None,0,0,25.5,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,POISONJAB;false;32,SUBSTITUTE;false;16,false,Normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0=0=0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=switch:0=false/",
     ///
     /// // weather is a string representing the weather type and the number of turns remaining
     /// "none;5/",

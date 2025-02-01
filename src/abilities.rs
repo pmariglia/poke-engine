@@ -601,15 +601,64 @@ pub fn ability_before_move(
                 active_pkmn.id = new_forme;
             }
         }
+        #[cfg(feature = "gen9")]
+        Abilities::PROTEAN | Abilities::LIBERO => {
+            if !attacking_side
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::TYPECHANGE)
+            {
+                let active_pkmn = attacking_side.get_active();
+                if !active_pkmn.has_type(&choice.move_type) && !active_pkmn.terastallized {
+                    instructions
+                        .instruction_list
+                        .push(Instruction::ChangeType(ChangeType {
+                            side_ref: *side_ref,
+                            new_types: (choice.move_type, PokemonType::TYPELESS),
+                            old_types: active_pkmn.types,
+                        }));
+                    active_pkmn.types = (choice.move_type, PokemonType::TYPELESS);
+
+                    instructions
+                        .instruction_list
+                        .push(Instruction::ApplyVolatileStatus(
+                            ApplyVolatileStatusInstruction {
+                                side_ref: *side_ref,
+                                volatile_status: PokemonVolatileStatus::TYPECHANGE,
+                            },
+                        ));
+                    attacking_side
+                        .volatile_statuses
+                        .insert(PokemonVolatileStatus::TYPECHANGE);
+                }
+            }
+        }
+        #[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8"))]
         Abilities::PROTEAN | Abilities::LIBERO => {
             if !active_pkmn.has_type(&choice.move_type) && !active_pkmn.terastallized {
-                let ins = Instruction::ChangeType(ChangeType {
-                    side_ref: *side_ref,
-                    new_types: (choice.move_type, PokemonType::TYPELESS),
-                    old_types: active_pkmn.types,
-                });
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeType(ChangeType {
+                        side_ref: *side_ref,
+                        new_types: (choice.move_type, PokemonType::TYPELESS),
+                        old_types: active_pkmn.types,
+                    }));
                 active_pkmn.types = (choice.move_type, PokemonType::TYPELESS);
-                instructions.instruction_list.push(ins);
+                if !attacking_side
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::TYPECHANGE)
+                {
+                    instructions
+                        .instruction_list
+                        .push(Instruction::ApplyVolatileStatus(
+                            ApplyVolatileStatusInstruction {
+                                side_ref: *side_ref,
+                                volatile_status: PokemonVolatileStatus::TYPECHANGE,
+                            },
+                        ));
+                    attacking_side
+                        .volatile_statuses
+                        .insert(PokemonVolatileStatus::TYPECHANGE);
+                }
             }
         }
         Abilities::GORILLATACTICS => {

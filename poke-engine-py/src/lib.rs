@@ -247,6 +247,7 @@ impl PyPokemon {
         id: String,
         level: i8,
         types: [String; 2],
+        base_types: [String; 2],
         hp: i16,
         maxhp: i16,
         ability: String,
@@ -276,6 +277,10 @@ impl PyPokemon {
                 types: (
                     PokemonType::from_str(&types[0]).unwrap(),
                     PokemonType::from_str(&types[1]).unwrap(),
+                ),
+                base_types: (
+                    PokemonType::from_str(&base_types[0]).unwrap(),
+                    PokemonType::from_str(&base_types[1]).unwrap(),
                 ),
                 hp,
                 maxhp,

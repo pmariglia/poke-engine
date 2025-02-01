@@ -617,6 +617,9 @@ pub fn choice_after_damage_hit(
                                 volatile_status: PokemonVolatileStatus::TYPECHANGE,
                             },
                         ));
+                    attacking_side
+                        .volatile_statuses
+                        .insert(PokemonVolatileStatus::TYPECHANGE);
                 }
                 state.apply_one_instruction(&typechange_instruction);
                 instructions.instruction_list.push(typechange_instruction);
@@ -652,6 +655,9 @@ pub fn choice_after_damage_hit(
                                 volatile_status: PokemonVolatileStatus::TYPECHANGE,
                             },
                         ));
+                    attacking_side
+                        .volatile_statuses
+                        .insert(PokemonVolatileStatus::TYPECHANGE);
                 }
                 state.apply_one_instruction(&typechange_instruction);
                 instructions.instruction_list.push(typechange_instruction);

@@ -18,6 +18,7 @@ state = State(
                 id="squirtle",
                 level=100,
                 types=("water", "typeless"),
+                base_types=("water", "rock"),
                 hp=100,
                 maxhp=100,
                 attack=100,
