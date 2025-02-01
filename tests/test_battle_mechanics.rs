@@ -13906,6 +13906,40 @@ fn test_magicbounce_with_status() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
+fn test_magicbounce_with_leechseed() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::MAGICBOUNCE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::LEECHSEED,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 10.000002,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 90.0,
+            instruction_list: vec![
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::LEECHSEED,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 12,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_marvelscale() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::MARVELSCALE;
