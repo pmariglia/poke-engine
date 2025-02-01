@@ -304,8 +304,6 @@ impl PyPokemon {
                     m1: moves[1].create_move(),
                     m2: moves[2].create_move(),
                     m3: moves[3].create_move(),
-                    m4: moves[4].create_move(),
-                    m5: moves[5].create_move(),
                 },
                 terastallized,
                 tera_type: PokemonType::from_str(&tera_type).unwrap(),
