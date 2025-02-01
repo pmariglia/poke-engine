@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.0.29](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.29) - 2025-02-01
+
+### Features
+
+- [**breaking**] Typechange revert on switchout if types != base_types - ([f21af63](https://github.com/pmariglia/poke-engine/commit/f21af63a1820c0453725e40b8e69510c3d1b08ed))
+
+
+### Bug Fixes
+
+- PartiallyTrapped is removed if the opposing side switches out - ([53bfe17](https://github.com/pmariglia/poke-engine/commit/53bfe178561877d1d36c022d6467acf8ed57fffb))
+
 ## [v0.0.28](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.28) - 2025-01-26
 
 ### Features
