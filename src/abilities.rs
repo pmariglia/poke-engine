@@ -7,10 +7,10 @@ use crate::damage_calc::type_effectiveness_modifier;
 use crate::define_enum_with_from_str;
 use crate::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
 use crate::instruction::{
-    ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeType,
-    ChangeWeather, DamageInstruction, FormeChangeInstruction, HealInstruction, Instruction,
-    StateInstructions,
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeAbilityInstruction,
+    ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain,
+    ChangeType, ChangeWeather, DamageInstruction, FormeChangeInstruction, HealInstruction,
+    Instruction, StateInstructions,
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::pokemon::PokemonName;
@@ -792,6 +792,18 @@ pub fn ability_after_damage_hit(
     let attacking_pkmn = attacking_side.get_active();
     let defending_pkmn = defending_side.get_active();
     match defending_pkmn.ability {
+        Abilities::MUMMY | Abilities::LINGERINGAROMA | Abilities::WANDERINGSPIRIT => {
+            if choice.flags.contact {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeAbility(ChangeAbilityInstruction {
+                        side_ref: *side_ref,
+                        new_ability: Abilities::MUMMY,
+                        old_ability: attacking_pkmn.ability.clone(),
+                    }));
+                attacking_pkmn.ability = Abilities::MUMMY;
+            }
+        }
         Abilities::GULPMISSILE => {
             if damage_dealt > 0
                 && [PokemonName::CRAMORANTGORGING, PokemonName::CRAMORANTGULPING]
@@ -1126,6 +1138,19 @@ pub fn ability_on_switch_out(
         }
         _ => {}
     }
+
+    // revert ability on switch-out to base_ability if they are not the same
+    let active_pkmn = state.get_side(side_ref).get_active();
+    if active_pkmn.ability != active_pkmn.base_ability {
+        instructions
+            .instruction_list
+            .push(Instruction::ChangeAbility(ChangeAbilityInstruction {
+                side_ref: *side_ref,
+                new_ability: active_pkmn.base_ability.clone(),
+                old_ability: active_pkmn.ability.clone(),
+            }));
+        active_pkmn.ability = active_pkmn.base_ability.clone();
+    }
 }
 
 pub fn ability_end_of_turn(
@@ -1362,9 +1387,24 @@ pub fn ability_on_switch_in(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides(side_ref);
     let active_pkmn = attacking_side.get_active();
-    if defending_side.get_active_immutable().ability == Abilities::NEUTRALIZINGGAS {
+    let defending_pkmn = defending_side.get_active_immutable();
+    if defending_pkmn.ability == Abilities::NEUTRALIZINGGAS {
         return;
     }
+
+    // trace copying an ability needs to happen before the ability check to activate on switch-in
+    // e.g. tracing intimidate will activate intimidate
+    if active_pkmn.ability == Abilities::TRACE && active_pkmn.ability != defending_pkmn.ability {
+        instructions
+            .instruction_list
+            .push(Instruction::ChangeAbility(ChangeAbilityInstruction {
+                side_ref: *side_ref,
+                new_ability: defending_pkmn.ability.clone(),
+                old_ability: active_pkmn.ability.clone(),
+            }));
+        active_pkmn.ability = defending_pkmn.ability.clone();
+    }
+
     match active_pkmn.ability {
         Abilities::ICEFACE => {
             if active_pkmn.id == PokemonName::EISCUENOICE && state.weather_is_active(&Weather::HAIL)

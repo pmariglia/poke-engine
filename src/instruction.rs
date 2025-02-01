@@ -1,3 +1,4 @@
+use crate::abilities::Abilities;
 use crate::choices::{Choices, MoveCategory};
 use crate::items::Items;
 use crate::pokemon::PokemonName;
@@ -58,6 +59,7 @@ pub enum Instruction {
     ChangeTerrain(ChangeTerrain),
     DecrementTerrainTurnsRemaining,
     ChangeType(ChangeType),
+    ChangeAbility(ChangeAbilityInstruction),
     ChangeItem(ChangeItemInstruction),
     ChangeAttack(ChangeStatInstruction),
     ChangeDefense(ChangeStatInstruction),
@@ -168,6 +170,13 @@ impl fmt::Debug for Instruction {
                     f,
                     "ChangeType {:?}: {:?} -> {:?}",
                     c.side_ref, c.old_types, c.new_types
+                )
+            }
+            Instruction::ChangeAbility(c) => {
+                write!(
+                    f,
+                    "ChangeAbility {:?}: {:?} -> {:?}",
+                    c.side_ref, c.old_ability, c.new_ability
                 )
             }
             Instruction::ChangeItem(c) => {
@@ -532,6 +541,13 @@ pub struct ChangeType {
     pub side_ref: SideReference,
     pub new_types: (PokemonType, PokemonType),
     pub old_types: (PokemonType, PokemonType),
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ChangeAbilityInstruction {
+    pub side_ref: SideReference,
+    pub new_ability: Abilities,
+    pub old_ability: Abilities,
 }
 
 #[cfg(test)]

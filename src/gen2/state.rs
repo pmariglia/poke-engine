@@ -1910,6 +1910,10 @@ impl State {
             Instruction::ChangeType(instruction) => {
                 self.change_types(&instruction.side_ref, instruction.new_types)
             }
+            Instruction::ChangeAbility(instruction) => {
+                self.get_side(&instruction.side_ref).get_active().ability =
+                    instruction.new_ability.clone();
+            }
             Instruction::Heal(instruction) => {
                 self.heal(&instruction.side_ref, instruction.heal_amount)
             }
@@ -2079,6 +2083,10 @@ impl State {
             }
             Instruction::ChangeType(instruction) => {
                 self.change_types(&instruction.side_ref, instruction.old_types)
+            }
+            Instruction::ChangeAbility(instruction) => {
+                self.get_side(&instruction.side_ref).get_active().ability =
+                    instruction.old_ability.clone();
             }
             Instruction::EnableMove(instruction) => {
                 self.disable_move(&instruction.side_ref, &instruction.move_index)

@@ -6649,6 +6649,7 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.get_active().hp -= 10;
         state.side_one.get_active().ability = Abilities::REGENERATOR;
+        state.side_one.get_active().base_ability = Abilities::REGENERATOR;
         let mut choice = Choice {
             ..Default::default()
         };
@@ -6710,6 +6711,7 @@ mod tests {
         };
         state.side_one.get_active().hp -= 10;
         state.side_one.get_active().ability = Abilities::REGENERATOR;
+        state.side_one.get_active().base_ability = Abilities::REGENERATOR;
         let mut choice = Choice {
             ..Default::default()
         };
@@ -6758,6 +6760,7 @@ mod tests {
     fn test_switch_with_regenerator_but_no_damage_taken() {
         let mut state: State = State::default();
         state.side_one.get_active().ability = Abilities::REGENERATOR;
+        state.side_one.get_active().base_ability = Abilities::REGENERATOR;
         let mut choice = Choice {
             ..Default::default()
         };
@@ -6788,6 +6791,7 @@ mod tests {
     fn test_fainted_pokemon_with_regenerator_does_not_heal() {
         let mut state: State = State::default();
         state.side_one.get_active().ability = Abilities::REGENERATOR;
+        state.side_one.get_active().base_ability = Abilities::REGENERATOR;
         state.side_one.get_active().hp = 0;
         let mut choice = Choice {
             ..Default::default()
@@ -6819,6 +6823,7 @@ mod tests {
     fn test_regenerator_only_heals_one_third() {
         let mut state: State = State::default();
         state.side_one.get_active().ability = Abilities::REGENERATOR;
+        state.side_one.get_active().base_ability = Abilities::REGENERATOR;
         state.side_one.get_active().hp = 3;
         let mut choice = Choice {
             ..Default::default()
@@ -6856,6 +6861,7 @@ mod tests {
     fn test_naturalcure() {
         let mut state: State = State::default();
         state.side_one.get_active().ability = Abilities::NATURALCURE;
+        state.side_one.get_active().base_ability = Abilities::NATURALCURE;
         state.side_one.get_active().status = PokemonStatus::PARALYZE;
         let mut choice = Choice {
             ..Default::default()
@@ -6895,6 +6901,7 @@ mod tests {
     fn test_naturalcure_with_no_status() {
         let mut state: State = State::default();
         state.side_one.get_active().ability = Abilities::NATURALCURE;
+        state.side_one.get_active().base_ability = Abilities::NATURALCURE;
         state.side_one.get_active().status = PokemonStatus::NONE;
         let mut choice = Choice {
             ..Default::default()
