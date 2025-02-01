@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.0.31](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.31) - 2025-02-01
+
+### Bug Fixes
+
+- Magicbounce reflects reflectable volatiles - ([6d4bb79](https://github.com/pmariglia/poke-engine/commit/6d4bb799dd8786a63b370d83c425d7b590f1578c))
+
+
+### Miscellaneous Tasks
+
+- Remove moves 5 and 6 - ([4c2c614](https://github.com/pmariglia/poke-engine/commit/4c2c6147d0ef121c28780a5d47d8d2341605f2ef))
+
 ## [v0.0.29](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.29) - 2025-02-01
 
 ### Features
