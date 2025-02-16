@@ -792,8 +792,15 @@ impl Pokemon {
             return false;
         }
         match volatile_status {
-            // grass immunity to leechseed covered by `powder`
-            PokemonVolatileStatus::LEECHSEED | PokemonVolatileStatus::CONFUSION => {
+            PokemonVolatileStatus::LEECHSEED => {
+                if self.has_type(&PokemonType::GRASS)
+                    || active_volatiles.contains(&PokemonVolatileStatus::SUBSTITUTE)
+                {
+                    return false;
+                }
+                true
+            }
+            PokemonVolatileStatus::CONFUSION => {
                 if active_volatiles.contains(&PokemonVolatileStatus::SUBSTITUTE) {
                     return false;
                 }

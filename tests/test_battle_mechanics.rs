@@ -11019,30 +11019,7 @@ fn test_leechseed_into_grass_type() {
         Choices::SPLASH,
     );
 
-    #[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
     let expected_instructions = vec![StateInstructions::default()];
-
-    #[cfg(not(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9")))]
-    let expected_instructions = vec![
-        StateInstructions {
-            percentage: 10.000002,
-            instruction_list: vec![],
-        },
-        StateInstructions {
-            percentage: 90.0,
-            instruction_list: vec![
-                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                    side_ref: SideReference::SideTwo,
-                    volatile_status: PokemonVolatileStatus::LEECHSEED,
-                }),
-                Instruction::Damage(DamageInstruction {
-                    side_ref: SideReference::SideTwo,
-                    damage_amount: 12,
-                }),
-            ],
-        },
-    ];
-
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
