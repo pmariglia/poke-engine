@@ -6755,6 +6755,56 @@ fn test_pkmn_is_not_trapped_if_it_has_fainted() {
 
 #[test]
 #[cfg(not(feature = "terastallization"))]
+fn test_assaultvest_prevents_status_move() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P2].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P3].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P4].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P5].hp = 0;
+    state.side_one.get_active().item = Items::ASSAULTVEST;
+
+    state.side_one.get_active().moves[&PokemonMoveIndex::M0] = Move {
+        id: Choices::TOXIC,
+        disabled: false,
+        pp: 35,
+        choice: MOVES.get(&Choices::TOXIC).unwrap().clone(),
+    };
+
+    state.side_one.get_active().moves[&PokemonMoveIndex::M1] = Move {
+        id: Choices::TACKLE,
+        disabled: false,
+        pp: 35,
+        choice: MOVES.get(&Choices::TACKLE).unwrap().clone(),
+    };
+
+    state.side_one.get_active().moves[&PokemonMoveIndex::M2] = Move {
+        id: Choices::WATERGUN,
+        disabled: false,
+        pp: 35,
+        choice: MOVES.get(&Choices::TACKLE).unwrap().clone(),
+    };
+
+    state.side_one.get_active().moves[&PokemonMoveIndex::M3] = Move {
+        id: Choices::EMBER,
+        disabled: false,
+        pp: 35,
+        choice: MOVES.get(&Choices::TACKLE).unwrap().clone(),
+    };
+
+    let (side_one_moves, _) = state.get_all_options();
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+        ],
+        side_one_moves
+    );
+}
+
+#[test]
+#[cfg(not(feature = "terastallization"))]
 fn test_cannot_use_bloodmoon_after_using_bloodmoon() {
     let mut state = State::default();
 

@@ -678,6 +678,11 @@ impl Pokemon {
                         // just assume nothing is locked in this case
                     }
                 }
+                if self.item == Items::ASSAULTVEST
+                    && self.moves[&iter.pokemon_move_index].choice.category == MoveCategory::Status
+                {
+                    continue;
+                }
                 vec.push(MoveChoice::Move(iter.pokemon_move_index));
                 if can_tera {
                     vec.push(MoveChoice::MoveTera(iter.pokemon_move_index));
