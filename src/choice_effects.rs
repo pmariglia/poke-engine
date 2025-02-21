@@ -301,10 +301,18 @@ pub fn modify_choice(
                 let defender_attack =
                     defending_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
                 let attacker_maxhp = attacking_side.get_active_immutable().maxhp;
-                attacker_choice.heal = Some(Heal {
-                    target: MoveTarget::User,
-                    amount: defender_attack as f32 / attacker_maxhp as f32,
-                });
+
+                if defending_side.get_active_immutable().ability == Abilities::LIQUIDOOZE {
+                    attacker_choice.heal = Some(Heal {
+                        target: MoveTarget::User,
+                        amount: -1.0 * defender_attack as f32 / attacker_maxhp as f32,
+                    });
+                } else {
+                    attacker_choice.heal = Some(Heal {
+                        target: MoveTarget::User,
+                        amount: defender_attack as f32 / attacker_maxhp as f32,
+                    });
+                }
             }
         }
         Choices::TERABLAST => {

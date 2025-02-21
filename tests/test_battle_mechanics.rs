@@ -13799,6 +13799,37 @@ fn test_liquidooze() {
 }
 
 #[test]
+fn test_strengthsap_into_liquidooze() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 50;
+    state.side_one.get_active().maxhp = 100;
+    state.side_two.get_active().attack = 25;
+    state.side_two.get_active().ability = Abilities::LIQUIDOOZE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::STRENGTHSAP,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: -25,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Attack,
+                amount: -1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_stealthrock_basic() {
     let mut state = State::default();
 
