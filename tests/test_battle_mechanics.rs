@@ -4,7 +4,8 @@ use poke_engine::abilities::{Abilities, WEATHER_ABILITY_TURNS};
 use poke_engine::choices::{Choices, MOVES};
 use poke_engine::damage_calc::CRIT_MULTIPLIER;
 use poke_engine::generate_instructions::{
-    generate_instructions_from_move_pair, BASE_CRIT_CHANCE, MAX_SLEEP_TURNS,
+    generate_instructions_from_move_pair, BASE_CRIT_CHANCE, CONSECUTIVE_PROTECT_CHANCE,
+    MAX_SLEEP_TURNS,
 };
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeAbilityInstruction,
@@ -2600,6 +2601,7 @@ fn test_protect_side_condition_is_removed() {
 fn test_protect_for_second_turn_in_a_row() {
     let mut state = State::default();
     state.side_one.side_conditions.protect = 1;
+    let success_chance = CONSECUTIVE_PROTECT_CHANCE.powi(1);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -2607,20 +2609,141 @@ fn test_protect_for_second_turn_in_a_row() {
         Choices::TACKLE,
     );
 
-    let expected_instructions = vec![StateInstructions {
-        percentage: 100.0,
-        instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideOne,
-                damage_amount: 48,
-            }),
-            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
-                side_ref: SideReference::SideOne,
-                side_condition: PokemonSideCondition::Protect,
-                amount: -1,
-            }),
-        ],
-    }];
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0 * (1.0 - success_chance),
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 48,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Protect,
+                    amount: -1,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 100.0 * success_chance,
+            instruction_list: vec![
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::PROTECT,
+                }),
+                Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::PROTECT,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Protect,
+                    amount: 1,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_protect_for_third_turn_in_a_row() {
+    let mut state = State::default();
+    state.side_one.side_conditions.protect = 2;
+    let success_chance = CONSECUTIVE_PROTECT_CHANCE.powi(2);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::PROTECT,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0 * (1.0 - success_chance),
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 48,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Protect,
+                    amount: -2,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 100.0 * success_chance,
+            instruction_list: vec![
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::PROTECT,
+                }),
+                Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::PROTECT,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Protect,
+                    amount: 1,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_consecutive_protect_while_paralyzed() {
+    let mut state = State::default();
+    state.side_one.get_active().status = PokemonStatus::PARALYZE;
+    state.side_one.side_conditions.protect = 1;
+
+    // chance to move is chance to not be fully paralyzed (0.75) * chance to double-protect
+    let chance_to_move = 0.75 * CONSECUTIVE_PROTECT_CHANCE.powi(1);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::PROTECT,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0 * (1.0 - chance_to_move),
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 48,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Protect,
+                    amount: -1,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 100.0 * chance_to_move,
+            instruction_list: vec![
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::PROTECT,
+                }),
+                Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::PROTECT,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::Protect,
+                    amount: 1,
+                }),
+            ],
+        },
+    ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -4273,6 +4396,7 @@ fn test_suckerpunch_versus_non_attacking_move() {
 }
 
 #[test]
+#[cfg(feature = "gen9")]
 fn test_suckerpunch_versus_attacking_move() {
     let mut state = State::default();
 
@@ -16032,10 +16156,11 @@ fn test_endure() {
 }
 
 #[test]
-fn test_endure_fails_when_already_has_protect_sidecondition_and_sidecondition_is_removed() {
+fn test_endure_with_protect_side_condition_not_fully_accurate() {
     let mut state = State::default();
     state.side_two.get_active().hp = 5;
     state.side_two.side_conditions.protect = 1;
+    let success_chance = CONSECUTIVE_PROTECT_CHANCE.powi(1);
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -16043,16 +16168,36 @@ fn test_endure_fails_when_already_has_protect_sidecondition_and_sidecondition_is
         Choices::ENDURE,
     );
 
-    let expected_instructions = vec![StateInstructions {
-        percentage: 100.0,
-        instruction_list: vec![Instruction::ChangeSideCondition(
-            ChangeSideConditionInstruction {
-                side_ref: SideReference::SideTwo,
-                side_condition: PokemonSideCondition::Protect,
-                amount: -1,
-            },
-        )],
-    }];
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 100.0 * (1.0 - success_chance),
+            instruction_list: vec![Instruction::ChangeSideCondition(
+                ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideTwo,
+                    side_condition: PokemonSideCondition::Protect,
+                    amount: -1,
+                },
+            )],
+        },
+        StateInstructions {
+            percentage: 100.0 * success_chance,
+            instruction_list: vec![
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    volatile_status: PokemonVolatileStatus::ENDURE,
+                }),
+                Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                    side_ref: SideReference::SideTwo,
+                    volatile_status: PokemonVolatileStatus::ENDURE,
+                }),
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideTwo,
+                    side_condition: PokemonSideCondition::Protect,
+                    amount: 1,
+                }),
+            ],
+        },
+    ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 

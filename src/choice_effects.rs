@@ -238,18 +238,6 @@ pub fn modify_choice(
                 attacker_choice.base_power = 0.0;
             }
         }
-        Choices::PROTECT
-        | Choices::BANEFULBUNKER
-        | Choices::BURNINGBULWARK
-        | Choices::SPIKYSHIELD
-        | Choices::SILKTRAP
-        | Choices::ENDURE => {
-            if attacking_side.side_conditions.protect > 0 {
-                // for now, the engine doesn't support consecutive protects
-                // 2nd protect will always fail
-                attacker_choice.volatile_status = None;
-            }
-        }
         Choices::PSYBLADE => {
             if state.terrain.terrain_type == Terrain::ELECTRICTERRAIN {
                 attacker_choice.base_power *= 1.5;
