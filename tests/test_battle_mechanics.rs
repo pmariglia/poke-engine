@@ -14518,6 +14518,75 @@ fn test_magicguard_switching_into_rocks() {
 }
 
 #[test]
+fn test_magicguard_switching_into_webs() {
+    let mut state = State::default();
+    state.side_one.side_conditions.sticky_web = 1;
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::MAGICGUARD;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Speed,
+                amount: -1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_magicguard_switching_into_all_hazards() {
+    let mut state = State::default();
+    state.side_one.side_conditions.sticky_web = 1;
+    state.side_one.side_conditions.stealth_rock = 1;
+    state.side_one.side_conditions.spikes = 1;
+    state.side_one.side_conditions.toxic_spikes = 1;
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::MAGICGUARD;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Speed,
+                amount: -1,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P1,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::POISON,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_dauntlessshield() {
     let mut state = State::default();
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::DAUNTLESSSHIELD;

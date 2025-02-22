@@ -278,41 +278,7 @@ fn generate_instructions_from_switch(
     }
 
     let active = side.get_active_immutable();
-    if active.item != Items::HEAVYDUTYBOOTS && active.ability != Abilities::MAGICGUARD {
-        if side.side_conditions.stealth_rock == 1 {
-            let switched_in_pkmn = side.get_active();
-            let multiplier = type_effectiveness_modifier(&PokemonType::ROCK, &switched_in_pkmn);
-
-            let dmg_amount = cmp::min(
-                (switched_in_pkmn.maxhp as f32 * multiplier / 8.0) as i16,
-                switched_in_pkmn.hp,
-            );
-            let stealth_rock_dmg_instruction = Instruction::Damage(DamageInstruction {
-                side_ref: switching_side_ref,
-                damage_amount: dmg_amount,
-            });
-            switched_in_pkmn.hp -= dmg_amount;
-            incoming_instructions
-                .instruction_list
-                .push(stealth_rock_dmg_instruction);
-        }
-
-        let switched_in_pkmn = side.get_active_immutable();
-        if side.side_conditions.spikes > 0 && switched_in_pkmn.is_grounded() {
-            let dmg_amount = cmp::min(
-                switched_in_pkmn.maxhp * side.side_conditions.spikes as i16 / 8,
-                switched_in_pkmn.hp,
-            );
-            let spikes_dmg_instruction = Instruction::Damage(DamageInstruction {
-                side_ref: switching_side_ref,
-                damage_amount: dmg_amount,
-            });
-            side.get_active().hp -= dmg_amount;
-            incoming_instructions
-                .instruction_list
-                .push(spikes_dmg_instruction);
-        }
-
+    if active.item != Items::HEAVYDUTYBOOTS {
         let switched_in_pkmn = side.get_active_immutable();
         if side.side_conditions.sticky_web == 1 && switched_in_pkmn.is_grounded() {
             // a pkmn switching in doesn't have any other speed drops,
@@ -371,6 +337,44 @@ fn generate_instructions_from_switch(
             if let Some(i) = toxic_spike_instruction {
                 state.apply_one_instruction(&i);
                 incoming_instructions.instruction_list.push(i);
+            }
+        }
+
+        let side = state.get_side(&switching_side_ref);
+        let active = side.get_active_immutable();
+        if active.ability != Abilities::MAGICGUARD {
+            if side.side_conditions.stealth_rock == 1 {
+                let switched_in_pkmn = side.get_active();
+                let multiplier = type_effectiveness_modifier(&PokemonType::ROCK, &switched_in_pkmn);
+
+                let dmg_amount = cmp::min(
+                    (switched_in_pkmn.maxhp as f32 * multiplier / 8.0) as i16,
+                    switched_in_pkmn.hp,
+                );
+                let stealth_rock_dmg_instruction = Instruction::Damage(DamageInstruction {
+                    side_ref: switching_side_ref,
+                    damage_amount: dmg_amount,
+                });
+                switched_in_pkmn.hp -= dmg_amount;
+                incoming_instructions
+                    .instruction_list
+                    .push(stealth_rock_dmg_instruction);
+            }
+
+            let switched_in_pkmn = side.get_active_immutable();
+            if side.side_conditions.spikes > 0 && switched_in_pkmn.is_grounded() {
+                let dmg_amount = cmp::min(
+                    switched_in_pkmn.maxhp * side.side_conditions.spikes as i16 / 8,
+                    switched_in_pkmn.hp,
+                );
+                let spikes_dmg_instruction = Instruction::Damage(DamageInstruction {
+                    side_ref: switching_side_ref,
+                    damage_amount: dmg_amount,
+                });
+                side.get_active().hp -= dmg_amount;
+                incoming_instructions
+                    .instruction_list
+                    .push(spikes_dmg_instruction);
             }
         }
     }
