@@ -1,5 +1,34 @@
 # Changelog
 
+## [v0.0.32](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.32) - 2025-02-27
+
+### Features
+
+- Strengthsap interaction with liquidooze - ([0d69c04](https://github.com/pmariglia/poke-engine/commit/0d69c04ed28cbf92c6234eb8bf6974866640f322))
+
+- Consecutive protect - ([fb42c50](https://github.com/pmariglia/poke-engine/commit/fb42c50cf789e64bbcb3664366601c344bffd1ae))
+
+
+### Bug Fixes
+
+- LeechSeed never affects grass types - ([23de644](https://github.com/pmariglia/poke-engine/commit/23de64430f70b0814f538f069dfc164173e66cdd))
+
+- AssaultVest prevents status moves - ([9cbcb06](https://github.com/pmariglia/poke-engine/commit/9cbcb06afd06749e18bf6c632a14e51c396b385d))
+
+- Toxicspikes and stickyweb are not blocked by magicguard - ([92f5b96](https://github.com/pmariglia/poke-engine/commit/92f5b96c080c79d0480fae257dede56ae5ee1a15))
+
+
+### Miscellaneous Tasks
+
+- Add test to make sure lifeorb into protect does not recoil - ([73221a2](https://github.com/pmariglia/poke-engine/commit/73221a20dacd1eba1caaef90f3712d68dd12e808))
+
+- Test for whirlwind into goodasgold - ([29f7efb](https://github.com/pmariglia/poke-engine/commit/29f7efbaba948cb7443af25bfe0fedf76549978f))
+
+
+### Misc
+
+- Add tests to ensure suckerpunch/thunderclap functionality - ([28995dc](https://github.com/pmariglia/poke-engine/commit/28995dc048ce6a8cf58b2e0cc9f93d0e170f2495))
+
 ## [v0.0.31](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.31) - 2025-02-01
 
 ### Bug Fixes
