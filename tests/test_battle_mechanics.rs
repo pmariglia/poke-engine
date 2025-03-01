@@ -12846,6 +12846,117 @@ fn test_poisontype_using_toxic() {
 }
 
 #[test]
+fn test_corrosion_can_toxic_steel_type() {
+    let mut state = State::default();
+    state.side_one.get_active().types.0 = PokemonType::POISON;
+    state.side_one.get_active().ability = Abilities::CORROSION;
+    state.side_two.get_active().types.0 = PokemonType::STEEL;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TOXIC,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::TOXIC,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 6,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideTwo,
+                side_condition: PokemonSideCondition::ToxicCount,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_corrosion_can_toxic_poison_type() {
+    let mut state = State::default();
+    state.side_one.get_active().types.0 = PokemonType::POISON;
+    state.side_one.get_active().ability = Abilities::CORROSION;
+    state.side_two.get_active().types.0 = PokemonType::POISON;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TOXIC,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::TOXIC,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 6,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideTwo,
+                side_condition: PokemonSideCondition::ToxicCount,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_steel_immune_to_poison_move_from_pkmn_with_corrosion() {
+    let mut state = State::default();
+    state.side_one.get_active().types.0 = PokemonType::POISON;
+    state.side_one.get_active().ability = Abilities::CORROSION;
+    state.side_two.get_active().types.0 = PokemonType::STEEL;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SLUDGEBOMB,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_cannot_toxic_steel_pokemon() {
+    let mut state = State::default();
+    state.side_one.get_active().types.0 = PokemonType::POISON;
+    state.side_two.get_active().types.0 = PokemonType::STEEL;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TOXIC,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 #[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8"))]
 fn test_scenario_where_choice_gets_updated_on_second_move_that_has_branched_on_first_turn() {
     /*

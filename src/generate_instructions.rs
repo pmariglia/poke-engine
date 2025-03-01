@@ -593,8 +593,9 @@ pub fn immune_to_status(
     target_side_ref: &SideReference,
     status: &PokemonStatus,
 ) -> bool {
-    let target_side = state.get_side_immutable(target_side_ref);
+    let (target_side, attacking_side) = state.get_both_sides_immutable(target_side_ref);
     let target_pkmn = target_side.get_active_immutable();
+    let attacking_pkmn = attacking_side.get_active_immutable();
 
     // General Status Immunity
     match target_pkmn.ability {
@@ -659,8 +660,9 @@ pub fn immune_to_status(
             PokemonStatus::PARALYZE => target_pkmn.ability == Abilities::LIMBER,
 
             PokemonStatus::POISON | PokemonStatus::TOXIC => {
-                target_pkmn.has_type(&PokemonType::POISON)
-                    || target_pkmn.has_type(&PokemonType::STEEL)
+                ((target_pkmn.has_type(&PokemonType::POISON)
+                    || target_pkmn.has_type(&PokemonType::STEEL))
+                    && attacking_pkmn.ability != Abilities::CORROSION)
                     || [Abilities::IMMUNITY, Abilities::PASTELVEIL].contains(&target_pkmn.ability)
             }
             _ => false,
