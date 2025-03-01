@@ -82,6 +82,9 @@ pub const CONSECUTIVE_PROTECT_CHANCE: f32 = 1.0 / 3.0;
 #[cfg(any(feature = "gen3", feature = "gen4"))]
 pub const CONSECUTIVE_PROTECT_CHANCE: f32 = 1.0 / 2.0;
 
+pub const SIDE_CONDITION_DURATION: i8 = 5;
+pub const TAILWIND_DURATION: i8 = 4;
+
 fn chance_to_wake_up(turns_asleep: i8) -> f32 {
     if turns_asleep == 0 {
         0.0
@@ -385,7 +388,7 @@ fn generate_instructions_from_switch(
     state.reverse_instructions(&incoming_instructions.instruction_list);
 }
 
-fn generate_instructions_from_side_conditions(
+fn generate_instructions_from_increment_side_condition(
     state: &mut State,
     side_condition: &SideCondition,
     attacking_side_reference: &SideReference,
@@ -397,19 +400,11 @@ fn generate_instructions_from_side_conditions(
         MoveTarget::User => affected_side_ref = *attacking_side_reference,
     }
 
-    let max_layers;
-    match side_condition.condition {
-        PokemonSideCondition::Spikes => max_layers = 3,
-        PokemonSideCondition::ToxicSpikes => max_layers = 2,
-        PokemonSideCondition::AuroraVeil => {
-            max_layers = if state.weather_is_active(&Weather::HAIL) {
-                1
-            } else {
-                0
-            }
-        }
-        _ => max_layers = 1,
-    }
+    let max_layers = match side_condition.condition {
+        PokemonSideCondition::Spikes => 3,
+        PokemonSideCondition::ToxicSpikes => 2,
+        _ => 1,
+    };
 
     let affected_side = state.get_side(&affected_side_ref);
     if affected_side.get_side_condition(side_condition.condition) < max_layers {
@@ -420,6 +415,73 @@ fn generate_instructions_from_side_conditions(
         });
         affected_side.update_side_condition(side_condition.condition, 1);
         incoming_instructions.instruction_list.push(ins);
+    }
+}
+
+fn generate_instructions_from_duration_side_conditions(
+    state: &mut State,
+    side_condition: &SideCondition,
+    attacking_side_reference: &SideReference,
+    incoming_instructions: &mut StateInstructions,
+    duration: i8,
+) {
+    let affected_side_ref = match side_condition.target {
+        MoveTarget::Opponent => attacking_side_reference.get_other_side(),
+        MoveTarget::User => *attacking_side_reference,
+    };
+    if side_condition.condition == PokemonSideCondition::AuroraVeil
+        && !state.weather_is_active(&Weather::HAIL)
+        && !state.weather_is_active(&Weather::SNOW)
+    {
+        return;
+    }
+    let affected_side = state.get_side(&affected_side_ref);
+    if affected_side.get_side_condition(side_condition.condition) == 0 {
+        let ins = Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+            side_ref: affected_side_ref,
+            side_condition: side_condition.condition,
+            amount: duration,
+        });
+        affected_side.update_side_condition(side_condition.condition, duration);
+        incoming_instructions.instruction_list.push(ins);
+    }
+}
+
+fn generate_instructions_from_side_conditions(
+    state: &mut State,
+    side_condition: &SideCondition,
+    attacking_side_reference: &SideReference,
+    incoming_instructions: &mut StateInstructions,
+) {
+    match side_condition.condition {
+        PokemonSideCondition::AuroraVeil
+        | PokemonSideCondition::LightScreen
+        | PokemonSideCondition::Reflect
+        | PokemonSideCondition::Safeguard
+        | PokemonSideCondition::Mist => {
+            generate_instructions_from_duration_side_conditions(
+                state,
+                side_condition,
+                attacking_side_reference,
+                incoming_instructions,
+                SIDE_CONDITION_DURATION,
+            );
+        }
+        PokemonSideCondition::Tailwind => {
+            generate_instructions_from_duration_side_conditions(
+                state,
+                side_condition,
+                attacking_side_reference,
+                incoming_instructions,
+                TAILWIND_DURATION,
+            );
+        }
+        _ => generate_instructions_from_increment_side_condition(
+            state,
+            side_condition,
+            attacking_side_reference,
+            incoming_instructions,
+        ),
     }
 }
 
@@ -2333,6 +2395,59 @@ fn add_end_of_turn_instructions(
         }
     }
 
+    // Side Condition decrement
+    for side_ref in sides {
+        let side = state.get_side(side_ref);
+        if side.side_conditions.reflect > 0 {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ChangeSideCondition(
+                    ChangeSideConditionInstruction {
+                        side_ref: *side_ref,
+                        side_condition: PokemonSideCondition::Reflect,
+                        amount: -1,
+                    },
+                ));
+            side.side_conditions.reflect -= 1;
+        }
+        if side.side_conditions.light_screen > 0 {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ChangeSideCondition(
+                    ChangeSideConditionInstruction {
+                        side_ref: *side_ref,
+                        side_condition: PokemonSideCondition::LightScreen,
+                        amount: -1,
+                    },
+                ));
+            side.side_conditions.light_screen -= 1;
+        }
+        if side.side_conditions.aurora_veil > 0 {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ChangeSideCondition(
+                    ChangeSideConditionInstruction {
+                        side_ref: *side_ref,
+                        side_condition: PokemonSideCondition::AuroraVeil,
+                        amount: -1,
+                    },
+                ));
+            side.side_conditions.aurora_veil -= 1;
+        }
+        if side.side_conditions.tailwind > 0 {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ChangeSideCondition(
+                    ChangeSideConditionInstruction {
+                        side_ref: *side_ref,
+                        side_condition: PokemonSideCondition::Tailwind,
+                        amount: -1,
+                    },
+                ));
+            side.side_conditions.tailwind -= 1;
+        }
+    }
+
     // Weather Damage
     for side_ref in sides {
         if state.weather_is_active(&Weather::HAIL) {
@@ -3527,7 +3642,7 @@ mod tests {
     }
 
     #[test]
-    fn test_auroa_veil_works_in_hail() {
+    fn test_aurora_veil_works_in_hail() {
         let mut state: State = State::default();
         state.weather.weather_type = Weather::HAIL;
         let mut choice = MOVES.get(&Choices::AURORAVEIL).unwrap().to_owned();
@@ -3549,9 +3664,33 @@ mod tests {
                 ChangeSideConditionInstruction {
                     side_ref: SideReference::SideOne,
                     side_condition: PokemonSideCondition::AuroraVeil,
-                    amount: 1,
+                    amount: 5,
                 },
             )],
+        };
+
+        assert_eq!(instructions, vec![expected_instructions])
+    }
+
+    #[test]
+    fn test_auroa_veil_fails_outside_hail() {
+        let mut state: State = State::default();
+        let mut choice = MOVES.get(&Choices::AURORAVEIL).unwrap().to_owned();
+
+        let mut instructions = vec![];
+        generate_instructions_from_move(
+            &mut state,
+            &mut choice,
+            &MOVES.get(&Choices::TACKLE).unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+            &mut instructions,
+            false,
+        );
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
         };
 
         assert_eq!(instructions, vec![expected_instructions])

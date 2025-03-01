@@ -83,7 +83,9 @@ pub fn modify_choice(
             // this gives the correct result even though it's not the "correct" way to implement it
             // reflect is only removed if the move hits, but I don't have a way to check that
             // doubling the power ensures the same damage calculation
-            if defending_side.side_conditions.reflect > 0 {
+            if defending_side.side_conditions.reflect > 0
+                || defending_side.side_conditions.aurora_veil > 0
+            {
                 attacker_choice.base_power *= 2.0;
             }
             match attacking_side.get_active_immutable().id {
