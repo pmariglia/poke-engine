@@ -2255,6 +2255,9 @@ pub fn ability_modify_attack_against(
         return;
     }
     if (attacking_pkmn.ability == Abilities::MOLDBREAKER
+        || attacker_choice.move_id == Choices::MOONGEISTBEAM
+        || attacker_choice.move_id == Choices::PHOTONGEYSER
+        || attacker_choice.move_id == Choices::SUNSTEELSTRIKE
         || (attacking_pkmn.ability == Abilities::MYCELIUMMIGHT
             && attacker_choice.category == MoveCategory::Status)
         || attacking_pkmn.ability == Abilities::TERAVOLT

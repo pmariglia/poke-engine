@@ -13820,6 +13820,27 @@ fn test_mold_breaker_into_wonderguard() {
 }
 
 #[test]
+fn test_moongeistbeam_into_ice_scales() {
+    let mut state = State::default();
+    state.side_two.get_active().types = (PokemonType::WATER, PokemonType::GRASS);
+
+    let without_ice_scales = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::MOONGEISTBEAM,
+        Choices::SPLASH,
+    );
+
+    state.side_two.get_active().ability = Abilities::ICESCALES;
+
+    let with_ice_scales = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::MOONGEISTBEAM,
+        Choices::SPLASH,
+    );
+    assert_eq!(without_ice_scales, with_ice_scales);
+}
+
+#[test]
 fn test_lightning_rod() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::LIGHTNINGROD;

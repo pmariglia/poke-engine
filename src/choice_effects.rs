@@ -316,6 +316,13 @@ pub fn modify_choice(
                 }
             }
         }
+        Choices::PHOTONGEYSER => {
+            if attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack)
+                > attacking_side.calculate_boosted_stat(PokemonBoostableStat::SpecialAttack)
+            {
+                attacker_choice.category = MoveCategory::Physical;
+            }
+        }
         Choices::TERRAINPULSE => match state.terrain.terrain_type {
             Terrain::ELECTRICTERRAIN => {
                 attacker_choice.move_type = PokemonType::ELECTRIC;
