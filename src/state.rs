@@ -716,6 +716,9 @@ impl Pokemon {
 
     pub fn item_is_permanent(&self) -> bool {
         match self.item {
+            Items::LUSTROUSGLOBE => self.id == PokemonName::PALKIAORIGIN,
+            Items::GRISEOUSCORE => self.id == PokemonName::GIRATINAORIGIN,
+            Items::ADAMANTCRYSTAL => self.id == PokemonName::DIALGAORIGIN,
             Items::SPLASHPLATE => self.id == PokemonName::ARCEUSWATER,
             Items::TOXICPLATE => self.id == PokemonName::ARCEUSPOISON,
             Items::EARTHPLATE => self.id == PokemonName::ARCEUSGROUND,
