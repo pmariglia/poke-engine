@@ -174,6 +174,8 @@ define_enum_with_from_str! {
         CORNERSTONEMASK,
         WIDELENS,
         LOADEDDICE,
+        RUSTEDSWORD,
+        RUSTEDSHIELD,
     },
     default = UNKNOWNITEM
 }
