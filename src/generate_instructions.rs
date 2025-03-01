@@ -3369,7 +3369,7 @@ pub fn calculate_damage_rolls(
     if choice.flags.charge {
         choice.flags.charge = false;
     }
-    if choice.move_id == Choices::FAKEOUT {
+    if choice.move_id == Choices::FAKEOUT || choice.move_id == Choices::FIRSTIMPRESSION {
         state.get_side(attacking_side_ref).last_used_move = LastUsedMove::Switch(PokemonIndex::P0);
     }
 
