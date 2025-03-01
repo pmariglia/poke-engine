@@ -1950,6 +1950,8 @@ pub fn ability_modify_attack_being_used(
             if attacking_pkmn.has_type(&attacker_choice.move_type) {
                 if attacking_pkmn.terastallized
                     && attacker_choice.move_type == attacking_pkmn.tera_type
+                    && (attacking_pkmn.types.0 == attacker_choice.move_type
+                        || attacking_pkmn.types.1 == attacker_choice.move_type)
                 {
                     attacker_choice.base_power *= 2.25 / 2.0;
                 } else {

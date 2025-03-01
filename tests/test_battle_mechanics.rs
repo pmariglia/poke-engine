@@ -16769,6 +16769,31 @@ fn test_adaptability_with_tera_stab_is_225_percent() {
 }
 
 #[test]
+#[cfg(feature = "terastallization")]
+fn test_adaptability_with_tera_but_no_regular_stab_is_200_percent() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::ADAPTABILITY;
+    state.side_one.get_active().terastallized = true;
+    state.side_one.get_active().types = (PokemonType::GHOST, PokemonType::FIGHTING);
+    state.side_one.get_active().tera_type = PokemonType::NORMAL;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 95,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_armortail_against_priority() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::ARMORTAIL;
