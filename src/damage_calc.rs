@@ -366,10 +366,12 @@ fn get_attacking_and_defending_stats(
             }
 
             // Unaware checks
-            if defender.ability == Abilities::UNAWARE {
+            if defender.ability == Abilities::UNAWARE && attacker.ability != Abilities::MOLDBREAKER
+            {
                 should_calc_attacker_boost = false;
             }
-            if attacker.ability == Abilities::UNAWARE {
+            if attacker.ability == Abilities::UNAWARE && defender.ability != Abilities::MOLDBREAKER
+            {
                 should_calc_defender_boost = false;
             }
 
@@ -423,10 +425,12 @@ fn get_attacking_and_defending_stats(
             }
 
             // Unaware checks
-            if defender.ability == Abilities::UNAWARE {
+            if defender.ability == Abilities::UNAWARE && attacker.ability != Abilities::MOLDBREAKER
+            {
                 should_calc_attacker_boost = false;
             }
-            if attacker.ability == Abilities::UNAWARE {
+            if attacker.ability == Abilities::UNAWARE && defender.ability != Abilities::MOLDBREAKER
+            {
                 should_calc_defender_boost = false;
             }
 
@@ -768,6 +772,30 @@ mod tests {
         );
 
         assert_eq!(32, dmg.unwrap().0);
+    }
+
+    #[test]
+    fn test_unaware_does_get_damaged_by_boosted_stats_if_attacker_has_moldbreaker() {
+        let mut state = State::default();
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        state.side_one.attack_boost = 1;
+        state.side_two.get_active().ability = Abilities::UNAWARE;
+        state.side_one.get_active().ability = Abilities::MOLDBREAKER;
+        choice.move_id = Choices::TACKLE;
+        choice.move_type = PokemonType::TYPELESS;
+        choice.base_power = 40.0;
+        choice.category = MoveCategory::Physical;
+
+        let dmg = calculate_damage(
+            &state,
+            &SideReference::SideOne,
+            &choice,
+            DamageRolls::Average,
+        );
+
+        assert_eq!(48, dmg.unwrap().0);
     }
 
     #[test]
