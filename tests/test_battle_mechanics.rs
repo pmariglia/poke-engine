@@ -14083,6 +14083,29 @@ fn test_thunderwave_into_goodasgold() {
 }
 
 #[test]
+fn test_slackoff_into_goodasgold() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::GOODASGOLD;
+    state.side_one.get_active().hp = 25;
+    state.side_one.get_active().maxhp = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SLACKOFF,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Heal(HealInstruction {
+            side_ref: SideReference::SideOne,
+            heal_amount: 50,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_defog_into_goodasgold() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::GOODASGOLD;

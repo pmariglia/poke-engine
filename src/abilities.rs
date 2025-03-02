@@ -2843,6 +2843,7 @@ pub fn ability_modify_attack_against(
             // This engine doesn't distinguish "targetting other pkmn" versus "targetting the side"
             // Thankfully it is a short list of moves that target the opponent side
             if attacker_choice.category == MoveCategory::Status
+                && attacker_choice.target == MoveTarget::Opponent
                 && ![
                     Choices::STEALTHROCK,
                     Choices::STICKYWEB,
