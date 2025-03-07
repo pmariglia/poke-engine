@@ -1,5 +1,30 @@
 # Changelog
 
+## [v0.0.33](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.33) - 2025-03-07
+
+### Features
+
+- Proper Side Condition Durations Tracking - ([cf792b5](https://github.com/pmariglia/poke-engine/commit/cf792b562c9ac189c860f152754d31865e28edbc))
+
+- Corrosion - ([5cc1ba2](https://github.com/pmariglia/poke-engine/commit/5cc1ba2c86f7528a2a7293d029df2277411b5723))
+
+- Photongeyser, sunsteelstrike, and moongeistbeam ignore some abilities - ([9f974e3](https://github.com/pmariglia/poke-engine/commit/9f974e3863e069bc852299a1714f0edba92f25a5))
+
+
+### Bug Fixes
+
+- Firstimpression in damage calc always assumes it is your first turn on the field - ([2a92280](https://github.com/pmariglia/poke-engine/commit/2a92280a9177a0ce35ca95358d7be60828af6952))
+
+- Transformation items cannot be removed - ([7438a68](https://github.com/pmariglia/poke-engine/commit/7438a68a259b6ad3217fcfe5f56322d77cde5054))
+
+- Rustedsword and rustedshield are permanent items - ([ccc18d3](https://github.com/pmariglia/poke-engine/commit/ccc18d35bbedad2d8fffa5ba36224539217d40fd))
+
+- Adaptability and STAB with tera - ([4b324a9](https://github.com/pmariglia/poke-engine/commit/4b324a9746cb304590962f5f020bd33700973311))
+
+- Check for moldbreaker before doing unaware negation in damage calc - ([cdaa6eb](https://github.com/pmariglia/poke-engine/commit/cdaa6ebb1e923e1677d29c0058ba4660039f40a0))
+
+- Goodasgold only blocks moves that target the other side - ([5fba9d6](https://github.com/pmariglia/poke-engine/commit/5fba9d6d6326f47552e1eb15bddc9286d3a73b54))
+
 ## [v0.0.32](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.32) - 2025-02-27
 
 ### Features
