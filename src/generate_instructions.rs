@@ -2254,6 +2254,7 @@ fn moves_first(
     state: &State,
     side_one_choice: &Choice,
     side_two_choice: &Choice,
+    incoming_instructions: &mut StateInstructions,
 ) -> SideMovesFirst {
     let side_one_effective_speed = get_effective_speed(&state, &SideReference::SideOne);
     let side_two_effective_speed = get_effective_speed(&state, &SideReference::SideTwo);
@@ -2288,10 +2289,24 @@ fn moves_first(
         if side_one_active.item == Items::CUSTAPBERRY
             && side_one_active.hp < side_one_active.maxhp / 4
         {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ChangeItem(ChangeItemInstruction {
+                    side_ref: SideReference::SideOne,
+                    new_item: Items::NONE,
+                    current_item: Items::CUSTAPBERRY,
+                }));
             return SideMovesFirst::SideOne;
         } else if side_two_active.item == Items::CUSTAPBERRY
             && side_two_active.hp < side_two_active.maxhp / 4
         {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ChangeItem(ChangeItemInstruction {
+                    side_ref: SideReference::SideTwo,
+                    new_item: Items::NONE,
+                    current_item: Items::CUSTAPBERRY,
+                }));
             return SideMovesFirst::SideTwo;
         }
 
@@ -3280,7 +3295,12 @@ pub fn generate_instructions_from_move_pair(
 
     modify_choice_priority(&state, &SideReference::SideOne, &mut side_one_choice);
     modify_choice_priority(&state, &SideReference::SideTwo, &mut side_two_choice);
-    match moves_first(&state, &side_one_choice, &side_two_choice) {
+    match moves_first(
+        &state,
+        &side_one_choice,
+        &side_two_choice,
+        &mut incoming_instructions,
+    ) {
         SideMovesFirst::SideOne => {
             handle_both_moves(
                 state,
@@ -3693,36 +3713,6 @@ mod tests {
         let expected_instructions: StateInstructions = StateInstructions {
             percentage: 100.0,
             instruction_list: vec![],
-        };
-
-        assert_eq!(instructions, vec![expected_instructions])
-    }
-
-    #[test]
-    fn test_custap_berry_consumed_when_less_than_25_percent_hp() {
-        let mut state: State = State::default();
-        state.side_one.get_active().item = Items::CUSTAPBERRY;
-        state.side_one.get_active().hp = 24;
-        let mut choice = MOVES.get(&Choices::AURORAVEIL).unwrap().to_owned();
-
-        let mut instructions = vec![];
-        generate_instructions_from_move(
-            &mut state,
-            &mut choice,
-            &MOVES.get(&Choices::TACKLE).unwrap(),
-            SideReference::SideOne,
-            StateInstructions::default(),
-            &mut instructions,
-            false,
-        );
-
-        let expected_instructions: StateInstructions = StateInstructions {
-            percentage: 100.0,
-            instruction_list: vec![Instruction::ChangeItem(ChangeItemInstruction {
-                side_ref: SideReference::SideOne,
-                current_item: Items::CUSTAPBERRY,
-                new_item: Items::NONE,
-            })],
         };
 
         assert_eq!(instructions, vec![expected_instructions])
@@ -8182,7 +8172,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SideTwo,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 
@@ -8198,7 +8193,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SideOne,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 
@@ -8217,7 +8217,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SideOne,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 
@@ -8236,7 +8241,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SideOne,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 
@@ -8251,7 +8261,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SideTwo,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 
@@ -8267,7 +8282,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SideTwo,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 
@@ -8285,7 +8305,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SideOne,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 
@@ -8299,7 +8324,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SideOne,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 
@@ -8315,7 +8345,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SideTwo,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 
@@ -8367,7 +8402,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SpeedTie,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 
@@ -8381,7 +8421,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SideOne,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 
@@ -8395,7 +8440,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SideTwo,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 
@@ -8409,7 +8459,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SideOne,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 
@@ -8424,7 +8479,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SideOne,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 
@@ -8441,7 +8501,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SideTwo,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 
@@ -8457,7 +8522,12 @@ mod tests {
 
         assert_eq!(
             SideMovesFirst::SideOne,
-            moves_first(&state, &side_one_choice, &side_two_choice)
+            moves_first(
+                &state,
+                &side_one_choice,
+                &side_two_choice,
+                &mut StateInstructions::default()
+            )
         )
     }
 

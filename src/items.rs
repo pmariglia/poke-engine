@@ -657,18 +657,6 @@ pub fn item_before_move(
             PokemonBoostableStat::Speed,
             instructions,
         ),
-        Items::CUSTAPBERRY => {
-            if active_pkmn.hp <= active_pkmn.maxhp / 4 {
-                active_pkmn.item = Items::NONE;
-                instructions.instruction_list.push(Instruction::ChangeItem(
-                    ChangeItemInstruction {
-                        side_ref: *side_ref,
-                        current_item: Items::CUSTAPBERRY,
-                        new_item: Items::NONE,
-                    },
-                ));
-            }
-        }
         Items::CHOICESPECS | Items::CHOICEBAND | Items::CHOICESCARF => {
             let ins = get_choice_move_disable_instructions(active_pkmn, side_ref, &choice.move_id);
             for i in ins {

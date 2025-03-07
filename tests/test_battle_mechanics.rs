@@ -12605,6 +12605,71 @@ fn test_focuspunch_after_not_getting_hit() {
 }
 
 #[test]
+fn test_custap_berry_activates_less_than_25_percent() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 1;
+    state.side_two.get_active().speed = 100;
+    state.side_one.get_active().hp = 24;
+    state.side_one.get_active().speed = 50; // slower than side_two
+    state.side_one.get_active().maxhp = 100;
+    state.side_one.get_active().item = Items::CUSTAPBERRY;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::CUSTAPBERRY,
+                new_item: Items::NONE,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_moving_second_does_not_consume_custap_berry() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 1;
+    state.side_two.get_active().speed = 100;
+    state.side_one.get_active().hp = 50; // damage from side_two puts under 25%
+    state.side_one.get_active().speed = 50; // slower than side_two
+    state.side_one.get_active().maxhp = 100;
+    state.side_one.get_active().item = Items::CUSTAPBERRY;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_grassknot_basepower_changing_based_on_weight() {
     let mut state = State::default();
     state.side_two.get_active().weight_kg = 10.0;
