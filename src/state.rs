@@ -1697,7 +1697,7 @@ impl State {
         let side = self.get_side(side_ref);
 
         // Take ownership of the current set to avoid borrow conflicts
-        // since we may need to modify `active` in the loop
+        // since we may need to modify the side in the loop
         let mut volatile_statuses = std::mem::take(&mut side.volatile_statuses);
 
         volatile_statuses.retain(|pkmn_volatile_status| {
@@ -1716,6 +1716,7 @@ impl State {
                     }
                     false
                 }
+                // While you can't switch out of a locked move you can be forced out in other ways
                 PokemonVolatileStatus::LOCKEDMOVE => {
                     instructions.push(Instruction::ChangeVolatileStatusDuration(
                         ChangeVolatileStatusDurationInstruction {
