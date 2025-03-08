@@ -54,6 +54,7 @@ pub enum Instruction {
     Damage(DamageInstruction),
     Boost(BoostInstruction),
     ChangeSideCondition(ChangeSideConditionInstruction),
+    ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction),
     ChangeWeather(ChangeWeather),
     DecrementWeatherTurnsRemaining,
     ChangeTerrain(ChangeTerrain),
@@ -137,6 +138,13 @@ impl fmt::Debug for Instruction {
                     f,
                     "ChangeSideCondition {:?} {:?}: {:?}",
                     c.side_ref, c.side_condition, c.amount
+                )
+            }
+            Instruction::ChangeVolatileStatusDuration(c) => {
+                write!(
+                    f,
+                    "ChangeVolatileStatusDuration {:?} {:?}: {:?}",
+                    c.side_ref, c.volatile_status, c.amount
                 )
             }
             Instruction::ChangeWeather(c) => {
@@ -505,6 +513,13 @@ pub struct BoostInstruction {
 pub struct ChangeSideConditionInstruction {
     pub side_ref: SideReference,
     pub side_condition: PokemonSideCondition,
+    pub amount: i8,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ChangeVolatileStatusDurationInstruction {
+    pub side_ref: SideReference,
+    pub volatile_status: PokemonVolatileStatus,
     pub amount: i8,
 }
 

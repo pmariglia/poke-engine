@@ -13,10 +13,10 @@ use crate::choices::{
 };
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-    ChangeSideConditionInstruction, ChangeTerrain, ChangeWeather, DecrementRestTurnsInstruction,
-    DecrementWishInstruction, HealInstruction, RemoveVolatileStatusInstruction,
-    SetSecondMoveSwitchOutMoveInstruction, SetSleepTurnsInstruction, ToggleBatonPassingInstruction,
-    ToggleTrickRoomInstruction,
+    ChangeSideConditionInstruction, ChangeTerrain, ChangeVolatileStatusDurationInstruction,
+    ChangeWeather, DecrementRestTurnsInstruction, DecrementWishInstruction, HealInstruction,
+    RemoveVolatileStatusInstruction, SetSecondMoveSwitchOutMoveInstruction,
+    SetSleepTurnsInstruction, ToggleBatonPassingInstruction, ToggleTrickRoomInstruction,
 };
 use crate::instruction::{DecrementFutureSightInstruction, SetDamageDealtSideTwoInstruction};
 use crate::instruction::{DecrementPPInstruction, SetLastUsedMoveInstruction};
@@ -523,17 +523,6 @@ fn get_instructions_from_volatile_statuses(
         side.volatile_statuses
             .insert(volatile_status.volatile_status);
         incoming_instructions.instruction_list.push(ins);
-
-        let affected_pkmn = state.get_side(&target_side).get_active();
-        let damage_taken = affected_pkmn.maxhp / 4;
-        if volatile_status.volatile_status == PokemonVolatileStatus::SUBSTITUTE {
-            let ins = Instruction::Damage(DamageInstruction {
-                side_ref: target_side,
-                damage_amount: damage_taken,
-            });
-            affected_pkmn.hp -= damage_taken;
-            incoming_instructions.instruction_list.push(ins);
-        }
     }
 }
 
@@ -2718,6 +2707,63 @@ fn add_end_of_turn_instructions(
         let side = state.get_side(side_ref);
         if side.get_active().hp == 0 {
             continue;
+        }
+
+        if side
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::LOCKEDMOVE)
+        {
+            // the number says 2 but this is 3 turns of using a locking move
+            // because turn 0 is the first turn the move is used
+            // branching is not implemented here so the engine assumes it always lasts 3 turns
+            if side.volatile_status_durations.lockedmove == 2 {
+                side.volatile_status_durations.lockedmove = 0;
+                side.volatile_statuses
+                    .remove(&PokemonVolatileStatus::LOCKEDMOVE);
+                incoming_instructions.instruction_list.push(
+                    Instruction::ChangeVolatileStatusDuration(
+                        ChangeVolatileStatusDurationInstruction {
+                            side_ref: *side_ref,
+                            volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
+                            amount: -2,
+                        },
+                    ),
+                );
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::RemoveVolatileStatus(
+                        RemoveVolatileStatusInstruction {
+                            side_ref: *side_ref,
+                            volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
+                        },
+                    ));
+                if !side
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::CONFUSION)
+                {
+                    incoming_instructions
+                        .instruction_list
+                        .push(Instruction::ApplyVolatileStatus(
+                            ApplyVolatileStatusInstruction {
+                                side_ref: *side_ref,
+                                volatile_status: PokemonVolatileStatus::CONFUSION,
+                            },
+                        ));
+                    side.volatile_statuses
+                        .insert(PokemonVolatileStatus::CONFUSION);
+                }
+            } else {
+                side.volatile_status_durations.lockedmove += 1;
+                incoming_instructions.instruction_list.push(
+                    Instruction::ChangeVolatileStatusDuration(
+                        ChangeVolatileStatusDurationInstruction {
+                            side_ref: *side_ref,
+                            volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
+                            amount: 1,
+                        },
+                    ),
+                );
+            }
         }
 
         if side

@@ -5,6 +5,7 @@ from ._poke_engine import (
     State as _State,
     Side as _Side,
     SideConditions as _SideConditions,
+    VolatileStatusDurations as _VolatileStatusDurations,
     Pokemon as _Pokemon,
     Move as _Move,
     state_from_string as _state_from_string,
@@ -241,6 +242,31 @@ class SideConditions:
 
 
 @dataclass
+class VolatileStatusDurations:
+    """
+    How many turns a volatile statuse has been active on a Pokemon
+
+    :param confusion:
+    :type confusion: int
+    :param curse:
+    :type curse: int
+    :param encore:
+    :type encore: int
+    """
+
+    confusion: int = 0
+    lockedmove: int = 0
+    encore: int = 0
+
+    def _into_rust_obj(self):
+        return _VolatileStatusDurations(
+            confusion=self.confusion,
+            lockedmove=self.lockedmove,
+            encore=self.encore,
+        )
+
+
+@dataclass
 class Side:
     """
     One of the sides of a pokemon battle
@@ -296,6 +322,9 @@ class Side:
     baton_passing: bool = False
     pokemon: list[Pokemon] = field(default_factory=list)
     side_conditions: SideConditions = field(default_factory=SideConditions)
+    volatile_status_durations: VolatileStatusDurations = field(
+        default_factory=VolatileStatusDurations
+    )
     wish: (int, int) = (0, 0)
     future_sight: (int, str) = (0, "0")
     force_switch: bool = False
@@ -319,6 +348,7 @@ class Side:
             baton_passing=self.baton_passing,
             pokemon=[p._into_rust_obj() for p in self.pokemon],
             side_conditions=self.side_conditions._into_rust_obj(),
+            volatile_status_durations=self.volatile_status_durations._into_rust_obj(),
             wish=self.wish,
             future_sight=self.future_sight,
             force_switch=self.force_switch,

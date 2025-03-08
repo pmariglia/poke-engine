@@ -4,6 +4,7 @@ from .state import (
     State,
     Side,
     SideConditions,
+    VolatileStatusDurations,
     Pokemon,
     Move,
 )
