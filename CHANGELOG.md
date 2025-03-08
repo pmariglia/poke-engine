@@ -1,5 +1,21 @@
 # Changelog
 
+## [v0.0.34](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.34) - 2025-03-08
+
+### Features
+
+- [**breaking**] Volatile Status Durations - ([d388e17](https://github.com/pmariglia/poke-engine/commit/d388e17029c263f55e981672d662339557ac1dde))
+
+
+### Bug Fixes
+
+- Custap berry instruction generation moved to before the turn - ([660ff7c](https://github.com/pmariglia/poke-engine/commit/660ff7c69a41d0b22e5318e83c2bd7c5b9ffa253))
+
+
+### Miscellaneous Tasks
+
+- Fix comments to reflect reality - ([9dda607](https://github.com/pmariglia/poke-engine/commit/9dda6071361369954c8f356281d3eb520eba4568))
+
 ## [v0.0.33](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.33) - 2025-03-07
 
 ### Features
