@@ -1055,7 +1055,7 @@ impl Side {
     pub fn num_fainted_pkmn(&self) -> i8 {
         let mut count = 0;
         for p in self.pokemon.into_iter() {
-            if p.hp == 0 && p.level != 1 {
+            if p.hp == 0 {
                 count += 1;
             }
         }
@@ -1232,13 +1232,7 @@ impl State {
         if self.side_one.pokemon.into_iter().all(|p| p.hp <= 0) {
             return -1.0;
         }
-        // level == 1 represents an un-revealed pokemon
-        if self
-            .side_two
-            .pokemon
-            .into_iter()
-            .all(|p| p.hp <= 0 && p.level != 1)
-        {
+        if self.side_two.pokemon.into_iter().all(|p| p.hp <= 0) {
             return 1.0;
         }
         0.0

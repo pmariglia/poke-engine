@@ -19160,20 +19160,6 @@ fn test_battle_is_over_when_side_two_lost() {
 }
 
 #[test]
-fn test_battle_is_over_when_side_two_has_unrevealed_pkmn() {
-    let mut state = State::default();
-    state.side_two.pokemon[PokemonIndex::P0].hp = 0;
-    state.side_two.pokemon[PokemonIndex::P1].hp = 0;
-    state.side_two.pokemon[PokemonIndex::P2].hp = 0;
-    state.side_two.pokemon[PokemonIndex::P3].hp = 0;
-    state.side_two.pokemon[PokemonIndex::P4].hp = 0;
-    state.side_two.pokemon[PokemonIndex::P5].hp = 0;
-    state.side_two.pokemon[PokemonIndex::P5].level = 1;
-
-    assert_eq!(state.battle_is_over(), 0.0);
-}
-
-#[test]
 fn test_truant_sets_truant_volatile() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::TRUANT;
