@@ -1995,6 +1995,9 @@ impl State {
             PokemonVolatileStatus::LOCKEDMOVE => {
                 side.volatile_status_durations.lockedmove += amount;
             }
+            PokemonVolatileStatus::ENCORE => {
+                side.volatile_status_durations.encore += amount;
+            }
             _ => panic!(
                 "Invalid volatile status for increment_volatile_status_duration: {:?}",
                 volatile_status

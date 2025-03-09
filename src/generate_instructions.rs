@@ -1825,7 +1825,7 @@ pub fn generate_instructions_from_move(
 
     state.apply_instructions(&incoming_instructions.instruction_list);
 
-    let side = state.get_side_immutable(&attacking_side);
+    let side = state.get_side(&attacking_side);
     if side
         .volatile_statuses
         .contains(&PokemonVolatileStatus::ENCORE)
@@ -1841,6 +1841,49 @@ pub fn generate_instructions_from_move(
                 }
             }
             _ => panic!("Encore should not be active when last used move is not a move"),
+        }
+
+        // this value is incremented when an encored move has been used
+        // the value being 2 means we are currently using the 3rd move so we can remove it
+        #[cfg(any(
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7",
+            feature = "gen8",
+            feature = "gen9"
+        ))]
+        if side.volatile_status_durations.encore == 2 {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::RemoveVolatileStatus(
+                    RemoveVolatileStatusInstruction {
+                        side_ref: attacking_side,
+                        volatile_status: PokemonVolatileStatus::ENCORE,
+                    },
+                ));
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ChangeVolatileStatusDuration(
+                    ChangeVolatileStatusDurationInstruction {
+                        side_ref: attacking_side,
+                        volatile_status: PokemonVolatileStatus::ENCORE,
+                        amount: -2,
+                    },
+                ));
+            side.volatile_status_durations.encore = 0;
+            side.volatile_statuses
+                .remove(&PokemonVolatileStatus::ENCORE);
+        } else {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ChangeVolatileStatusDuration(
+                    ChangeVolatileStatusDurationInstruction {
+                        side_ref: attacking_side,
+                        volatile_status: PokemonVolatileStatus::ENCORE,
+                        amount: 1,
+                    },
+                ));
+            side.volatile_status_durations.encore += 1;
         }
     }
 

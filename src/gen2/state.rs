@@ -1716,6 +1716,9 @@ impl State {
             PokemonVolatileStatus::CONFUSION => {
                 side.volatile_status_durations.confusion += amount;
             }
+            PokemonVolatileStatus::ENCORE => {
+                side.volatile_status_durations.encore += amount;
+            }
             _ => panic!(
                 "Invalid volatile status for increment_volatile_status_duration: {:?}",
                 volatile_status
