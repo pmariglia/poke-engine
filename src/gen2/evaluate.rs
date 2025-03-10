@@ -101,57 +101,61 @@ pub fn evaluate(state: &State) -> f32 {
     let mut side_one_alive_count: f32 = 0.0;
     let mut side_two_alive_count: f32 = 0.0;
 
-    let iter = state.side_one.pokemon.into_iter();
-    for pkmn in iter {
+    let mut iter = state.side_one.pokemon.into_iter();
+    while let Some(pkmn) = iter.next() {
         if pkmn.hp > 0 {
             side_one_alive_count += 1.0;
             score += evaluate_pokemon(pkmn);
+            if iter.pokemon_index == state.side_one.active_index {
+                for vs in state.side_one.volatile_statuses.iter() {
+                    match vs {
+                        PokemonVolatileStatus::LEECHSEED => score += LEECH_SEED,
+                        PokemonVolatileStatus::SUBSTITUTE => score += SUBSTITUTE,
+                        PokemonVolatileStatus::CONFUSION => score += CONFUSION,
+                        _ => {}
+                    }
+                }
+                score += get_boost_multiplier(state.side_one.attack_boost) * POKEMON_ATTACK_BOOST;
+                score += get_boost_multiplier(state.side_one.defense_boost) * POKEMON_DEFENSE_BOOST;
+                score += get_boost_multiplier(state.side_one.special_attack_boost)
+                    * POKEMON_SPECIAL_ATTACK_BOOST;
+                score += get_boost_multiplier(state.side_one.special_defense_boost)
+                    * POKEMON_SPECIAL_DEFENSE_BOOST;
+                score += get_boost_multiplier(state.side_one.speed_boost) * POKEMON_SPEED_BOOST;
+            }
         }
     }
-    let iter = state.side_two.pokemon.into_iter();
-    for pkmn in iter {
+    let mut iter = state.side_two.pokemon.into_iter();
+    while let Some(pkmn) = iter.next() {
         if pkmn.hp > 0 {
             side_two_alive_count += 1.0;
             score -= evaluate_pokemon(pkmn);
+
+            if iter.pokemon_index == state.side_two.active_index {
+                for vs in state.side_two.volatile_statuses.iter() {
+                    match vs {
+                        PokemonVolatileStatus::LEECHSEED => score -= LEECH_SEED,
+                        PokemonVolatileStatus::SUBSTITUTE => score -= SUBSTITUTE,
+                        PokemonVolatileStatus::CONFUSION => score -= CONFUSION,
+                        _ => {}
+                    }
+                }
+                score -= get_boost_multiplier(state.side_two.attack_boost) * POKEMON_ATTACK_BOOST;
+                score -= get_boost_multiplier(state.side_two.defense_boost) * POKEMON_DEFENSE_BOOST;
+                score -= get_boost_multiplier(state.side_two.special_attack_boost)
+                    * POKEMON_SPECIAL_ATTACK_BOOST;
+                score -= get_boost_multiplier(state.side_two.special_defense_boost)
+                    * POKEMON_SPECIAL_DEFENSE_BOOST;
+                score -= get_boost_multiplier(state.side_two.speed_boost) * POKEMON_SPEED_BOOST;
+            }
         }
     }
 
-    for vs in state.side_one.volatile_statuses.iter() {
-        match vs {
-            PokemonVolatileStatus::LEECHSEED => score += LEECH_SEED,
-            PokemonVolatileStatus::SUBSTITUTE => score += SUBSTITUTE,
-            PokemonVolatileStatus::CONFUSION => score += CONFUSION,
-            _ => {}
-        }
-    }
-    for vs in state.side_two.volatile_statuses.iter() {
-        match vs {
-            PokemonVolatileStatus::LEECHSEED => score -= LEECH_SEED,
-            PokemonVolatileStatus::SUBSTITUTE => score -= SUBSTITUTE,
-            PokemonVolatileStatus::CONFUSION => score -= CONFUSION,
-            _ => {}
-        }
-    }
-
-    score += get_boost_multiplier(state.side_one.attack_boost) * POKEMON_ATTACK_BOOST;
-    score += get_boost_multiplier(state.side_one.defense_boost) * POKEMON_DEFENSE_BOOST;
-    score +=
-        get_boost_multiplier(state.side_one.special_attack_boost) * POKEMON_SPECIAL_ATTACK_BOOST;
-    score +=
-        get_boost_multiplier(state.side_one.special_defense_boost) * POKEMON_SPECIAL_DEFENSE_BOOST;
-    score += get_boost_multiplier(state.side_one.speed_boost) * POKEMON_SPEED_BOOST;
     score += state.side_one.side_conditions.reflect as f32 * REFLECT;
     score += state.side_one.side_conditions.light_screen as f32 * LIGHT_SCREEN;
     score += state.side_one.side_conditions.safeguard as f32 * SAFE_GUARD;
     score += state.side_one.side_conditions.spikes as f32 * SPIKES * side_one_alive_count;
 
-    score -= get_boost_multiplier(state.side_two.attack_boost) * POKEMON_ATTACK_BOOST;
-    score -= get_boost_multiplier(state.side_two.defense_boost) * POKEMON_DEFENSE_BOOST;
-    score -=
-        get_boost_multiplier(state.side_two.special_attack_boost) * POKEMON_SPECIAL_ATTACK_BOOST;
-    score -=
-        get_boost_multiplier(state.side_two.special_defense_boost) * POKEMON_SPECIAL_DEFENSE_BOOST;
-    score -= get_boost_multiplier(state.side_two.speed_boost) * POKEMON_SPEED_BOOST;
     score -= state.side_two.side_conditions.reflect as f32 * REFLECT;
     score -= state.side_two.side_conditions.light_screen as f32 * LIGHT_SCREEN;
     score -= state.side_two.side_conditions.safeguard as f32 * SAFE_GUARD;

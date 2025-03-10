@@ -565,6 +565,7 @@ pub struct Pokemon {
     pub hp: i16,
     pub maxhp: i16,
     pub ability: Abilities,
+    pub base_ability: Abilities,
     pub item: Items,
     pub nature: PokemonNature,
     pub evs: (u8, u8, u8, u8, u8, u8),
@@ -718,6 +719,7 @@ impl Default for Pokemon {
             hp: 100,
             maxhp: 100,
             ability: Abilities::NONE,
+            base_ability: Abilities::NONE,
             item: Items::NONE,
             nature: PokemonNature::SERIOUS,
             evs: (85, 85, 85, 85, 85, 85),
@@ -2302,6 +2304,7 @@ impl Pokemon {
             hp: split[6].parse::<i16>().unwrap(),
             maxhp: split[7].parse::<i16>().unwrap(),
             ability: Abilities::from_str(split[8]).unwrap(),
+            base_ability: Abilities::NOABILITY,
             item: Items::from_str(split[9]).unwrap(),
             // nature/evs unused in gen2 so no need to parse from input
             nature: PokemonNature::SERIOUS,
