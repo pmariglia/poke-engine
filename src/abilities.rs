@@ -2251,7 +2251,9 @@ pub fn ability_modify_attack_against(
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     let attacking_pkmn = attacking_side.get_active_immutable();
     let target_pkmn = defending_side.get_active_immutable();
-    if target_pkmn.ability == Abilities::NEUTRALIZINGGAS {
+    if target_pkmn.ability == Abilities::NEUTRALIZINGGAS
+        || attacker_choice.target == MoveTarget::User
+    {
         return;
     }
     if (attacking_pkmn.ability == Abilities::MOLDBREAKER
