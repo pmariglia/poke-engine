@@ -1,6 +1,6 @@
 [package]
 name = "poke-engine"
-version = "0.0.34"
+version = "0.0.35"
 authors = ["pmariglia <pmariglia@github.com>"]
 edition = "2018"
 license-file = "LICENSE"

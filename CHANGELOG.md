@@ -1,5 +1,25 @@
 # Changelog
 
+## [v0.0.35](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.35) - 2025-03-11
+
+### Features
+
+- Encore durations tracking - ([e24af0a](https://github.com/pmariglia/poke-engine/commit/e24af0a6006cb787c11d3c2d1b5e28b12947954e))
+
+
+### Bug Fixes
+
+- Dont evaluate volatiles/boosts if active is dead. put base_ability in gen1/gen2 - ([56475d5](https://github.com/pmariglia/poke-engine/commit/56475d5b417a8643a1f505a131daee3179dd23cd))
+
+- Abilities that cancel opponent actions only work if move targets the opponent - ([62cba0d](https://github.com/pmariglia/poke-engine/commit/62cba0d9670bde24139e9be0fb9abdccf1da5acc))
+
+- Airballoon only pops when hit by non-status move targetting the holder - ([97753d3](https://github.com/pmariglia/poke-engine/commit/97753d3d11cc9e4064b59f3a818abdf5a11abb15))
+
+
+### Miscellaneous Tasks
+
+- Remove unrevealed pkmn logic - ([ba5a3d5](https://github.com/pmariglia/poke-engine/commit/ba5a3d5a78d19870f7126d717a4284eb26d878c8))
+
 ## [v0.0.34](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.34) - 2025-03-08
 
 ### Features
