@@ -33,7 +33,7 @@ fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
         4 => stat_value * 6 / 2,
         5 => stat_value * 7 / 2,
         6 => stat_value * 8 / 2,
-        _ => panic!("Invalid boost number"),
+        _ => panic!("Invalid boost number: {}", boost_num),
     }
 }
 

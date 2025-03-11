@@ -311,23 +311,21 @@ fn sitrus_berry(
 
 fn boost_berry(
     side_ref: &SideReference,
-    attacking_side: &mut Side,
+    state: &mut State,
     stat: PokemonBoostableStat,
     instructions: &mut StateInstructions,
 ) {
-    if let Some(ins) = get_boost_instruction(&attacking_side, &stat, &1, side_ref, side_ref) {
-        match stat {
-            PokemonBoostableStat::Attack => attacking_side.attack_boost += 1,
-            PokemonBoostableStat::Defense => attacking_side.defense_boost += 1,
-            PokemonBoostableStat::SpecialAttack => attacking_side.special_attack_boost += 1,
-            PokemonBoostableStat::SpecialDefense => attacking_side.special_defense_boost += 1,
-            PokemonBoostableStat::Speed => attacking_side.speed_boost += 1,
-            PokemonBoostableStat::Accuracy => attacking_side.accuracy_boost += 1,
-            PokemonBoostableStat::Evasion => attacking_side.evasion_boost += 1,
-        }
+    if let Some(ins) = get_boost_instruction(
+        &state.get_side_immutable(side_ref),
+        &stat,
+        &1,
+        side_ref,
+        side_ref,
+    ) {
+        state.apply_one_instruction(&ins);
         instructions.instruction_list.push(ins);
     }
-    let attacker = attacking_side.get_active();
+    let attacker = state.get_side(side_ref).get_active();
     instructions
         .instruction_list
         .push(Instruction::ChangeItem(ChangeItemInstruction {
@@ -335,7 +333,7 @@ fn boost_berry(
             current_item: attacker.item,
             new_item: Items::NONE,
         }));
-    attacking_side.get_active().item = Items::NONE;
+    attacker.item = Items::NONE;
 }
 
 pub fn item_before_move(
@@ -641,22 +639,16 @@ pub fn item_before_move(
         }
         Items::PETAYABERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => boost_berry(
             side_ref,
-            attacking_side,
+            state,
             PokemonBoostableStat::SpecialAttack,
             instructions,
         ),
-        Items::LIECHIBERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => boost_berry(
-            side_ref,
-            attacking_side,
-            PokemonBoostableStat::Attack,
-            instructions,
-        ),
-        Items::SALACBERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => boost_berry(
-            side_ref,
-            attacking_side,
-            PokemonBoostableStat::Speed,
-            instructions,
-        ),
+        Items::LIECHIBERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => {
+            boost_berry(side_ref, state, PokemonBoostableStat::Attack, instructions)
+        }
+        Items::SALACBERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => {
+            boost_berry(side_ref, state, PokemonBoostableStat::Speed, instructions)
+        }
         Items::CHOICESPECS | Items::CHOICEBAND | Items::CHOICESCARF => {
             let ins = get_choice_move_disable_instructions(active_pkmn, side_ref, &choice.move_id);
             for i in ins {

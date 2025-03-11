@@ -5039,6 +5039,47 @@ fn test_petaya_berry_activate_after_taking_damage_when_slower() {
 }
 
 #[test]
+fn test_salac_berry_activating_with_6_speed_and_contrary() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::SALACBERRY;
+    state.side_one.get_active().ability = Abilities::CONTRARY;
+    state.side_one.get_active().hp = 50;
+    state.side_one.speed_boost = 6;
+    state.side_two.speed_boost = 6;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Speed,
+                amount: -1,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::SALACBERRY,
+                new_item: Items::NONE,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_salac_berry_activate_after_taking_damage_when_slower() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::SALACBERRY;
