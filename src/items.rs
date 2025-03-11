@@ -883,7 +883,9 @@ pub fn item_modify_attack_against(
                 && attacking_choice.move_id != Choices::THOUSANDARROWS
             {
                 attacking_choice.base_power = 0.0;
-            } else {
+            } else if attacking_choice.target == MoveTarget::Opponent
+                && attacking_choice.category != MoveCategory::Status
+            {
                 attacking_choice.add_or_create_secondaries(Secondary {
                     chance: 100.0,
                     effect: Effect::RemoveItem,

@@ -16337,6 +16337,28 @@ fn test_non_ground_move_versus_airballoon() {
 }
 
 #[test]
+fn test_non_damaging_move_versus_airballoon() {
+    let mut state = State::default();
+    state.side_two.get_active().item = Items::AIRBALLOON;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SWORDSDANCE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Boost(BoostInstruction {
+            side_ref: SideReference::SideOne,
+            stat: PokemonBoostableStat::Attack,
+            amount: 2,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_assaultvest() {
     let mut state = State::default();
     state.side_two.get_active().item = Items::ASSAULTVEST;
