@@ -1,5 +1,7 @@
 use crate::abilities::Abilities;
-use crate::choices::{Boost, Choice, Choices, Heal, MoveCategory, MoveTarget, StatBoosts};
+use crate::choices::{
+    Boost, Choice, Choices, Effect, Heal, MoveCategory, MoveTarget, Secondary, StatBoosts,
+};
 use crate::damage_calc::type_effectiveness_modifier;
 use crate::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
 use crate::instruction::{
@@ -313,6 +315,20 @@ pub fn modify_choice(
                     > attacking_side.calculate_boosted_stat(PokemonBoostableStat::SpecialAttack)
                 {
                     attacker_choice.category = MoveCategory::Physical;
+                }
+                if active.tera_type == PokemonType::STELLAR {
+                    attacker_choice.add_or_create_secondaries(Secondary {
+                        chance: 100.0,
+                        target: MoveTarget::User,
+                        effect: Effect::Boost(StatBoosts {
+                            attack: -1,
+                            defense: 0,
+                            special_attack: -1,
+                            special_defense: 0,
+                            speed: 0,
+                            accuracy: 0,
+                        }),
+                    })
                 }
             }
         }
