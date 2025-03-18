@@ -5824,6 +5824,56 @@ fn test_terablast_into_ghost_makes_normal_immune() {
 }
 
 #[test]
+#[cfg(feature = "terastallization")]
+fn test_tera_blast_stellar_into_ghost_type_does_damage() {
+    let mut state = State::default();
+    state.side_one.get_active().terastallized = true;
+    state.side_one.get_active().tera_type = PokemonType::STELLAR;
+    state.side_two.get_active().tera_type = PokemonType::GHOST;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TERABLAST,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 95,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(feature = "terastallization")]
+fn test_tera_blast_stellar_into_terastallized_does_double_damage() {
+    let mut state = State::default();
+    state.side_one.get_active().terastallized = true;
+    state.side_one.get_active().tera_type = PokemonType::STELLAR;
+    state.side_two.get_active().hp = 500;
+    state.side_two.get_active().maxhp = 500;
+    state.side_two.get_active().terastallized = true;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TERABLAST,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 191,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_terablast_becomes_physical() {
     let mut state = State::default();
     state.side_one.get_active().tera_type = PokemonType::WATER;

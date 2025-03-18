@@ -526,7 +526,12 @@ fn common_pkmn_damage_calc(
     let defender_types = get_defending_types(&defending_side, defender, attacker, choice);
 
     let mut damage_modifier = 1.0;
-    damage_modifier *= _type_effectiveness_modifier(&choice.move_type, &defender_types);
+
+    if defender.terastallized && choice.move_type == PokemonType::STELLAR {
+        damage_modifier *= 2.0;
+    } else {
+        damage_modifier *= _type_effectiveness_modifier(&choice.move_type, &defender_types);
+    }
 
     if attacker.ability != Abilities::CLOUDNINE
         && attacker.ability != Abilities::AIRLOCK
