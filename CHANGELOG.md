@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.0.36](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.36) - 2025-03-20
+
+### Bug Fixes
+
+- Terastallized defender always takes 2x from stellar move - ([877b1fc](https://github.com/pmariglia/poke-engine/commit/877b1fc8e8d8807c836fa6fa456a2f07b883f871))
+
+- Terablast stellar reduces offensive stats - ([a59857f](https://github.com/pmariglia/poke-engine/commit/a59857fe8264304ede821b430d2345ad255a7313))
+
+- Decouple terastallization from gen9 - ([ae35600](https://github.com/pmariglia/poke-engine/commit/ae356001fea6af328b9fee379f66a80ce88af27f))
+
 ## [v0.0.35](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.35) - 2025-03-11
 
 ### Features
