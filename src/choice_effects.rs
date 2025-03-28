@@ -385,7 +385,7 @@ pub fn modify_choice(
             }
             Weather::NONE => {}
         },
-        Choices::SOLARBEAM => {
+        Choices::SOLARBEAM | Choices::SOLARBLADE => {
             if state.weather_is_active(&Weather::SUN) || state.weather_is_active(&Weather::HARSHSUN)
             {
                 attacker_choice.flags.charge = false;
