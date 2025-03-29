@@ -571,6 +571,20 @@ pub fn add_remove_status_instructions(
                 pkmn.sleep_turns = 0;
             }
         }
+        PokemonStatus::TOXIC => {
+            if side.side_conditions.toxic_count != 0 {
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::ChangeSideCondition(
+                        ChangeSideConditionInstruction {
+                            side_ref: side_reference,
+                            side_condition: PokemonSideCondition::ToxicCount,
+                            amount: -1 * side.side_conditions.toxic_count,
+                        },
+                    ));
+                side.side_conditions.toxic_count = 0;
+            }
+        }
         _ => {}
     }
     pkmn.status = PokemonStatus::NONE;

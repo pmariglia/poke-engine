@@ -11880,6 +11880,94 @@ fn test_electroshot_executing_with_powerherb() {
 }
 
 #[test]
+fn test_toxic_count_is_reset_even_if_toxic_is_reapplied_the_same_turn() {
+    let mut state = State::default();
+    let mut toxic_choice = MOVES.get(&Choices::TOXIC).unwrap().to_owned();
+    toxic_choice.accuracy = 100.0; // to avoid generational differences with toxic and make test easier
+    state.side_one.get_active().moves.m0.choice = toxic_choice;
+    state.side_one.get_active().moves.m0.id = Choices::TOXIC;
+    state.side_one.get_active().speed = 100;
+
+    state.side_two.get_active().speed = 150;
+    state.side_two.get_active().status = PokemonStatus::TOXIC;
+    state.side_two.side_conditions.toxic_count = 2;
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::REFRESH);
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::TOXIC,
+                new_status: PokemonStatus::NONE,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideTwo,
+                side_condition: PokemonSideCondition::ToxicCount,
+                amount: -2,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::TOXIC,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 6,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideTwo,
+                side_condition: PokemonSideCondition::ToxicCount,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_toxic_count_removed_after_curing_status() {
+    let mut state = State::default();
+    state.side_two.get_active().status = PokemonStatus::TOXIC;
+    state.side_two.side_conditions.toxic_count = 2;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::REFRESH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::TOXIC,
+                new_status: PokemonStatus::NONE,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideTwo,
+                side_condition: PokemonSideCondition::ToxicCount,
+                amount: -2,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_solarblade_in_sun() {
     let mut state = State::default();
     state.weather.weather_type = Weather::SUN;
