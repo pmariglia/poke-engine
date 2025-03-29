@@ -2627,9 +2627,10 @@ fn add_end_of_turn_instructions(
 
     // status damage
     for side_ref in sides {
-        let side = state.get_side(side_ref);
+        let (side, other_side) = state.get_both_sides(side_ref);
         let toxic_count = side.side_conditions.toxic_count as f32;
         let active_pkmn = side.get_active();
+        let other_side_active = other_side.get_active();
         if active_pkmn.hp == 0 || active_pkmn.ability == Abilities::MAGICGUARD {
             continue;
         }
@@ -2676,30 +2677,37 @@ fn add_end_of_turn_instructions(
                     .instruction_list
                     .push(poison_damage_instruction);
             }
-            PokemonStatus::TOXIC if active_pkmn.ability != Abilities::POISONHEAL => {
-                let toxic_multiplier = (1.0 / 16.0) * toxic_count + (1.0 / 16.0);
-                let damage_amount = cmp::max(
-                    cmp::min(
-                        (active_pkmn.maxhp as f32 * toxic_multiplier) as i16,
-                        active_pkmn.hp,
-                    ),
-                    1,
-                );
-                let toxic_damage_instruction = Instruction::Damage(DamageInstruction {
-                    side_ref: *side_ref,
-                    damage_amount,
-                });
+            PokemonStatus::TOXIC => {
+                if active_pkmn.ability != Abilities::POISONHEAL
+                    || other_side_active.ability == Abilities::NEUTRALIZINGGAS
+                {
+                    let toxic_multiplier = (1.0 / 16.0) * toxic_count + (1.0 / 16.0);
+                    let damage_amount = cmp::max(
+                        cmp::min(
+                            (active_pkmn.maxhp as f32 * toxic_multiplier) as i16,
+                            active_pkmn.hp,
+                        ),
+                        1,
+                    );
+                    let toxic_damage_instruction = Instruction::Damage(DamageInstruction {
+                        side_ref: *side_ref,
+                        damage_amount,
+                    });
+
+                    active_pkmn.hp -= damage_amount;
+                    incoming_instructions
+                        .instruction_list
+                        .push(toxic_damage_instruction);
+                }
+
+                // toxic counter is always incremented, even if the pokemon has poison heal
                 let toxic_counter_increment_instruction =
                     Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
                         side_ref: *side_ref,
                         side_condition: PokemonSideCondition::ToxicCount,
                         amount: 1,
                     });
-                active_pkmn.hp -= damage_amount;
                 side.side_conditions.toxic_count += 1;
-                incoming_instructions
-                    .instruction_list
-                    .push(toxic_damage_instruction);
                 incoming_instructions
                     .instruction_list
                     .push(toxic_counter_increment_instruction);
@@ -9208,6 +9216,38 @@ mod tests {
     }
 
     #[test]
+    fn test_poisonheal_while_toxiced_still_increases_toxic_count() {
+        let mut state = State::default();
+        state.side_one.get_active().ability = Abilities::POISONHEAL;
+        state.side_one.get_active().status = PokemonStatus::TOXIC;
+        state.side_one.get_active().hp = 50;
+
+        let mut incoming_instructions = StateInstructions::default();
+        add_end_of_turn_instructions(
+            &mut state,
+            &mut incoming_instructions,
+            &SideReference::SideOne,
+        );
+
+        let expected_instructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                    side_ref: SideReference::SideOne,
+                    side_condition: PokemonSideCondition::ToxicCount,
+                    amount: 1,
+                }),
+                Instruction::Heal(HealInstruction {
+                    side_ref: SideReference::SideOne,
+                    heal_amount: 12,
+                }),
+            ],
+        };
+
+        assert_eq!(expected_instructions, incoming_instructions)
+    }
+
+    #[test]
     fn test_poisonheal_does_not_overheal() {
         let mut state = State::default();
         state.side_one.get_active().ability = Abilities::POISONHEAL;
@@ -9233,7 +9273,7 @@ mod tests {
     }
 
     #[test]
-    fn test_poisonheal_does_nothign_at_maxhp() {
+    fn test_poisonheal_does_nothing_at_maxhp() {
         let mut state = State::default();
         state.side_one.get_active().ability = Abilities::POISONHEAL;
         state.side_one.get_active().status = PokemonStatus::POISON;

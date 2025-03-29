@@ -11968,6 +11968,42 @@ fn test_toxic_count_removed_after_curing_status() {
 }
 
 #[test]
+fn test_switching_into_neutralizinggas_pokemon_when_other_side_has_toxic_count_and_poison_heal() {
+    let mut state = State::default();
+    state.side_one.pokemon.p1.ability = Abilities::NEUTRALIZINGGAS;
+    state.side_two.get_active().status = PokemonStatus::TOXIC;
+    state.side_two.get_active().ability = Abilities::POISONHEAL;
+    state.side_two.side_conditions.toxic_count = 8;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 56,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideTwo,
+                side_condition: PokemonSideCondition::ToxicCount,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_solarblade_in_sun() {
     let mut state = State::default();
     state.weather.weather_type = Weather::SUN;
