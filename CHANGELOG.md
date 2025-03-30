@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.0.37](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.37) - 2025-03-30
+
+### Features
+
+- Solarblade does not charge in sun - ([10f6dc3](https://github.com/pmariglia/poke-engine/commit/10f6dc371f8e5261d7b94b94c816fcf87063963a))
+
+
+### Bug Fixes
+
+- Toxic count is removed when toxic is removed - ([283ec60](https://github.com/pmariglia/poke-engine/commit/283ec60d12b097ce302e11123f2b7584de8178c3))
+
 ## [v0.0.36](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.36) - 2025-03-20
 
 ### Bug Fixes
