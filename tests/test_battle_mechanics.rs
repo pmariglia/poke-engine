@@ -7220,6 +7220,24 @@ fn test_pkmn_is_not_trapped_if_it_has_fainted() {
 }
 
 #[test]
+fn test_meteorbeam_volatile_only_allows_meteor_beam_to_be_used() {
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::METEORBEAM);
+    state.side_one.get_active().moves[&PokemonMoveIndex::M0] = Move {
+        id: Choices::METEORBEAM,
+        disabled: false,
+        pp: 16,
+        choice: MOVES.get(&Choices::METEORBEAM).unwrap().clone(),
+    };
+    let (side_one_moves, _side_two_moves) = state.get_all_options();
+
+    assert_eq!(vec![MoveChoice::Move(PokemonMoveIndex::M0)], side_one_moves);
+}
+
+#[test]
 #[cfg(not(feature = "terastallization"))]
 fn test_assaultvest_prevents_status_move() {
     let mut state = State::default();

@@ -1,4 +1,5 @@
 use crate::abilities::Abilities;
+use crate::choice_effects::charge_volatile_to_choice;
 use crate::choices::{Choice, Choices, MoveCategory, MOVES};
 use crate::define_enum_with_from_str;
 use crate::instruction::{
@@ -1130,6 +1131,20 @@ pub struct Side {
 }
 
 impl Side {
+    pub fn active_is_charging_move(&self) -> Option<PokemonMoveIndex> {
+        for volatile in self.volatile_statuses.iter() {
+            if let Some(choice) = charge_volatile_to_choice(volatile) {
+                let mut iter = self.get_active_immutable().moves.into_iter();
+                while let Some(mv) = iter.next() {
+                    if mv.id == choice {
+                        return Some(iter.pokemon_move_index);
+                    }
+                }
+            }
+        }
+        None
+    }
+
     pub fn calculate_highest_stat(&self) -> PokemonBoostableStat {
         let mut highest_stat = PokemonBoostableStat::Attack;
         let mut highest_stat_value = self.calculate_boosted_stat(PokemonBoostableStat::Attack);
@@ -1552,6 +1567,8 @@ impl State {
             .contains(&PokemonVolatileStatus::MUSTRECHARGE)
         {
             side_one_options.push(MoveChoice::None);
+        } else if let Some(mv_index) = self.side_one.active_is_charging_move() {
+            side_one_options.push(MoveChoice::Move(mv_index));
         } else {
             let encored = self
                 .side_one
@@ -1574,6 +1591,8 @@ impl State {
             .contains(&PokemonVolatileStatus::MUSTRECHARGE)
         {
             side_two_options.push(MoveChoice::None);
+        } else if let Some(mv_index) = self.side_two.active_is_charging_move() {
+            side_two_options.push(MoveChoice::Move(mv_index));
         } else {
             let encored = self
                 .side_two

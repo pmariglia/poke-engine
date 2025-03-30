@@ -1635,7 +1635,6 @@ pub fn choice_special_effect(
 }
 
 pub fn charge_choice_to_volatile(choice: &Choices) -> PokemonVolatileStatus {
-    // Panics if you pass a choice that does not have a corresponding volatile status
     match choice {
         Choices::BOUNCE => PokemonVolatileStatus::BOUNCE,
         Choices::DIG => PokemonVolatileStatus::DIG,
@@ -1657,5 +1656,28 @@ pub fn charge_choice_to_volatile(choice: &Choices) -> PokemonVolatileStatus {
         _ => {
             panic!("Invalid choice for charge: {:?}", choice)
         }
+    }
+}
+
+pub fn charge_volatile_to_choice(volatile: &PokemonVolatileStatus) -> Option<Choices> {
+    match volatile {
+        PokemonVolatileStatus::BOUNCE => Some(Choices::BOUNCE),
+        PokemonVolatileStatus::DIG => Some(Choices::DIG),
+        PokemonVolatileStatus::DIVE => Some(Choices::DIVE),
+        PokemonVolatileStatus::FLY => Some(Choices::FLY),
+        PokemonVolatileStatus::FREEZESHOCK => Some(Choices::FREEZESHOCK),
+        PokemonVolatileStatus::GEOMANCY => Some(Choices::GEOMANCY),
+        PokemonVolatileStatus::ICEBURN => Some(Choices::ICEBURN),
+        PokemonVolatileStatus::METEORBEAM => Some(Choices::METEORBEAM),
+        PokemonVolatileStatus::ELECTROSHOT => Some(Choices::ELECTROSHOT),
+        PokemonVolatileStatus::PHANTOMFORCE => Some(Choices::PHANTOMFORCE),
+        PokemonVolatileStatus::RAZORWIND => Some(Choices::RAZORWIND),
+        PokemonVolatileStatus::SHADOWFORCE => Some(Choices::SHADOWFORCE),
+        PokemonVolatileStatus::SKULLBASH => Some(Choices::SKULLBASH),
+        PokemonVolatileStatus::SKYATTACK => Some(Choices::SKYATTACK),
+        PokemonVolatileStatus::SKYDROP => Some(Choices::SKYDROP),
+        PokemonVolatileStatus::SOLARBEAM => Some(Choices::SOLARBEAM),
+        PokemonVolatileStatus::SOLARBLADE => Some(Choices::SOLARBLADE),
+        _ => None,
     }
 }
