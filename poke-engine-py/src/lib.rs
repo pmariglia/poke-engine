@@ -594,11 +594,11 @@ fn calculate_damage(
     let (s1_py_rolls, s2_py_rolls);
     match s1_damage_rolls {
         Some(rolls) => s1_py_rolls = rolls,
-        None => s1_py_rolls = vec![0],
+        None => s1_py_rolls = vec![0, 0],
     }
     match s2_damage_rolls {
         Some(rolls) => s2_py_rolls = rolls,
-        None => s2_py_rolls = vec![0],
+        None => s2_py_rolls = vec![0, 0],
     }
 
     Ok((s1_py_rolls, s2_py_rolls))
