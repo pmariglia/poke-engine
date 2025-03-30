@@ -492,7 +492,7 @@ pub fn modify_choice(
                 attacker_choice.base_power *= 2.0;
             }
         }
-        Choices::STOREDPOWER => {
+        Choices::STOREDPOWER | Choices::POWERTRIP => {
             let total_boosts = attacking_side.attack_boost.max(0)
                 + attacking_side.defense_boost.max(0)
                 + attacking_side.special_attack_boost.max(0)
