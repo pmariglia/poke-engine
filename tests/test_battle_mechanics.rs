@@ -6372,6 +6372,154 @@ fn test_protosynthesis_on_switchin_with_sun_up() {
 }
 
 #[test]
+fn test_protosynthesis_clears_when_sun_ends() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::PROTOSYNTHESIS;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::PROTOSYNTHESISATK);
+    state.weather.weather_type = Weather::SUN;
+    state.weather.turns_remaining = 1;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::None,
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DecrementWeatherTurnsRemaining,
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::PROTOSYNTHESISATK,
+            }),
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::NONE,
+                previous_weather: Weather::SUN,
+                previous_weather_turns_remaining: 0,
+                new_weather_turns_remaining: 0,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_protosynthesis_stays_up_but_consumes_item_when_sun_ends() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::PROTOSYNTHESIS;
+    state.side_one.get_active().item = Items::BOOSTERENERGY;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::PROTOSYNTHESISATK);
+    state.weather.weather_type = Weather::SUN;
+    state.weather.turns_remaining = 1;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::None,
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DecrementWeatherTurnsRemaining,
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::BOOSTERENERGY,
+                new_item: Items::NONE,
+            }),
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::NONE,
+                previous_weather: Weather::SUN,
+                previous_weather_turns_remaining: 0,
+                new_weather_turns_remaining: 0,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_quarkdrive_clears_when_electricterrain_ends() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::QUARKDRIVE;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::QUARKDRIVEATK);
+    state.terrain.terrain_type = Terrain::ELECTRICTERRAIN;
+    state.terrain.turns_remaining = 1;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::None,
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DecrementTerrainTurnsRemaining,
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::QUARKDRIVEATK,
+            }),
+            Instruction::ChangeTerrain(ChangeTerrain {
+                new_terrain: Terrain::NONE,
+                new_terrain_turns_remaining: 0,
+                previous_terrain: Terrain::ELECTRICTERRAIN,
+                previous_terrain_turns_remaining: 0,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_quarkdrive_stays_up_but_consumes_boosterenergy_when_electricterrain_ends() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::QUARKDRIVE;
+    state.side_one.get_active().item = Items::BOOSTERENERGY;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::QUARKDRIVEATK);
+    state.terrain.terrain_type = Terrain::ELECTRICTERRAIN;
+    state.terrain.turns_remaining = 1;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::None,
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DecrementTerrainTurnsRemaining,
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::BOOSTERENERGY,
+                new_item: Items::NONE,
+            }),
+            Instruction::ChangeTerrain(ChangeTerrain {
+                new_terrain: Terrain::NONE,
+                new_terrain_turns_remaining: 0,
+                previous_terrain: Terrain::ELECTRICTERRAIN,
+                previous_terrain_turns_remaining: 0,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_switching_out_while_other_side_is_partiallytrapped() {
     let mut state = State::default();
     state

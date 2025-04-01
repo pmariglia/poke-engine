@@ -2385,6 +2385,148 @@ fn moves_first(
     }
 }
 
+fn get_active_protosynthesis(side: &Side) -> Option<PokemonVolatileStatus> {
+    if side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::PROTOSYNTHESISATK)
+    {
+        Some(PokemonVolatileStatus::PROTOSYNTHESISATK)
+    } else if side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::PROTOSYNTHESISDEF)
+    {
+        Some(PokemonVolatileStatus::PROTOSYNTHESISDEF)
+    } else if side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::PROTOSYNTHESISSPA)
+    {
+        Some(PokemonVolatileStatus::PROTOSYNTHESISSPA)
+    } else if side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::PROTOSYNTHESISSPD)
+    {
+        Some(PokemonVolatileStatus::PROTOSYNTHESISSPD)
+    } else if side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::PROTOSYNTHESISSPE)
+    {
+        Some(PokemonVolatileStatus::PROTOSYNTHESISSPE)
+    } else {
+        None
+    }
+}
+
+fn get_active_quarkdrive(side: &Side) -> Option<PokemonVolatileStatus> {
+    if side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::QUARKDRIVEATK)
+    {
+        Some(PokemonVolatileStatus::QUARKDRIVEATK)
+    } else if side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::QUARKDRIVEDEF)
+    {
+        Some(PokemonVolatileStatus::QUARKDRIVEDEF)
+    } else if side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::QUARKDRIVESPA)
+    {
+        Some(PokemonVolatileStatus::QUARKDRIVESPA)
+    } else if side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::QUARKDRIVESPD)
+    {
+        Some(PokemonVolatileStatus::QUARKDRIVESPD)
+    } else if side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::QUARKDRIVESPE)
+    {
+        Some(PokemonVolatileStatus::QUARKDRIVESPE)
+    } else {
+        None
+    }
+}
+
+fn on_weather_end(
+    state: &mut State,
+    sides: [&SideReference; 2],
+    incoming_instructions: &mut StateInstructions,
+) {
+    match state.weather.weather_type {
+        Weather::SUN => {
+            for side_ref in sides {
+                let side = state.get_side(side_ref);
+                if side.get_active_immutable().ability == Abilities::PROTOSYNTHESIS {
+                    if let Some(volatile_status) = get_active_protosynthesis(side) {
+                        let active = side.get_active();
+                        if active.item == Items::BOOSTERENERGY {
+                            incoming_instructions
+                                .instruction_list
+                                .push(Instruction::ChangeItem(ChangeItemInstruction {
+                                    side_ref: *side_ref,
+                                    current_item: Items::BOOSTERENERGY,
+                                    new_item: Items::NONE,
+                                }));
+                            active.item = Items::NONE;
+                        } else {
+                            incoming_instructions.instruction_list.push(
+                                Instruction::RemoveVolatileStatus(
+                                    RemoveVolatileStatusInstruction {
+                                        side_ref: *side_ref,
+                                        volatile_status,
+                                    },
+                                ),
+                            );
+                            side.volatile_statuses.remove(&volatile_status);
+                        }
+                    }
+                }
+            }
+        }
+        _ => {}
+    }
+}
+
+fn on_terrain_end(
+    state: &mut State,
+    sides: [&SideReference; 2],
+    incoming_instructions: &mut StateInstructions,
+) {
+    match state.terrain.terrain_type {
+        Terrain::ELECTRICTERRAIN => {
+            for side_ref in sides {
+                let side = state.get_side(side_ref);
+                if side.get_active_immutable().ability == Abilities::QUARKDRIVE {
+                    if let Some(volatile_status) = get_active_quarkdrive(side) {
+                        let active = side.get_active();
+                        if active.item == Items::BOOSTERENERGY {
+                            incoming_instructions
+                                .instruction_list
+                                .push(Instruction::ChangeItem(ChangeItemInstruction {
+                                    side_ref: *side_ref,
+                                    current_item: Items::BOOSTERENERGY,
+                                    new_item: Items::NONE,
+                                }));
+                            active.item = Items::NONE;
+                        } else {
+                            incoming_instructions.instruction_list.push(
+                                Instruction::RemoveVolatileStatus(
+                                    RemoveVolatileStatusInstruction {
+                                        side_ref: *side_ref,
+                                        volatile_status,
+                                    },
+                                ),
+                            );
+                            side.volatile_statuses.remove(&volatile_status);
+                        }
+                    }
+                }
+            }
+        }
+        _ => {}
+    }
+}
+
 fn add_end_of_turn_instructions(
     state: &mut State,
     mut incoming_instructions: &mut StateInstructions,
@@ -2406,6 +2548,7 @@ fn add_end_of_turn_instructions(
             .push(weather_dissipate_instruction);
         state.weather.turns_remaining -= 1;
         if state.weather.turns_remaining == 0 {
+            on_weather_end(state, sides, &mut incoming_instructions);
             let weather_end_instruction = Instruction::ChangeWeather(ChangeWeather {
                 new_weather: Weather::NONE,
                 new_weather_turns_remaining: 0,
@@ -2445,6 +2588,7 @@ fn add_end_of_turn_instructions(
             .push(terrain_dissipate_instruction);
         state.terrain.turns_remaining -= 1;
         if state.terrain.turns_remaining == 0 {
+            on_terrain_end(state, sides, &mut incoming_instructions);
             let terrain_end_instruction = Instruction::ChangeTerrain(ChangeTerrain {
                 new_terrain: Terrain::NONE,
                 new_terrain_turns_remaining: 0,
