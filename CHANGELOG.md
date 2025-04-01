@@ -1,5 +1,23 @@
 # Changelog
 
+## [v0.0.38](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.38) - 2025-04-01
+
+### Features
+
+- Evaluation Fn additions (gen3+). - ([c044fef](https://github.com/pmariglia/poke-engine/commit/c044fef3857ecb561550fb211e4e6817ca2fe2cb))
+
+- Powertrip - ([d89aa45](https://github.com/pmariglia/poke-engine/commit/d89aa45ebfa714cb4fd9c62506c036e2ae543940))
+
+
+### Bug Fixes
+
+- Charge moves are forced when charging - ([56b8725](https://github.com/pmariglia/poke-engine/commit/56b872580467900ed7b5c94e41daa05b7d36545a))
+
+
+### Refactor
+
+- Damage calc returns crit damage as well - ([1f7fa6d](https://github.com/pmariglia/poke-engine/commit/1f7fa6dcaad3faaa5e1fb50cd30baf853219c37c))
+
 ## [v0.0.37](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.37) - 2025-03-30
 
 ### Features

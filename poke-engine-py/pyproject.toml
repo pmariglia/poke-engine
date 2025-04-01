@@ -8,5 +8,5 @@ build-backend = "maturin"
 
 [project]
 name = "poke-engine"
-version = "0.0.37"
+version = "0.0.38"
 readme = "readme.md"
