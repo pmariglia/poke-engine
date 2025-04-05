@@ -243,7 +243,6 @@ define_enum_with_from_str! {
         UNBURDEN,
         UPROAR,
         YAWN,
-        YAWNSLEEPTHISTURN,
 
         GEN1BURNNULLIFY,
         GEN1PARALYSISNULLIFY,
@@ -377,6 +376,7 @@ pub struct VolatileStatusDurations {
     pub confusion: i8,
     pub encore: i8,
     pub lockedmove: i8,
+    pub yawn: i8,
 }
 
 impl Default for VolatileStatusDurations {
@@ -385,13 +385,17 @@ impl Default for VolatileStatusDurations {
             confusion: 0,
             encore: 0,
             lockedmove: 0,
+            yawn: 0,
         }
     }
 }
 
 impl VolatileStatusDurations {
     pub fn serialize(&self) -> String {
-        format!("{};{};{}", self.confusion, self.encore, self.lockedmove)
+        format!(
+            "{};{};{};{}",
+            self.confusion, self.encore, self.lockedmove, self.yawn
+        )
     }
     pub fn deserialize(serialized: &str) -> VolatileStatusDurations {
         let split: Vec<&str> = serialized.split(";").collect();
@@ -399,6 +403,7 @@ impl VolatileStatusDurations {
             confusion: split[0].parse::<i8>().unwrap(),
             encore: split[1].parse::<i8>().unwrap(),
             lockedmove: split[2].parse::<i8>().unwrap(),
+            yawn: split[3].parse::<i8>().unwrap(),
         }
     }
 }
@@ -2587,7 +2592,7 @@ impl State {
     /// "=",
     ///
     /// // some volatile statuses have durations associated with them, delimited by ;
-    /// "0;0;0=",
+    /// "0;0;0;0=",
     ///
     /// // substitute_health
     /// "0=",
@@ -2624,7 +2629,7 @@ impl State {
     /// "false/",
     ///
     /// // SIDE 2, all in one line for brevity
-    /// "charizard,100,Rock,Fighting,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,None,0,0,25.5,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,false,Normal=pikachu,100,Fighting,Steel,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,None,0,0,25.5,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,false,Normal=blastoise,100,Grass,Fighting,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,None,0,0,25.5,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,false,Normal=tauros,100,Water,Fighting,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,None,0,0,25.5,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,false,Normal=raichu,100,Fighting,Typeless,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,None,0,0,25.5,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,false,Normal=persian,100,Poison,Fighting,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,None,0,0,25.5,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,false,Normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0;0;0=0=0=0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=switch:0=false/",
+    /// "charizard,100,Rock,Fighting,Rock,Fighting,323,323,JUSTIFIED,FOCUSSASH,357,216,163,217,346,None,0,0,25.5,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,false,Normal=pikachu,100,Fighting,Steel,Fighting,Steel,281,281,JUSTIFIED,LIFEORB,350,176,241,177,279,None,0,0,25.5,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,false,Normal=blastoise,100,Grass,Fighting,Grass,Fighting,262,262,TECHNICIAN,LIFEORB,394,196,141,156,239,None,0,0,25.5,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,false,Normal=tauros,100,Water,Fighting,Water,Fighting,323,323,JUSTIFIED,LEFTOVERS,163,216,357,217,346,None,0,0,25.5,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,false,Normal=raichu,100,Fighting,Typeless,Fighting,Typeless,414,414,GUTS,LEFTOVERS,416,226,132,167,126,None,0,0,25.5,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,false,Normal=persian,100,Poison,Fighting,Poison,Fighting,307,307,DRYSKIN,LIFEORB,311,166,189,167,295,None,0,0,25.5,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,false,Normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0;0;0;0=0=0=0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=switch:0=false/",
     ///
     /// // weather is a string representing the weather type and the number of turns remaining
     /// "none;5/",

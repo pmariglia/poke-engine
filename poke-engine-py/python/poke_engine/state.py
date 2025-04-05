@@ -257,12 +257,14 @@ class VolatileStatusDurations:
     confusion: int = 0
     lockedmove: int = 0
     encore: int = 0
+    yawn: int = 0
 
     def _into_rust_obj(self):
         return _VolatileStatusDurations(
             confusion=self.confusion,
             lockedmove=self.lockedmove,
             encore=self.encore,
+            yawn=self.yawn,
         )
 
 

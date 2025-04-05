@@ -179,12 +179,13 @@ impl PyVolatileStatusDurations {
 #[pymethods]
 impl PyVolatileStatusDurations {
     #[new]
-    fn new(confusion: i8, encore: i8, lockedmove: i8) -> PyVolatileStatusDurations {
+    fn new(confusion: i8, encore: i8, lockedmove: i8, yawn: i8) -> PyVolatileStatusDurations {
         PyVolatileStatusDurations {
             volatile_status_durations: VolatileStatusDurations {
                 confusion,
                 encore,
                 lockedmove,
+                yawn,
             },
         }
     }

@@ -2977,56 +2977,60 @@ fn add_end_of_turn_instructions(
 
         if side
             .volatile_statuses
-            .contains(&PokemonVolatileStatus::YAWNSLEEPTHISTURN)
-        {
-            side.volatile_statuses
-                .remove(&PokemonVolatileStatus::YAWNSLEEPTHISTURN);
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::RemoveVolatileStatus(
-                    RemoveVolatileStatusInstruction {
-                        side_ref: *side_ref,
-                        volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
-                    },
-                ));
-
-            let active = side.get_active();
-            if active.status == PokemonStatus::NONE {
-                active.status = PokemonStatus::SLEEP;
-                incoming_instructions
-                    .instruction_list
-                    .push(Instruction::ChangeStatus(ChangeStatusInstruction {
-                        side_ref: *side_ref,
-                        pokemon_index: side.active_index,
-                        old_status: PokemonStatus::NONE,
-                        new_status: PokemonStatus::SLEEP,
-                    }));
-            }
-        }
-
-        if side
-            .volatile_statuses
             .contains(&PokemonVolatileStatus::YAWN)
         {
-            side.volatile_statuses.remove(&PokemonVolatileStatus::YAWN);
-            side.volatile_statuses
-                .insert(PokemonVolatileStatus::YAWNSLEEPTHISTURN);
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::RemoveVolatileStatus(
-                    RemoveVolatileStatusInstruction {
-                        side_ref: *side_ref,
-                        volatile_status: PokemonVolatileStatus::YAWN,
-                    },
-                ));
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::ApplyVolatileStatus(
-                    ApplyVolatileStatusInstruction {
-                        side_ref: *side_ref,
-                        volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
-                    },
-                ));
+            match side.volatile_status_durations.yawn {
+                0 => {
+                    incoming_instructions.instruction_list.push(
+                        Instruction::ChangeVolatileStatusDuration(
+                            ChangeVolatileStatusDurationInstruction {
+                                side_ref: *side_ref,
+                                volatile_status: PokemonVolatileStatus::YAWN,
+                                amount: 1,
+                            },
+                        ),
+                    );
+                    side.volatile_status_durations.yawn += 1;
+                }
+                1 => {
+                    side.volatile_statuses.remove(&PokemonVolatileStatus::YAWN);
+                    incoming_instructions
+                        .instruction_list
+                        .push(Instruction::RemoveVolatileStatus(
+                            RemoveVolatileStatusInstruction {
+                                side_ref: *side_ref,
+                                volatile_status: PokemonVolatileStatus::YAWN,
+                            },
+                        ));
+                    incoming_instructions.instruction_list.push(
+                        Instruction::ChangeVolatileStatusDuration(
+                            ChangeVolatileStatusDurationInstruction {
+                                side_ref: *side_ref,
+                                volatile_status: PokemonVolatileStatus::YAWN,
+                                amount: -1,
+                            },
+                        ),
+                    );
+                    side.volatile_status_durations.yawn -= 1;
+
+                    let active = side.get_active();
+                    if active.status == PokemonStatus::NONE {
+                        active.status = PokemonStatus::SLEEP;
+                        incoming_instructions
+                            .instruction_list
+                            .push(Instruction::ChangeStatus(ChangeStatusInstruction {
+                                side_ref: *side_ref,
+                                pokemon_index: side.active_index,
+                                old_status: PokemonStatus::NONE,
+                                new_status: PokemonStatus::SLEEP,
+                            }));
+                    }
+                }
+                _ => panic!(
+                    "Yawn duration cannot be {} when yawn volatile is active",
+                    side.volatile_status_durations.yawn
+                ),
+            }
         }
 
         if side
