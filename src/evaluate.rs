@@ -49,6 +49,18 @@ const SPIKES: f32 = -7.0;
 const TOXIC_SPIKES: f32 = -7.0;
 const STICKY_WEB: f32 = -25.0;
 
+fn evaluate_poison(pokemon: &Pokemon, base_score: f32) -> f32 {
+    return match pokemon.ability {
+        Abilities::POISONHEAL => 15.0,
+        Abilities::GUTS
+        | Abilities::MARVELSCALE
+        | Abilities::QUICKFEET
+        | Abilities::TOXICBOOST
+        | Abilities::MAGICGUARD => 10.0,
+        _ => base_score,
+    };
+}
+
 fn evaluate_burned(pokemon: &Pokemon) -> f32 {
     // burn is not as punishing in certain situations
 
@@ -123,8 +135,8 @@ fn evaluate_pokemon(pokemon: &Pokemon) -> f32 {
         PokemonStatus::SLEEP => score += POKEMON_ASLEEP,
         // paralysis is more punishing for faster pokemon
         PokemonStatus::PARALYZE => score += POKEMON_PARALYZED * (pokemon.speed as f32 / 200.0),
-        PokemonStatus::TOXIC => score += POKEMON_TOXIC,
-        PokemonStatus::POISON => score += POKEMON_POISONED,
+        PokemonStatus::TOXIC => score += evaluate_poison(pokemon, POKEMON_TOXIC),
+        PokemonStatus::POISON => score += evaluate_poison(pokemon, POKEMON_POISONED),
         PokemonStatus::NONE => {}
     }
 
