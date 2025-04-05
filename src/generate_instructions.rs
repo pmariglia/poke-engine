@@ -280,6 +280,56 @@ fn generate_instructions_from_switch(
         );
     }
 
+    if side.side_conditions.healing_wish > 0 {
+        #[cfg(any(feature = "gen8", feature = "gen9"))]
+        let mut healing_wish_consumed = false;
+
+        #[cfg(any(
+            feature = "gen3",
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7"
+        ))]
+        let mut healing_wish_consumed = true;
+
+        let switched_in_pkmn = side.get_active();
+        if switched_in_pkmn.hp < switched_in_pkmn.maxhp {
+            let heal_amount = switched_in_pkmn.maxhp - switched_in_pkmn.hp;
+            let heal_instruction = Instruction::Heal(HealInstruction {
+                side_ref: switching_side_ref,
+                heal_amount,
+            });
+            incoming_instructions
+                .instruction_list
+                .push(heal_instruction);
+            switched_in_pkmn.hp += heal_amount;
+            healing_wish_consumed = true;
+        }
+        if switched_in_pkmn.status != PokemonStatus::NONE {
+            add_remove_status_instructions(
+                incoming_instructions,
+                new_pokemon_index,
+                switching_side_ref,
+                side,
+            );
+            healing_wish_consumed = true;
+        }
+
+        if healing_wish_consumed {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ChangeSideCondition(
+                    ChangeSideConditionInstruction {
+                        side_ref: switching_side_ref,
+                        side_condition: PokemonSideCondition::HealingWish,
+                        amount: -1 * side.side_conditions.healing_wish,
+                    },
+                ));
+            side.side_conditions.healing_wish = 0;
+        }
+    }
+
     let active = side.get_active_immutable();
     if active.item != Items::HEAVYDUTYBOOTS {
         let switched_in_pkmn = side.get_active_immutable();

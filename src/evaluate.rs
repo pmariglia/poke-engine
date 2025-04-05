@@ -43,6 +43,7 @@ const LIGHT_SCREEN: f32 = 20.0;
 const AURORA_VEIL: f32 = 40.0;
 const SAFE_GUARD: f32 = 5.0;
 const TAILWIND: f32 = 7.0;
+const HEALING_WISH: f32 = 30.0;
 
 const STEALTH_ROCK: f32 = -10.0;
 const SPIKES: f32 = -7.0;
@@ -228,12 +229,14 @@ pub fn evaluate(state: &State) -> f32 {
     score += state.side_one.side_conditions.aurora_veil as f32 * AURORA_VEIL;
     score += state.side_one.side_conditions.safeguard as f32 * SAFE_GUARD;
     score += state.side_one.side_conditions.tailwind as f32 * TAILWIND;
+    score += state.side_one.side_conditions.healing_wish as f32 * HEALING_WISH;
 
     score -= state.side_two.side_conditions.reflect as f32 * REFLECT;
     score -= state.side_two.side_conditions.light_screen as f32 * LIGHT_SCREEN;
     score -= state.side_two.side_conditions.aurora_veil as f32 * AURORA_VEIL;
     score -= state.side_two.side_conditions.safeguard as f32 * SAFE_GUARD;
     score -= state.side_two.side_conditions.tailwind as f32 * TAILWIND;
+    score -= state.side_two.side_conditions.healing_wish as f32 * HEALING_WISH;
 
     score
 }
