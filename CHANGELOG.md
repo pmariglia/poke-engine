@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.0.40](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.40) - 2025-04-06
+
+### Features
+
+- Healing Wish - ([5fd1014](https://github.com/pmariglia/poke-engine/commit/5fd101422df8df6153777b162fe2166e3217c6a6))
+
+- [**breaking**] SlowStart - ([1194b15](https://github.com/pmariglia/poke-engine/commit/1194b157523e7b2c7278e20bbb4508b6d819ebbe))
+
 ## [v0.0.39](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.39) - 2025-04-05
 
 ### Features
