@@ -1163,7 +1163,7 @@ pub fn choice_hazard_clear(
 
 pub fn choice_special_effect(
     state: &mut State,
-    choice: &Choice,
+    choice: &mut Choice,
     attacking_side_ref: &SideReference,
     instructions: &mut StateInstructions,
 ) {
@@ -1460,7 +1460,7 @@ pub fn choice_special_effect(
             attacking_side.get_active().hp = target_hp;
             defending_side.get_active().hp = target_hp;
         }
-        Choices::SUBSTITUTE => {
+        Choices::SUBSTITUTE | Choices::SHEDTAIL => {
             if attacking_side
                 .volatile_statuses
                 .contains(&PokemonVolatileStatus::SUBSTITUTE)
@@ -1470,10 +1470,19 @@ pub fn choice_special_effect(
             let sub_current_health = attacking_side.substitute_health;
             let active_pkmn = attacking_side.get_active();
             let sub_target_health = active_pkmn.maxhp / 4;
-            if active_pkmn.hp > sub_target_health {
+            let pkmn_health_reduction = if choice.move_id == Choices::SHEDTAIL {
+                active_pkmn.maxhp / 2
+            } else {
+                sub_target_health
+            };
+            if active_pkmn.hp > pkmn_health_reduction {
+                if choice.move_id == Choices::SHEDTAIL {
+                    choice.flags.pivot = true;
+                }
+
                 let damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: attacking_side_ref.clone(),
-                    damage_amount: sub_target_health,
+                    damage_amount: pkmn_health_reduction,
                 });
                 let set_sub_health_instruction =
                     Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
@@ -1485,7 +1494,7 @@ pub fn choice_special_effect(
                         side_ref: attacking_side_ref.clone(),
                         volatile_status: PokemonVolatileStatus::SUBSTITUTE,
                     });
-                active_pkmn.hp -= sub_target_health;
+                active_pkmn.hp -= pkmn_health_reduction;
                 attacking_side.substitute_health = sub_target_health;
                 attacking_side
                     .volatile_statuses

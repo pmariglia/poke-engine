@@ -276,6 +276,9 @@ class Side:
     :param baton_passing: Set to `true` if the next move this side is making is a switch due to having used baton pass.
         `force_switch` will always be `true` if this is `true`
     :type baton_passing: bool
+    :param shed_tailing: Set to `true` if the next move this side is making is a switch due to having used shed tail.
+            `force_switch` will always be `true` if this is `true`
+    :type shed_tailing: bool
     :param pokemon: The Pokemon on this side
     :type pokemon: list[Pokemon]
     :param side_conditions: The SideConditions on this side
@@ -320,6 +323,7 @@ class Side:
 
     active_index: str = "0"
     baton_passing: bool = False
+    shed_tailing: bool = False
     pokemon: list[Pokemon] = field(default_factory=list)
     side_conditions: SideConditions = field(default_factory=SideConditions)
     volatile_status_durations: VolatileStatusDurations = field(
@@ -346,6 +350,7 @@ class Side:
         return _Side(
             active_index=self.active_index,
             baton_passing=self.baton_passing,
+            shed_tailing=self.shed_tailing,
             pokemon=[p._into_rust_obj() for p in self.pokemon],
             side_conditions=self.side_conditions._into_rust_obj(),
             volatile_status_durations=self.volatile_status_durations._into_rust_obj(),

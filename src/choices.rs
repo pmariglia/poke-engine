@@ -14407,13 +14407,10 @@ lazy_static! {
                 target: MoveTarget::User,
                 move_type: PokemonType::NORMAL,
                 flags: Flags {
-                    pivot: true,
+                    pivot: false, // Shed Tail implemented in choice_special_effect()
                     ..Default::default()
                 },
-                volatile_status: Some(VolatileStatus {
-                    target: MoveTarget::User,
-                    volatile_status: PokemonVolatileStatus::SUBSTITUTE,
-                }),
+                volatile_status: None, // Shed Tail implemented in choice_special_effect()
                 ..Default::default()
             },
         );

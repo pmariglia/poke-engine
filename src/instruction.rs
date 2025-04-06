@@ -82,6 +82,7 @@ pub enum Instruction {
     SetSideOneMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     ToggleBatonPassing(ToggleBatonPassingInstruction),
+    ToggleShedTailing(ToggleShedTailingInstruction),
     SetLastUsedMove(SetLastUsedMoveInstruction),
     SetDamageDealtSideOne(SetDamageDealtSideOneInstruction),
     SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction),
@@ -258,7 +259,7 @@ impl fmt::Debug for Instruction {
             Instruction::ChangeSubstituteHealth(s) => {
                 write!(
                     f,
-                    "SetSubstituteHealth {:?}: {:?}",
+                    "ChangeSubstituteHealth {:?}: {:?}",
                     s.side_ref, s.health_change,
                 )
             }
@@ -285,6 +286,9 @@ impl fmt::Debug for Instruction {
             }
             Instruction::ToggleBatonPassing(s) => {
                 write!(f, "ToggleBatonPassing {:?}", s.side_ref)
+            }
+            Instruction::ToggleShedTailing(s) => {
+                write!(f, "ToggleShedTailing {:?}", s.side_ref)
             }
             Instruction::ToggleTerastallized(s) => {
                 write!(f, "ToggleTerastallized {:?}", s.side_ref)
@@ -378,6 +382,11 @@ pub struct SetLastUsedMoveInstruction {
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct ToggleBatonPassingInstruction {
+    pub side_ref: SideReference,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ToggleShedTailingInstruction {
     pub side_ref: SideReference,
 }
 
