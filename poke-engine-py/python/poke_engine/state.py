@@ -248,15 +248,20 @@ class VolatileStatusDurations:
 
     :param confusion:
     :type confusion: int
-    :param curse:
-    :type curse: int
+    :param lockedmove:
+    :type lockedmove: int
     :param encore:
     :type encore: int
+    :param slowstart:
+    :type slowstart: int
+    :param yawn:
+    :type yawn: int
     """
 
     confusion: int = 0
     lockedmove: int = 0
     encore: int = 0
+    slowstart: int = 0
     yawn: int = 0
 
     def _into_rust_obj(self):
@@ -264,6 +269,7 @@ class VolatileStatusDurations:
             confusion=self.confusion,
             lockedmove=self.lockedmove,
             encore=self.encore,
+            slowstart=self.slowstart,
             yawn=self.yawn,
         )
 

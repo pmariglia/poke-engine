@@ -9,8 +9,8 @@ use crate::generate_instructions::{add_remove_status_instructions, get_boost_ins
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeAbilityInstruction,
     ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain,
-    ChangeType, ChangeWeather, DamageInstruction, FormeChangeInstruction, HealInstruction,
-    Instruction, StateInstructions,
+    ChangeType, ChangeVolatileStatusDurationInstruction, ChangeWeather, DamageInstruction,
+    FormeChangeInstruction, HealInstruction, Instruction, StateInstructions,
 };
 use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::pokemon::PokemonName;
@@ -1506,9 +1506,6 @@ pub fn ability_on_switch_in(
                 }));
         }
         Abilities::SLOWSTART => {
-            attacking_side
-                .volatile_statuses
-                .insert(PokemonVolatileStatus::SLOWSTART);
             instructions
                 .instruction_list
                 .push(Instruction::ApplyVolatileStatus(
@@ -1517,6 +1514,19 @@ pub fn ability_on_switch_in(
                         volatile_status: PokemonVolatileStatus::SLOWSTART,
                     },
                 ));
+            instructions
+                .instruction_list
+                .push(Instruction::ChangeVolatileStatusDuration(
+                    ChangeVolatileStatusDurationInstruction {
+                        side_ref: *side_ref,
+                        volatile_status: PokemonVolatileStatus::SLOWSTART,
+                        amount: 6 - attacking_side.volatile_status_durations.slowstart,
+                    },
+                ));
+            attacking_side
+                .volatile_statuses
+                .insert(PokemonVolatileStatus::SLOWSTART);
+            attacking_side.volatile_status_durations.slowstart = 6;
         }
         Abilities::DROUGHT | Abilities::ORICHALCUMPULSE => {
             if state.weather.weather_type != Weather::SUN {

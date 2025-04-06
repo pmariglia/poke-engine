@@ -2970,6 +2970,34 @@ fn add_end_of_turn_instructions(
 
         if side
             .volatile_statuses
+            .contains(&PokemonVolatileStatus::SLOWSTART)
+        {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ChangeVolatileStatusDuration(
+                    ChangeVolatileStatusDurationInstruction {
+                        side_ref: *side_ref,
+                        volatile_status: PokemonVolatileStatus::SLOWSTART,
+                        amount: -1,
+                    },
+                ));
+            side.volatile_status_durations.slowstart -= 1;
+            if side.volatile_status_durations.slowstart == 0 {
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::RemoveVolatileStatus(
+                        RemoveVolatileStatusInstruction {
+                            side_ref: *side_ref,
+                            volatile_status: PokemonVolatileStatus::SLOWSTART,
+                        },
+                    ));
+                side.volatile_statuses
+                    .remove(&PokemonVolatileStatus::SLOWSTART);
+            }
+        }
+
+        if side
+            .volatile_statuses
             .contains(&PokemonVolatileStatus::LOCKEDMOVE)
         {
             // the number says 2 but this is 3 turns of using a locking move

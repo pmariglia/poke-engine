@@ -15681,6 +15681,78 @@ fn test_slowstart_activates_on_switch_in() {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::SLOWSTART,
             }),
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SLOWSTART,
+                amount: 6,
+            }),
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SLOWSTART,
+                amount: -1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_slowstart_duration_decrement() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::SLOWSTART;
+    state.side_one.volatile_status_durations.slowstart = 6;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::SLOWSTART);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::ChangeVolatileStatusDuration(
+            ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SLOWSTART,
+                amount: -1,
+            },
+        )],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_slowstart_is_removed_when_durations_reach_zero() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::SLOWSTART;
+    state.side_one.volatile_status_durations.slowstart = 1;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::SLOWSTART);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SLOWSTART,
+                amount: -1,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SLOWSTART,
+            }),
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
