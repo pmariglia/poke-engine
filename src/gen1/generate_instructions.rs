@@ -1771,26 +1771,11 @@ pub fn calculate_damage_rolls(
     );
 
     let mut return_vec = Vec::with_capacity(16);
-    if let Some((damage, _crit_damage)) =
+    if let Some((damage, crit_damage)) =
         calculate_damage(&state, attacking_side_ref, &choice, DamageRolls::Max)
     {
-        let damage = damage as f32;
-        return_vec.push((damage * 0.85) as i16);
-        return_vec.push((damage * 0.86) as i16);
-        return_vec.push((damage * 0.87) as i16);
-        return_vec.push((damage * 0.88) as i16);
-        return_vec.push((damage * 0.89) as i16);
-        return_vec.push((damage * 0.90) as i16);
-        return_vec.push((damage * 0.91) as i16);
-        return_vec.push((damage * 0.92) as i16);
-        return_vec.push((damage * 0.93) as i16);
-        return_vec.push((damage * 0.94) as i16);
-        return_vec.push((damage * 0.95) as i16);
-        return_vec.push((damage * 0.96) as i16);
-        return_vec.push((damage * 0.97) as i16);
-        return_vec.push((damage * 0.98) as i16);
-        return_vec.push((damage * 0.99) as i16);
-        return_vec.push(damage as i16);
+        return_vec.push(damage);
+        return_vec.push(crit_damage);
         Some(return_vec)
     } else {
         None
