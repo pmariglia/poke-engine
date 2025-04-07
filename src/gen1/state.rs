@@ -1932,12 +1932,8 @@ impl State {
                 }
             },
             Instruction::ToggleShedTailing(instruction) => match instruction.side_ref {
-                SideReference::SideOne => {
-                    self.side_one.shed_tailing = !self.side_one.shed_tailing
-                }
-                SideReference::SideTwo => {
-                    self.side_two.shed_tailing = !self.side_two.shed_tailing
-                }
+                SideReference::SideOne => self.side_one.shed_tailing = !self.side_one.shed_tailing,
+                SideReference::SideTwo => self.side_two.shed_tailing = !self.side_two.shed_tailing,
             },
             Instruction::ToggleTerastallized(instruction) => match instruction.side_ref {
                 SideReference::SideOne => self.side_one.get_active().terastallized ^= true,
@@ -2118,12 +2114,8 @@ impl State {
                 }
             },
             Instruction::ToggleShedTailing(instruction) => match instruction.side_ref {
-                SideReference::SideOne => {
-                    self.side_one.shed_tailing = !self.side_one.shed_tailing
-                }
-                SideReference::SideTwo => {
-                    self.side_two.shed_tailing = !self.side_two.shed_tailing
-                }
+                SideReference::SideOne => self.side_one.shed_tailing = !self.side_one.shed_tailing,
+                SideReference::SideTwo => self.side_two.shed_tailing = !self.side_two.shed_tailing,
             },
             Instruction::ToggleTerastallized(instruction) => match instruction.side_ref {
                 SideReference::SideOne => self.side_one.get_active().terastallized ^= true,
