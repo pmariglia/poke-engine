@@ -6,7 +6,10 @@ use crate::generate_instructions::{
 use crate::instruction::{Instruction, StateInstructions};
 use crate::mcts::{perform_mcts, MctsResult};
 use crate::search::{expectiminimax_search, iterative_deepen_expectiminimax, pick_safest};
-use crate::state::{MoveChoice, Pokemon, PokemonVolatileStatus, Side, SideConditions, State};
+use crate::state::{
+    MoveChoice, Pokemon, PokemonVolatileStatus, Side, SideConditions, State,
+    VolatileStatusDurations,
+};
 use clap::Parser;
 use std::io;
 use std::io::Write;
@@ -105,6 +108,29 @@ impl Default for IOData {
     }
 }
 
+impl VolatileStatusDurations {
+    fn io_print(&self) -> String {
+        let durations = [
+            ("confusion", self.confusion),
+            ("encore", self.encore),
+            ("lockedmove", self.lockedmove),
+            ("slowstart", self.slowstart),
+            ("yawn", self.yawn),
+        ];
+
+        let mut output = String::new();
+        for (name, value) in durations {
+            if value != 0 {
+                output.push_str(&format!("\n  {}: {}", name, value));
+            }
+        }
+        if output.is_empty() {
+            return "none".to_string();
+        }
+        output
+    }
+}
+
 impl SideConditions {
     fn io_print(&self) -> String {
         let conditions = [
@@ -153,6 +179,37 @@ impl Side {
             self.speed_boost
         )
     }
+    fn io_conditional_print(&self) -> String {
+        let mut output = String::new();
+        if self.baton_passing {
+            output.push_str("\n  baton_passing: true");
+        }
+        if self.wish.0 != 0 {
+            output.push_str(&format!("\n  wish: ({}, {})", self.wish.0, self.wish.1));
+        }
+        if self.future_sight.0 != 0 {
+            output.push_str(&format!(
+                "\n  future_sight: ({}, {:?})",
+                self.future_sight.0, self.pokemon[self.future_sight.1].id
+            ));
+        }
+        if self
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::SUBSTITUTE)
+        {
+            output.push_str(&format!(
+                "\n  substitute_health: {}",
+                self.substitute_health
+            ));
+        }
+
+        if !output.is_empty() {
+            output.insert_str(0, "Extras:");
+            output.push_str("\n");
+        }
+
+        output
+    }
     fn io_print(&self, available_choices: Vec<String>) -> String {
         let reserve = self
             .pokemon
@@ -160,12 +217,23 @@ impl Side {
             .map(|p| p.io_print_reserve())
             .collect::<Vec<String>>();
         format!(
-            "\nActive:{}\nVolatiles: {:?}\nBoosts: {}\nSide Conditions: {}\nPokemon: {}\nAvailable Choices: {}",
-            self.get_active_immutable().io_print_active(),
-            self.volatile_statuses,
-            self.io_print_boosts(),
-            self.side_conditions.io_print(),
+            "\nPokemon: {}\n\
+            Active:{}\n\
+            Boosts: {}\n\
+            Last Used Move: {}\n\
+            Volatiles: {:?}\n\
+            VolatileDurations: {}\n\
+            Side Conditions: {}\n\
+            {}\
+            Available Choices: {}",
             reserve.join(", "),
+            self.get_active_immutable().io_print_active(),
+            self.io_print_boosts(),
+            self.last_used_move.serialize(),
+            self.volatile_statuses,
+            self.volatile_status_durations.io_print(),
+            self.side_conditions.io_print(),
+            self.io_conditional_print(),
             available_choices.join(", ")
         )
     }
@@ -740,19 +808,19 @@ fn command_loop(mut io_data: IOData) {
                 let mut side_one_choices = vec![];
                 for option in side_one_options {
                     side_one_choices.push(
-                        format!("{:?}", io_data.state.side_one.option_to_string(&option))
+                        format!("{}", io_data.state.side_one.option_to_string(&option))
                             .to_lowercase(),
                     );
                 }
                 let mut side_two_choices = vec![];
                 for option in side_two_options {
                     side_two_choices.push(
-                        format!("{:?}", io_data.state.side_two.option_to_string(&option))
+                        format!("{}", io_data.state.side_two.option_to_string(&option))
                             .to_lowercase(),
                     );
                 }
                 println!(
-                    "SideOne {}\n\nvs\n\nSideTwo {}\n\nState:\n  Weather: {:?},{}\n  Terrain: {:?},{}\n  TrickRoom: {},{}",
+                    "SideOne {}\n\nvs\n\nSideTwo {}\n\nState:\n  Weather: {:?},{}\n  Terrain: {:?},{}\n  TrickRoom: {},{}\n  UseLastUsedMove: {}\n  UseDamageDealt: {}",
                     io_data.state.side_one.io_print(side_one_choices),
                     io_data.state.side_two.io_print(side_two_choices),
                     io_data.state.weather.weather_type,
@@ -760,7 +828,9 @@ fn command_loop(mut io_data: IOData) {
                     io_data.state.terrain.terrain_type,
                     io_data.state.terrain.turns_remaining,
                     io_data.state.trick_room.active,
-                    io_data.state.trick_room.turns_remaining
+                    io_data.state.trick_room.turns_remaining,
+                    io_data.state.use_last_used_move,
+                    io_data.state.use_damage_dealt,
                 );
             }
             "generate-instructions" | "g" => {
