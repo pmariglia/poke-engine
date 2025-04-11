@@ -11,7 +11,7 @@ use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeWeather, DecrementRestTurnsInstruction, HealInstruction,
     RemoveVolatileStatusInstruction, SetSecondMoveSwitchOutMoveInstruction,
-    SetSleepTurnsInstruction, ToggleBatonPassingInstruction, ToggleShedTailingInstruction,
+    SetSleepTurnsInstruction, ToggleBatonPassingInstruction,
 };
 use crate::instruction::{DecrementFutureSightInstruction, SetDamageDealtSideTwoInstruction};
 use crate::instruction::{DecrementPPInstruction, SetLastUsedMoveInstruction};
@@ -148,33 +148,6 @@ pub fn generate_instructions_from_switch(
             }
         }
     }
-
-    let mut shed_tailing = false;
-    if side.shed_tailing {
-        shed_tailing = true;
-        side.shed_tailing = false;
-        match switching_side_ref {
-            SideReference::SideOne => {
-                incoming_instructions
-                    .instruction_list
-                    .push(Instruction::ToggleShedTailing(
-                        ToggleShedTailingInstruction {
-                            side_ref: SideReference::SideOne,
-                        },
-                    ));
-            }
-            SideReference::SideTwo => {
-                incoming_instructions
-                    .instruction_list
-                    .push(Instruction::ToggleShedTailing(
-                        ToggleShedTailingInstruction {
-                            side_ref: SideReference::SideTwo,
-                        },
-                    ));
-            }
-        }
-    }
-
     if opposite_side
         .volatile_statuses
         .contains(&PokemonVolatileStatus::PARTIALLYTRAPPED)
@@ -200,7 +173,6 @@ pub fn generate_instructions_from_switch(
         &switching_side_ref,
         &mut incoming_instructions.instruction_list,
         baton_passing,
-        shed_tailing,
     );
     state.reset_toxic(
         &switching_side_ref,
@@ -2193,15 +2165,6 @@ fn run_move(
                                     side_ref: SideReference::SideOne,
                                 },
                             ));
-                    } else if choice.move_id == Choices::SHEDTAIL {
-                        state.side_one.shed_tailing = !state.side_one.shed_tailing;
-                        instructions
-                            .instruction_list
-                            .push(Instruction::ToggleShedTailing(
-                                ToggleShedTailingInstruction {
-                                    side_ref: SideReference::SideOne,
-                                },
-                            ));
                     }
                     state.side_one.force_switch = !state.side_one.force_switch;
                     instructions
@@ -2243,15 +2206,6 @@ fn run_move(
                             .instruction_list
                             .push(Instruction::ToggleBatonPassing(
                                 ToggleBatonPassingInstruction {
-                                    side_ref: SideReference::SideTwo,
-                                },
-                            ));
-                    } else if choice.move_id == Choices::SHEDTAIL {
-                        state.side_two.shed_tailing = !state.side_two.shed_tailing;
-                        instructions
-                            .instruction_list
-                            .push(Instruction::ToggleShedTailing(
-                                ToggleShedTailingInstruction {
                                     side_ref: SideReference::SideTwo,
                                 },
                             ));
