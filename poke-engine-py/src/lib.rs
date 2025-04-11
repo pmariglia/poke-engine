@@ -97,6 +97,7 @@ impl PySide {
     fn new(
         active_index: String,
         baton_passing: bool,
+        shed_tailing: bool,
         mut pokemon: Vec<PyPokemon>,
         side_conditions: PySideConditions,
         volatile_status_durations: PyVolatileStatusDurations,
@@ -128,6 +129,7 @@ impl PySide {
             side: Side {
                 active_index: PokemonIndex::deserialize(&active_index),
                 baton_passing,
+                shed_tailing,
                 pokemon: SidePokemon {
                     p0: pokemon[0].create_pokemon(),
                     p1: pokemon[1].create_pokemon(),

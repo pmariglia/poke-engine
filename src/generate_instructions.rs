@@ -16,7 +16,8 @@ use crate::instruction::{
     ChangeSideConditionInstruction, ChangeTerrain, ChangeVolatileStatusDurationInstruction,
     ChangeWeather, DecrementRestTurnsInstruction, DecrementWishInstruction, HealInstruction,
     RemoveVolatileStatusInstruction, SetSecondMoveSwitchOutMoveInstruction,
-    SetSleepTurnsInstruction, ToggleBatonPassingInstruction, ToggleTrickRoomInstruction,
+    SetSleepTurnsInstruction, ToggleBatonPassingInstruction, ToggleShedTailingInstruction,
+    ToggleTrickRoomInstruction,
 };
 use crate::instruction::{DecrementFutureSightInstruction, SetDamageDealtSideTwoInstruction};
 use crate::instruction::{DecrementPPInstruction, SetLastUsedMoveInstruction};
@@ -191,6 +192,32 @@ fn generate_instructions_from_switch(
         }
     }
 
+    let mut shed_tailing = false;
+    if side.shed_tailing {
+        shed_tailing = true;
+        side.shed_tailing = false;
+        match switching_side_ref {
+            SideReference::SideOne => {
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::ToggleShedTailing(
+                        ToggleShedTailingInstruction {
+                            side_ref: SideReference::SideOne,
+                        },
+                    ));
+            }
+            SideReference::SideTwo => {
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::ToggleShedTailing(
+                        ToggleShedTailingInstruction {
+                            side_ref: SideReference::SideTwo,
+                        },
+                    ));
+            }
+        }
+    }
+
     #[cfg(feature = "gen5")]
     if side.get_active_immutable().status == PokemonStatus::SLEEP {
         let current_active_index = side.active_index;
@@ -245,6 +272,7 @@ fn generate_instructions_from_switch(
         &switching_side_ref,
         &mut incoming_instructions.instruction_list,
         baton_passing,
+        shed_tailing,
     );
     state.reset_toxic_count(
         &switching_side_ref,
@@ -2084,7 +2112,7 @@ pub fn generate_instructions_from_move(
         final_instructions.push(incoming_instructions);
         return;
     }
-    choice_special_effect(state, &choice, &attacking_side, &mut incoming_instructions);
+    choice_special_effect(state, choice, &attacking_side, &mut incoming_instructions);
     let damage = calculate_damage(state, &attacking_side, &choice, DamageRolls::Max);
     check_move_hit_or_miss(
         state,
@@ -3421,6 +3449,15 @@ fn run_move(
                                     side_ref: SideReference::SideOne,
                                 },
                             ));
+                    } else if choice.move_id == Choices::SHEDTAIL {
+                        state.side_one.shed_tailing = !state.side_one.shed_tailing;
+                        instructions
+                            .instruction_list
+                            .push(Instruction::ToggleShedTailing(
+                                ToggleShedTailingInstruction {
+                                    side_ref: SideReference::SideOne,
+                                },
+                            ));
                     }
                     state.side_one.force_switch = !state.side_one.force_switch;
                     instructions
@@ -3462,6 +3499,15 @@ fn run_move(
                             .instruction_list
                             .push(Instruction::ToggleBatonPassing(
                                 ToggleBatonPassingInstruction {
+                                    side_ref: SideReference::SideTwo,
+                                },
+                            ));
+                    } else if choice.move_id == Choices::SHEDTAIL {
+                        state.side_two.shed_tailing = !state.side_two.shed_tailing;
+                        instructions
+                            .instruction_list
+                            .push(Instruction::ToggleShedTailing(
+                                ToggleShedTailingInstruction {
                                     side_ref: SideReference::SideTwo,
                                 },
                             ));
@@ -4387,6 +4433,31 @@ mod tests {
         let mut state: State = State::default();
         state.side_one.get_active().hp = 25;
         let mut choice = MOVES.get(&Choices::SUBSTITUTE).unwrap().to_owned();
+
+        let mut instructions = vec![];
+        generate_instructions_from_move(
+            &mut state,
+            &mut choice,
+            &MOVES.get(&Choices::TACKLE).unwrap(),
+            SideReference::SideOne,
+            StateInstructions::default(),
+            &mut instructions,
+            false,
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        }];
+
+        assert_eq!(instructions, expected_instructions)
+    }
+
+    #[test]
+    fn test_shedtail_failing_if_user_has_less_than_50_percent_hp() {
+        let mut state: State = State::default();
+        state.side_one.get_active().hp = 50;
+        let mut choice = MOVES.get(&Choices::SHEDTAIL).unwrap().to_owned();
 
         let mut instructions = vec![];
         generate_instructions_from_move(

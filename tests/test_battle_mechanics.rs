@@ -17,7 +17,8 @@ use poke_engine::instruction::{
     EnableMoveInstruction, FormeChangeInstruction, HealInstruction, Instruction,
     RemoveVolatileStatusInstruction, SetFutureSightInstruction,
     SetSecondMoveSwitchOutMoveInstruction, SetSleepTurnsInstruction, StateInstructions,
-    SwitchInstruction, ToggleBatonPassingInstruction, ToggleTrickRoomInstruction,
+    SwitchInstruction, ToggleBatonPassingInstruction, ToggleShedTailingInstruction,
+    ToggleTrickRoomInstruction,
 };
 use poke_engine::items::Items;
 use poke_engine::pokemon::PokemonName;
@@ -6303,6 +6304,239 @@ fn test_non_baton_pass_switching_with_sub() {
         percentage: 100.0,
         instruction_list: vec![
             Instruction::ToggleSideOneForceSwitch,
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::LEECHSEED,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_basic_shedtail_usage() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SHEDTAIL,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 50,
+            }),
+            Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
+                side_ref: SideReference::SideOne,
+                health_change: 25,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
+            }),
+            Instruction::ToggleShedTailing(ToggleShedTailingInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+            Instruction::ToggleSideOneForceSwitch,
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
+                new_choice: Choices::TACKLE,
+                previous_choice: Choices::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_shedtail_with_boosts() {
+    let mut state = State::default();
+    state.side_one.attack_boost = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SHEDTAIL,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 50,
+            }),
+            Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
+                side_ref: SideReference::SideOne,
+                health_change: 25,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
+            }),
+            Instruction::ToggleShedTailing(ToggleShedTailingInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+            Instruction::ToggleSideOneForceSwitch,
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
+                new_choice: Choices::NONE,
+                previous_choice: Choices::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_shedtail_with_leechseed() {
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::LEECHSEED);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SHEDTAIL,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 50,
+            }),
+            Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
+                side_ref: SideReference::SideOne,
+                health_change: 25,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
+            }),
+            Instruction::ToggleShedTailing(ToggleShedTailingInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+            Instruction::ToggleSideOneForceSwitch,
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
+                new_choice: Choices::NONE,
+                previous_choice: Choices::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_switching_from_shedtail() {
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
+    state.side_one.substitute_health = 25;
+    state.side_one.force_switch = true;
+    state.side_one.shed_tailing = true;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::None,
+    );
+
+    // substitute remains (no instructions to remove it or change sub health)
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleSideOneForceSwitch,
+            Instruction::ToggleShedTailing(ToggleShedTailingInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_switching_from_shedtail_with_boosts() {
+    let mut state = State::default();
+    state.side_one.attack_boost = 5;
+    state.side_one.speed_boost = 5;
+    state.side_one.force_switch = true;
+    state.side_one.shed_tailing = true;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleSideOneForceSwitch,
+            Instruction::ToggleShedTailing(ToggleShedTailingInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Attack,
+                amount: -5,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::Speed,
+                amount: -5,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_switching_from_shedtail_with_leechseed() {
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::LEECHSEED);
+    state.side_one.force_switch = true;
+    state.side_one.shed_tailing = true;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ToggleSideOneForceSwitch,
+            Instruction::ToggleShedTailing(ToggleShedTailingInstruction {
+                side_ref: SideReference::SideOne,
+            }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::LEECHSEED,

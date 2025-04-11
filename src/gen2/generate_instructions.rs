@@ -148,7 +148,6 @@ pub fn generate_instructions_from_switch(
             }
         }
     }
-
     if opposite_side
         .volatile_statuses
         .contains(&PokemonVolatileStatus::PARTIALLYTRAPPED)
