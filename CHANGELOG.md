@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.0.41](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.41) - 2025-04-11
+
+### Bug Fixes
+
+- Gen1 and gen2 also return crit damages - ([18e2370](https://github.com/pmariglia/poke-engine/commit/18e23706ae2706488e89d73ba84313ff4a187cc6))
+
+- Add some more information to text debugger - ([12d72d3](https://github.com/pmariglia/poke-engine/commit/12d72d3a3accb6994acd9e065e123dea04178f82))
+
 ## [v0.0.40](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.40) - 2025-04-06
 
 ### Features
