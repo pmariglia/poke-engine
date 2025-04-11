@@ -308,6 +308,56 @@ fn generate_instructions_from_switch(
         );
     }
 
+    if side.side_conditions.healing_wish > 0 {
+        #[cfg(any(feature = "gen8", feature = "gen9"))]
+        let mut healing_wish_consumed = false;
+
+        #[cfg(any(
+            feature = "gen3",
+            feature = "gen4",
+            feature = "gen5",
+            feature = "gen6",
+            feature = "gen7"
+        ))]
+        let mut healing_wish_consumed = true;
+
+        let switched_in_pkmn = side.get_active();
+        if switched_in_pkmn.hp < switched_in_pkmn.maxhp {
+            let heal_amount = switched_in_pkmn.maxhp - switched_in_pkmn.hp;
+            let heal_instruction = Instruction::Heal(HealInstruction {
+                side_ref: switching_side_ref,
+                heal_amount,
+            });
+            incoming_instructions
+                .instruction_list
+                .push(heal_instruction);
+            switched_in_pkmn.hp += heal_amount;
+            healing_wish_consumed = true;
+        }
+        if switched_in_pkmn.status != PokemonStatus::NONE {
+            add_remove_status_instructions(
+                incoming_instructions,
+                new_pokemon_index,
+                switching_side_ref,
+                side,
+            );
+            healing_wish_consumed = true;
+        }
+
+        if healing_wish_consumed {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ChangeSideCondition(
+                    ChangeSideConditionInstruction {
+                        side_ref: switching_side_ref,
+                        side_condition: PokemonSideCondition::HealingWish,
+                        amount: -1 * side.side_conditions.healing_wish,
+                    },
+                ));
+            side.side_conditions.healing_wish = 0;
+        }
+    }
+
     let active = side.get_active_immutable();
     if active.item != Items::HEAVYDUTYBOOTS {
         let switched_in_pkmn = side.get_active_immutable();
@@ -2948,6 +2998,34 @@ fn add_end_of_turn_instructions(
 
         if side
             .volatile_statuses
+            .contains(&PokemonVolatileStatus::SLOWSTART)
+        {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::ChangeVolatileStatusDuration(
+                    ChangeVolatileStatusDurationInstruction {
+                        side_ref: *side_ref,
+                        volatile_status: PokemonVolatileStatus::SLOWSTART,
+                        amount: -1,
+                    },
+                ));
+            side.volatile_status_durations.slowstart -= 1;
+            if side.volatile_status_durations.slowstart == 0 {
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::RemoveVolatileStatus(
+                        RemoveVolatileStatusInstruction {
+                            side_ref: *side_ref,
+                            volatile_status: PokemonVolatileStatus::SLOWSTART,
+                        },
+                    ));
+                side.volatile_statuses
+                    .remove(&PokemonVolatileStatus::SLOWSTART);
+            }
+        }
+
+        if side
+            .volatile_statuses
             .contains(&PokemonVolatileStatus::LOCKEDMOVE)
         {
             // the number says 2 but this is 3 turns of using a locking move
@@ -3005,56 +3083,60 @@ fn add_end_of_turn_instructions(
 
         if side
             .volatile_statuses
-            .contains(&PokemonVolatileStatus::YAWNSLEEPTHISTURN)
-        {
-            side.volatile_statuses
-                .remove(&PokemonVolatileStatus::YAWNSLEEPTHISTURN);
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::RemoveVolatileStatus(
-                    RemoveVolatileStatusInstruction {
-                        side_ref: *side_ref,
-                        volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
-                    },
-                ));
-
-            let active = side.get_active();
-            if active.status == PokemonStatus::NONE {
-                active.status = PokemonStatus::SLEEP;
-                incoming_instructions
-                    .instruction_list
-                    .push(Instruction::ChangeStatus(ChangeStatusInstruction {
-                        side_ref: *side_ref,
-                        pokemon_index: side.active_index,
-                        old_status: PokemonStatus::NONE,
-                        new_status: PokemonStatus::SLEEP,
-                    }));
-            }
-        }
-
-        if side
-            .volatile_statuses
             .contains(&PokemonVolatileStatus::YAWN)
         {
-            side.volatile_statuses.remove(&PokemonVolatileStatus::YAWN);
-            side.volatile_statuses
-                .insert(PokemonVolatileStatus::YAWNSLEEPTHISTURN);
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::RemoveVolatileStatus(
-                    RemoveVolatileStatusInstruction {
-                        side_ref: *side_ref,
-                        volatile_status: PokemonVolatileStatus::YAWN,
-                    },
-                ));
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::ApplyVolatileStatus(
-                    ApplyVolatileStatusInstruction {
-                        side_ref: *side_ref,
-                        volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
-                    },
-                ));
+            match side.volatile_status_durations.yawn {
+                0 => {
+                    incoming_instructions.instruction_list.push(
+                        Instruction::ChangeVolatileStatusDuration(
+                            ChangeVolatileStatusDurationInstruction {
+                                side_ref: *side_ref,
+                                volatile_status: PokemonVolatileStatus::YAWN,
+                                amount: 1,
+                            },
+                        ),
+                    );
+                    side.volatile_status_durations.yawn += 1;
+                }
+                1 => {
+                    side.volatile_statuses.remove(&PokemonVolatileStatus::YAWN);
+                    incoming_instructions
+                        .instruction_list
+                        .push(Instruction::RemoveVolatileStatus(
+                            RemoveVolatileStatusInstruction {
+                                side_ref: *side_ref,
+                                volatile_status: PokemonVolatileStatus::YAWN,
+                            },
+                        ));
+                    incoming_instructions.instruction_list.push(
+                        Instruction::ChangeVolatileStatusDuration(
+                            ChangeVolatileStatusDurationInstruction {
+                                side_ref: *side_ref,
+                                volatile_status: PokemonVolatileStatus::YAWN,
+                                amount: -1,
+                            },
+                        ),
+                    );
+                    side.volatile_status_durations.yawn -= 1;
+
+                    let active = side.get_active();
+                    if active.status == PokemonStatus::NONE {
+                        active.status = PokemonStatus::SLEEP;
+                        incoming_instructions
+                            .instruction_list
+                            .push(Instruction::ChangeStatus(ChangeStatusInstruction {
+                                side_ref: *side_ref,
+                                pokemon_index: side.active_index,
+                                old_status: PokemonStatus::NONE,
+                                new_status: PokemonStatus::SLEEP,
+                            }));
+                    }
+                }
+                _ => panic!(
+                    "Yawn duration cannot be {} when yawn volatile is active",
+                    side.volatile_status_durations.yawn
+                ),
+            }
         }
 
         if side

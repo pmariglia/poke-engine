@@ -9146,6 +9146,163 @@ fn test_trickroom_when_trickroom_is_already_active() {
 }
 
 #[test]
+fn test_healing_wish_sets_side_condition() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::HEALINGWISH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideOne,
+                side_condition: PokemonSideCondition::HealingWish,
+                amount: 1,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: -100,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_healing_wish_activates_on_switchin() {
+    let mut state = State::default();
+    state.side_one.side_conditions.healing_wish = 1;
+    state.side_one.pokemon.p1.hp = 50;
+    state.side_one.pokemon.p1.status = PokemonStatus::FREEZE;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 50,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P1,
+                old_status: PokemonStatus::FREEZE,
+                new_status: PokemonStatus::NONE,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideOne,
+                side_condition: PokemonSideCondition::HealingWish,
+                amount: -1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_healing_wish_activates_if_only_statused() {
+    let mut state = State::default();
+    state.side_one.side_conditions.healing_wish = 1;
+    state.side_one.pokemon.p1.status = PokemonStatus::FREEZE;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P1,
+                old_status: PokemonStatus::FREEZE,
+                new_status: PokemonStatus::NONE,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideOne,
+                side_condition: PokemonSideCondition::HealingWish,
+                amount: -1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(feature = "gen8", feature = "gen9"))]
+fn test_healing_wish_does_not_consume_on_healthy_pkmn() {
+    let mut state = State::default();
+    state.side_one.side_conditions.healing_wish = 1;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Switch(SwitchInstruction {
+            side_ref: SideReference::SideOne,
+            previous_index: PokemonIndex::P0,
+            next_index: PokemonIndex::P1,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6", feature = "gen7"))]
+fn test_healing_wish_is_consumed_even_if_it_does_nothing() {
+    let mut state = State::default();
+    state.side_one.side_conditions.healing_wish = 1;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideOne,
+                side_condition: PokemonSideCondition::HealingWish,
+                amount: -1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_using_wish() {
     let mut state = State::default();
 
@@ -11024,7 +11181,7 @@ fn test_burnup_removes_type_1_fire() {
 }
 
 #[test]
-fn test_yawn_gets_applied_and_swapped_with_next_turn_volatile() {
+fn test_yawn_gets_applied_and_duration_decrements() {
     let mut state = State::default();
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -11039,13 +11196,10 @@ fn test_yawn_gets_applied_and_swapped_with_next_turn_volatile() {
                 side_ref: SideReference::SideTwo,
                 volatile_status: PokemonVolatileStatus::YAWN,
             }),
-            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
                 side_ref: SideReference::SideTwo,
                 volatile_status: PokemonVolatileStatus::YAWN,
-            }),
-            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
+                amount: 1,
             }),
         ],
     }];
@@ -11129,12 +11283,13 @@ fn test_protect_blocks_yawn() {
 }
 
 #[test]
-fn test_yawn_sleep_next_turn_causes_pkmn_to_sleep() {
+fn test_yawn_with_duration_causes_pkmn_to_sleep() {
     let mut state = State::default();
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::YAWNSLEEPTHISTURN);
+        .insert(PokemonVolatileStatus::YAWN);
+    state.side_two.volatile_status_durations.yawn = 1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -11147,7 +11302,12 @@ fn test_yawn_sleep_next_turn_causes_pkmn_to_sleep() {
         instruction_list: vec![
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
+                volatile_status: PokemonVolatileStatus::YAWN,
+            }),
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::YAWN,
+                amount: -1,
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideTwo,
@@ -11161,12 +11321,50 @@ fn test_yawn_sleep_next_turn_causes_pkmn_to_sleep() {
 }
 
 #[test]
+fn test_yawn_and_duration_removed_on_switch() {
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::YAWN);
+    state.side_one.volatile_status_durations.yawn = 1;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::YAWN,
+                amount: -1,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::YAWN,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_cannot_reapply_yawn_when_already_inflicted() {
     let mut state = State::default();
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::YAWNSLEEPTHISTURN);
+        .insert(PokemonVolatileStatus::YAWN);
+    state.side_two.volatile_status_durations.yawn = 1;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -11179,7 +11377,12 @@ fn test_cannot_reapply_yawn_when_already_inflicted() {
         instruction_list: vec![
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
+                volatile_status: PokemonVolatileStatus::YAWN,
+            }),
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::YAWN,
+                amount: -1,
             }),
             Instruction::ChangeStatus(ChangeStatusInstruction {
                 side_ref: SideReference::SideTwo,
@@ -11198,7 +11401,8 @@ fn test_yawn_is_removed_but_no_status_change_if_pkmn_already_statused() {
     state
         .side_two
         .volatile_statuses
-        .insert(PokemonVolatileStatus::YAWNSLEEPTHISTURN);
+        .insert(PokemonVolatileStatus::YAWN);
+    state.side_two.volatile_status_durations.yawn = 1;
     state.side_two.get_active().status = PokemonStatus::POISON;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -11216,7 +11420,12 @@ fn test_yawn_is_removed_but_no_status_change_if_pkmn_already_statused() {
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
+                volatile_status: PokemonVolatileStatus::YAWN,
+            }),
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::YAWN,
+                amount: -1,
             }),
         ],
     }];
@@ -11449,13 +11658,10 @@ fn test_yawn_can_be_inflicted_with_electricterrain_on_nongrounded_pkmn() {
                 side_ref: SideReference::SideTwo,
                 volatile_status: PokemonVolatileStatus::YAWN,
             }),
-            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
                 side_ref: SideReference::SideTwo,
                 volatile_status: PokemonVolatileStatus::YAWN,
-            }),
-            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
+                amount: 1,
             }),
         ],
     }];
@@ -11481,13 +11687,10 @@ fn test_yawn_can_be_inflicted_with_mistyterrain_when_target_is_not_grounded() {
                 side_ref: SideReference::SideTwo,
                 volatile_status: PokemonVolatileStatus::YAWN,
             }),
-            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
                 side_ref: SideReference::SideTwo,
                 volatile_status: PokemonVolatileStatus::YAWN,
-            }),
-            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                side_ref: SideReference::SideTwo,
-                volatile_status: PokemonVolatileStatus::YAWNSLEEPTHISTURN,
+                amount: 1,
             }),
         ],
     }];
@@ -15709,6 +15912,78 @@ fn test_slowstart_activates_on_switch_in() {
                 next_index: PokemonIndex::P1,
             }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SLOWSTART,
+            }),
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SLOWSTART,
+                amount: 6,
+            }),
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SLOWSTART,
+                amount: -1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_slowstart_duration_decrement() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::SLOWSTART;
+    state.side_one.volatile_status_durations.slowstart = 6;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::SLOWSTART);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::ChangeVolatileStatusDuration(
+            ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SLOWSTART,
+                amount: -1,
+            },
+        )],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_slowstart_is_removed_when_durations_reach_zero() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::SLOWSTART;
+    state.side_one.volatile_status_durations.slowstart = 1;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::SLOWSTART);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SLOWSTART,
+                amount: -1,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::SLOWSTART,
             }),

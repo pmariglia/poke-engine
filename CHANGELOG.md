@@ -1,5 +1,31 @@
 # Changelog
 
+## [v0.0.40](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.40) - 2025-04-06
+
+### Features
+
+- Healing Wish - ([5fd1014](https://github.com/pmariglia/poke-engine/commit/5fd101422df8df6153777b162fe2166e3217c6a6))
+
+- [**breaking**] SlowStart - ([1194b15](https://github.com/pmariglia/poke-engine/commit/1194b157523e7b2c7278e20bbb4508b6d819ebbe))
+
+## [v0.0.39](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.39) - 2025-04-05
+
+### Features
+
+- Poison and toxic are conditional in evaluation fn - ([ca7dd56](https://github.com/pmariglia/poke-engine/commit/ca7dd567321ece048bbc814ed0a7c2b2198fd185))
+
+
+### Bug Fixes
+
+- Protosynthesis and Quarkdrive dissipate when weather/field ends - ([9e95564](https://github.com/pmariglia/poke-engine/commit/9e95564b4c60bdf40a885368b84f225d5d5f1a85))
+
+- Undo paralysis evaluation being based on speed - ([1b0a889](https://github.com/pmariglia/poke-engine/commit/1b0a889c3233cfe19231749628964295498cf2c3))
+
+
+### Refactor
+
+- [**breaking**] Yawn uses VolatileStatusDurations - ([fc79e9f](https://github.com/pmariglia/poke-engine/commit/fc79e9f862905cc66077a46f9739b96c0d7284a0))
+
 ## [v0.0.38](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.38) - 2025-04-01
 
 ### Features
