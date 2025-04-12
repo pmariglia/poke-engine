@@ -2533,7 +2533,8 @@ impl State {
                 &instruction.amount,
             ),
             Instruction::FormeChange(instruction) => {
-                self.get_side(&instruction.side_ref).get_active().id = instruction.new_forme;
+                let active = self.get_side(&instruction.side_ref).get_active();
+                active.id = PokemonName::from(active.id as i16 + instruction.name_change);
             }
         }
     }
@@ -2717,7 +2718,8 @@ impl State {
                 &instruction.amount,
             ),
             Instruction::FormeChange(instruction) => {
-                self.get_side(&instruction.side_ref).get_active().id = instruction.previous_forme;
+                let active = self.get_side(&instruction.side_ref).get_active();
+                active.id = PokemonName::from(active.id as i16 - instruction.name_change);
             }
         }
     }

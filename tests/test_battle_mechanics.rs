@@ -3394,8 +3394,7 @@ fn test_schooling_when_falling_below_25_percent() {
             }),
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::WISHIWASHI,
-                previous_forme: PokemonName::WISHIWASHISCHOOL,
+                name_change: PokemonName::WISHIWASHI as i16 - PokemonName::WISHIWASHISCHOOL as i16,
             }),
             Instruction::ChangeAttack(ChangeStatInstruction {
                 side_ref: SideReference::SideOne,
@@ -3448,8 +3447,7 @@ fn test_schooling_when_falling_going_above_25_percent() {
             }),
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::WISHIWASHISCHOOL,
-                previous_forme: PokemonName::WISHIWASHI,
+                name_change: PokemonName::WISHIWASHISCHOOL as i16 - PokemonName::WISHIWASHI as i16,
             }),
             Instruction::ChangeAttack(ChangeStatInstruction {
                 side_ref: SideReference::SideOne,
@@ -3502,8 +3500,7 @@ fn test_minior_formechange() {
             }),
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::MINIOR,
-                previous_forme: PokemonName::MINIORMETEOR,
+                name_change: PokemonName::MINIOR as i16 - PokemonName::MINIORMETEOR as i16,
             }),
             Instruction::ChangeAttack(ChangeStatInstruction {
                 side_ref: SideReference::SideOne,
@@ -3547,8 +3544,7 @@ fn test_palafin_formechange_on_switchout() {
         instruction_list: vec![
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::PALAFINHERO,
-                previous_forme: PokemonName::PALAFIN,
+                name_change: PokemonName::PALAFINHERO as i16 - PokemonName::PALAFIN as i16,
             }),
             Instruction::ChangeAttack(ChangeStatInstruction {
                 side_ref: SideReference::SideOne,
@@ -3597,8 +3593,7 @@ fn test_cramorant_forme_revert_on_switchout() {
         instruction_list: vec![
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::CRAMORANT,
-                previous_forme: PokemonName::CRAMORANTGULPING,
+                name_change: PokemonName::CRAMORANT as i16 - PokemonName::CRAMORANTGULPING as i16,
             }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
@@ -3631,8 +3626,7 @@ fn test_cramorant_damage_and_def_drop_from_gulping_on_being_hit() {
             }),
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::CRAMORANT,
-                previous_forme: PokemonName::CRAMORANTGULPING,
+                name_change: PokemonName::CRAMORANT as i16 - PokemonName::CRAMORANTGULPING as i16,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -3669,8 +3663,7 @@ fn test_cramorant_damage_and_paralysis_from_gorging_on_being_hit() {
             }),
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::CRAMORANT,
-                previous_forme: PokemonName::CRAMORANTGORGING,
+                name_change: PokemonName::CRAMORANT as i16 - PokemonName::CRAMORANTGORGING as i16,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -3709,8 +3702,7 @@ fn test_previous_status_makes_immune_to_paralysis() {
             }),
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::CRAMORANT,
-                previous_forme: PokemonName::CRAMORANTGORGING,
+                name_change: PokemonName::CRAMORANT as i16 - PokemonName::CRAMORANTGORGING as i16,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -3743,8 +3735,7 @@ fn test_cramorant_formechange_gulping_when_using_surf() {
         instruction_list: vec![
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::CRAMORANTGULPING,
-                previous_forme: PokemonName::CRAMORANT,
+                name_change: PokemonName::CRAMORANTGULPING as i16 - PokemonName::CRAMORANT as i16,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -3774,8 +3765,7 @@ fn test_cramorant_formechange_gorging_when_using_surf() {
         instruction_list: vec![
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::CRAMORANTGORGING,
-                previous_forme: PokemonName::CRAMORANT,
+                name_change: PokemonName::CRAMORANTGORGING as i16 - PokemonName::CRAMORANT as i16,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -3826,8 +3816,7 @@ fn test_morpeko_reverts_to_fullbelly_when_switching_out() {
         instruction_list: vec![
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::MORPEKO,
-                previous_forme: PokemonName::MORPEKOHANGRY,
+                name_change: PokemonName::MORPEKO as i16 - PokemonName::MORPEKOHANGRY as i16,
             }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
@@ -3878,8 +3867,7 @@ fn test_morpeko_formechange_end_of_turn() {
         percentage: 100.0,
         instruction_list: vec![Instruction::FormeChange(FormeChangeInstruction {
             side_ref: SideReference::SideOne,
-            new_forme: PokemonName::MORPEKOHANGRY,
-            previous_forme: PokemonName::MORPEKO,
+            name_change: PokemonName::MORPEKOHANGRY as i16 - PokemonName::MORPEKO as i16,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -3921,8 +3909,7 @@ fn test_morpekohangry_formechange_end_of_turn() {
         percentage: 100.0,
         instruction_list: vec![Instruction::FormeChange(FormeChangeInstruction {
             side_ref: SideReference::SideOne,
-            new_forme: PokemonName::MORPEKO,
-            previous_forme: PokemonName::MORPEKOHANGRY,
+            name_change: PokemonName::MORPEKO as i16 - PokemonName::MORPEKOHANGRY as i16,
         })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -3959,8 +3946,7 @@ fn test_minior_meteor_formechange_when_healing() {
             }),
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::MINIORMETEOR,
-                previous_forme: PokemonName::MINIOR,
+                name_change: PokemonName::MINIORMETEOR as i16 - PokemonName::MINIOR as i16,
             }),
             Instruction::ChangeAttack(ChangeStatInstruction {
                 side_ref: SideReference::SideOne,
@@ -12975,8 +12961,7 @@ fn test_iceface_eiscue_taking_physical_hit() {
         instruction_list: vec![
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::EISCUENOICE,
-                previous_forme: PokemonName::EISCUE,
+                name_change: PokemonName::EISCUENOICE as i16 - PokemonName::EISCUE as i16,
             }),
             Instruction::ChangeDefense(ChangeStatInstruction {
                 side_ref: SideReference::SideOne,
@@ -13014,8 +12999,7 @@ fn test_iceface_eiscue_taking_uturn() {
         instruction_list: vec![
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::EISCUENOICE,
-                previous_forme: PokemonName::EISCUE,
+                name_change: PokemonName::EISCUENOICE as i16 - PokemonName::EISCUE as i16,
             }),
             Instruction::ChangeDefense(ChangeStatInstruction {
                 side_ref: SideReference::SideOne,
@@ -13058,8 +13042,7 @@ fn test_iceface_against_move_with_secondary() {
         instruction_list: vec![
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::EISCUENOICE,
-                previous_forme: PokemonName::EISCUE,
+                name_change: PokemonName::EISCUENOICE as i16 - PokemonName::EISCUE as i16,
             }),
             Instruction::ChangeDefense(ChangeStatInstruction {
                 side_ref: SideReference::SideOne,
@@ -13103,8 +13086,7 @@ fn test_iceface_against_move_with_possible_secondary() {
             instruction_list: vec![
                 Instruction::FormeChange(FormeChangeInstruction {
                     side_ref: SideReference::SideOne,
-                    new_forme: PokemonName::EISCUENOICE,
-                    previous_forme: PokemonName::EISCUE,
+                    name_change: PokemonName::EISCUENOICE as i16 - PokemonName::EISCUE as i16,
                 }),
                 Instruction::ChangeDefense(ChangeStatInstruction {
                     side_ref: SideReference::SideOne,
@@ -13125,8 +13107,7 @@ fn test_iceface_against_move_with_possible_secondary() {
             instruction_list: vec![
                 Instruction::FormeChange(FormeChangeInstruction {
                     side_ref: SideReference::SideOne,
-                    new_forme: PokemonName::EISCUENOICE,
-                    previous_forme: PokemonName::EISCUE,
+                    name_change: PokemonName::EISCUENOICE as i16 - PokemonName::EISCUE as i16,
                 }),
                 Instruction::ChangeDefense(ChangeStatInstruction {
                     side_ref: SideReference::SideOne,
@@ -13180,8 +13161,7 @@ fn test_iceface_eiscuenoice_switching_into_snow() {
             }),
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::EISCUE,
-                previous_forme: PokemonName::EISCUENOICE,
+                name_change: PokemonName::EISCUE as i16 - PokemonName::EISCUENOICE as i16,
             }),
             Instruction::ChangeAttack(ChangeStatInstruction {
                 side_ref: SideReference::SideOne,
@@ -13235,8 +13215,7 @@ fn test_iceface_eiscuenoice_switching_into_hail() {
             }),
             Instruction::FormeChange(FormeChangeInstruction {
                 side_ref: SideReference::SideOne,
-                new_forme: PokemonName::EISCUE,
-                previous_forme: PokemonName::EISCUENOICE,
+                name_change: PokemonName::EISCUE as i16 - PokemonName::EISCUENOICE as i16,
             }),
             Instruction::ChangeAttack(ChangeStatInstruction {
                 side_ref: SideReference::SideOne,
@@ -13304,8 +13283,7 @@ fn test_mimikyu_with_disguise_formechange_on_damaging_move() {
         percentage: 100.0,
         instruction_list: vec![Instruction::FormeChange(FormeChangeInstruction {
             side_ref: SideReference::SideOne,
-            new_forme: PokemonName::MIMIKYUBUSTED,
-            previous_forme: PokemonName::MIMIKYU,
+            name_change: PokemonName::MIMIKYUBUSTED as i16 - PokemonName::MIMIKYU as i16,
         })],
     }];
 
@@ -13339,8 +13317,7 @@ fn test_mimikyu_busting_does_not_overkill() {
         percentage: 100.0,
         instruction_list: vec![Instruction::FormeChange(FormeChangeInstruction {
             side_ref: SideReference::SideOne,
-            new_forme: PokemonName::MIMIKYUBUSTED,
-            previous_forme: PokemonName::MIMIKYU,
+            name_change: PokemonName::MIMIKYUBUSTED as i16 - PokemonName::MIMIKYU as i16,
         })],
     }];
 

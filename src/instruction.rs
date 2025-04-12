@@ -1,7 +1,6 @@
 use crate::abilities::Abilities;
 use crate::choices::{Choices, MoveCategory};
 use crate::items::Items;
-use crate::pokemon::PokemonName;
 use crate::state::SideReference;
 use crate::state::Terrain;
 use crate::state::Weather;
@@ -264,11 +263,7 @@ impl fmt::Debug for Instruction {
                 )
             }
             Instruction::FormeChange(s) => {
-                write!(
-                    f,
-                    "FormeChange {:?}: {:?} -> {:?}",
-                    s.side_ref, s.previous_forme, s.new_forme
-                )
+                write!(f, "FormeChange {:?} {}", s.side_ref, s.name_change)
             }
             Instruction::SetSideOneMoveSecondSwitchOutMove(s) => {
                 write!(
@@ -478,8 +473,10 @@ pub struct ChangeSubsituteHealthInstruction {
 #[derive(Debug, PartialEq, Clone)]
 pub struct FormeChangeInstruction {
     pub side_ref: SideReference,
-    pub new_forme: PokemonName,
-    pub previous_forme: PokemonName,
+
+    // PokemonName is represented as i16
+    // This is the amount the name has changed by
+    pub name_change: i16,
 }
 
 #[derive(Debug, PartialEq, Clone)]
