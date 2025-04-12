@@ -1,15 +1,14 @@
 #![cfg(feature = "gen1")]
 
-use poke_engine::choices::MoveCategory;
 use poke_engine::choices::{Choices, MOVES};
 use poke_engine::generate_instructions::{
     generate_instructions_from_move_pair, moves_first, MAX_SLEEP_TURNS,
 };
 use poke_engine::instruction::{
-    ApplyVolatileStatusInstruction, BoostInstruction, ChangeStatusInstruction, DamageInstruction,
-    DecrementRestTurnsInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction,
-    SetDamageDealtSideOneInstruction, SetDamageDealtSideTwoInstruction, SetSleepTurnsInstruction,
-    StateInstructions, SwitchInstruction,
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeDamageDealtDamageInstruction,
+    ChangeStatusInstruction, DamageInstruction, DecrementRestTurnsInstruction, HealInstruction,
+    Instruction, RemoveVolatileStatusInstruction, SetSleepTurnsInstruction, StateInstructions,
+    SwitchInstruction,
 };
 use poke_engine::pokemon::PokemonName;
 use poke_engine::state::PokemonBoostableStat;
@@ -645,11 +644,9 @@ fn test_counter_into_normal_move() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 48,
             }),
-            Instruction::SetDamageDealtSideOne(SetDamageDealtSideOneInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideOne,
                 damage_change: 48,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -678,11 +675,9 @@ fn test_counter_into_fighting_move() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 61,
             }),
-            Instruction::SetDamageDealtSideOne(SetDamageDealtSideOneInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideOne,
                 damage_change: 61,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -762,11 +757,9 @@ fn test_gen1_bite_flinch_with_counter() {
                     side_ref: SideReference::SideTwo,
                     damage_amount: 72,
                 }),
-                Instruction::SetDamageDealtSideOne(SetDamageDealtSideOneInstruction {
+                Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                    side_ref: SideReference::SideOne,
                     damage_change: 72,
-                    move_category: MoveCategory::Physical,
-                    previous_move_category: MoveCategory::Physical,
-                    toggle_hit_substitute: false,
                 }),
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideOne,
@@ -781,11 +774,9 @@ fn test_gen1_bite_flinch_with_counter() {
                     side_ref: SideReference::SideTwo,
                     damage_amount: 72,
                 }),
-                Instruction::SetDamageDealtSideOne(SetDamageDealtSideOneInstruction {
+                Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                    side_ref: SideReference::SideOne,
                     damage_change: 72,
-                    move_category: MoveCategory::Physical,
-                    previous_move_category: MoveCategory::Physical,
-                    toggle_hit_substitute: false,
                 }),
                 Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                     side_ref: SideReference::SideTwo,
@@ -1085,11 +1076,9 @@ fn test_counter_hits_ghost_type() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 32,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 32,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,

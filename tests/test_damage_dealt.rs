@@ -3,8 +3,9 @@
 use poke_engine::choices::{Choices, MoveCategory};
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::{
-    DamageInstruction, Instruction, RemoveVolatileStatusInstruction,
-    SetDamageDealtSideOneInstruction, SetDamageDealtSideTwoInstruction, StateInstructions,
+    ChangeDamageDealtDamageInstruction, ChangeDamageDealtMoveCategoryInstruction,
+    DamageInstruction, Instruction, RemoveVolatileStatusInstruction, StateInstructions,
+    ToggleDamageDealtHitSubstituteInstruction,
 };
 use poke_engine::state::{
     MoveChoice, PokemonMoveIndex, PokemonType, PokemonVolatileStatus, SideReference, State, Weather,
@@ -35,21 +36,17 @@ fn test_previous_damage_dealt_resets_and_then_goes_to_a_new_value() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: -10,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
                 damage_amount: 48,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 48,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -88,11 +85,9 @@ fn test_counter_after_physical_hit() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 48,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 48,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -132,11 +127,9 @@ fn test_counter_cannot_hit_ghost_type() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 32,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 32,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
         ],
     }];
@@ -255,11 +248,9 @@ fn test_metalburst_after_physical_move() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 48,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 48,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -298,11 +289,9 @@ fn test_comeuppance_after_physical_move() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 48,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 48,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -341,11 +330,14 @@ fn test_metalburst_after_special_move() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 32,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 32,
+            }),
+            Instruction::ChangeDamageDealtMoveCatagory(ChangeDamageDealtMoveCategoryInstruction {
+                side_ref: SideReference::SideTwo,
                 move_category: MoveCategory::Special,
                 previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -389,12 +381,15 @@ fn test_metalburst_after_substitute_being_hit() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 5,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 5,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: true,
             }),
+            Instruction::ToggleDamageDealtHitSubstitute(
+                ToggleDamageDealtHitSubstituteInstruction {
+                    side_ref: SideReference::SideTwo,
+                },
+            ),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::SUBSTITUTE,
@@ -434,11 +429,9 @@ fn test_metalburst_fails_moving_first() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 48,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 48,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
         ],
     }];
@@ -501,11 +494,14 @@ fn test_counter_after_special_hit() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 32,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 32,
+            }),
+            Instruction::ChangeDamageDealtMoveCatagory(ChangeDamageDealtMoveCategoryInstruction {
+                side_ref: SideReference::SideTwo,
                 move_category: MoveCategory::Special,
                 previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
         ],
     }];
@@ -540,11 +536,14 @@ fn test_mirrorcoat_after_special_hit() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 32,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 32,
+            }),
+            Instruction::ChangeDamageDealtMoveCatagory(ChangeDamageDealtMoveCategoryInstruction {
+                side_ref: SideReference::SideTwo,
                 move_category: MoveCategory::Special,
                 previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -583,11 +582,9 @@ fn test_mirrorcoat_after_physical_hit() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 48,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 48,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
         ],
     }];
@@ -623,11 +620,9 @@ fn test_focuspunch_after_getting_hit() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 48,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 48,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
         ],
     }];
@@ -667,12 +662,15 @@ fn test_focuspunch_after_substitute_getting_hit() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 1,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 1,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: true,
             }),
+            Instruction::ToggleDamageDealtHitSubstitute(
+                ToggleDamageDealtHitSubstituteInstruction {
+                    side_ref: SideReference::SideTwo,
+                },
+            ),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::SUBSTITUTE,
@@ -681,11 +679,9 @@ fn test_focuspunch_after_substitute_getting_hit() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 100,
             }),
-            Instruction::SetDamageDealtSideOne(SetDamageDealtSideOneInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideOne,
                 damage_change: 100,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
         ],
     }];
@@ -720,11 +716,9 @@ fn test_focuspunch_after_status_move() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 100,
             }),
-            Instruction::SetDamageDealtSideOne(SetDamageDealtSideOneInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideOne,
                 damage_change: 100,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
         ],
     }];

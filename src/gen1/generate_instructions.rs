@@ -5,13 +5,12 @@ use crate::choice_effects::{
 use crate::choices::{
     Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, Status, VolatileStatus,
 };
+use crate::instruction::DecrementPPInstruction;
 use crate::instruction::{
-    ApplyVolatileStatusInstruction, BoostInstruction, ChangeSideConditionInstruction,
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeDamageDealtDamageInstruction,
+    ChangeDamageDealtMoveCategoryInstruction, ChangeSideConditionInstruction,
     DecrementRestTurnsInstruction, HealInstruction, RemoveVolatileStatusInstruction,
-    SetSleepTurnsInstruction,
-};
-use crate::instruction::{
-    DecrementPPInstruction, SetDamageDealtSideOneInstruction, SetDamageDealtSideTwoInstruction,
+    SetSleepTurnsInstruction, ToggleDamageDealtHitSubstituteInstruction,
 };
 use crate::state::{
     MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonType, Side,
@@ -43,36 +42,38 @@ fn reset_damage_dealt(
     side_reference: &SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
-    if side.damage_dealt.damage != 0
-        || side.damage_dealt.move_category != MoveCategory::Physical
-        || side.damage_dealt.hit_substitute
-    {
-        match side_reference {
-            SideReference::SideOne => {
-                incoming_instructions
-                    .instruction_list
-                    .push(Instruction::SetDamageDealtSideOne(
-                        SetDamageDealtSideOneInstruction {
-                            damage_change: -1 * side.damage_dealt.damage,
-                            move_category: MoveCategory::Physical,
-                            previous_move_category: side.damage_dealt.move_category,
-                            toggle_hit_substitute: side.damage_dealt.hit_substitute,
-                        },
-                    ));
-            }
-            SideReference::SideTwo => {
-                incoming_instructions
-                    .instruction_list
-                    .push(Instruction::SetDamageDealtSideTwo(
-                        SetDamageDealtSideTwoInstruction {
-                            damage_change: -1 * side.damage_dealt.damage,
-                            move_category: MoveCategory::Physical,
-                            previous_move_category: side.damage_dealt.move_category,
-                            toggle_hit_substitute: side.damage_dealt.hit_substitute,
-                        },
-                    ));
-            }
-        }
+    // This creates instructions but does not modify the side
+    // because this function is called before the state applies the instructions
+
+    if side.damage_dealt.damage != 0 {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::ChangeDamageDealtDamage(
+                ChangeDamageDealtDamageInstruction {
+                    side_ref: *side_reference,
+                    damage_change: 0 - side.damage_dealt.damage,
+                },
+            ));
+    }
+    if side.damage_dealt.move_category != MoveCategory::Physical {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::ChangeDamageDealtMoveCatagory(
+                ChangeDamageDealtMoveCategoryInstruction {
+                    side_ref: *side_reference,
+                    move_category: MoveCategory::Physical,
+                    previous_move_category: side.damage_dealt.move_category,
+                },
+            ));
+    }
+    if side.damage_dealt.hit_substitute {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::ToggleDamageDealtHitSubstitute(
+                ToggleDamageDealtHitSubstituteInstruction {
+                    side_ref: *side_reference,
+                },
+            ));
     }
 }
 
@@ -84,37 +85,41 @@ fn set_damage_dealt(
     hit_substitute: bool,
     incoming_instructions: &mut StateInstructions,
 ) {
-    match attacking_side_ref {
-        SideReference::SideOne => {
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::SetDamageDealtSideOne(
-                    SetDamageDealtSideOneInstruction {
-                        damage_change: damage_dealt - attacking_side.damage_dealt.damage,
-                        move_category: choice.category,
-                        previous_move_category: attacking_side.damage_dealt.move_category,
-                        toggle_hit_substitute: attacking_side.damage_dealt.hit_substitute
-                            != hit_substitute,
-                    },
-                ));
-        }
-        SideReference::SideTwo => {
-            incoming_instructions
-                .instruction_list
-                .push(Instruction::SetDamageDealtSideTwo(
-                    SetDamageDealtSideTwoInstruction {
-                        damage_change: damage_dealt - attacking_side.damage_dealt.damage,
-                        move_category: choice.category,
-                        previous_move_category: attacking_side.damage_dealt.move_category,
-                        toggle_hit_substitute: attacking_side.damage_dealt.hit_substitute
-                            != hit_substitute,
-                    },
-                ));
-        }
+    if attacking_side.damage_dealt.damage != damage_dealt {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::ChangeDamageDealtDamage(
+                ChangeDamageDealtDamageInstruction {
+                    side_ref: *attacking_side_ref,
+                    damage_change: damage_dealt - attacking_side.damage_dealt.damage,
+                },
+            ));
+        attacking_side.damage_dealt.damage = damage_dealt;
     }
-    attacking_side.damage_dealt.damage = damage_dealt;
-    attacking_side.damage_dealt.move_category = choice.category;
-    attacking_side.damage_dealt.hit_substitute = hit_substitute;
+
+    if attacking_side.damage_dealt.move_category != choice.category {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::ChangeDamageDealtMoveCatagory(
+                ChangeDamageDealtMoveCategoryInstruction {
+                    side_ref: *attacking_side_ref,
+                    move_category: choice.category,
+                    previous_move_category: attacking_side.damage_dealt.move_category,
+                },
+            ));
+        attacking_side.damage_dealt.move_category = choice.category;
+    }
+
+    if attacking_side.damage_dealt.hit_substitute != hit_substitute {
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::ToggleDamageDealtHitSubstitute(
+                ToggleDamageDealtHitSubstituteInstruction {
+                    side_ref: *attacking_side_ref,
+                },
+            ));
+        attacking_side.damage_dealt.hit_substitute = hit_substitute;
+    }
 }
 
 pub fn generate_instructions_from_switch(

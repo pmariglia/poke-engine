@@ -11056,8 +11056,7 @@ fn test_switching_out_with_modified_ability_reverts_ability() {
         instruction_list: vec![
             Instruction::ChangeAbility(ChangeAbilityInstruction {
                 side_ref: SideReference::SideOne,
-                new_ability: Abilities::INTIMIDATE,
-                old_ability: Abilities::LINGERINGAROMA,
+                ability_change: Abilities::INTIMIDATE as i16 - Abilities::LINGERINGAROMA as i16,
             }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
@@ -11744,8 +11743,7 @@ fn test_mummy_changes_ability_on_contact_move() {
             }),
             Instruction::ChangeAbility(ChangeAbilityInstruction {
                 side_ref: SideReference::SideOne,
-                new_ability: Abilities::MUMMY,
-                old_ability: Abilities::NONE,
+                ability_change: Abilities::MUMMY as i16 - Abilities::NONE as i16,
             }),
         ],
     }];
@@ -16964,8 +16962,7 @@ fn test_trace_switching_ability_on_switch_in_activating_said_ability() {
             }),
             Instruction::ChangeAbility(ChangeAbilityInstruction {
                 side_ref: SideReference::SideOne,
-                new_ability: Abilities::INTIMIDATE,
-                old_ability: Abilities::TRACE,
+                ability_change: Abilities::INTIMIDATE as i16 - Abilities::TRACE as i16,
             }),
             Instruction::Boost(BoostInstruction {
                 side_ref: SideReference::SideTwo,

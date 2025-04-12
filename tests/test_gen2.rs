@@ -3,10 +3,11 @@
 use poke_engine::choices::{Choices, MoveCategory};
 use poke_engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::instruction::{
-    ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
-    ChangeStatusInstruction, DamageInstruction, DecrementRestTurnsInstruction, HealInstruction,
-    Instruction, RemoveVolatileStatusInstruction, SetDamageDealtSideTwoInstruction,
-    SetSleepTurnsInstruction, StateInstructions, SwitchInstruction,
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeDamageDealtDamageInstruction,
+    ChangeDamageDealtMoveCategoryInstruction, ChangeItemInstruction, ChangeStatusInstruction,
+    DamageInstruction, DecrementRestTurnsInstruction, HealInstruction, Instruction,
+    RemoveVolatileStatusInstruction, SetSleepTurnsInstruction, StateInstructions,
+    SwitchInstruction,
 };
 use poke_engine::items::Items;
 use poke_engine::state::{
@@ -1351,11 +1352,9 @@ fn test_counter_cannot_hit_ghost_type() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 32,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 32,
-                move_category: MoveCategory::Physical,
-                previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
         ],
     }];
@@ -1390,11 +1389,14 @@ fn test_counter_reflects_special_hiddenpower() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 55,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 55,
+            }),
+            Instruction::ChangeDamageDealtMoveCatagory(ChangeDamageDealtMoveCategoryInstruction {
+                side_ref: SideReference::SideTwo,
                 move_category: MoveCategory::Special,
                 previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
@@ -1433,11 +1435,14 @@ fn test_mirrorcoat_does_not_reflect_special_hiddenpower() {
                 side_ref: SideReference::SideOne,
                 damage_amount: 55,
             }),
-            Instruction::SetDamageDealtSideTwo(SetDamageDealtSideTwoInstruction {
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
                 damage_change: 55,
+            }),
+            Instruction::ChangeDamageDealtMoveCatagory(ChangeDamageDealtMoveCategoryInstruction {
+                side_ref: SideReference::SideTwo,
                 move_category: MoveCategory::Special,
                 previous_move_category: MoveCategory::Physical,
-                toggle_hit_substitute: false,
             }),
         ],
     }];

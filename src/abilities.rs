@@ -26,8 +26,8 @@ pub const WEATHER_ABILITY_TURNS: i8 = -1;
 pub const WEATHER_ABILITY_TURNS: i8 = 5;
 
 define_enum_with_from_str! {
-    #[repr(u16)]
-    #[derive(PartialEq, Debug, Clone)]
+    #[repr(i16)]
+    #[derive(PartialEq, Debug, Clone, Copy)]
     Abilities {
         NONE,
         ARMORTAIL,
@@ -794,8 +794,7 @@ pub fn ability_after_damage_hit(
                     .instruction_list
                     .push(Instruction::ChangeAbility(ChangeAbilityInstruction {
                         side_ref: *side_ref,
-                        new_ability: Abilities::MUMMY,
-                        old_ability: attacking_pkmn.ability.clone(),
+                        ability_change: Abilities::MUMMY as i16 - attacking_pkmn.ability as i16,
                     }));
                 attacking_pkmn.ability = Abilities::MUMMY;
             }
@@ -1140,10 +1139,9 @@ pub fn ability_on_switch_out(
             .instruction_list
             .push(Instruction::ChangeAbility(ChangeAbilityInstruction {
                 side_ref: *side_ref,
-                new_ability: active_pkmn.base_ability.clone(),
-                old_ability: active_pkmn.ability.clone(),
+                ability_change: active_pkmn.base_ability as i16 - active_pkmn.ability as i16,
             }));
-        active_pkmn.ability = active_pkmn.base_ability.clone();
+        active_pkmn.ability = active_pkmn.base_ability;
     }
 }
 
@@ -1387,10 +1385,9 @@ pub fn ability_on_switch_in(
             .instruction_list
             .push(Instruction::ChangeAbility(ChangeAbilityInstruction {
                 side_ref: *side_ref,
-                new_ability: defending_pkmn.ability.clone(),
-                old_ability: active_pkmn.ability.clone(),
+                ability_change: defending_pkmn.ability as i16 - active_pkmn.ability as i16,
             }));
-        active_pkmn.ability = defending_pkmn.ability.clone();
+        active_pkmn.ability = defending_pkmn.ability;
     }
 
     match active_pkmn.ability {
