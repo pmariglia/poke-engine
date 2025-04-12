@@ -481,7 +481,7 @@ fn get_instructions_from_secondaries(
     incoming_instructions: StateInstructions,
     hit_sub: bool,
 ) -> Vec<StateInstructions> {
-    let mut return_instruction_list = Vec::with_capacity(16);
+    let mut return_instruction_list = Vec::with_capacity(4);
     return_instruction_list.push(incoming_instructions);
 
     for secondary in secondaries {
@@ -1653,7 +1653,7 @@ pub fn generate_instructions_from_move_pair(
         }
     }
 
-    let mut state_instructions_vec: Vec<StateInstructions> = Vec::with_capacity(16);
+    let mut state_instructions_vec: Vec<StateInstructions> = Vec::with_capacity(4);
     let mut incoming_instructions: StateInstructions = StateInstructions::default();
 
     match moves_first(&state, &side_one_choice, &side_two_choice) {
@@ -1711,7 +1711,7 @@ pub fn generate_instructions_from_move_pair(
             }
 
             // side_two moves first
-            let mut side_two_moves_first_si = Vec::with_capacity(16);
+            let mut side_two_moves_first_si = Vec::with_capacity(4);
             handle_both_moves(
                 state,
                 &mut side_two_choice,
@@ -1773,7 +1773,7 @@ pub fn calculate_damage_rolls(
         &mut incoming_instructions,
     );
 
-    let mut return_vec = Vec::with_capacity(16);
+    let mut return_vec = Vec::with_capacity(4);
     if let Some((damage, crit_damage)) =
         calculate_damage(&state, attacking_side_ref, &choice, DamageRolls::Max)
     {

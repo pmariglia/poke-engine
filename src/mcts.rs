@@ -122,7 +122,7 @@ impl Node {
         let should_branch_on_damage = self.root || (*self.parent).root;
         let mut new_instructions =
             generate_instructions_from_move_pair(state, s1_move, s2_move, should_branch_on_damage);
-        let mut this_pair_vec = Vec::with_capacity(2);
+        let mut this_pair_vec = Vec::with_capacity(new_instructions.len());
         for state_instructions in new_instructions.drain(..) {
             state.apply_instructions(&state_instructions.instruction_list);
             let (s1_options, s2_options) = state.get_all_options();

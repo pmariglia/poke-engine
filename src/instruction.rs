@@ -20,7 +20,7 @@ impl Default for StateInstructions {
     fn default() -> StateInstructions {
         StateInstructions {
             percentage: 100.0,
-            instruction_list: Vec::with_capacity(16),
+            instruction_list: Vec::with_capacity(4),
         }
     }
 }
