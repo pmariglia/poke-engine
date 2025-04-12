@@ -315,7 +315,7 @@ impl PyPokemon {
         terastallized: bool,
         tera_type: String,
     ) -> Self {
-        while moves.len() < 6 {
+        while moves.len() < 4 {
             moves.push(PyMove::create_empty_move());
         }
         PyPokemon {
