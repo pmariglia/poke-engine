@@ -428,6 +428,27 @@ impl Default for VolatileStatusDurations {
 }
 
 impl VolatileStatusDurations {
+    pub fn pprint(&self) -> String {
+        let durations = [
+            ("confusion", self.confusion),
+            ("encore", self.encore),
+            ("lockedmove", self.lockedmove),
+            ("slowstart", self.slowstart),
+            ("yawn", self.yawn),
+        ];
+
+        let mut output = String::new();
+        for (name, value) in durations {
+            if value != 0 {
+                output.push_str(&format!("\n  {}: {}", name, value));
+            }
+        }
+        if output.is_empty() {
+            return "none".to_string();
+        }
+        output
+    }
+
     pub fn serialize(&self) -> String {
         format!(
             "{};{};{};{};{}",
@@ -2352,6 +2373,41 @@ impl PokemonMoveIndex {
 }
 
 impl SideConditions {
+    pub fn pprint(&self) -> String {
+        let conditions = [
+            ("aurora_veil", self.aurora_veil),
+            ("crafty_shield", self.crafty_shield),
+            ("healing_wish", self.healing_wish),
+            ("light_screen", self.light_screen),
+            ("lucky_chant", self.lucky_chant),
+            ("lunar_dance", self.lunar_dance),
+            ("mat_block", self.mat_block),
+            ("mist", self.mist),
+            ("protect", self.protect),
+            ("quick_guard", self.quick_guard),
+            ("reflect", self.reflect),
+            ("safeguard", self.safeguard),
+            ("spikes", self.spikes),
+            ("stealth_rock", self.stealth_rock),
+            ("sticky_web", self.sticky_web),
+            ("tailwind", self.tailwind),
+            ("toxic_count", self.toxic_count),
+            ("toxic_spikes", self.toxic_spikes),
+            ("wide_guard", self.wide_guard),
+        ];
+
+        let mut output = String::new();
+        for (name, value) in conditions {
+            if value != 0 {
+                output.push_str(&format!("\n  {}: {}", name, value));
+            }
+        }
+        if output.is_empty() {
+            return "none".to_string();
+        }
+        output
+    }
+
     pub fn serialize(&self) -> String {
         format!(
             "{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{};{}",
@@ -2403,6 +2459,72 @@ impl SideConditions {
 }
 
 impl Side {
+    fn io_conditional_print(&self) -> String {
+        let mut output = String::new();
+        if self.baton_passing {
+            output.push_str("\n  baton_passing: true");
+        }
+        if self.wish.0 != 0 {
+            output.push_str(&format!("\n  wish: ({}, {})", self.wish.0, self.wish.1));
+        }
+        if self.future_sight.0 != 0 {
+            output.push_str(&format!(
+                "\n  future_sight: ({}, {:?})",
+                self.future_sight.0, self.pokemon[self.future_sight.1].id
+            ));
+        }
+        if self
+            .volatile_statuses
+            .contains(&crate::state::PokemonVolatileStatus::SUBSTITUTE)
+        {
+            output.push_str(&format!(
+                "\n  substitute_health: {}",
+                self.substitute_health
+            ));
+        }
+
+        if !output.is_empty() {
+            output.insert_str(0, "Extras:");
+            output.push_str("\n");
+        }
+
+        output
+    }
+    pub fn pprint(&self, available_choices: Vec<String>) -> String {
+        let reserve = self
+            .pokemon
+            .into_iter()
+            .map(|p| p.pprint_concise())
+            .collect::<Vec<String>>();
+        format!(
+            "\nPokemon: {}\n\
+            Active:{}\n\
+            Boosts: {}\n\
+            Last Used Move: {}\n\
+            Volatiles: {:?}\n\
+            VolatileDurations: {}\n\
+            Side Conditions: {}\n\
+            {}\
+            Available Choices: {}",
+            reserve.join(", "),
+            self.get_active_immutable().pprint_verbose(),
+            format!(
+                "Attack:{}, Defense:{}, SpecialAttack:{}, SpecialDefense:{}, Speed:{}",
+                self.attack_boost,
+                self.defense_boost,
+                self.special_attack_boost,
+                self.special_defense_boost,
+                self.speed_boost
+            ),
+            self.last_used_move.serialize(),
+            self.volatile_statuses,
+            self.volatile_status_durations.pprint(),
+            self.side_conditions.pprint(),
+            self.io_conditional_print(),
+            available_choices.join(", ")
+        )
+    }
+
     pub fn serialize(&self) -> String {
         let mut vs_string = String::new();
         for vs in &self.volatile_statuses {
@@ -2532,6 +2654,29 @@ impl StateTrickRoom {
 }
 
 impl Pokemon {
+    pub fn pprint_concise(&self) -> String {
+        format!("{}:{}/{}", self.id, self.hp, self.maxhp)
+    }
+
+    pub fn pprint_verbose(&self) -> String {
+        let moves: Vec<String> = self
+            .moves
+            .into_iter()
+            .map(|m| format!("{:?}", m.id).to_lowercase())
+            .filter(|x| x != "none")
+            .collect();
+        format!(
+            "\n  Name: {}\n  HP: {}/{}\n  Status: {:?}\n  Ability: {:?}\n  Item: {:?}\n  Moves: {}",
+            self.id,
+            self.hp,
+            self.maxhp,
+            self.status,
+            self.ability,
+            self.item,
+            moves.join(", ")
+        )
+    }
+
     pub fn serialize(&self) -> String {
         format!(
             "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
@@ -2606,6 +2751,32 @@ impl Pokemon {
 }
 
 impl State {
+    pub fn pprint(&self) -> String {
+        let (side_one_options, side_two_options) = self.root_get_all_options();
+
+        let mut side_one_choices = vec![];
+        for option in side_one_options {
+            side_one_choices.push(format!("{}", option.to_string(&self.side_one)).to_lowercase());
+        }
+        let mut side_two_choices = vec![];
+        for option in side_two_options {
+            side_two_choices.push(format!("{}", option.to_string(&self.side_two)).to_lowercase());
+        }
+        format!(
+            "SideOne {}\n\nvs\n\nSideTwo {}\n\nState:\n  Weather: {:?},{}\n  Terrain: {:?},{}\n  TrickRoom: {},{}\n  UseLastUsedMove: {}\n  UseDamageDealt: {}",
+            self.side_one.pprint(side_one_choices),
+            self.side_two.pprint(side_two_choices),
+            self.weather.weather_type,
+            self.weather.turns_remaining,
+            self.terrain.terrain_type,
+            self.terrain.turns_remaining,
+            self.trick_room.active,
+            self.trick_room.turns_remaining,
+            self.use_last_used_move,
+            self.use_damage_dealt,
+        )
+    }
+
     pub fn serialize(&self) -> String {
         format!(
             "{}/{}/{}/{}/{}/{}",
