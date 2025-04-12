@@ -1040,7 +1040,7 @@ pub fn ability_on_switch_out(
         return;
     }
     match active_pkmn.ability {
-        Abilities::GULPMISSILE => {
+        Abilities::GULPMISSILE if active_pkmn.base_ability == Abilities::GULPMISSILE => {
             if active_pkmn.id != PokemonName::CRAMORANT {
                 instructions.instruction_list.push(Instruction::FormeChange(
                     FormeChangeInstruction {
