@@ -68,16 +68,51 @@ impl MoveChoice {
     pub fn to_string(&self, side: &Side) -> String {
         match self {
             MoveChoice::MoveTera(index) => {
-                format!("{}-tera", side.get_active_immutable().moves[index].id).to_lowercase()
+                format!("{}-tera", side.get_active_immutable().moves[&index].id).to_lowercase()
             }
             MoveChoice::Move(index) => {
-                format!("{}", side.get_active_immutable().moves[index].id).to_lowercase()
+                format!("{}", side.get_active_immutable().moves[&index].id).to_lowercase()
             }
-            MoveChoice::Switch(index) => {
-                format!("switch {}", side.pokemon[*index].id).to_lowercase()
-            }
+            MoveChoice::Switch(index) => format!("{}", side.pokemon[*index].id).to_lowercase(),
             MoveChoice::None => "No Move".to_string(),
         }
+    }
+    pub fn from_string(s: &str, side: &Side) -> Option<MoveChoice> {
+        let s = s.to_lowercase();
+        if s == "none" {
+            return Some(MoveChoice::None);
+        }
+
+        let mut pkmn_iter = side.pokemon.into_iter();
+        while let Some(pkmn) = pkmn_iter.next() {
+            if pkmn.id.to_string().to_lowercase() == s
+                && pkmn_iter.pokemon_index != side.active_index
+            {
+                return Some(MoveChoice::Switch(pkmn_iter.pokemon_index));
+            }
+        }
+
+        // check if s endswith `-tera`
+        // if it does, find the move with the name and return MoveChoice::MoveTera
+        // if it doesn't, find the move with the name and return MoveChoice::Move
+        let mut move_iter = side.get_active_immutable().moves.into_iter();
+        let mut move_name = s;
+        if move_name.ends_with("-tera") {
+            move_name = move_name[..move_name.len() - 5].to_string();
+            while let Some(mv) = move_iter.next() {
+                if format!("{:?}", mv.id).to_lowercase() == move_name {
+                    return Some(MoveChoice::MoveTera(move_iter.pokemon_move_index));
+                }
+            }
+        } else {
+            while let Some(mv) = move_iter.next() {
+                if format!("{:?}", mv.id).to_lowercase() == move_name {
+                    return Some(MoveChoice::Move(move_iter.pokemon_move_index));
+                }
+            }
+        }
+
+        None
     }
 }
 
@@ -1211,6 +1246,80 @@ impl State {
             return 1.0;
         }
         0.0
+    }
+
+    pub fn root_get_all_options(&self) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
+        if self.team_preview {
+            let mut s1_options = Vec::with_capacity(6);
+            let mut s2_options = Vec::with_capacity(6);
+
+            let mut pkmn_iter = self.side_one.pokemon.into_iter();
+            while let Some(_) = pkmn_iter.next() {
+                if self.side_one.pokemon[pkmn_iter.pokemon_index].hp > 0 {
+                    s1_options.push(MoveChoice::Switch(pkmn_iter.pokemon_index));
+                }
+            }
+            let mut pkmn_iter = self.side_two.pokemon.into_iter();
+            while let Some(_) = pkmn_iter.next() {
+                if self.side_two.pokemon[pkmn_iter.pokemon_index].hp > 0 {
+                    s2_options.push(MoveChoice::Switch(pkmn_iter.pokemon_index));
+                }
+            }
+            return (s1_options, s2_options);
+        }
+
+        let (mut s1_options, mut s2_options) = self.get_all_options();
+
+        if self.side_one.force_trapped {
+            s1_options.retain(|x| match x {
+                MoveChoice::Move(_) | MoveChoice::MoveTera(_) => true,
+                MoveChoice::Switch(_) => false,
+                MoveChoice::None => true,
+            });
+        }
+        if self.side_one.slow_uturn_move {
+            s1_options.clear();
+            let encored = self
+                .side_one
+                .volatile_statuses
+                .contains(&crate::state::PokemonVolatileStatus::ENCORE);
+            self.side_one.get_active_immutable().add_available_moves(
+                &mut s1_options,
+                &self.side_one.last_used_move,
+                encored,
+                self.side_one.can_use_tera(),
+            );
+        }
+
+        if self.side_two.force_trapped {
+            s2_options.retain(|x| match x {
+                MoveChoice::Move(_) | MoveChoice::MoveTera(_) => true,
+                MoveChoice::Switch(_) => false,
+                MoveChoice::None => true,
+            });
+        }
+        if self.side_two.slow_uturn_move {
+            s2_options.clear();
+            let encored = self
+                .side_two
+                .volatile_statuses
+                .contains(&crate::state::PokemonVolatileStatus::ENCORE);
+            self.side_two.get_active_immutable().add_available_moves(
+                &mut s2_options,
+                &self.side_two.last_used_move,
+                encored,
+                self.side_two.can_use_tera(),
+            );
+        }
+
+        if s1_options.len() == 0 {
+            s1_options.push(MoveChoice::None);
+        }
+        if s2_options.len() == 0 {
+            s2_options.push(MoveChoice::None);
+        }
+
+        (s1_options, s2_options)
     }
 
     pub fn get_all_options(&self) -> (Vec<MoveChoice>, Vec<MoveChoice>) {
