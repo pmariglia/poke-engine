@@ -2319,7 +2319,6 @@ pub fn generate_instructions_from_move_pair(
         MoveChoice::None => {
             side_one_choice = Choice::default();
         }
-        MoveChoice::MoveTera(_) => panic!("Tera not available"),
     }
 
     let mut side_two_choice;
@@ -2336,7 +2335,6 @@ pub fn generate_instructions_from_move_pair(
         MoveChoice::None => {
             side_two_choice = Choice::default();
         }
-        MoveChoice::MoveTera(_) => panic!("Tera not available"),
     }
 
     let mut state_instructions_vec: Vec<StateInstructions> = Vec::with_capacity(16);

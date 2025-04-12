@@ -58,7 +58,6 @@ pub enum LastUsedMove {
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone, Hash)]
 pub enum MoveChoice {
-    MoveTera(PokemonMoveIndex),
     Move(PokemonMoveIndex),
     Switch(PokemonIndex),
     None,
@@ -67,9 +66,6 @@ pub enum MoveChoice {
 impl MoveChoice {
     pub fn to_string(&self, side: &Side) -> String {
         match self {
-            MoveChoice::MoveTera(index) => {
-                format!("{}-tera", side.get_active_immutable().moves[&index].id).to_lowercase()
-            }
             MoveChoice::Move(index) => {
                 format!("{}", side.get_active_immutable().moves[&index].id).to_lowercase()
             }
@@ -92,23 +88,11 @@ impl MoveChoice {
             }
         }
 
-        // check if s endswith `-tera`
-        // if it does, find the move with the name and return MoveChoice::MoveTera
-        // if it doesn't, find the move with the name and return MoveChoice::Move
         let mut move_iter = side.get_active_immutable().moves.into_iter();
-        let mut move_name = s;
-        if move_name.ends_with("-tera") {
-            move_name = move_name[..move_name.len() - 5].to_string();
-            while let Some(mv) = move_iter.next() {
-                if format!("{:?}", mv.id).to_lowercase() == move_name {
-                    return Some(MoveChoice::MoveTera(move_iter.pokemon_move_index));
-                }
-            }
-        } else {
-            while let Some(mv) = move_iter.next() {
-                if format!("{:?}", mv.id).to_lowercase() == move_name {
-                    return Some(MoveChoice::Move(move_iter.pokemon_move_index));
-                }
+        let move_name = s;
+        while let Some(mv) = move_iter.next() {
+            if format!("{:?}", mv.id).to_lowercase() == move_name {
+                return Some(MoveChoice::Move(move_iter.pokemon_move_index));
             }
         }
 
@@ -1293,7 +1277,7 @@ impl State {
 
         if self.side_one.force_trapped {
             s1_options.retain(|x| match x {
-                MoveChoice::Move(_) | MoveChoice::MoveTera(_) => true,
+                MoveChoice::Move(_) => true,
                 MoveChoice::Switch(_) => false,
                 MoveChoice::None => true,
             });
@@ -1314,7 +1298,7 @@ impl State {
 
         if self.side_two.force_trapped {
             s2_options.retain(|x| match x {
-                MoveChoice::Move(_) | MoveChoice::MoveTera(_) => true,
+                MoveChoice::Move(_) => true,
                 MoveChoice::Switch(_) => false,
                 MoveChoice::None => true,
             });
