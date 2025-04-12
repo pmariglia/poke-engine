@@ -661,7 +661,6 @@ impl Pokemon {
         vec: &mut Vec<MoveChoice>,
         last_used_move: &LastUsedMove,
         encored: bool,
-        _can_tera: bool,
     ) {
         let mut iter = self.moves.into_iter();
         while let Some(p) = iter.next() {
@@ -1060,10 +1059,6 @@ impl Side {
         false
     }
 
-    pub fn can_use_tera(&self) -> bool {
-        false
-    }
-
     fn toggle_force_switch(&mut self) {
         self.force_switch = !self.force_switch;
     }
@@ -1324,12 +1319,11 @@ impl State {
             let encored = self
                 .side_one
                 .volatile_statuses
-                .contains(&crate::state::PokemonVolatileStatus::ENCORE);
+                .contains(&PokemonVolatileStatus::ENCORE);
             self.side_one.get_active_immutable().add_available_moves(
                 &mut s1_options,
                 &self.side_one.last_used_move,
                 encored,
-                self.side_one.can_use_tera(),
             );
         }
 
@@ -1345,12 +1339,11 @@ impl State {
             let encored = self
                 .side_two
                 .volatile_statuses
-                .contains(&crate::state::PokemonVolatileStatus::ENCORE);
+                .contains(&PokemonVolatileStatus::ENCORE);
             self.side_two.get_active_immutable().add_available_moves(
                 &mut s2_options,
                 &self.side_two.last_used_move,
                 encored,
-                self.side_two.can_use_tera(),
             );
         }
 
@@ -1431,7 +1424,6 @@ impl State {
                 &mut side_one_options,
                 &self.side_one.last_used_move,
                 encored,
-                self.side_one.can_use_tera(),
             );
             if !self.side_one.trapped(side_two_active) {
                 self.side_one.add_switches(&mut side_one_options);
@@ -1453,7 +1445,6 @@ impl State {
                 &mut side_two_options,
                 &self.side_two.last_used_move,
                 encored,
-                self.side_two.can_use_tera(),
             );
             if !self.side_two.trapped(side_one_active) {
                 self.side_two.add_switches(&mut side_two_options);
@@ -2658,7 +2649,7 @@ impl Side {
         }
         if self
             .volatile_statuses
-            .contains(&crate::state::PokemonVolatileStatus::SUBSTITUTE)
+            .contains(&PokemonVolatileStatus::SUBSTITUTE)
         {
             output.push_str(&format!(
                 "\n  substitute_health: {}",
