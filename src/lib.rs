@@ -6,8 +6,12 @@ pub mod engine;
 #[path = "gen2/mod.rs"]
 pub mod engine;
 
+#[cfg(feature = "gen3")]
+#[path = "gen3/mod.rs"]
+pub mod engine;
+
 // All other generations
-#[cfg(not(any(feature = "gen1", feature = "gen2")))]
+#[cfg(not(any(feature = "gen1", feature = "gen2", feature = "gen3")))]
 #[path = "genx/mod.rs"]
 pub mod engine;
 
