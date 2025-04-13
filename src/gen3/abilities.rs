@@ -100,7 +100,8 @@ define_enum_with_from_str! {
         WATERVEIL,
         WHITESMOKE,
         WONDERGUARD,
-    }
+    },
+    default = NONE
 }
 
 pub fn ability_after_damage_hit(
