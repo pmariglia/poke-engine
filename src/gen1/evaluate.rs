@@ -76,7 +76,6 @@ fn get_boost_multiplier(boost: i8) -> f32 {
 
 fn evaluate_pokemon(pokemon: &Pokemon) -> f32 {
     let mut score = 0.0;
-    score += POKEMON_ALIVE;
     score += POKEMON_HP * pokemon.hp as f32 / pokemon.maxhp as f32;
 
     match pokemon.status {
@@ -88,6 +87,12 @@ fn evaluate_pokemon(pokemon: &Pokemon) -> f32 {
         PokemonStatus::POISON => score += POKEMON_POISONED,
         PokemonStatus::NONE => {}
     }
+
+    if score < 0.0 {
+        score = 0.0;
+    }
+
+    score += POKEMON_ALIVE;
 
     score
 }
