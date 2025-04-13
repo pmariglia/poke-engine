@@ -1,13 +1,14 @@
 #![cfg(feature = "gen3")]
 
 use poke_engine::choices::Choices;
+use poke_engine::engine::abilities::Abilities;
 use poke_engine::engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::engine::items::Items;
 use poke_engine::engine::state::{
-    MoveChoice, PokemonMoveIndex, PokemonType, SideReference, State, Weather,
+    MoveChoice, PokemonIndex, PokemonMoveIndex, PokemonType, SideReference, State, Weather,
 };
 use poke_engine::instruction::{
-    DamageInstruction, HealInstruction, Instruction, StateInstructions,
+    DamageInstruction, HealInstruction, Instruction, StateInstructions, SwitchInstruction,
 };
 
 pub fn generate_instructions_with_state_assertion(
@@ -156,6 +157,29 @@ fn test_end_of_turn_sand_kos_before_leftovers() {
                 heal_amount: 6,
             }),
         ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_intimidate_blocked_by_clearbody() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::INTIMIDATE;
+    state.side_two.get_active().ability = Abilities::CLEARBODY;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Switch(SwitchInstruction {
+            side_ref: SideReference::SideOne,
+            previous_index: PokemonIndex::P0,
+            next_index: PokemonIndex::P1,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
