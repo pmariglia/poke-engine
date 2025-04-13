@@ -1,11 +1,17 @@
 #![cfg(not(any(feature = "gen1", feature = "gen2", feature = "gen3")))]
 
-use poke_engine::abilities::{Abilities, WEATHER_ABILITY_TURNS};
 use poke_engine::choices::{Choices, MOVES};
-use poke_engine::damage_calc::CRIT_MULTIPLIER;
-use poke_engine::generate_instructions::{
+use poke_engine::engine::abilities::{Abilities, WEATHER_ABILITY_TURNS};
+use poke_engine::engine::damage_calc::CRIT_MULTIPLIER;
+use poke_engine::engine::generate_instructions::{
     generate_instructions_from_move_pair, BASE_CRIT_CHANCE, CONSECUTIVE_PROTECT_CHANCE,
     MAX_SLEEP_TURNS,
+};
+use poke_engine::engine::items::Items;
+use poke_engine::engine::state::{
+    pokemon_index_iter, Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
+    PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State,
+    StateWeather, Terrain, Weather,
 };
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeAbilityInstruction,
@@ -20,19 +26,13 @@ use poke_engine::instruction::{
     SwitchInstruction, ToggleBatonPassingInstruction, ToggleShedTailingInstruction,
     ToggleTrickRoomInstruction,
 };
-use poke_engine::items::Items;
 use poke_engine::pokemon::PokemonName;
-use poke_engine::state::{
-    pokemon_index_iter, Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
-    PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State,
-    StateWeather, Terrain, Weather,
-};
 
 #[cfg(feature = "terastallization")]
 use poke_engine::instruction::ToggleTerastallizedInstruction;
 
 #[cfg(not(feature = "terastallization"))]
-use poke_engine::state::LastUsedMove;
+use poke_engine::engine::state::LastUsedMove;
 
 pub fn generate_instructions_with_state_assertion(
     state: &mut State,

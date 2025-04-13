@@ -1,22 +1,22 @@
 #![allow(unused_variables)]
+use super::damage_calc::type_effectiveness_modifier;
+use super::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
+use super::items::{get_choice_move_disable_instructions, Items};
+use super::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Side, Terrain};
+use super::state::{PokemonStatus, State};
+use super::state::{PokemonVolatileStatus, SideReference, Weather};
 use crate::choices::{
     Boost, Choice, Choices, Effect, Heal, MoveCategory, MoveTarget, Secondary, StatBoosts,
     VolatileStatus,
 };
-use crate::damage_calc::type_effectiveness_modifier;
 use crate::define_enum_with_from_str;
-use crate::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeAbilityInstruction,
     ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain,
     ChangeType, ChangeVolatileStatusDurationInstruction, ChangeWeather, DamageInstruction,
     FormeChangeInstruction, HealInstruction, Instruction, StateInstructions,
 };
-use crate::items::{get_choice_move_disable_instructions, Items};
 use crate::pokemon::PokemonName;
-use crate::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Side, Terrain};
-use crate::state::{PokemonStatus, State};
-use crate::state::{PokemonVolatileStatus, SideReference, Weather};
 use std::cmp;
 
 #[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5"))]

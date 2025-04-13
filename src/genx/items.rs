@@ -1,21 +1,21 @@
 #![allow(unused_variables)]
-use crate::abilities::Abilities;
+use super::abilities::Abilities;
+use super::damage_calc::type_effectiveness_modifier;
+use super::generate_instructions::{get_boost_instruction, immune_to_status};
+use super::state::{Pokemon, PokemonType, Side};
+use super::state::{PokemonBoostableStat, State, Terrain};
+use super::state::{PokemonStatus, SideReference};
 use crate::choices::{Choice, Choices, Effect, MoveCategory, MoveTarget, Secondary, StatBoosts};
-use crate::damage_calc::type_effectiveness_modifier;
 use crate::define_enum_with_from_str;
-use crate::generate_instructions::{get_boost_instruction, immune_to_status};
 use crate::instruction::{
     ChangeItemInstruction, ChangeStatusInstruction, DamageInstruction, DisableMoveInstruction,
     HealInstruction, Instruction, StateInstructions,
 };
 use crate::pokemon::PokemonName;
-use crate::state::{Pokemon, PokemonType, Side};
-use crate::state::{PokemonBoostableStat, State, Terrain};
-use crate::state::{PokemonStatus, SideReference};
 use std::cmp;
 
 #[cfg(feature = "gen4")]
-use crate::state::PokemonVolatileStatus;
+use super::state::PokemonVolatileStatus;
 
 define_enum_with_from_str! {
     #[repr(u8)]

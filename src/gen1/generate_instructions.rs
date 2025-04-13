@@ -1,29 +1,23 @@
-use crate::choice_effects::choice_after_damage_hit;
-use crate::choice_effects::{
-    charge_choice_to_volatile, choice_before_move, choice_special_effect, modify_choice,
+use super::choice_effects::{
+    charge_choice_to_volatile, choice_after_damage_hit, choice_before_move, choice_special_effect,
+    modify_choice,
+};
+use super::damage_calc::{calculate_damage, DamageRolls};
+use super::state::{
+    MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonStatus,
+    PokemonType, PokemonVolatileStatus, Side, SideMovesFirst, SideReference, State,
 };
 use crate::choices::{
-    Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, Status, VolatileStatus,
+    Boost, Choice, Choices, Effect, Heal, MoveCategory, MoveTarget, MultiHitMove, Secondary,
+    Status, VolatileStatus,
 };
-use crate::instruction::DecrementPPInstruction;
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeDamageDealtDamageInstruction,
     ChangeDamageDealtMoveCategoryInstruction, ChangeSideConditionInstruction,
-    DecrementRestTurnsInstruction, HealInstruction, RemoveVolatileStatusInstruction,
-    SetSleepTurnsInstruction, ToggleDamageDealtHitSubstituteInstruction,
-};
-use crate::state::{
-    MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonType, Side,
-    SideMovesFirst,
-};
-use crate::{
-    choices::{Choice, MoveCategory},
-    damage_calc::{calculate_damage, DamageRolls},
-    instruction::{
-        ChangeStatusInstruction, DamageInstruction, Instruction, StateInstructions,
-        SwitchInstruction,
-    },
-    state::{PokemonStatus, PokemonVolatileStatus, SideReference, State},
+    ChangeStatusInstruction, DamageInstruction, DecrementPPInstruction,
+    DecrementRestTurnsInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction,
+    SetSleepTurnsInstruction, StateInstructions, SwitchInstruction,
+    ToggleDamageDealtHitSubstituteInstruction,
 };
 use std::cmp;
 

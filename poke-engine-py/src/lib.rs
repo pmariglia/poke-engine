@@ -2,21 +2,21 @@ use pyo3::prelude::*;
 use pyo3::{pyfunction, pymethods, pymodule, wrap_pyfunction, Bound, PyResult};
 use std::collections::HashSet;
 
-use poke_engine::abilities::Abilities;
 use poke_engine::choices::{Choices, MoveCategory, MOVES};
-use poke_engine::generate_instructions::{
+use poke_engine::engine::abilities::Abilities;
+use poke_engine::engine::generate_instructions::{
     calculate_both_damage_rolls, generate_instructions_from_move_pair,
 };
-use poke_engine::instruction::{Instruction, StateInstructions};
-use poke_engine::items::Items;
-use poke_engine::mcts::{perform_mcts, MctsResult, MctsSideResult};
-use poke_engine::pokemon::PokemonName;
-use poke_engine::search::iterative_deepen_expectiminimax;
-use poke_engine::state::{
+use poke_engine::engine::items::Items;
+use poke_engine::engine::state::{
     LastUsedMove, Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoves, PokemonNature,
     PokemonStatus, PokemonType, PokemonVolatileStatus, Side, SideConditions, SidePokemon, State,
     StateTerrain, StateTrickRoom, StateWeather, Terrain, VolatileStatusDurations, Weather,
 };
+use poke_engine::instruction::{Instruction, StateInstructions};
+use poke_engine::mcts::{perform_mcts, MctsResult, MctsSideResult};
+use poke_engine::pokemon::PokemonName;
+use poke_engine::search::iterative_deepen_expectiminimax;
 use std::str::FromStr;
 use std::time::Duration;
 

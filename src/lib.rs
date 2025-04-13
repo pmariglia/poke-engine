@@ -1,69 +1,15 @@
 #[cfg(feature = "gen1")]
-#[path = "gen1/abilities.rs"]
-pub mod abilities;
-#[cfg(feature = "gen1")]
-#[path = "gen1/base_stats.rs"]
-pub mod base_stats;
-#[cfg(feature = "gen1")]
-#[path = "gen1/choice_effects.rs"]
-pub mod choice_effects;
-#[cfg(feature = "gen1")]
-#[path = "gen1/damage_calc.rs"]
-pub mod damage_calc;
-#[cfg(feature = "gen1")]
-#[path = "gen1/evaluate.rs"]
-pub mod evaluate;
-#[cfg(feature = "gen1")]
-#[path = "gen1/generate_instructions.rs"]
-pub mod generate_instructions;
-#[cfg(feature = "gen1")]
-#[path = "gen1/items.rs"]
-pub mod items;
-#[cfg(feature = "gen1")]
-#[path = "gen1/state.rs"]
-pub mod state;
+#[path = "gen1/mod.rs"]
+pub mod engine;
 
 #[cfg(feature = "gen2")]
-#[path = "gen2/abilities.rs"]
-pub mod abilities;
-#[cfg(feature = "gen2")]
-#[path = "gen2/base_stats.rs"]
-pub mod base_stats;
-#[cfg(feature = "gen2")]
-#[path = "gen2/choice_effects.rs"]
-pub mod choice_effects;
-#[cfg(feature = "gen2")]
-#[path = "gen2/damage_calc.rs"]
-pub mod damage_calc;
-#[cfg(feature = "gen2")]
-#[path = "gen2/evaluate.rs"]
-pub mod evaluate;
-#[cfg(feature = "gen2")]
-#[path = "gen2/generate_instructions.rs"]
-pub mod generate_instructions;
-#[cfg(feature = "gen2")]
-#[path = "gen2/items.rs"]
-pub mod items;
-#[cfg(feature = "gen2")]
-#[path = "gen2/state.rs"]
-pub mod state;
+#[path = "gen2/mod.rs"]
+pub mod engine;
 
-#[cfg(not(any(feature = "gen2", feature = "gen1")))]
-pub mod abilities;
-#[cfg(not(any(feature = "gen2", feature = "gen1")))]
-pub mod base_stats;
-#[cfg(not(any(feature = "gen2", feature = "gen1")))]
-pub mod choice_effects;
-#[cfg(not(any(feature = "gen2", feature = "gen1")))]
-pub mod damage_calc;
-#[cfg(not(any(feature = "gen2", feature = "gen1")))]
-pub mod evaluate;
-#[cfg(not(any(feature = "gen2", feature = "gen1")))]
-pub mod generate_instructions;
-#[cfg(not(any(feature = "gen2", feature = "gen1")))]
-pub mod items;
-#[cfg(not(any(feature = "gen2", feature = "gen1")))]
-pub mod state;
+// All other generations
+#[cfg(not(any(feature = "gen1", feature = "gen2")))]
+#[path = "genx/mod.rs"]
+pub mod engine;
 
 pub mod choices;
 pub mod instruction;

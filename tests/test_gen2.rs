@@ -1,18 +1,18 @@
 #![cfg(feature = "gen2")]
 
 use poke_engine::choices::{Choices, MoveCategory};
-use poke_engine::generate_instructions::generate_instructions_from_move_pair;
+use poke_engine::engine::generate_instructions::generate_instructions_from_move_pair;
+use poke_engine::engine::items::Items;
+use poke_engine::engine::state::{
+    MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonStatus, PokemonType,
+    PokemonVolatileStatus, SideReference, State,
+};
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeDamageDealtDamageInstruction,
     ChangeDamageDealtMoveCategoryInstruction, ChangeItemInstruction, ChangeStatusInstruction,
     DamageInstruction, DecrementRestTurnsInstruction, HealInstruction, Instruction,
     RemoveVolatileStatusInstruction, SetSleepTurnsInstruction, StateInstructions,
     SwitchInstruction,
-};
-use poke_engine::items::Items;
-use poke_engine::state::{
-    MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonStatus, PokemonType,
-    PokemonVolatileStatus, SideReference, State,
 };
 
 pub fn generate_instructions_with_state_assertion(

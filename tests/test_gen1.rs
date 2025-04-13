@@ -1,8 +1,13 @@
 #![cfg(feature = "gen1")]
 
 use poke_engine::choices::{Choices, MOVES};
-use poke_engine::generate_instructions::{
+use poke_engine::engine::generate_instructions::{
     generate_instructions_from_move_pair, moves_first, MAX_SLEEP_TURNS,
+};
+use poke_engine::engine::state::PokemonBoostableStat;
+use poke_engine::engine::state::{
+    MoveChoice, PokemonIndex, PokemonMoveIndex, PokemonStatus, PokemonType, PokemonVolatileStatus,
+    SideReference, State,
 };
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeDamageDealtDamageInstruction,
@@ -11,11 +16,6 @@ use poke_engine::instruction::{
     SwitchInstruction,
 };
 use poke_engine::pokemon::PokemonName;
-use poke_engine::state::PokemonBoostableStat;
-use poke_engine::state::{
-    MoveChoice, PokemonIndex, PokemonMoveIndex, PokemonStatus, PokemonType, PokemonVolatileStatus,
-    SideReference, State,
-};
 
 pub fn generate_instructions_with_state_assertion(
     state: &mut State,
@@ -302,16 +302,15 @@ fn test_paralysis_nullify_ignores_paralysis() {
     let s1_choice = MOVES.get(&Choices::TACKLE).unwrap().clone();
     let s2_choice = MOVES.get(&Choices::TACKLE).unwrap().clone();
 
-    let moves_first = moves_first(&state, &s1_choice, &s2_choice);
+    let moves_first_before = moves_first(&state, &s1_choice, &s2_choice);
     state
         .side_one
         .volatile_statuses
         .insert(PokemonVolatileStatus::GEN1PARALYSISNULLIFY);
-    let moves_first_after_volatile =
-        poke_engine::generate_instructions::moves_first(&state, &s1_choice, &s2_choice);
+    let moves_first_after_volatile = moves_first(&state, &s1_choice, &s2_choice);
 
     // assert side one moves first is different, because the nullify volatile should cause paralysis to be ignored
-    assert_ne!(moves_first, moves_first_after_volatile);
+    assert_ne!(moves_first_before, moves_first_after_volatile);
 }
 
 #[test]

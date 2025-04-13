@@ -1,11 +1,11 @@
-use crate::abilities::Abilities;
+use super::abilities::Abilities;
+use super::items::Items;
 use crate::choices::{Choice, Choices, MoveCategory, MOVES};
 use crate::define_enum_with_from_str;
 use crate::instruction::{
     BoostInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction,
     EnableMoveInstruction, Instruction, RemoveVolatileStatusInstruction,
 };
-use crate::items::Items;
 use crate::pokemon::PokemonName;
 use core::panic;
 use std::cmp;
@@ -1282,7 +1282,7 @@ impl State {
             let encored = self
                 .side_one
                 .volatile_statuses
-                .contains(&crate::state::PokemonVolatileStatus::ENCORE);
+                .contains(&PokemonVolatileStatus::ENCORE);
             self.side_one.get_active_immutable().add_available_moves(
                 &mut s1_options,
                 &self.side_one.last_used_move,
@@ -1302,7 +1302,7 @@ impl State {
             let encored = self
                 .side_two
                 .volatile_statuses
-                .contains(&crate::state::PokemonVolatileStatus::ENCORE);
+                .contains(&PokemonVolatileStatus::ENCORE);
             self.side_two.get_active_immutable().add_available_moves(
                 &mut s2_options,
                 &self.side_two.last_used_move,
@@ -1720,12 +1720,12 @@ impl State {
     fn increment_volatile_status_duration(
         &mut self,
         side_ref: &SideReference,
-        volatile_status: &crate::state::PokemonVolatileStatus,
+        volatile_status: &PokemonVolatileStatus,
         amount: i8,
     ) {
         let side = self.get_side(&side_ref);
         match volatile_status {
-            crate::state::PokemonVolatileStatus::CONFUSION => {
+            PokemonVolatileStatus::CONFUSION => {
                 side.volatile_status_durations.confusion += amount;
             }
             _ => panic!(
@@ -2433,7 +2433,7 @@ impl Side {
         }
         if self
             .volatile_statuses
-            .contains(&crate::state::PokemonVolatileStatus::SUBSTITUTE)
+            .contains(&PokemonVolatileStatus::SUBSTITUTE)
         {
             output.push_str(&format!(
                 "\n  substitute_health: {}",
@@ -2764,10 +2764,10 @@ impl State {
     /// There's more to it, follow the code below to see a full example of a serialized state.
     /// */
     ///
-    /// use poke_engine::abilities::Abilities;
-    /// use poke_engine::items::Items;
+    /// use poke_engine::engine::abilities::Abilities;
+    /// use poke_engine::engine::items::Items;
     /// use poke_engine::pokemon::PokemonName;
-    /// use poke_engine::state::State;
+    /// use poke_engine::engine::state::State;
     ///
     /// let serialized_state = concat!(
     ///

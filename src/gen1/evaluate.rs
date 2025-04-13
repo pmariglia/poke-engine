@@ -1,5 +1,5 @@
+use super::state::{Pokemon, PokemonStatus, PokemonVolatileStatus, State};
 use crate::choices::MoveCategory;
-use crate::state::{Pokemon, PokemonStatus, PokemonVolatileStatus, State};
 
 const POKEMON_ALIVE: f32 = 30.0;
 const POKEMON_HP: f32 = 100.0;

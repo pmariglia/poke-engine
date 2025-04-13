@@ -1,7 +1,8 @@
-use crate::choice_effects::{
+use super::choice_effects::{
     charge_choice_to_volatile, choice_after_damage_hit, choice_before_move, choice_hazard_clear,
     choice_special_effect, modify_choice,
 };
+use super::state::{PokemonMoveIndex, SideMovesFirst};
 use crate::choices::{
     Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, SideCondition, Status,
     VolatileStatus, MOVES,
@@ -18,25 +19,23 @@ use crate::instruction::{
     ToggleDamageDealtHitSubstituteInstruction,
 };
 use crate::instruction::{DecrementPPInstruction, SetLastUsedMoveInstruction};
-use crate::state::{PokemonMoveIndex, SideMovesFirst};
 
-use crate::damage_calc::calculate_futuresight_damage;
-use crate::items::{
+use super::damage_calc::calculate_futuresight_damage;
+use super::damage_calc::{calculate_damage, type_effectiveness_modifier, DamageRolls};
+use super::items::{
     item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
     Items,
 };
-use crate::state::{
+use super::state::{
     LastUsedMove, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition,
-    PokemonType, Side,
+    PokemonStatus, PokemonType, PokemonVolatileStatus, Side, SideReference, State, Weather,
 };
 use crate::{
     choices::{Choice, MoveCategory},
-    damage_calc::{calculate_damage, type_effectiveness_modifier, DamageRolls},
     instruction::{
         ChangeStatusInstruction, DamageInstruction, Instruction, StateInstructions,
         SwitchInstruction,
     },
-    state::{PokemonStatus, PokemonVolatileStatus, SideReference, State, Weather},
 };
 use std::cmp;
 

@@ -1,5 +1,6 @@
-use crate::abilities::Abilities;
-use crate::choice_effects::charge_volatile_to_choice;
+use super::abilities::Abilities;
+use super::choice_effects::charge_volatile_to_choice;
+use super::items::Items;
 use crate::choices::{Choice, Choices, MoveCategory, MOVES};
 use crate::define_enum_with_from_str;
 use crate::instruction::{
@@ -7,7 +8,6 @@ use crate::instruction::{
     ChangeVolatileStatusDurationInstruction, EnableMoveInstruction, Instruction,
     RemoveVolatileStatusInstruction, StateInstructions,
 };
-use crate::items::Items;
 use crate::pokemon::PokemonName;
 use core::panic;
 use std::collections::HashSet;
@@ -3237,10 +3237,10 @@ impl State {
     ///    return;
     /// }
     ///
-    /// use poke_engine::abilities::Abilities;
-    /// use poke_engine::items::Items;
+    /// use poke_engine::engine::abilities::Abilities;
+    /// use poke_engine::engine::items::Items;
     /// use poke_engine::pokemon::PokemonName;
-    /// use poke_engine::state::State;
+    /// use poke_engine::engine::state::State;
     ///
     /// let serialized_state = concat!(
     ///

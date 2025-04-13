@@ -1,14 +1,14 @@
 #![cfg(not(any(feature = "gen1", feature = "gen2", feature = "gen3")))]
 
 use poke_engine::choices::{Choices, MoveCategory};
-use poke_engine::generate_instructions::generate_instructions_from_move_pair;
+use poke_engine::engine::generate_instructions::generate_instructions_from_move_pair;
+use poke_engine::engine::state::{
+    MoveChoice, PokemonMoveIndex, PokemonType, PokemonVolatileStatus, SideReference, State, Weather,
+};
 use poke_engine::instruction::{
     ChangeDamageDealtDamageInstruction, ChangeDamageDealtMoveCategoryInstruction,
     DamageInstruction, Instruction, RemoveVolatileStatusInstruction, StateInstructions,
     ToggleDamageDealtHitSubstituteInstruction,
-};
-use poke_engine::state::{
-    MoveChoice, PokemonMoveIndex, PokemonType, PokemonVolatileStatus, SideReference, State, Weather,
 };
 
 #[test]

@@ -1,11 +1,11 @@
-use crate::abilities::Abilities;
+use super::abilities::Abilities;
+use super::items::Items;
 use crate::choices::{Choice, Choices, MoveCategory, MOVES};
 use crate::define_enum_with_from_str;
 use crate::instruction::{
     BoostInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction,
     EnableMoveInstruction, Instruction, RemoveVolatileStatusInstruction,
 };
-use crate::items::Items;
 use crate::pokemon::PokemonName;
 use core::panic;
 use std::collections::HashSet;
@@ -2866,10 +2866,10 @@ impl State {
     /// There's more to it, follow the code below to see a full example of a serialized state.
     /// */
     ///
-    /// use poke_engine::abilities::Abilities;
-    /// use poke_engine::items::Items;
+    /// use poke_engine::engine::abilities::Abilities;
+    /// use poke_engine::engine::items::Items;
     /// use poke_engine::pokemon::PokemonName;
-    /// use poke_engine::state::State;
+    /// use poke_engine::engine::state::State;
     ///
     /// let serialized_state = concat!(
     ///

@@ -1,7 +1,7 @@
-use crate::evaluate::evaluate;
-use crate::generate_instructions::generate_instructions_from_move_pair;
+use crate::engine::evaluate::evaluate;
+use crate::engine::generate_instructions::generate_instructions_from_move_pair;
+use crate::engine::state::{MoveChoice, State};
 use crate::instruction::StateInstructions;
-use crate::state::{MoveChoice, State};
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use rand::thread_rng;
