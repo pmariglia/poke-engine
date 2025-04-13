@@ -287,24 +287,6 @@ pub fn item_before_move(
     let active_pkmn = attacking_side.get_active();
     let defending_pkmn = defending_side.get_active();
     match active_pkmn.item {
-        Items::LUMBERRY if active_pkmn.status != PokemonStatus::NONE => {
-            lum_berry(side_ref, attacking_side, instructions)
-        }
-        Items::SITRUSBERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => {
-            sitrus_berry(side_ref, attacking_side, instructions)
-        }
-        Items::PETAYABERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => boost_berry(
-            side_ref,
-            state,
-            PokemonBoostableStat::SpecialAttack,
-            instructions,
-        ),
-        Items::LIECHIBERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => {
-            boost_berry(side_ref, state, PokemonBoostableStat::Attack, instructions)
-        }
-        Items::SALACBERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => {
-            boost_berry(side_ref, state, PokemonBoostableStat::Speed, instructions)
-        }
         Items::CHOICEBAND => {
             let ins = get_choice_move_disable_instructions(active_pkmn, side_ref, &choice.move_id);
             for i in ins {
@@ -324,6 +306,18 @@ pub fn item_end_of_turn(
     let attacking_side = state.get_side(side_ref);
     let active_pkmn = attacking_side.get_active();
     match active_pkmn.item {
+        Items::PETAYABERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => boost_berry(
+            side_ref,
+            state,
+            PokemonBoostableStat::SpecialAttack,
+            instructions,
+        ),
+        Items::LIECHIBERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => {
+            boost_berry(side_ref, state, PokemonBoostableStat::Attack, instructions)
+        }
+        Items::SALACBERRY if active_pkmn.hp <= active_pkmn.maxhp / 4 => {
+            boost_berry(side_ref, state, PokemonBoostableStat::Speed, instructions)
+        }
         Items::LUMBERRY if active_pkmn.status != PokemonStatus::NONE => {
             lum_berry(side_ref, attacking_side, instructions)
         }
