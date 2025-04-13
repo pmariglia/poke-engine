@@ -1118,9 +1118,7 @@ fn move_has_no_effect(state: &State, choice: &Choice, attacking_side_ref: &SideR
 
 fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideReference) -> bool {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
-
-    // If the opponent has 0 hp, you can't use a non-status move
-    if defending_side.get_active_immutable().hp == 0 && choice.category != MoveCategory::Status {
+    if defending_side.get_active_immutable().hp == 0 {
         return true;
     }
 
