@@ -1,11 +1,11 @@
 use super::abilities::Abilities;
-use super::state::{
-    Pokemon, PokemonBoostableStat, PokemonStatus, PokemonType, PokemonVolatileStatus,
-    SideReference, State, Weather,
-};
-use super::state::{PokemonIndex, Side};
+use super::state::{PokemonVolatileStatus, Weather};
 use crate::choices::{Choice, MoveCategory};
 use crate::choices::{Choices, MOVES};
+use crate::state::{
+    Pokemon, PokemonBoostableStat, PokemonIndex, PokemonStatus, PokemonType, Side, SideReference,
+    State,
+};
 
 #[rustfmt::skip]
 const TYPE_MATCHUP_DAMAGE_MULTIPICATION: [[f32; 19]; 19] = [

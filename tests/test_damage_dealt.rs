@@ -2,14 +2,13 @@
 
 use poke_engine::choices::{Choices, MoveCategory};
 use poke_engine::engine::generate_instructions::generate_instructions_from_move_pair;
-use poke_engine::engine::state::{
-    MoveChoice, PokemonMoveIndex, PokemonType, PokemonVolatileStatus, SideReference, State, Weather,
-};
+use poke_engine::engine::state::{MoveChoice, PokemonVolatileStatus, Weather};
 use poke_engine::instruction::{
     ChangeDamageDealtDamageInstruction, ChangeDamageDealtMoveCategoryInstruction,
     DamageInstruction, Instruction, RemoveVolatileStatusInstruction, StateInstructions,
     ToggleDamageDealtHitSubstituteInstruction,
 };
+use poke_engine::state::{PokemonMoveIndex, PokemonType, SideReference, State};
 
 #[test]
 fn test_previous_damage_dealt_resets_and_then_goes_to_a_new_value() {

@@ -15,15 +15,14 @@ use poke_engine::instruction::ChangeSubsituteHealthInstruction;
 use poke_engine::engine::abilities::Abilities;
 
 #[cfg(not(feature = "gen4"))]
-use poke_engine::engine::state::PokemonBoostableStat;
+use poke_engine::state::PokemonBoostableStat;
 
 #[cfg(not(feature = "gen4"))]
 use poke_engine::instruction::{BoostInstruction, ChangeVolatileStatusDurationInstruction};
 
-use poke_engine::engine::state::{
-    LastUsedMove, MoveChoice, PokemonIndex, PokemonMoveIndex, PokemonVolatileStatus, SideReference,
-    State,
-};
+use poke_engine::engine::state::{MoveChoice, PokemonVolatileStatus};
+
+use poke_engine::state::{LastUsedMove, PokemonIndex, PokemonMoveIndex, SideReference, State};
 
 #[test]
 fn test_last_used_move_is_set_on_switch() {

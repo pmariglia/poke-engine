@@ -1,8 +1,5 @@
 #![allow(unused_variables)]
 use super::generate_instructions::get_boost_instruction;
-use super::state::{Pokemon, PokemonType, Side};
-use super::state::{PokemonBoostableStat, State};
-use super::state::{PokemonStatus, SideReference};
 use crate::choices::{Choice, Choices, MoveCategory};
 use crate::define_enum_with_from_str;
 use crate::instruction::{
@@ -10,6 +7,9 @@ use crate::instruction::{
     Instruction, StateInstructions,
 };
 use crate::pokemon::PokemonName;
+use crate::state::{
+    Pokemon, PokemonBoostableStat, PokemonStatus, PokemonType, Side, SideReference, State,
+};
 use std::cmp;
 
 define_enum_with_from_str! {

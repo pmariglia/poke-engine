@@ -4,11 +4,7 @@ use poke_engine::choices::{Choices, MOVES};
 use poke_engine::engine::generate_instructions::{
     generate_instructions_from_move_pair, moves_first, MAX_SLEEP_TURNS,
 };
-use poke_engine::engine::state::PokemonBoostableStat;
-use poke_engine::engine::state::{
-    MoveChoice, PokemonIndex, PokemonMoveIndex, PokemonStatus, PokemonType, PokemonVolatileStatus,
-    SideReference, State,
-};
+use poke_engine::engine::state::{MoveChoice, PokemonVolatileStatus};
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeDamageDealtDamageInstruction,
     ChangeStatusInstruction, DamageInstruction, DecrementRestTurnsInstruction, HealInstruction,
@@ -16,6 +12,10 @@ use poke_engine::instruction::{
     SwitchInstruction,
 };
 use poke_engine::pokemon::PokemonName;
+use poke_engine::state::{
+    PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonStatus, PokemonType,
+    SideReference, State,
+};
 
 pub fn generate_instructions_with_state_assertion(
     state: &mut State,

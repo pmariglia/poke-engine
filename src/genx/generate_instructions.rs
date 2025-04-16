@@ -7,7 +7,6 @@ use super::choice_effects::{
     charge_choice_to_volatile, choice_after_damage_hit, choice_before_move, choice_hazard_clear,
     choice_special_effect, modify_choice,
 };
-use super::state::{PokemonMoveIndex, SideMovesFirst};
 use crate::choices::{
     Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, SideCondition, StatBoosts,
     Status, VolatileStatus, MOVES,
@@ -32,14 +31,14 @@ use super::items::{
     item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
     item_on_switch_in, Items,
 };
-use super::state::{
-    LastUsedMove, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition,
-    PokemonType, Side, Terrain,
-};
-use super::state::{PokemonStatus, PokemonVolatileStatus, SideReference, State, Weather};
+use super::state::{MoveChoice, PokemonVolatileStatus, Terrain, Weather};
 use crate::choices::{Choice, MoveCategory};
 use crate::instruction::{
     ChangeStatusInstruction, DamageInstruction, Instruction, StateInstructions, SwitchInstruction,
+};
+use crate::state::{
+    LastUsedMove, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
+    PokemonStatus, PokemonType, Side, SideMovesFirst, SideReference, State,
 };
 use std::cmp;
 
@@ -3896,15 +3895,17 @@ pub fn calculate_both_damage_rolls(
 #[cfg(test)]
 mod tests {
     use super::super::abilities::Abilities;
-    use super::super::state::{
-        Move, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, SideReference, State, Terrain,
-    };
+    use super::super::state::{PokemonVolatileStatus, Terrain, Weather};
     use super::*;
     use crate::choices::{Choices, MOVES};
     use crate::instruction::{
         ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
         ChangeStatusInstruction, ChangeSubsituteHealthInstruction, ChangeTerrain,
         DamageInstruction, EnableMoveInstruction, SwitchInstruction,
+    };
+    use crate::state::{
+        Move, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
+        PokemonStatus, SideReference, State,
     };
 
     #[test]

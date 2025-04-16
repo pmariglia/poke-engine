@@ -8,11 +8,7 @@ use poke_engine::engine::generate_instructions::{
     MAX_SLEEP_TURNS,
 };
 use poke_engine::engine::items::Items;
-use poke_engine::engine::state::{
-    pokemon_index_iter, Move, MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
-    PokemonSideCondition, PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State,
-    StateWeather, Terrain, Weather,
-};
+use poke_engine::engine::state::{MoveChoice, PokemonVolatileStatus, Terrain, Weather};
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeAbilityInstruction,
     ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatInstruction,
@@ -27,12 +23,16 @@ use poke_engine::instruction::{
     ToggleTrickRoomInstruction,
 };
 use poke_engine::pokemon::PokemonName;
+use poke_engine::state::{
+    pokemon_index_iter, Move, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
+    PokemonSideCondition, PokemonStatus, PokemonType, SideReference, State, StateWeather,
+};
 
 #[cfg(feature = "terastallization")]
 use poke_engine::instruction::ToggleTerastallizedInstruction;
 
 #[cfg(not(feature = "terastallization"))]
-use poke_engine::engine::state::LastUsedMove;
+use poke_engine::state::LastUsedMove;
 
 pub fn generate_instructions_with_state_assertion(
     state: &mut State,

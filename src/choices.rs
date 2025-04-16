@@ -1,8 +1,9 @@
 use crate::define_enum_with_from_str;
 use crate::engine::state::PokemonVolatileStatus;
-use crate::engine::state::{PokemonBoostableStat, PokemonSideCondition};
-use crate::engine::state::{PokemonIndex, PokemonStatus};
-use crate::engine::state::{PokemonMoveIndex, PokemonType};
+use crate::state::{
+    PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition, PokemonStatus,
+    PokemonType,
+};
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::fmt;

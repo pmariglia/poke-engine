@@ -1,11 +1,11 @@
 use super::abilities::Abilities;
-use super::state::{
-    Pokemon, PokemonBoostableStat, PokemonStatus, PokemonType, PokemonVolatileStatus,
-    SideReference, State, Weather,
-};
-use super::state::{PokemonIndex, Side, Terrain};
+use super::state::{PokemonVolatileStatus, Terrain, Weather};
 use crate::choices::{Choice, MoveCategory};
 use crate::choices::{Choices, MOVES};
+use crate::state::{
+    Pokemon, PokemonBoostableStat, PokemonIndex, PokemonStatus, PokemonType, Side, SideReference,
+    State,
+};
 
 #[rustfmt::skip]
 #[cfg(any(feature = "gen9",feature = "gen8",feature = "gen7",feature = "gen6"))]
@@ -665,10 +665,9 @@ mod tests {
     use std::collections::HashSet;
     use std::iter::FromIterator;
 
-    use super::super::state::{
-        PokemonStatus, PokemonType, PokemonVolatileStatus, SideReference, State, Weather,
-    };
+    use super::super::state::{PokemonVolatileStatus, Weather};
     use super::*;
+    use crate::state::{PokemonStatus, PokemonType, SideReference, State};
 
     #[test]
     fn test_basic_damaging_move() {

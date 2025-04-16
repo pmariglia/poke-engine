@@ -2,9 +2,7 @@
 use super::abilities::Abilities;
 use super::damage_calc::type_effectiveness_modifier;
 use super::generate_instructions::{get_boost_instruction, immune_to_status};
-use super::state::{Pokemon, PokemonType, Side};
-use super::state::{PokemonBoostableStat, State, Terrain};
-use super::state::{PokemonStatus, SideReference};
+use super::state::Terrain;
 use crate::choices::{Choice, Choices, Effect, MoveCategory, MoveTarget, Secondary, StatBoosts};
 use crate::define_enum_with_from_str;
 use crate::instruction::{
@@ -12,6 +10,9 @@ use crate::instruction::{
     HealInstruction, Instruction, StateInstructions,
 };
 use crate::pokemon::PokemonName;
+use crate::state::{
+    Pokemon, PokemonBoostableStat, PokemonStatus, PokemonType, Side, SideReference, State,
+};
 use std::cmp;
 
 #[cfg(feature = "gen4")]

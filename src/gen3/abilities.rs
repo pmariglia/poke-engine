@@ -1,9 +1,7 @@
 #![allow(unused_variables)]
 use super::damage_calc::type_effectiveness_modifier;
 use super::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
-use super::state::{PokemonBoostableStat, PokemonType};
-use super::state::{PokemonStatus, State};
-use super::state::{PokemonVolatileStatus, SideReference, Weather};
+use super::state::{PokemonVolatileStatus, Weather};
 use crate::choices::{
     Boost, Choice, Choices, Effect, Heal, MoveCategory, MoveTarget, Secondary, StatBoosts,
     VolatileStatus,
@@ -13,6 +11,7 @@ use crate::instruction::{
     BoostInstruction, ChangeAbilityInstruction, ChangeStatusInstruction, ChangeType, ChangeWeather,
     DamageInstruction, HealInstruction, Instruction, StateInstructions,
 };
+use crate::state::{PokemonBoostableStat, PokemonStatus, PokemonType, SideReference, State};
 use std::cmp;
 
 pub const WEATHER_ABILITY_TURNS: i8 = -1;

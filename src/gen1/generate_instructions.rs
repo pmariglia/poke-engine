@@ -3,10 +3,7 @@ use super::choice_effects::{
     modify_choice,
 };
 use super::damage_calc::{calculate_damage, DamageRolls};
-use super::state::{
-    MoveChoice, PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonStatus,
-    PokemonType, PokemonVolatileStatus, Side, SideMovesFirst, SideReference, State,
-};
+use super::state::{MoveChoice, PokemonVolatileStatus};
 use crate::choices::{
     Boost, Choice, Choices, Effect, Heal, MoveCategory, MoveTarget, MultiHitMove, Secondary,
     Status, VolatileStatus,
@@ -18,6 +15,10 @@ use crate::instruction::{
     DecrementRestTurnsInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction,
     SetSleepTurnsInstruction, StateInstructions, SwitchInstruction,
     ToggleDamageDealtHitSubstituteInstruction,
+};
+use crate::state::{
+    PokemonBoostableStat, PokemonIndex, PokemonSideCondition, PokemonStatus, PokemonType, Side,
+    SideMovesFirst, SideReference, State,
 };
 use std::cmp;
 

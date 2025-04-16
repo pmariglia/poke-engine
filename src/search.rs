@@ -1,6 +1,7 @@
 use crate::engine::evaluate::evaluate;
 use crate::engine::generate_instructions::generate_instructions_from_move_pair;
-use crate::engine::state::{MoveChoice, State};
+use crate::engine::state::MoveChoice;
+use crate::state::State;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use std::thread;

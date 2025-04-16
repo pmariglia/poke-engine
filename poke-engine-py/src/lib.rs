@@ -8,15 +8,16 @@ use poke_engine::engine::generate_instructions::{
     calculate_both_damage_rolls, generate_instructions_from_move_pair,
 };
 use poke_engine::engine::items::Items;
-use poke_engine::engine::state::{
-    LastUsedMove, Move, MoveChoice, Pokemon, PokemonIndex, PokemonMoves, PokemonNature,
-    PokemonStatus, PokemonType, PokemonVolatileStatus, Side, SideConditions, SidePokemon, State,
-    StateTerrain, StateTrickRoom, StateWeather, Terrain, VolatileStatusDurations, Weather,
-};
+use poke_engine::engine::state::{MoveChoice, PokemonVolatileStatus, Terrain, Weather};
 use poke_engine::instruction::{Instruction, StateInstructions};
 use poke_engine::mcts::{perform_mcts, MctsResult, MctsSideResult};
 use poke_engine::pokemon::PokemonName;
 use poke_engine::search::iterative_deepen_expectiminimax;
+use poke_engine::state::{
+    LastUsedMove, Move, Pokemon, PokemonIndex, PokemonMoves, PokemonNature, PokemonStatus,
+    PokemonType, Side, SideConditions, SidePokemon, State, StateTerrain, StateTrickRoom,
+    StateWeather, VolatileStatusDurations,
+};
 use std::str::FromStr;
 use std::time::Duration;
 

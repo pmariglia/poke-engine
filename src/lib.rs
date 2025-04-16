@@ -21,6 +21,7 @@ pub mod io;
 pub mod mcts;
 pub mod pokemon;
 pub mod search;
+pub mod state;
 
 #[macro_export]
 macro_rules! assert_unique_feature {

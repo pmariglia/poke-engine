@@ -2,9 +2,7 @@
 use super::damage_calc::type_effectiveness_modifier;
 use super::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
 use super::items::{get_choice_move_disable_instructions, Items};
-use super::state::{PokemonBoostableStat, PokemonSideCondition, PokemonType, Side, Terrain};
-use super::state::{PokemonStatus, State};
-use super::state::{PokemonVolatileStatus, SideReference, Weather};
+use super::state::{PokemonVolatileStatus, Terrain, Weather};
 use crate::choices::{
     Boost, Choice, Choices, Effect, Heal, MoveCategory, MoveTarget, Secondary, StatBoosts,
     VolatileStatus,
@@ -17,6 +15,10 @@ use crate::instruction::{
     FormeChangeInstruction, HealInstruction, Instruction, StateInstructions,
 };
 use crate::pokemon::PokemonName;
+use crate::state::{
+    PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType, Side, SideReference,
+    State,
+};
 use std::cmp;
 
 #[cfg(any(feature = "gen3", feature = "gen4", feature = "gen5"))]

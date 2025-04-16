@@ -1,12 +1,10 @@
 use crate::choices::{Choices, MoveCategory};
 use crate::engine::items::Items;
-use crate::engine::state::SideReference;
-use crate::engine::state::Terrain;
-use crate::engine::state::Weather;
-use crate::engine::state::{LastUsedMove, PokemonVolatileStatus};
-use crate::engine::state::{PokemonBoostableStat, PokemonType};
-use crate::engine::state::{PokemonIndex, PokemonSideCondition};
-use crate::engine::state::{PokemonMoveIndex, PokemonStatus};
+use crate::engine::state::{PokemonVolatileStatus, Terrain, Weather};
+use crate::state::{
+    LastUsedMove, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
+    PokemonStatus, PokemonType, SideReference,
+};
 use std::fmt;
 use std::fmt::Formatter;
 

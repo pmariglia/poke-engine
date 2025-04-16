@@ -1,10 +1,7 @@
 use super::damage_calc::type_effectiveness_modifier;
 use super::generate_instructions::{add_remove_status_instructions, get_boost_amount};
 use super::items::{get_choice_move_disable_instructions, Items};
-use super::state::{
-    pokemon_index_iter, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType,
-    PokemonVolatileStatus, Side, SideReference, State, Weather,
-};
+use super::state::{PokemonVolatileStatus, Weather};
 use crate::choices::{Choice, Choices, Heal, MoveCategory, MoveTarget};
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
@@ -12,6 +9,10 @@ use crate::instruction::{
     ChangeWeather, DamageInstruction, HealInstruction, Instruction,
     RemoveVolatileStatusInstruction, SetFutureSightInstruction, SetSleepTurnsInstruction,
     StateInstructions,
+};
+use crate::state::{
+    pokemon_index_iter, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType,
+    Side, SideReference, State,
 };
 use std::cmp;
 

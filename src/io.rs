@@ -3,10 +3,11 @@ use crate::engine::evaluate::evaluate;
 use crate::engine::generate_instructions::{
     calculate_both_damage_rolls, generate_instructions_from_move_pair,
 };
-use crate::engine::state::{MoveChoice, State};
+use crate::engine::state::MoveChoice;
 use crate::instruction::{Instruction, StateInstructions};
 use crate::mcts::{perform_mcts, MctsResult};
 use crate::search::{expectiminimax_search, iterative_deepen_expectiminimax, pick_safest};
+use crate::state::State;
 use clap::Parser;
 use std::io;
 use std::io::Write;

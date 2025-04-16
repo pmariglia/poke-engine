@@ -1,9 +1,9 @@
 #![allow(unused_variables)]
 
-use super::state::{Pokemon, SideReference};
 use crate::choices::Choices;
 use crate::define_enum_with_from_str;
 use crate::instruction::{DisableMoveInstruction, Instruction};
+use crate::state::{Pokemon, SideReference};
 
 pub fn get_choice_move_disable_instructions(
     pkmn: &Pokemon,

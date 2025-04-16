@@ -2,11 +2,7 @@ use super::abilities::Abilities;
 use super::damage_calc::type_effectiveness_modifier;
 use super::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
 use super::items::{get_choice_move_disable_instructions, Items};
-use super::state::Side;
-use super::state::{
-    pokemon_index_iter, LastUsedMove, PokemonBoostableStat, PokemonSideCondition, PokemonStatus,
-    PokemonType, PokemonVolatileStatus, SideReference, State, Terrain, Weather,
-};
+use super::state::{PokemonVolatileStatus, Terrain, Weather};
 use crate::choices::{
     Boost, Choice, Choices, Effect, Heal, MoveCategory, MoveTarget, Secondary, StatBoosts,
 };
@@ -18,6 +14,10 @@ use crate::instruction::{
     SetSleepTurnsInstruction, StateInstructions, ToggleTrickRoomInstruction,
 };
 use crate::pokemon::PokemonName;
+use crate::state::{
+    pokemon_index_iter, LastUsedMove, PokemonBoostableStat, PokemonSideCondition, PokemonStatus,
+    PokemonType, Side, SideReference, State,
+};
 use std::cmp;
 
 pub fn modify_choice(

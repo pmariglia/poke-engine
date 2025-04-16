@@ -4,12 +4,11 @@ use poke_engine::choices::Choices;
 use poke_engine::engine::abilities::Abilities;
 use poke_engine::engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::engine::items::Items;
-use poke_engine::engine::state::{
-    MoveChoice, PokemonIndex, PokemonMoveIndex, PokemonType, SideReference, State, Weather,
-};
+use poke_engine::engine::state::{MoveChoice, Weather};
 use poke_engine::instruction::{
     DamageInstruction, HealInstruction, Instruction, StateInstructions, SwitchInstruction,
 };
+use poke_engine::state::{PokemonIndex, PokemonMoveIndex, PokemonType, SideReference, State};
 
 pub fn generate_instructions_with_state_assertion(
     state: &mut State,
