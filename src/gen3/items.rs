@@ -1,5 +1,5 @@
 #![allow(unused_variables)]
-use super::generate_instructions::get_boost_instruction;
+use super::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
 use crate::choices::{Choice, Choices, MoveCategory};
 use crate::define_enum_with_from_str;
 use crate::instruction::{
@@ -124,6 +124,7 @@ define_enum_with_from_str! {
         PIXIEPLATE,
         LIGHTBALL,
         FOCUSSASH,
+        CHESTOBERRY,
         LUMBERRY,
         SITRUSBERRY,
         PETAYABERRY,
@@ -250,6 +251,24 @@ fn sitrus_berry(
     active_pkmn.item = Items::NONE;
 }
 
+fn chesto_berry(
+    side_ref: &SideReference,
+    attacking_side: &mut Side,
+    instructions: &mut StateInstructions,
+) {
+    let active_index = attacking_side.active_index;
+    let active_pkmn = attacking_side.get_active();
+    instructions
+        .instruction_list
+        .push(Instruction::ChangeItem(ChangeItemInstruction {
+            side_ref: *side_ref,
+            current_item: Items::CHESTOBERRY,
+            new_item: Items::NONE,
+        }));
+    active_pkmn.item = Items::NONE;
+    add_remove_status_instructions(instructions, active_index, *side_ref, attacking_side);
+}
+
 fn boost_berry(
     side_ref: &SideReference,
     state: &mut State,
@@ -323,6 +342,9 @@ pub fn item_end_of_turn(
         }
         Items::SITRUSBERRY if active_pkmn.hp <= active_pkmn.maxhp / 2 => {
             sitrus_berry(side_ref, attacking_side, instructions)
+        }
+        Items::CHESTOBERRY if active_pkmn.status == PokemonStatus::SLEEP => {
+            chesto_berry(side_ref, attacking_side, instructions)
         }
         Items::LEFTOVERS => {
             let attacker = state.get_side(side_ref).get_active();

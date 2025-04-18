@@ -4988,6 +4988,120 @@ fn test_sitrus_berry_activate_after_taking_damage_when_slower() {
 }
 
 #[test]
+fn test_chestoberry_activates_when_being_put_to_sleep() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::CHESTOBERRY;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPORE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::SLEEP,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::CHESTOBERRY,
+                new_item: Items::NONE,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::SLEEP,
+                new_status: PokemonStatus::NONE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_chestoberry_activates_when_using_rest() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::CHESTOBERRY;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::REST,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::NONE,
+                new_status: PokemonStatus::SLEEP,
+            }),
+            Instruction::SetRestTurns(SetSleepTurnsInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                new_turns: 3,
+                previous_turns: 0,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 48,
+            }),
+            Instruction::ChangeItem(ChangeItemInstruction {
+                side_ref: SideReference::SideOne,
+                current_item: Items::CHESTOBERRY,
+                new_item: Items::NONE,
+            }),
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::SLEEP,
+                new_status: PokemonStatus::NONE,
+            }),
+            Instruction::SetRestTurns(SetSleepTurnsInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                new_turns: 0,
+                previous_turns: 3,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_rest_does_not_activate_when_fainted() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::CHESTOBERRY;
+    state.side_one.get_active().hp = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::REST,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 1,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_petaya_berry_activate_after_taking_damage_when_slower() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::PETAYABERRY;
