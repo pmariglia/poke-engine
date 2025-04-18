@@ -3,6 +3,7 @@ use crate::define_enum_with_from_str;
 use crate::engine::abilities::Abilities;
 use crate::engine::items::Items;
 use crate::engine::state::{PokemonVolatileStatus, Terrain, Weather};
+use crate::instruction::{BoostInstruction, EnableMoveInstruction, Instruction};
 use crate::pokemon::PokemonName;
 use std::collections::HashSet;
 use std::ops::{Index, IndexMut};
@@ -505,46 +506,6 @@ impl Default for Side {
             switch_out_move_second_saved_move: Choices::NONE,
             evasion_boost: 0,
         }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct State {
-    pub side_one: Side,
-    pub side_two: Side,
-    pub weather: StateWeather,
-    pub terrain: StateTerrain,
-    pub trick_room: StateTrickRoom,
-    pub team_preview: bool,
-    pub use_last_used_move: bool,
-    pub use_damage_dealt: bool,
-}
-
-impl Default for State {
-    fn default() -> State {
-        let mut s = State {
-            side_one: Side::default(),
-            side_two: Side::default(),
-            weather: StateWeather {
-                weather_type: Weather::NONE,
-                turns_remaining: -1,
-            },
-            terrain: StateTerrain {
-                terrain_type: Terrain::NONE,
-                turns_remaining: 0,
-            },
-            trick_room: StateTrickRoom {
-                active: false,
-                turns_remaining: 0,
-            },
-            team_preview: false,
-            use_damage_dealt: false,
-            use_last_used_move: false,
-        };
-
-        // many tests rely on the speed of side 2's active pokemon being greater than side_one's
-        s.side_two.get_active().speed += 1;
-        s
     }
 }
 
@@ -1140,7 +1101,6 @@ impl Side {
             available_choices.join(", ")
         )
     }
-
     pub fn serialize(&self) -> String {
         let mut vs_string = String::new();
         for vs in &self.volatile_statuses {
@@ -1229,7 +1189,924 @@ impl Side {
         }
     }
 }
+impl Side {
+    pub fn visible_alive_pkmn(&self) -> i8 {
+        let mut count = 0;
+        for p in self.pokemon.into_iter() {
+            if p.hp > 0 {
+                count += 1;
+            }
+        }
+        count
+    }
+    pub fn get_active(&mut self) -> &mut Pokemon {
+        &mut self.pokemon[self.active_index]
+    }
+    pub fn get_active_immutable(&self) -> &Pokemon {
+        &self.pokemon[self.active_index]
+    }
+    fn toggle_force_switch(&mut self) {
+        self.force_switch = !self.force_switch;
+    }
+    pub fn get_side_condition(&self, side_condition: PokemonSideCondition) -> i8 {
+        match side_condition {
+            PokemonSideCondition::AuroraVeil => self.side_conditions.aurora_veil,
+            PokemonSideCondition::CraftyShield => self.side_conditions.crafty_shield,
+            PokemonSideCondition::HealingWish => self.side_conditions.healing_wish,
+            PokemonSideCondition::LightScreen => self.side_conditions.light_screen,
+            PokemonSideCondition::LuckyChant => self.side_conditions.lucky_chant,
+            PokemonSideCondition::LunarDance => self.side_conditions.lunar_dance,
+            PokemonSideCondition::MatBlock => self.side_conditions.mat_block,
+            PokemonSideCondition::Mist => self.side_conditions.mist,
+            PokemonSideCondition::Protect => self.side_conditions.protect,
+            PokemonSideCondition::QuickGuard => self.side_conditions.quick_guard,
+            PokemonSideCondition::Reflect => self.side_conditions.reflect,
+            PokemonSideCondition::Safeguard => self.side_conditions.safeguard,
+            PokemonSideCondition::Spikes => self.side_conditions.spikes,
+            PokemonSideCondition::Stealthrock => self.side_conditions.stealth_rock,
+            PokemonSideCondition::StickyWeb => self.side_conditions.sticky_web,
+            PokemonSideCondition::Tailwind => self.side_conditions.tailwind,
+            PokemonSideCondition::ToxicCount => self.side_conditions.toxic_count,
+            PokemonSideCondition::ToxicSpikes => self.side_conditions.toxic_spikes,
+            PokemonSideCondition::WideGuard => self.side_conditions.wide_guard,
+        }
+    }
+    pub fn update_side_condition(&mut self, side_condition: PokemonSideCondition, amount: i8) {
+        match side_condition {
+            PokemonSideCondition::AuroraVeil => self.side_conditions.aurora_veil += amount,
+            PokemonSideCondition::CraftyShield => self.side_conditions.crafty_shield += amount,
+            PokemonSideCondition::HealingWish => self.side_conditions.healing_wish += amount,
+            PokemonSideCondition::LightScreen => self.side_conditions.light_screen += amount,
+            PokemonSideCondition::LuckyChant => self.side_conditions.lucky_chant += amount,
+            PokemonSideCondition::LunarDance => self.side_conditions.lunar_dance += amount,
+            PokemonSideCondition::MatBlock => self.side_conditions.mat_block += amount,
+            PokemonSideCondition::Mist => self.side_conditions.mist += amount,
+            PokemonSideCondition::Protect => self.side_conditions.protect += amount,
+            PokemonSideCondition::QuickGuard => self.side_conditions.quick_guard += amount,
+            PokemonSideCondition::Reflect => self.side_conditions.reflect += amount,
+            PokemonSideCondition::Safeguard => self.side_conditions.safeguard += amount,
+            PokemonSideCondition::Spikes => self.side_conditions.spikes += amount,
+            PokemonSideCondition::Stealthrock => self.side_conditions.stealth_rock += amount,
+            PokemonSideCondition::StickyWeb => self.side_conditions.sticky_web += amount,
+            PokemonSideCondition::Tailwind => self.side_conditions.tailwind += amount,
+            PokemonSideCondition::ToxicCount => self.side_conditions.toxic_count += amount,
+            PokemonSideCondition::ToxicSpikes => self.side_conditions.toxic_spikes += amount,
+            PokemonSideCondition::WideGuard => self.side_conditions.wide_guard += amount,
+        }
+    }
+    pub fn get_alive_pkmn_indices(&self) -> Vec<PokemonIndex> {
+        let mut vec = Vec::with_capacity(6);
+        let mut iter = self.pokemon.into_iter();
 
+        while let Some(p) = iter.next() {
+            if p.hp > 0 && iter.pokemon_index != self.active_index {
+                vec.push(iter.pokemon_index.clone());
+            }
+        }
+
+        vec
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct State {
+    pub side_one: Side,
+    pub side_two: Side,
+    pub weather: StateWeather,
+    pub terrain: StateTerrain,
+    pub trick_room: StateTrickRoom,
+    pub team_preview: bool,
+    pub use_last_used_move: bool,
+    pub use_damage_dealt: bool,
+}
+impl Default for State {
+    fn default() -> State {
+        let mut s = State {
+            side_one: Side::default(),
+            side_two: Side::default(),
+            weather: StateWeather {
+                weather_type: Weather::NONE,
+                turns_remaining: -1,
+            },
+            terrain: StateTerrain {
+                terrain_type: Terrain::NONE,
+                turns_remaining: 0,
+            },
+            trick_room: StateTrickRoom {
+                active: false,
+                turns_remaining: 0,
+            },
+            team_preview: false,
+            use_damage_dealt: false,
+            use_last_used_move: false,
+        };
+
+        // many tests rely on the speed of side 2's active pokemon being greater than side_one's
+        s.side_two.get_active().speed += 1;
+        s
+    }
+}
+impl State {
+    pub fn battle_is_over(&self) -> f32 {
+        //  0 if battle is not over
+        //  1 if side one has won
+        // -1 if side two has won
+        if self.side_one.pokemon.into_iter().all(|p| p.hp <= 0) {
+            return -1.0;
+        }
+        if self.side_two.pokemon.into_iter().all(|p| p.hp <= 0) {
+            return 1.0;
+        }
+        0.0
+    }
+
+    pub fn get_side(&mut self, side_ref: &SideReference) -> &mut Side {
+        match side_ref {
+            SideReference::SideOne => &mut self.side_one,
+            SideReference::SideTwo => &mut self.side_two,
+        }
+    }
+
+    pub fn get_side_immutable(&self, side_ref: &SideReference) -> &Side {
+        match side_ref {
+            SideReference::SideOne => &self.side_one,
+            SideReference::SideTwo => &self.side_two,
+        }
+    }
+
+    pub fn get_both_sides(&mut self, side_ref: &SideReference) -> (&mut Side, &mut Side) {
+        match side_ref {
+            SideReference::SideOne => (&mut self.side_one, &mut self.side_two),
+            SideReference::SideTwo => (&mut self.side_two, &mut self.side_one),
+        }
+    }
+
+    pub fn get_both_sides_immutable(&self, side_ref: &SideReference) -> (&Side, &Side) {
+        match side_ref {
+            SideReference::SideOne => (&self.side_one, &self.side_two),
+            SideReference::SideTwo => (&self.side_two, &self.side_one),
+        }
+    }
+
+    pub fn reset_boosts(&mut self, side_ref: &SideReference, vec_to_add_to: &mut Vec<Instruction>) {
+        let side = self.get_side(side_ref);
+
+        if side.attack_boost != 0 {
+            vec_to_add_to.push(Instruction::Boost(BoostInstruction {
+                side_ref: *side_ref,
+                stat: PokemonBoostableStat::Attack,
+                amount: -1 * side.attack_boost,
+            }));
+            side.attack_boost = 0;
+        }
+
+        if side.defense_boost != 0 {
+            vec_to_add_to.push(Instruction::Boost(BoostInstruction {
+                side_ref: *side_ref,
+                stat: PokemonBoostableStat::Defense,
+                amount: -1 * side.defense_boost,
+            }));
+            side.defense_boost = 0;
+        }
+
+        if side.special_attack_boost != 0 {
+            vec_to_add_to.push(Instruction::Boost(BoostInstruction {
+                side_ref: *side_ref,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: -1 * side.special_attack_boost,
+            }));
+            side.special_attack_boost = 0;
+        }
+
+        if side.special_defense_boost != 0 {
+            vec_to_add_to.push(Instruction::Boost(BoostInstruction {
+                side_ref: *side_ref,
+                stat: PokemonBoostableStat::SpecialDefense,
+                amount: -1 * side.special_defense_boost,
+            }));
+            side.special_defense_boost = 0;
+        }
+
+        if side.speed_boost != 0 {
+            vec_to_add_to.push(Instruction::Boost(BoostInstruction {
+                side_ref: *side_ref,
+                stat: PokemonBoostableStat::Speed,
+                amount: -1 * side.speed_boost,
+            }));
+            side.speed_boost = 0;
+        }
+
+        if side.evasion_boost != 0 {
+            vec_to_add_to.push(Instruction::Boost(BoostInstruction {
+                side_ref: *side_ref,
+                stat: PokemonBoostableStat::Evasion,
+                amount: -1 * side.evasion_boost,
+            }));
+            side.evasion_boost = 0;
+        }
+
+        if side.accuracy_boost != 0 {
+            vec_to_add_to.push(Instruction::Boost(BoostInstruction {
+                side_ref: *side_ref,
+                stat: PokemonBoostableStat::Accuracy,
+                amount: -1 * side.accuracy_boost,
+            }));
+            side.accuracy_boost = 0;
+        }
+    }
+
+    pub fn re_enable_disabled_moves(
+        &mut self,
+        side_ref: &SideReference,
+        vec_to_add_to: &mut Vec<Instruction>,
+    ) {
+        let active = self.get_side(side_ref).get_active();
+        if active.moves.m0.disabled {
+            active.moves.m0.disabled = false;
+            vec_to_add_to.push(Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: *side_ref,
+                move_index: PokemonMoveIndex::M0,
+            }));
+        }
+        if active.moves.m1.disabled {
+            active.moves.m1.disabled = false;
+            vec_to_add_to.push(Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: *side_ref,
+                move_index: PokemonMoveIndex::M1,
+            }));
+        }
+        if active.moves.m2.disabled {
+            active.moves.m2.disabled = false;
+            vec_to_add_to.push(Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: *side_ref,
+                move_index: PokemonMoveIndex::M2,
+            }));
+        }
+        if active.moves.m3.disabled {
+            active.moves.m3.disabled = false;
+            vec_to_add_to.push(Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: *side_ref,
+                move_index: PokemonMoveIndex::M3,
+            }));
+        }
+    }
+
+    fn damage(&mut self, side_ref: &SideReference, amount: i16) {
+        let active = self.get_side(&side_ref).get_active();
+
+        active.hp -= amount;
+    }
+
+    fn heal(&mut self, side_ref: &SideReference, amount: i16) {
+        let active = self.get_side(&side_ref).get_active();
+
+        active.hp += amount;
+    }
+
+    fn switch(
+        &mut self,
+        side_ref: &SideReference,
+        next_active_index: PokemonIndex,
+        _: PokemonIndex,
+    ) {
+        let side = self.get_side(&side_ref);
+        side.active_index = next_active_index;
+    }
+
+    fn reverse_switch(
+        &mut self,
+        side_ref: &SideReference,
+        _: PokemonIndex,
+        previous_active_index: PokemonIndex,
+    ) {
+        let side = self.get_side(&side_ref);
+        side.active_index = previous_active_index;
+    }
+
+    fn apply_volatile_status(
+        &mut self,
+        side_ref: &SideReference,
+        volatile_status: PokemonVolatileStatus,
+    ) {
+        self.get_side(&side_ref)
+            .volatile_statuses
+            .insert(volatile_status);
+    }
+
+    fn remove_volatile_status(
+        &mut self,
+        side_ref: &SideReference,
+        volatile_status: PokemonVolatileStatus,
+    ) {
+        self.get_side(&side_ref)
+            .volatile_statuses
+            .remove(&volatile_status);
+    }
+
+    fn change_status(
+        &mut self,
+        side_ref: &SideReference,
+        pokemon_index: PokemonIndex,
+        new_status: PokemonStatus,
+    ) {
+        let pkmn = &mut self.get_side(&side_ref).pokemon[pokemon_index];
+        pkmn.status = new_status;
+    }
+
+    fn apply_boost(&mut self, side_ref: &SideReference, stat: &PokemonBoostableStat, amount: i8) {
+        let side = self.get_side(&side_ref);
+        match stat {
+            PokemonBoostableStat::Attack => side.attack_boost += amount,
+            PokemonBoostableStat::Defense => side.defense_boost += amount,
+            PokemonBoostableStat::SpecialAttack => side.special_attack_boost += amount,
+            PokemonBoostableStat::SpecialDefense => side.special_defense_boost += amount,
+            PokemonBoostableStat::Speed => side.speed_boost += amount,
+            PokemonBoostableStat::Evasion => side.evasion_boost += amount,
+            PokemonBoostableStat::Accuracy => side.accuracy_boost += amount,
+        }
+    }
+
+    fn increment_side_condition(
+        &mut self,
+        side_ref: &SideReference,
+        side_condition: &PokemonSideCondition,
+        amount: i8,
+    ) {
+        let side = self.get_side(&side_ref);
+
+        match side_condition {
+            PokemonSideCondition::AuroraVeil => side.side_conditions.aurora_veil += amount,
+            PokemonSideCondition::CraftyShield => side.side_conditions.crafty_shield += amount,
+            PokemonSideCondition::HealingWish => side.side_conditions.healing_wish += amount,
+            PokemonSideCondition::LightScreen => side.side_conditions.light_screen += amount,
+            PokemonSideCondition::LuckyChant => side.side_conditions.lucky_chant += amount,
+            PokemonSideCondition::LunarDance => side.side_conditions.lunar_dance += amount,
+            PokemonSideCondition::MatBlock => side.side_conditions.mat_block += amount,
+            PokemonSideCondition::Mist => side.side_conditions.mist += amount,
+            PokemonSideCondition::Protect => side.side_conditions.protect += amount,
+            PokemonSideCondition::QuickGuard => side.side_conditions.quick_guard += amount,
+            PokemonSideCondition::Reflect => side.side_conditions.reflect += amount,
+            PokemonSideCondition::Safeguard => side.side_conditions.safeguard += amount,
+            PokemonSideCondition::Spikes => side.side_conditions.spikes += amount,
+            PokemonSideCondition::Stealthrock => side.side_conditions.stealth_rock += amount,
+            PokemonSideCondition::StickyWeb => side.side_conditions.sticky_web += amount,
+            PokemonSideCondition::Tailwind => side.side_conditions.tailwind += amount,
+            PokemonSideCondition::ToxicCount => side.side_conditions.toxic_count += amount,
+            PokemonSideCondition::ToxicSpikes => side.side_conditions.toxic_spikes += amount,
+            PokemonSideCondition::WideGuard => side.side_conditions.wide_guard += amount,
+        }
+    }
+
+    fn increment_volatile_status_duration(
+        &mut self,
+        side_ref: &SideReference,
+        volatile_status: &PokemonVolatileStatus,
+        amount: i8,
+    ) {
+        let side = self.get_side(&side_ref);
+        match volatile_status {
+            PokemonVolatileStatus::CONFUSION => {
+                side.volatile_status_durations.confusion += amount;
+            }
+            PokemonVolatileStatus::LOCKEDMOVE => {
+                side.volatile_status_durations.lockedmove += amount;
+            }
+            PokemonVolatileStatus::ENCORE => {
+                side.volatile_status_durations.encore += amount;
+            }
+            PokemonVolatileStatus::SLOWSTART => {
+                side.volatile_status_durations.slowstart += amount;
+            }
+            PokemonVolatileStatus::YAWN => {
+                side.volatile_status_durations.yawn += amount;
+            }
+            _ => panic!(
+                "Invalid volatile status for increment_volatile_status_duration: {:?}",
+                volatile_status
+            ),
+        }
+    }
+
+    fn change_types(
+        &mut self,
+        side_reference: &SideReference,
+        new_types: (PokemonType, PokemonType),
+    ) {
+        self.get_side(side_reference).get_active().types = new_types;
+    }
+
+    fn change_item(&mut self, side_reference: &SideReference, new_item: Items) {
+        self.get_side(side_reference).get_active().item = new_item;
+    }
+
+    fn change_weather(&mut self, weather_type: Weather, turns_remaining: i8) {
+        self.weather.weather_type = weather_type;
+        self.weather.turns_remaining = turns_remaining;
+    }
+
+    fn change_terrain(&mut self, terrain_type: Terrain, turns_remaining: i8) {
+        self.terrain.terrain_type = terrain_type;
+        self.terrain.turns_remaining = turns_remaining;
+    }
+
+    fn enable_move(&mut self, side_reference: &SideReference, move_index: &PokemonMoveIndex) {
+        self.get_side(side_reference).get_active().moves[move_index].disabled = false;
+    }
+
+    fn disable_move(&mut self, side_reference: &SideReference, move_index: &PokemonMoveIndex) {
+        self.get_side(side_reference).get_active().moves[move_index].disabled = true;
+    }
+
+    fn set_wish(&mut self, side_reference: &SideReference, wish_amount_change: i16) {
+        self.get_side(side_reference).wish.0 = 2;
+        self.get_side(side_reference).wish.1 += wish_amount_change;
+    }
+
+    fn unset_wish(&mut self, side_reference: &SideReference, wish_amount_change: i16) {
+        self.get_side(side_reference).wish.0 = 0;
+        self.get_side(side_reference).wish.1 -= wish_amount_change;
+    }
+
+    fn increment_wish(&mut self, side_reference: &SideReference) {
+        self.get_side(side_reference).wish.0 += 1;
+    }
+
+    fn decrement_wish(&mut self, side_reference: &SideReference) {
+        self.get_side(side_reference).wish.0 -= 1;
+    }
+
+    fn set_future_sight(&mut self, side_reference: &SideReference, pokemon_index: PokemonIndex) {
+        let side = self.get_side(side_reference);
+        side.future_sight.0 = 3;
+        side.future_sight.1 = pokemon_index;
+    }
+
+    fn unset_future_sight(
+        &mut self,
+        side_reference: &SideReference,
+        previous_pokemon_index: PokemonIndex,
+    ) {
+        let side = self.get_side(side_reference);
+        side.future_sight.0 = 0;
+        side.future_sight.1 = previous_pokemon_index;
+    }
+
+    fn increment_future_sight(&mut self, side_reference: &SideReference) {
+        self.get_side(side_reference).future_sight.0 += 1;
+    }
+
+    fn decrement_future_sight(&mut self, side_reference: &SideReference) {
+        self.get_side(side_reference).future_sight.0 -= 1;
+    }
+
+    fn damage_substitute(&mut self, side_reference: &SideReference, amount: i16) {
+        self.get_side(side_reference).substitute_health -= amount;
+    }
+
+    fn heal_substitute(&mut self, side_reference: &SideReference, amount: i16) {
+        self.get_side(side_reference).substitute_health += amount;
+    }
+
+    fn set_substitute_health(&mut self, side_reference: &SideReference, amount: i16) {
+        self.get_side(side_reference).substitute_health += amount;
+    }
+
+    fn decrement_rest_turn(&mut self, side_reference: &SideReference) {
+        self.get_side(side_reference).get_active().rest_turns -= 1;
+    }
+
+    fn increment_rest_turn(&mut self, side_reference: &SideReference) {
+        self.get_side(side_reference).get_active().rest_turns += 1;
+    }
+
+    fn set_rest_turn(
+        &mut self,
+        side_reference: &SideReference,
+        pokemon_index: PokemonIndex,
+        amount: i8,
+    ) {
+        self.get_side(side_reference).pokemon[pokemon_index].rest_turns = amount;
+    }
+
+    fn set_sleep_turn(
+        &mut self,
+        side_reference: &SideReference,
+        pokemon_index: PokemonIndex,
+        amount: i8,
+    ) {
+        self.get_side(side_reference).pokemon[pokemon_index].sleep_turns = amount;
+    }
+
+    fn toggle_trickroom(&mut self, new_turns_remaining: i8) {
+        self.trick_room.active = !self.trick_room.active;
+        self.trick_room.turns_remaining = new_turns_remaining;
+    }
+
+    fn set_last_used_move(&mut self, side_reference: &SideReference, last_used_move: LastUsedMove) {
+        match side_reference {
+            SideReference::SideOne => self.side_one.last_used_move = last_used_move,
+            SideReference::SideTwo => self.side_two.last_used_move = last_used_move,
+        }
+    }
+
+    fn decrement_pp(
+        &mut self,
+        side_reference: &SideReference,
+        move_index: &PokemonMoveIndex,
+        amount: &i8,
+    ) {
+        match side_reference {
+            SideReference::SideOne => self.side_one.get_active().moves[move_index].pp -= amount,
+            SideReference::SideTwo => self.side_two.get_active().moves[move_index].pp -= amount,
+        }
+    }
+
+    fn increment_pp(
+        &mut self,
+        side_reference: &SideReference,
+        move_index: &PokemonMoveIndex,
+        amount: &i8,
+    ) {
+        match side_reference {
+            SideReference::SideOne => self.side_one.get_active().moves[move_index].pp += amount,
+            SideReference::SideTwo => self.side_two.get_active().moves[move_index].pp += amount,
+        }
+    }
+
+    pub fn apply_instructions(&mut self, instructions: &Vec<Instruction>) {
+        for i in instructions {
+            self.apply_one_instruction(i)
+        }
+    }
+
+    pub fn apply_one_instruction(&mut self, instruction: &Instruction) {
+        match instruction {
+            Instruction::Damage(instruction) => {
+                self.damage(&instruction.side_ref, instruction.damage_amount)
+            }
+            Instruction::Switch(instruction) => self.switch(
+                &instruction.side_ref,
+                instruction.next_index,
+                instruction.previous_index,
+            ),
+            Instruction::ApplyVolatileStatus(instruction) => {
+                self.apply_volatile_status(&instruction.side_ref, instruction.volatile_status)
+            }
+            Instruction::RemoveVolatileStatus(instruction) => {
+                self.remove_volatile_status(&instruction.side_ref, instruction.volatile_status)
+            }
+            Instruction::ChangeStatus(instruction) => self.change_status(
+                &instruction.side_ref,
+                instruction.pokemon_index,
+                instruction.new_status,
+            ),
+            Instruction::Boost(instruction) => {
+                self.apply_boost(&instruction.side_ref, &instruction.stat, instruction.amount)
+            }
+            Instruction::ChangeSideCondition(instruction) => self.increment_side_condition(
+                &instruction.side_ref,
+                &instruction.side_condition,
+                instruction.amount,
+            ),
+            Instruction::ChangeVolatileStatusDuration(instruction) => self
+                .increment_volatile_status_duration(
+                    &instruction.side_ref,
+                    &instruction.volatile_status,
+                    instruction.amount,
+                ),
+            Instruction::ChangeWeather(instruction) => self.change_weather(
+                instruction.new_weather,
+                instruction.new_weather_turns_remaining,
+            ),
+            Instruction::DecrementWeatherTurnsRemaining => {
+                self.weather.turns_remaining -= 1;
+            }
+            Instruction::ChangeTerrain(instruction) => self.change_terrain(
+                instruction.new_terrain,
+                instruction.new_terrain_turns_remaining,
+            ),
+            Instruction::DecrementTerrainTurnsRemaining => {
+                self.terrain.turns_remaining -= 1;
+            }
+            Instruction::ChangeType(instruction) => {
+                self.change_types(&instruction.side_ref, instruction.new_types)
+            }
+            Instruction::ChangeAbility(instruction) => {
+                let active = self.get_side(&instruction.side_ref).get_active();
+                active.ability =
+                    Abilities::from(active.ability as i16 + instruction.ability_change);
+            }
+            Instruction::Heal(instruction) => {
+                self.heal(&instruction.side_ref, instruction.heal_amount)
+            }
+            Instruction::ChangeItem(instruction) => {
+                self.change_item(&instruction.side_ref, instruction.new_item)
+            }
+            Instruction::ChangeAttack(instruction) => {
+                self.get_side(&instruction.side_ref).get_active().attack += instruction.amount;
+            }
+            Instruction::ChangeDefense(instruction) => {
+                self.get_side(&instruction.side_ref).get_active().defense += instruction.amount;
+            }
+            Instruction::ChangeSpecialAttack(instruction) => {
+                self.get_side(&instruction.side_ref)
+                    .get_active()
+                    .special_attack += instruction.amount;
+            }
+            Instruction::ChangeSpecialDefense(instruction) => {
+                self.get_side(&instruction.side_ref)
+                    .get_active()
+                    .special_defense += instruction.amount;
+            }
+            Instruction::ChangeSpeed(instruction) => {
+                self.get_side(&instruction.side_ref).get_active().speed += instruction.amount;
+            }
+            Instruction::EnableMove(instruction) => {
+                self.enable_move(&instruction.side_ref, &instruction.move_index)
+            }
+            Instruction::DisableMove(instruction) => {
+                self.disable_move(&instruction.side_ref, &instruction.move_index)
+            }
+            Instruction::ChangeWish(instruction) => {
+                self.set_wish(&instruction.side_ref, instruction.wish_amount_change);
+            }
+            Instruction::DecrementWish(instruction) => {
+                self.decrement_wish(&instruction.side_ref);
+            }
+            Instruction::SetFutureSight(instruction) => {
+                self.set_future_sight(&instruction.side_ref, instruction.pokemon_index);
+            }
+            Instruction::DecrementFutureSight(instruction) => {
+                self.decrement_future_sight(&instruction.side_ref);
+            }
+            Instruction::DamageSubstitute(instruction) => {
+                self.damage_substitute(&instruction.side_ref, instruction.damage_amount);
+            }
+            Instruction::ChangeSubstituteHealth(instruction) => {
+                self.set_substitute_health(&instruction.side_ref, instruction.health_change);
+            }
+            Instruction::SetRestTurns(instruction) => {
+                self.set_rest_turn(
+                    &instruction.side_ref,
+                    instruction.pokemon_index,
+                    instruction.new_turns,
+                );
+            }
+            Instruction::SetSleepTurns(instruction) => {
+                self.set_sleep_turn(
+                    &instruction.side_ref,
+                    instruction.pokemon_index,
+                    instruction.new_turns,
+                );
+            }
+            Instruction::DecrementRestTurns(instruction) => {
+                self.decrement_rest_turn(&instruction.side_ref);
+            }
+            Instruction::ToggleTrickRoom(instruction) => {
+                self.toggle_trickroom(instruction.new_trickroom_turns_remaining)
+            }
+            Instruction::DecrementTrickRoomTurnsRemaining => {
+                self.trick_room.turns_remaining -= 1;
+            }
+            Instruction::ToggleSideOneForceSwitch => self.side_one.toggle_force_switch(),
+            Instruction::ToggleSideTwoForceSwitch => self.side_two.toggle_force_switch(),
+            Instruction::SetSideOneMoveSecondSwitchOutMove(instruction) => {
+                self.side_one.switch_out_move_second_saved_move = instruction.new_choice;
+            }
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(instruction) => {
+                self.side_two.switch_out_move_second_saved_move = instruction.new_choice;
+            }
+            Instruction::ToggleBatonPassing(instruction) => match instruction.side_ref {
+                SideReference::SideOne => {
+                    self.side_one.baton_passing = !self.side_one.baton_passing
+                }
+                SideReference::SideTwo => {
+                    self.side_two.baton_passing = !self.side_two.baton_passing
+                }
+            },
+            Instruction::ToggleShedTailing(instruction) => match instruction.side_ref {
+                SideReference::SideOne => self.side_one.shed_tailing = !self.side_one.shed_tailing,
+                SideReference::SideTwo => self.side_two.shed_tailing = !self.side_two.shed_tailing,
+            },
+            Instruction::ToggleTerastallized(instruction) => match instruction.side_ref {
+                SideReference::SideOne => self.side_one.get_active().terastallized ^= true,
+                SideReference::SideTwo => self.side_two.get_active().terastallized ^= true,
+            },
+            Instruction::SetLastUsedMove(instruction) => {
+                self.set_last_used_move(&instruction.side_ref, instruction.last_used_move)
+            }
+            Instruction::ChangeDamageDealtDamage(instruction) => {
+                self.get_side(&instruction.side_ref).damage_dealt.damage +=
+                    instruction.damage_change
+            }
+            Instruction::ChangeDamageDealtMoveCatagory(instruction) => {
+                self.get_side(&instruction.side_ref)
+                    .damage_dealt
+                    .move_category = instruction.move_category
+            }
+            Instruction::ToggleDamageDealtHitSubstitute(instruction) => {
+                let side = self.get_side(&instruction.side_ref);
+                side.damage_dealt.hit_substitute = !side.damage_dealt.hit_substitute;
+            }
+            Instruction::DecrementPP(instruction) => self.decrement_pp(
+                &instruction.side_ref,
+                &instruction.move_index,
+                &instruction.amount,
+            ),
+            Instruction::FormeChange(instruction) => {
+                let active = self.get_side(&instruction.side_ref).get_active();
+                active.id = PokemonName::from(active.id as i16 + instruction.name_change);
+            }
+        }
+    }
+
+    pub fn reverse_instructions(&mut self, instructions: &Vec<Instruction>) {
+        for i in instructions.iter().rev() {
+            self.reverse_one_instruction(i);
+        }
+    }
+
+    pub fn reverse_one_instruction(&mut self, instruction: &Instruction) {
+        match instruction {
+            Instruction::Damage(instruction) => {
+                self.heal(&instruction.side_ref, instruction.damage_amount)
+            }
+            Instruction::Switch(instruction) => self.reverse_switch(
+                &instruction.side_ref,
+                instruction.next_index,
+                instruction.previous_index,
+            ),
+            Instruction::ApplyVolatileStatus(instruction) => {
+                self.remove_volatile_status(&instruction.side_ref, instruction.volatile_status)
+            }
+            Instruction::RemoveVolatileStatus(instruction) => {
+                self.apply_volatile_status(&instruction.side_ref, instruction.volatile_status)
+            }
+            Instruction::ChangeStatus(instruction) => self.change_status(
+                &instruction.side_ref,
+                instruction.pokemon_index,
+                instruction.old_status,
+            ),
+            Instruction::Boost(instruction) => self.apply_boost(
+                &instruction.side_ref,
+                &instruction.stat,
+                -1 * instruction.amount,
+            ),
+            Instruction::ChangeSideCondition(instruction) => self.increment_side_condition(
+                &instruction.side_ref,
+                &instruction.side_condition,
+                -1 * instruction.amount,
+            ),
+            Instruction::ChangeVolatileStatusDuration(instruction) => self
+                .increment_volatile_status_duration(
+                    &instruction.side_ref,
+                    &instruction.volatile_status,
+                    -1 * instruction.amount,
+                ),
+            Instruction::ChangeWeather(instruction) => self.change_weather(
+                instruction.previous_weather,
+                instruction.previous_weather_turns_remaining,
+            ),
+            Instruction::DecrementWeatherTurnsRemaining => {
+                self.weather.turns_remaining += 1;
+            }
+            Instruction::ChangeTerrain(instruction) => self.change_terrain(
+                instruction.previous_terrain,
+                instruction.previous_terrain_turns_remaining,
+            ),
+            Instruction::DecrementTerrainTurnsRemaining => {
+                self.terrain.turns_remaining += 1;
+            }
+            Instruction::ChangeType(instruction) => {
+                self.change_types(&instruction.side_ref, instruction.old_types)
+            }
+            Instruction::ChangeAbility(instruction) => {
+                let active = self.get_side(&instruction.side_ref).get_active();
+                active.ability =
+                    Abilities::from(active.ability as i16 - instruction.ability_change);
+            }
+            Instruction::EnableMove(instruction) => {
+                self.disable_move(&instruction.side_ref, &instruction.move_index)
+            }
+            Instruction::DisableMove(instruction) => {
+                self.enable_move(&instruction.side_ref, &instruction.move_index)
+            }
+            Instruction::Heal(instruction) => {
+                self.damage(&instruction.side_ref, instruction.heal_amount)
+            }
+            Instruction::ChangeItem(instruction) => {
+                self.change_item(&instruction.side_ref, instruction.current_item)
+            }
+            Instruction::ChangeAttack(instruction) => {
+                self.get_side(&instruction.side_ref).get_active().attack -= instruction.amount;
+            }
+            Instruction::ChangeDefense(instruction) => {
+                self.get_side(&instruction.side_ref).get_active().defense -= instruction.amount;
+            }
+            Instruction::ChangeSpecialAttack(instruction) => {
+                self.get_side(&instruction.side_ref)
+                    .get_active()
+                    .special_attack -= instruction.amount;
+            }
+            Instruction::ChangeSpecialDefense(instruction) => {
+                self.get_side(&instruction.side_ref)
+                    .get_active()
+                    .special_defense -= instruction.amount;
+            }
+            Instruction::ChangeSpeed(instruction) => {
+                self.get_side(&instruction.side_ref).get_active().speed -= instruction.amount;
+            }
+            Instruction::ChangeWish(instruction) => {
+                self.unset_wish(&instruction.side_ref, instruction.wish_amount_change)
+            }
+            Instruction::DecrementWish(instruction) => self.increment_wish(&instruction.side_ref),
+            Instruction::SetFutureSight(instruction) => {
+                self.unset_future_sight(&instruction.side_ref, instruction.previous_pokemon_index)
+            }
+            Instruction::DecrementFutureSight(instruction) => {
+                self.increment_future_sight(&instruction.side_ref)
+            }
+            Instruction::DamageSubstitute(instruction) => {
+                self.heal_substitute(&instruction.side_ref, instruction.damage_amount);
+            }
+            Instruction::ChangeSubstituteHealth(instruction) => {
+                self.set_substitute_health(&instruction.side_ref, -1 * instruction.health_change);
+            }
+            Instruction::SetRestTurns(instruction) => {
+                self.set_rest_turn(
+                    &instruction.side_ref,
+                    instruction.pokemon_index,
+                    instruction.previous_turns,
+                );
+            }
+            Instruction::SetSleepTurns(instruction) => {
+                self.set_sleep_turn(
+                    &instruction.side_ref,
+                    instruction.pokemon_index,
+                    instruction.previous_turns,
+                );
+            }
+            Instruction::DecrementRestTurns(instruction) => {
+                self.increment_rest_turn(&instruction.side_ref);
+            }
+            Instruction::ToggleTrickRoom(instruction) => {
+                self.toggle_trickroom(instruction.previous_trickroom_turns_remaining)
+            }
+            Instruction::DecrementTrickRoomTurnsRemaining => {
+                self.trick_room.turns_remaining += 1;
+            }
+            Instruction::ToggleSideOneForceSwitch => self.side_one.toggle_force_switch(),
+            Instruction::ToggleSideTwoForceSwitch => self.side_two.toggle_force_switch(),
+            Instruction::SetSideOneMoveSecondSwitchOutMove(instruction) => {
+                self.side_one.switch_out_move_second_saved_move = instruction.previous_choice;
+            }
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(instruction) => {
+                self.side_two.switch_out_move_second_saved_move = instruction.previous_choice;
+            }
+            Instruction::ToggleBatonPassing(instruction) => match instruction.side_ref {
+                SideReference::SideOne => {
+                    self.side_one.baton_passing = !self.side_one.baton_passing
+                }
+                SideReference::SideTwo => {
+                    self.side_two.baton_passing = !self.side_two.baton_passing
+                }
+            },
+            Instruction::ToggleShedTailing(instruction) => match instruction.side_ref {
+                SideReference::SideOne => self.side_one.shed_tailing = !self.side_one.shed_tailing,
+                SideReference::SideTwo => self.side_two.shed_tailing = !self.side_two.shed_tailing,
+            },
+            Instruction::ToggleTerastallized(instruction) => match instruction.side_ref {
+                SideReference::SideOne => self.side_one.get_active().terastallized ^= true,
+                SideReference::SideTwo => self.side_two.get_active().terastallized ^= true,
+            },
+            Instruction::SetLastUsedMove(instruction) => {
+                self.set_last_used_move(&instruction.side_ref, instruction.previous_last_used_move)
+            }
+            Instruction::ChangeDamageDealtDamage(instruction) => {
+                self.get_side(&instruction.side_ref).damage_dealt.damage -=
+                    instruction.damage_change
+            }
+            Instruction::ChangeDamageDealtMoveCatagory(instruction) => {
+                self.get_side(&instruction.side_ref)
+                    .damage_dealt
+                    .move_category = instruction.previous_move_category
+            }
+            Instruction::ToggleDamageDealtHitSubstitute(instruction) => {
+                let side = self.get_side(&instruction.side_ref);
+                side.damage_dealt.hit_substitute = !side.damage_dealt.hit_substitute;
+            }
+            Instruction::DecrementPP(instruction) => self.increment_pp(
+                &instruction.side_ref,
+                &instruction.move_index,
+                &instruction.amount,
+            ),
+            Instruction::FormeChange(instruction) => {
+                let active = self.get_side(&instruction.side_ref).get_active();
+                active.id = PokemonName::from(active.id as i16 - instruction.name_change);
+            }
+        }
+    }
+}
 impl State {
     pub fn pprint(&self) -> String {
         let (side_one_options, side_two_options) = self.root_get_all_options();
