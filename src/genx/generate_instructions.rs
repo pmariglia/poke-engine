@@ -1983,6 +1983,67 @@ pub fn generate_instructions_from_move(
         }
     }
 
+    #[cfg(any(
+        feature = "gen5",
+        feature = "gen6",
+        feature = "gen7",
+        feature = "gen8",
+        feature = "gen9"
+    ))]
+    if side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::TAUNT)
+    {
+        match side.volatile_status_durations.taunt {
+            0 | 1 => {
+                incoming_instructions.instruction_list.push(
+                    Instruction::ChangeVolatileStatusDuration(
+                        ChangeVolatileStatusDurationInstruction {
+                            side_ref: attacking_side,
+                            volatile_status: PokemonVolatileStatus::TAUNT,
+                            amount: 1,
+                        },
+                    ),
+                );
+                side.volatile_status_durations.taunt += 1;
+            }
+
+            // Technically taunt is removed at the end of the turn but because we are already
+            // dealing with taunt here we can save a check at the end of the turn
+            // This shouldn't change anything because taunt only affects which move is selected
+            // and by this point a move has been chosen
+            2 => {
+                side.volatile_statuses.remove(&PokemonVolatileStatus::TAUNT);
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::RemoveVolatileStatus(
+                        RemoveVolatileStatusInstruction {
+                            side_ref: attacking_side,
+                            volatile_status: PokemonVolatileStatus::TAUNT,
+                        },
+                    ));
+                incoming_instructions.instruction_list.push(
+                    Instruction::ChangeVolatileStatusDuration(
+                        ChangeVolatileStatusDurationInstruction {
+                            side_ref: attacking_side,
+                            volatile_status: PokemonVolatileStatus::TAUNT,
+                            amount: -2,
+                        },
+                    ),
+                );
+                side.volatile_status_durations.taunt = 0;
+                state.re_enable_disabled_moves(
+                    &attacking_side,
+                    &mut incoming_instructions.instruction_list,
+                );
+            }
+            _ => panic!(
+                "Taunt duration cannot be {} when taunt volatile is active",
+                side.volatile_status_durations.taunt
+            ),
+        }
+    }
+
     if !choice.first_move
         && state
             .get_side(&attacking_side.get_other_side())
@@ -6228,64 +6289,6 @@ mod tests {
             false,
         );
         assert_eq!(instructions, vec![StateInstructions::default()])
-    }
-
-    #[test]
-    fn test_taunted_pokemon_cannot_use_status_move() {
-        let mut state: State = State::default();
-        let mut choice = MOVES.get(&Choices::GLARE).unwrap().to_owned();
-        state
-            .side_one
-            .volatile_statuses
-            .insert(PokemonVolatileStatus::TAUNT);
-
-        let mut instructions = vec![];
-        generate_instructions_from_move(
-            &mut state,
-            &mut choice,
-            &MOVES.get(&Choices::TACKLE).unwrap(),
-            SideReference::SideOne,
-            StateInstructions::default(),
-            &mut instructions,
-            false,
-        );
-        assert_eq!(instructions, vec![StateInstructions::default()])
-    }
-
-    #[test]
-    fn test_pokemon_taunted_on_first_turn_cannot_use_status_move() {
-        let mut state: State = State::default();
-        state
-            .side_one
-            .volatile_statuses
-            .insert(PokemonVolatileStatus::TAUNT);
-
-        let mut choice = MOVES.get(&Choices::GLARE).unwrap().to_owned();
-        choice.first_move = false;
-
-        let mut incoming_instructions = StateInstructions::default();
-        incoming_instructions
-            .instruction_list
-            .push(Instruction::ApplyVolatileStatus(
-                ApplyVolatileStatusInstruction {
-                    side_ref: SideReference::SideOne,
-                    volatile_status: PokemonVolatileStatus::TAUNT,
-                },
-            ));
-
-        let original_incoming_instructions = incoming_instructions.clone();
-
-        let mut instructions = vec![];
-        generate_instructions_from_move(
-            &mut state,
-            &mut choice,
-            &MOVES.get(&Choices::TACKLE).unwrap(),
-            SideReference::SideOne,
-            incoming_instructions,
-            &mut instructions,
-            false,
-        );
-        assert_eq!(instructions, vec![original_incoming_instructions])
     }
 
     #[test]

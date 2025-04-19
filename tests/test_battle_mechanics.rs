@@ -7770,6 +7770,59 @@ fn test_assaultvest_prevents_status_move() {
 }
 
 #[test]
+fn test_taunt_prevents_status_move() {
+    let mut state = State::default();
+    state.side_one.get_active().terastallized = true;
+    state.side_one.pokemon[PokemonIndex::P1].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P2].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P3].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P4].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P5].hp = 0;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::TAUNT);
+
+    state.side_one.get_active().moves[&PokemonMoveIndex::M0] = Move {
+        id: Choices::TOXIC,
+        disabled: false,
+        pp: 35,
+        choice: MOVES.get(&Choices::TOXIC).unwrap().clone(),
+    };
+
+    state.side_one.get_active().moves[&PokemonMoveIndex::M1] = Move {
+        id: Choices::TACKLE,
+        disabled: false,
+        pp: 35,
+        choice: MOVES.get(&Choices::TACKLE).unwrap().clone(),
+    };
+
+    state.side_one.get_active().moves[&PokemonMoveIndex::M2] = Move {
+        id: Choices::WATERGUN,
+        disabled: false,
+        pp: 35,
+        choice: MOVES.get(&Choices::TACKLE).unwrap().clone(),
+    };
+
+    state.side_one.get_active().moves[&PokemonMoveIndex::M3] = Move {
+        id: Choices::EMBER,
+        disabled: false,
+        pp: 35,
+        choice: MOVES.get(&Choices::TACKLE).unwrap().clone(),
+    };
+
+    let (side_one_moves, _) = state.get_all_options();
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+        ],
+        side_one_moves
+    );
+}
+
+#[test]
 #[cfg(not(feature = "terastallization"))]
 fn test_cannot_use_bloodmoon_after_using_bloodmoon() {
     let mut state = State::default();
@@ -11273,6 +11326,197 @@ fn test_burnup_removes_type_1_fire() {
                 side_ref: SideReference::SideOne,
                 new_types: (PokemonType::FIGHTING, PokemonType::TYPELESS),
                 old_types: (PokemonType::FIGHTING, PokemonType::FIRE),
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(
+    feature = "gen5",
+    feature = "gen6",
+    feature = "gen7",
+    feature = "gen8",
+    feature = "gen9"
+))]
+fn test_fast_taunt_gets_applied_and_duration_increments() {
+    let mut state = State::default();
+    state.side_one.pokemon.p0.speed = 150;
+    state.side_two.pokemon.p0.speed = 100;
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TAUNT,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::TAUNT,
+            }),
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::TAUNT,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(
+    feature = "gen5",
+    feature = "gen6",
+    feature = "gen7",
+    feature = "gen8",
+    feature = "gen9"
+))]
+fn test_slow_taunt_gets_applied_and_duration_does_not_increment() {
+    let mut state = State::default();
+    state.side_one.pokemon.p0.speed = 100;
+    state.side_two.pokemon.p0.speed = 150;
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TAUNT,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::ApplyVolatileStatus(
+            ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::TAUNT,
+            },
+        )],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(
+    feature = "gen5",
+    feature = "gen6",
+    feature = "gen7",
+    feature = "gen8",
+    feature = "gen9"
+))]
+fn test_taunt_volatile_is_removed_end_of_turn_when_it_would_reach_3() {
+    let mut state = State::default();
+    state.side_one.volatile_status_durations.taunt = 2;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::TAUNT);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::TAUNT,
+            }),
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::TAUNT,
+                amount: -2,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(
+    feature = "gen5",
+    feature = "gen6",
+    feature = "gen7",
+    feature = "gen8",
+    feature = "gen9"
+))]
+fn test_taunt_re_enables_disabled_moves_when_being_removed() {
+    let mut state = State::default();
+    state.side_one.volatile_status_durations.taunt = 2;
+    state.side_one.get_active().moves.m1.disabled = true;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::TAUNT);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::TAUNT,
+            }),
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::TAUNT,
+                amount: -2,
+            }),
+            Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: SideReference::SideOne,
+                move_index: PokemonMoveIndex::M1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(
+    feature = "gen5",
+    feature = "gen6",
+    feature = "gen7",
+    feature = "gen8",
+    feature = "gen9"
+))]
+fn test_switching_out_with_taunt_resets_duration_to_0() {
+    let mut state = State::default();
+    state.side_one.volatile_status_durations.taunt = 1;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::TAUNT);
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::TAUNT,
+                amount: -1,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::TAUNT,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
             }),
         ],
     }];
@@ -18606,7 +18850,7 @@ fn test_taunt_into_glare() {
         Choices::GLARE,
     );
 
-    let expected_instructions = vec![StateInstructions {
+    let mut expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![Instruction::ApplyVolatileStatus(
             ApplyVolatileStatusInstruction {
@@ -18615,6 +18859,17 @@ fn test_taunt_into_glare() {
             },
         )],
     }];
+    if cfg!(not(feature = "gen4")) {
+        expected_instructions[0]
+            .instruction_list
+            .push(Instruction::ChangeVolatileStatusDuration(
+                ChangeVolatileStatusDurationInstruction {
+                    side_ref: SideReference::SideTwo,
+                    volatile_status: PokemonVolatileStatus::TAUNT,
+                    amount: 1,
+                },
+            ))
+    }
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 

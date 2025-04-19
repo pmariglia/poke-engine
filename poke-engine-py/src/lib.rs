@@ -195,6 +195,7 @@ impl PyVolatileStatusDurations {
         encore: i8,
         lockedmove: i8,
         slowstart: i8,
+        taunt: i8,
         yawn: i8,
     ) -> PyVolatileStatusDurations {
         PyVolatileStatusDurations {
@@ -203,6 +204,7 @@ impl PyVolatileStatusDurations {
                 encore,
                 lockedmove,
                 slowstart,
+                taunt,
                 yawn,
             },
         }

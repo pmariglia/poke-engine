@@ -2504,6 +2504,55 @@ fn add_end_of_turn_instructions(
                 ));
             side.side_conditions.protect -= side.side_conditions.protect;
         }
+
+        if side
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::TAUNT)
+        {
+            match side.volatile_status_durations.taunt {
+                0 => {
+                    incoming_instructions.instruction_list.push(
+                        Instruction::ChangeVolatileStatusDuration(
+                            ChangeVolatileStatusDurationInstruction {
+                                side_ref: *side_ref,
+                                volatile_status: PokemonVolatileStatus::TAUNT,
+                                amount: 1,
+                            },
+                        ),
+                    );
+                    side.volatile_status_durations.taunt += 1;
+                }
+                1 => {
+                    side.volatile_statuses.remove(&PokemonVolatileStatus::TAUNT);
+                    incoming_instructions
+                        .instruction_list
+                        .push(Instruction::RemoveVolatileStatus(
+                            RemoveVolatileStatusInstruction {
+                                side_ref: *side_ref,
+                                volatile_status: PokemonVolatileStatus::TAUNT,
+                            },
+                        ));
+                    incoming_instructions.instruction_list.push(
+                        Instruction::ChangeVolatileStatusDuration(
+                            ChangeVolatileStatusDurationInstruction {
+                                side_ref: *side_ref,
+                                volatile_status: PokemonVolatileStatus::TAUNT,
+                                amount: -1,
+                            },
+                        ),
+                    );
+                    side.volatile_status_durations.taunt -= 1;
+                    state.re_enable_disabled_moves(
+                        side_ref,
+                        &mut incoming_instructions.instruction_list,
+                    );
+                }
+                _ => panic!(
+                    "Taunt duration cannot be {} when taunt volatile is active",
+                    side.volatile_status_durations.taunt
+                ),
+            }
+        }
     } // end volatile statuses
 
     state.reverse_instructions(&incoming_instructions.instruction_list);

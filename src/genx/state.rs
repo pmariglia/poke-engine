@@ -311,6 +311,7 @@ impl Pokemon {
         vec: &mut Vec<MoveChoice>,
         last_used_move: &LastUsedMove,
         encored: bool,
+        taunted: bool,
         can_tera: bool,
     ) {
         let mut iter = self.moves.into_iter();
@@ -333,7 +334,7 @@ impl Pokemon {
                         // just assume nothing is locked in this case
                     }
                 }
-                if self.item == Items::ASSAULTVEST
+                if (self.item == Items::ASSAULTVEST || taunted)
                     && self.moves[&iter.pokemon_move_index].choice.category == MoveCategory::Status
                 {
                     continue;
@@ -751,10 +752,15 @@ impl State {
                 .side_one
                 .volatile_statuses
                 .contains(&PokemonVolatileStatus::ENCORE);
+            let taunted = self
+                .side_one
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::TAUNT);
             self.side_one.get_active_immutable().add_available_moves(
                 &mut s1_options,
                 &self.side_one.last_used_move,
                 encored,
+                taunted,
                 self.side_one.can_use_tera(),
             );
         }
@@ -772,10 +778,15 @@ impl State {
                 .side_two
                 .volatile_statuses
                 .contains(&PokemonVolatileStatus::ENCORE);
+            let taunted = self
+                .side_two
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::TAUNT);
             self.side_two.get_active_immutable().add_available_moves(
                 &mut s2_options,
                 &self.side_two.last_used_move,
                 encored,
+                taunted,
                 self.side_two.can_use_tera(),
             );
         }
@@ -855,10 +866,15 @@ impl State {
                 .side_one
                 .volatile_statuses
                 .contains(&PokemonVolatileStatus::ENCORE);
+            let taunted = self
+                .side_one
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::TAUNT);
             self.side_one.get_active_immutable().add_available_moves(
                 &mut side_one_options,
                 &self.side_one.last_used_move,
                 encored,
+                taunted,
                 self.side_one.can_use_tera(),
             );
             if !self.side_one.trapped(side_two_active) {
@@ -879,10 +895,15 @@ impl State {
                 .side_two
                 .volatile_statuses
                 .contains(&PokemonVolatileStatus::ENCORE);
+            let taunted = self
+                .side_two
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::TAUNT);
             self.side_two.get_active_immutable().add_available_moves(
                 &mut side_two_options,
                 &self.side_two.last_used_move,
                 encored,
+                taunted,
                 self.side_two.can_use_tera(),
             );
             if !self.side_two.trapped(side_one_active) {
@@ -968,6 +989,17 @@ impl State {
                         },
                     ));
                     side.volatile_status_durations.yawn = 0;
+                    false
+                }
+                PokemonVolatileStatus::TAUNT => {
+                    instructions.push(Instruction::ChangeVolatileStatusDuration(
+                        ChangeVolatileStatusDurationInstruction {
+                            side_ref: *side_ref,
+                            volatile_status: *pkmn_volatile_status,
+                            amount: -1 * side.volatile_status_durations.taunt,
+                        },
+                    ));
+                    side.volatile_status_durations.taunt = 0;
                     false
                 }
                 _ => false,

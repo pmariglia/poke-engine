@@ -1,6 +1,6 @@
 use super::abilities::Abilities;
 use super::choice_effects::charge_volatile_to_choice;
-use crate::choices::Choices;
+use crate::choices::{Choices, MoveCategory};
 use crate::define_enum_with_from_str;
 use crate::instruction::{
     ChangeSideConditionInstruction, ChangeType, ChangeVolatileStatusDurationInstruction,
@@ -214,6 +214,7 @@ impl Pokemon {
         vec: &mut Vec<MoveChoice>,
         last_used_move: &LastUsedMove,
         encored: bool,
+        taunted: bool,
     ) {
         let mut iter = self.moves.into_iter();
         while let Some(p) = iter.next() {
@@ -229,6 +230,11 @@ impl Pokemon {
                         // a move from a different pokemon because you also have that move.
                         // just assume nothing is locked in this case
                     }
+                }
+                if taunted
+                    && self.moves[&iter.pokemon_move_index].choice.category == MoveCategory::Status
+                {
+                    continue;
                 }
                 vec.push(MoveChoice::Move(iter.pokemon_move_index));
             }
@@ -460,10 +466,15 @@ impl State {
                 .side_one
                 .volatile_statuses
                 .contains(&PokemonVolatileStatus::ENCORE);
+            let taunted = self
+                .side_one
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::TAUNT);
             self.side_one.get_active_immutable().add_available_moves(
                 &mut s1_options,
                 &self.side_one.last_used_move,
                 encored,
+                taunted,
             );
         }
 
@@ -480,10 +491,15 @@ impl State {
                 .side_two
                 .volatile_statuses
                 .contains(&PokemonVolatileStatus::ENCORE);
+            let taunted = self
+                .side_two
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::TAUNT);
             self.side_two.get_active_immutable().add_available_moves(
                 &mut s2_options,
                 &self.side_two.last_used_move,
                 encored,
+                taunted,
             );
         }
 
@@ -562,10 +578,15 @@ impl State {
                 .side_one
                 .volatile_statuses
                 .contains(&PokemonVolatileStatus::ENCORE);
+            let taunted = self
+                .side_one
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::TAUNT);
             self.side_one.get_active_immutable().add_available_moves(
                 &mut side_one_options,
                 &self.side_one.last_used_move,
                 encored,
+                taunted,
             );
             if !self.side_one.trapped(side_two_active) {
                 self.side_one.add_switches(&mut side_one_options);
@@ -585,10 +606,15 @@ impl State {
                 .side_two
                 .volatile_statuses
                 .contains(&PokemonVolatileStatus::ENCORE);
+            let taunted = self
+                .side_two
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::TAUNT);
             self.side_two.get_active_immutable().add_available_moves(
                 &mut side_two_options,
                 &self.side_two.last_used_move,
                 encored,
+                taunted,
             );
             if !self.side_two.trapped(side_one_active) {
                 self.side_two.add_switches(&mut side_two_options);
@@ -672,6 +698,17 @@ impl State {
                         },
                     ));
                     side.volatile_status_durations.yawn = 0;
+                    false
+                }
+                PokemonVolatileStatus::TAUNT => {
+                    instructions.push(Instruction::ChangeVolatileStatusDuration(
+                        ChangeVolatileStatusDurationInstruction {
+                            side_ref: *side_ref,
+                            volatile_status: *pkmn_volatile_status,
+                            amount: -1 * side.volatile_status_durations.taunt,
+                        },
+                    ));
+                    side.volatile_status_durations.taunt = 0;
                     false
                 }
                 _ => false,
