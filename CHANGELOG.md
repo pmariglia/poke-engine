@@ -1,5 +1,65 @@
 # Changelog
 
+## [v0.0.42](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.42) - 2025-04-21
+
+### Features
+
+- Gen1/gen2 have minimum score for pkmn - ([5a8d784](https://github.com/pmariglia/poke-engine/commit/5a8d78405d36c0f5fc24c7a9b737add24102f17f))
+
+- Gen3 spikes scaling in eval - ([30846bc](https://github.com/pmariglia/poke-engine/commit/30846bc5ce7dbc02d56916946d1b2a895bbbb9f7))
+
+- Chestoberry - ([f31dd11](https://github.com/pmariglia/poke-engine/commit/f31dd11e47d05fca9de9d39db5ad25aadaf3148b))
+
+- Taunt durations - ([c5cccd9](https://github.com/pmariglia/poke-engine/commit/c5cccd98bad69d8f287e5a0fd92343d03422408b))
+
+
+### Bug Fixes
+
+- Remove duplicated logic - ([48bd679](https://github.com/pmariglia/poke-engine/commit/48bd67979b36cd6baef79505881f5d1f008db0df))
+
+- Only create empty moves while < 4 - ([95d744a](https://github.com/pmariglia/poke-engine/commit/95d744a3ac8703c391399fc2cb99f1769e4c2da9))
+
+- Gulpmissile only reverts you to cramorant if gulpmissile is your base ability - ([f7cf660](https://github.com/pmariglia/poke-engine/commit/f7cf6609506519548fd5d03e68269397a1041578))
+
+- Gen3 pinch berries only activate at end of turn - ([288008a](https://github.com/pmariglia/poke-engine/commit/288008a3614cc8c2e7efe7efc477acf92eee36de))
+
+- Gen3 move cannot be used without a target - ([ecc051c](https://github.com/pmariglia/poke-engine/commit/ecc051cfb480e4fd83124da5e13e7f1fe12586ca))
+
+- Gen3 abilities default to none if not present - ([b6cf5c4](https://github.com/pmariglia/poke-engine/commit/b6cf5c46993917f43223edd9576ab810b151b524))
+
+- Pprint stats in debug output - ([ad59bc0](https://github.com/pmariglia/poke-engine/commit/ad59bc05ae77bbdde6716608d97dd1ad819f7635))
+
+
+### Miscellaneous Tasks
+
+- Additional gen3 tests - ([e1de524](https://github.com/pmariglia/poke-engine/commit/e1de524e68d9b2027e3dec9f392a31c481a3ff92))
+
+
+### Misc
+
+- Test for gen3 intimidate vs clearbody - ([a39758e](https://github.com/pmariglia/poke-engine/commit/a39758e92f003e3ac9d66daef9f6beed0985365c))
+
+
+### Refactor
+
+- Pretty-print functions go in the state file - ([ffc2a0d](https://github.com/pmariglia/poke-engine/commit/ffc2a0d5ee2badc601323645488ed5be247d6ad0))
+
+- Remove MoveTera enum variant from gen1/gen2 - ([9d2c18c](https://github.com/pmariglia/poke-engine/commit/9d2c18c1ff8fc5f98bf722a96b247e2c12e319df))
+
+- Remove can_tera function from gen1/gen2 - ([2ebabea](https://github.com/pmariglia/poke-engine/commit/2ebabeaab9cb3ed165c190a0ad08c88092026367))
+
+- Reduce Instruction enum from 8 to 6 bytes - ([0f3294d](https://github.com/pmariglia/poke-engine/commit/0f3294dcb23d9dc92385f4f8a6595f502d8152db))
+
+- Change vector starting capacities - ([149fb32](https://github.com/pmariglia/poke-engine/commit/149fb3268d57443540c409804f6e026053a68db0))
+
+- Generation specific things are always in a sub module - ([3917131](https://github.com/pmariglia/poke-engine/commit/3917131cefaa35bae42c29d420dd76448ca8168e))
+
+- Split out gen3 into its own module - ([ee74388](https://github.com/pmariglia/poke-engine/commit/ee743889d96a8e9549a83269efb8bf3acc83830e))
+
+- Move state structs and common functions to top level - ([663aa18](https://github.com/pmariglia/poke-engine/commit/663aa1830680bee4bad21eeefbca878128d8a951))
+
+- Move more out of state.rs into common - ([89eb7c6](https://github.com/pmariglia/poke-engine/commit/89eb7c63dabfa5325b30e995d66beece5e6a328f))
+
 ## [v0.0.41](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.41) - 2025-04-11
 
 ### Bug Fixes
