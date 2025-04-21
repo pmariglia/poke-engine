@@ -897,6 +897,12 @@ impl Pokemon {
         vec
     }
 
+    fn pprint_stats(&self) -> String {
+        format!(
+            "atk:{} def:{} spa:{} spd:{} spe:{}",
+            self.attack, self.defense, self.special_attack, self.special_defense, self.speed
+        )
+    }
     pub fn pprint_concise(&self) -> String {
         format!("{}:{}/{}", self.id, self.hp, self.maxhp)
     }
@@ -908,13 +914,14 @@ impl Pokemon {
             .filter(|x| x != "none")
             .collect();
         format!(
-            "\n  Name: {}\n  HP: {}/{}\n  Status: {:?}\n  Ability: {:?}\n  Item: {:?}\n  Moves: {}",
+            "\n  Name: {}\n  HP: {}/{}\n  Status: {:?}\n  Ability: {:?}\n  Item: {:?}\n  Stats: {}\n  Moves: {}",
             self.id,
             self.hp,
             self.maxhp,
             self.status,
             self.ability,
             self.item,
+            self.pprint_stats(),
             moves.join(", ")
         )
     }
