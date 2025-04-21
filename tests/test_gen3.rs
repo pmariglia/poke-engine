@@ -494,3 +494,81 @@ fn test_intimidate_blocked_by_clearbody() {
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
+
+#[test]
+fn test_same_speed_branch() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 100;
+    state.side_one.get_active().hp = 1;
+    state.side_two.get_active().speed = 100;
+    state.side_two.get_active().hp = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 1,
+            })],
+        },
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 1,
+            })],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_gen3_branch_when_a_roll_can_kill() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 50;
+
+    let move_one = Choices::TACKLE;
+    let move_two = Choices::SPLASH;
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_one);
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_two);
+
+    let vec_of_instructions = generate_instructions_from_move_pair(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        true,
+    );
+
+    // This damage roll is 44-52, so it can kill
+    // Normally without considering the roll, the damage is 48 (0.925 * 52)
+    // The roll itself has a 25% chance of killing but the extra chance is accounting for a crit
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 70.3125,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 46,
+            })],
+        },
+        StateInstructions {
+            percentage: 29.6875,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 50,
+            })],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
