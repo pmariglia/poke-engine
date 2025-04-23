@@ -127,6 +127,15 @@ fn evaluate_pokemon(pokemon: &Pokemon) -> f32 {
         score += 10.0;
     }
 
+    for mv in pokemon.moves.into_iter() {
+        // at 10 PP: (10*3) - 30 = 0  -> no penalty
+        // at 1 pp: (1*3) - 30 = -27  -> -27 penalty
+        if mv.pp <= 10 {
+            let penalty = (mv.pp * 3) as f32 - 30.0;
+            score += penalty;
+        }
+    }
+
     // without this a low hp pokemon could get a negative score and incentivize the other side
     // to keep it alive
     if score < 0.0 {
