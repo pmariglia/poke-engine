@@ -3233,10 +3233,8 @@ fn add_end_of_turn_instructions(
 
         if side
             .volatile_statuses
-            .contains(&PokemonVolatileStatus::PERISH2)
+            .remove(&PokemonVolatileStatus::PERISH2)
         {
-            side.volatile_statuses
-                .remove(&PokemonVolatileStatus::PERISH2);
             side.volatile_statuses
                 .insert(PokemonVolatileStatus::PERISH1);
             incoming_instructions
@@ -3258,10 +3256,8 @@ fn add_end_of_turn_instructions(
         }
         if side
             .volatile_statuses
-            .contains(&PokemonVolatileStatus::PERISH3)
+            .remove(&PokemonVolatileStatus::PERISH3)
         {
-            side.volatile_statuses
-                .remove(&PokemonVolatileStatus::PERISH3);
             side.volatile_statuses
                 .insert(PokemonVolatileStatus::PERISH2);
             incoming_instructions
@@ -3283,10 +3279,8 @@ fn add_end_of_turn_instructions(
         }
         if side
             .volatile_statuses
-            .contains(&PokemonVolatileStatus::PERISH4)
+            .remove(&PokemonVolatileStatus::PERISH4)
         {
-            side.volatile_statuses
-                .remove(&PokemonVolatileStatus::PERISH4);
             side.volatile_statuses
                 .insert(PokemonVolatileStatus::PERISH3);
             incoming_instructions
@@ -3309,10 +3303,8 @@ fn add_end_of_turn_instructions(
 
         if side
             .volatile_statuses
-            .contains(&PokemonVolatileStatus::FLINCH)
+            .remove(&PokemonVolatileStatus::FLINCH)
         {
-            side.volatile_statuses
-                .remove(&PokemonVolatileStatus::FLINCH);
             incoming_instructions
                 .instruction_list
                 .push(Instruction::RemoveVolatileStatus(
@@ -3322,11 +3314,7 @@ fn add_end_of_turn_instructions(
                     },
                 ));
         }
-        if side
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::ROOST)
-        {
-            side.volatile_statuses.remove(&PokemonVolatileStatus::ROOST);
+        if side.volatile_statuses.remove(&PokemonVolatileStatus::ROOST) {
             incoming_instructions
                 .instruction_list
                 .push(Instruction::RemoveVolatileStatus(
