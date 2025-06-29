@@ -84,6 +84,15 @@ pub const CONSECUTIVE_PROTECT_CHANCE: f32 = 1.0 / 2.0;
 pub const SIDE_CONDITION_DURATION: i8 = 5;
 pub const TAILWIND_DURATION: i8 = 4;
 
+const PROTECT_VOLATILES: [PokemonVolatileStatus; 6] = [
+    PokemonVolatileStatus::PROTECT,
+    PokemonVolatileStatus::BANEFULBUNKER,
+    PokemonVolatileStatus::BURNINGBULWARK,
+    PokemonVolatileStatus::SPIKYSHIELD,
+    PokemonVolatileStatus::SILKTRAP,
+    PokemonVolatileStatus::ENDURE,
+];
+
 fn chance_to_wake_up(turns_asleep: i8) -> f32 {
     if turns_asleep == 0 {
         0.0
@@ -1840,12 +1849,16 @@ fn generate_instructions_from_existing_status_conditions(
     }
 
     if attacking_side.side_conditions.protect > 0 {
-        let protect_success_chance =
-            CONSECUTIVE_PROTECT_CHANCE.powi(attacking_side.side_conditions.protect as i32);
-        let mut protect_fail_instruction = incoming_instructions.clone();
-        protect_fail_instruction.update_percentage(1.0 - protect_success_chance);
-        final_instructions.push(protect_fail_instruction);
-        incoming_instructions.update_percentage(protect_success_chance);
+        if let Some(vs) = &attacker_choice.volatile_status {
+            if PROTECT_VOLATILES.contains(&vs.volatile_status) {
+                let protect_success_chance =
+                    CONSECUTIVE_PROTECT_CHANCE.powi(attacking_side.side_conditions.protect as i32);
+                let mut protect_fail_instruction = incoming_instructions.clone();
+                protect_fail_instruction.update_percentage(1.0 - protect_success_chance);
+                final_instructions.push(protect_fail_instruction);
+                incoming_instructions.update_percentage(protect_success_chance);
+            }
+        }
     }
 }
 
