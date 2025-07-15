@@ -1294,9 +1294,11 @@ pub fn choice_special_effect(
             state.reset_boosts(&SideReference::SideTwo, &mut instructions.instruction_list);
         }
         Choices::REST => {
+            let electric_terrain_active = state.terrain_is_active(&Terrain::ELECTRICTERRAIN);
+            let attacking_side = state.get_side(attacking_side_ref);
             let active_index = attacking_side.active_index;
             let active_pkmn = attacking_side.get_active();
-            if active_pkmn.status != PokemonStatus::SLEEP {
+            if active_pkmn.status != PokemonStatus::SLEEP && !electric_terrain_active {
                 let heal_amount = active_pkmn.maxhp - active_pkmn.hp;
                 instructions
                     .instruction_list

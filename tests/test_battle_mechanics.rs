@@ -10925,6 +10925,26 @@ fn test_rest_can_be_used_if_sleep_clause_would_activate() {
 }
 
 #[test]
+fn test_rest_fails_in_electricterrain() {
+    let mut state = State::default();
+    state.terrain.terrain_type = Terrain::ELECTRICTERRAIN;
+    state.terrain.turns_remaining = 5;
+    state.side_one.get_active().hp = 50;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::REST,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::DecrementTerrainTurnsRemaining],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_strengthsap() {
     let mut state = State::default();
     state.side_one.get_active().maxhp = 500;
