@@ -683,6 +683,9 @@ impl Side {
         if self
             .volatile_statuses
             .contains(&PokemonVolatileStatus::LOCKEDMOVE)
+            || self
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::NORETREAT)
         {
             return true;
         }

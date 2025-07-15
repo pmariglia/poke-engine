@@ -7734,6 +7734,42 @@ fn test_pkmn_is_not_trapped_if_it_has_fainted() {
 }
 
 #[test]
+fn test_noretreat_traps_pokemon() {
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::NORETREAT);
+
+    let (side_one_moves, _side_two_moves) = state.get_all_options();
+
+    #[cfg(feature = "terastallization")]
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::MoveTera(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::MoveTera(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::MoveTera(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::MoveTera(PokemonMoveIndex::M3),
+        ],
+        side_one_moves
+    );
+    #[cfg(not(feature = "terastallization"))]
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+        ],
+        side_one_moves
+    );
+}
+
+#[test]
 fn test_meteorbeam_volatile_only_allows_meteor_beam_to_be_used() {
     let mut state = State::default();
     state
