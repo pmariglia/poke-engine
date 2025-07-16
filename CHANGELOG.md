@@ -1,5 +1,28 @@
 # Changelog
 
+## [v0.0.43](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.43) - 2025-07-16
+
+### Features
+
+- Noretreat prevents switch - ([de157e7](https://github.com/pmariglia/poke-engine/commit/de157e79c82b175d1fae52f19d0d690242cbc45c))
+
+
+### Bug Fixes
+
+- Protect side condition shouldn't cause _all_ moves to fail with 1/3 chance next turn - ([3ffb8f3](https://github.com/pmariglia/poke-engine/commit/3ffb8f3820370e7cee20681b8d6975d0ed3eaaf0))
+
+- Rest does not work in electricterrain - ([500b1ec](https://github.com/pmariglia/poke-engine/commit/500b1ec967dce53c1061d9ae9aab9b8fe8a1c13d))
+
+
+### Misc
+
+- Gen3 eval changes - ([f1a869e](https://github.com/pmariglia/poke-engine/commit/f1a869e1de191cc7606ec9bcfd5782d4c28eb5a3))
+
+
+### Refactor
+
+- Try to remove a volatile instead of check+removing it - ([466d603](https://github.com/pmariglia/poke-engine/commit/466d603cae4d5d838a69bf6772e134b089c55f81))
+
 ## [v0.0.42](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.42) - 2025-04-21
 
 ### Features
