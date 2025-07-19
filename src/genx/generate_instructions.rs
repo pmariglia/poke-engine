@@ -1453,6 +1453,7 @@ fn move_has_no_effect(state: &State, choice: &Choice, attacking_side_ref: &SideR
         };
     } else if state.terrain_is_active(&Terrain::PSYCHICTERRAIN)
         && defender.is_grounded()
+        && choice.target == MoveTarget::Opponent
         && choice.priority > 0
     {
         return true;

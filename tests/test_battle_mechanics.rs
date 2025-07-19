@@ -23,17 +23,13 @@ use poke_engine::instruction::{
     ToggleTrickRoomInstruction,
 };
 use poke_engine::pokemon::PokemonName;
-use poke_engine::state::LastUsedMove;
 use poke_engine::state::{
-    pokemon_index_iter, Move, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
+    pokemon_index_iter, LastUsedMove, Move, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
     PokemonSideCondition, PokemonStatus, PokemonType, SideReference, State, StateWeather,
 };
 
 #[cfg(feature = "terastallization")]
 use poke_engine::instruction::ToggleTerastallizedInstruction;
-
-#[cfg(not(feature = "terastallization"))]
-use poke_engine::state::LastUsedMove;
 
 pub fn generate_instructions_with_state_assertion(
     state: &mut State,
@@ -11979,6 +11975,40 @@ fn test_priority_move_on_grounded_pkmn_in_psychicterrain() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![Instruction::DecrementTerrainTurnsRemaining],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_protect_in_psychicterrain() {
+    let mut state = State::default();
+    state.terrain.terrain_type = Terrain::PSYCHICTERRAIN;
+    state.terrain.turns_remaining = 5;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::PROTECT,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::PROTECT,
+            }),
+            Instruction::DecrementTerrainTurnsRemaining,
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::PROTECT,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideOne,
+                side_condition: PokemonSideCondition::Protect,
+                amount: 1,
+            }),
+        ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
