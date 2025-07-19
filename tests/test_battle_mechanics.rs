@@ -17,12 +17,13 @@ use poke_engine::instruction::{
     DamageInstruction, DecrementFutureSightInstruction, DecrementPPInstruction,
     DecrementRestTurnsInstruction, DecrementWishInstruction, DisableMoveInstruction,
     EnableMoveInstruction, FormeChangeInstruction, HealInstruction, Instruction,
-    RemoveVolatileStatusInstruction, SetFutureSightInstruction,
+    RemoveVolatileStatusInstruction, SetFutureSightInstruction, SetLastUsedMoveInstruction,
     SetSecondMoveSwitchOutMoveInstruction, SetSleepTurnsInstruction, StateInstructions,
     SwitchInstruction, ToggleBatonPassingInstruction, ToggleShedTailingInstruction,
     ToggleTrickRoomInstruction,
 };
 use poke_engine::pokemon::PokemonName;
+use poke_engine::state::LastUsedMove;
 use poke_engine::state::{
     pokemon_index_iter, Move, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
     PokemonSideCondition, PokemonStatus, PokemonType, SideReference, State, StateWeather,
@@ -10590,6 +10591,49 @@ fn test_large_chance_to_awaken_sleeptalk_move_when_not_rested() {
             ],
         },
     ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_fakeout_into_fakeout_sets_last_used_move() {
+    let mut state = State::default();
+    state.use_last_used_move = true;
+    state.side_one.last_used_move = LastUsedMove::Switch(PokemonIndex::P0);
+    state.side_two.last_used_move = LastUsedMove::Switch(PokemonIndex::P0);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::FAKEOUT,
+        Choices::FAKEOUT,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
+                side_ref: SideReference::SideTwo,
+                last_used_move: LastUsedMove::Move(PokemonMoveIndex::M0),
+                previous_last_used_move: LastUsedMove::Switch(PokemonIndex::P0),
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::FLINCH,
+            }),
+            Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
+                side_ref: SideReference::SideOne,
+                last_used_move: LastUsedMove::None,
+                previous_last_used_move: LastUsedMove::Switch(PokemonIndex::P0),
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::FLINCH,
+            }),
+        ],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 

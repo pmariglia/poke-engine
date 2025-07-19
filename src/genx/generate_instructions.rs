@@ -127,6 +127,18 @@ fn set_last_used_move_as_move(
         .volatile_statuses
         .contains(&PokemonVolatileStatus::FLINCH)
     {
+        // if we were flinched after just switching in we don't want our last used move to be switch
+        // this makes sure fakeout/firstimpression can't be used on the following turn
+        if matches!(side.last_used_move, LastUsedMove::Switch(_)) {
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::SetLastUsedMove(SetLastUsedMoveInstruction {
+                    side_ref: switching_side_ref,
+                    last_used_move: LastUsedMove::None,
+                    previous_last_used_move: side.last_used_move,
+                }));
+            side.last_used_move = LastUsedMove::None;
+        }
         return;
     }
     match side.last_used_move {
@@ -2096,12 +2108,6 @@ pub fn generate_instructions_from_move(
         }
     }
 
-    if cannot_use_move(state, &choice, &attacking_side) {
-        state.reverse_instructions(&incoming_instructions.instruction_list);
-        final_instructions.push(incoming_instructions);
-        return;
-    }
-
     before_move(
         state,
         choice,
@@ -2111,6 +2117,21 @@ pub fn generate_instructions_from_move(
     );
     if incoming_instructions.percentage == 0.0 {
         state.reverse_instructions(&incoming_instructions.instruction_list);
+        return;
+    }
+
+    if state.use_last_used_move {
+        set_last_used_move_as_move(
+            state.get_side(&attacking_side),
+            choice.move_index,
+            attacking_side,
+            &mut incoming_instructions,
+        );
+    }
+
+    if cannot_use_move(state, &choice, &attacking_side) {
+        state.reverse_instructions(&incoming_instructions.instruction_list);
+        final_instructions.push(incoming_instructions);
         return;
     }
 
@@ -2135,15 +2156,6 @@ pub fn generate_instructions_from_move(
                 amount: pp_decrement_amount,
             }));
         active.moves[&choice.move_index].pp -= pp_decrement_amount;
-    }
-
-    if state.use_last_used_move {
-        set_last_used_move_as_move(
-            state.get_side(&attacking_side),
-            choice.move_index,
-            attacking_side,
-            &mut incoming_instructions,
-        );
     }
 
     if !choice.sleep_talk_move {
