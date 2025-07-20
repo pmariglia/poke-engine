@@ -2701,9 +2701,7 @@ fn add_end_of_turn_instructions(
     mut incoming_instructions: &mut StateInstructions,
     first_move_side: &SideReference,
 ) {
-    state.apply_instructions(&incoming_instructions.instruction_list);
     if state.side_one.force_switch || state.side_two.force_switch {
-        state.reverse_instructions(&incoming_instructions.instruction_list);
         return;
     }
 
@@ -3430,13 +3428,6 @@ fn add_end_of_turn_instructions(
             side.side_conditions.protect -= side.side_conditions.protect;
         }
     } // end volatile statuses
-
-    state.reverse_instructions(&incoming_instructions.instruction_list);
-}
-
-fn end_of_turn_triggered(side_one_move: &MoveChoice, side_two_move: &MoveChoice) -> bool {
-    !(matches!(side_one_move, &MoveChoice::Switch(_)) && side_two_move == &MoveChoice::None)
-        && !(side_one_move == &MoveChoice::None && matches!(side_two_move, &MoveChoice::Switch(_)))
 }
 
 fn run_move(
@@ -3688,8 +3679,12 @@ pub fn generate_instructions_from_move_pair(
 ) -> Vec<StateInstructions> {
     let mut side_one_choice;
     let mut s1_tera = false;
+    let mut s1_replacing_fainted_pkmn = false;
     match side_one_move {
         MoveChoice::Switch(switch_id) => {
+            if state.side_one.get_active().hp == 0 {
+                s1_replacing_fainted_pkmn = true;
+            }
             side_one_choice = Choice::default();
             side_one_choice.switch_id = *switch_id;
             side_one_choice.category = MoveCategory::Switch;
@@ -3709,9 +3704,13 @@ pub fn generate_instructions_from_move_pair(
     }
 
     let mut side_two_choice;
+    let mut s2_replacing_fainted_pkmn = false;
     let mut s2_tera = false;
     match side_two_move {
         MoveChoice::Switch(switch_id) => {
+            if state.side_two.get_active().hp == 0 {
+                s2_replacing_fainted_pkmn = true;
+            }
             side_two_choice = Choice::default();
             side_two_choice.switch_id = *switch_id;
             side_two_choice.category = MoveCategory::Switch;
@@ -3773,10 +3772,17 @@ pub fn generate_instructions_from_move_pair(
                 &mut state_instructions_vec,
                 branch_on_damage,
             );
-            if end_of_turn_triggered(side_one_move, side_two_move) {
-                for state_instruction in state_instructions_vec.iter_mut() {
+
+            for state_instruction in state_instructions_vec.iter_mut() {
+                state.apply_instructions(&state_instruction.instruction_list);
+                if !(s1_replacing_fainted_pkmn
+                    || s2_replacing_fainted_pkmn
+                    || state.side_one.force_switch
+                    || state.side_two.force_switch)
+                {
                     add_end_of_turn_instructions(state, state_instruction, &SideReference::SideOne);
                 }
+                state.reverse_instructions(&state_instruction.instruction_list);
             }
         }
         SideMovesFirst::SideTwo => {
@@ -3789,10 +3795,16 @@ pub fn generate_instructions_from_move_pair(
                 &mut state_instructions_vec,
                 branch_on_damage,
             );
-            if end_of_turn_triggered(side_one_move, side_two_move) {
-                for state_instruction in state_instructions_vec.iter_mut() {
+            for state_instruction in state_instructions_vec.iter_mut() {
+                state.apply_instructions(&state_instruction.instruction_list);
+                if !(s1_replacing_fainted_pkmn
+                    || s2_replacing_fainted_pkmn
+                    || state.side_one.force_switch
+                    || state.side_two.force_switch)
+                {
                     add_end_of_turn_instructions(state, state_instruction, &SideReference::SideTwo);
                 }
+                state.reverse_instructions(&state_instruction.instruction_list);
             }
         }
         SideMovesFirst::SpeedTie => {
@@ -3810,10 +3822,16 @@ pub fn generate_instructions_from_move_pair(
                 &mut state_instructions_vec,
                 branch_on_damage,
             );
-            if end_of_turn_triggered(side_one_move, side_two_move) {
-                for state_instruction in state_instructions_vec.iter_mut() {
+            for state_instruction in state_instructions_vec.iter_mut() {
+                state.apply_instructions(&state_instruction.instruction_list);
+                if !(s1_replacing_fainted_pkmn
+                    || s2_replacing_fainted_pkmn
+                    || state.side_one.force_switch
+                    || state.side_two.force_switch)
+                {
                     add_end_of_turn_instructions(state, state_instruction, &SideReference::SideOne);
                 }
+                state.reverse_instructions(&state_instruction.instruction_list);
             }
 
             // side_two moves first
@@ -3827,10 +3845,16 @@ pub fn generate_instructions_from_move_pair(
                 &mut side_two_moves_first_si,
                 branch_on_damage,
             );
-            if end_of_turn_triggered(side_one_move, side_two_move) {
-                for state_instruction in side_two_moves_first_si.iter_mut() {
+            for state_instruction in side_two_moves_first_si.iter_mut() {
+                state.apply_instructions(&state_instruction.instruction_list);
+                if !(s1_replacing_fainted_pkmn
+                    || s2_replacing_fainted_pkmn
+                    || state.side_one.force_switch
+                    || state.side_two.force_switch)
+                {
                     add_end_of_turn_instructions(state, state_instruction, &SideReference::SideTwo);
                 }
+                state.reverse_instructions(&state_instruction.instruction_list);
             }
 
             // combine both vectors into the final vector

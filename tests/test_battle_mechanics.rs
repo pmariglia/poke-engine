@@ -6339,6 +6339,10 @@ fn test_switching_from_batonpass_with_leechseed() {
                 previous_index: PokemonIndex::P0,
                 next_index: PokemonIndex::P1,
             }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 12,
+            }),
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
@@ -6947,6 +6951,7 @@ fn test_protosynthesis_on_switchin_with_booster_energy_and_sun_up() {
 #[test]
 fn test_quarkdrive_on_switchin_with_booster_energy_and_terrain_up() {
     let mut state = State::default();
+    state.side_one.pokemon.p0.hp = 0;
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::QUARKDRIVE;
     state.side_one.pokemon[PokemonIndex::P1].item = Items::BOOSTERENERGY; // should not be consumed
     state.terrain.terrain_type = Terrain::ELECTRICTERRAIN;
