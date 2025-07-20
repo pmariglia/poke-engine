@@ -19,7 +19,7 @@ pub struct Node {
     pub root: bool,
     pub parent: *mut Node,
     pub children: HashMap<(usize, usize), Vec<Node>>,
-    pub times_visited: i64,
+    pub times_visited: u32,
 
     // represents the instructions & s1/s2 moves that led to this node from the parent
     pub instructions: StateInstructions,
@@ -184,11 +184,11 @@ impl Node {
 pub struct MoveNode {
     pub move_choice: MoveChoice,
     pub total_score: f32,
-    pub visits: i64,
+    pub visits: u32,
 }
 
 impl MoveNode {
-    pub fn ucb1(&self, parent_visits: i64) -> f32 {
+    pub fn ucb1(&self, parent_visits: u32) -> f32 {
         if self.visits == 0 {
             return f32::INFINITY;
         }
@@ -206,7 +206,7 @@ impl MoveNode {
 pub struct MctsSideResult {
     pub move_choice: MoveChoice,
     pub total_score: f32,
-    pub visits: i64,
+    pub visits: u32,
 }
 
 impl MctsSideResult {
@@ -222,7 +222,7 @@ impl MctsSideResult {
 pub struct MctsResult {
     pub s1: Vec<MctsSideResult>,
     pub s2: Vec<MctsSideResult>,
-    pub iteration_count: i64,
+    pub iteration_count: u32,
 }
 
 fn do_mcts(root_node: &mut Node, state: &mut State, root_eval: &f32) {
