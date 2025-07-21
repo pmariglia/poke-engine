@@ -401,7 +401,7 @@ impl PyMove {
 struct PyMctsSideResult {
     pub move_choice: String,
     pub total_score: f32,
-    pub visits: i64,
+    pub visits: u32,
 }
 
 impl PyMctsSideResult {
@@ -419,7 +419,7 @@ impl PyMctsSideResult {
 struct PyMctsResult {
     s1: Vec<PyMctsSideResult>,
     s2: Vec<PyMctsSideResult>,
-    iteration_count: i64,
+    iteration_count: u32,
 }
 
 impl PyMctsResult {
