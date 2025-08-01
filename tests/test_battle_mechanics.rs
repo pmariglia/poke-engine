@@ -6951,7 +6951,7 @@ fn test_protosynthesis_on_switchin_with_booster_energy_and_sun_up() {
 #[test]
 fn test_quarkdrive_on_switchin_with_booster_energy_and_terrain_up() {
     let mut state = State::default();
-    state.side_one.pokemon.p0.hp = 0;
+    state.side_one.pokemon.pkmn[0].hp = 0;
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::QUARKDRIVE;
     state.side_one.pokemon[PokemonIndex::P1].item = Items::BOOSTERENERGY; // should not be consumed
     state.terrain.terrain_type = Terrain::ELECTRICTERRAIN;
@@ -9399,8 +9399,8 @@ fn test_healing_wish_sets_side_condition() {
 fn test_healing_wish_activates_on_switchin() {
     let mut state = State::default();
     state.side_one.side_conditions.healing_wish = 1;
-    state.side_one.pokemon.p1.hp = 50;
-    state.side_one.pokemon.p1.status = PokemonStatus::FREEZE;
+    state.side_one.pokemon.pkmn[1].hp = 50;
+    state.side_one.pokemon.pkmn[1].status = PokemonStatus::FREEZE;
 
     let vec_of_instructions = generate_instructions_with_state_assertion(
         &mut state,
@@ -9440,7 +9440,7 @@ fn test_healing_wish_activates_on_switchin() {
 fn test_healing_wish_activates_if_only_statused() {
     let mut state = State::default();
     state.side_one.side_conditions.healing_wish = 1;
-    state.side_one.pokemon.p1.status = PokemonStatus::FREEZE;
+    state.side_one.pokemon.pkmn[1].status = PokemonStatus::FREEZE;
 
     let vec_of_instructions = generate_instructions_with_state_assertion(
         &mut state,
@@ -11475,8 +11475,8 @@ fn test_burnup_removes_type_1_fire() {
 ))]
 fn test_fast_taunt_gets_applied_and_duration_increments() {
     let mut state = State::default();
-    state.side_one.pokemon.p0.speed = 150;
-    state.side_two.pokemon.p0.speed = 100;
+    state.side_one.pokemon.pkmn[0].speed = 150;
+    state.side_two.pokemon.pkmn[0].speed = 100;
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
         Choices::TAUNT,
@@ -11510,8 +11510,8 @@ fn test_fast_taunt_gets_applied_and_duration_increments() {
 ))]
 fn test_slow_taunt_gets_applied_and_duration_does_not_increment() {
     let mut state = State::default();
-    state.side_one.pokemon.p0.speed = 100;
-    state.side_two.pokemon.p0.speed = 150;
+    state.side_one.pokemon.pkmn[0].speed = 100;
+    state.side_two.pokemon.pkmn[0].speed = 150;
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
         Choices::TAUNT,
@@ -13082,7 +13082,7 @@ fn test_toxic_count_removed_after_curing_status() {
 #[test]
 fn test_switching_into_neutralizinggas_pokemon_when_other_side_has_toxic_count_and_poison_heal() {
     let mut state = State::default();
-    state.side_one.pokemon.p1.ability = Abilities::NEUTRALIZINGGAS;
+    state.side_one.pokemon.pkmn[1].ability = Abilities::NEUTRALIZINGGAS;
     state.side_two.get_active().status = PokemonStatus::TOXIC;
     state.side_two.get_active().ability = Abilities::POISONHEAL;
     state.side_two.side_conditions.toxic_count = 8;

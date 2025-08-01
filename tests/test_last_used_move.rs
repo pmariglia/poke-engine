@@ -105,10 +105,10 @@ fn test_last_used_move_overwritten_when_dragged_out() {
     state.use_last_used_move = true;
 
     // Only one drag option available to keep test simple
-    state.side_one.pokemon.p2.hp = 0;
-    state.side_one.pokemon.p3.hp = 0;
-    state.side_one.pokemon.p4.hp = 0;
-    state.side_one.pokemon.p5.hp = 0;
+    state.side_one.pokemon.pkmn[2].hp = 0;
+    state.side_one.pokemon.pkmn[3].hp = 0;
+    state.side_one.pokemon.pkmn[4].hp = 0;
+    state.side_one.pokemon.pkmn[5].hp = 0;
 
     state
         .side_one

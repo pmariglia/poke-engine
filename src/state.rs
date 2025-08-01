@@ -272,6 +272,7 @@ impl<'a> IntoIterator for &'a PokemonMoves {
 }
 
 #[derive(Debug, Copy, PartialEq, Clone, Eq, Hash)]
+#[repr(u8)]
 pub enum PokemonIndex {
     P0,
     P1,
@@ -348,12 +349,7 @@ impl Iterator for PokemonIndexIterator {
 
 #[derive(Debug, Clone)]
 pub struct SidePokemon {
-    pub p0: Pokemon,
-    pub p1: Pokemon,
-    pub p2: Pokemon,
-    pub p3: Pokemon,
-    pub p4: Pokemon,
-    pub p5: Pokemon,
+    pub pkmn: [Pokemon; 6],
 }
 
 impl<'a> IntoIterator for &'a SidePokemon {
@@ -383,32 +379,32 @@ impl<'a> Iterator for SidePokemonIterator<'a> {
             0 => {
                 self.index += 1;
                 self.pokemon_index = PokemonIndex::P0;
-                Some(&self.side_pokemon.p0)
+                Some(&self.side_pokemon.pkmn[0])
             }
             1 => {
                 self.index += 1;
                 self.pokemon_index = PokemonIndex::P1;
-                Some(&self.side_pokemon.p1)
+                Some(&self.side_pokemon.pkmn[1])
             }
             2 => {
                 self.index += 1;
                 self.pokemon_index = PokemonIndex::P2;
-                Some(&self.side_pokemon.p2)
+                Some(&self.side_pokemon.pkmn[2])
             }
             3 => {
                 self.index += 1;
                 self.pokemon_index = PokemonIndex::P3;
-                Some(&self.side_pokemon.p3)
+                Some(&self.side_pokemon.pkmn[3])
             }
             4 => {
                 self.index += 1;
                 self.pokemon_index = PokemonIndex::P4;
-                Some(&self.side_pokemon.p4)
+                Some(&self.side_pokemon.pkmn[4])
             }
             5 => {
                 self.index += 1;
                 self.pokemon_index = PokemonIndex::P5;
-                Some(&self.side_pokemon.p5)
+                Some(&self.side_pokemon.pkmn[5])
             }
             _ => None,
         }
@@ -419,14 +415,7 @@ impl Index<PokemonIndex> for SidePokemon {
     type Output = Pokemon;
 
     fn index(&self, index: PokemonIndex) -> &Self::Output {
-        match index {
-            PokemonIndex::P0 => &self.p0,
-            PokemonIndex::P1 => &self.p1,
-            PokemonIndex::P2 => &self.p2,
-            PokemonIndex::P3 => &self.p3,
-            PokemonIndex::P4 => &self.p4,
-            PokemonIndex::P5 => &self.p5,
-        }
+        &self.pkmn[index as usize]
     }
 }
 
@@ -434,27 +423,13 @@ impl Index<&PokemonIndex> for SidePokemon {
     type Output = Pokemon;
 
     fn index(&self, index: &PokemonIndex) -> &Self::Output {
-        match index {
-            PokemonIndex::P0 => &self.p0,
-            PokemonIndex::P1 => &self.p1,
-            PokemonIndex::P2 => &self.p2,
-            PokemonIndex::P3 => &self.p3,
-            PokemonIndex::P4 => &self.p4,
-            PokemonIndex::P5 => &self.p5,
-        }
+        &self.pkmn[*index as usize]
     }
 }
 
 impl IndexMut<PokemonIndex> for SidePokemon {
     fn index_mut(&mut self, index: PokemonIndex) -> &mut Self::Output {
-        match index {
-            PokemonIndex::P0 => &mut self.p0,
-            PokemonIndex::P1 => &mut self.p1,
-            PokemonIndex::P2 => &mut self.p2,
-            PokemonIndex::P3 => &mut self.p3,
-            PokemonIndex::P4 => &mut self.p4,
-            PokemonIndex::P5 => &mut self.p5,
-        }
+        &mut self.pkmn[index as usize]
     }
 }
 
@@ -465,24 +440,14 @@ impl Default for Side {
             baton_passing: false,
             shed_tailing: false,
             pokemon: SidePokemon {
-                p0: Pokemon {
-                    ..Pokemon::default()
-                },
-                p1: Pokemon {
-                    ..Pokemon::default()
-                },
-                p2: Pokemon {
-                    ..Pokemon::default()
-                },
-                p3: Pokemon {
-                    ..Pokemon::default()
-                },
-                p4: Pokemon {
-                    ..Pokemon::default()
-                },
-                p5: Pokemon {
-                    ..Pokemon::default()
-                },
+                pkmn: [
+                    Pokemon::default(),
+                    Pokemon::default(),
+                    Pokemon::default(),
+                    Pokemon::default(),
+                    Pokemon::default(),
+                    Pokemon::default(),
+                ],
             },
             substitute_health: 0,
             attack_boost: 0,
@@ -1120,12 +1085,12 @@ impl Side {
         }
         format!(
             "{}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}",
-            self.pokemon.p0.serialize(),
-            self.pokemon.p1.serialize(),
-            self.pokemon.p2.serialize(),
-            self.pokemon.p3.serialize(),
-            self.pokemon.p4.serialize(),
-            self.pokemon.p5.serialize(),
+            self.pokemon.pkmn[0].serialize(),
+            self.pokemon.pkmn[1].serialize(),
+            self.pokemon.pkmn[2].serialize(),
+            self.pokemon.pkmn[3].serialize(),
+            self.pokemon.pkmn[4].serialize(),
+            self.pokemon.pkmn[5].serialize(),
             self.active_index.serialize(),
             self.side_conditions.serialize(),
             vs_string,
@@ -1162,12 +1127,14 @@ impl Side {
         }
         Side {
             pokemon: SidePokemon {
-                p0: Pokemon::deserialize(split[0]),
-                p1: Pokemon::deserialize(split[1]),
-                p2: Pokemon::deserialize(split[2]),
-                p3: Pokemon::deserialize(split[3]),
-                p4: Pokemon::deserialize(split[4]),
-                p5: Pokemon::deserialize(split[5]),
+                pkmn: [
+                    Pokemon::deserialize(split[0]),
+                    Pokemon::deserialize(split[1]),
+                    Pokemon::deserialize(split[2]),
+                    Pokemon::deserialize(split[3]),
+                    Pokemon::deserialize(split[4]),
+                    Pokemon::deserialize(split[5]),
+                ],
             },
             active_index: PokemonIndex::deserialize(split[6]),
             side_conditions: SideConditions::deserialize(split[7]),
