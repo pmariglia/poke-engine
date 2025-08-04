@@ -9,6 +9,7 @@ use poke_engine::engine::generate_instructions::{
 };
 use poke_engine::engine::items::Items;
 use poke_engine::engine::state::{MoveChoice, PokemonVolatileStatus, Terrain, Weather};
+use poke_engine::instruction::Instruction::ToggleSideOneForceSwitch;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeAbilityInstruction,
     ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatInstruction,
@@ -7313,6 +7314,41 @@ fn test_partingshot_into_protect_does_not_cause_switchout() {
                 side_ref: SideReference::SideTwo,
                 side_condition: PokemonSideCondition::Protect,
                 amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_partingshot_into_substitute_causes_switchout() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::PARTINGSHOT,
+        Choices::SUBSTITUTE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 25,
+            }),
+            Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
+                side_ref: SideReference::SideTwo,
+                health_change: 25,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
+            }),
+            ToggleSideOneForceSwitch,
+            Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
+                new_choice: Choices::NONE,
+                previous_choice: Choices::NONE,
             }),
         ],
     }];
