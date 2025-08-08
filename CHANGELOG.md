@@ -1,5 +1,42 @@
 # Changelog
 
+## [v0.0.44](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.44) - 2025-08-08
+
+### Features
+
+- Direclaw - ([723f3df](https://github.com/pmariglia/poke-engine/commit/723f3df3e632b7a49b12187f06a3743eada3422b))
+
+
+### Bug Fixes
+
+- Being flinched on your first turn sets last used move as none. - ([6a7bf43](https://github.com/pmariglia/poke-engine/commit/6a7bf430b934f8a695efc2df7adba7bcac124415))
+
+- Moves targetting yourself like protect do not fail in psychicterrain - ([31dd0b7](https://github.com/pmariglia/poke-engine/commit/31dd0b7455b1d5e8f53ec2405853e5894906e6aa))
+
+- Change i64 to u32 in mcts nodes - ([b000f27](https://github.com/pmariglia/poke-engine/commit/b000f27df3ec94d009c939e4ec9e41a1b473e412))
+
+- Python bindings use u32 as well - ([a8d8423](https://github.com/pmariglia/poke-engine/commit/a8d842334a11cb7ad03bd19513e0551e038ffd44))
+
+- Electroshot does not charge in rain - ([7e07546](https://github.com/pmariglia/poke-engine/commit/7e075464e398b937c6eb6fbc859a3642fcfb975f))
+
+
+### Miscellaneous Tasks
+
+- Add test for partingshot into substitute - ([96ce827](https://github.com/pmariglia/poke-engine/commit/96ce8270f770e22edd992967b37ad1eb858f5c73))
+
+
+### Refactor
+
+- Refactor end_of_turn_triggered - ([9cddbe7](https://github.com/pmariglia/poke-engine/commit/9cddbe7e628a7db9c9bda11da1ded724e4fdfa10))
+
+- Use usize to index into SidePokemon - ([7d185c7](https://github.com/pmariglia/poke-engine/commit/7d185c7bf648957bda424def5909e9a8a54aa65f))
+
+- Use u8 instead of usize in Node for s1_choice and s2_choice - ([c3a7ff0](https://github.com/pmariglia/poke-engine/commit/c3a7ff04e72203612a34f90f8611f986b4f28d6f))
+
+- Lazily Expand Nodes - ([582bb02](https://github.com/pmariglia/poke-engine/commit/582bb02b1c6bec87764270c7a78e1e1a9d56773b))
+
+- Use option instead of raw pointer for s1/s2 options - ([186fdf9](https://github.com/pmariglia/poke-engine/commit/186fdf9356b208307caea1ee07fbbf30c29e3ecc))
+
 ## [v0.0.43](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.43) - 2025-07-16
 
 ### Features
