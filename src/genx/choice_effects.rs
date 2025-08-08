@@ -33,6 +33,25 @@ pub fn modify_choice(
                 attacker_choice.flags.charge = false;
             }
         }
+        Choices::DIRECLAW => {
+            // percentages are a hack and are incorrect in situations
+            // where one or more status effects are not possible
+            attacker_choice.add_or_create_secondaries(Secondary {
+                chance: 16.67,
+                target: MoveTarget::Opponent,
+                effect: Effect::Status(PokemonStatus::POISON),
+            });
+            attacker_choice.add_or_create_secondaries(Secondary {
+                chance: 20.00,
+                target: MoveTarget::Opponent,
+                effect: Effect::Status(PokemonStatus::PARALYZE),
+            });
+            attacker_choice.add_or_create_secondaries(Secondary {
+                chance: 25.0,
+                target: MoveTarget::Opponent,
+                effect: Effect::Status(PokemonStatus::SLEEP),
+            });
+        }
         Choices::DOUBLESHOCK => {
             if !attacking_side
                 .get_active_immutable()
