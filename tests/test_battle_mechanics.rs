@@ -1,6 +1,6 @@
 #![cfg(not(any(feature = "gen1", feature = "gen2", feature = "gen3")))]
 
-use poke_engine::choices::{Choices, MOVES};
+use poke_engine::choices::{Choices, MoveCategory, MOVES};
 use poke_engine::engine::abilities::{Abilities, WEATHER_ABILITY_TURNS};
 use poke_engine::engine::damage_calc::CRIT_MULTIPLIER;
 use poke_engine::engine::generate_instructions::{
@@ -12,6 +12,7 @@ use poke_engine::engine::state::{MoveChoice, PokemonVolatileStatus, Terrain, Wea
 use poke_engine::instruction::Instruction::ToggleSideOneForceSwitch;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeAbilityInstruction,
+    ChangeDamageDealtDamageInstruction, ChangeDamageDealtMoveCategoryInstruction,
     ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatInstruction,
     ChangeStatusInstruction, ChangeSubsituteHealthInstruction, ChangeTerrain, ChangeType,
     ChangeVolatileStatusDurationInstruction, ChangeWeather, ChangeWishInstruction,
@@ -13148,6 +13149,107 @@ fn test_covertcloak_prevents_flinch() {
             damage_amount: 63,
         })],
     }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_avalanche_doubles_damage_against_damaging_move() {
+    let mut state = State::default();
+    state.use_damage_dealt = true;
+    state.side_two.get_active().speed = 50;
+    state.side_one.get_active().speed = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::AVALANCHE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_change: 48,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 94,
+            }),
+            Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_change: 94,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_move_missing_does_not_double_damage_dealt() {
+    let mut state = State::default();
+    state.use_damage_dealt = true;
+    state.side_two.get_active().speed = 50;
+    state.side_one.get_active().speed = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::AVALANCHE,
+        Choices::SNARL,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 5.000001,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 48,
+                }),
+                Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_change: 48,
+                }),
+            ],
+        },
+        StateInstructions {
+            percentage: 95.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 44,
+                }),
+                Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_change: 44,
+                }),
+                Instruction::ChangeDamageDealtMoveCatagory(
+                    ChangeDamageDealtMoveCategoryInstruction {
+                        side_ref: SideReference::SideTwo,
+                        move_category: MoveCategory::Special,
+                        previous_move_category: MoveCategory::Physical,
+                    },
+                ),
+                Instruction::Boost(BoostInstruction {
+                    side_ref: SideReference::SideOne,
+                    stat: PokemonBoostableStat::SpecialAttack,
+                    amount: -1,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 94,
+                }),
+                Instruction::ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_change: 94,
+                }),
+            ],
+        },
+    ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 

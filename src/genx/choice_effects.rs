@@ -483,10 +483,7 @@ pub fn modify_choice(
                 ((25.0 * defender_speed as f32 / attacker_speed as f32) + 1.0).min(150.0);
         }
         Choices::AVALANCHE => {
-            if !attacker_choice.first_move
-                && (defender_choice.category == MoveCategory::Physical
-                    || defender_choice.category == MoveCategory::Special)
-            {
+            if !attacker_choice.first_move && defending_side.damage_dealt.damage > 0 {
                 attacker_choice.base_power *= 2.0;
             }
         }
