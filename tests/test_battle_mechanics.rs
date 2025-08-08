@@ -13129,6 +13129,29 @@ fn test_direclaw() {
 }
 
 #[test]
+fn test_covertcloak_prevents_flinch() {
+    let mut state = State::default();
+    state.side_two.get_active().speed = 50;
+    state.side_one.get_active().speed = 100;
+    state.side_two.get_active().item = Items::COVERTCLOAK;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::IRONHEAD,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 63,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_toxic_count_is_reset_even_if_toxic_is_reapplied_the_same_turn() {
     let mut state = State::default();
     let mut toxic_choice = MOVES.get(&Choices::TOXIC).unwrap().to_owned();

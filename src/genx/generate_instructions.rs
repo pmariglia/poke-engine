@@ -3617,7 +3617,15 @@ fn run_move(
         }
     }
 
-    if let Some(secondaries_vec) = &choice.secondaries {
+    if state
+        .get_side_immutable(&attacking_side.get_other_side())
+        .get_active_immutable()
+        .item
+        == Items::COVERTCLOAK
+    {
+        state.reverse_instructions(&instructions.instruction_list);
+        final_instructions.push(instructions);
+    } else if let Some(secondaries_vec) = &choice.secondaries {
         state.reverse_instructions(&instructions.instruction_list);
         let instructions_vec_after_secondaries = get_instructions_from_secondaries(
             state,

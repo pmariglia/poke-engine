@@ -47,6 +47,7 @@ define_enum_with_from_str! {
         CHOPLEBERRY,
         COBABERRY,
         COLBURBERRY,
+        COVERTCLOAK,
         CUSTAPBERRY,
         DRAGONFANG,
         DRAGONSCALE,
