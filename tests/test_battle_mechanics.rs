@@ -13028,6 +13028,36 @@ fn test_electroshot_executing_with_powerherb() {
 }
 
 #[test]
+fn test_electroshot_executing_in_rain() {
+    let mut state = State::default();
+    state.weather.weather_type = Weather::RAIN;
+    state.weather.turns_remaining = 2;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::ELECTROSHOT,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideOne,
+                stat: PokemonBoostableStat::SpecialAttack,
+                amount: 1,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 100,
+            }),
+            Instruction::DecrementWeatherTurnsRemaining,
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_toxic_count_is_reset_even_if_toxic_is_reapplied_the_same_turn() {
     let mut state = State::default();
     let mut toxic_choice = MOVES.get(&Choices::TOXIC).unwrap().to_owned();

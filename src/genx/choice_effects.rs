@@ -28,6 +28,11 @@ pub fn modify_choice(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     match attacker_choice.move_id {
+        Choices::ELECTROSHOT => {
+            if state.weather_is_active(&Weather::RAIN) {
+                attacker_choice.flags.charge = false;
+            }
+        }
         Choices::DOUBLESHOCK => {
             if !attacking_side
                 .get_active_immutable()
