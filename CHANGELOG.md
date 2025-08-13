@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.0.45](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.45) - 2025-08-13
+
+### Features
+
+- Covertcloak - ([288ecc9](https://github.com/pmariglia/poke-engine/commit/288ecc9f03306d5c3aa94884962a8e41d0a38c5a))
+
+
+### Bug Fixes
+
+- Avalanche only boosts if damage was taken - ([2f7211b](https://github.com/pmariglia/poke-engine/commit/2f7211b84a50daed8b93a498d4b9fb20ee48d29b))
+
+- Compile on newer rust - ([f066e52](https://github.com/pmariglia/poke-engine/commit/f066e52dcb960b3e0f6efa02c19a6d060a9f1c4e))
+
 ## [v0.0.44](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.44) - 2025-08-08
 
 ### Features
