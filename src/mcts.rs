@@ -109,7 +109,7 @@ impl Node {
             .map(|x| x.instructions.percentage as f64)
             .collect();
         let dist = WeightedIndex::new(weights).unwrap();
-        let chosen_node = &mut (*move_vector)[dist.sample(&mut rng)];
+        let chosen_node = &mut (&mut *move_vector)[dist.sample(&mut rng)];
         let chosen_node_ptr = chosen_node as *mut Node;
         chosen_node_ptr
     }
