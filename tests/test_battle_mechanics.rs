@@ -20665,6 +20665,36 @@ fn test_freeze_chance_to_thaw() {
 }
 
 #[test]
+fn test_always_thaw_using_scald() {
+    let mut state = State::default();
+    state.side_two.get_active().status = PokemonStatus::FREEZE;
+    state.side_one.get_active().types.0 = PokemonType::FIRE; // just to ignore burn chance
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SCALD,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeStatus(ChangeStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                pokemon_index: PokemonIndex::P0,
+                old_status: PokemonStatus::FREEZE,
+                new_status: PokemonStatus::NONE,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 100,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_sleeptalk_when_asleep_and_rest_turns_active() {
     let mut state = State::default();
     state.side_one.get_active().status = PokemonStatus::SLEEP;

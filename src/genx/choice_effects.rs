@@ -20,6 +20,19 @@ use crate::state::{
 };
 use std::cmp;
 
+const CHOICE_THAWS_USER: [Choices; 10] = [
+    Choices::FLAMEWHEEL,
+    Choices::SACREDFIRE,
+    Choices::FLAREBLITZ,
+    Choices::FUSIONFLARE,
+    Choices::SCALD,
+    Choices::STEAMERUPTION,
+    Choices::BURNUP,
+    Choices::PYROBALL,
+    Choices::SCORCHINGSANDS,
+    Choices::MATCHAGOTCHA,
+];
+
 pub fn modify_choice(
     state: &State,
     attacker_choice: &mut Choice,
@@ -875,6 +888,17 @@ pub fn choice_before_move(
     let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
 
     destinybond_before_move(attacking_side, attacking_side_ref, choice, instructions);
+
+    if attacking_side.get_active_immutable().status == PokemonStatus::FREEZE
+        && CHOICE_THAWS_USER.contains(&choice.move_id)
+    {
+        add_remove_status_instructions(
+            instructions,
+            attacking_side.active_index,
+            *attacking_side_ref,
+            attacking_side,
+        );
+    }
 
     let attacker = attacking_side.get_active();
     let defender = defending_side.get_active_immutable();
