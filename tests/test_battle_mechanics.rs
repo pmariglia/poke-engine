@@ -9811,6 +9811,30 @@ fn test_painsplit() {
 }
 
 #[test]
+fn test_painsplit_on_substitute() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 50;
+    state.side_two.get_active().hp = 60;
+    state
+        .side_two
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
+    state.side_two.substitute_health = 10;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::PAINSPLIT,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_icefang_multi_secondary() {
     let mut state = State::default();
 

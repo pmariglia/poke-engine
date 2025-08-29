@@ -1464,24 +1464,29 @@ pub fn choice_special_effect(
             attacker.hp = 0;
         }
         Choices::PAINSPLIT => {
-            let target_hp = (attacking_side.get_active_immutable().hp
-                + defending_side.get_active_immutable().hp)
-                / 2;
-            instructions
-                .instruction_list
-                .push(Instruction::Damage(DamageInstruction {
-                    side_ref: *attacking_side_ref,
-                    damage_amount: attacking_side.get_active_immutable().hp - target_hp,
-                }));
-            instructions
-                .instruction_list
-                .push(Instruction::Damage(DamageInstruction {
-                    side_ref: attacking_side_ref.get_other_side(),
-                    damage_amount: defending_side.get_active_immutable().hp - target_hp,
-                }));
+            if !defending_side
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::SUBSTITUTE)
+            {
+                let target_hp = (attacking_side.get_active_immutable().hp
+                    + defending_side.get_active_immutable().hp)
+                    / 2;
+                instructions
+                    .instruction_list
+                    .push(Instruction::Damage(DamageInstruction {
+                        side_ref: *attacking_side_ref,
+                        damage_amount: attacking_side.get_active_immutable().hp - target_hp,
+                    }));
+                instructions
+                    .instruction_list
+                    .push(Instruction::Damage(DamageInstruction {
+                        side_ref: attacking_side_ref.get_other_side(),
+                        damage_amount: defending_side.get_active_immutable().hp - target_hp,
+                    }));
 
-            attacking_side.get_active().hp = target_hp;
-            defending_side.get_active().hp = target_hp;
+                attacking_side.get_active().hp = target_hp;
+                defending_side.get_active().hp = target_hp;
+            }
         }
         Choices::SUBSTITUTE | Choices::SHEDTAIL => {
             if attacking_side
