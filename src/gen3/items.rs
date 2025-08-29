@@ -1,5 +1,5 @@
 #![allow(unused_variables)]
-use super::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
+use super::generate_instructions::{add_remove_status_instructions, apply_boost_instruction};
 use crate::choices::{Choice, Choices, MoveCategory};
 use crate::define_enum_with_from_str;
 use crate::instruction::{
@@ -275,16 +275,14 @@ fn boost_berry(
     stat: PokemonBoostableStat,
     instructions: &mut StateInstructions,
 ) {
-    if let Some(ins) = get_boost_instruction(
-        &state.get_side_immutable(side_ref),
+    apply_boost_instruction(
+        state.get_side(side_ref),
         &stat,
         &1,
         side_ref,
         side_ref,
-    ) {
-        state.apply_one_instruction(&ins);
-        instructions.instruction_list.push(ins);
-    }
+        instructions,
+    );
     let attacker = state.get_side(side_ref).get_active();
     instructions
         .instruction_list

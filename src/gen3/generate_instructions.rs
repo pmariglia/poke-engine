@@ -513,17 +513,15 @@ pub fn get_boost_amount(side: &Side, boost: &PokemonBoostableStat, amount: i8) -
     0
 }
 
-pub fn get_boost_instruction(
-    target_side: &Side,
+pub fn apply_boost_instruction(
+    target_side: &mut Side,
     stat: &PokemonBoostableStat,
     boost: &i8,
     attacking_side_ref: &SideReference,
     target_side_ref: &SideReference,
-) -> Option<Instruction> {
-    /*
-    Single point for checking whether a boost can be applied to a pokemon
-    Returns that boost instruction, if applicable
-    */
+    instructions: &mut StateInstructions,
+) -> bool {
+    let mut boost_was_applied = false;
     let target_pkmn = target_side.get_active_immutable();
 
     if boost != &0
@@ -535,14 +533,30 @@ pub fn get_boost_instruction(
         let mut boost_amount = *boost;
         boost_amount = get_boost_amount(target_side, &stat, boost_amount);
         if boost_amount != 0 {
-            return Some(Instruction::Boost(BoostInstruction {
-                side_ref: *target_side_ref,
-                stat: *stat,
-                amount: boost_amount,
-            }));
+            boost_was_applied = true;
+            match stat {
+                PokemonBoostableStat::Attack => target_side.attack_boost += boost_amount,
+                PokemonBoostableStat::Defense => target_side.defense_boost += boost_amount,
+                PokemonBoostableStat::SpecialAttack => {
+                    target_side.special_attack_boost += boost_amount
+                }
+                PokemonBoostableStat::SpecialDefense => {
+                    target_side.special_defense_boost += boost_amount
+                }
+                PokemonBoostableStat::Speed => target_side.speed_boost += boost_amount,
+                PokemonBoostableStat::Evasion => target_side.accuracy_boost += boost_amount,
+                PokemonBoostableStat::Accuracy => target_side.evasion_boost += boost_amount,
+            }
+            instructions
+                .instruction_list
+                .push(Instruction::Boost(BoostInstruction {
+                    side_ref: *target_side_ref,
+                    stat: *stat,
+                    amount: boost_amount,
+                }));
         }
     }
-    None
+    boost_was_applied
 }
 
 fn get_instructions_from_boosts(
@@ -558,19 +572,15 @@ fn get_instructions_from_boosts(
     }
     let boostable_stats = boosts.boosts.get_as_pokemon_boostable();
     for (pkmn_boostable_stat, boost) in boostable_stats.iter().filter(|(_, b)| b != &0) {
-        let side = state.get_side_immutable(&target_side_ref);
-        if let Some(boost_instruction) = get_boost_instruction(
-            &side,
+        let side = state.get_side(&target_side_ref);
+        apply_boost_instruction(
+            side,
             pkmn_boostable_stat,
             boost,
             attacking_side_reference,
             &target_side_ref,
-        ) {
-            state.apply_one_instruction(&boost_instruction);
-            incoming_instructions
-                .instruction_list
-                .push(boost_instruction);
-        }
+            incoming_instructions,
+        );
     }
 }
 

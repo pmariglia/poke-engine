@@ -1,6 +1,6 @@
 #![allow(unused_variables)]
 use super::damage_calc::type_effectiveness_modifier;
-use super::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
+use super::generate_instructions::{add_remove_status_instructions, apply_boost_instruction};
 use super::state::{PokemonVolatileStatus, Weather};
 use crate::choices::{
     Boost, Choice, Choices, Effect, Heal, MoveCategory, MoveTarget, Secondary, StatBoosts,
@@ -305,16 +305,14 @@ pub fn ability_on_switch_in(
             }
         }
         Abilities::INTIMIDATE => {
-            if let Some(boost_instruction) = get_boost_instruction(
-                &defending_side,
+            apply_boost_instruction(
+                defending_side,
                 &PokemonBoostableStat::Attack,
                 &-1,
                 side_ref,
                 &side_ref.get_other_side(),
-            ) {
-                state.apply_one_instruction(&boost_instruction);
-                instructions.instruction_list.push(boost_instruction);
-            }
+                instructions,
+            );
         }
         Abilities::DRIZZLE => {
             if state.weather.weather_type != Weather::RAIN {

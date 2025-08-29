@@ -1,6 +1,6 @@
 use super::abilities::Abilities;
 use super::damage_calc::type_effectiveness_modifier;
-use super::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
+use super::generate_instructions::{add_remove_status_instructions, apply_boost_instruction};
 use super::items::{get_choice_move_disable_instructions, Items};
 use super::state::{PokemonVolatileStatus, Terrain, Weather};
 use crate::choices::{
@@ -916,16 +916,14 @@ pub fn choice_before_move(
             attacker.hp -= damage_amount;
         }
         Choices::METEORBEAM | Choices::ELECTROSHOT if choice.flags.charge => {
-            if let Some(boost_instruction) = get_boost_instruction(
-                &attacking_side,
+            apply_boost_instruction(
+                attacking_side,
                 &PokemonBoostableStat::SpecialAttack,
                 &1,
                 attacking_side_ref,
                 attacking_side_ref,
-            ) {
-                state.apply_one_instruction(&boost_instruction);
-                instructions.instruction_list.push(boost_instruction);
-            }
+                instructions,
+            );
         }
         _ => {}
     }

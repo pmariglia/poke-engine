@@ -1,7 +1,7 @@
 #![allow(unused_variables)]
 use super::abilities::Abilities;
 use super::damage_calc::type_effectiveness_modifier;
-use super::generate_instructions::{get_boost_instruction, immune_to_status};
+use super::generate_instructions::{apply_boost_instruction, immune_to_status};
 use super::state::Terrain;
 use crate::choices::{Choice, Choices, Effect, MoveCategory, MoveTarget, Secondary, StatBoosts};
 use crate::define_enum_with_from_str;
@@ -337,16 +337,14 @@ fn boost_berry(
     stat: PokemonBoostableStat,
     instructions: &mut StateInstructions,
 ) {
-    if let Some(ins) = get_boost_instruction(
-        &state.get_side_immutable(side_ref),
+    apply_boost_instruction(
+        state.get_side(side_ref),
         &stat,
         &1,
         side_ref,
         side_ref,
-    ) {
-        state.apply_one_instruction(&ins);
-        instructions.instruction_list.push(ins);
-    }
+        instructions,
+    );
     let attacker = state.get_side(side_ref).get_active();
     instructions
         .instruction_list
@@ -693,20 +691,20 @@ pub fn item_on_switch_in(
     side_ref: &SideReference,
     instructions: &mut StateInstructions,
 ) {
-    let switching_in_side = state.get_side_immutable(side_ref);
+    let active_terrain = state.get_terrain();
+    let switching_in_side = state.get_side(side_ref);
     let switching_in_pkmn = switching_in_side.get_active_immutable();
     match switching_in_pkmn.item {
         Items::ELECTRICSEED => {
-            if state.terrain_is_active(&Terrain::ELECTRICTERRAIN) {
-                if let Some(boost_instruction) = get_boost_instruction(
-                    &switching_in_side,
+            if active_terrain == Terrain::ELECTRICTERRAIN {
+                if apply_boost_instruction(
+                    switching_in_side,
                     &PokemonBoostableStat::Defense,
                     &1,
                     side_ref,
                     side_ref,
+                    instructions,
                 ) {
-                    state.apply_one_instruction(&boost_instruction);
-                    instructions.instruction_list.push(boost_instruction);
                     state.get_side(side_ref).get_active().item = Items::NONE;
                     instructions.instruction_list.push(Instruction::ChangeItem(
                         ChangeItemInstruction {
@@ -719,16 +717,15 @@ pub fn item_on_switch_in(
             }
         }
         Items::GRASSYSEED => {
-            if state.terrain_is_active(&Terrain::GRASSYTERRAIN) {
-                if let Some(boost_instruction) = get_boost_instruction(
-                    &switching_in_side,
+            if active_terrain == Terrain::GRASSYTERRAIN {
+                if apply_boost_instruction(
+                    switching_in_side,
                     &PokemonBoostableStat::Defense,
                     &1,
                     side_ref,
                     side_ref,
+                    instructions,
                 ) {
-                    state.apply_one_instruction(&boost_instruction);
-                    instructions.instruction_list.push(boost_instruction);
                     state.get_side(side_ref).get_active().item = Items::NONE;
                     instructions.instruction_list.push(Instruction::ChangeItem(
                         ChangeItemInstruction {
@@ -741,16 +738,15 @@ pub fn item_on_switch_in(
             }
         }
         Items::MISTYSEED => {
-            if state.terrain_is_active(&Terrain::MISTYTERRAIN) {
-                if let Some(boost_instruction) = get_boost_instruction(
-                    &switching_in_side,
+            if active_terrain == Terrain::MISTYTERRAIN {
+                if apply_boost_instruction(
+                    switching_in_side,
                     &PokemonBoostableStat::SpecialDefense,
                     &1,
                     side_ref,
                     side_ref,
+                    instructions,
                 ) {
-                    state.apply_one_instruction(&boost_instruction);
-                    instructions.instruction_list.push(boost_instruction);
                     state.get_side(side_ref).get_active().item = Items::NONE;
                     instructions.instruction_list.push(Instruction::ChangeItem(
                         ChangeItemInstruction {
@@ -763,16 +759,15 @@ pub fn item_on_switch_in(
             }
         }
         Items::PSYCHICSEED => {
-            if state.terrain_is_active(&Terrain::PSYCHICTERRAIN) {
-                if let Some(boost_instruction) = get_boost_instruction(
-                    &switching_in_side,
+            if active_terrain == Terrain::PSYCHICTERRAIN {
+                if apply_boost_instruction(
+                    switching_in_side,
                     &PokemonBoostableStat::SpecialDefense,
                     &1,
                     side_ref,
                     side_ref,
+                    instructions,
                 ) {
-                    state.apply_one_instruction(&boost_instruction);
-                    instructions.instruction_list.push(boost_instruction);
                     state.get_side(side_ref).get_active().item = Items::NONE;
                     instructions.instruction_list.push(Instruction::ChangeItem(
                         ChangeItemInstruction {

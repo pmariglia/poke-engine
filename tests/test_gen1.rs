@@ -361,14 +361,14 @@ fn test_gen1_swordsdance_while_burned_sets_burn_nullify_volatile() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                side_ref: SideReference::SideOne,
-                volatile_status: PokemonVolatileStatus::GEN1BURNNULLIFY,
-            }),
             Instruction::Boost(BoostInstruction {
                 side_ref: SideReference::SideOne,
                 stat: PokemonBoostableStat::Attack,
                 amount: 2,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::GEN1BURNNULLIFY,
             }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideOne,
@@ -430,14 +430,14 @@ fn test_gen1_agility_while_paralyzed_sets_paralysis_nullify_volatile() {
         StateInstructions {
             percentage: 75.0,
             instruction_list: vec![
-                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
-                    side_ref: SideReference::SideOne,
-                    volatile_status: PokemonVolatileStatus::GEN1PARALYSISNULLIFY,
-                }),
                 Instruction::Boost(BoostInstruction {
                     side_ref: SideReference::SideOne,
                     stat: PokemonBoostableStat::Speed,
                     amount: 2,
+                }),
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::GEN1PARALYSISNULLIFY,
                 }),
             ],
         },

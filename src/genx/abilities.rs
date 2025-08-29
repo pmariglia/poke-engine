@@ -1,6 +1,6 @@
 #![allow(unused_variables)]
 use super::damage_calc::type_effectiveness_modifier;
-use super::generate_instructions::{add_remove_status_instructions, get_boost_instruction};
+use super::generate_instructions::{add_remove_status_instructions, apply_boost_instruction};
 use super::items::{get_choice_move_disable_instructions, Items};
 use super::state::{PokemonVolatileStatus, Terrain, Weather};
 use crate::choices::{
@@ -687,38 +687,30 @@ pub fn ability_after_damage_hit(
     match active_pkmn.ability {
         Abilities::BATTLEBOND => {
             if damage_dealt > 0 && defending_side.get_active_immutable().hp == 0 {
-                let mut instructions_vec = Vec::with_capacity(3);
-                if let Some(boost_instruction) = get_boost_instruction(
-                    &attacking_side,
+                apply_boost_instruction(
+                    attacking_side,
                     &PokemonBoostableStat::Attack,
                     &1,
                     side_ref,
                     side_ref,
-                ) {
-                    instructions_vec.push(boost_instruction);
-                }
-                if let Some(boost_instruction) = get_boost_instruction(
-                    &attacking_side,
+                    instructions,
+                );
+                apply_boost_instruction(
+                    attacking_side,
                     &PokemonBoostableStat::SpecialAttack,
                     &1,
                     side_ref,
                     side_ref,
-                ) {
-                    instructions_vec.push(boost_instruction);
-                }
-                if let Some(boost_instruction) = get_boost_instruction(
-                    &attacking_side,
+                    instructions,
+                );
+                apply_boost_instruction(
+                    attacking_side,
                     &PokemonBoostableStat::Speed,
                     &1,
                     side_ref,
                     side_ref,
-                ) {
-                    instructions_vec.push(boost_instruction);
-                }
-                for i in instructions_vec {
-                    state.apply_one_instruction(&i);
-                    instructions.instruction_list.push(i);
-                }
+                    instructions,
+                );
             }
         }
         Abilities::MAGICIAN | Abilities::PICKPOCKET => {
@@ -747,41 +739,39 @@ pub fn ability_after_damage_hit(
         }
         Abilities::MOXIE | Abilities::CHILLINGNEIGH | Abilities::ASONEGLASTRIER => {
             if damage_dealt > 0 && defending_side.get_active_immutable().hp == 0 {
-                if let Some(boost_instruction) = get_boost_instruction(
-                    &attacking_side,
+                apply_boost_instruction(
+                    attacking_side,
                     &PokemonBoostableStat::Attack,
                     &1,
                     side_ref,
                     side_ref,
-                ) {
-                    state.apply_one_instruction(&boost_instruction);
-                    instructions.instruction_list.push(boost_instruction);
-                }
+                    instructions,
+                );
             }
         }
         Abilities::GRIMNEIGH | Abilities::ASONESPECTRIER => {
             if damage_dealt > 0 && defending_side.get_active_immutable().hp == 0 {
-                if let Some(boost_instruction) = get_boost_instruction(
-                    &attacking_side,
+                apply_boost_instruction(
+                    attacking_side,
                     &PokemonBoostableStat::SpecialAttack,
                     &1,
                     side_ref,
                     side_ref,
-                ) {
-                    state.apply_one_instruction(&boost_instruction);
-                    instructions.instruction_list.push(boost_instruction);
-                }
+                    instructions,
+                );
             }
         }
         Abilities::BEASTBOOST => {
             if damage_dealt > 0 && defending_side.get_active_immutable().hp == 0 {
                 let highest_stat = &attacking_side.calculate_highest_stat();
-                if let Some(boost_instruction) =
-                    get_boost_instruction(&attacking_side, highest_stat, &1, side_ref, side_ref)
-                {
-                    state.apply_one_instruction(&boost_instruction);
-                    instructions.instruction_list.push(boost_instruction);
-                }
+                apply_boost_instruction(
+                    attacking_side,
+                    highest_stat,
+                    &1,
+                    side_ref,
+                    side_ref,
+                    instructions,
+                );
             }
         }
         _ => {}
@@ -824,16 +814,14 @@ pub fn ability_after_damage_hit(
 
                 if defending_pkmn.id == PokemonName::CRAMORANTGULPING {
                     defending_pkmn.id = PokemonName::CRAMORANT;
-                    if let Some(boost_instruction) = get_boost_instruction(
-                        &attacking_side,
+                    apply_boost_instruction(
+                        attacking_side,
                         &PokemonBoostableStat::Defense,
                         &-1,
                         &side_ref.get_other_side(),
                         side_ref,
-                    ) {
-                        state.apply_one_instruction(&boost_instruction);
-                        instructions.instruction_list.push(boost_instruction);
-                    }
+                        instructions,
+                    );
                 } else if defending_pkmn.id == PokemonName::CRAMORANTGORGING {
                     defending_pkmn.id = PokemonName::CRAMORANT;
                     choice.add_or_create_secondaries(Secondary {
@@ -860,30 +848,26 @@ pub fn ability_after_damage_hit(
         }
         Abilities::STAMINA => {
             if damage_dealt > 0 && defending_pkmn.hp != 0 {
-                if let Some(boost_instruction) = get_boost_instruction(
-                    &defending_side,
+                apply_boost_instruction(
+                    defending_side,
                     &PokemonBoostableStat::Defense,
                     &1,
                     side_ref,
                     &side_ref.get_other_side(),
-                ) {
-                    state.apply_one_instruction(&boost_instruction);
-                    instructions.instruction_list.push(boost_instruction);
-                }
+                    instructions,
+                );
             }
         }
         Abilities::COTTONDOWN => {
             if damage_dealt > 0 {
-                if let Some(boost_instruction) = get_boost_instruction(
-                    &attacking_side,
+                apply_boost_instruction(
+                    attacking_side,
                     &PokemonBoostableStat::Speed,
                     &-1,
                     &side_ref.get_other_side(),
                     side_ref,
-                ) {
-                    state.apply_one_instruction(&boost_instruction);
-                    instructions.instruction_list.push(boost_instruction);
-                }
+                    instructions,
+                );
             }
         }
         Abilities::SANDSPIT => {
@@ -937,16 +921,14 @@ pub fn ability_after_damage_hit(
                 && defending_pkmn.hp < defending_pkmn.maxhp / 2
                 && defending_pkmn.hp + damage_dealt >= defending_pkmn.maxhp / 2
             {
-                if let Some(boost_instruction) = get_boost_instruction(
-                    &defending_side,
+                apply_boost_instruction(
+                    defending_side,
                     &PokemonBoostableStat::SpecialAttack,
                     &1,
                     &side_ref.get_other_side(),
                     &side_ref.get_other_side(),
-                ) {
-                    state.apply_one_instruction(&boost_instruction);
-                    instructions.instruction_list.push(boost_instruction);
-                }
+                    instructions,
+                );
             }
         }
         Abilities::ROUGHSKIN | Abilities::IRONBARBS => {
@@ -1433,52 +1415,44 @@ pub fn ability_on_switch_in(
             );
         }
         Abilities::EMBODYASPECTTEAL => {
-            if let Some(boost_instruction) = get_boost_instruction(
-                &attacking_side,
+            apply_boost_instruction(
+                attacking_side,
                 &PokemonBoostableStat::Speed,
                 &1,
                 side_ref,
                 side_ref,
-            ) {
-                state.apply_one_instruction(&boost_instruction);
-                instructions.instruction_list.push(boost_instruction);
-            }
+                instructions,
+            );
         }
         Abilities::EMBODYASPECTWELLSPRING => {
-            if let Some(boost_instruction) = get_boost_instruction(
-                &attacking_side,
+            apply_boost_instruction(
+                attacking_side,
                 &PokemonBoostableStat::SpecialDefense,
                 &1,
                 side_ref,
                 side_ref,
-            ) {
-                state.apply_one_instruction(&boost_instruction);
-                instructions.instruction_list.push(boost_instruction);
-            }
+                instructions,
+            );
         }
         Abilities::EMBODYASPECTCORNERSTONE => {
-            if let Some(boost_instruction) = get_boost_instruction(
-                &attacking_side,
+            apply_boost_instruction(
+                attacking_side,
                 &PokemonBoostableStat::Defense,
                 &1,
                 side_ref,
                 side_ref,
-            ) {
-                state.apply_one_instruction(&boost_instruction);
-                instructions.instruction_list.push(boost_instruction);
-            }
+                instructions,
+            );
         }
         Abilities::EMBODYASPECTHEARTHFLAME => {
-            if let Some(boost_instruction) = get_boost_instruction(
-                &attacking_side,
+            apply_boost_instruction(
+                attacking_side,
                 &PokemonBoostableStat::Attack,
                 &1,
                 side_ref,
                 side_ref,
-            ) {
-                state.apply_one_instruction(&boost_instruction);
-                instructions.instruction_list.push(boost_instruction);
-            }
+                instructions,
+            );
         }
         Abilities::INTREPIDSWORD => {
             // no need to check for boost at +6 because we are switching in
@@ -1571,49 +1545,44 @@ pub fn ability_on_switch_in(
             }
         }
         Abilities::INTIMIDATE => {
-            if let Some(boost_instruction) = get_boost_instruction(
-                &defending_side,
-                &PokemonBoostableStat::Attack,
-                &-1,
-                side_ref,
-                &side_ref.get_other_side(),
-            ) {
-                let defender = defending_side.get_active_immutable();
-                let mut adrenaline_orb_item_instruction = None;
-                let mut adrenaline_orb_boost_instruction = None;
-                if defender.item == Items::ADRENALINEORB {
-                    if let Some(boost_ins) = get_boost_instruction(
-                        &defending_side,
-                        &PokemonBoostableStat::Speed,
-                        &1,
-                        &side_ref.get_other_side(),
-                        &side_ref.get_other_side(),
-                    ) {
-                        adrenaline_orb_boost_instruction = Some(boost_ins);
-                        adrenaline_orb_item_instruction =
-                            Some(Instruction::ChangeItem(ChangeItemInstruction {
-                                side_ref: side_ref.get_other_side(),
-                                current_item: Items::ADRENALINEORB,
-                                new_item: Items::NONE,
-                            }));
-                    }
-                }
-                match defender.ability {
-                    Abilities::OWNTEMPO
-                    | Abilities::OBLIVIOUS
-                    | Abilities::INNERFOCUS
-                    | Abilities::SCRAPPY => {}
-                    _ => {
-                        state.apply_one_instruction(&boost_instruction);
-                        instructions.instruction_list.push(boost_instruction);
-                    }
-                }
-                if let Some(ins) = adrenaline_orb_boost_instruction {
-                    state.apply_one_instruction(&ins);
-                    instructions.instruction_list.push(ins);
-                    if let Some(ins) = adrenaline_orb_item_instruction {
-                        state.apply_one_instruction(&ins);
-                        instructions.instruction_list.push(ins);
+            let defender = defending_side.get_active_immutable();
+            if !(defender.ability == Abilities::OWNTEMPO
+                || defender.ability == Abilities::OBLIVIOUS
+                || defender.ability == Abilities::INNERFOCUS
+                || defender.ability == Abilities::SCRAPPY
+                || defending_side
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::SUBSTITUTE))
+            {
+                if apply_boost_instruction(
+                    defending_side,
+                    &PokemonBoostableStat::Attack,
+                    &-1,
+                    side_ref,
+                    &side_ref.get_other_side(),
+                    instructions,
+                ) {
+                    let defender = defending_side.get_active_immutable();
+                    if defender.item == Items::ADRENALINEORB {
+                        if apply_boost_instruction(
+                            defending_side,
+                            &PokemonBoostableStat::Speed,
+                            &1,
+                            &side_ref.get_other_side(),
+                            &side_ref.get_other_side(),
+                            instructions,
+                        ) {
+                            let adrenaline_orb_item_instruction =
+                                Instruction::ChangeItem(ChangeItemInstruction {
+                                    side_ref: side_ref.get_other_side(),
+                                    current_item: Items::ADRENALINEORB,
+                                    new_item: Items::NONE,
+                                });
+                            state.apply_one_instruction(&adrenaline_orb_item_instruction);
+                            instructions
+                                .instruction_list
+                                .push(adrenaline_orb_item_instruction)
+                        }
                     }
                 }
             }
@@ -1661,27 +1630,23 @@ pub fn ability_on_switch_in(
             if defending_side.calculate_boosted_stat(PokemonBoostableStat::Defense)
                 < defending_side.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense)
             {
-                if let Some(boost_instruction) = get_boost_instruction(
-                    &attacking_side,
+                apply_boost_instruction(
+                    attacking_side,
                     &PokemonBoostableStat::Attack,
                     &1,
                     side_ref,
                     side_ref,
-                ) {
-                    state.apply_one_instruction(&boost_instruction);
-                    instructions.instruction_list.push(boost_instruction);
-                }
+                    instructions,
+                );
             } else {
-                if let Some(boost_instruction) = get_boost_instruction(
-                    &attacking_side,
+                apply_boost_instruction(
+                    attacking_side,
                     &PokemonBoostableStat::SpecialAttack,
                     &1,
                     side_ref,
                     side_ref,
-                ) {
-                    state.apply_one_instruction(&boost_instruction);
-                    instructions.instruction_list.push(boost_instruction);
-                }
+                    instructions,
+                );
             }
         }
         Abilities::PRIMORDIALSEA => {

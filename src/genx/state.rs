@@ -1027,6 +1027,14 @@ impl State {
         &self.terrain.terrain_type == terrain && self.terrain.turns_remaining > 0
     }
 
+    pub fn get_terrain(&self) -> Terrain {
+        if self.terrain.turns_remaining > 0 {
+            self.terrain.terrain_type
+        } else {
+            Terrain::NONE
+        }
+    }
+
     pub fn weather_is_active(&self, weather: &Weather) -> bool {
         let s1_active = self.side_one.get_active_immutable();
         let s2_active = self.side_two.get_active_immutable();

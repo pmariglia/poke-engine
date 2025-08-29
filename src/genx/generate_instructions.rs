@@ -383,18 +383,14 @@ fn generate_instructions_from_switch(
         if side.side_conditions.sticky_web == 1 && switched_in_pkmn.is_grounded() {
             // a pkmn switching in doesn't have any other speed drops,
             // so no need to check for going below -6
-            if let Some(sticky_web_instruction) = get_boost_instruction(
-                &side,
+            apply_boost_instruction(
+                side,
                 &PokemonBoostableStat::Speed,
                 &-1,
                 &switching_side_ref,
                 &switching_side_ref,
-            ) {
-                state.apply_one_instruction(&sticky_web_instruction);
-                incoming_instructions
-                    .instruction_list
-                    .push(sticky_web_instruction);
-            }
+                incoming_instructions,
+            );
         }
 
         let side = state.get_side_immutable(&switching_side_ref);
@@ -818,18 +814,21 @@ pub fn get_boost_amount(side: &Side, boost: &PokemonBoostableStat, amount: i8) -
     0
 }
 
-pub fn get_boost_instruction(
-    target_side: &Side,
+pub fn apply_boost_instruction(
+    target_side: &mut Side,
     stat: &PokemonBoostableStat,
     boost: &i8,
     attacking_side_ref: &SideReference,
     target_side_ref: &SideReference,
-) -> Option<Instruction> {
-    /*
-    Single point for checking whether a boost can be applied to a pokemon
-    Returns that boost instruction, if applicable
-    */
+    instructions: &mut StateInstructions,
+) -> bool {
+    // Single point for checking whether a boost can be applied to a pokemon
+    // along with side effects that that boost
+    // applies the boost & side effects if applicable
+    // returns whether the requested boost was actually applied
+    let mut boost_was_applied = false;
     let target_pkmn = target_side.get_active_immutable();
+    let target_pkmn_ability = target_pkmn.ability;
 
     if boost != &0
         && !(target_side_ref != attacking_side_ref
@@ -838,19 +837,66 @@ pub fn get_boost_instruction(
         && target_pkmn.hp != 0
     {
         let mut boost_amount = *boost;
-        if target_pkmn.ability == Abilities::CONTRARY {
+        if target_pkmn_ability == Abilities::CONTRARY {
             boost_amount *= -1;
         }
         boost_amount = get_boost_amount(target_side, &stat, boost_amount);
         if boost_amount != 0 {
-            return Some(Instruction::Boost(BoostInstruction {
-                side_ref: *target_side_ref,
-                stat: *stat,
-                amount: boost_amount,
-            }));
+            boost_was_applied = true;
+            match stat {
+                PokemonBoostableStat::Attack => target_side.attack_boost += boost_amount,
+                PokemonBoostableStat::Defense => target_side.defense_boost += boost_amount,
+                PokemonBoostableStat::SpecialAttack => {
+                    target_side.special_attack_boost += boost_amount
+                }
+                PokemonBoostableStat::SpecialDefense => {
+                    target_side.special_defense_boost += boost_amount
+                }
+                PokemonBoostableStat::Speed => target_side.speed_boost += boost_amount,
+                PokemonBoostableStat::Evasion => target_side.accuracy_boost += boost_amount,
+                PokemonBoostableStat::Accuracy => target_side.evasion_boost += boost_amount,
+            }
+            instructions
+                .instruction_list
+                .push(Instruction::Boost(BoostInstruction {
+                    side_ref: *target_side_ref,
+                    stat: *stat,
+                    amount: boost_amount,
+                }));
+
+            if boost_amount < 0 {
+                if target_pkmn_ability == Abilities::DEFIANT
+                    && attacking_side_ref != target_side_ref
+                    && target_side.attack_boost < 6
+                {
+                    let defiant_boost_amount = cmp::min(6 - target_side.attack_boost, 2);
+                    target_side.attack_boost += defiant_boost_amount;
+                    instructions
+                        .instruction_list
+                        .push(Instruction::Boost(BoostInstruction {
+                            side_ref: *target_side_ref,
+                            stat: PokemonBoostableStat::Attack,
+                            amount: defiant_boost_amount,
+                        }));
+                } else if target_pkmn_ability == Abilities::COMPETITIVE
+                    && attacking_side_ref != target_side_ref
+                    && target_side.special_attack_boost < 6
+                {
+                    let competitive_boost_amount =
+                        cmp::min(6 - target_side.special_attack_boost, 2);
+                    target_side.special_attack_boost += competitive_boost_amount;
+                    instructions
+                        .instruction_list
+                        .push(Instruction::Boost(BoostInstruction {
+                            side_ref: *target_side_ref,
+                            stat: PokemonBoostableStat::SpecialAttack,
+                            amount: competitive_boost_amount,
+                        }));
+                }
+            }
         }
     }
-    None
+    boost_was_applied
 }
 
 fn get_instructions_from_boosts(
@@ -866,19 +912,15 @@ fn get_instructions_from_boosts(
     }
     let boostable_stats = boosts.boosts.get_as_pokemon_boostable();
     for (pkmn_boostable_stat, boost) in boostable_stats.iter().filter(|(_, b)| b != &0) {
-        let side = state.get_side_immutable(&target_side_ref);
-        if let Some(boost_instruction) = get_boost_instruction(
-            &side,
+        let side = state.get_side(&target_side_ref);
+        apply_boost_instruction(
+            side,
             pkmn_boostable_stat,
             boost,
             attacking_side_reference,
             &target_side_ref,
-        ) {
-            state.apply_one_instruction(&boost_instruction);
-            incoming_instructions
-                .instruction_list
-                .push(boost_instruction);
-        }
+            incoming_instructions,
+        );
     }
 }
 
@@ -1062,7 +1104,7 @@ fn check_move_hit_or_miss(
 
     Otherwise, update the incoming instructions' percent_hit to reflect the chance of the move hitting
     */
-    let attacking_side = state.get_side_immutable(attacking_side_ref);
+    let attacking_side = state.get_side(attacking_side_ref);
     let attacking_pokemon = attacking_side.get_active_immutable();
 
     let mut percent_hit = (choice.accuracy / 100.0).min(1.0);
@@ -1086,23 +1128,21 @@ fn check_move_hit_or_miss(
         }
 
         if Items::BLUNDERPOLICY == attacking_pokemon.item {
-            if let Some(boost_instruction) = get_boost_instruction(
-                &attacking_side,
+            if apply_boost_instruction(
+                attacking_side,
                 &PokemonBoostableStat::Speed,
                 &2,
                 attacking_side_ref,
                 attacking_side_ref,
+                &mut move_missed_instruction,
             ) {
                 move_missed_instruction
                     .instruction_list
                     .push(Instruction::ChangeItem(ChangeItemInstruction {
                         side_ref: *attacking_side_ref,
-                        current_item: attacking_pokemon.item,
+                        current_item: Items::BLUNDERPOLICY,
                         new_item: Items::NONE,
                     }));
-                move_missed_instruction
-                    .instruction_list
-                    .push(boost_instruction);
             }
         }
 
@@ -6918,15 +6958,15 @@ mod tests {
             StateInstructions {
                 percentage: 19.999998,
                 instruction_list: vec![
-                    Instruction::ChangeItem(ChangeItemInstruction {
-                        side_ref: SideReference::SideOne,
-                        current_item: Items::BLUNDERPOLICY,
-                        new_item: Items::NONE,
-                    }),
                     Instruction::Boost(BoostInstruction {
                         side_ref: SideReference::SideOne,
                         stat: PokemonBoostableStat::Speed,
                         amount: 2,
+                    }),
+                    Instruction::ChangeItem(ChangeItemInstruction {
+                        side_ref: SideReference::SideOne,
+                        current_item: Items::BLUNDERPOLICY,
+                        new_item: Items::NONE,
                     }),
                 ],
             },
