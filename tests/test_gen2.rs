@@ -1127,18 +1127,6 @@ fn test_miracleberry_cures_paralysis_and_attack_does_not_branch() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::NONE,
-                new_status: PokemonStatus::PARALYZE,
-            }),
-            Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::PARALYZE,
-                new_status: PokemonStatus::NONE,
-            }),
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideOne,
                 current_item: Items::MIRACLEBERRY,

@@ -405,16 +405,31 @@ fn get_instructions_from_status_effects(
     let target_side_active = target_side.active_index;
     let target_pkmn = target_side.get_active();
 
-    let status_hit_instruction = Instruction::ChangeStatus(ChangeStatusInstruction {
-        side_ref: target_side_ref,
-        pokemon_index: target_side_active,
-        old_status: target_pkmn.status,
-        new_status: status.status,
-    });
-    target_pkmn.status = status.status;
-    incoming_instructions
-        .instruction_list
-        .push(status_hit_instruction);
+    let instruction = if target_pkmn.item == Items::MIRACLEBERRY {
+        target_pkmn.item = Items::NONE;
+        Instruction::ChangeItem(ChangeItemInstruction {
+            side_ref: target_side_ref,
+            current_item: Items::MIRACLEBERRY,
+            new_item: Items::NONE,
+        })
+    } else if target_pkmn.item == Items::MINTBERRY && status.status == PokemonStatus::SLEEP {
+        target_pkmn.item = Items::NONE;
+        Instruction::ChangeItem(ChangeItemInstruction {
+            side_ref: target_side_ref,
+            current_item: Items::MINTBERRY,
+            new_item: Items::NONE,
+        })
+    } else {
+        let old_status = target_pkmn.status;
+        target_pkmn.status = status.status;
+        Instruction::ChangeStatus(ChangeStatusInstruction {
+            side_ref: target_side_ref,
+            pokemon_index: target_side_active,
+            old_status,
+            new_status: status.status,
+        })
+    };
+    incoming_instructions.instruction_list.push(instruction);
 }
 
 pub fn get_boost_amount(side: &Side, boost: &PokemonBoostableStat, amount: i8) -> i8 {

@@ -63,37 +63,11 @@ fn test_chestoberry_activates_when_being_put_to_sleep() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::NONE,
-                new_status: PokemonStatus::SLEEP,
-            }),
-            Instruction::SetSleepTurns(SetSleepTurnsInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                new_turns: 1,
-                previous_turns: 0,
-            }),
-            Instruction::ChangeItem(ChangeItemInstruction {
-                side_ref: SideReference::SideOne,
-                current_item: Items::CHESTOBERRY,
-                new_item: Items::NONE,
-            }),
-            Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::SLEEP,
-                new_status: PokemonStatus::NONE,
-            }),
-            Instruction::SetSleepTurns(SetSleepTurnsInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                new_turns: 0,
-                previous_turns: 1,
-            }),
-        ],
+        instruction_list: vec![Instruction::ChangeItem(ChangeItemInstruction {
+            side_ref: SideReference::SideOne,
+            current_item: Items::CHESTOBERRY,
+            new_item: Items::NONE,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

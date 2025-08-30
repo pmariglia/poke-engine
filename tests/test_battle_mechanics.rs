@@ -5031,25 +5031,11 @@ fn test_chestoberry_activates_when_being_put_to_sleep() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![
-            Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::NONE,
-                new_status: PokemonStatus::SLEEP,
-            }),
-            Instruction::ChangeItem(ChangeItemInstruction {
-                side_ref: SideReference::SideOne,
-                current_item: Items::CHESTOBERRY,
-                new_item: Items::NONE,
-            }),
-            Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::SLEEP,
-                new_status: PokemonStatus::NONE,
-            }),
-        ],
+        instruction_list: vec![Instruction::ChangeItem(ChangeItemInstruction {
+            side_ref: SideReference::SideOne,
+            current_item: Items::CHESTOBERRY,
+            new_item: Items::NONE,
+        })],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -5392,26 +5378,19 @@ fn test_sitrus_berry_does_not_activate_if_above_half() {
 }
 
 #[test]
-fn test_lumberry_curing_before_move() {
+fn test_lumberry_cures_when_getting_statused() {
     let mut state = State::default();
     state.side_one.get_active().item = Items::LUMBERRY;
-    state.side_one.get_active().status = PokemonStatus::BURN;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
         Choices::TACKLE,
-        Choices::SPLASH,
+        Choices::SPORE,
     );
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::BURN,
-                new_status: PokemonStatus::NONE,
-            }),
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideOne,
                 current_item: Items::LUMBERRY,
@@ -5463,18 +5442,6 @@ fn test_lum_cures_same_turn_when_slower() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::NONE,
-                new_status: PokemonStatus::SLEEP,
-            }),
-            Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::SLEEP,
-                new_status: PokemonStatus::NONE,
-            }),
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideOne,
                 current_item: Items::LUMBERRY,
@@ -5508,18 +5475,6 @@ fn test_lum_cures_same_turn_when_faster() {
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 48,
-            }),
-            Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::NONE,
-                new_status: PokemonStatus::SLEEP,
-            }),
-            Instruction::ChangeStatus(ChangeStatusInstruction {
-                side_ref: SideReference::SideOne,
-                pokemon_index: PokemonIndex::P0,
-                old_status: PokemonStatus::SLEEP,
-                new_status: PokemonStatus::NONE,
             }),
             Instruction::ChangeItem(ChangeItemInstruction {
                 side_ref: SideReference::SideOne,

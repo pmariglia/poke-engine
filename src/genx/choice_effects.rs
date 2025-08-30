@@ -1363,7 +1363,7 @@ pub fn choice_special_effect(
                     .instruction_list
                     .push(Instruction::Heal(HealInstruction {
                         side_ref: *attacking_side_ref,
-                        heal_amount: heal_amount,
+                        heal_amount,
                     }));
                 active_pkmn.hp = active_pkmn.maxhp;
                 active_pkmn.status = PokemonStatus::SLEEP;
