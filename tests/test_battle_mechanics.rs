@@ -12146,6 +12146,10 @@ fn test_grassyglide_in_grassyterrain_increased_priority() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 1,
             }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideOne,
+                heal_amount: 6,
+            }),
             Instruction::DecrementTerrainTurnsRemaining,
         ],
     }];
@@ -12160,8 +12164,8 @@ fn test_grassyglide_not_in_grassyterrain_increased_priority() {
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
-        Choices::GRASSYGLIDE,
-        Choices::TACKLE, // no chance to run this even though side_two is faster
+        Choices::GRASSYGLIDE, // no chance to execute this because side_two kills side_one
+        Choices::TACKLE,
     );
 
     let expected_instructions = vec![StateInstructions {

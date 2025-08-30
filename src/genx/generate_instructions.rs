@@ -2789,6 +2789,29 @@ fn add_end_of_turn_instructions(
 
     // Terrain decrement / dissipation
     if state.terrain.turns_remaining > 0 && state.terrain.terrain_type != Terrain::NONE {
+        if state.terrain.terrain_type == Terrain::GRASSYTERRAIN {
+            for side_ref in sides {
+                let side = state.get_side(side_ref);
+                let active_pkmn = side.get_active();
+                if active_pkmn.hp == 0 || !active_pkmn.is_grounded() {
+                    continue;
+                }
+                let heal_amount = cmp::min(
+                    (active_pkmn.maxhp as f32 * 0.0625) as i16,
+                    active_pkmn.maxhp - active_pkmn.hp,
+                );
+                if heal_amount > 0 {
+                    let heal_instruction = Instruction::Heal(HealInstruction {
+                        side_ref: *side_ref,
+                        heal_amount,
+                    });
+                    active_pkmn.hp += heal_amount;
+                    incoming_instructions
+                        .instruction_list
+                        .push(heal_instruction);
+                }
+            }
+        }
         let terrain_dissipate_instruction = Instruction::DecrementTerrainTurnsRemaining;
         incoming_instructions
             .instruction_list
