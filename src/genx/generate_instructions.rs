@@ -1143,22 +1143,21 @@ fn check_move_hit_or_miss(
         }
 
         if Items::BLUNDERPOLICY == attacking_pokemon.item {
-            if apply_boost_instruction(
-                attacking_side,
-                &PokemonBoostableStat::Speed,
-                &2,
-                attacking_side_ref,
-                attacking_side_ref,
-                &mut move_missed_instruction,
-            ) {
-                move_missed_instruction
-                    .instruction_list
-                    .push(Instruction::ChangeItem(ChangeItemInstruction {
-                        side_ref: *attacking_side_ref,
-                        current_item: Items::BLUNDERPOLICY,
-                        new_item: Items::NONE,
-                    }));
-            }
+            let boost_amount = get_boost_amount(attacking_side, &PokemonBoostableStat::Speed, 2);
+            move_missed_instruction
+                .instruction_list
+                .push(Instruction::Boost(BoostInstruction {
+                    side_ref: *attacking_side_ref,
+                    stat: PokemonBoostableStat::Speed,
+                    amount: boost_amount,
+                }));
+            move_missed_instruction
+                .instruction_list
+                .push(Instruction::ChangeItem(ChangeItemInstruction {
+                    side_ref: *attacking_side_ref,
+                    current_item: Items::BLUNDERPOLICY,
+                    new_item: Items::NONE,
+                }));
         }
 
         frozen_instructions.push(move_missed_instruction);
