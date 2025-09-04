@@ -5704,6 +5704,7 @@ fn test_earthquake_hits_roosted_flying_type() {
     let mut state = State::default();
     state.side_two.get_active().types = (PokemonType::FLYING, PokemonType::NORMAL);
     state.side_two.get_active().speed = 101;
+    state.side_two.get_active().hp = 99;
     state.side_one.get_active().speed = 100;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -5719,6 +5720,10 @@ fn test_earthquake_hits_roosted_flying_type() {
                 side_ref: SideReference::SideTwo,
                 volatile_status: PokemonVolatileStatus::ROOST,
             }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideTwo,
+                heal_amount: 1,
+            }),
             Instruction::Damage(DamageInstruction {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 79,
@@ -5728,6 +5733,26 @@ fn test_earthquake_hits_roosted_flying_type() {
                 volatile_status: PokemonVolatileStatus::ROOST,
             }),
         ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_roost_does_not_apply_volatile_if_hp_is_full() {
+    let mut state = State::default();
+    state.side_two.get_active().types = (PokemonType::FLYING, PokemonType::NORMAL);
+    state.side_two.get_active().speed = 101;
+    state.side_one.get_active().speed = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::EARTHQUAKE,
+        Choices::ROOST,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
@@ -18097,6 +18122,7 @@ fn test_cannot_lose_tera_flying_type_with_roost() {
     let mut state = State::default();
     state.side_two.get_active().tera_type = PokemonType::FLYING;
     state.side_two.get_active().terastallized = true;
+    state.side_two.get_active().hp = 99;
 
     // ensure roost happens first
     state.side_two.get_active().speed = 200;
@@ -18114,6 +18140,10 @@ fn test_cannot_lose_tera_flying_type_with_roost() {
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,
                 volatile_status: PokemonVolatileStatus::ROOST,
+            }),
+            Instruction::Heal(HealInstruction {
+                side_ref: SideReference::SideTwo,
+                heal_amount: 1,
             }),
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideTwo,

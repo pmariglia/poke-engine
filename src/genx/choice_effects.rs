@@ -41,6 +41,12 @@ pub fn modify_choice(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     match attacker_choice.move_id {
+        Choices::ROOST => {
+            let attacker = attacking_side.get_active_immutable();
+            if attacker.hp == attacker.maxhp {
+                attacker_choice.volatile_status = None
+            }
+        }
         Choices::ELECTROSHOT => {
             if state.weather_is_active(&Weather::RAIN) {
                 attacker_choice.flags.charge = false;
