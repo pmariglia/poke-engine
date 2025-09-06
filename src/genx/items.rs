@@ -180,6 +180,7 @@ define_enum_with_from_str! {
         LOADEDDICE,
         RUSTEDSWORD,
         RUSTEDSHIELD,
+        WHITEHERB,
     },
     default = UNKNOWNITEM
 }

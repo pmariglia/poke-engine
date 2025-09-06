@@ -3719,6 +3719,33 @@ fn run_move(
     }
 }
 
+fn after_move_finish(state: &mut State, final_instructions: &mut Vec<StateInstructions>) {
+    for state_instructions in final_instructions.iter_mut() {
+        state.apply_instructions(&state_instructions.instruction_list);
+
+        // check if anybody has negative boosts and a whiteherb
+        // if so, consume the item and set the boosts to 0
+        for side_ref in [SideReference::SideOne, SideReference::SideTwo] {
+            let side = state.get_side(&side_ref);
+            let active_has_whiteherb = side.get_active_immutable().item == Items::WHITEHERB;
+            if active_has_whiteherb {
+                if side.reset_negative_boosts(side_ref, state_instructions) {
+                    let active = side.get_active();
+                    active.item = Items::NONE;
+                    state_instructions
+                        .instruction_list
+                        .push(Instruction::ChangeItem(ChangeItemInstruction {
+                            side_ref,
+                            current_item: Items::WHITEHERB,
+                            new_item: Items::NONE,
+                        }));
+                }
+            }
+        }
+        state.reverse_instructions(&state_instructions.instruction_list);
+    }
+}
+
 fn handle_both_moves(
     state: &mut State,
     first_move_side_choice: &mut Choice,
@@ -3737,6 +3764,7 @@ fn handle_both_moves(
         state_instructions_vec,
         branch_on_damage,
     );
+    after_move_finish(state, state_instructions_vec);
 
     let mut i = 0;
     let vec_len = state_instructions_vec.len();
@@ -3752,6 +3780,7 @@ fn handle_both_moves(
             state_instructions_vec,
             branch_on_damage,
         );
+        after_move_finish(state, state_instructions_vec);
         i += 1;
     }
 }
