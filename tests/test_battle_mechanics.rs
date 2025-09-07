@@ -8000,6 +8000,94 @@ fn test_terastallization_side_one() {
 }
 
 #[test]
+#[cfg(not(feature = "terastallization"))]
+fn test_mega_evolve_options_side_one() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::VENUSAUR;
+    state.side_one.get_active().item = Items::VENUSAURITE;
+
+    let (side_one_moves, side_two_moves) = state.get_all_options();
+
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::MoveMega(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::MoveMega(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::MoveMega(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::MoveMega(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_one_moves
+    );
+
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_two_moves
+    );
+}
+
+#[test]
+#[cfg(not(feature = "terastallization"))]
+fn test_mega_evolve_options_side_two() {
+    let mut state = State::default();
+    state.side_two.get_active().id = PokemonName::VENUSAUR;
+    state.side_two.get_active().item = Items::VENUSAURITE;
+
+    let (side_one_moves, side_two_moves) = state.get_all_options();
+
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_one_moves
+    );
+
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M0),
+            MoveChoice::MoveMega(PokemonMoveIndex::M0),
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::MoveMega(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::MoveMega(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+            MoveChoice::MoveMega(PokemonMoveIndex::M3),
+            MoveChoice::Switch(PokemonIndex::P1),
+            MoveChoice::Switch(PokemonIndex::P2),
+            MoveChoice::Switch(PokemonIndex::P3),
+            MoveChoice::Switch(PokemonIndex::P4),
+            MoveChoice::Switch(PokemonIndex::P5),
+        ],
+        side_two_moves
+    );
+}
+
+#[test]
 #[cfg(feature = "terastallization")]
 fn test_terastallization_side_two() {
     let mut state = State::default();
@@ -17934,6 +18022,135 @@ fn test_terastallizing() {
             }),
             Instruction::ToggleTerastallized(ToggleTerastallizedInstruction {
                 side_ref: SideReference::SideTwo,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_basic_mega_evolving() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::VENUSAUR;
+    state.side_one.get_active().item = Items::VENUSAURITE;
+    state.side_one.get_active().ability = Abilities::CHLOROPHYLL;
+    state.side_one.get_active().types = (PokemonType::GRASS, PokemonType::POISON);
+
+    // initial stats for a lvl 100 venusaur with evenly split evs and neutral nature
+    // expected stats after mega-evolving:
+    // HP: 322 (+0)
+    // Atk: 257 (+36)
+    // Def: 303 (+80)
+    // SpA: 301 (+44)
+    // SpD: 297 (+40)
+    // Spe: 217 (+0)
+    state.side_one.get_active().hp = 322;
+    state.side_one.get_active().maxhp = 322;
+    state.side_one.get_active().attack = 221;
+    state.side_one.get_active().defense = 223;
+    state.side_one.get_active().special_attack = 257;
+    state.side_one.get_active().special_defense = 257;
+    state.side_one.get_active().speed = 217;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::MoveMega(PokemonMoveIndex::M0),
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                name_change: PokemonName::VENUSAURMEGA as i16 - PokemonName::VENUSAUR as i16,
+            }),
+            Instruction::ChangeAttack(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 36,
+            }),
+            Instruction::ChangeDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 80,
+            }),
+            Instruction::ChangeSpecialAttack(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 44,
+            }),
+            Instruction::ChangeSpecialDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 40,
+            }),
+            Instruction::ChangeAbility(ChangeAbilityInstruction {
+                side_ref: SideReference::SideOne,
+                ability_change: Abilities::THICKFAT as i16 - Abilities::CHLOROPHYLL as i16,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_mega_evolving_with_ability_activate() {
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::MANECTRIC;
+    state.side_one.get_active().item = Items::MANECTITE;
+    state.side_one.get_active().ability = Abilities::LIGHTNINGROD;
+    state.side_one.get_active().types = (PokemonType::ELECTRIC, PokemonType::TYPELESS);
+
+    // initial stats for a lvl 100 venusaur with evenly split evs and neutral nature
+    // expected stats after mega-evolving:
+    // HP: 322 (+0)
+    // Atk: 257 (+36)
+    // Def: 303 (+80)
+    // SpA: 301 (+44)
+    // SpD: 297 (+40)
+    // Spe: 217 (+0)
+    state.side_one.get_active().hp = 302;
+    state.side_one.get_active().maxhp = 302;
+    state.side_one.get_active().attack = 207;
+    state.side_one.get_active().defense = 177;
+    state.side_one.get_active().special_attack = 267;
+    state.side_one.get_active().special_defense = 177;
+    state.side_one.get_active().speed = 267;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::MoveMega(PokemonMoveIndex::M0),
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                name_change: PokemonName::MANECTRICMEGA as i16 - PokemonName::MANECTRIC as i16,
+            }),
+            Instruction::ChangeDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 40,
+            }),
+            Instruction::ChangeSpecialAttack(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 60,
+            }),
+            Instruction::ChangeSpecialDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 40,
+            }),
+            Instruction::ChangeSpeed(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 60,
+            }),
+            Instruction::ChangeAbility(ChangeAbilityInstruction {
+                side_ref: SideReference::SideOne,
+                ability_change: Abilities::INTIMIDATE as i16 - Abilities::LIGHTNINGROD as i16,
+            }),
+            Instruction::Boost(BoostInstruction {
+                side_ref: SideReference::SideTwo,
+                stat: PokemonBoostableStat::Attack,
+                amount: -1,
             }),
         ],
     }];

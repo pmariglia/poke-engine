@@ -44,6 +44,7 @@ fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
 #[derive(Debug, PartialEq, Eq, Copy, Clone, Hash)]
 pub enum MoveChoice {
     MoveTera(PokemonMoveIndex),
+    MoveMega(PokemonMoveIndex),
     Move(PokemonMoveIndex),
     Switch(PokemonIndex),
     None,
@@ -54,6 +55,9 @@ impl MoveChoice {
         match self {
             MoveChoice::MoveTera(index) => {
                 format!("{}-tera", side.get_active_immutable().moves[&index].id).to_lowercase()
+            }
+            MoveChoice::MoveMega(index) => {
+                format!("{}-mega", side.get_active_immutable().moves[&index].id).to_lowercase()
             }
             MoveChoice::Move(index) => {
                 format!("{}", side.get_active_immutable().moves[&index].id).to_lowercase()
@@ -87,6 +91,13 @@ impl MoveChoice {
             while let Some(mv) = move_iter.next() {
                 if format!("{:?}", mv.id).to_lowercase() == move_name {
                     return Some(MoveChoice::MoveTera(move_iter.pokemon_move_index));
+                }
+            }
+        } else if move_name.ends_with("-mega") {
+            move_name = move_name[..move_name.len() - 5].to_string();
+            while let Some(mv) = move_iter.next() {
+                if format!("{:?}", mv.id).to_lowercase() == move_name {
+                    return Some(MoveChoice::MoveMega(move_iter.pokemon_move_index));
                 }
             }
         } else {
@@ -241,6 +252,17 @@ define_enum_with_from_str! {
 }
 
 impl Pokemon {
+    pub fn can_mega_evolve(&self) -> bool {
+        // this assumes that if you have the correct mega stone, you can always mega evolve
+        // even if another pkmn on the team already mega evolved
+        // it is incorrect but practically most teams aren't going to have multiple mega stones
+        if let Some(_mega_evolve_data) = self.id.mega_evolve_target(self.item) {
+            true
+        } else {
+            false
+        }
+    }
+
     pub fn recalculate_stats(
         &mut self,
         side_ref: &SideReference,
@@ -343,6 +365,9 @@ impl Pokemon {
                 vec.push(MoveChoice::Move(iter.pokemon_move_index));
                 if can_tera {
                     vec.push(MoveChoice::MoveTera(iter.pokemon_move_index));
+                }
+                if self.can_mega_evolve() {
+                    vec.push(MoveChoice::MoveMega(iter.pokemon_move_index));
                 }
             }
         }
@@ -830,7 +855,7 @@ impl State {
 
         if self.side_one.force_trapped {
             s1_options.retain(|x| match x {
-                MoveChoice::Move(_) | MoveChoice::MoveTera(_) => true,
+                MoveChoice::Move(_) | MoveChoice::MoveTera(_) | MoveChoice::MoveMega(_) => true,
                 MoveChoice::Switch(_) => false,
                 MoveChoice::None => true,
             });
@@ -856,7 +881,7 @@ impl State {
 
         if self.side_two.force_trapped {
             s2_options.retain(|x| match x {
-                MoveChoice::Move(_) | MoveChoice::MoveTera(_) => true,
+                MoveChoice::Move(_) | MoveChoice::MoveTera(_) | MoveChoice::MoveMega(_) => true,
                 MoveChoice::Switch(_) => false,
                 MoveChoice::None => true,
             });

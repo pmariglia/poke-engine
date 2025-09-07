@@ -11,18 +11,18 @@ use crate::choices::{
     Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, SideCondition, StatBoosts,
     Status, VolatileStatus, MOVES,
 };
-use crate::instruction::DecrementFutureSightInstruction;
-use crate::instruction::ToggleTerastallizedInstruction;
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeDamageDealtDamageInstruction,
     ChangeDamageDealtMoveCategoryInstruction, ChangeItemInstruction,
-    ChangeSideConditionInstruction, ChangeTerrain, ChangeVolatileStatusDurationInstruction,
-    ChangeWeather, DecrementRestTurnsInstruction, DecrementWishInstruction, HealInstruction,
-    RemoveVolatileStatusInstruction, SetSecondMoveSwitchOutMoveInstruction,
-    SetSleepTurnsInstruction, ToggleBatonPassingInstruction,
+    ChangeSideConditionInstruction, ChangeTerrain, ChangeType,
+    ChangeVolatileStatusDurationInstruction, ChangeWeather, DecrementRestTurnsInstruction,
+    DecrementWishInstruction, HealInstruction, RemoveVolatileStatusInstruction,
+    SetSecondMoveSwitchOutMoveInstruction, SetSleepTurnsInstruction, ToggleBatonPassingInstruction,
     ToggleDamageDealtHitSubstituteInstruction, ToggleShedTailingInstruction,
     ToggleTrickRoomInstruction,
 };
+use crate::instruction::{ChangeAbilityInstruction, ToggleTerastallizedInstruction};
+use crate::instruction::{DecrementFutureSightInstruction, FormeChangeInstruction};
 use crate::instruction::{DecrementPPInstruction, SetLastUsedMoveInstruction};
 
 use super::damage_calc::calculate_futuresight_damage;
@@ -3785,6 +3785,59 @@ fn handle_both_moves(
     }
 }
 
+fn mega_evolve(state: &mut State, side_ref: SideReference, instructions: &mut StateInstructions) {
+    let side = state.get_side(&side_ref);
+    let active_pkmn = side.get_active();
+
+    // assumes that you can mega-evolve if this function is called
+    let mega_evolve_data = active_pkmn
+        .id
+        .mega_evolve_target(active_pkmn.item)
+        .unwrap_or_else(|| {
+            panic!(
+                "cannot mega evolve {:?} with {:?}",
+                active_pkmn.id, active_pkmn.item
+            )
+        });
+
+    // change id
+    instructions
+        .instruction_list
+        .push(Instruction::FormeChange(FormeChangeInstruction {
+            side_ref,
+            name_change: mega_evolve_data.id as i16 - active_pkmn.id as i16,
+        }));
+    active_pkmn.id = mega_evolve_data.id;
+
+    // change stats
+    active_pkmn.recalculate_stats(&side_ref, instructions);
+
+    // change ability
+    if mega_evolve_data.ability != active_pkmn.ability {
+        instructions
+            .instruction_list
+            .push(Instruction::ChangeAbility(ChangeAbilityInstruction {
+                side_ref,
+                ability_change: mega_evolve_data.ability as i16 - active_pkmn.ability as i16,
+            }));
+        active_pkmn.ability = mega_evolve_data.ability;
+    }
+    // change type
+    if mega_evolve_data.types != active_pkmn.types {
+        instructions
+            .instruction_list
+            .push(Instruction::ChangeType(ChangeType {
+                side_ref,
+                new_types: mega_evolve_data.types,
+                old_types: active_pkmn.types,
+            }));
+        active_pkmn.types = mega_evolve_data.types;
+    }
+
+    // ability on switch in
+    ability_on_switch_in(state, &side_ref, instructions);
+}
+
 pub fn generate_instructions_from_move_pair(
     state: &mut State,
     side_one_move: &MoveChoice,
@@ -3793,6 +3846,7 @@ pub fn generate_instructions_from_move_pair(
 ) -> Vec<StateInstructions> {
     let mut side_one_choice;
     let mut s1_tera = false;
+    let mut s1_mega = false;
     let mut s1_replacing_fainted_pkmn = false;
     match side_one_move {
         MoveChoice::Switch(switch_id) => {
@@ -3812,6 +3866,11 @@ pub fn generate_instructions_from_move_pair(
             side_one_choice.move_index = *move_index;
             s1_tera = true;
         }
+        MoveChoice::MoveMega(move_index) => {
+            side_one_choice = state.side_one.get_active().moves[move_index].choice.clone();
+            side_one_choice.move_index = *move_index;
+            s1_mega = true;
+        }
         MoveChoice::None => {
             side_one_choice = Choice::default();
         }
@@ -3820,6 +3879,7 @@ pub fn generate_instructions_from_move_pair(
     let mut side_two_choice;
     let mut s2_replacing_fainted_pkmn = false;
     let mut s2_tera = false;
+    let mut s2_mega = false;
     match side_two_move {
         MoveChoice::Switch(switch_id) => {
             if state.side_two.get_active().hp == 0 {
@@ -3838,6 +3898,11 @@ pub fn generate_instructions_from_move_pair(
             side_two_choice.move_index = *move_index;
             s2_tera = true;
         }
+        MoveChoice::MoveMega(move_index) => {
+            side_two_choice = state.side_two.get_active().moves[move_index].choice.clone();
+            side_two_choice.move_index = *move_index;
+            s2_mega = true;
+        }
         MoveChoice::None => {
             side_two_choice = Choice::default();
         }
@@ -3846,10 +3911,12 @@ pub fn generate_instructions_from_move_pair(
     let mut state_instructions_vec: Vec<StateInstructions> = Vec::with_capacity(4);
     let mut incoming_instructions: StateInstructions = StateInstructions::default();
 
-    // Run terstallization type changes
+    // Run terastallization / Mega evolutions
     // Note: only create/apply instructions, don't apply changes
     // generate_instructions_from_move() assumes instructions have not been applied
+    // technically, switches should happen _before_ this, but this is fine for now
     if s1_tera {
+        state.side_one.get_active().terastallized = true;
         incoming_instructions
             .instruction_list
             .push(Instruction::ToggleTerastallized(
@@ -3859,6 +3926,7 @@ pub fn generate_instructions_from_move_pair(
             ));
     }
     if s2_tera {
+        state.side_two.get_active().terastallized = true;
         incoming_instructions
             .instruction_list
             .push(Instruction::ToggleTerastallized(
@@ -3867,9 +3935,19 @@ pub fn generate_instructions_from_move_pair(
                 },
             ));
     }
+    if s1_mega {
+        mega_evolve(state, SideReference::SideOne, &mut incoming_instructions);
+    }
+    if s2_mega {
+        mega_evolve(state, SideReference::SideTwo, &mut incoming_instructions);
+    }
 
     modify_choice_priority(&state, &SideReference::SideOne, &mut side_one_choice);
     modify_choice_priority(&state, &SideReference::SideTwo, &mut side_two_choice);
+
+    // reverse instructions because mega-evolving might've added some
+    state.reverse_instructions(&incoming_instructions.instruction_list);
+
     match moves_first(
         &state,
         &side_one_choice,

@@ -42,6 +42,9 @@ gen8:
 	cargo build --release --features gen8 --no-default-features
 
 gen9:
+	cargo build --release --features gen9 --no-default-features
+
+tera:
 	cargo build --release --features gen9,terastallization --no-default-features
 
 pytest:
