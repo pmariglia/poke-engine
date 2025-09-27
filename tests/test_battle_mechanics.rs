@@ -15077,6 +15077,33 @@ fn test_scenario_where_choice_gets_updated_on_second_move_that_has_branched_on_f
 }
 
 #[test]
+fn test_lowered_accuracy() {
+    let mut state = State::default();
+    state.side_one.accuracy_boost = -1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 25.0,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 75.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            })],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_toxic_into_shedinja() {
     // makes sure that toxic always does at least 1 damage
     let mut state = State::default();

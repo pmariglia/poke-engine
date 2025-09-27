@@ -1103,6 +1103,14 @@ fn get_instructions_from_heal(
     }
 }
 
+fn boosted_accuracy(accuracy_boost: i8) -> f32 {
+    if accuracy_boost < 0 {
+        3.0 / (3.0 - accuracy_boost as f32)
+    } else {
+        (3.0 + accuracy_boost as f32) / 3.0
+    }
+}
+
 fn check_move_hit_or_miss(
     state: &mut State,
     choice: &Choice,
@@ -1122,7 +1130,8 @@ fn check_move_hit_or_miss(
     let attacking_side = state.get_side(attacking_side_ref);
     let attacking_pokemon = attacking_side.get_active_immutable();
 
-    let mut percent_hit = (choice.accuracy / 100.0).min(1.0);
+    let mut percent_hit =
+        ((choice.accuracy / 100.0) * boosted_accuracy(attacking_side.accuracy_boost)).min(1.0);
     if Some((0, 0)) == damage {
         percent_hit = 0.0;
     }
