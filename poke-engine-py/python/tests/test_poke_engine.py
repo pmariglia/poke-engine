@@ -9,6 +9,8 @@ from poke_engine import (
     generate_instructions,
     calculate_damage,
     iterative_deepening_expectiminimax,
+    Weather,
+    Terrain,
 )
 
 state = State(
@@ -31,6 +33,7 @@ state = State(
                     Move(id="watergun", pp=32),
                     Move(id="tackle", pp=32),
                     Move(id="quickattack", pp=32),
+                    Move(id="leer", pp=32),
                 ],
             ),
         ]
@@ -53,6 +56,7 @@ state = State(
                     Move(id="ember", pp=32),
                     Move(id="tackle", pp=32),
                     Move(id="quickattack", pp=32),
+                    Move(id="leer", pp=32),
                 ],
             ),
         ]
@@ -66,13 +70,11 @@ state = State(
 )
 
 
-def test_state_converts_to_rust_object():
-    state._into_rust_obj()
-
-
 def test_state_can_be_converted_to_and_from_a_string():
     serialized = state.to_string()
     State.from_string(serialized)
+    serialized_again = state.to_string()
+    assert serialized == serialized_again
 
 
 def test_monte_carlo_search():

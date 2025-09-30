@@ -1,21 +1,35 @@
 from dataclasses import dataclass
+from enum import StrEnum
 
-from .state import (
-    State,
-    Side,
-    SideConditions,
-    VolatileStatusDurations,
-    Pokemon,
-    Move,
-)
+from .poke_engine import *
 
-# noinspection PyUnresolvedReferences
-from ._poke_engine import (
-    gi as _gi,
-    calculate_damage as _calculate_damage,
-    mcts as _mcts,
-    id as _id,
-)
+
+class Weather(StrEnum):
+    NONE = "none"
+    SUN = "sun"
+    RAIN = "rain"
+    SAND = "sand"
+    HAIL = "hail"
+    SNOW = "snow"
+    HARSH_SUN = "harshsun"
+    HEAVY_RAIN = "heavyrain"
+
+
+class Terrain(StrEnum):
+    NONE = "none"
+    GRASSY = "grassyterrain"
+    ELECTRIC = "electricterrain"
+    MISTY = "mistyterrain"
+    PSYCHIC = "psychicterrain"
+
+
+class PokemonIndex(StrEnum):
+    P0 = "0"
+    P1 = "1"
+    P2 = "2"
+    P3 = "3"
+    P4 = "4"
+    P5 = "5"
 
 
 @dataclass
@@ -131,13 +145,6 @@ class MctsResult:
         )
 
 
-def generate_instructions(state: State, side_one_move: str, side_two_move: str):
-    """
-    TODO
-    """
-    return _gi(state._into_rust_obj(), side_one_move, side_two_move)
-
-
 def monte_carlo_tree_search(state: State, duration_ms: int = 1000) -> MctsResult:
     """
     Perform monte-carlo-tree-search on the given state and for the given duration
@@ -149,7 +156,7 @@ def monte_carlo_tree_search(state: State, duration_ms: int = 1000) -> MctsResult
     :return: the result of the search
     :rtype: MctsResult
     """
-    return MctsResult._from_rust(_mcts(state._into_rust_obj(), duration_ms))
+    return MctsResult._from_rust(mcts(state, duration_ms))
 
 
 def iterative_deepening_expectiminimax(
@@ -165,39 +172,4 @@ def iterative_deepening_expectiminimax(
     :return: the result of the search
     :rtype: IterativeDeepeningResult
     """
-    return IterativeDeepeningResult._from_rust(_id(state._into_rust_obj(), duration_ms))
-
-
-def calculate_damage(
-    state: State, s1_move: str, s2_move: str, s1_moves_first: bool
-) -> (list[int], list[int]):
-    """
-    Calculate the damage rolls for two moves
-
-    :param state:
-    :type state: State
-    :param s1_move:
-    :type s1_move: str
-    :param s2_move:
-    :type s2_move: str
-    :param s1_moves_first:
-    :type s1_moves_first: bool
-    :return: (list[int], list[int]) - the damage rolls for the two moves
-    """
-    return _calculate_damage(state._into_rust_obj(), s1_move, s2_move, s1_moves_first)
-
-
-__all__ = [
-    "State",
-    "Side",
-    "SideConditions",
-    "Pokemon",
-    "Move",
-    "MctsResult",
-    "MctsSideResult",
-    "IterativeDeepeningResult",
-    "generate_instructions",
-    "monte_carlo_tree_search",
-    "iterative_deepening_expectiminimax",
-    "calculate_damage",
-]
+    return IterativeDeepeningResult._from_rust(id(state, duration_ms))

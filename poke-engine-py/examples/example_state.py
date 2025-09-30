@@ -60,6 +60,7 @@ state = State(
                     Move(id="vinewhip", pp=32),
                     Move(id="tackle", pp=32),
                     Move(id="quickattack", pp=32),
+                    Move(id="leer", pp=32),
                 ],
             ),
         ]
@@ -82,6 +83,7 @@ state = State(
                     Move(id="ember", pp=32),
                     Move(id="tackle", pp=32),
                     Move(id="quickattack", pp=32),
+                    Move(id="leer", pp=32),
                 ],
             ),
             Pokemon(
@@ -100,6 +102,7 @@ state = State(
                     Move(id="watergun", pp=32),
                     Move(id="tackle", pp=32),
                     Move(id="quickattack", pp=32),
+                    Move(id="leer", pp=32),
                 ],
             ),
             Pokemon(
@@ -118,6 +121,7 @@ state = State(
                     Move(id="vinewhip", pp=32),
                     Move(id="tackle", pp=32),
                     Move(id="quickattack", pp=32),
+                    Move(id="leer", pp=32),
                 ],
             ),
         ]
