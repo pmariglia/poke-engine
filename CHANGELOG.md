@@ -1,5 +1,37 @@
 # Changelog
 
+## [v0.0.46](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.46) - 2025-09-30
+
+### Features
+
+- Competitive and defiant - ([f2390c6](https://github.com/pmariglia/poke-engine/commit/f2390c6a42981779dffe040aaa231eb66b314e1b))
+
+- Moves that always thaw the user - ([48dd7e2](https://github.com/pmariglia/poke-engine/commit/48dd7e2343b620b40a9630352416afef11960fe3))
+
+- Grassyterrain heals grounded pkmn end of turn - ([aea6f92](https://github.com/pmariglia/poke-engine/commit/aea6f921e3f530a30db6e86e33ccad2d3693e1aa))
+
+- Whiteherb - ([43d1048](https://github.com/pmariglia/poke-engine/commit/43d1048de08249df62d6e6358bcb732a68fa8e1b))
+
+- Wip mega evolving - ([52afd77](https://github.com/pmariglia/poke-engine/commit/52afd77d2d8c5864f79aa341781818b915c60811))
+
+- Accuracy drops affect hit chance - ([49caad5](https://github.com/pmariglia/poke-engine/commit/49caad5550d8348067cfc5b571f6ba124c8ee3e2))
+
+
+### Bug Fixes
+
+- Substitute blocks painsplit - ([2e86b98](https://github.com/pmariglia/poke-engine/commit/2e86b98bf4cef8b23af1ca91259acfc7d7298ef2))
+
+- Blunderpolicy bug with boost amounts - ([419f780](https://github.com/pmariglia/poke-engine/commit/419f780110cd036524cdb567e177eec5f14f82c7))
+
+- Roost does not apply volatile at maxhp - ([7a8b551](https://github.com/pmariglia/poke-engine/commit/7a8b5514b962e0963bf178210bc61ac3e28df239))
+
+
+### Refactor
+
+- If applicable: lum/chesto activate immediately on status apply - ([d3b69ec](https://github.com/pmariglia/poke-engine/commit/d3b69ecbe5c6c4752ded73cede600189ccded729))
+
+- Refactor python bindings - ([4916ce2](https://github.com/pmariglia/poke-engine/commit/4916ce23eca6d50f30590bb5d1a6d9248c3c416e))
+
 ## [v0.0.45](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.45) - 2025-08-13
 
 ### Features
