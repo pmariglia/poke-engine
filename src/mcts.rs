@@ -3,9 +3,9 @@ use crate::engine::generate_instructions::generate_instructions_from_move_pair;
 use crate::engine::state::MoveChoice;
 use crate::instruction::StateInstructions;
 use crate::state::State;
-use rand::distributions::WeightedIndex;
+use rand::distr::weighted::WeightedIndex;
 use rand::prelude::*;
-use rand::thread_rng;
+use rand::rng;
 use std::collections::HashMap;
 use std::time::Duration;
 
@@ -103,7 +103,7 @@ impl Node {
     }
 
     unsafe fn sample_node(&self, move_vector: *mut Vec<Node>) -> *mut Node {
-        let mut rng = thread_rng();
+        let mut rng = rng();
         let weights: Vec<f64> = (*move_vector)
             .iter()
             .map(|x| x.instructions.percentage as f64)
