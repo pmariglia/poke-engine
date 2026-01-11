@@ -439,6 +439,16 @@ def mcts(py_state: State, duration_ms: int) -> MctsResult:
     """
     ...
 
+def pmcts(py_states: State, duration_ms: int) -> list[MctsResult]:
+    """
+    Perform Parallel Monte Carlo Tree Searches on the given states.
+
+    :param py_states: The game states to analyze
+    :param duration_ms: Duration in milliseconds to run MCTS
+    :return: list of MCTS results for both sides
+    """
+    ...
+
 def generate_instructions(
     py_state: State,
     side_one_move: str,

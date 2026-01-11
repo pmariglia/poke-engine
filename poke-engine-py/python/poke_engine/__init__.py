@@ -159,6 +159,22 @@ def monte_carlo_tree_search(state: State, duration_ms: int = 1000) -> MctsResult
     return MctsResult._from_rust(mcts(state, duration_ms))
 
 
+def parallel_monte_carlo_tree_search(
+    states: list[State], duration_ms: int = 1000
+) -> list[MctsResult]:
+    """
+    Perform monte-carlo-tree-search on the given state and for the given duration
+
+    :param state: the state to search through
+    :type state: State
+    :param duration_ms: time in milliseconds to run the search
+    :type duration_ms: int
+    :return: the result of the search
+    :rtype: MctsResult
+    """
+    return [MctsResult._from_rust(i) for i in pmcts(states, duration_ms)]
+
+
 def iterative_deepening_expectiminimax(
     state: State, duration_ms: int = 1000
 ) -> IterativeDeepeningResult:

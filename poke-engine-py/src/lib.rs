@@ -11,7 +11,7 @@ use poke_engine::engine::generate_instructions::{
 use poke_engine::engine::items::Items;
 use poke_engine::engine::state::{MoveChoice, PokemonVolatileStatus, Terrain, Weather};
 use poke_engine::instruction::{Instruction, StateInstructions};
-use poke_engine::mcts::{perform_mcts, MctsResult, MctsSideResult};
+use poke_engine::mcts::{perform_many_mcts, perform_mcts, MctsResult, MctsSideResult};
 use poke_engine::pokemon::PokemonName;
 use poke_engine::search::iterative_deepen_expectiminimax;
 use poke_engine::state::{
@@ -916,6 +916,26 @@ fn mcts(py_state: PyState, duration_ms: u64) -> PyResult<PyMctsResult> {
 }
 
 #[pyfunction]
+fn pmcts(py_states: Vec<PyState>, duration_ms: u64) -> PyResult<Vec<PyMctsResult>> {
+    let states: Vec<State> = py_states.into_iter().map(|s| s.into()).collect();
+    let duration = Duration::from_millis(duration_ms);
+    let (s1_options, _) = states[0].root_get_all_options();
+    let side_two_options_vec = states
+        .iter()
+        .map(|state| state.root_get_all_options().1)
+        .collect::<Vec<Vec<MoveChoice>>>();
+    let mcts_result: Vec<MctsResult> =
+        perform_many_mcts(states.clone(), s1_options, side_two_options_vec, duration);
+
+    let py_mcts_result = mcts_result
+        .into_iter()
+        .zip(states.iter())
+        .map(|(res, state)| PyMctsResult::from_mcts_result(res, state))
+        .collect();
+    Ok(py_mcts_result)
+}
+
+#[pyfunction]
 fn id(py_state: PyState, duration_ms: u64) -> PyResult<PyIterativeDeepeningResult> {
     let mut state: State = py_state.into();
     let duration = Duration::from_millis(duration_ms);
@@ -1089,6 +1109,7 @@ fn py_poke_engine(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(generate_instructions, m)?)?;
     m.add_function(wrap_pyfunction!(id, m)?)?;
     m.add_function(wrap_pyfunction!(mcts, m)?)?;
+    m.add_function(wrap_pyfunction!(pmcts, m)?)?;
     m.add_class::<PyState>()?;
     m.add_class::<PySide>()?;
     m.add_class::<PySideConditions>()?;
