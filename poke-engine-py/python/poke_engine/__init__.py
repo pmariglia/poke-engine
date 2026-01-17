@@ -118,29 +118,17 @@ class MctsResult:
     :type total_visits: int
     """
 
-    side_one: list[MctsSideResult]
-    side_two: list[MctsSideResult]
+    matrix: list[list[float]]
+    side_one: list[str]
+    side_two: list[str]
     total_visits: int
 
     @classmethod
     def _from_rust(cls, rust_result):
         return cls(
-            side_one=[
-                MctsSideResult(
-                    move_choice=i.move_choice,
-                    total_score=i.total_score,
-                    visits=i.visits,
-                )
-                for i in rust_result.s1
-            ],
-            side_two=[
-                MctsSideResult(
-                    move_choice=i.move_choice,
-                    total_score=i.total_score,
-                    visits=i.visits,
-                )
-                for i in rust_result.s2
-            ],
+            matrix=rust_result.matrix,
+            side_one=rust_result.s1_options,
+            side_two=rust_result.s2_options,
             total_visits=rust_result.iteration_count,
         )
 

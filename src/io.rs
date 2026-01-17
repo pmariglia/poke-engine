@@ -298,7 +298,6 @@ pub fn main() {
                     side_two_options.clone(),
                     std::time::Duration::from_millis(mcts.time_to_search_ms),
                 );
-                print_mcts_result(&state, result);
             }
             SubCommand::CalculateDamage(calculate_damage) => {
                 state = State::deserialize(calculate_damage.state.as_str());
@@ -563,7 +562,6 @@ fn command_loop(mut io_data: IOData) {
                         std::time::Duration::from_millis(max_time_ms),
                     );
                     let elapsed = start_time.elapsed();
-                    pprint_mcts_result(&io_data.state, result);
 
                     println!("\nTook: {:?}", elapsed);
                 }

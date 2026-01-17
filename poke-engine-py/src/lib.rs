@@ -11,7 +11,7 @@ use poke_engine::engine::generate_instructions::{
 use poke_engine::engine::items::Items;
 use poke_engine::engine::state::{MoveChoice, PokemonVolatileStatus, Terrain, Weather};
 use poke_engine::instruction::{Instruction, StateInstructions};
-use poke_engine::mcts::{perform_mcts, MctsResult, MctsSideResult};
+use poke_engine::mcts::{perform_mcts, MctsMatrixResult, MctsResult, MctsSideResult};
 use poke_engine::pokemon::PokemonName;
 use poke_engine::search::iterative_deepen_expectiminimax;
 use poke_engine::state::{
@@ -849,6 +849,34 @@ impl PyMctsSideResult {
 
 #[derive(Clone)]
 #[pyclass(get_all)]
+struct PyMctsMatrixResult {
+    matrix: Vec<Vec<f32>>,
+    s1_options: Vec<String>,
+    s2_options: Vec<String>,
+    iteration_count: u32,
+}
+
+impl PyMctsMatrixResult {
+    fn from_mcts_result(result: MctsMatrixResult, state: &State) -> Self {
+        PyMctsMatrixResult {
+            matrix: result.matrix,
+            s1_options: result
+                .s1_options
+                .iter()
+                .map(|c| movechoice_to_string(&state.side_one, c))
+                .collect(),
+            s2_options: result
+                .s2_options
+                .iter()
+                .map(|c| movechoice_to_string(&state.side_two, c))
+                .collect(),
+            iteration_count: result.iteration_count,
+        }
+    }
+}
+
+#[derive(Clone)]
+#[pyclass(get_all)]
 struct PyMctsResult {
     s1: Vec<PyMctsSideResult>,
     s2: Vec<PyMctsSideResult>,
@@ -905,13 +933,13 @@ impl PyIterativeDeepeningResult {
 }
 
 #[pyfunction]
-fn mcts(py_state: PyState, duration_ms: u64) -> PyResult<PyMctsResult> {
+fn mcts(py_state: PyState, duration_ms: u64) -> PyResult<PyMctsMatrixResult> {
     let mut state: State = py_state.into();
     let duration = Duration::from_millis(duration_ms);
     let (s1_options, s2_options) = state.root_get_all_options();
     let mcts_result = perform_mcts(&mut state, s1_options, s2_options, duration);
 
-    let py_mcts_result = PyMctsResult::from_mcts_result(mcts_result, &state);
+    let py_mcts_result = PyMctsMatrixResult::from_mcts_result(mcts_result, &state);
     Ok(py_mcts_result)
 }
 

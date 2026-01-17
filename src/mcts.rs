@@ -19,6 +19,7 @@ pub struct Node {
     pub root: bool,
     pub parent: *mut Node,
     pub children: HashMap<(usize, usize), Vec<Node>>,
+    pub total_score: f32,
     pub times_visited: u32,
 
     // represents the instructions & s1/s2 moves that led to this node from the parent
@@ -38,6 +39,7 @@ impl Node {
             root: false,
             parent: std::ptr::null_mut(),
             instructions: StateInstructions::default(),
+            total_score: 0.0,
             times_visited: 0,
             children: HashMap::new(),
             s1_choice: 0,
@@ -101,6 +103,29 @@ impl Node {
             None => (return_node, s1_mc_index, s2_mc_index),
         }
     }
+    pub unsafe fn forced_selection(
+        &mut self,
+        state: &mut State,
+        s1_mc_index: usize,
+        s2_mc_index: usize,
+    ) -> (*mut Node, usize, usize) {
+        let return_node = self as *mut Node;
+        if self.s1_options.is_none() {
+            let (s1_options, s2_options) = state.get_all_options();
+            self.populate(s1_options, s2_options);
+        }
+
+        let child_vector = self.children.get_mut(&(s1_mc_index, s2_mc_index));
+        match child_vector {
+            Some(child_vector) => {
+                let child_vec_ptr = child_vector as *mut Vec<Node>;
+                let chosen_child = self.sample_node(child_vec_ptr);
+                state.apply_instructions(&(*chosen_child).instructions.instruction_list);
+                (*chosen_child).selection(state)
+            }
+            None => (return_node, s1_mc_index, s2_mc_index),
+        }
+    }
 
     unsafe fn sample_node(&self, move_vector: *mut Vec<Node>) -> *mut Node {
         let mut rng = rng();
@@ -153,6 +178,7 @@ impl Node {
 
     pub unsafe fn backpropagate(&mut self, score: f32, state: &mut State) {
         self.times_visited += 1;
+        self.total_score += score;
         if self.root {
             return;
         }
@@ -231,6 +257,13 @@ pub struct MctsResult {
     pub iteration_count: u32,
 }
 
+pub struct MctsMatrixResult {
+    pub matrix: Vec<Vec<f32>>,
+    pub s1_options: Vec<MoveChoice>,
+    pub s2_options: Vec<MoveChoice>,
+    pub iteration_count: u32,
+}
+
 fn do_mcts(root_node: &mut Node, state: &mut State, root_eval: &f32) {
     let (mut new_node, s1_move, s2_move) = unsafe { root_node.selection(state) };
     new_node = unsafe { (*new_node).expand(state, s1_move, s2_move) };
@@ -238,12 +271,88 @@ fn do_mcts(root_node: &mut Node, state: &mut State, root_eval: &f32) {
     unsafe { (*new_node).backpropagate(rollout_result, state) }
 }
 
+// the same as `do_mcts`, but with forced moves at the root node
+fn do_mcts_forced_root_node_selection(
+    root_node: &mut Node,
+    state: &mut State,
+    root_eval: &f32,
+    s1_mc_index: usize,
+    s2_mc_index: usize,
+) {
+    let (mut new_node, s1_move, s2_move) =
+        unsafe { root_node.forced_selection(state, s1_mc_index, s2_mc_index) };
+    new_node = unsafe { (*new_node).expand(state, s1_move, s2_move) };
+    let rollout_result = unsafe { (*new_node).rollout(state, root_eval) };
+    unsafe { (*new_node).backpropagate(rollout_result, state) }
+}
+
+fn get_mcts_matrix_result(root_node: &Node) -> MctsMatrixResult {
+    if root_node.s1_options.is_none() || root_node.s2_options.is_none() {
+        panic!("Root node is missing s1/s2 options");
+    }
+    let mut result_vec = Vec::with_capacity(root_node.s1_options.as_ref().unwrap().len());
+    let num_s2_options = root_node.s2_options.as_ref().unwrap().len();
+    for _ in 0..root_node.s1_options.as_ref().unwrap().len() {
+        result_vec.push(Vec::with_capacity(num_s2_options));
+    }
+
+    // fill vector with NaNs according to capacities
+    for s1_index in 0..root_node.s1_options.as_ref().unwrap().len() {
+        for _ in 0..num_s2_options {
+            result_vec[s1_index].push(f32::NAN);
+        }
+    }
+    for ((s1_choice_index, s2_choice_index), child_vector) in root_node.children.iter() {
+        let mut avg_score = 0.0;
+        let num_branches_for_move_pair = child_vector.len();
+        for child in child_vector.iter() {
+            if child.times_visited == 0 {
+                continue;
+            }
+            avg_score += child.total_score / child.times_visited as f32;
+        }
+        avg_score /= num_branches_for_move_pair as f32;
+        result_vec[*s1_choice_index][*s2_choice_index] = avg_score
+    }
+
+    // nothing should be NaN at this point, panic if there is because there is a bug somewhere
+    for s1_index in 0..root_node.s1_options.as_ref().unwrap().len() {
+        for s2_index in 0..num_s2_options {
+            if result_vec[s1_index][s2_index].is_nan() {
+                panic!(
+                    "MCTS result matrix contains NaN at ({}, {})",
+                    s1_index, s2_index
+                );
+            }
+        }
+    }
+
+    MctsMatrixResult {
+        matrix: result_vec,
+        s1_options: root_node
+            .s1_options
+            .as_ref()
+            .unwrap()
+            .iter()
+            .map(|x| x.move_choice)
+            .collect(),
+        s2_options: root_node
+            .s2_options
+            .as_ref()
+            .unwrap()
+            .iter()
+            .map(|x| x.move_choice)
+            .collect(),
+        iteration_count: root_node.times_visited,
+    }
+}
+
 pub fn perform_mcts(
     state: &mut State,
     side_one_options: Vec<MoveChoice>,
     side_two_options: Vec<MoveChoice>,
     max_time: Duration,
-) -> MctsResult {
+) -> MctsMatrixResult {
     let mut root_node = Node::new();
     unsafe {
         root_node.populate(side_one_options, side_two_options);
@@ -251,8 +360,10 @@ pub fn perform_mcts(
     root_node.root = true;
 
     let root_eval = evaluate(state);
+
+    let max_time_mcts = max_time.mul_f32(0.8); // 80% of the alotted time to regular search
     let start_time = std::time::Instant::now();
-    while start_time.elapsed() < max_time {
+    while start_time.elapsed() < max_time_mcts {
         for _ in 0..1000 {
             do_mcts(&mut root_node, state, &root_eval);
         }
@@ -274,31 +385,31 @@ pub fn perform_mcts(
         }
     }
 
-    let result = MctsResult {
-        s1: root_node
-            .s1_options
-            .as_ref()
-            .unwrap()
-            .iter()
-            .map(|v| MctsSideResult {
-                move_choice: v.move_choice.clone(),
-                total_score: v.total_score,
-                visits: v.visits,
-            })
-            .collect(),
-        s2: root_node
-            .s2_options
-            .as_ref()
-            .unwrap()
-            .iter()
-            .map(|v| MctsSideResult {
-                move_choice: v.move_choice.clone(),
-                total_score: v.total_score,
-                visits: v.visits,
-            })
-            .collect(),
-        iteration_count: root_node.times_visited,
-    };
+    // The remaining time is evenly split among all root node move pairs
+    let s1_mc_num_options = root_node.s1_options.as_ref().unwrap().len();
+    let s2_mc_num_options = root_node.s2_options.as_ref().unwrap().len();
+    let mut s1_mc_choice = 0;
+    let mut s2_mc_choice = 0;
+    while start_time.elapsed() < max_time {
+        for _ in 0..s2_mc_num_options {
+            do_mcts_forced_root_node_selection(
+                &mut root_node,
+                state,
+                &root_eval,
+                s1_mc_choice,
+                s2_mc_choice,
+            );
+            s2_mc_choice += 1;
+            if s2_mc_choice >= s2_mc_num_options {
+                s2_mc_choice = 0;
+            }
+        }
+        s1_mc_choice += 1;
+        if s1_mc_choice >= s1_mc_num_options {
+            s1_mc_choice = 0;
+        }
+    }
 
+    let result = get_mcts_matrix_result(&root_node);
     result
 }

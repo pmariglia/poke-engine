@@ -5,5 +5,7 @@ from example_state import state
 
 result = monte_carlo_tree_search(state, duration_ms=1000)
 print(f"Total Iterations: {result.total_visits}")
-print([(i.move_choice, i.total_score, i.visits) for i in result.side_one])
-print([(i.move_choice, i.total_score, i.visits) for i in result.side_two])
+for row in result.matrix:
+    for cell in row:
+        print(f"{cell:.2f}", end="\t")
+    print()
