@@ -3,6 +3,7 @@ use crate::define_enum_with_from_str;
 use crate::engine::abilities::Abilities;
 use crate::engine::items::Items;
 use crate::engine::state::{PokemonVolatileStatus, Terrain, Weather};
+use crate::hash::StateHash;
 use crate::instruction::{BoostInstruction, EnableMoveInstruction, Instruction};
 use crate::pokemon::PokemonName;
 use std::collections::HashSet;
@@ -10,9 +11,10 @@ use std::ops::{Index, IndexMut};
 use std::str::FromStr;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
+#[repr(u8)]
 pub enum SideReference {
-    SideOne,
-    SideTwo,
+    SideOne = 0,
+    SideTwo = 1,
 }
 impl SideReference {
     pub fn get_other_side(&self) -> SideReference {
@@ -1256,6 +1258,7 @@ pub struct State {
     pub team_preview: bool,
     pub use_last_used_move: bool,
     pub use_damage_dealt: bool,
+    pub hash: StateHash,
 }
 impl Default for State {
     fn default() -> State {
@@ -1277,6 +1280,7 @@ impl Default for State {
             team_preview: false,
             use_damage_dealt: false,
             use_last_used_move: false,
+            hash: StateHash::new_random(),
         };
 
         // many tests rely on the speed of side 2's active pokemon being greater than side_one's
@@ -1715,21 +1719,43 @@ impl State {
     }
 
     pub fn apply_instructions(&mut self, instructions: &Vec<Instruction>) {
+        self.apply_instructions_impl::<false>(instructions);
+    }
+
+    pub fn apply_instructions_with_hash(&mut self, instructions: &Vec<Instruction>) {
+        self.apply_instructions_impl::<true>(instructions);
+    }
+
+    #[inline(always)]
+    fn apply_instructions_impl<const WITH_HASH: bool>(&mut self, instructions: &Vec<Instruction>) {
         for i in instructions {
-            self.apply_one_instruction(i)
+            self.apply_one_instruction_impl::<WITH_HASH>(i);
         }
     }
 
-    pub fn apply_one_instruction(&mut self, instruction: &Instruction) {
+    #[inline(always)]
+    fn apply_one_instruction_impl<const WITH_HASH: bool>(&mut self, instruction: &Instruction) {
         match instruction {
             Instruction::Damage(instruction) => {
                 self.damage(&instruction.side_ref, instruction.damage_amount)
             }
-            Instruction::Switch(instruction) => self.switch(
-                &instruction.side_ref,
-                instruction.next_index,
-                instruction.previous_index,
-            ),
+            Instruction::Switch(instruction) => {
+                self.switch(
+                    &instruction.side_ref,
+                    instruction.next_index,
+                    instruction.previous_index,
+                );
+                if WITH_HASH {
+                    self.hash.update_hash_switch(
+                        instruction.side_ref as usize,
+                        instruction.previous_index as usize,
+                    );
+                    self.hash.update_hash_switch(
+                        instruction.side_ref as usize,
+                        instruction.next_index as usize,
+                    );
+                }
+            }
             Instruction::ApplyVolatileStatus(instruction) => {
                 self.apply_volatile_status(&instruction.side_ref, instruction.volatile_status)
             }
@@ -1901,22 +1927,53 @@ impl State {
         }
     }
 
+    pub fn apply_one_instruction(&mut self, instruction: &Instruction) {
+        self.apply_one_instruction_impl::<false>(instruction);
+    }
+
     pub fn reverse_instructions(&mut self, instructions: &Vec<Instruction>) {
+        self.reverse_instructions_impl::<false>(instructions);
+    }
+
+    pub fn reverse_instructions_with_hash(&mut self, instructions: &Vec<Instruction>) {
+        self.reverse_instructions_impl::<true>(instructions);
+    }
+
+    #[inline(always)]
+    fn reverse_instructions_impl<const WITH_HASH: bool>(
+        &mut self,
+        instructions: &Vec<Instruction>,
+    ) {
         for i in instructions.iter().rev() {
-            self.reverse_one_instruction(i);
+            self.reverse_one_instruction_impl::<WITH_HASH>(i);
         }
     }
 
-    pub fn reverse_one_instruction(&mut self, instruction: &Instruction) {
+    pub fn reverse_one_instruction_impl<const WITH_HASH: bool>(
+        &mut self,
+        instruction: &Instruction,
+    ) {
         match instruction {
             Instruction::Damage(instruction) => {
                 self.heal(&instruction.side_ref, instruction.damage_amount)
             }
-            Instruction::Switch(instruction) => self.reverse_switch(
-                &instruction.side_ref,
-                instruction.next_index,
-                instruction.previous_index,
-            ),
+            Instruction::Switch(instruction) => {
+                self.reverse_switch(
+                    &instruction.side_ref,
+                    instruction.next_index,
+                    instruction.previous_index,
+                );
+                if WITH_HASH {
+                    self.hash.update_hash_switch(
+                        instruction.side_ref as usize,
+                        instruction.next_index as usize,
+                    );
+                    self.hash.update_hash_switch(
+                        instruction.side_ref as usize,
+                        instruction.previous_index as usize,
+                    );
+                }
+            }
             Instruction::ApplyVolatileStatus(instruction) => {
                 self.remove_volatile_status(&instruction.side_ref, instruction.volatile_status)
             }
@@ -2322,6 +2379,7 @@ impl State {
             team_preview: split[5].parse::<bool>().unwrap(),
             use_damage_dealt: false,
             use_last_used_move: false,
+            hash: StateHash::new_random(),
         };
         state.set_conditional_mechanics();
         state

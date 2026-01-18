@@ -16,6 +16,7 @@ pub mod engine;
 pub mod engine;
 
 pub mod choices;
+pub mod hash;
 pub mod instruction;
 pub mod io;
 pub mod mcts;
