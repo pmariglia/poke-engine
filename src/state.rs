@@ -1289,6 +1289,12 @@ impl Default for State {
     }
 }
 impl State {
+    pub fn with_default_hash(default_hash: u64) -> State {
+        let mut state = State::default();
+        state.hash.set_hash(default_hash);
+        state
+    }
+
     pub fn battle_is_over(&self) -> f32 {
         //  0 if battle is not over
         //  1 if side one has won
@@ -1896,8 +1902,18 @@ impl State {
                 SideReference::SideTwo => self.side_two.shed_tailing = !self.side_two.shed_tailing,
             },
             Instruction::ToggleTerastallized(instruction) => match instruction.side_ref {
-                SideReference::SideOne => self.side_one.get_active().terastallized ^= true,
-                SideReference::SideTwo => self.side_two.get_active().terastallized ^= true,
+                SideReference::SideOne => {
+                    self.side_one.get_active().terastallized ^= true;
+                    if WITH_HASH {
+                        self.hash.update_hash_terastallize(0);
+                    }
+                }
+                SideReference::SideTwo => {
+                    self.side_two.get_active().terastallized ^= true;
+                    if WITH_HASH {
+                        self.hash.update_hash_terastallize(1);
+                    }
+                }
             },
             Instruction::SetLastUsedMove(instruction) => {
                 self.set_last_used_move(&instruction.side_ref, instruction.last_used_move)
@@ -2114,8 +2130,18 @@ impl State {
                 SideReference::SideTwo => self.side_two.shed_tailing = !self.side_two.shed_tailing,
             },
             Instruction::ToggleTerastallized(instruction) => match instruction.side_ref {
-                SideReference::SideOne => self.side_one.get_active().terastallized ^= true,
-                SideReference::SideTwo => self.side_two.get_active().terastallized ^= true,
+                SideReference::SideOne => {
+                    self.side_one.get_active().terastallized ^= true;
+                    if WITH_HASH {
+                        self.hash.update_hash_terastallize(0);
+                    }
+                }
+                SideReference::SideTwo => {
+                    self.side_two.get_active().terastallized ^= true;
+                    if WITH_HASH {
+                        self.hash.update_hash_terastallize(1);
+                    }
+                }
             },
             Instruction::SetLastUsedMove(instruction) => {
                 self.set_last_used_move(&instruction.side_ref, instruction.previous_last_used_move)
