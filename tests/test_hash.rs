@@ -7,6 +7,12 @@ fn get_starting_state_hash() -> u64 {
     2787307573912940442
 }
 
+fn state_with_default_hash() -> State {
+    let mut state = State::default();
+    state.hash.set_hash(get_starting_state_hash());
+    state
+}
+
 fn verify_hashing(state: &mut State, instructions: &Vec<Instruction>) {
     let initial_hash = state.hash.get_hash();
     state.apply_instructions_with_hash(instructions);
@@ -25,7 +31,7 @@ fn verify_hashing(state: &mut State, instructions: &Vec<Instruction>) {
 
 #[test]
 fn test_switch_hash() {
-    let mut state = State::with_default_hash(get_starting_state_hash());
+    let mut state = state_with_default_hash();
     let mut state_instructions = StateInstructions::default();
     state_instructions.instruction_list = vec![Instruction::Switch(SwitchInstruction {
         side_ref: SideReference::SideOne,
@@ -37,7 +43,7 @@ fn test_switch_hash() {
 
 #[test]
 fn test_toggling_terastallization() {
-    let mut state = State::with_default_hash(get_starting_state_hash());
+    let mut state = state_with_default_hash();
     let mut state_instructions = StateInstructions::default();
     state_instructions.instruction_list = vec![Instruction::ToggleTerastallized(
         ToggleTerastallizedInstruction {
@@ -49,7 +55,7 @@ fn test_toggling_terastallization() {
 
 #[test]
 fn test_switching_and_terastallizing_together() {
-    let mut state = State::with_default_hash(get_starting_state_hash());
+    let mut state = state_with_default_hash();
     let mut state_instructions = StateInstructions::default();
     state_instructions.instruction_list = vec![
         Instruction::Switch(SwitchInstruction {

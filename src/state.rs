@@ -1289,12 +1289,6 @@ impl Default for State {
     }
 }
 impl State {
-    pub fn with_default_hash(default_hash: u64) -> State {
-        let mut state = State::default();
-        state.hash.set_hash(default_hash);
-        state
-    }
-
     pub fn battle_is_over(&self) -> f32 {
         //  0 if battle is not over
         //  1 if side one has won
