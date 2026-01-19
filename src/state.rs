@@ -1737,7 +1737,27 @@ impl State {
     fn apply_one_instruction_impl<const WITH_HASH: bool>(&mut self, instruction: &Instruction) {
         match instruction {
             Instruction::Damage(instruction) => {
-                self.damage(&instruction.side_ref, instruction.damage_amount)
+                let side_ref_usize = instruction.side_ref as usize;
+                let side = self.get_side(&instruction.side_ref);
+                let active_index = side.active_index;
+                let old_hp_usize = side.pokemon[active_index].hp;
+
+                let active = side.get_active();
+                active.hp -= instruction.damage_amount;
+
+                if WITH_HASH {
+                    let new_hp_usize = active.hp as usize;
+                    self.hash.update_hash_health(
+                        side_ref_usize,
+                        active_index as usize,
+                        old_hp_usize as usize,
+                    );
+                    self.hash.update_hash_health(
+                        side_ref_usize,
+                        active_index as usize,
+                        new_hp_usize,
+                    );
+                }
             }
             Instruction::Switch(instruction) => {
                 self.switch(
@@ -1804,7 +1824,27 @@ impl State {
                     Abilities::from(active.ability as i16 + instruction.ability_change);
             }
             Instruction::Heal(instruction) => {
-                self.heal(&instruction.side_ref, instruction.heal_amount)
+                let side_ref_usize = instruction.side_ref as usize;
+                let side = self.get_side(&instruction.side_ref);
+                let active_index = side.active_index;
+                let old_hp_usize = side.pokemon[active_index].hp;
+
+                let active = side.get_active();
+                active.hp += instruction.heal_amount;
+
+                if WITH_HASH {
+                    let new_hp_usize = active.hp as usize;
+                    self.hash.update_hash_health(
+                        side_ref_usize,
+                        active_index as usize,
+                        old_hp_usize as usize,
+                    );
+                    self.hash.update_hash_health(
+                        side_ref_usize,
+                        active_index as usize,
+                        new_hp_usize,
+                    );
+                }
             }
             Instruction::ChangeItem(instruction) => {
                 self.change_item(&instruction.side_ref, instruction.new_item)
@@ -1965,7 +2005,27 @@ impl State {
     ) {
         match instruction {
             Instruction::Damage(instruction) => {
-                self.heal(&instruction.side_ref, instruction.damage_amount)
+                let side_ref_usize = instruction.side_ref as usize;
+                let side = self.get_side(&instruction.side_ref);
+                let active_index = side.active_index;
+                let old_hp_usize = side.pokemon[active_index].hp;
+
+                let active = side.get_active();
+                active.hp += instruction.damage_amount;
+
+                if WITH_HASH {
+                    let new_hp_usize = active.hp as usize;
+                    self.hash.update_hash_health(
+                        side_ref_usize,
+                        active_index as usize,
+                        old_hp_usize as usize,
+                    );
+                    self.hash.update_hash_health(
+                        side_ref_usize,
+                        active_index as usize,
+                        new_hp_usize,
+                    );
+                }
             }
             Instruction::Switch(instruction) => {
                 self.reverse_switch(
@@ -2040,7 +2100,27 @@ impl State {
                 self.enable_move(&instruction.side_ref, &instruction.move_index)
             }
             Instruction::Heal(instruction) => {
-                self.damage(&instruction.side_ref, instruction.heal_amount)
+                let side_ref_usize = instruction.side_ref as usize;
+                let side = self.get_side(&instruction.side_ref);
+                let active_index = side.active_index;
+                let old_hp_usize = side.pokemon[active_index].hp;
+
+                let active = side.get_active();
+                active.hp -= instruction.heal_amount;
+
+                if WITH_HASH {
+                    let new_hp_usize = active.hp as usize;
+                    self.hash.update_hash_health(
+                        side_ref_usize,
+                        active_index as usize,
+                        old_hp_usize as usize,
+                    );
+                    self.hash.update_hash_health(
+                        side_ref_usize,
+                        active_index as usize,
+                        new_hp_usize,
+                    );
+                }
             }
             Instruction::ChangeItem(instruction) => {
                 self.change_item(&instruction.side_ref, instruction.current_item)
