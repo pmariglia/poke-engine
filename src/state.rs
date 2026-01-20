@@ -1433,18 +1433,6 @@ impl State {
         }
     }
 
-    fn damage(&mut self, side_ref: &SideReference, amount: i16) {
-        let active = self.get_side(&side_ref).get_active();
-
-        active.hp -= amount;
-    }
-
-    fn heal(&mut self, side_ref: &SideReference, amount: i16) {
-        let active = self.get_side(&side_ref).get_active();
-
-        active.hp += amount;
-    }
-
     fn switch(
         &mut self,
         side_ref: &SideReference,
