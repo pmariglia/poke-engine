@@ -1,10 +1,10 @@
 use poke_engine::engine::state::PokemonVolatileStatus;
 use poke_engine::instruction::{
-    ApplyVolatileStatusInstruction, DamageInstruction, HealInstruction, Instruction,
-    RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction,
+    ApplyVolatileStatusInstruction, ChangeStatusInstruction, DamageInstruction, HealInstruction,
+    Instruction, RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction,
     ToggleTerastallizedInstruction,
 };
-use poke_engine::state::{PokemonIndex, SideReference, State};
+use poke_engine::state::{PokemonIndex, PokemonStatus, SideReference, State};
 
 fn get_starting_state_hash() -> u64 {
     2787307573912940442
@@ -16,13 +16,29 @@ fn state_with_default_hash() -> State {
     state
 }
 
-fn verify_changed_and_reversed_hash(state: &mut State, instructions: &Vec<Instruction>) {
+fn assert_instructions_modify_hash(state: &mut State, instructions: &Vec<Instruction>) {
     let initial_hash = state.hash.get_hash();
     state.apply_instructions_with_hash(instructions);
     let modified_hash = state.hash.get_hash();
     assert_ne!(
         initial_hash, modified_hash,
         "Hash should change after applying instructions"
+    );
+    state.reverse_instructions_with_hash(instructions);
+    let reverted_hash = state.hash.get_hash();
+    assert_eq!(
+        initial_hash, reverted_hash,
+        "Hash should revert back after reversing instructions"
+    );
+}
+
+fn assert_instructions_keep_hash_the_same(state: &mut State, instructions: &Vec<Instruction>) {
+    let initial_hash = state.hash.get_hash();
+    state.apply_instructions_with_hash(instructions);
+    let modified_hash = state.hash.get_hash();
+    assert_eq!(
+        initial_hash, modified_hash,
+        "Hash should revert back after applying and reversing instructions that reset state"
     );
     state.reverse_instructions_with_hash(instructions);
     let reverted_hash = state.hash.get_hash();
@@ -41,7 +57,7 @@ fn test_switch_hash() {
         previous_index: PokemonIndex::P0,
         next_index: PokemonIndex::P1,
     })];
-    verify_changed_and_reversed_hash(&mut state, &state_instructions.instruction_list);
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
 }
 
 #[test]
@@ -53,7 +69,7 @@ fn test_toggling_terastallization() {
             side_ref: SideReference::SideOne,
         },
     )];
-    verify_changed_and_reversed_hash(&mut state, &state_instructions.instruction_list);
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
 }
 
 #[test]
@@ -70,7 +86,7 @@ fn test_switching_and_terastallizing_together() {
             side_ref: SideReference::SideTwo,
         }),
     ];
-    verify_changed_and_reversed_hash(&mut state, &state_instructions.instruction_list);
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
 }
 
 #[test]
@@ -81,7 +97,7 @@ fn test_taking_damage() {
         side_ref: SideReference::SideOne,
         damage_amount: 50,
     })];
-    verify_changed_and_reversed_hash(&mut state, &state_instructions.instruction_list);
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
 }
 
 #[test]
@@ -106,7 +122,7 @@ fn test_both_sides_taking_damage() {
             damage_amount: 6,
         }),
     ];
-    verify_changed_and_reversed_hash(&mut state, &state_instructions.instruction_list);
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
 }
 
 #[test]
@@ -157,7 +173,7 @@ fn test_damage_and_heal_on_different_sides_does_not_change_hash() {
             heal_amount: 50,
         }),
     ];
-    verify_changed_and_reversed_hash(&mut state, &state_instructions.instruction_list);
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
 }
 
 #[test]
@@ -170,7 +186,7 @@ fn test_volatile_status_change() {
             volatile_status: PokemonVolatileStatus::LEECHSEED,
         },
     )];
-    verify_changed_and_reversed_hash(&mut state, &state_instructions.instruction_list);
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
 }
 
 #[test]
@@ -197,17 +213,40 @@ fn test_acquiring_volatile_switching_twice_resets_state() {
             next_index: PokemonIndex::P0,
         }),
     ];
-    let initial_hash = state.hash.get_hash();
-    state.apply_instructions_with_hash(&state_instructions.instruction_list);
-    let modified_hash = state.hash.get_hash();
-    assert_eq!(
-        initial_hash, modified_hash,
-        "Hash should revert back after applying and reversing instructions that reset state"
-    );
-    state.reverse_instructions_with_hash(&state_instructions.instruction_list);
-    let reverted_hash = state.hash.get_hash();
-    assert_eq!(
-        initial_hash, reverted_hash,
-        "Hash should revert back after reversing instructions"
-    );
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_status_change() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list =
+        vec![Instruction::ChangeStatus(ChangeStatusInstruction {
+            side_ref: SideReference::SideOne,
+            pokemon_index: PokemonIndex::P0,
+            old_status: PokemonStatus::NONE,
+            new_status: PokemonStatus::PARALYZE,
+        })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_status_change_and_reverse() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeStatus(ChangeStatusInstruction {
+            side_ref: SideReference::SideOne,
+            pokemon_index: PokemonIndex::P0,
+            old_status: PokemonStatus::NONE,
+            new_status: PokemonStatus::PARALYZE,
+        }),
+        Instruction::ChangeStatus(ChangeStatusInstruction {
+            side_ref: SideReference::SideOne,
+            pokemon_index: PokemonIndex::P0,
+            old_status: PokemonStatus::PARALYZE,
+            new_status: PokemonStatus::NONE,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
 }

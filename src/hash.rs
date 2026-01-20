@@ -10,6 +10,7 @@ pub struct StateHash {
     switch_numbers: [[u64; 6]; 2],
     terastallized_numbers: [u64; 2],
     volatile_status_numbers: [[u64; 256]; 2],
+    status_numbers: [[[u64; 7]; 6]; 2],
 }
 
 impl Default for StateHash {
@@ -20,6 +21,7 @@ impl Default for StateHash {
             switch_numbers: [[0u64; 6], [0u64; 6]],
             terastallized_numbers: [0u64; 2],
             volatile_status_numbers: [[0u64; 256]; 2],
+            status_numbers: [[[0u64; 7]; 6]; 2],
         }
     }
 }
@@ -40,6 +42,7 @@ impl StateHash {
             switch_numbers: [from_fn(|_side| rng.random()), from_fn(|_slot| rng.random())],
             terastallized_numbers: from_fn(|_| rng.random()),
             volatile_status_numbers: from_fn(|_side| from_fn(|_volatile| rng.random())),
+            status_numbers: from_fn(|_side| from_fn(|_slot| from_fn(|_status| rng.random()))),
         }
     }
     pub fn xor(&mut self, value: u64) {
@@ -76,5 +79,13 @@ impl StateHash {
     }
     pub fn update_hash_volatile_status(&mut self, side: usize, status_index: usize) {
         self.xor(self.get_zobrist_volatile_status(side, status_index));
+    }
+
+    // STATUS
+    fn get_zobrist_status(&self, side: usize, slot: usize, status_index: usize) -> u64 {
+        self.status_numbers[side][slot][status_index]
+    }
+    pub fn update_hash_status(&mut self, side: usize, slot: usize, status_index: usize) {
+        self.xor(self.get_zobrist_status(side, slot, status_index));
     }
 }

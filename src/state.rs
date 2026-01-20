@@ -1782,11 +1782,25 @@ impl State {
                     );
                 }
             }
-            Instruction::ChangeStatus(instruction) => self.change_status(
-                &instruction.side_ref,
-                instruction.pokemon_index,
-                instruction.new_status,
-            ),
+            Instruction::ChangeStatus(instruction) => {
+                self.change_status(
+                    &instruction.side_ref,
+                    instruction.pokemon_index,
+                    instruction.new_status,
+                );
+                if WITH_HASH {
+                    self.hash.update_hash_status(
+                        instruction.side_ref as usize,
+                        instruction.pokemon_index as usize,
+                        instruction.old_status as usize,
+                    );
+                    self.hash.update_hash_status(
+                        instruction.side_ref as usize,
+                        instruction.pokemon_index as usize,
+                        instruction.new_status as usize,
+                    );
+                }
+            }
             Instruction::Boost(instruction) => {
                 self.apply_boost(&instruction.side_ref, &instruction.stat, instruction.amount)
             }
@@ -2062,11 +2076,25 @@ impl State {
                     );
                 }
             }
-            Instruction::ChangeStatus(instruction) => self.change_status(
-                &instruction.side_ref,
-                instruction.pokemon_index,
-                instruction.old_status,
-            ),
+            Instruction::ChangeStatus(instruction) => {
+                self.change_status(
+                    &instruction.side_ref,
+                    instruction.pokemon_index,
+                    instruction.old_status,
+                );
+                if WITH_HASH {
+                    self.hash.update_hash_status(
+                        instruction.side_ref as usize,
+                        instruction.pokemon_index as usize,
+                        instruction.old_status as usize,
+                    );
+                    self.hash.update_hash_status(
+                        instruction.side_ref as usize,
+                        instruction.pokemon_index as usize,
+                        instruction.new_status as usize,
+                    );
+                }
+            }
             Instruction::Boost(instruction) => self.apply_boost(
                 &instruction.side_ref,
                 &instruction.stat,
