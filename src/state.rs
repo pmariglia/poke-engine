@@ -1765,10 +1765,22 @@ impl State {
                 }
             }
             Instruction::ApplyVolatileStatus(instruction) => {
-                self.apply_volatile_status(&instruction.side_ref, instruction.volatile_status)
+                self.apply_volatile_status(&instruction.side_ref, instruction.volatile_status);
+                if WITH_HASH {
+                    self.hash.update_hash_volatile_status(
+                        instruction.side_ref as usize,
+                        instruction.volatile_status as usize,
+                    );
+                }
             }
             Instruction::RemoveVolatileStatus(instruction) => {
-                self.remove_volatile_status(&instruction.side_ref, instruction.volatile_status)
+                self.remove_volatile_status(&instruction.side_ref, instruction.volatile_status);
+                if WITH_HASH {
+                    self.hash.update_hash_volatile_status(
+                        instruction.side_ref as usize,
+                        instruction.volatile_status as usize,
+                    );
+                }
             }
             Instruction::ChangeStatus(instruction) => self.change_status(
                 &instruction.side_ref,
@@ -2033,10 +2045,22 @@ impl State {
                 }
             }
             Instruction::ApplyVolatileStatus(instruction) => {
-                self.remove_volatile_status(&instruction.side_ref, instruction.volatile_status)
+                self.remove_volatile_status(&instruction.side_ref, instruction.volatile_status);
+                if WITH_HASH {
+                    self.hash.update_hash_volatile_status(
+                        instruction.side_ref as usize,
+                        instruction.volatile_status as usize,
+                    );
+                }
             }
             Instruction::RemoveVolatileStatus(instruction) => {
-                self.apply_volatile_status(&instruction.side_ref, instruction.volatile_status)
+                self.apply_volatile_status(&instruction.side_ref, instruction.volatile_status);
+                if WITH_HASH {
+                    self.hash.update_hash_volatile_status(
+                        instruction.side_ref as usize,
+                        instruction.volatile_status as usize,
+                    );
+                }
             }
             Instruction::ChangeStatus(instruction) => self.change_status(
                 &instruction.side_ref,

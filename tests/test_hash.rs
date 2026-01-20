@@ -1,5 +1,7 @@
+use poke_engine::engine::state::PokemonVolatileStatus;
 use poke_engine::instruction::{
-    DamageInstruction, HealInstruction, Instruction, StateInstructions, SwitchInstruction,
+    ApplyVolatileStatusInstruction, DamageInstruction, HealInstruction, Instruction,
+    RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction,
     ToggleTerastallizedInstruction,
 };
 use poke_engine::state::{PokemonIndex, SideReference, State};
@@ -156,4 +158,56 @@ fn test_damage_and_heal_on_different_sides_does_not_change_hash() {
         }),
     ];
     verify_changed_and_reversed_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_volatile_status_change() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![Instruction::ApplyVolatileStatus(
+        ApplyVolatileStatusInstruction {
+            side_ref: SideReference::SideOne,
+            volatile_status: PokemonVolatileStatus::LEECHSEED,
+        },
+    )];
+    verify_changed_and_reversed_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_acquiring_volatile_switching_twice_resets_state() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+            side_ref: SideReference::SideOne,
+            volatile_status: PokemonVolatileStatus::LEECHSEED,
+        }),
+        Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+            side_ref: SideReference::SideOne,
+            volatile_status: PokemonVolatileStatus::LEECHSEED,
+        }),
+        Instruction::Switch(SwitchInstruction {
+            side_ref: SideReference::SideOne,
+            previous_index: PokemonIndex::P0,
+            next_index: PokemonIndex::P1,
+        }),
+        Instruction::Switch(SwitchInstruction {
+            side_ref: SideReference::SideOne,
+            previous_index: PokemonIndex::P1,
+            next_index: PokemonIndex::P0,
+        }),
+    ];
+    let initial_hash = state.hash.get_hash();
+    state.apply_instructions_with_hash(&state_instructions.instruction_list);
+    let modified_hash = state.hash.get_hash();
+    assert_eq!(
+        initial_hash, modified_hash,
+        "Hash should revert back after applying and reversing instructions that reset state"
+    );
+    state.reverse_instructions_with_hash(&state_instructions.instruction_list);
+    let reverted_hash = state.hash.get_hash();
+    assert_eq!(
+        initial_hash, reverted_hash,
+        "Hash should revert back after reversing instructions"
+    );
 }
