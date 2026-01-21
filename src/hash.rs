@@ -11,6 +11,7 @@ pub struct StateHash {
     terastallized_numbers: [u64; 2],
     volatile_status_numbers: [[u64; 256]; 2],
     status_numbers: [[[u64; 7]; 6]; 2],
+    boost_numbers: [[[u64; 13]; 7]; 2],
 }
 
 impl Default for StateHash {
@@ -22,6 +23,7 @@ impl Default for StateHash {
             terastallized_numbers: [0u64; 2],
             volatile_status_numbers: [[0u64; 256]; 2],
             status_numbers: [[[0u64; 7]; 6]; 2],
+            boost_numbers: [[[0u64; 13]; 7]; 2],
         }
     }
 }
@@ -43,6 +45,7 @@ impl StateHash {
             terastallized_numbers: from_fn(|_| rng.random()),
             volatile_status_numbers: from_fn(|_side| from_fn(|_volatile| rng.random())),
             status_numbers: from_fn(|_side| from_fn(|_slot| from_fn(|_status| rng.random()))),
+            boost_numbers: from_fn(|_side| from_fn(|_boost| from_fn(|_amount| rng.random()))),
         }
     }
     pub fn xor(&mut self, value: u64) {
@@ -87,5 +90,13 @@ impl StateHash {
     }
     pub fn update_hash_status(&mut self, side: usize, slot: usize, status_index: usize) {
         self.xor(self.get_zobrist_status(side, slot, status_index));
+    }
+
+    // BOOSTS
+    fn get_zobrist_boost(&self, side: usize, boost_index: usize, amount_index: usize) -> u64 {
+        self.boost_numbers[side][boost_index][amount_index]
+    }
+    pub fn update_hash_boost(&mut self, side: usize, boost_index: usize, amount_index: usize) {
+        self.xor(self.get_zobrist_boost(side, boost_index, amount_index));
     }
 }

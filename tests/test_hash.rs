@@ -1,10 +1,10 @@
 use poke_engine::engine::state::PokemonVolatileStatus;
 use poke_engine::instruction::{
-    ApplyVolatileStatusInstruction, ChangeStatusInstruction, DamageInstruction, HealInstruction,
-    Instruction, RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction,
-    ToggleTerastallizedInstruction,
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeStatusInstruction, DamageInstruction,
+    HealInstruction, Instruction, RemoveVolatileStatusInstruction, StateInstructions,
+    SwitchInstruction, ToggleTerastallizedInstruction,
 };
-use poke_engine::state::{PokemonIndex, PokemonStatus, SideReference, State};
+use poke_engine::state::{PokemonBoostableStat, PokemonIndex, PokemonStatus, SideReference, State};
 
 fn get_starting_state_hash() -> u64 {
     2787307573912940442
@@ -246,6 +246,37 @@ fn test_status_change_and_reverse() {
             pokemon_index: PokemonIndex::P0,
             old_status: PokemonStatus::PARALYZE,
             new_status: PokemonStatus::NONE,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_boost_change() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![Instruction::Boost(BoostInstruction {
+        side_ref: SideReference::SideOne,
+        stat: PokemonBoostableStat::Attack,
+        amount: 1,
+    })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_boost_change_keeps_the_same() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::Boost(BoostInstruction {
+            side_ref: SideReference::SideOne,
+            stat: PokemonBoostableStat::Attack,
+            amount: 1,
+        }),
+        Instruction::Boost(BoostInstruction {
+            side_ref: SideReference::SideOne,
+            stat: PokemonBoostableStat::Attack,
+            amount: -1,
         }),
     ];
     assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);

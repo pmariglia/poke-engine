@@ -106,14 +106,15 @@ impl PokemonMoveIndex {
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
+#[repr(u8)]
 pub enum PokemonBoostableStat {
-    Attack,
-    Defense,
-    SpecialAttack,
-    SpecialDefense,
-    Speed,
-    Evasion,
-    Accuracy,
+    Attack = 0,
+    Defense = 1,
+    SpecialAttack = 2,
+    SpecialDefense = 3,
+    Speed = 4,
+    Evasion = 5,
+    Accuracy = 6,
 }
 
 define_enum_with_from_str! {
@@ -1483,19 +1484,6 @@ impl State {
         pkmn.status = new_status;
     }
 
-    fn apply_boost(&mut self, side_ref: &SideReference, stat: &PokemonBoostableStat, amount: i8) {
-        let side = self.get_side(&side_ref);
-        match stat {
-            PokemonBoostableStat::Attack => side.attack_boost += amount,
-            PokemonBoostableStat::Defense => side.defense_boost += amount,
-            PokemonBoostableStat::SpecialAttack => side.special_attack_boost += amount,
-            PokemonBoostableStat::SpecialDefense => side.special_defense_boost += amount,
-            PokemonBoostableStat::Speed => side.speed_boost += amount,
-            PokemonBoostableStat::Evasion => side.evasion_boost += amount,
-            PokemonBoostableStat::Accuracy => side.accuracy_boost += amount,
-        }
-    }
-
     fn increment_side_condition(
         &mut self,
         side_ref: &SideReference,
@@ -1802,7 +1790,70 @@ impl State {
                 }
             }
             Instruction::Boost(instruction) => {
-                self.apply_boost(&instruction.side_ref, &instruction.stat, instruction.amount)
+                let side_ref_usize = instruction.side_ref as usize;
+                let side = self.get_side(&instruction.side_ref);
+                let (boost_index, exiting_boost_amt, new_boost_amount) = match instruction.stat {
+                    PokemonBoostableStat::Attack => {
+                        side.attack_boost += instruction.amount;
+                        (0, side.attack_boost - instruction.amount, side.attack_boost)
+                    }
+                    PokemonBoostableStat::Defense => {
+                        side.defense_boost += instruction.amount;
+                        (
+                            1,
+                            side.defense_boost - instruction.amount,
+                            side.defense_boost,
+                        )
+                    }
+                    PokemonBoostableStat::SpecialAttack => {
+                        side.special_attack_boost += instruction.amount;
+                        (
+                            2,
+                            side.special_attack_boost - instruction.amount,
+                            side.special_attack_boost,
+                        )
+                    }
+                    PokemonBoostableStat::SpecialDefense => {
+                        side.special_defense_boost += instruction.amount;
+                        (
+                            3,
+                            side.special_defense_boost - instruction.amount,
+                            side.special_defense_boost,
+                        )
+                    }
+                    PokemonBoostableStat::Speed => {
+                        side.speed_boost += instruction.amount;
+                        (4, side.speed_boost - instruction.amount, side.speed_boost)
+                    }
+                    PokemonBoostableStat::Evasion => {
+                        side.evasion_boost += instruction.amount;
+                        (
+                            5,
+                            side.evasion_boost - instruction.amount,
+                            side.evasion_boost,
+                        )
+                    }
+                    PokemonBoostableStat::Accuracy => {
+                        side.accuracy_boost += instruction.amount;
+                        (
+                            6,
+                            side.accuracy_boost - instruction.amount,
+                            side.accuracy_boost,
+                        )
+                    }
+                };
+                if WITH_HASH {
+                    self.hash.update_hash_boost(
+                        side_ref_usize,
+                        boost_index,
+                        exiting_boost_amt as usize,
+                    );
+                    self.hash.update_hash_boost(
+                        side_ref_usize,
+                        boost_index,
+                        new_boost_amount as usize,
+                    );
+                }
             }
             Instruction::ChangeSideCondition(instruction) => self.increment_side_condition(
                 &instruction.side_ref,
@@ -2095,11 +2146,72 @@ impl State {
                     );
                 }
             }
-            Instruction::Boost(instruction) => self.apply_boost(
-                &instruction.side_ref,
-                &instruction.stat,
-                -1 * instruction.amount,
-            ),
+            Instruction::Boost(instruction) => {
+                let side_ref_usize = instruction.side_ref as usize;
+                let side = self.get_side(&instruction.side_ref);
+                let (boost_index, exiting_boost_amt, new_boost_amount) = match instruction.stat {
+                    PokemonBoostableStat::Attack => {
+                        side.attack_boost -= instruction.amount;
+                        (0, side.attack_boost + instruction.amount, side.attack_boost)
+                    }
+                    PokemonBoostableStat::Defense => {
+                        side.defense_boost -= instruction.amount;
+                        (
+                            1,
+                            side.defense_boost + instruction.amount,
+                            side.defense_boost,
+                        )
+                    }
+                    PokemonBoostableStat::SpecialAttack => {
+                        side.special_attack_boost -= instruction.amount;
+                        (
+                            2,
+                            side.special_attack_boost + instruction.amount,
+                            side.special_attack_boost,
+                        )
+                    }
+                    PokemonBoostableStat::SpecialDefense => {
+                        side.special_defense_boost -= instruction.amount;
+                        (
+                            3,
+                            side.special_defense_boost + instruction.amount,
+                            side.special_defense_boost,
+                        )
+                    }
+                    PokemonBoostableStat::Speed => {
+                        side.speed_boost -= instruction.amount;
+                        (4, side.speed_boost + instruction.amount, side.speed_boost)
+                    }
+                    PokemonBoostableStat::Evasion => {
+                        side.evasion_boost -= instruction.amount;
+                        (
+                            5,
+                            side.evasion_boost + instruction.amount,
+                            side.evasion_boost,
+                        )
+                    }
+                    PokemonBoostableStat::Accuracy => {
+                        side.accuracy_boost -= instruction.amount;
+                        (
+                            6,
+                            side.accuracy_boost + instruction.amount,
+                            side.accuracy_boost,
+                        )
+                    }
+                };
+                if WITH_HASH {
+                    self.hash.update_hash_boost(
+                        side_ref_usize,
+                        boost_index,
+                        exiting_boost_amt as usize,
+                    );
+                    self.hash.update_hash_boost(
+                        side_ref_usize,
+                        boost_index,
+                        new_boost_amount as usize,
+                    );
+                }
+            }
             Instruction::ChangeSideCondition(instruction) => self.increment_side_condition(
                 &instruction.side_ref,
                 &instruction.side_condition,
