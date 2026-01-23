@@ -26,6 +26,7 @@ impl SideReference {
 }
 
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
+#[repr(u8)]
 pub enum PokemonSideCondition {
     AuroraVeil,
     CraftyShield,
@@ -1484,37 +1485,6 @@ impl State {
         pkmn.status = new_status;
     }
 
-    fn increment_side_condition(
-        &mut self,
-        side_ref: &SideReference,
-        side_condition: &PokemonSideCondition,
-        amount: i8,
-    ) {
-        let side = self.get_side(&side_ref);
-
-        match side_condition {
-            PokemonSideCondition::AuroraVeil => side.side_conditions.aurora_veil += amount,
-            PokemonSideCondition::CraftyShield => side.side_conditions.crafty_shield += amount,
-            PokemonSideCondition::HealingWish => side.side_conditions.healing_wish += amount,
-            PokemonSideCondition::LightScreen => side.side_conditions.light_screen += amount,
-            PokemonSideCondition::LuckyChant => side.side_conditions.lucky_chant += amount,
-            PokemonSideCondition::LunarDance => side.side_conditions.lunar_dance += amount,
-            PokemonSideCondition::MatBlock => side.side_conditions.mat_block += amount,
-            PokemonSideCondition::Mist => side.side_conditions.mist += amount,
-            PokemonSideCondition::Protect => side.side_conditions.protect += amount,
-            PokemonSideCondition::QuickGuard => side.side_conditions.quick_guard += amount,
-            PokemonSideCondition::Reflect => side.side_conditions.reflect += amount,
-            PokemonSideCondition::Safeguard => side.side_conditions.safeguard += amount,
-            PokemonSideCondition::Spikes => side.side_conditions.spikes += amount,
-            PokemonSideCondition::Stealthrock => side.side_conditions.stealth_rock += amount,
-            PokemonSideCondition::StickyWeb => side.side_conditions.sticky_web += amount,
-            PokemonSideCondition::Tailwind => side.side_conditions.tailwind += amount,
-            PokemonSideCondition::ToxicCount => side.side_conditions.toxic_count += amount,
-            PokemonSideCondition::ToxicSpikes => side.side_conditions.toxic_spikes += amount,
-            PokemonSideCondition::WideGuard => side.side_conditions.wide_guard += amount,
-        }
-    }
-
     fn increment_volatile_status_duration(
         &mut self,
         side_ref: &SideReference,
@@ -1855,11 +1825,99 @@ impl State {
                     );
                 }
             }
-            Instruction::ChangeSideCondition(instruction) => self.increment_side_condition(
-                &instruction.side_ref,
-                &instruction.side_condition,
-                instruction.amount,
-            ),
+            Instruction::ChangeSideCondition(instruction) => {
+                let side = self.get_side(&instruction.side_ref);
+                let final_amount = match instruction.side_condition {
+                    PokemonSideCondition::AuroraVeil => {
+                        side.side_conditions.aurora_veil += instruction.amount;
+                        side.side_conditions.aurora_veil
+                    }
+                    PokemonSideCondition::CraftyShield => {
+                        side.side_conditions.crafty_shield += instruction.amount;
+                        side.side_conditions.crafty_shield
+                    }
+                    PokemonSideCondition::HealingWish => {
+                        side.side_conditions.healing_wish += instruction.amount;
+                        side.side_conditions.healing_wish
+                    }
+                    PokemonSideCondition::LightScreen => {
+                        side.side_conditions.light_screen += instruction.amount;
+                        side.side_conditions.light_screen
+                    }
+                    PokemonSideCondition::LuckyChant => {
+                        side.side_conditions.lucky_chant += instruction.amount;
+                        side.side_conditions.lucky_chant
+                    }
+                    PokemonSideCondition::LunarDance => {
+                        side.side_conditions.lunar_dance += instruction.amount;
+                        side.side_conditions.lunar_dance
+                    }
+                    PokemonSideCondition::MatBlock => {
+                        side.side_conditions.mat_block += instruction.amount;
+                        side.side_conditions.mat_block
+                    }
+                    PokemonSideCondition::Mist => {
+                        side.side_conditions.mist += instruction.amount;
+                        side.side_conditions.mist
+                    }
+                    PokemonSideCondition::Protect => {
+                        side.side_conditions.protect += instruction.amount;
+                        side.side_conditions.protect
+                    }
+                    PokemonSideCondition::QuickGuard => {
+                        side.side_conditions.quick_guard += instruction.amount;
+                        side.side_conditions.quick_guard
+                    }
+                    PokemonSideCondition::Reflect => {
+                        side.side_conditions.reflect += instruction.amount;
+                        side.side_conditions.reflect
+                    }
+                    PokemonSideCondition::Safeguard => {
+                        side.side_conditions.safeguard += instruction.amount;
+                        side.side_conditions.safeguard
+                    }
+                    PokemonSideCondition::Spikes => {
+                        side.side_conditions.spikes += instruction.amount;
+                        side.side_conditions.spikes
+                    }
+                    PokemonSideCondition::Stealthrock => {
+                        side.side_conditions.stealth_rock += instruction.amount;
+                        side.side_conditions.stealth_rock
+                    }
+                    PokemonSideCondition::StickyWeb => {
+                        side.side_conditions.sticky_web += instruction.amount;
+                        side.side_conditions.sticky_web
+                    }
+                    PokemonSideCondition::Tailwind => {
+                        side.side_conditions.tailwind += instruction.amount;
+                        side.side_conditions.tailwind
+                    }
+                    PokemonSideCondition::ToxicCount => {
+                        side.side_conditions.toxic_count += instruction.amount;
+                        side.side_conditions.toxic_count
+                    }
+                    PokemonSideCondition::ToxicSpikes => {
+                        side.side_conditions.toxic_spikes += instruction.amount;
+                        side.side_conditions.toxic_spikes
+                    }
+                    PokemonSideCondition::WideGuard => {
+                        side.side_conditions.wide_guard += instruction.amount;
+                        side.side_conditions.wide_guard
+                    }
+                };
+                if WITH_HASH {
+                    self.hash.update_hash_side_condition(
+                        instruction.side_ref as usize,
+                        instruction.side_condition as usize,
+                        (final_amount - instruction.amount) as usize,
+                    );
+                    self.hash.update_hash_side_condition(
+                        instruction.side_ref as usize,
+                        instruction.side_condition as usize,
+                        final_amount as usize,
+                    );
+                }
+            }
             Instruction::ChangeVolatileStatusDuration(instruction) => self
                 .increment_volatile_status_duration(
                     &instruction.side_ref,
@@ -2212,11 +2270,99 @@ impl State {
                     );
                 }
             }
-            Instruction::ChangeSideCondition(instruction) => self.increment_side_condition(
-                &instruction.side_ref,
-                &instruction.side_condition,
-                -1 * instruction.amount,
-            ),
+            Instruction::ChangeSideCondition(instruction) => {
+                let side = self.get_side(&instruction.side_ref);
+                let final_amount = match instruction.side_condition {
+                    PokemonSideCondition::AuroraVeil => {
+                        side.side_conditions.aurora_veil -= instruction.amount;
+                        side.side_conditions.aurora_veil
+                    }
+                    PokemonSideCondition::CraftyShield => {
+                        side.side_conditions.crafty_shield -= instruction.amount;
+                        side.side_conditions.crafty_shield
+                    }
+                    PokemonSideCondition::HealingWish => {
+                        side.side_conditions.healing_wish -= instruction.amount;
+                        side.side_conditions.healing_wish
+                    }
+                    PokemonSideCondition::LightScreen => {
+                        side.side_conditions.light_screen -= instruction.amount;
+                        side.side_conditions.light_screen
+                    }
+                    PokemonSideCondition::LuckyChant => {
+                        side.side_conditions.lucky_chant -= instruction.amount;
+                        side.side_conditions.lucky_chant
+                    }
+                    PokemonSideCondition::LunarDance => {
+                        side.side_conditions.lunar_dance -= instruction.amount;
+                        side.side_conditions.lunar_dance
+                    }
+                    PokemonSideCondition::MatBlock => {
+                        side.side_conditions.mat_block -= instruction.amount;
+                        side.side_conditions.mat_block
+                    }
+                    PokemonSideCondition::Mist => {
+                        side.side_conditions.mist -= instruction.amount;
+                        side.side_conditions.mist
+                    }
+                    PokemonSideCondition::Protect => {
+                        side.side_conditions.protect -= instruction.amount;
+                        side.side_conditions.protect
+                    }
+                    PokemonSideCondition::QuickGuard => {
+                        side.side_conditions.quick_guard -= instruction.amount;
+                        side.side_conditions.quick_guard
+                    }
+                    PokemonSideCondition::Reflect => {
+                        side.side_conditions.reflect -= instruction.amount;
+                        side.side_conditions.reflect
+                    }
+                    PokemonSideCondition::Safeguard => {
+                        side.side_conditions.safeguard -= instruction.amount;
+                        side.side_conditions.safeguard
+                    }
+                    PokemonSideCondition::Spikes => {
+                        side.side_conditions.spikes -= instruction.amount;
+                        side.side_conditions.spikes
+                    }
+                    PokemonSideCondition::Stealthrock => {
+                        side.side_conditions.stealth_rock -= instruction.amount;
+                        side.side_conditions.stealth_rock
+                    }
+                    PokemonSideCondition::StickyWeb => {
+                        side.side_conditions.sticky_web -= instruction.amount;
+                        side.side_conditions.sticky_web
+                    }
+                    PokemonSideCondition::Tailwind => {
+                        side.side_conditions.tailwind -= instruction.amount;
+                        side.side_conditions.tailwind
+                    }
+                    PokemonSideCondition::ToxicCount => {
+                        side.side_conditions.toxic_count -= instruction.amount;
+                        side.side_conditions.toxic_count
+                    }
+                    PokemonSideCondition::ToxicSpikes => {
+                        side.side_conditions.toxic_spikes -= instruction.amount;
+                        side.side_conditions.toxic_spikes
+                    }
+                    PokemonSideCondition::WideGuard => {
+                        side.side_conditions.wide_guard -= instruction.amount;
+                        side.side_conditions.wide_guard
+                    }
+                };
+                if WITH_HASH {
+                    self.hash.update_hash_side_condition(
+                        instruction.side_ref as usize,
+                        instruction.side_condition as usize,
+                        (final_amount + instruction.amount) as usize,
+                    );
+                    self.hash.update_hash_side_condition(
+                        instruction.side_ref as usize,
+                        instruction.side_condition as usize,
+                        final_amount as usize,
+                    );
+                }
+            }
             Instruction::ChangeVolatileStatusDuration(instruction) => self
                 .increment_volatile_status_duration(
                     &instruction.side_ref,

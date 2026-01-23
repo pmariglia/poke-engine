@@ -1,9 +1,11 @@
 use poke_engine::engine::state::PokemonVolatileStatus;
 use poke_engine::instruction::{
-    ApplyVolatileStatusInstruction, BoostInstruction, ChangeStatusInstruction, DamageInstruction,
-    HealInstruction, Instruction, RemoveVolatileStatusInstruction, StateInstructions,
-    SwitchInstruction, ToggleTerastallizedInstruction,
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeSideConditionInstruction,
+    ChangeStatusInstruction, DamageInstruction, HealInstruction, Instruction,
+    RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction,
+    ToggleTerastallizedInstruction,
 };
+use poke_engine::state::PokemonSideCondition;
 use poke_engine::state::{PokemonBoostableStat, PokemonIndex, PokemonStatus, SideReference, State};
 
 fn get_starting_state_hash() -> u64 {
@@ -277,6 +279,54 @@ fn test_boost_change_keeps_the_same() {
             side_ref: SideReference::SideOne,
             stat: PokemonBoostableStat::Attack,
             amount: -1,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_side_condition() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+            side_ref: SideReference::SideOne,
+            amount: 1,
+            side_condition: PokemonSideCondition::AuroraVeil,
+        }),
+        Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+            side_ref: SideReference::SideTwo,
+            amount: 1,
+            side_condition: PokemonSideCondition::Tailwind,
+        }),
+    ];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_side_condition_instructions_that_nullify_each_other() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+            side_ref: SideReference::SideOne,
+            amount: 1,
+            side_condition: PokemonSideCondition::AuroraVeil,
+        }),
+        Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+            side_ref: SideReference::SideTwo,
+            amount: 1,
+            side_condition: PokemonSideCondition::Tailwind,
+        }),
+        Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+            side_ref: SideReference::SideOne,
+            amount: -1,
+            side_condition: PokemonSideCondition::AuroraVeil,
+        }),
+        Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+            side_ref: SideReference::SideTwo,
+            amount: -1,
+            side_condition: PokemonSideCondition::Tailwind,
         }),
     ];
     assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);

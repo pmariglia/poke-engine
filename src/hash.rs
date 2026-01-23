@@ -12,6 +12,7 @@ pub struct StateHash {
     volatile_status_numbers: [[u64; 256]; 2],
     status_numbers: [[[u64; 7]; 6]; 2],
     boost_numbers: [[[u64; 13]; 7]; 2],
+    side_condition_numbers: [[[u64; 17]; 19]; 2],
 }
 
 impl Default for StateHash {
@@ -24,6 +25,7 @@ impl Default for StateHash {
             volatile_status_numbers: [[0u64; 256]; 2],
             status_numbers: [[[0u64; 7]; 6]; 2],
             boost_numbers: [[[0u64; 13]; 7]; 2],
+            side_condition_numbers: [[[0u64; 17]; 19]; 2],
         }
     }
 }
@@ -46,57 +48,45 @@ impl StateHash {
             volatile_status_numbers: from_fn(|_side| from_fn(|_volatile| rng.random())),
             status_numbers: from_fn(|_side| from_fn(|_slot| from_fn(|_status| rng.random()))),
             boost_numbers: from_fn(|_side| from_fn(|_boost| from_fn(|_amount| rng.random()))),
+            side_condition_numbers: from_fn(|_side| {
+                from_fn(|_condition| from_fn(|_amount| rng.random()))
+            }),
         }
     }
     pub fn xor(&mut self, value: u64) {
         self.hash ^= value;
     }
 
-    // SWITCH
-    fn get_zobrist_switch(&self, side: usize, active_index: usize) -> u64 {
-        self.switch_numbers[side][active_index]
-    }
     pub fn update_hash_switch(&mut self, side: usize, active_index: usize) {
-        self.xor(self.get_zobrist_switch(side, active_index));
+        self.xor(self.switch_numbers[side][active_index]);
     }
 
-    // TERASTALLIZE
-    fn get_zobrist_terastallize(&self, side: usize) -> u64 {
-        self.terastallized_numbers[side]
-    }
     pub fn update_hash_terastallize(&mut self, side: usize) {
-        self.xor(self.get_zobrist_terastallize(side));
+        self.xor(self.terastallized_numbers[side]);
     }
 
-    // HEALTH
-    fn get_zobrist_health(&self, side: usize, slot: usize, hp: usize) -> u64 {
-        self.health_numbers[side][slot][hp]
-    }
     pub fn update_hash_health(&mut self, side: usize, slot: usize, hp: usize) {
-        self.xor(self.get_zobrist_health(side, slot, hp));
+        self.xor(self.health_numbers[side][slot][hp]);
     }
 
-    // VOLATILE STATUSES
-    fn get_zobrist_volatile_status(&self, side: usize, status_index: usize) -> u64 {
-        self.volatile_status_numbers[side][status_index]
-    }
     pub fn update_hash_volatile_status(&mut self, side: usize, status_index: usize) {
-        self.xor(self.get_zobrist_volatile_status(side, status_index));
+        self.xor(self.volatile_status_numbers[side][status_index]);
     }
 
-    // STATUS
-    fn get_zobrist_status(&self, side: usize, slot: usize, status_index: usize) -> u64 {
-        self.status_numbers[side][slot][status_index]
-    }
     pub fn update_hash_status(&mut self, side: usize, slot: usize, status_index: usize) {
-        self.xor(self.get_zobrist_status(side, slot, status_index));
+        self.xor(self.status_numbers[side][slot][status_index]);
     }
 
-    // BOOSTS
-    fn get_zobrist_boost(&self, side: usize, boost_index: usize, amount_index: usize) -> u64 {
-        self.boost_numbers[side][boost_index][amount_index]
-    }
     pub fn update_hash_boost(&mut self, side: usize, boost_index: usize, amount_index: usize) {
-        self.xor(self.get_zobrist_boost(side, boost_index, amount_index));
+        self.xor(self.boost_numbers[side][boost_index][amount_index]);
+    }
+
+    pub fn update_hash_side_condition(
+        &mut self,
+        side: usize,
+        condition_index: usize,
+        amount: usize,
+    ) {
+        self.xor(self.side_condition_numbers[side][condition_index][amount]);
     }
 }
