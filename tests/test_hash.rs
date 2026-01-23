@@ -1,9 +1,9 @@
 use poke_engine::engine::state::PokemonVolatileStatus;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeSideConditionInstruction,
-    ChangeStatusInstruction, DamageInstruction, HealInstruction, Instruction,
-    RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction,
-    ToggleTerastallizedInstruction,
+    ChangeStatusInstruction, ChangeVolatileStatusDurationInstruction, DamageInstruction,
+    HealInstruction, Instruction, RemoveVolatileStatusInstruction, StateInstructions,
+    SwitchInstruction, ToggleTerastallizedInstruction,
 };
 use poke_engine::state::PokemonSideCondition;
 use poke_engine::state::{PokemonBoostableStat, PokemonIndex, PokemonStatus, SideReference, State};
@@ -327,6 +327,54 @@ fn test_side_condition_instructions_that_nullify_each_other() {
             side_ref: SideReference::SideTwo,
             amount: -1,
             side_condition: PokemonSideCondition::Tailwind,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_volatile_duration() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+            side_ref: SideReference::SideOne,
+            amount: 1,
+            volatile_status: PokemonVolatileStatus::YAWN,
+        }),
+        Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+            side_ref: SideReference::SideTwo,
+            amount: 1,
+            volatile_status: PokemonVolatileStatus::TAUNT,
+        }),
+    ];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_volatile_durations_that_nullify_each_other() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+            side_ref: SideReference::SideOne,
+            amount: 1,
+            volatile_status: PokemonVolatileStatus::YAWN,
+        }),
+        Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+            side_ref: SideReference::SideTwo,
+            amount: 1,
+            volatile_status: PokemonVolatileStatus::TAUNT,
+        }),
+        Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+            side_ref: SideReference::SideOne,
+            amount: -1,
+            volatile_status: PokemonVolatileStatus::YAWN,
+        }),
+        Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+            side_ref: SideReference::SideTwo,
+            amount: -1,
+            volatile_status: PokemonVolatileStatus::TAUNT,
         }),
     ];
     assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);

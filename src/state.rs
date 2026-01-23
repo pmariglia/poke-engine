@@ -1485,39 +1485,6 @@ impl State {
         pkmn.status = new_status;
     }
 
-    fn increment_volatile_status_duration(
-        &mut self,
-        side_ref: &SideReference,
-        volatile_status: &PokemonVolatileStatus,
-        amount: i8,
-    ) {
-        let side = self.get_side(&side_ref);
-        match volatile_status {
-            PokemonVolatileStatus::CONFUSION => {
-                side.volatile_status_durations.confusion += amount;
-            }
-            PokemonVolatileStatus::LOCKEDMOVE => {
-                side.volatile_status_durations.lockedmove += amount;
-            }
-            PokemonVolatileStatus::ENCORE => {
-                side.volatile_status_durations.encore += amount;
-            }
-            PokemonVolatileStatus::SLOWSTART => {
-                side.volatile_status_durations.slowstart += amount;
-            }
-            PokemonVolatileStatus::TAUNT => {
-                side.volatile_status_durations.taunt += amount;
-            }
-            PokemonVolatileStatus::YAWN => {
-                side.volatile_status_durations.yawn += amount;
-            }
-            _ => panic!(
-                "Invalid volatile status for increment_volatile_status_duration: {:?}",
-                volatile_status
-            ),
-        }
-    }
-
     fn change_types(
         &mut self,
         side_reference: &SideReference,
@@ -1918,12 +1885,51 @@ impl State {
                     );
                 }
             }
-            Instruction::ChangeVolatileStatusDuration(instruction) => self
-                .increment_volatile_status_duration(
-                    &instruction.side_ref,
-                    &instruction.volatile_status,
-                    instruction.amount,
-                ),
+            Instruction::ChangeVolatileStatusDuration(instruction) => {
+                let side = self.get_side(&instruction.side_ref);
+                let (volatile_duration_index, final_amount) = match instruction.volatile_status {
+                    PokemonVolatileStatus::CONFUSION => {
+                        side.volatile_status_durations.confusion += instruction.amount;
+                        (0, side.volatile_status_durations.confusion)
+                    }
+                    PokemonVolatileStatus::LOCKEDMOVE => {
+                        side.volatile_status_durations.lockedmove += instruction.amount;
+                        (1, side.volatile_status_durations.lockedmove)
+                    }
+                    PokemonVolatileStatus::ENCORE => {
+                        side.volatile_status_durations.encore += instruction.amount;
+                        (2, side.volatile_status_durations.encore)
+                    }
+                    PokemonVolatileStatus::SLOWSTART => {
+                        side.volatile_status_durations.slowstart += instruction.amount;
+                        (3, side.volatile_status_durations.slowstart)
+                    }
+                    PokemonVolatileStatus::TAUNT => {
+                        side.volatile_status_durations.taunt += instruction.amount;
+                        (4, side.volatile_status_durations.taunt)
+                    }
+                    PokemonVolatileStatus::YAWN => {
+                        side.volatile_status_durations.yawn += instruction.amount;
+                        (5, side.volatile_status_durations.yawn)
+                    }
+                    _ => panic!(
+                        "Invalid volatile status for increment_volatile_status_duration: {:?}",
+                        instruction.volatile_status
+                    ),
+                };
+                if WITH_HASH {
+                    self.hash.update_hash_volatile_duration(
+                        instruction.side_ref as usize,
+                        volatile_duration_index,
+                        (final_amount - instruction.amount) as usize,
+                    );
+                    self.hash.update_hash_volatile_duration(
+                        instruction.side_ref as usize,
+                        volatile_duration_index,
+                        final_amount as usize,
+                    );
+                }
+            }
             Instruction::ChangeWeather(instruction) => self.change_weather(
                 instruction.new_weather,
                 instruction.new_weather_turns_remaining,
@@ -2363,12 +2369,51 @@ impl State {
                     );
                 }
             }
-            Instruction::ChangeVolatileStatusDuration(instruction) => self
-                .increment_volatile_status_duration(
-                    &instruction.side_ref,
-                    &instruction.volatile_status,
-                    -1 * instruction.amount,
-                ),
+            Instruction::ChangeVolatileStatusDuration(instruction) => {
+                let side = self.get_side(&instruction.side_ref);
+                let (volatile_duration_index, final_amount) = match instruction.volatile_status {
+                    PokemonVolatileStatus::CONFUSION => {
+                        side.volatile_status_durations.confusion -= instruction.amount;
+                        (0, side.volatile_status_durations.confusion)
+                    }
+                    PokemonVolatileStatus::LOCKEDMOVE => {
+                        side.volatile_status_durations.lockedmove -= instruction.amount;
+                        (1, side.volatile_status_durations.lockedmove)
+                    }
+                    PokemonVolatileStatus::ENCORE => {
+                        side.volatile_status_durations.encore -= instruction.amount;
+                        (2, side.volatile_status_durations.encore)
+                    }
+                    PokemonVolatileStatus::SLOWSTART => {
+                        side.volatile_status_durations.slowstart -= instruction.amount;
+                        (3, side.volatile_status_durations.slowstart)
+                    }
+                    PokemonVolatileStatus::TAUNT => {
+                        side.volatile_status_durations.taunt -= instruction.amount;
+                        (4, side.volatile_status_durations.taunt)
+                    }
+                    PokemonVolatileStatus::YAWN => {
+                        side.volatile_status_durations.yawn -= instruction.amount;
+                        (5, side.volatile_status_durations.yawn)
+                    }
+                    _ => panic!(
+                        "Invalid volatile status for increment_volatile_status_duration: {:?}",
+                        instruction.volatile_status
+                    ),
+                };
+                if WITH_HASH {
+                    self.hash.update_hash_volatile_duration(
+                        instruction.side_ref as usize,
+                        volatile_duration_index,
+                        (final_amount + instruction.amount) as usize,
+                    );
+                    self.hash.update_hash_volatile_duration(
+                        instruction.side_ref as usize,
+                        volatile_duration_index,
+                        final_amount as usize,
+                    );
+                }
+            }
             Instruction::ChangeWeather(instruction) => self.change_weather(
                 instruction.previous_weather,
                 instruction.previous_weather_turns_remaining,
