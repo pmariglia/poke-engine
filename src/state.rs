@@ -1980,7 +1980,7 @@ impl State {
                         self.terrain.turns_remaining as usize,
                     );
                 }
-            },
+            }
             Instruction::DecrementTerrainTurnsRemaining => {
                 if WITH_HASH {
                     self.hash.update_hash_terrain(
@@ -1997,7 +1997,25 @@ impl State {
                 }
             }
             Instruction::ChangeType(instruction) => {
-                self.change_types(&instruction.side_ref, instruction.new_types)
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let old_types = active.types;
+                let new_types = instruction.new_types;
+                active.types = new_types;
+                if WITH_HASH {
+                    self.hash.update_hash_type_change(
+                        instruction.side_ref as usize,
+                        old_types.0 as usize,
+                        old_types.1 as usize,
+                    );
+                }
+                if WITH_HASH {
+                    self.hash.update_hash_type_change(
+                        instruction.side_ref as usize,
+                        new_types.0 as usize,
+                        new_types.1 as usize,
+                    );
+                }
             }
             Instruction::ChangeAbility(instruction) => {
                 let active = self.get_side(&instruction.side_ref).get_active();
@@ -2516,7 +2534,7 @@ impl State {
                         self.terrain.turns_remaining as usize,
                     );
                 }
-            },
+            }
             Instruction::DecrementTerrainTurnsRemaining => {
                 if WITH_HASH {
                     self.hash.update_hash_terrain(
@@ -2533,6 +2551,25 @@ impl State {
                 }
             }
             Instruction::ChangeType(instruction) => {
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let old_types = active.types;
+                let new_types = instruction.old_types;
+                active.types = new_types;
+                if WITH_HASH {
+                    self.hash.update_hash_type_change(
+                        instruction.side_ref as usize,
+                        old_types.0 as usize,
+                        old_types.1 as usize,
+                    );
+                }
+                if WITH_HASH {
+                    self.hash.update_hash_type_change(
+                        instruction.side_ref as usize,
+                        new_types.0 as usize,
+                        new_types.1 as usize,
+                    );
+                }
                 self.change_types(&instruction.side_ref, instruction.old_types)
             }
             Instruction::ChangeAbility(instruction) => {

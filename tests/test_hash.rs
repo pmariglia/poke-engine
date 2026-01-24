@@ -1,9 +1,15 @@
-use poke_engine::engine::state::Terrain;
 use poke_engine::engine::state::PokemonVolatileStatus;
+use poke_engine::engine::state::Terrain;
 use poke_engine::engine::state::Weather;
-use poke_engine::instruction::{ApplyVolatileStatusInstruction, BoostInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeVolatileStatusDurationInstruction, ChangeWeather, DamageInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction, ToggleTerastallizedInstruction};
-use poke_engine::state::PokemonSideCondition;
+use poke_engine::instruction::{
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeSideConditionInstruction,
+    ChangeStatusInstruction, ChangeTerrain, ChangeType, ChangeVolatileStatusDurationInstruction,
+    ChangeWeather, DamageInstruction, HealInstruction, Instruction,
+    RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction,
+    ToggleTerastallizedInstruction,
+};
 use poke_engine::state::{PokemonBoostableStat, PokemonIndex, PokemonStatus, SideReference, State};
+use poke_engine::state::{PokemonSideCondition, PokemonType};
 
 fn get_starting_state_hash() -> u64 {
     2787307573912940442
@@ -401,7 +407,7 @@ fn test_weather_change_with_decrement() {
             previous_weather: Weather::NONE,
             previous_weather_turns_remaining: 0,
         }),
-        Instruction::DecrementWeatherTurnsRemaining
+        Instruction::DecrementWeatherTurnsRemaining,
     ];
     assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
 }
@@ -438,7 +444,7 @@ fn test_weather_change_nullifies_itself_with_decrement() {
             previous_weather: Weather::NONE,
             previous_weather_turns_remaining: 0,
         }),
-        Instruction::DecrementWeatherTurnsRemaining
+        Instruction::DecrementWeatherTurnsRemaining,
     ];
     assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
 }
@@ -467,7 +473,7 @@ fn test_terrain_change_with_decrement() {
             previous_terrain: Terrain::NONE,
             previous_terrain_turns_remaining: 0,
         }),
-        Instruction::DecrementTerrainTurnsRemaining
+        Instruction::DecrementTerrainTurnsRemaining,
     ];
     assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
 }
@@ -504,7 +510,38 @@ fn test_terrain_change_with_decrement_nullifies_itself() {
             previous_terrain: Terrain::NONE,
             previous_terrain_turns_remaining: 0,
         }),
-        Instruction::DecrementTerrainTurnsRemaining
+        Instruction::DecrementTerrainTurnsRemaining,
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_type_change() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![Instruction::ChangeType(ChangeType {
+        side_ref: SideReference::SideOne,
+        new_types: (PokemonType::FIRE, PokemonType::WATER),
+        old_types: (PokemonType::NORMAL, PokemonType::TYPELESS),
+    })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_type_change_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeType(ChangeType {
+            side_ref: SideReference::SideOne,
+            new_types: (PokemonType::FIRE, PokemonType::WATER),
+            old_types: (PokemonType::NORMAL, PokemonType::TYPELESS),
+        }),
+        Instruction::ChangeType(ChangeType {
+            side_ref: SideReference::SideOne,
+            new_types: (PokemonType::NORMAL, PokemonType::TYPELESS),
+            old_types: (PokemonType::FIRE, PokemonType::WATER),
+        }),
     ];
     assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
 }

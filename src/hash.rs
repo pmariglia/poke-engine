@@ -16,6 +16,7 @@ pub struct StateHash {
     volatile_duration_numbers: [[[u64; 17]; 6]; 2],
     weather_numbers: [[u64; 9]; 8],
     terrain_numbers: [[u64; 9]; 5],
+    type_change_numbers: [[[u64; 20]; 20]; 2],
 }
 
 impl Default for StateHash {
@@ -32,6 +33,7 @@ impl Default for StateHash {
             volatile_duration_numbers: [[[0u64; 17]; 6]; 2],
             weather_numbers: [[0u64; 9]; 8],
             terrain_numbers: [[0u64; 9]; 5],
+            type_change_numbers: [[[0u64; 20]; 20]; 2],
         }
     }
 }
@@ -62,6 +64,9 @@ impl StateHash {
             }),
             weather_numbers: from_fn(|_weather| from_fn(|_turns_remaining| rng.random())),
             terrain_numbers: from_fn(|_terrain| from_fn(|_turns_remaining| rng.random())),
+            type_change_numbers: from_fn(|_side| {
+                from_fn(|_type_1| from_fn(|_type_2| rng.random()))
+            }),
         }
     }
     pub fn xor(&mut self, value: u64) {
@@ -116,5 +121,14 @@ impl StateHash {
 
     pub fn update_hash_terrain(&mut self, terrain_index: usize, turns_remaining_index: usize) {
         self.xor(self.terrain_numbers[terrain_index][turns_remaining_index]);
+    }
+
+    pub fn update_hash_type_change(
+        &mut self,
+        side: usize,
+        type_1_index: usize,
+        type_2_index: usize,
+    ) {
+        self.xor(self.type_change_numbers[side][type_1_index][type_2_index]);
     }
 }
