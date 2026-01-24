@@ -6,10 +6,11 @@ use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeAbilityInstruction,
     ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatInstruction,
     ChangeStatusInstruction, ChangeTerrain, ChangeType, ChangeVolatileStatusDurationInstruction,
-    ChangeWeather, DamageInstruction, HealInstruction, Instruction,
-    RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction,
-    ToggleTerastallizedInstruction,
+    ChangeWeather, DamageInstruction, DisableMoveInstruction, EnableMoveInstruction,
+    HealInstruction, Instruction, RemoveVolatileStatusInstruction, StateInstructions,
+    SwitchInstruction, ToggleTerastallizedInstruction,
 };
+use poke_engine::state::PokemonMoveIndex;
 use poke_engine::state::{PokemonBoostableStat, PokemonIndex, PokemonStatus, SideReference, State};
 use poke_engine::state::{PokemonSideCondition, PokemonType};
 
@@ -745,6 +746,34 @@ fn test_speed_change_nullifies_itself() {
         Instruction::ChangeSpeed(ChangeStatInstruction {
             side_ref: SideReference::SideOne,
             amount: -50,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_move_disabling() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![Instruction::DisableMove(DisableMoveInstruction {
+        side_ref: SideReference::SideOne,
+        move_index: PokemonMoveIndex::M0,
+    })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_move_disabling_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::DisableMove(DisableMoveInstruction {
+            side_ref: SideReference::SideOne,
+            move_index: PokemonMoveIndex::M0,
+        }),
+        Instruction::EnableMove(EnableMoveInstruction {
+            side_ref: SideReference::SideOne,
+            move_index: PokemonMoveIndex::M0,
         }),
     ];
     assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);

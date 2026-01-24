@@ -24,6 +24,7 @@ pub struct StateHash {
     special_attack_change_numbers: [[u64; 650]; 2],
     special_defense_change_numbers: [[u64; 650]; 2],
     speed_change_numbers: [[u64; 650]; 2],
+    move_disabled_numbers: [[[u64; 2]; 4]; 2],
 }
 
 impl Default for StateHash {
@@ -48,6 +49,7 @@ impl Default for StateHash {
             special_attack_change_numbers: [[0u64; 650]; 2],
             special_defense_change_numbers: [[0u64; 650]; 2],
             speed_change_numbers: [[0u64; 650]; 2],
+            move_disabled_numbers: [[[0u64; 2]; 4]; 2],
         }
     }
 }
@@ -88,6 +90,7 @@ impl StateHash {
             special_attack_change_numbers: from_fn(|_side| from_fn(|_change| rng.random())),
             special_defense_change_numbers: from_fn(|_side| from_fn(|_change| rng.random())),
             speed_change_numbers: from_fn(|_side| from_fn(|_change| rng.random())),
+            move_disabled_numbers: from_fn(|_side| from_fn(|_move| from_fn(|_state| rng.random()))),
         }
     }
     pub fn xor(&mut self, value: u64) {
@@ -179,5 +182,14 @@ impl StateHash {
 
     pub fn update_hash_speed_change(&mut self, side: usize, change_index: usize) {
         self.xor(self.speed_change_numbers[side][change_index]);
+    }
+
+    pub fn update_hash_move_disabled(
+        &mut self,
+        side: usize,
+        move_index: usize,
+        state_index: usize,
+    ) {
+        self.xor(self.move_disabled_numbers[side][move_index][state_index]);
     }
 }

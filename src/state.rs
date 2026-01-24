@@ -1503,14 +1503,6 @@ impl State {
         self.terrain.turns_remaining = turns_remaining;
     }
 
-    fn enable_move(&mut self, side_reference: &SideReference, move_index: &PokemonMoveIndex) {
-        self.get_side(side_reference).get_active().moves[move_index].disabled = false;
-    }
-
-    fn disable_move(&mut self, side_reference: &SideReference, move_index: &PokemonMoveIndex) {
-        self.get_side(side_reference).get_active().moves[move_index].disabled = true;
-    }
-
     fn set_wish(&mut self, side_reference: &SideReference, wish_amount_change: i16) {
         self.get_side(side_reference).wish.0 = 2;
         self.get_side(side_reference).wish.1 += wish_amount_change;
@@ -2154,10 +2146,40 @@ impl State {
                 }
             }
             Instruction::EnableMove(instruction) => {
-                self.enable_move(&instruction.side_ref, &instruction.move_index)
+                let pkmn_move = &mut self.get_side(&instruction.side_ref).get_active().moves
+                    [&instruction.move_index];
+                let existing_state = pkmn_move.disabled;
+                pkmn_move.disabled = false;
+                if WITH_HASH {
+                    self.hash.update_hash_move_disabled(
+                        instruction.side_ref as usize,
+                        instruction.move_index as usize,
+                        existing_state as usize,
+                    );
+                    self.hash.update_hash_move_disabled(
+                        instruction.side_ref as usize,
+                        instruction.move_index as usize,
+                        false as usize,
+                    );
+                }
             }
             Instruction::DisableMove(instruction) => {
-                self.disable_move(&instruction.side_ref, &instruction.move_index)
+                let pkmn_move = &mut self.get_side(&instruction.side_ref).get_active().moves
+                    [&instruction.move_index];
+                let existing_state = pkmn_move.disabled;
+                pkmn_move.disabled = true;
+                if WITH_HASH {
+                    self.hash.update_hash_move_disabled(
+                        instruction.side_ref as usize,
+                        instruction.move_index as usize,
+                        existing_state as usize,
+                    );
+                    self.hash.update_hash_move_disabled(
+                        instruction.side_ref as usize,
+                        instruction.move_index as usize,
+                        true as usize,
+                    );
+                }
             }
             Instruction::ChangeWish(instruction) => {
                 self.set_wish(&instruction.side_ref, instruction.wish_amount_change);
@@ -2676,10 +2698,40 @@ impl State {
                 }
             }
             Instruction::EnableMove(instruction) => {
-                self.disable_move(&instruction.side_ref, &instruction.move_index)
+                let pkmn_move = &mut self.get_side(&instruction.side_ref).get_active().moves
+                    [&instruction.move_index];
+                let existing_state = pkmn_move.disabled;
+                pkmn_move.disabled = true;
+                if WITH_HASH {
+                    self.hash.update_hash_move_disabled(
+                        instruction.side_ref as usize,
+                        instruction.move_index as usize,
+                        existing_state as usize,
+                    );
+                    self.hash.update_hash_move_disabled(
+                        instruction.side_ref as usize,
+                        instruction.move_index as usize,
+                        true as usize,
+                    );
+                }
             }
             Instruction::DisableMove(instruction) => {
-                self.enable_move(&instruction.side_ref, &instruction.move_index)
+                let pkmn_move = &mut self.get_side(&instruction.side_ref).get_active().moves
+                    [&instruction.move_index];
+                let existing_state = pkmn_move.disabled;
+                pkmn_move.disabled = false;
+                if WITH_HASH {
+                    self.hash.update_hash_move_disabled(
+                        instruction.side_ref as usize,
+                        instruction.move_index as usize,
+                        existing_state as usize,
+                    );
+                    self.hash.update_hash_move_disabled(
+                        instruction.side_ref as usize,
+                        instruction.move_index as usize,
+                        false as usize,
+                    );
+                }
             }
             Instruction::Heal(instruction) => {
                 let side_ref_usize = instruction.side_ref as usize;
