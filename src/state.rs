@@ -1503,18 +1503,6 @@ impl State {
         self.terrain.turns_remaining = turns_remaining;
     }
 
-    fn damage_substitute(&mut self, side_reference: &SideReference, amount: i16) {
-        self.get_side(side_reference).substitute_health -= amount;
-    }
-
-    fn heal_substitute(&mut self, side_reference: &SideReference, amount: i16) {
-        self.get_side(side_reference).substitute_health += amount;
-    }
-
-    fn set_substitute_health(&mut self, side_reference: &SideReference, amount: i16) {
-        self.get_side(side_reference).substitute_health += amount;
-    }
-
     fn decrement_rest_turn(&mut self, side_reference: &SideReference) {
         self.get_side(side_reference).get_active().rest_turns -= 1;
     }
@@ -2222,10 +2210,36 @@ impl State {
                 }
             }
             Instruction::DamageSubstitute(instruction) => {
-                self.damage_substitute(&instruction.side_ref, instruction.damage_amount);
+                let side = self.get_side(&instruction.side_ref);
+                let existing_sub_health = side.substitute_health;
+                side.substitute_health -= instruction.damage_amount;
+                let new_sub_health = side.substitute_health;
+                if WITH_HASH {
+                    self.hash.update_hash_substitute_health(
+                        instruction.side_ref as usize,
+                        existing_sub_health as usize,
+                    );
+                    self.hash.update_hash_substitute_health(
+                        instruction.side_ref as usize,
+                        new_sub_health as usize,
+                    );
+                }
             }
             Instruction::ChangeSubstituteHealth(instruction) => {
-                self.set_substitute_health(&instruction.side_ref, instruction.health_change);
+                let side = self.get_side(&instruction.side_ref);
+                let existing_sub_health = side.substitute_health;
+                side.substitute_health += instruction.health_change;
+                let new_sub_health = side.substitute_health;
+                if WITH_HASH {
+                    self.hash.update_hash_substitute_health(
+                        instruction.side_ref as usize,
+                        existing_sub_health as usize,
+                    );
+                    self.hash.update_hash_substitute_health(
+                        instruction.side_ref as usize,
+                        new_sub_health as usize,
+                    );
+                }
             }
             Instruction::SetRestTurns(instruction) => {
                 self.set_rest_turn(
@@ -2967,10 +2981,36 @@ impl State {
                 }
             }
             Instruction::DamageSubstitute(instruction) => {
-                self.heal_substitute(&instruction.side_ref, instruction.damage_amount);
+                let side = self.get_side(&instruction.side_ref);
+                let existing_sub_health = side.substitute_health;
+                side.substitute_health += instruction.damage_amount;
+                let new_sub_health = side.substitute_health;
+                if WITH_HASH {
+                    self.hash.update_hash_substitute_health(
+                        instruction.side_ref as usize,
+                        existing_sub_health as usize,
+                    );
+                    self.hash.update_hash_substitute_health(
+                        instruction.side_ref as usize,
+                        new_sub_health as usize,
+                    );
+                }
             }
             Instruction::ChangeSubstituteHealth(instruction) => {
-                self.set_substitute_health(&instruction.side_ref, -1 * instruction.health_change);
+                let side = self.get_side(&instruction.side_ref);
+                let existing_sub_health = side.substitute_health;
+                side.substitute_health -= instruction.health_change;
+                let new_sub_health = side.substitute_health;
+                if WITH_HASH {
+                    self.hash.update_hash_substitute_health(
+                        instruction.side_ref as usize,
+                        existing_sub_health as usize,
+                    );
+                    self.hash.update_hash_substitute_health(
+                        instruction.side_ref as usize,
+                        new_sub_health as usize,
+                    );
+                }
             }
             Instruction::SetRestTurns(instruction) => {
                 self.set_rest_turn(

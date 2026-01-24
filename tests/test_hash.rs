@@ -5,10 +5,11 @@ use poke_engine::engine::state::Weather;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeAbilityInstruction,
     ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatInstruction,
-    ChangeStatusInstruction, ChangeTerrain, ChangeType, ChangeVolatileStatusDurationInstruction,
-    ChangeWeather, ChangeWishInstruction, DamageInstruction, DecrementFutureSightInstruction,
-    DecrementWishInstruction, DisableMoveInstruction, EnableMoveInstruction, HealInstruction,
-    Instruction, RemoveVolatileStatusInstruction, SetFutureSightInstruction, StateInstructions,
+    ChangeStatusInstruction, ChangeSubsituteHealthInstruction, ChangeTerrain, ChangeType,
+    ChangeVolatileStatusDurationInstruction, ChangeWeather, ChangeWishInstruction,
+    DamageInstruction, DecrementFutureSightInstruction, DecrementWishInstruction,
+    DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction,
+    RemoveVolatileStatusInstruction, SetFutureSightInstruction, StateInstructions,
     SwitchInstruction, ToggleTerastallizedInstruction,
 };
 use poke_engine::state::PokemonMoveIndex;
@@ -873,7 +874,6 @@ fn test_set_future_sight_nullifies_itself() {
 #[test]
 fn test_decrement_future_sight() {
     let mut state = state_with_default_hash();
-    // First set future sight to have a value to decrement
     state.side_one.future_sight = (3, PokemonIndex::P0);
     state.apply_instructions_with_hash(&vec![]);
 
@@ -884,4 +884,38 @@ fn test_decrement_future_sight() {
         },
     )];
     assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_set_sub_health() {
+    let mut state = state_with_default_hash();
+    state.apply_instructions_with_hash(&vec![]);
+
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![Instruction::ChangeSubstituteHealth(
+        ChangeSubsituteHealthInstruction {
+            side_ref: SideReference::SideOne,
+            health_change: 100,
+        },
+    )];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_set_sub_health_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    state.apply_instructions_with_hash(&vec![]);
+
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
+            side_ref: SideReference::SideOne,
+            health_change: 100,
+        }),
+        Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
+            side_ref: SideReference::SideOne,
+            health_change: -100,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
 }
