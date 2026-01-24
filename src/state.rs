@@ -1963,12 +1963,38 @@ impl State {
                     );
                 }
             }
-            Instruction::ChangeTerrain(instruction) => self.change_terrain(
-                instruction.new_terrain,
-                instruction.new_terrain_turns_remaining,
-            ),
+            Instruction::ChangeTerrain(instruction) => {
+                if WITH_HASH {
+                    self.hash.update_hash_terrain(
+                        self.terrain.terrain_type as usize,
+                        self.terrain.turns_remaining as usize,
+                    );
+                }
+                self.change_terrain(
+                    instruction.new_terrain,
+                    instruction.new_terrain_turns_remaining,
+                );
+                if WITH_HASH {
+                    self.hash.update_hash_terrain(
+                        self.terrain.terrain_type as usize,
+                        self.terrain.turns_remaining as usize,
+                    );
+                }
+            },
             Instruction::DecrementTerrainTurnsRemaining => {
+                if WITH_HASH {
+                    self.hash.update_hash_terrain(
+                        self.terrain.terrain_type as usize,
+                        self.terrain.turns_remaining as usize,
+                    );
+                }
                 self.terrain.turns_remaining -= 1;
+                if WITH_HASH {
+                    self.hash.update_hash_terrain(
+                        self.terrain.terrain_type as usize,
+                        self.terrain.turns_remaining as usize,
+                    );
+                }
             }
             Instruction::ChangeType(instruction) => {
                 self.change_types(&instruction.side_ref, instruction.new_types)
@@ -2473,12 +2499,38 @@ impl State {
                     );
                 }
             }
-            Instruction::ChangeTerrain(instruction) => self.change_terrain(
-                instruction.previous_terrain,
-                instruction.previous_terrain_turns_remaining,
-            ),
+            Instruction::ChangeTerrain(instruction) => {
+                if WITH_HASH {
+                    self.hash.update_hash_terrain(
+                        self.terrain.terrain_type as usize,
+                        self.terrain.turns_remaining as usize,
+                    );
+                }
+                self.change_terrain(
+                    instruction.previous_terrain,
+                    instruction.previous_terrain_turns_remaining,
+                );
+                if WITH_HASH {
+                    self.hash.update_hash_terrain(
+                        self.terrain.terrain_type as usize,
+                        self.terrain.turns_remaining as usize,
+                    );
+                }
+            },
             Instruction::DecrementTerrainTurnsRemaining => {
+                if WITH_HASH {
+                    self.hash.update_hash_terrain(
+                        self.terrain.terrain_type as usize,
+                        self.terrain.turns_remaining as usize,
+                    );
+                }
                 self.terrain.turns_remaining += 1;
+                if WITH_HASH {
+                    self.hash.update_hash_terrain(
+                        self.terrain.terrain_type as usize,
+                        self.terrain.turns_remaining as usize,
+                    );
+                }
             }
             Instruction::ChangeType(instruction) => {
                 self.change_types(&instruction.side_ref, instruction.old_types)

@@ -1,11 +1,7 @@
+use poke_engine::engine::state::Terrain;
 use poke_engine::engine::state::PokemonVolatileStatus;
 use poke_engine::engine::state::Weather;
-use poke_engine::instruction::{
-    ApplyVolatileStatusInstruction, BoostInstruction, ChangeSideConditionInstruction,
-    ChangeStatusInstruction, ChangeVolatileStatusDurationInstruction, ChangeWeather,
-    DamageInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction,
-    StateInstructions, SwitchInstruction, ToggleTerastallizedInstruction,
-};
+use poke_engine::instruction::{ApplyVolatileStatusInstruction, BoostInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeVolatileStatusDurationInstruction, ChangeWeather, DamageInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction, ToggleTerastallizedInstruction};
 use poke_engine::state::PokemonSideCondition;
 use poke_engine::state::{PokemonBoostableStat, PokemonIndex, PokemonStatus, SideReference, State};
 
@@ -443,6 +439,72 @@ fn test_weather_change_nullifies_itself_with_decrement() {
             previous_weather_turns_remaining: 0,
         }),
         Instruction::DecrementWeatherTurnsRemaining
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_terrain_change() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![Instruction::ChangeTerrain(ChangeTerrain {
+        new_terrain: Terrain::ELECTRICTERRAIN,
+        new_terrain_turns_remaining: 5,
+        previous_terrain: Terrain::NONE,
+        previous_terrain_turns_remaining: 0,
+    })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_terrain_change_with_decrement() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeTerrain(ChangeTerrain {
+            new_terrain: Terrain::ELECTRICTERRAIN,
+            new_terrain_turns_remaining: 5,
+            previous_terrain: Terrain::NONE,
+            previous_terrain_turns_remaining: 0,
+        }),
+        Instruction::DecrementTerrainTurnsRemaining
+    ];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_terrain_change_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeTerrain(ChangeTerrain {
+            new_terrain: Terrain::ELECTRICTERRAIN,
+            new_terrain_turns_remaining: 1,
+            previous_terrain: Terrain::NONE,
+            previous_terrain_turns_remaining: 0,
+        }),
+        Instruction::ChangeTerrain(ChangeTerrain {
+            new_terrain: Terrain::NONE,
+            new_terrain_turns_remaining: 0,
+            previous_terrain: Terrain::ELECTRICTERRAIN,
+            previous_terrain_turns_remaining: 1,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_terrain_change_with_decrement_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeTerrain(ChangeTerrain {
+            new_terrain: Terrain::NONE,
+            new_terrain_turns_remaining: 1,
+            previous_terrain: Terrain::NONE,
+            previous_terrain_turns_remaining: 0,
+        }),
+        Instruction::DecrementTerrainTurnsRemaining
     ];
     assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
 }
