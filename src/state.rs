@@ -79,6 +79,16 @@ impl LastUsedMove {
     }
 }
 
+impl From<LastUsedMove> for usize {
+    fn from(last_used_move: LastUsedMove) -> Self {
+        match last_used_move {
+            LastUsedMove::Move(move_index) => move_index as usize, // 0-3
+            LastUsedMove::Switch(pkmn_index) => pkmn_index as usize + 4, // 4-9
+            LastUsedMove::None => 10,
+        }
+    }
+}
+
 #[derive(Debug, Copy, PartialEq, Clone, Eq, Hash)]
 pub enum PokemonMoveIndex {
     M0,
@@ -1505,13 +1515,6 @@ impl State {
         self.trick_room.turns_remaining = new_turns_remaining;
     }
 
-    fn set_last_used_move(&mut self, side_reference: &SideReference, last_used_move: LastUsedMove) {
-        match side_reference {
-            SideReference::SideOne => self.side_one.last_used_move = last_used_move,
-            SideReference::SideTwo => self.side_two.last_used_move = last_used_move,
-        }
-    }
-
     fn decrement_pp(
         &mut self,
         side_reference: &SideReference,
@@ -2341,7 +2344,18 @@ impl State {
                 }
             },
             Instruction::SetLastUsedMove(instruction) => {
-                self.set_last_used_move(&instruction.side_ref, instruction.last_used_move)
+                let side = self.get_side(&instruction.side_ref);
+                side.last_used_move = instruction.last_used_move;
+                if WITH_HASH {
+                    self.hash.update_hash_set_last_used_move(
+                        instruction.side_ref as usize,
+                        instruction.previous_last_used_move.into(),
+                    );
+                    self.hash.update_hash_set_last_used_move(
+                        instruction.side_ref as usize,
+                        instruction.last_used_move.into(),
+                    );
+                }
             }
             Instruction::ChangeDamageDealtDamage(instruction) => {
                 self.get_side(&instruction.side_ref).damage_dealt.damage +=
@@ -3195,7 +3209,18 @@ impl State {
                 }
             },
             Instruction::SetLastUsedMove(instruction) => {
-                self.set_last_used_move(&instruction.side_ref, instruction.previous_last_used_move)
+                let side = self.get_side(&instruction.side_ref);
+                side.last_used_move = instruction.previous_last_used_move;
+                if WITH_HASH {
+                    self.hash.update_hash_set_last_used_move(
+                        instruction.side_ref as usize,
+                        instruction.previous_last_used_move.into(),
+                    );
+                    self.hash.update_hash_set_last_used_move(
+                        instruction.side_ref as usize,
+                        instruction.last_used_move.into(),
+                    );
+                }
             }
             Instruction::ChangeDamageDealtDamage(instruction) => {
                 self.get_side(&instruction.side_ref).damage_dealt.damage -=

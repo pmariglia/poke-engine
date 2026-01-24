@@ -37,6 +37,7 @@ pub struct StateHash {
     toggle_baton_passing_numbers: [u64; 2],
     toggle_shed_tailing_numbers: [u64; 2],
     toggle_force_switch_numbers: [u64; 2],
+    set_last_used_move_numbers: [[u64; 11]; 2],
 }
 
 impl Default for StateHash {
@@ -74,6 +75,7 @@ impl Default for StateHash {
             toggle_baton_passing_numbers: [0u64; 2],
             toggle_shed_tailing_numbers: [0u64; 2],
             toggle_force_switch_numbers: [0u64; 2],
+            set_last_used_move_numbers: [[0u64; 11]; 2],
         }
     }
 }
@@ -127,6 +129,7 @@ impl StateHash {
             toggle_baton_passing_numbers: from_fn(|_side| rng.random()),
             toggle_shed_tailing_numbers: from_fn(|_side| rng.random()),
             toggle_force_switch_numbers: from_fn(|_side| rng.random()),
+            set_last_used_move_numbers: from_fn(|_side| from_fn(|_move| rng.random())),
         }
     }
     pub fn xor(&mut self, value: u64) {
@@ -275,5 +278,9 @@ impl StateHash {
 
     pub fn update_hash_toggle_force_switch(&mut self, side: usize) {
         self.xor(self.toggle_force_switch_numbers[side]);
+    }
+
+    pub fn update_hash_set_last_used_move(&mut self, side: usize, move_index: usize) {
+        self.xor(self.set_last_used_move_numbers[side][move_index]);
     }
 }
