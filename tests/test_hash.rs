@@ -6,10 +6,10 @@ use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeAbilityInstruction,
     ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatInstruction,
     ChangeStatusInstruction, ChangeTerrain, ChangeType, ChangeVolatileStatusDurationInstruction,
-    ChangeWeather, ChangeWishInstruction, DamageInstruction, DecrementWishInstruction,
-    DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction,
-    RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction,
-    ToggleTerastallizedInstruction,
+    ChangeWeather, ChangeWishInstruction, DamageInstruction, DecrementFutureSightInstruction,
+    DecrementWishInstruction, DisableMoveInstruction, EnableMoveInstruction, HealInstruction,
+    Instruction, RemoveVolatileStatusInstruction, SetFutureSightInstruction, StateInstructions,
+    SwitchInstruction, ToggleTerastallizedInstruction,
 };
 use poke_engine::state::PokemonMoveIndex;
 use poke_engine::state::{PokemonBoostableStat, PokemonIndex, PokemonStatus, SideReference, State};
@@ -826,5 +826,62 @@ fn test_decrement_wish() {
         vec![Instruction::DecrementWish(DecrementWishInstruction {
             side_ref: SideReference::SideOne,
         })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_set_future_sight() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list =
+        vec![Instruction::SetFutureSight(SetFutureSightInstruction {
+            side_ref: SideReference::SideOne,
+            pokemon_index: PokemonIndex::P0,
+            previous_pokemon_index: PokemonIndex::P0,
+        })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_set_future_sight_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::SetFutureSight(SetFutureSightInstruction {
+            side_ref: SideReference::SideOne,
+            pokemon_index: PokemonIndex::P1,
+            previous_pokemon_index: PokemonIndex::P0,
+        }),
+        Instruction::SetFutureSight(SetFutureSightInstruction {
+            side_ref: SideReference::SideOne,
+            pokemon_index: PokemonIndex::P0,
+            previous_pokemon_index: PokemonIndex::P1,
+        }),
+        Instruction::DecrementFutureSight(DecrementFutureSightInstruction {
+            side_ref: SideReference::SideOne,
+        }),
+        Instruction::DecrementFutureSight(DecrementFutureSightInstruction {
+            side_ref: SideReference::SideOne,
+        }),
+        Instruction::DecrementFutureSight(DecrementFutureSightInstruction {
+            side_ref: SideReference::SideOne,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_decrement_future_sight() {
+    let mut state = state_with_default_hash();
+    // First set future sight to have a value to decrement
+    state.side_one.future_sight = (3, PokemonIndex::P0);
+    state.apply_instructions_with_hash(&vec![]);
+
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![Instruction::DecrementFutureSight(
+        DecrementFutureSightInstruction {
+            side_ref: SideReference::SideOne,
+        },
+    )];
     assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
 }

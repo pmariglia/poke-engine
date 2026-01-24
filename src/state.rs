@@ -1503,30 +1503,6 @@ impl State {
         self.terrain.turns_remaining = turns_remaining;
     }
 
-    fn set_future_sight(&mut self, side_reference: &SideReference, pokemon_index: PokemonIndex) {
-        let side = self.get_side(side_reference);
-        side.future_sight.0 = 3;
-        side.future_sight.1 = pokemon_index;
-    }
-
-    fn unset_future_sight(
-        &mut self,
-        side_reference: &SideReference,
-        previous_pokemon_index: PokemonIndex,
-    ) {
-        let side = self.get_side(side_reference);
-        side.future_sight.0 = 0;
-        side.future_sight.1 = previous_pokemon_index;
-    }
-
-    fn increment_future_sight(&mut self, side_reference: &SideReference) {
-        self.get_side(side_reference).future_sight.0 += 1;
-    }
-
-    fn decrement_future_sight(&mut self, side_reference: &SideReference) {
-        self.get_side(side_reference).future_sight.0 -= 1;
-    }
-
     fn damage_substitute(&mut self, side_reference: &SideReference, amount: i16) {
         self.get_side(side_reference).substitute_health -= amount;
     }
@@ -2205,10 +2181,45 @@ impl State {
                 }
             }
             Instruction::SetFutureSight(instruction) => {
-                self.set_future_sight(&instruction.side_ref, instruction.pokemon_index);
+                let side = self.get_side(&instruction.side_ref);
+                let (previous_futuresight_counter, previous_pokemon_index) = side.future_sight;
+                side.future_sight.0 = 3;
+                side.future_sight.1 = instruction.pokemon_index;
+                let (new_futuresight_counter, new_pokemon_index) = side.future_sight;
+                if WITH_HASH {
+                    self.hash.update_hash_change_future_sight_counter(
+                        instruction.side_ref as usize,
+                        previous_futuresight_counter as usize,
+                    );
+                    self.hash.update_hash_future_sight_pkmn_index(
+                        instruction.side_ref as usize,
+                        previous_pokemon_index as usize,
+                    );
+                    self.hash.update_hash_change_future_sight_counter(
+                        instruction.side_ref as usize,
+                        new_futuresight_counter as usize,
+                    );
+                    self.hash.update_hash_future_sight_pkmn_index(
+                        instruction.side_ref as usize,
+                        new_pokemon_index as usize,
+                    );
+                }
             }
             Instruction::DecrementFutureSight(instruction) => {
-                self.decrement_future_sight(&instruction.side_ref);
+                let side = self.get_side(&instruction.side_ref);
+                let exiting_futuresight_counter = side.future_sight.0;
+                side.future_sight.0 -= 1;
+                let new_futuresight_counter = side.future_sight.0;
+                if WITH_HASH {
+                    self.hash.update_hash_change_future_sight_counter(
+                        instruction.side_ref as usize,
+                        exiting_futuresight_counter as usize,
+                    );
+                    self.hash.update_hash_change_future_sight_counter(
+                        instruction.side_ref as usize,
+                        new_futuresight_counter as usize,
+                    );
+                }
             }
             Instruction::DamageSubstitute(instruction) => {
                 self.damage_substitute(&instruction.side_ref, instruction.damage_amount);
@@ -2915,10 +2926,45 @@ impl State {
                 }
             }
             Instruction::SetFutureSight(instruction) => {
-                self.unset_future_sight(&instruction.side_ref, instruction.previous_pokemon_index)
+                let side = self.get_side(&instruction.side_ref);
+                let (previous_futuresight_counter, previous_pokemon_index) = side.future_sight;
+                side.future_sight.0 = 0;
+                side.future_sight.1 = instruction.previous_pokemon_index;
+                let (new_futuresight_counter, new_pokemon_index) = side.future_sight;
+                if WITH_HASH {
+                    self.hash.update_hash_change_future_sight_counter(
+                        instruction.side_ref as usize,
+                        previous_futuresight_counter as usize,
+                    );
+                    self.hash.update_hash_future_sight_pkmn_index(
+                        instruction.side_ref as usize,
+                        previous_pokemon_index as usize,
+                    );
+                    self.hash.update_hash_change_future_sight_counter(
+                        instruction.side_ref as usize,
+                        new_futuresight_counter as usize,
+                    );
+                    self.hash.update_hash_future_sight_pkmn_index(
+                        instruction.side_ref as usize,
+                        new_pokemon_index as usize,
+                    );
+                }
             }
             Instruction::DecrementFutureSight(instruction) => {
-                self.increment_future_sight(&instruction.side_ref)
+                let side = self.get_side(&instruction.side_ref);
+                let exiting_futuresight_counter = side.future_sight.0;
+                side.future_sight.0 += 1;
+                let new_futuresight_counter = side.future_sight.0;
+                if WITH_HASH {
+                    self.hash.update_hash_change_future_sight_counter(
+                        instruction.side_ref as usize,
+                        exiting_futuresight_counter as usize,
+                    );
+                    self.hash.update_hash_change_future_sight_counter(
+                        instruction.side_ref as usize,
+                        new_futuresight_counter as usize,
+                    );
+                }
             }
             Instruction::DamageSubstitute(instruction) => {
                 self.heal_substitute(&instruction.side_ref, instruction.damage_amount);
