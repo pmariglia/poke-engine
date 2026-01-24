@@ -1,12 +1,13 @@
+use poke_engine::engine::items::Items;
 use poke_engine::engine::state::PokemonVolatileStatus;
 use poke_engine::engine::state::Terrain;
 use poke_engine::engine::state::Weather;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeAbilityInstruction,
-    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeType,
-    ChangeVolatileStatusDurationInstruction, ChangeWeather, DamageInstruction, HealInstruction,
-    Instruction, RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction,
-    ToggleTerastallizedInstruction,
+    ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain,
+    ChangeType, ChangeVolatileStatusDurationInstruction, ChangeWeather, DamageInstruction,
+    HealInstruction, Instruction, RemoveVolatileStatusInstruction, StateInstructions,
+    SwitchInstruction, ToggleTerastallizedInstruction,
 };
 use poke_engine::state::{PokemonBoostableStat, PokemonIndex, PokemonStatus, SideReference, State};
 use poke_engine::state::{PokemonSideCondition, PokemonType};
@@ -570,6 +571,37 @@ fn test_ability_change_nullifies_itself() {
         Instruction::ChangeAbility(ChangeAbilityInstruction {
             side_ref: SideReference::SideOne,
             ability_change: -1,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_item_change() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![Instruction::ChangeItem(ChangeItemInstruction {
+        side_ref: SideReference::SideOne,
+        current_item: Items::NONE,
+        new_item: Items::LEFTOVERS,
+    })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_item_change_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeItem(ChangeItemInstruction {
+            side_ref: SideReference::SideOne,
+            current_item: Items::NONE,
+            new_item: Items::LEFTOVERS,
+        }),
+        Instruction::ChangeItem(ChangeItemInstruction {
+            side_ref: SideReference::SideOne,
+            current_item: Items::LEFTOVERS,
+            new_item: Items::NONE,
         }),
     ];
     assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);

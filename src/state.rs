@@ -1493,10 +1493,6 @@ impl State {
         self.get_side(side_reference).get_active().types = new_types;
     }
 
-    fn change_item(&mut self, side_reference: &SideReference, new_item: Items) {
-        self.get_side(side_reference).get_active().item = new_item;
-    }
-
     fn change_weather(&mut self, weather_type: Weather, turns_remaining: i8) {
         self.weather.weather_type = weather_type;
         self.weather.turns_remaining = turns_remaining;
@@ -2028,8 +2024,6 @@ impl State {
                         instruction.side_ref as usize,
                         original_ability as usize,
                     );
-                }
-                if WITH_HASH {
                     self.hash.update_hash_ability_change(
                         instruction.side_ref as usize,
                         new_ability as usize,
@@ -2060,7 +2054,19 @@ impl State {
                 }
             }
             Instruction::ChangeItem(instruction) => {
-                self.change_item(&instruction.side_ref, instruction.new_item)
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let existing_item = active.item;
+                active.item = instruction.new_item;
+                let new_item = active.item;
+                if WITH_HASH {
+                    self.hash.update_hash_item_change(
+                        instruction.side_ref as usize,
+                        existing_item as usize,
+                    );
+                    self.hash
+                        .update_hash_item_change(instruction.side_ref as usize, new_item as usize);
+                }
             }
             Instruction::ChangeAttack(instruction) => {
                 self.get_side(&instruction.side_ref).get_active().attack += instruction.amount;
@@ -2597,8 +2603,6 @@ impl State {
                         instruction.side_ref as usize,
                         original_ability as usize,
                     );
-                }
-                if WITH_HASH {
                     self.hash.update_hash_ability_change(
                         instruction.side_ref as usize,
                         new_ability as usize,
@@ -2635,7 +2639,19 @@ impl State {
                 }
             }
             Instruction::ChangeItem(instruction) => {
-                self.change_item(&instruction.side_ref, instruction.current_item)
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let existing_item = active.item;
+                active.item = instruction.current_item;
+                let new_item = active.item;
+                if WITH_HASH {
+                    self.hash.update_hash_item_change(
+                        instruction.side_ref as usize,
+                        existing_item as usize,
+                    );
+                    self.hash
+                        .update_hash_item_change(instruction.side_ref as usize, new_item as usize);
+                }
             }
             Instruction::ChangeAttack(instruction) => {
                 self.get_side(&instruction.side_ref).get_active().attack -= instruction.amount;
