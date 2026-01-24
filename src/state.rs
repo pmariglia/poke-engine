@@ -1667,12 +1667,12 @@ impl State {
                     self.hash.update_hash_boost(
                         side_ref_usize,
                         boost_index,
-                        exiting_boost_amt as usize,
+                        (exiting_boost_amt + 6) as usize,
                     );
                     self.hash.update_hash_boost(
                         side_ref_usize,
                         boost_index,
-                        new_boost_amount as usize,
+                        (new_boost_amount + 6) as usize,
                     );
                 }
             }
@@ -2559,12 +2559,12 @@ impl State {
                     self.hash.update_hash_boost(
                         side_ref_usize,
                         boost_index,
-                        exiting_boost_amt as usize,
+                        (exiting_boost_amt + 6) as usize,
                     );
                     self.hash.update_hash_boost(
                         side_ref_usize,
                         boost_index,
-                        new_boost_amount as usize,
+                        (new_boost_amount + 6) as usize,
                     );
                 }
             }
