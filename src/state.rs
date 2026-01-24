@@ -2283,9 +2283,25 @@ impl State {
             Instruction::ToggleSideTwoForceSwitch => self.side_two.toggle_force_switch(),
             Instruction::SetSideOneMoveSecondSwitchOutMove(instruction) => {
                 self.side_one.switch_out_move_second_saved_move = instruction.new_choice;
+                if WITH_HASH {
+                    self.hash.update_hash_set_second_move_pivot_move(
+                        0,
+                        instruction.previous_choice as usize,
+                    );
+                    self.hash
+                        .update_hash_set_second_move_pivot_move(0, instruction.new_choice as usize);
+                }
             }
             Instruction::SetSideTwoMoveSecondSwitchOutMove(instruction) => {
                 self.side_two.switch_out_move_second_saved_move = instruction.new_choice;
+                if WITH_HASH {
+                    self.hash.update_hash_set_second_move_pivot_move(
+                        1,
+                        instruction.previous_choice as usize,
+                    );
+                    self.hash
+                        .update_hash_set_second_move_pivot_move(1, instruction.new_choice as usize);
+                }
             }
             Instruction::ToggleBatonPassing(instruction) => match instruction.side_ref {
                 SideReference::SideOne => {
@@ -3107,9 +3123,25 @@ impl State {
             Instruction::ToggleSideTwoForceSwitch => self.side_two.toggle_force_switch(),
             Instruction::SetSideOneMoveSecondSwitchOutMove(instruction) => {
                 self.side_one.switch_out_move_second_saved_move = instruction.previous_choice;
+                if WITH_HASH {
+                    self.hash.update_hash_set_second_move_pivot_move(
+                        0,
+                        instruction.previous_choice as usize,
+                    );
+                    self.hash
+                        .update_hash_set_second_move_pivot_move(0, instruction.new_choice as usize);
+                }
             }
             Instruction::SetSideTwoMoveSecondSwitchOutMove(instruction) => {
                 self.side_two.switch_out_move_second_saved_move = instruction.previous_choice;
+                if WITH_HASH {
+                    self.hash.update_hash_set_second_move_pivot_move(
+                        1,
+                        instruction.previous_choice as usize,
+                    );
+                    self.hash
+                        .update_hash_set_second_move_pivot_move(1, instruction.new_choice as usize);
+                }
             }
             Instruction::ToggleBatonPassing(instruction) => match instruction.side_ref {
                 SideReference::SideOne => {

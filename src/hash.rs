@@ -33,6 +33,7 @@ pub struct StateHash {
     rest_turns_numbers: [[[u64; 3]; 6]; 2],
     sleep_turns_numbers: [[[u64; 8]; 6]; 2],
     forme_change_numbers: [[u64; 1420]; 2],
+    set_second_move_pivot_move_numbers: [[u64; 885]; 2],
 }
 
 impl Default for StateHash {
@@ -66,6 +67,7 @@ impl Default for StateHash {
             rest_turns_numbers: [[[0u64; 3]; 6]; 2],
             sleep_turns_numbers: [[[0u64; 8]; 6]; 2],
             forme_change_numbers: [[0u64; 1420]; 2],
+            set_second_move_pivot_move_numbers: [[0u64; 885]; 2],
         }
     }
 }
@@ -115,6 +117,7 @@ impl StateHash {
             rest_turns_numbers: from_fn(|_side| from_fn(|_slot| from_fn(|_turns| rng.random()))),
             sleep_turns_numbers: from_fn(|_side| from_fn(|_slot| from_fn(|_turns| rng.random()))),
             forme_change_numbers: from_fn(|_side| from_fn(|_forme| rng.random())),
+            set_second_move_pivot_move_numbers: from_fn(|_side| from_fn(|_move| rng.random())),
         }
     }
     pub fn xor(&mut self, value: u64) {
@@ -247,5 +250,9 @@ impl StateHash {
 
     pub fn update_hash_forme_change(&mut self, side: usize, forme_index: usize) {
         self.xor(self.forme_change_numbers[side][forme_index]);
+    }
+
+    pub fn update_hash_set_second_move_pivot_move(&mut self, side: usize, move_index: usize) {
+        self.xor(self.set_second_move_pivot_move_numbers[side][move_index]);
     }
 }
