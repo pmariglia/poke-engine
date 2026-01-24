@@ -1187,9 +1187,6 @@ impl Side {
     pub fn get_active_immutable(&self) -> &Pokemon {
         &self.pokemon[self.active_index]
     }
-    fn toggle_force_switch(&mut self) {
-        self.force_switch = !self.force_switch;
-    }
     pub fn get_side_condition(&self, side_condition: PokemonSideCondition) -> i8 {
         match side_condition {
             PokemonSideCondition::AuroraVeil => self.side_conditions.aurora_veil,
@@ -2279,8 +2276,18 @@ impl State {
             Instruction::DecrementTrickRoomTurnsRemaining => {
                 self.trick_room.turns_remaining -= 1;
             }
-            Instruction::ToggleSideOneForceSwitch => self.side_one.toggle_force_switch(),
-            Instruction::ToggleSideTwoForceSwitch => self.side_two.toggle_force_switch(),
+            Instruction::ToggleSideOneForceSwitch => {
+                self.side_one.force_switch ^= true;
+                if WITH_HASH {
+                    self.hash.update_hash_toggle_force_switch(0);
+                }
+            }
+            Instruction::ToggleSideTwoForceSwitch => {
+                self.side_two.force_switch ^= true;
+                if WITH_HASH {
+                    self.hash.update_hash_toggle_force_switch(1);
+                }
+            }
             Instruction::SetSideOneMoveSecondSwitchOutMove(instruction) => {
                 self.side_one.switch_out_move_second_saved_move = instruction.new_choice;
                 if WITH_HASH {
@@ -2303,18 +2310,22 @@ impl State {
                         .update_hash_set_second_move_pivot_move(1, instruction.new_choice as usize);
                 }
             }
-            Instruction::ToggleBatonPassing(instruction) => match instruction.side_ref {
-                SideReference::SideOne => {
-                    self.side_one.baton_passing = !self.side_one.baton_passing
+            Instruction::ToggleBatonPassing(instruction) => {
+                let side = self.get_side(&instruction.side_ref);
+                side.baton_passing ^= true;
+                if WITH_HASH {
+                    self.hash
+                        .update_hash_toggle_baton_passing(instruction.side_ref as usize);
                 }
-                SideReference::SideTwo => {
-                    self.side_two.baton_passing = !self.side_two.baton_passing
+            }
+            Instruction::ToggleShedTailing(instruction) => {
+                let side = self.get_side(&instruction.side_ref);
+                side.shed_tailing ^= true;
+                if WITH_HASH {
+                    self.hash
+                        .update_hash_toggle_shed_tailing(instruction.side_ref as usize);
                 }
-            },
-            Instruction::ToggleShedTailing(instruction) => match instruction.side_ref {
-                SideReference::SideOne => self.side_one.shed_tailing = !self.side_one.shed_tailing,
-                SideReference::SideTwo => self.side_two.shed_tailing = !self.side_two.shed_tailing,
-            },
+            }
             Instruction::ToggleTerastallized(instruction) => match instruction.side_ref {
                 SideReference::SideOne => {
                     self.side_one.get_active().terastallized ^= true;
@@ -3119,8 +3130,18 @@ impl State {
             Instruction::DecrementTrickRoomTurnsRemaining => {
                 self.trick_room.turns_remaining += 1;
             }
-            Instruction::ToggleSideOneForceSwitch => self.side_one.toggle_force_switch(),
-            Instruction::ToggleSideTwoForceSwitch => self.side_two.toggle_force_switch(),
+            Instruction::ToggleSideOneForceSwitch => {
+                self.side_one.force_switch ^= true;
+                if WITH_HASH {
+                    self.hash.update_hash_toggle_force_switch(0);
+                }
+            }
+            Instruction::ToggleSideTwoForceSwitch => {
+                self.side_two.force_switch ^= true;
+                if WITH_HASH {
+                    self.hash.update_hash_toggle_force_switch(1);
+                }
+            }
             Instruction::SetSideOneMoveSecondSwitchOutMove(instruction) => {
                 self.side_one.switch_out_move_second_saved_move = instruction.previous_choice;
                 if WITH_HASH {
@@ -3143,18 +3164,22 @@ impl State {
                         .update_hash_set_second_move_pivot_move(1, instruction.new_choice as usize);
                 }
             }
-            Instruction::ToggleBatonPassing(instruction) => match instruction.side_ref {
-                SideReference::SideOne => {
-                    self.side_one.baton_passing = !self.side_one.baton_passing
+            Instruction::ToggleBatonPassing(instruction) => {
+                let side = self.get_side(&instruction.side_ref);
+                side.baton_passing ^= true;
+                if WITH_HASH {
+                    self.hash
+                        .update_hash_toggle_baton_passing(instruction.side_ref as usize);
                 }
-                SideReference::SideTwo => {
-                    self.side_two.baton_passing = !self.side_two.baton_passing
+            }
+            Instruction::ToggleShedTailing(instruction) => {
+                let side = self.get_side(&instruction.side_ref);
+                side.shed_tailing ^= true;
+                if WITH_HASH {
+                    self.hash
+                        .update_hash_toggle_shed_tailing(instruction.side_ref as usize);
                 }
-            },
-            Instruction::ToggleShedTailing(instruction) => match instruction.side_ref {
-                SideReference::SideOne => self.side_one.shed_tailing = !self.side_one.shed_tailing,
-                SideReference::SideTwo => self.side_two.shed_tailing = !self.side_two.shed_tailing,
-            },
+            }
             Instruction::ToggleTerastallized(instruction) => match instruction.side_ref {
                 SideReference::SideOne => {
                     self.side_one.get_active().terastallized ^= true;

@@ -77,8 +77,8 @@ pub enum Instruction {
     FormeChange(FormeChangeInstruction),
     SetSideOneMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
-    ToggleBatonPassing(ToggleBatonPassingInstruction),
-    ToggleShedTailing(ToggleShedTailingInstruction),
+    ToggleBatonPassing(ToggleBatonPassingInstruction), //
+    ToggleShedTailing(ToggleShedTailingInstruction),   //
     SetLastUsedMove(SetLastUsedMoveInstruction),
     ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction),
     ChangeDamageDealtMoveCatagory(ChangeDamageDealtMoveCategoryInstruction),
@@ -86,8 +86,8 @@ pub enum Instruction {
     DecrementPP(DecrementPPInstruction),
     ToggleTrickRoom(ToggleTrickRoomInstruction),
     DecrementTrickRoomTurnsRemaining,
-    ToggleSideOneForceSwitch,
-    ToggleSideTwoForceSwitch,
+    ToggleSideOneForceSwitch, //
+    ToggleSideTwoForceSwitch, //
     ToggleTerastallized(ToggleTerastallizedInstruction),
 }
 

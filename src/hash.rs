@@ -34,6 +34,9 @@ pub struct StateHash {
     sleep_turns_numbers: [[[u64; 8]; 6]; 2],
     forme_change_numbers: [[u64; 1420]; 2],
     set_second_move_pivot_move_numbers: [[u64; 885]; 2],
+    toggle_baton_passing_numbers: [u64; 2],
+    toggle_shed_tailing_numbers: [u64; 2],
+    toggle_force_switch_numbers: [u64; 2],
 }
 
 impl Default for StateHash {
@@ -68,6 +71,9 @@ impl Default for StateHash {
             sleep_turns_numbers: [[[0u64; 8]; 6]; 2],
             forme_change_numbers: [[0u64; 1420]; 2],
             set_second_move_pivot_move_numbers: [[0u64; 885]; 2],
+            toggle_baton_passing_numbers: [0u64; 2],
+            toggle_shed_tailing_numbers: [0u64; 2],
+            toggle_force_switch_numbers: [0u64; 2],
         }
     }
 }
@@ -118,6 +124,9 @@ impl StateHash {
             sleep_turns_numbers: from_fn(|_side| from_fn(|_slot| from_fn(|_turns| rng.random()))),
             forme_change_numbers: from_fn(|_side| from_fn(|_forme| rng.random())),
             set_second_move_pivot_move_numbers: from_fn(|_side| from_fn(|_move| rng.random())),
+            toggle_baton_passing_numbers: from_fn(|_side| rng.random()),
+            toggle_shed_tailing_numbers: from_fn(|_side| rng.random()),
+            toggle_force_switch_numbers: from_fn(|_side| rng.random()),
         }
     }
     pub fn xor(&mut self, value: u64) {
@@ -254,5 +263,17 @@ impl StateHash {
 
     pub fn update_hash_set_second_move_pivot_move(&mut self, side: usize, move_index: usize) {
         self.xor(self.set_second_move_pivot_move_numbers[side][move_index]);
+    }
+
+    pub fn update_hash_toggle_baton_passing(&mut self, side: usize) {
+        self.xor(self.toggle_baton_passing_numbers[side]);
+    }
+
+    pub fn update_hash_toggle_shed_tailing(&mut self, side: usize) {
+        self.xor(self.toggle_shed_tailing_numbers[side]);
+    }
+
+    pub fn update_hash_toggle_force_switch(&mut self, side: usize) {
+        self.xor(self.toggle_force_switch_numbers[side]);
     }
 }
