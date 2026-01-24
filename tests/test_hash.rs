@@ -4,10 +4,11 @@ use poke_engine::engine::state::Terrain;
 use poke_engine::engine::state::Weather;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeAbilityInstruction,
-    ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain,
-    ChangeType, ChangeVolatileStatusDurationInstruction, ChangeWeather, DamageInstruction,
-    HealInstruction, Instruction, RemoveVolatileStatusInstruction, StateInstructions,
-    SwitchInstruction, ToggleTerastallizedInstruction,
+    ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatInstruction,
+    ChangeStatusInstruction, ChangeTerrain, ChangeType, ChangeVolatileStatusDurationInstruction,
+    ChangeWeather, DamageInstruction, HealInstruction, Instruction,
+    RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction,
+    ToggleTerastallizedInstruction,
 };
 use poke_engine::state::{PokemonBoostableStat, PokemonIndex, PokemonStatus, SideReference, State};
 use poke_engine::state::{PokemonSideCondition, PokemonType};
@@ -602,6 +603,148 @@ fn test_item_change_nullifies_itself() {
             side_ref: SideReference::SideOne,
             current_item: Items::LEFTOVERS,
             new_item: Items::NONE,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_attack_change() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![Instruction::ChangeAttack(ChangeStatInstruction {
+        side_ref: SideReference::SideOne,
+        amount: 50,
+    })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_attack_change_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeAttack(ChangeStatInstruction {
+            side_ref: SideReference::SideOne,
+            amount: 50,
+        }),
+        Instruction::ChangeAttack(ChangeStatInstruction {
+            side_ref: SideReference::SideOne,
+            amount: -50,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_defense_change() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![Instruction::ChangeDefense(ChangeStatInstruction {
+        side_ref: SideReference::SideOne,
+        amount: 50,
+    })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_defense_change_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeDefense(ChangeStatInstruction {
+            side_ref: SideReference::SideOne,
+            amount: 50,
+        }),
+        Instruction::ChangeDefense(ChangeStatInstruction {
+            side_ref: SideReference::SideOne,
+            amount: -50,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_special_attack_change() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list =
+        vec![Instruction::ChangeSpecialAttack(ChangeStatInstruction {
+            side_ref: SideReference::SideOne,
+            amount: 50,
+        })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_special_attack_change_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeSpecialAttack(ChangeStatInstruction {
+            side_ref: SideReference::SideOne,
+            amount: 50,
+        }),
+        Instruction::ChangeSpecialAttack(ChangeStatInstruction {
+            side_ref: SideReference::SideOne,
+            amount: -50,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_special_defense_change() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list =
+        vec![Instruction::ChangeSpecialDefense(ChangeStatInstruction {
+            side_ref: SideReference::SideOne,
+            amount: 50,
+        })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_special_defense_change_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeSpecialDefense(ChangeStatInstruction {
+            side_ref: SideReference::SideOne,
+            amount: 50,
+        }),
+        Instruction::ChangeSpecialDefense(ChangeStatInstruction {
+            side_ref: SideReference::SideOne,
+            amount: -50,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_speed_change() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![Instruction::ChangeSpeed(ChangeStatInstruction {
+        side_ref: SideReference::SideOne,
+        amount: 50,
+    })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_speed_change_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeSpeed(ChangeStatInstruction {
+            side_ref: SideReference::SideOne,
+            amount: 50,
+        }),
+        Instruction::ChangeSpeed(ChangeStatInstruction {
+            side_ref: SideReference::SideOne,
+            amount: -50,
         }),
     ];
     assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);

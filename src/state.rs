@@ -2069,23 +2069,89 @@ impl State {
                 }
             }
             Instruction::ChangeAttack(instruction) => {
-                self.get_side(&instruction.side_ref).get_active().attack += instruction.amount;
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let existing_attack = active.attack;
+                active.attack += instruction.amount;
+                let new_attack = active.attack;
+                if WITH_HASH {
+                    self.hash.update_hash_attack_change(
+                        instruction.side_ref as usize,
+                        existing_attack as usize,
+                    );
+                    self.hash.update_hash_attack_change(
+                        instruction.side_ref as usize,
+                        new_attack as usize,
+                    );
+                }
             }
             Instruction::ChangeDefense(instruction) => {
-                self.get_side(&instruction.side_ref).get_active().defense += instruction.amount;
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let existing_defense = active.defense;
+                active.defense += instruction.amount;
+                let new_defense = active.defense;
+                if WITH_HASH {
+                    self.hash.update_hash_defense_change(
+                        instruction.side_ref as usize,
+                        existing_defense as usize,
+                    );
+                    self.hash.update_hash_defense_change(
+                        instruction.side_ref as usize,
+                        new_defense as usize,
+                    );
+                }
             }
             Instruction::ChangeSpecialAttack(instruction) => {
-                self.get_side(&instruction.side_ref)
-                    .get_active()
-                    .special_attack += instruction.amount;
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let existing_special_attack = active.special_attack;
+                active.special_attack += instruction.amount;
+                let new_special_attack = active.special_attack;
+                if WITH_HASH {
+                    self.hash.update_hash_special_attack_change(
+                        instruction.side_ref as usize,
+                        existing_special_attack as usize,
+                    );
+                    self.hash.update_hash_special_attack_change(
+                        instruction.side_ref as usize,
+                        new_special_attack as usize,
+                    );
+                }
             }
             Instruction::ChangeSpecialDefense(instruction) => {
-                self.get_side(&instruction.side_ref)
-                    .get_active()
-                    .special_defense += instruction.amount;
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let existing_special_defense = active.special_defense;
+                active.special_defense += instruction.amount;
+                let new_special_defense = active.special_defense;
+                if WITH_HASH {
+                    self.hash.update_hash_special_defense_change(
+                        instruction.side_ref as usize,
+                        existing_special_defense as usize,
+                    );
+                    self.hash.update_hash_special_defense_change(
+                        instruction.side_ref as usize,
+                        new_special_defense as usize,
+                    );
+                }
             }
             Instruction::ChangeSpeed(instruction) => {
-                self.get_side(&instruction.side_ref).get_active().speed += instruction.amount;
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let existing_speed = active.speed;
+                active.speed += instruction.amount;
+                let new_speed = active.speed;
+                if WITH_HASH {
+                    self.hash.update_hash_speed_change(
+                        instruction.side_ref as usize,
+                        existing_speed as usize,
+                    );
+                    self.hash.update_hash_speed_change(
+                        instruction.side_ref as usize,
+                        new_speed as usize,
+                    );
+                }
             }
             Instruction::EnableMove(instruction) => {
                 self.enable_move(&instruction.side_ref, &instruction.move_index)
@@ -2654,23 +2720,89 @@ impl State {
                 }
             }
             Instruction::ChangeAttack(instruction) => {
-                self.get_side(&instruction.side_ref).get_active().attack -= instruction.amount;
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let existing_attack = active.attack;
+                active.attack -= instruction.amount;
+                let new_attack = active.attack;
+                if WITH_HASH {
+                    self.hash.update_hash_attack_change(
+                        instruction.side_ref as usize,
+                        existing_attack as usize,
+                    );
+                    self.hash.update_hash_attack_change(
+                        instruction.side_ref as usize,
+                        new_attack as usize,
+                    );
+                }
             }
             Instruction::ChangeDefense(instruction) => {
-                self.get_side(&instruction.side_ref).get_active().defense -= instruction.amount;
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let existing_defense = active.defense;
+                active.defense -= instruction.amount;
+                let new_defense = active.defense;
+                if WITH_HASH {
+                    self.hash.update_hash_defense_change(
+                        instruction.side_ref as usize,
+                        existing_defense as usize,
+                    );
+                    self.hash.update_hash_defense_change(
+                        instruction.side_ref as usize,
+                        new_defense as usize,
+                    );
+                }
             }
             Instruction::ChangeSpecialAttack(instruction) => {
-                self.get_side(&instruction.side_ref)
-                    .get_active()
-                    .special_attack -= instruction.amount;
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let existing_special_attack = active.special_attack;
+                active.special_attack -= instruction.amount;
+                let new_special_attack = active.special_attack;
+                if WITH_HASH {
+                    self.hash.update_hash_special_attack_change(
+                        instruction.side_ref as usize,
+                        existing_special_attack as usize,
+                    );
+                    self.hash.update_hash_special_attack_change(
+                        instruction.side_ref as usize,
+                        new_special_attack as usize,
+                    );
+                }
             }
             Instruction::ChangeSpecialDefense(instruction) => {
-                self.get_side(&instruction.side_ref)
-                    .get_active()
-                    .special_defense -= instruction.amount;
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let existing_special_defense = active.special_defense;
+                active.special_defense -= instruction.amount;
+                let new_special_defense = active.special_defense;
+                if WITH_HASH {
+                    self.hash.update_hash_special_defense_change(
+                        instruction.side_ref as usize,
+                        existing_special_defense as usize,
+                    );
+                    self.hash.update_hash_special_defense_change(
+                        instruction.side_ref as usize,
+                        new_special_defense as usize,
+                    );
+                }
             }
             Instruction::ChangeSpeed(instruction) => {
-                self.get_side(&instruction.side_ref).get_active().speed -= instruction.amount;
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let existing_speed = active.speed;
+                active.speed -= instruction.amount;
+                let new_speed = active.speed;
+                if WITH_HASH {
+                    self.hash.update_hash_speed_change(
+                        instruction.side_ref as usize,
+                        existing_speed as usize,
+                    );
+                    self.hash.update_hash_speed_change(
+                        instruction.side_ref as usize,
+                        new_speed as usize,
+                    );
+                }
             }
             Instruction::ChangeWish(instruction) => {
                 self.unset_wish(&instruction.side_ref, instruction.wish_amount_change)

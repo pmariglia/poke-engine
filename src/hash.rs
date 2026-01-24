@@ -19,6 +19,11 @@ pub struct StateHash {
     type_change_numbers: [[[u64; 20]; 20]; 2],
     ability_change_numbers: [[u64; 316]; 2],
     item_change_numbers: [[u64; 207]; 2],
+    attack_change_numbers: [[u64; 650]; 2],
+    defense_change_numbers: [[u64; 650]; 2],
+    special_attack_change_numbers: [[u64; 650]; 2],
+    special_defense_change_numbers: [[u64; 650]; 2],
+    speed_change_numbers: [[u64; 650]; 2],
 }
 
 impl Default for StateHash {
@@ -38,6 +43,11 @@ impl Default for StateHash {
             type_change_numbers: [[[0u64; 20]; 20]; 2],
             ability_change_numbers: [[0u64; 316]; 2],
             item_change_numbers: [[0u64; 207]; 2],
+            attack_change_numbers: [[0u64; 650]; 2],
+            defense_change_numbers: [[0u64; 650]; 2],
+            special_attack_change_numbers: [[0u64; 650]; 2],
+            special_defense_change_numbers: [[0u64; 650]; 2],
+            speed_change_numbers: [[0u64; 650]; 2],
         }
     }
 }
@@ -73,6 +83,11 @@ impl StateHash {
             }),
             ability_change_numbers: from_fn(|_side| from_fn(|_ability| rng.random())),
             item_change_numbers: from_fn(|_side| from_fn(|_item| rng.random())),
+            attack_change_numbers: from_fn(|_side| from_fn(|_change| rng.random())),
+            defense_change_numbers: from_fn(|_side| from_fn(|_change| rng.random())),
+            special_attack_change_numbers: from_fn(|_side| from_fn(|_change| rng.random())),
+            special_defense_change_numbers: from_fn(|_side| from_fn(|_change| rng.random())),
+            speed_change_numbers: from_fn(|_side| from_fn(|_change| rng.random())),
         }
     }
     pub fn xor(&mut self, value: u64) {
@@ -144,5 +159,25 @@ impl StateHash {
 
     pub fn update_hash_item_change(&mut self, side: usize, item_index: usize) {
         self.xor(self.item_change_numbers[side][item_index]);
+    }
+
+    pub fn update_hash_attack_change(&mut self, side: usize, change_index: usize) {
+        self.xor(self.attack_change_numbers[side][change_index]);
+    }
+
+    pub fn update_hash_defense_change(&mut self, side: usize, change_index: usize) {
+        self.xor(self.defense_change_numbers[side][change_index]);
+    }
+
+    pub fn update_hash_special_attack_change(&mut self, side: usize, change_index: usize) {
+        self.xor(self.special_attack_change_numbers[side][change_index]);
+    }
+
+    pub fn update_hash_special_defense_change(&mut self, side: usize, change_index: usize) {
+        self.xor(self.special_defense_change_numbers[side][change_index]);
+    }
+
+    pub fn update_hash_speed_change(&mut self, side: usize, change_index: usize) {
+        self.xor(self.speed_change_numbers[side][change_index]);
     }
 }
