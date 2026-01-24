@@ -14,6 +14,7 @@ pub struct StateHash {
     boost_numbers: [[[u64; 13]; 7]; 2],
     side_condition_numbers: [[[u64; 17]; 19]; 2],
     volatile_duration_numbers: [[[u64; 17]; 6]; 2],
+    weather_numbers: [[u64; 10]; 8],
 }
 
 impl Default for StateHash {
@@ -28,6 +29,7 @@ impl Default for StateHash {
             boost_numbers: [[[0u64; 13]; 7]; 2],
             side_condition_numbers: [[[0u64; 17]; 19]; 2],
             volatile_duration_numbers: [[[0u64; 17]; 6]; 2],
+            weather_numbers: [[0u64; 10]; 8],
         }
     }
 }
@@ -56,6 +58,7 @@ impl StateHash {
             volatile_duration_numbers: from_fn(|_side| {
                 from_fn(|_volatile| from_fn(|_duration| rng.random()))
             }),
+            weather_numbers: from_fn(|_weather| from_fn(|_turns_remaining| rng.random())),
         }
     }
     pub fn xor(&mut self, value: u64) {
@@ -102,5 +105,9 @@ impl StateHash {
         duration: usize,
     ) {
         self.xor(self.volatile_duration_numbers[side][volatile_index][duration]);
+    }
+
+    pub fn update_hash_weather(&mut self, weather_index: usize, turns_remaining_index: usize) {
+        self.xor(self.weather_numbers[weather_index][turns_remaining_index]);
     }
 }

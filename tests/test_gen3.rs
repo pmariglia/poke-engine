@@ -410,7 +410,7 @@ fn test_fast_explosion_makes_other_side_unable_to_move() {
 fn test_end_of_turn_sand_kos_before_leftovers() {
     let mut state = State::default();
     state.weather.weather_type = Weather::SAND;
-    state.weather.turns_remaining = -1;
+    state.weather.turns_remaining = 0;
 
     state.side_one.get_active().hp = 5;
     state.side_one.get_active().maxhp = 100;

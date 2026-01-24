@@ -1,9 +1,10 @@
 use poke_engine::engine::state::PokemonVolatileStatus;
+use poke_engine::engine::state::Weather;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeSideConditionInstruction,
-    ChangeStatusInstruction, ChangeVolatileStatusDurationInstruction, DamageInstruction,
-    HealInstruction, Instruction, RemoveVolatileStatusInstruction, StateInstructions,
-    SwitchInstruction, ToggleTerastallizedInstruction,
+    ChangeStatusInstruction, ChangeVolatileStatusDurationInstruction, ChangeWeather,
+    DamageInstruction, HealInstruction, Instruction, RemoveVolatileStatusInstruction,
+    StateInstructions, SwitchInstruction, ToggleTerastallizedInstruction,
 };
 use poke_engine::state::PokemonSideCondition;
 use poke_engine::state::{PokemonBoostableStat, PokemonIndex, PokemonStatus, SideReference, State};
@@ -376,6 +377,72 @@ fn test_volatile_durations_that_nullify_each_other() {
             amount: -1,
             volatile_status: PokemonVolatileStatus::TAUNT,
         }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_weather_change() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![Instruction::ChangeWeather(ChangeWeather {
+        new_weather: Weather::SUN,
+        new_weather_turns_remaining: 5,
+        previous_weather: Weather::NONE,
+        previous_weather_turns_remaining: 0,
+    })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_weather_change_with_decrement() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeWeather(ChangeWeather {
+            new_weather: Weather::SUN,
+            new_weather_turns_remaining: 5,
+            previous_weather: Weather::NONE,
+            previous_weather_turns_remaining: 0,
+        }),
+        Instruction::DecrementWeatherTurnsRemaining
+    ];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_weather_change_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeWeather(ChangeWeather {
+            new_weather: Weather::SUN,
+            new_weather_turns_remaining: 5,
+            previous_weather: Weather::NONE,
+            previous_weather_turns_remaining: 0,
+        }),
+        Instruction::ChangeWeather(ChangeWeather {
+            new_weather: Weather::NONE,
+            new_weather_turns_remaining: 0,
+            previous_weather: Weather::SUN,
+            previous_weather_turns_remaining: 5,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_weather_change_nullifies_itself_with_decrement() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeWeather(ChangeWeather {
+            new_weather: Weather::NONE,
+            new_weather_turns_remaining: 1,
+            previous_weather: Weather::NONE,
+            previous_weather_turns_remaining: 0,
+        }),
+        Instruction::DecrementWeatherTurnsRemaining
     ];
     assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
 }

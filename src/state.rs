@@ -1269,7 +1269,7 @@ impl Default for State {
             side_two: Side::default(),
             weather: StateWeather {
                 weather_type: Weather::NONE,
-                turns_remaining: -1,
+                turns_remaining: 0,
             },
             terrain: StateTerrain {
                 terrain_type: Terrain::NONE,
@@ -1930,12 +1930,38 @@ impl State {
                     );
                 }
             }
-            Instruction::ChangeWeather(instruction) => self.change_weather(
-                instruction.new_weather,
-                instruction.new_weather_turns_remaining,
-            ),
+            Instruction::ChangeWeather(instruction) => {
+                if WITH_HASH {
+                    self.hash.update_hash_weather(
+                        self.weather.weather_type as usize,
+                        self.weather.turns_remaining as usize,
+                    );
+                }
+                self.change_weather(
+                    instruction.new_weather,
+                    instruction.new_weather_turns_remaining,
+                );
+                if WITH_HASH {
+                    self.hash.update_hash_weather(
+                        self.weather.weather_type as usize,
+                        self.weather.turns_remaining as usize,
+                    );
+                }
+            }
             Instruction::DecrementWeatherTurnsRemaining => {
+                if WITH_HASH {
+                    self.hash.update_hash_weather(
+                        self.weather.weather_type as usize,
+                        self.weather.turns_remaining as usize,
+                    );
+                }
                 self.weather.turns_remaining -= 1;
+                if WITH_HASH {
+                    self.hash.update_hash_weather(
+                        self.weather.weather_type as usize,
+                        self.weather.turns_remaining as usize,
+                    );
+                }
             }
             Instruction::ChangeTerrain(instruction) => self.change_terrain(
                 instruction.new_terrain,
@@ -2414,12 +2440,38 @@ impl State {
                     );
                 }
             }
-            Instruction::ChangeWeather(instruction) => self.change_weather(
-                instruction.previous_weather,
-                instruction.previous_weather_turns_remaining,
-            ),
+            Instruction::ChangeWeather(instruction) => {
+                if WITH_HASH {
+                    self.hash.update_hash_weather(
+                        self.weather.weather_type as usize,
+                        self.weather.turns_remaining as usize,
+                    );
+                }
+                self.change_weather(
+                    instruction.previous_weather,
+                    instruction.previous_weather_turns_remaining,
+                );
+                if WITH_HASH {
+                    self.hash.update_hash_weather(
+                        self.weather.weather_type as usize,
+                        self.weather.turns_remaining as usize,
+                    );
+                }
+            }
             Instruction::DecrementWeatherTurnsRemaining => {
+                if WITH_HASH {
+                    self.hash.update_hash_weather(
+                        self.weather.weather_type as usize,
+                        self.weather.turns_remaining as usize,
+                    );
+                }
                 self.weather.turns_remaining += 1;
+                if WITH_HASH {
+                    self.hash.update_hash_weather(
+                        self.weather.weather_type as usize,
+                        self.weather.turns_remaining as usize,
+                    );
+                }
             }
             Instruction::ChangeTerrain(instruction) => self.change_terrain(
                 instruction.previous_terrain,

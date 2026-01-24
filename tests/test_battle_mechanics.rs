@@ -6695,7 +6695,7 @@ fn test_protosynthesis_on_switchin_with_sun_up() {
     let mut state = State::default();
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::PROTOSYNTHESIS;
     state.weather.weather_type = Weather::SUN;
-    state.weather.turns_remaining = -1;
+    state.weather.turns_remaining = 0;
 
     let vec_of_instructions = generate_instructions_with_state_assertion(
         &mut state,
@@ -6905,7 +6905,7 @@ fn test_protosynthesis_on_switchin_with_booster_energy_and_sun_up() {
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::PROTOSYNTHESIS;
     state.side_one.pokemon[PokemonIndex::P1].item = Items::BOOSTERENERGY; // should not be consumed
     state.weather.weather_type = Weather::SUN;
-    state.weather.turns_remaining = -1;
+    state.weather.turns_remaining = 0;
 
     let vec_of_instructions = generate_instructions_with_state_assertion(
         &mut state,
@@ -7036,7 +7036,7 @@ fn test_protosynthesis_on_switchin_with_defense_highest_stat_and_sun_up() {
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::PROTOSYNTHESIS;
     state.side_one.pokemon[PokemonIndex::P1].defense = 300;
     state.weather.weather_type = Weather::SUN;
-    state.weather.turns_remaining = -1;
+    state.weather.turns_remaining = 0;
 
     let vec_of_instructions = generate_instructions_with_state_assertion(
         &mut state,
@@ -7153,7 +7153,7 @@ fn test_chillyreception() {
                 new_weather: Weather::SNOW,
                 new_weather_turns_remaining: 5,
                 previous_weather: Weather::NONE,
-                previous_weather_turns_remaining: -1,
+                previous_weather_turns_remaining: 0,
             }),
             Instruction::ToggleSideOneForceSwitch,
             Instruction::SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction {
@@ -7649,7 +7649,7 @@ fn test_end_of_turn_triggered_when_switchout_flag_is_removed() {
     let mut state = State::default();
     state.weather = StateWeather {
         weather_type: Weather::SAND,
-        turns_remaining: -1,
+        turns_remaining: 0,
     };
     state.side_one.force_switch = true;
     state.side_two.switch_out_move_second_saved_move = Choices::TACKLE;
@@ -7697,7 +7697,7 @@ fn test_end_of_turn_triggered_when_switchout_flag_is_removed_and_other_side_did_
     let mut state = State::default();
     state.weather = StateWeather {
         weather_type: Weather::SAND,
-        turns_remaining: -1,
+        turns_remaining: 0,
     };
     state.side_one.force_switch = true;
     state.side_two.switch_out_move_second_saved_move = Choices::NONE;
@@ -9024,7 +9024,7 @@ fn test_foulplay() {
 fn test_rain_turns_do_not_decrement_if_turns_remaining_are_negative() {
     let mut state = State::default();
     state.weather.weather_type = Weather::RAIN;
-    state.weather.turns_remaining = -1;
+    state.weather.turns_remaining = 0;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -14408,7 +14408,7 @@ fn test_sunnyday() {
                 new_weather: Weather::SUN,
                 new_weather_turns_remaining: 5,
                 previous_weather: Weather::NONE,
-                previous_weather_turns_remaining: -1,
+                previous_weather_turns_remaining: 0,
             }),
             Instruction::DecrementWeatherTurnsRemaining,
         ],
@@ -14433,7 +14433,7 @@ fn test_snowscape() {
                 new_weather: Weather::SNOW,
                 new_weather_turns_remaining: 5,
                 previous_weather: Weather::NONE,
-                previous_weather_turns_remaining: -1,
+                previous_weather_turns_remaining: 0,
             }),
             Instruction::DecrementWeatherTurnsRemaining,
         ],
@@ -14464,7 +14464,7 @@ fn test_sandspit() {
                 new_weather: Weather::SAND,
                 new_weather_turns_remaining: 5,
                 previous_weather: Weather::NONE,
-                previous_weather_turns_remaining: -1,
+                previous_weather_turns_remaining: 0,
             }),
             Instruction::DecrementWeatherTurnsRemaining,
             Instruction::Damage(DamageInstruction {
@@ -14558,7 +14558,7 @@ fn test_sandspit_does_not_activate_on_miss() {
                     new_weather: Weather::SAND,
                     new_weather_turns_remaining: 5,
                     previous_weather: Weather::NONE,
-                    previous_weather_turns_remaining: -1,
+                    previous_weather_turns_remaining: 0,
                 }),
                 Instruction::DecrementWeatherTurnsRemaining,
                 Instruction::Damage(DamageInstruction {
@@ -17187,7 +17187,7 @@ fn test_drizzle() {
                 new_weather: Weather::RAIN,
                 new_weather_turns_remaining: WEATHER_ABILITY_TURNS,
                 previous_weather: Weather::NONE,
-                previous_weather_turns_remaining: -1,
+                previous_weather_turns_remaining: 0,
             }),
             Instruction::DecrementWeatherTurnsRemaining,
         ],
@@ -17219,7 +17219,7 @@ fn test_drizzle() {
                 new_weather: Weather::RAIN,
                 new_weather_turns_remaining: WEATHER_ABILITY_TURNS,
                 previous_weather: Weather::NONE,
-                previous_weather_turns_remaining: -1,
+                previous_weather_turns_remaining: 0,
             }),
         ],
     }];
@@ -17232,7 +17232,7 @@ fn test_primordial_sea_on_switchout() {
     state.side_one.pokemon[PokemonIndex::P0].ability = Abilities::PRIMORDIALSEA;
     state.side_one.pokemon[PokemonIndex::P0].base_ability = Abilities::PRIMORDIALSEA;
     state.weather.weather_type = Weather::HEAVYRAIN;
-    state.weather.turns_remaining = -1;
+    state.weather.turns_remaining = 0;
 
     let vec_of_instructions = generate_instructions_with_state_assertion(
         &mut state,
@@ -17245,9 +17245,9 @@ fn test_primordial_sea_on_switchout() {
         instruction_list: vec![
             Instruction::ChangeWeather(ChangeWeather {
                 new_weather: Weather::NONE,
-                new_weather_turns_remaining: -1,
+                new_weather_turns_remaining: 0,
                 previous_weather: Weather::HEAVYRAIN,
-                previous_weather_turns_remaining: -1,
+                previous_weather_turns_remaining: 0,
             }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
@@ -17265,7 +17265,7 @@ fn test_desolateland_on_switchout() {
     state.side_one.pokemon[PokemonIndex::P0].ability = Abilities::DESOLATELAND;
     state.side_one.pokemon[PokemonIndex::P0].base_ability = Abilities::DESOLATELAND;
     state.weather.weather_type = Weather::HARSHSUN;
-    state.weather.turns_remaining = -1;
+    state.weather.turns_remaining = 0;
 
     let vec_of_instructions = generate_instructions_with_state_assertion(
         &mut state,
@@ -17278,9 +17278,9 @@ fn test_desolateland_on_switchout() {
         instruction_list: vec![
             Instruction::ChangeWeather(ChangeWeather {
                 new_weather: Weather::NONE,
-                new_weather_turns_remaining: -1,
+                new_weather_turns_remaining: 0,
                 previous_weather: Weather::HARSHSUN,
-                previous_weather_turns_remaining: -1,
+                previous_weather_turns_remaining: 0,
             }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
@@ -17442,7 +17442,7 @@ fn test_orichalcumpulse_weather_application() {
                 new_weather: Weather::SUN,
                 new_weather_turns_remaining: WEATHER_ABILITY_TURNS,
                 previous_weather: Weather::NONE,
-                previous_weather_turns_remaining: -1,
+                previous_weather_turns_remaining: 0,
             }),
             Instruction::DecrementWeatherTurnsRemaining,
         ],
@@ -17676,7 +17676,7 @@ fn test_drought() {
                 new_weather: Weather::SUN,
                 new_weather_turns_remaining: WEATHER_ABILITY_TURNS,
                 previous_weather: Weather::NONE,
-                previous_weather_turns_remaining: -1,
+                previous_weather_turns_remaining: 0,
             }),
         ],
     }];
@@ -17707,7 +17707,7 @@ fn test_drought() {
                 new_weather: Weather::SUN,
                 new_weather_turns_remaining: WEATHER_ABILITY_TURNS,
                 previous_weather: Weather::NONE,
-                previous_weather_turns_remaining: -1,
+                previous_weather_turns_remaining: 0,
             }),
             Instruction::DecrementWeatherTurnsRemaining,
         ],
@@ -17739,7 +17739,7 @@ fn test_pre_gen9_snowwarning() {
                 new_weather: Weather::HAIL,
                 new_weather_turns_remaining: WEATHER_ABILITY_TURNS,
                 previous_weather: Weather::NONE,
-                previous_weather_turns_remaining: -1,
+                previous_weather_turns_remaining: 0,
             }),
             Instruction::DecrementWeatherTurnsRemaining,
             Instruction::Damage(DamageInstruction {
@@ -17779,7 +17779,7 @@ fn test_gen9_snowwarning() {
                 new_weather: Weather::SNOW,
                 new_weather_turns_remaining: WEATHER_ABILITY_TURNS,
                 previous_weather: Weather::NONE,
-                previous_weather_turns_remaining: -1,
+                previous_weather_turns_remaining: 0,
             }),
             Instruction::DecrementWeatherTurnsRemaining,
         ],
@@ -19578,7 +19578,7 @@ fn test_orichalcum_boost() {
     let mut state = State::default();
     state.side_one.get_active().ability = Abilities::ORICHALCUMPULSE;
     state.weather.weather_type = Weather::SUN;
-    state.weather.turns_remaining = -1;
+    state.weather.turns_remaining = 0;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -20687,7 +20687,7 @@ fn test_dryskin_in_rain() {
     state.side_two.get_active().ability = Abilities::DRYSKIN;
     state.side_two.get_active().hp = 90;
     state.weather.weather_type = Weather::RAIN;
-    state.weather.turns_remaining = -1;
+    state.weather.turns_remaining = 0;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
