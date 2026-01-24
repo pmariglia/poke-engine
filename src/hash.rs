@@ -30,6 +30,8 @@ pub struct StateHash {
     future_sight_counter_numbers: [[u64; 4]; 2],
     future_sight_index_numbers: [[u64; 6]; 2],
     substitute_health_numbers: [[u64; 357]; 2],
+    rest_turns_numbers: [[[u64; 3]; 6]; 2],
+    sleep_turns_numbers: [[[u64; 8]; 6]; 2],
 }
 
 impl Default for StateHash {
@@ -60,6 +62,8 @@ impl Default for StateHash {
             future_sight_counter_numbers: [[0u64; 4]; 2],
             future_sight_index_numbers: [[0u64; 6]; 2],
             substitute_health_numbers: [[0u64; 357]; 2],
+            rest_turns_numbers: [[[0u64; 3]; 6]; 2],
+            sleep_turns_numbers: [[[0u64; 8]; 6]; 2],
         }
     }
 }
@@ -106,6 +110,8 @@ impl StateHash {
             future_sight_counter_numbers: from_fn(|_side| from_fn(|_turns| rng.random())),
             future_sight_index_numbers: from_fn(|_side| from_fn(|_index| rng.random())),
             substitute_health_numbers: from_fn(|_side| from_fn(|_hp| rng.random())),
+            rest_turns_numbers: from_fn(|_side| from_fn(|_slot| from_fn(|_turns| rng.random()))),
+            sleep_turns_numbers: from_fn(|_side| from_fn(|_slot| from_fn(|_turns| rng.random()))),
         }
     }
     pub fn xor(&mut self, value: u64) {
@@ -226,5 +232,13 @@ impl StateHash {
 
     pub fn update_hash_substitute_health(&mut self, side: usize, hp_index: usize) {
         self.xor(self.substitute_health_numbers[side][hp_index]);
+    }
+
+    pub fn update_hash_rest_turns(&mut self, side: usize, slot: usize, turns_index: usize) {
+        self.xor(self.rest_turns_numbers[side][slot][turns_index]);
+    }
+
+    pub fn update_hash_sleep_turns(&mut self, side: usize, slot: usize, turns_index: usize) {
+        self.xor(self.sleep_turns_numbers[side][slot][turns_index]);
     }
 }

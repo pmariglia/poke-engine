@@ -1503,32 +1503,6 @@ impl State {
         self.terrain.turns_remaining = turns_remaining;
     }
 
-    fn decrement_rest_turn(&mut self, side_reference: &SideReference) {
-        self.get_side(side_reference).get_active().rest_turns -= 1;
-    }
-
-    fn increment_rest_turn(&mut self, side_reference: &SideReference) {
-        self.get_side(side_reference).get_active().rest_turns += 1;
-    }
-
-    fn set_rest_turn(
-        &mut self,
-        side_reference: &SideReference,
-        pokemon_index: PokemonIndex,
-        amount: i8,
-    ) {
-        self.get_side(side_reference).pokemon[pokemon_index].rest_turns = amount;
-    }
-
-    fn set_sleep_turn(
-        &mut self,
-        side_reference: &SideReference,
-        pokemon_index: PokemonIndex,
-        amount: i8,
-    ) {
-        self.get_side(side_reference).pokemon[pokemon_index].sleep_turns = amount;
-    }
-
     fn toggle_trickroom(&mut self, new_turns_remaining: i8) {
         self.trick_room.active = !self.trick_room.active;
         self.trick_room.turns_remaining = new_turns_remaining;
@@ -2242,21 +2216,62 @@ impl State {
                 }
             }
             Instruction::SetRestTurns(instruction) => {
-                self.set_rest_turn(
-                    &instruction.side_ref,
-                    instruction.pokemon_index,
-                    instruction.new_turns,
-                );
+                let side = self.get_side(&instruction.side_ref);
+                let pokemon = &mut side.pokemon[instruction.pokemon_index];
+                let existing_rest_turns = pokemon.rest_turns;
+                pokemon.rest_turns = instruction.new_turns;
+                let new_rest_turns = pokemon.rest_turns;
+                if WITH_HASH {
+                    self.hash.update_hash_rest_turns(
+                        instruction.side_ref as usize,
+                        instruction.pokemon_index as usize,
+                        existing_rest_turns as usize,
+                    );
+                    self.hash.update_hash_rest_turns(
+                        instruction.side_ref as usize,
+                        instruction.pokemon_index as usize,
+                        new_rest_turns as usize,
+                    );
+                }
             }
             Instruction::SetSleepTurns(instruction) => {
-                self.set_sleep_turn(
-                    &instruction.side_ref,
-                    instruction.pokemon_index,
-                    instruction.new_turns,
-                );
+                let side = self.get_side(&instruction.side_ref);
+                let pokemon = &mut side.pokemon[instruction.pokemon_index];
+                let existing_sleep_turns = pokemon.sleep_turns;
+                pokemon.sleep_turns = instruction.new_turns;
+                let new_sleep_turns = pokemon.sleep_turns;
+                if WITH_HASH {
+                    self.hash.update_hash_sleep_turns(
+                        instruction.side_ref as usize,
+                        instruction.pokemon_index as usize,
+                        existing_sleep_turns as usize,
+                    );
+                    self.hash.update_hash_sleep_turns(
+                        instruction.side_ref as usize,
+                        instruction.pokemon_index as usize,
+                        new_sleep_turns as usize,
+                    );
+                }
             }
             Instruction::DecrementRestTurns(instruction) => {
-                self.decrement_rest_turn(&instruction.side_ref);
+                let side = self.get_side(&instruction.side_ref);
+                let active_index = side.active_index;
+                let pokemon = &mut side.get_active();
+                let existing_rest_turns = pokemon.rest_turns;
+                pokemon.rest_turns -= 1;
+                let new_rest_turns = pokemon.rest_turns;
+                if WITH_HASH {
+                    self.hash.update_hash_rest_turns(
+                        instruction.side_ref as usize,
+                        active_index as usize,
+                        existing_rest_turns as usize,
+                    );
+                    self.hash.update_hash_rest_turns(
+                        instruction.side_ref as usize,
+                        active_index as usize,
+                        new_rest_turns as usize,
+                    );
+                }
             }
             Instruction::ToggleTrickRoom(instruction) => {
                 self.toggle_trickroom(instruction.new_trickroom_turns_remaining)
@@ -3013,21 +3028,62 @@ impl State {
                 }
             }
             Instruction::SetRestTurns(instruction) => {
-                self.set_rest_turn(
-                    &instruction.side_ref,
-                    instruction.pokemon_index,
-                    instruction.previous_turns,
-                );
+                let side = self.get_side(&instruction.side_ref);
+                let pokemon = &mut side.pokemon[instruction.pokemon_index];
+                let existing_rest_turns = pokemon.rest_turns;
+                pokemon.rest_turns = instruction.previous_turns;
+                let new_rest_turns = pokemon.rest_turns;
+                if WITH_HASH {
+                    self.hash.update_hash_rest_turns(
+                        instruction.side_ref as usize,
+                        instruction.pokemon_index as usize,
+                        existing_rest_turns as usize,
+                    );
+                    self.hash.update_hash_rest_turns(
+                        instruction.side_ref as usize,
+                        instruction.pokemon_index as usize,
+                        new_rest_turns as usize,
+                    );
+                }
             }
             Instruction::SetSleepTurns(instruction) => {
-                self.set_sleep_turn(
-                    &instruction.side_ref,
-                    instruction.pokemon_index,
-                    instruction.previous_turns,
-                );
+                let side = self.get_side(&instruction.side_ref);
+                let pokemon = &mut side.pokemon[instruction.pokemon_index];
+                let existing_sleep_turns = pokemon.sleep_turns;
+                pokemon.sleep_turns = instruction.previous_turns;
+                let new_sleep_turns = pokemon.sleep_turns;
+                if WITH_HASH {
+                    self.hash.update_hash_sleep_turns(
+                        instruction.side_ref as usize,
+                        instruction.pokemon_index as usize,
+                        existing_sleep_turns as usize,
+                    );
+                    self.hash.update_hash_sleep_turns(
+                        instruction.side_ref as usize,
+                        instruction.pokemon_index as usize,
+                        new_sleep_turns as usize,
+                    );
+                }
             }
             Instruction::DecrementRestTurns(instruction) => {
-                self.increment_rest_turn(&instruction.side_ref);
+                let side = self.get_side(&instruction.side_ref);
+                let active_index = side.active_index;
+                let pokemon = &mut side.get_active();
+                let existing_rest_turns = pokemon.rest_turns;
+                pokemon.rest_turns += 1;
+                let new_rest_turns = pokemon.rest_turns;
+                if WITH_HASH {
+                    self.hash.update_hash_rest_turns(
+                        instruction.side_ref as usize,
+                        active_index as usize,
+                        existing_rest_turns as usize,
+                    );
+                    self.hash.update_hash_rest_turns(
+                        instruction.side_ref as usize,
+                        active_index as usize,
+                        new_rest_turns as usize,
+                    );
+                }
             }
             Instruction::ToggleTrickRoom(instruction) => {
                 self.toggle_trickroom(instruction.previous_trickroom_turns_remaining)
