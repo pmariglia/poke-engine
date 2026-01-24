@@ -2,10 +2,10 @@ use poke_engine::engine::state::PokemonVolatileStatus;
 use poke_engine::engine::state::Terrain;
 use poke_engine::engine::state::Weather;
 use poke_engine::instruction::{
-    ApplyVolatileStatusInstruction, BoostInstruction, ChangeSideConditionInstruction,
-    ChangeStatusInstruction, ChangeTerrain, ChangeType, ChangeVolatileStatusDurationInstruction,
-    ChangeWeather, DamageInstruction, HealInstruction, Instruction,
-    RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction,
+    ApplyVolatileStatusInstruction, BoostInstruction, ChangeAbilityInstruction,
+    ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeTerrain, ChangeType,
+    ChangeVolatileStatusDurationInstruction, ChangeWeather, DamageInstruction, HealInstruction,
+    Instruction, RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction,
     ToggleTerastallizedInstruction,
 };
 use poke_engine::state::{PokemonBoostableStat, PokemonIndex, PokemonStatus, SideReference, State};
@@ -541,6 +541,35 @@ fn test_type_change_nullifies_itself() {
             side_ref: SideReference::SideOne,
             new_types: (PokemonType::NORMAL, PokemonType::TYPELESS),
             old_types: (PokemonType::FIRE, PokemonType::WATER),
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_ability_change() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list =
+        vec![Instruction::ChangeAbility(ChangeAbilityInstruction {
+            side_ref: SideReference::SideOne,
+            ability_change: 1,
+        })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_ability_change_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeAbility(ChangeAbilityInstruction {
+            side_ref: SideReference::SideOne,
+            ability_change: 1,
+        }),
+        Instruction::ChangeAbility(ChangeAbilityInstruction {
+            side_ref: SideReference::SideOne,
+            ability_change: -1,
         }),
     ];
     assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);

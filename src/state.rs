@@ -2019,8 +2019,22 @@ impl State {
             }
             Instruction::ChangeAbility(instruction) => {
                 let active = self.get_side(&instruction.side_ref).get_active();
+                let original_ability = active.ability;
                 active.ability =
                     Abilities::from(active.ability as i16 + instruction.ability_change);
+                let new_ability = active.ability;
+                if WITH_HASH {
+                    self.hash.update_hash_ability_change(
+                        instruction.side_ref as usize,
+                        original_ability as usize,
+                    );
+                }
+                if WITH_HASH {
+                    self.hash.update_hash_ability_change(
+                        instruction.side_ref as usize,
+                        new_ability as usize,
+                    );
+                }
             }
             Instruction::Heal(instruction) => {
                 let side_ref_usize = instruction.side_ref as usize;
@@ -2574,8 +2588,22 @@ impl State {
             }
             Instruction::ChangeAbility(instruction) => {
                 let active = self.get_side(&instruction.side_ref).get_active();
+                let original_ability = active.ability;
                 active.ability =
                     Abilities::from(active.ability as i16 - instruction.ability_change);
+                let new_ability = active.ability;
+                if WITH_HASH {
+                    self.hash.update_hash_ability_change(
+                        instruction.side_ref as usize,
+                        original_ability as usize,
+                    );
+                }
+                if WITH_HASH {
+                    self.hash.update_hash_ability_change(
+                        instruction.side_ref as usize,
+                        new_ability as usize,
+                    );
+                }
             }
             Instruction::EnableMove(instruction) => {
                 self.disable_move(&instruction.side_ref, &instruction.move_index)

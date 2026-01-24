@@ -17,6 +17,7 @@ pub struct StateHash {
     weather_numbers: [[u64; 9]; 8],
     terrain_numbers: [[u64; 9]; 5],
     type_change_numbers: [[[u64; 20]; 20]; 2],
+    ability_change_numbers: [[u64; 316]; 2],
 }
 
 impl Default for StateHash {
@@ -34,6 +35,7 @@ impl Default for StateHash {
             weather_numbers: [[0u64; 9]; 8],
             terrain_numbers: [[0u64; 9]; 5],
             type_change_numbers: [[[0u64; 20]; 20]; 2],
+            ability_change_numbers: [[0u64; 316]; 2],
         }
     }
 }
@@ -67,6 +69,7 @@ impl StateHash {
             type_change_numbers: from_fn(|_side| {
                 from_fn(|_type_1| from_fn(|_type_2| rng.random()))
             }),
+            ability_change_numbers: from_fn(|_side| from_fn(|_ability| rng.random())),
         }
     }
     pub fn xor(&mut self, value: u64) {
@@ -130,5 +133,9 @@ impl StateHash {
         type_2_index: usize,
     ) {
         self.xor(self.type_change_numbers[side][type_1_index][type_2_index]);
+    }
+
+    pub fn update_hash_ability_change(&mut self, side: usize, ability_index: usize) {
+        self.xor(self.ability_change_numbers[side][ability_index]);
     }
 }
