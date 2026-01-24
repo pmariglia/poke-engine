@@ -9,6 +9,13 @@ use rand::rng;
 use std::collections::HashMap;
 use std::time::Duration;
 
+type InstructionCache = HashMap<(u64, MoveChoice, MoveChoice), Vec<StateInstructions>>;
+struct StateHashMap {
+    hash_map: InstructionCache,
+    hits: u32,
+    total: u32,
+}
+
 fn sigmoid(x: f32) -> f32 {
     // Tuned so that ~200 points is very close to 1.0
     1.0 / (1.0 + (-0.0125 * x).exp())
@@ -95,7 +102,7 @@ impl Node {
             Some(child_vector) => {
                 let child_vec_ptr = child_vector as *mut Vec<Node>;
                 let chosen_child = self.sample_node(child_vec_ptr);
-                state.apply_instructions(&(*chosen_child).instructions.instruction_list);
+                state.apply_instructions_with_hash(&(*chosen_child).instructions.instruction_list);
                 (*chosen_child).selection(state)
             }
             None => (return_node, s1_mc_index, s2_mc_index),
@@ -119,20 +126,38 @@ impl Node {
         state: &mut State,
         s1_move_index: usize,
         s2_move_index: usize,
+        cache: &mut StateHashMap,
     ) -> *mut Node {
         let s1_move = &self.s1_options.as_ref().unwrap()[s1_move_index].move_choice;
         let s2_move = &self.s2_options.as_ref().unwrap()[s2_move_index].move_choice;
-        // if the battle is over or both moves are none there is no need to expand
+
         if (state.battle_is_over() != 0.0 && !self.root)
             || (s1_move == &MoveChoice::None && s2_move == &MoveChoice::None)
         {
             return self as *mut Node;
         }
+
         let should_branch_on_damage = self.root || (*self.parent).root;
-        let mut new_instructions =
-            generate_instructions_from_move_pair(state, s1_move, s2_move, should_branch_on_damage);
+        let cache_key = (state.hash.get_hash(), s1_move.clone(), s2_move.clone());
+
+        // Check cache first
+        let new_instructions = if let Some(cached) = cache.hash_map.get(&cache_key) {
+            cache.hits += 1;
+            cached.clone()
+        } else {
+            let instructions = generate_instructions_from_move_pair(
+                state,
+                s1_move,
+                s2_move,
+                should_branch_on_damage,
+            );
+            cache.hash_map.insert(cache_key, instructions.clone());
+            instructions
+        };
+        cache.total += 1;
+
         let mut this_pair_vec = Vec::with_capacity(new_instructions.len());
-        for state_instructions in new_instructions.drain(..) {
+        for state_instructions in new_instructions {
             let mut new_node = Node::new();
             new_node.parent = self;
             new_node.instructions = state_instructions;
@@ -142,10 +167,8 @@ impl Node {
             this_pair_vec.push(new_node);
         }
 
-        // sample a node from the new instruction list.
-        // this is the node that the rollout will be done on
         let new_node_ptr = self.sample_node(&mut this_pair_vec);
-        state.apply_instructions(&(*new_node_ptr).instructions.instruction_list);
+        state.apply_instructions_with_hash(&(*new_node_ptr).instructions.instruction_list);
         self.children
             .insert((s1_move_index, s2_move_index), this_pair_vec);
         new_node_ptr
@@ -167,7 +190,7 @@ impl Node {
         parent_s2_movenode.total_score += 1.0 - score;
         parent_s2_movenode.visits += 1;
 
-        state.reverse_instructions(&self.instructions.instruction_list);
+        state.reverse_instructions_with_hash(&self.instructions.instruction_list);
         (*self.parent).backpropagate(score, state);
     }
 
@@ -231,9 +254,9 @@ pub struct MctsResult {
     pub iteration_count: u32,
 }
 
-fn do_mcts(root_node: &mut Node, state: &mut State, root_eval: &f32) {
+fn do_mcts(root_node: &mut Node, state: &mut State, root_eval: &f32, cache: &mut StateHashMap) {
     let (mut new_node, s1_move, s2_move) = unsafe { root_node.selection(state) };
-    new_node = unsafe { (*new_node).expand(state, s1_move, s2_move) };
+    new_node = unsafe { (*new_node).expand(state, s1_move, s2_move, cache) };
     let rollout_result = unsafe { (*new_node).rollout(state, root_eval) };
     unsafe { (*new_node).backpropagate(rollout_result, state) }
 }
@@ -251,10 +274,15 @@ pub fn perform_mcts(
     root_node.root = true;
 
     let root_eval = evaluate(state);
+    let mut cache: StateHashMap = StateHashMap {
+        hash_map: HashMap::new(),
+        hits: 0,
+        total: 0,
+    };
     let start_time = std::time::Instant::now();
     while start_time.elapsed() < max_time {
         for _ in 0..1000 {
-            do_mcts(&mut root_node, state, &root_eval);
+            do_mcts(&mut root_node, state, &root_eval, &mut cache);
         }
 
         /*
@@ -273,6 +301,8 @@ pub fn perform_mcts(
             break;
         }
     }
+
+    println!("MCTS Cache hits: {} / {}", cache.hits, cache.total);
 
     let result = MctsResult {
         s1: root_node
