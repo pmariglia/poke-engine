@@ -25,6 +25,8 @@ pub struct StateHash {
     special_defense_change_numbers: [[u64; 650]; 2],
     speed_change_numbers: [[u64; 650]; 2],
     move_disabled_numbers: [[[u64; 2]; 4]; 2],
+    change_wish_counter_numbers: [[u64; 3]; 2],
+    change_wish_health_numbers: [[u64; 357]; 2],
 }
 
 impl Default for StateHash {
@@ -50,6 +52,8 @@ impl Default for StateHash {
             special_defense_change_numbers: [[0u64; 650]; 2],
             speed_change_numbers: [[0u64; 650]; 2],
             move_disabled_numbers: [[[0u64; 2]; 4]; 2],
+            change_wish_counter_numbers: [[0u64; 3]; 2],
+            change_wish_health_numbers: [[0u64; 357]; 2],
         }
     }
 }
@@ -91,6 +95,8 @@ impl StateHash {
             special_defense_change_numbers: from_fn(|_side| from_fn(|_change| rng.random())),
             speed_change_numbers: from_fn(|_side| from_fn(|_change| rng.random())),
             move_disabled_numbers: from_fn(|_side| from_fn(|_move| from_fn(|_state| rng.random()))),
+            change_wish_counter_numbers: from_fn(|_side| from_fn(|_counter| rng.random())),
+            change_wish_health_numbers: from_fn(|_side| from_fn(|_hp| rng.random())),
         }
     }
     pub fn xor(&mut self, value: u64) {
@@ -191,5 +197,13 @@ impl StateHash {
         state_index: usize,
     ) {
         self.xor(self.move_disabled_numbers[side][move_index][state_index]);
+    }
+
+    pub fn update_hash_change_wish_counter(&mut self, side: usize, counter_index: usize) {
+        self.xor(self.change_wish_counter_numbers[side][counter_index]);
+    }
+
+    pub fn update_hash_change_wish_health(&mut self, side: usize, hp_index: usize) {
+        self.xor(self.change_wish_health_numbers[side][hp_index]);
     }
 }

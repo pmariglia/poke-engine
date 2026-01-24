@@ -1503,24 +1503,6 @@ impl State {
         self.terrain.turns_remaining = turns_remaining;
     }
 
-    fn set_wish(&mut self, side_reference: &SideReference, wish_amount_change: i16) {
-        self.get_side(side_reference).wish.0 = 2;
-        self.get_side(side_reference).wish.1 += wish_amount_change;
-    }
-
-    fn unset_wish(&mut self, side_reference: &SideReference, wish_amount_change: i16) {
-        self.get_side(side_reference).wish.0 = 0;
-        self.get_side(side_reference).wish.1 -= wish_amount_change;
-    }
-
-    fn increment_wish(&mut self, side_reference: &SideReference) {
-        self.get_side(side_reference).wish.0 += 1;
-    }
-
-    fn decrement_wish(&mut self, side_reference: &SideReference) {
-        self.get_side(side_reference).wish.0 -= 1;
-    }
-
     fn set_future_sight(&mut self, side_reference: &SideReference, pokemon_index: PokemonIndex) {
         let side = self.get_side(side_reference);
         side.future_sight.0 = 3;
@@ -2182,10 +2164,45 @@ impl State {
                 }
             }
             Instruction::ChangeWish(instruction) => {
-                self.set_wish(&instruction.side_ref, instruction.wish_amount_change);
+                let side = self.get_side(&instruction.side_ref);
+                let (current_wish_turns, current_wish_hp) = side.wish;
+                side.wish.0 = 2;
+                side.wish.1 += instruction.wish_amount_change;
+                let (new_wish_turns, new_wish_hp) = side.wish;
+                if WITH_HASH {
+                    self.hash.update_hash_change_wish_counter(
+                        instruction.side_ref as usize,
+                        current_wish_turns as usize,
+                    );
+                    self.hash.update_hash_change_wish_counter(
+                        instruction.side_ref as usize,
+                        new_wish_turns as usize,
+                    );
+                    self.hash.update_hash_change_wish_health(
+                        instruction.side_ref as usize,
+                        current_wish_hp as usize,
+                    );
+                    self.hash.update_hash_change_wish_health(
+                        instruction.side_ref as usize,
+                        new_wish_hp as usize,
+                    );
+                }
             }
             Instruction::DecrementWish(instruction) => {
-                self.decrement_wish(&instruction.side_ref);
+                let side = self.get_side(&instruction.side_ref);
+                let current_wish_turns = side.wish.0;
+                side.wish.0 -= 1;
+                let new_wish_turns = side.wish.0;
+                if WITH_HASH {
+                    self.hash.update_hash_change_wish_counter(
+                        instruction.side_ref as usize,
+                        current_wish_turns as usize,
+                    );
+                    self.hash.update_hash_change_wish_counter(
+                        instruction.side_ref as usize,
+                        new_wish_turns as usize,
+                    );
+                }
             }
             Instruction::SetFutureSight(instruction) => {
                 self.set_future_sight(&instruction.side_ref, instruction.pokemon_index);
@@ -2857,9 +2874,46 @@ impl State {
                 }
             }
             Instruction::ChangeWish(instruction) => {
-                self.unset_wish(&instruction.side_ref, instruction.wish_amount_change)
+                let side = self.get_side(&instruction.side_ref);
+                let (current_wish_turns, current_wish_hp) = side.wish;
+                side.wish.0 = 0;
+                side.wish.1 -= instruction.wish_amount_change;
+                let (new_wish_turns, new_wish_hp) = side.wish;
+                if WITH_HASH {
+                    self.hash.update_hash_change_wish_counter(
+                        instruction.side_ref as usize,
+                        current_wish_turns as usize,
+                    );
+                    self.hash.update_hash_change_wish_counter(
+                        instruction.side_ref as usize,
+                        new_wish_turns as usize,
+                    );
+                    self.hash.update_hash_change_wish_health(
+                        instruction.side_ref as usize,
+                        current_wish_hp as usize,
+                    );
+                    self.hash.update_hash_change_wish_health(
+                        instruction.side_ref as usize,
+                        new_wish_hp as usize,
+                    );
+                }
             }
-            Instruction::DecrementWish(instruction) => self.increment_wish(&instruction.side_ref),
+            Instruction::DecrementWish(instruction) => {
+                let side = self.get_side(&instruction.side_ref);
+                let current_wish_turns = side.wish.0;
+                side.wish.0 += 1;
+                let new_wish_turns = side.wish.0;
+                if WITH_HASH {
+                    self.hash.update_hash_change_wish_counter(
+                        instruction.side_ref as usize,
+                        current_wish_turns as usize,
+                    );
+                    self.hash.update_hash_change_wish_counter(
+                        instruction.side_ref as usize,
+                        new_wish_turns as usize,
+                    );
+                }
+            }
             Instruction::SetFutureSight(instruction) => {
                 self.unset_future_sight(&instruction.side_ref, instruction.previous_pokemon_index)
             }

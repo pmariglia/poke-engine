@@ -6,9 +6,10 @@ use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeAbilityInstruction,
     ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatInstruction,
     ChangeStatusInstruction, ChangeTerrain, ChangeType, ChangeVolatileStatusDurationInstruction,
-    ChangeWeather, DamageInstruction, DisableMoveInstruction, EnableMoveInstruction,
-    HealInstruction, Instruction, RemoveVolatileStatusInstruction, StateInstructions,
-    SwitchInstruction, ToggleTerastallizedInstruction,
+    ChangeWeather, ChangeWishInstruction, DamageInstruction, DecrementWishInstruction,
+    DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction,
+    RemoveVolatileStatusInstruction, StateInstructions, SwitchInstruction,
+    ToggleTerastallizedInstruction,
 };
 use poke_engine::state::PokemonMoveIndex;
 use poke_engine::state::{PokemonBoostableStat, PokemonIndex, PokemonStatus, SideReference, State};
@@ -777,4 +778,53 @@ fn test_move_disabling_nullifies_itself() {
         }),
     ];
     assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_change_wish() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![Instruction::ChangeWish(ChangeWishInstruction {
+        side_ref: SideReference::SideOne,
+        wish_amount_change: 100,
+    })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_change_wish_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::ChangeWish(ChangeWishInstruction {
+            side_ref: SideReference::SideOne,
+            wish_amount_change: 100,
+        }),
+        Instruction::ChangeWish(ChangeWishInstruction {
+            side_ref: SideReference::SideOne,
+            wish_amount_change: -100,
+        }),
+        Instruction::DecrementWish(DecrementWishInstruction {
+            side_ref: SideReference::SideOne,
+        }),
+        Instruction::DecrementWish(DecrementWishInstruction {
+            side_ref: SideReference::SideOne,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_decrement_wish() {
+    let mut state = state_with_default_hash();
+    // First set wish to have a value to decrement
+    state.side_one.wish = (2, 100);
+    state.apply_instructions_with_hash(&vec![]);
+
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list =
+        vec![Instruction::DecrementWish(DecrementWishInstruction {
+            side_ref: SideReference::SideOne,
+        })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
 }
