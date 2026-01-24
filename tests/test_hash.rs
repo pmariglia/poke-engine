@@ -8,9 +8,9 @@ use poke_engine::instruction::{
     ChangeStatusInstruction, ChangeSubsituteHealthInstruction, ChangeTerrain, ChangeType,
     ChangeVolatileStatusDurationInstruction, ChangeWeather, ChangeWishInstruction,
     DamageInstruction, DecrementFutureSightInstruction, DecrementWishInstruction,
-    DisableMoveInstruction, EnableMoveInstruction, HealInstruction, Instruction,
-    RemoveVolatileStatusInstruction, SetFutureSightInstruction, SetSleepTurnsInstruction,
-    StateInstructions, SwitchInstruction, ToggleTerastallizedInstruction,
+    DisableMoveInstruction, EnableMoveInstruction, FormeChangeInstruction, HealInstruction,
+    Instruction, RemoveVolatileStatusInstruction, SetFutureSightInstruction,
+    SetSleepTurnsInstruction, StateInstructions, SwitchInstruction, ToggleTerastallizedInstruction,
 };
 use poke_engine::state::PokemonMoveIndex;
 use poke_engine::state::{PokemonBoostableStat, PokemonIndex, PokemonStatus, SideReference, State};
@@ -954,6 +954,38 @@ fn test_set_sleep_turns_nullifies_itself() {
             pokemon_index: PokemonIndex::P0,
             new_turns: 0,
             previous_turns: 1,
+        }),
+    ];
+    assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_forme_change() {
+    let mut state = state_with_default_hash();
+    state.apply_instructions_with_hash(&vec![]);
+
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![Instruction::FormeChange(FormeChangeInstruction {
+        side_ref: SideReference::SideOne,
+        name_change: 50,
+    })];
+    assert_instructions_modify_hash(&mut state, &state_instructions.instruction_list);
+}
+
+#[test]
+fn test_forme_change_nullifies_itself() {
+    let mut state = state_with_default_hash();
+    state.apply_instructions_with_hash(&vec![]);
+
+    let mut state_instructions = StateInstructions::default();
+    state_instructions.instruction_list = vec![
+        Instruction::FormeChange(FormeChangeInstruction {
+            side_ref: SideReference::SideOne,
+            name_change: 50,
+        }),
+        Instruction::FormeChange(FormeChangeInstruction {
+            side_ref: SideReference::SideOne,
+            name_change: -50,
         }),
     ];
     assert_instructions_keep_hash_the_same(&mut state, &state_instructions.instruction_list);

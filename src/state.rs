@@ -2336,7 +2336,19 @@ impl State {
             ),
             Instruction::FormeChange(instruction) => {
                 let active = self.get_side(&instruction.side_ref).get_active();
+                let existing_active_id = active.id;
                 active.id = PokemonName::from(active.id as i16 + instruction.name_change);
+                let new_active_id = active.id;
+                if WITH_HASH {
+                    self.hash.update_hash_forme_change(
+                        instruction.side_ref as usize,
+                        existing_active_id as usize,
+                    );
+                    self.hash.update_hash_forme_change(
+                        instruction.side_ref as usize,
+                        new_active_id as usize,
+                    );
+                }
             }
         }
     }
@@ -3148,7 +3160,19 @@ impl State {
             ),
             Instruction::FormeChange(instruction) => {
                 let active = self.get_side(&instruction.side_ref).get_active();
+                let existing_active_id = active.id;
                 active.id = PokemonName::from(active.id as i16 - instruction.name_change);
+                let new_active_id = active.id;
+                if WITH_HASH {
+                    self.hash.update_hash_forme_change(
+                        instruction.side_ref as usize,
+                        existing_active_id as usize,
+                    );
+                    self.hash.update_hash_forme_change(
+                        instruction.side_ref as usize,
+                        new_active_id as usize,
+                    );
+                }
             }
         }
     }
