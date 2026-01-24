@@ -38,7 +38,7 @@ pub struct StateHash {
     toggle_shed_tailing_numbers: [u64; 2],
     toggle_force_switch_numbers: [u64; 2],
     set_last_used_move_numbers: [[u64; 11]; 2],
-    pp_numbers: [[[u64; 11]; 4]; 2],
+    pp_numbers: [[[u64; 12]; 4]; 2],
     trickroom_numbers: [u64; 6],
 }
 
@@ -78,7 +78,7 @@ impl Default for StateHash {
             toggle_shed_tailing_numbers: [0u64; 2],
             toggle_force_switch_numbers: [0u64; 2],
             set_last_used_move_numbers: [[0u64; 11]; 2],
-            pp_numbers: [[[0u64; 11]; 4]; 2],
+            pp_numbers: [[[0u64; 12]; 4]; 2],
             trickroom_numbers: [0u64; 6],
         }
     }

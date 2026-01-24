@@ -2370,12 +2370,12 @@ impl State {
                     self.hash.update_hash_pp(
                         instruction.side_ref as usize,
                         instruction.move_index as usize,
-                        existing_pp as usize,
+                        (existing_pp + 1) as usize,
                     );
                     self.hash.update_hash_pp(
                         instruction.side_ref as usize,
                         instruction.move_index as usize,
-                        new_pp as usize,
+                        (new_pp + 1) as usize,
                     );
                 }
             }
@@ -3263,12 +3263,12 @@ impl State {
                     self.hash.update_hash_pp(
                         instruction.side_ref as usize,
                         instruction.move_index as usize,
-                        existing_pp as usize,
+                        (existing_pp + 1) as usize,
                     );
                     self.hash.update_hash_pp(
                         instruction.side_ref as usize,
                         instruction.move_index as usize,
-                        new_pp as usize,
+                        (new_pp + 1) as usize,
                     );
                 }
             }
