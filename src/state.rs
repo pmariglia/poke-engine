@@ -1515,30 +1515,6 @@ impl State {
         self.trick_room.turns_remaining = new_turns_remaining;
     }
 
-    fn decrement_pp(
-        &mut self,
-        side_reference: &SideReference,
-        move_index: &PokemonMoveIndex,
-        amount: &i8,
-    ) {
-        match side_reference {
-            SideReference::SideOne => self.side_one.get_active().moves[move_index].pp -= amount,
-            SideReference::SideTwo => self.side_two.get_active().moves[move_index].pp -= amount,
-        }
-    }
-
-    fn increment_pp(
-        &mut self,
-        side_reference: &SideReference,
-        move_index: &PokemonMoveIndex,
-        amount: &i8,
-    ) {
-        match side_reference {
-            SideReference::SideOne => self.side_one.get_active().moves[move_index].pp += amount,
-            SideReference::SideTwo => self.side_two.get_active().moves[move_index].pp += amount,
-        }
-    }
-
     pub fn apply_instructions(&mut self, instructions: &Vec<Instruction>) {
         self.apply_instructions_impl::<false>(instructions);
     }
@@ -2370,11 +2346,26 @@ impl State {
                 let side = self.get_side(&instruction.side_ref);
                 side.damage_dealt.hit_substitute = !side.damage_dealt.hit_substitute;
             }
-            Instruction::DecrementPP(instruction) => self.decrement_pp(
-                &instruction.side_ref,
-                &instruction.move_index,
-                &instruction.amount,
-            ),
+            Instruction::DecrementPP(instruction) => {
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let pkmn_move = &mut active.moves[&instruction.move_index];
+                let existing_pp = pkmn_move.pp;
+                pkmn_move.pp -= instruction.amount;
+                let new_pp = pkmn_move.pp;
+                if WITH_HASH {
+                    self.hash.update_hash_pp(
+                        instruction.side_ref as usize,
+                        instruction.move_index as usize,
+                        existing_pp as usize,
+                    );
+                    self.hash.update_hash_pp(
+                        instruction.side_ref as usize,
+                        instruction.move_index as usize,
+                        new_pp as usize,
+                    );
+                }
+            }
             Instruction::FormeChange(instruction) => {
                 let active = self.get_side(&instruction.side_ref).get_active();
                 let existing_active_id = active.id;
@@ -3235,11 +3226,26 @@ impl State {
                 let side = self.get_side(&instruction.side_ref);
                 side.damage_dealt.hit_substitute = !side.damage_dealt.hit_substitute;
             }
-            Instruction::DecrementPP(instruction) => self.increment_pp(
-                &instruction.side_ref,
-                &instruction.move_index,
-                &instruction.amount,
-            ),
+            Instruction::DecrementPP(instruction) => {
+                let side = self.get_side(&instruction.side_ref);
+                let active = side.get_active();
+                let pkmn_move = &mut active.moves[&instruction.move_index];
+                let existing_pp = pkmn_move.pp;
+                pkmn_move.pp += instruction.amount;
+                let new_pp = pkmn_move.pp;
+                if WITH_HASH {
+                    self.hash.update_hash_pp(
+                        instruction.side_ref as usize,
+                        instruction.move_index as usize,
+                        existing_pp as usize,
+                    );
+                    self.hash.update_hash_pp(
+                        instruction.side_ref as usize,
+                        instruction.move_index as usize,
+                        new_pp as usize,
+                    );
+                }
+            }
             Instruction::FormeChange(instruction) => {
                 let active = self.get_side(&instruction.side_ref).get_active();
                 let existing_active_id = active.id;

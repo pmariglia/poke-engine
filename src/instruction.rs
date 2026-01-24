@@ -79,10 +79,10 @@ pub enum Instruction {
     SetSideTwoMoveSecondSwitchOutMove(SetSecondMoveSwitchOutMoveInstruction),
     ToggleBatonPassing(ToggleBatonPassingInstruction), //
     ToggleShedTailing(ToggleShedTailingInstruction),   //
-    SetLastUsedMove(SetLastUsedMoveInstruction),
-    ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction),
-    ChangeDamageDealtMoveCatagory(ChangeDamageDealtMoveCategoryInstruction),
-    ToggleDamageDealtHitSubstitute(ToggleDamageDealtHitSubstituteInstruction),
+    SetLastUsedMove(SetLastUsedMoveInstruction),       //
+    ChangeDamageDealtDamage(ChangeDamageDealtDamageInstruction), //
+    ChangeDamageDealtMoveCatagory(ChangeDamageDealtMoveCategoryInstruction), //
+    ToggleDamageDealtHitSubstitute(ToggleDamageDealtHitSubstituteInstruction), //
     DecrementPP(DecrementPPInstruction),
     ToggleTrickRoom(ToggleTrickRoomInstruction),
     DecrementTrickRoomTurnsRemaining,
