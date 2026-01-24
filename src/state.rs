@@ -2250,10 +2250,23 @@ impl State {
                 }
             }
             Instruction::ToggleTrickRoom(instruction) => {
-                self.toggle_trickroom(instruction.new_trickroom_turns_remaining)
+                self.toggle_trickroom(instruction.new_trickroom_turns_remaining);
+                if WITH_HASH {
+                    self.hash.update_hash_trickroom(
+                        instruction.previous_trickroom_turns_remaining as usize,
+                    );
+                    self.hash
+                        .update_hash_trickroom(instruction.new_trickroom_turns_remaining as usize);
+                }
             }
             Instruction::DecrementTrickRoomTurnsRemaining => {
                 self.trick_room.turns_remaining -= 1;
+                if WITH_HASH {
+                    self.hash
+                        .update_hash_trickroom(self.trick_room.turns_remaining as usize + 1);
+                    self.hash
+                        .update_hash_trickroom(self.trick_room.turns_remaining as usize);
+                }
             }
             Instruction::ToggleSideOneForceSwitch => {
                 self.side_one.force_switch ^= true;
@@ -3130,10 +3143,23 @@ impl State {
                 }
             }
             Instruction::ToggleTrickRoom(instruction) => {
-                self.toggle_trickroom(instruction.previous_trickroom_turns_remaining)
+                self.toggle_trickroom(instruction.previous_trickroom_turns_remaining);
+                if WITH_HASH {
+                    self.hash
+                        .update_hash_trickroom(instruction.new_trickroom_turns_remaining as usize);
+                    self.hash.update_hash_trickroom(
+                        instruction.previous_trickroom_turns_remaining as usize,
+                    );
+                }
             }
             Instruction::DecrementTrickRoomTurnsRemaining => {
                 self.trick_room.turns_remaining += 1;
+                if WITH_HASH {
+                    self.hash
+                        .update_hash_trickroom(self.trick_room.turns_remaining as usize - 1);
+                    self.hash
+                        .update_hash_trickroom(self.trick_room.turns_remaining as usize);
+                }
             }
             Instruction::ToggleSideOneForceSwitch => {
                 self.side_one.force_switch ^= true;
