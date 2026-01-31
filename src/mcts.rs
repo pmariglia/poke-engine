@@ -7,6 +7,7 @@ use rand::distr::weighted::WeightedIndex;
 use rand::prelude::*;
 use rand::rng;
 use std::collections::HashMap;
+use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::Duration;
@@ -39,16 +40,18 @@ impl SharedMoveNode {
 #[derive(Debug)]
 pub struct RootNode {
     pub children: HashMap<(usize, usize), Vec<Node>>,
-    pub times_visited: u32,
+    pub times_visited: u32,                          // local: used for s2 UCB1 only
+    pub s1_times_visited: Arc<AtomicU32>,            // shared: used for s1 UCB1
     pub s1_options: Arc<RwLock<Vec<SharedMoveNode>>>,
     pub s2_options: Option<Vec<MoveNode>>,
 }
 
 impl RootNode {
-    fn new(s1_options_shared: Arc<RwLock<Vec<SharedMoveNode>>>) -> RootNode {
+    fn new(s1_options_shared: Arc<RwLock<Vec<SharedMoveNode>>>, s1_parent_visits: Arc<AtomicU32>) -> RootNode {
         RootNode {
             times_visited: 0,
             children: HashMap::new(),
+            s1_times_visited: s1_parent_visits,
             s1_options: s1_options_shared,
             s2_options: None,
         }
@@ -68,10 +71,11 @@ impl RootNode {
 
     pub fn maximize_ucb_for_s1(&self) -> usize {
         let s1_options = self.s1_options.read().unwrap();
+        let parent_visits = self.s1_times_visited.load(Ordering::Relaxed);
         let mut choice = 0;
         let mut best_ucb1 = f64::MIN;
         for (index, node) in s1_options.iter().enumerate() {
-            let this_ucb1 = node.ucb1(self.times_visited);
+            let this_ucb1 = node.ucb1(parent_visits);
             if this_ucb1 > best_ucb1 {
                 best_ucb1 = this_ucb1;
                 choice = index;
@@ -159,6 +163,7 @@ impl RootNode {
             let s1_movenode = &mut s1_options[s1_choice];
             s1_movenode.total_score += score as f64;
             s1_movenode.visits += 1;
+            self.s1_times_visited.fetch_add(1, Ordering::Relaxed);
         }
 
         // Update local s2 options
@@ -423,14 +428,16 @@ pub fn perform_many_mcts(
             })
             .collect::<Vec<_>>(),
     ));
+    let s1_parent_visits = Arc::new(AtomicU32::new(0));
 
     let mut handles = vec![];
 
     for (mut state, s2_options) in states.into_iter().zip(side_two_options_vec.into_iter()) {
         let s1_shared = Arc::clone(&s1_options_shared);
+        let s1_pv = Arc::clone(&s1_parent_visits);
 
         let handle = thread::spawn(move || {
-            let mut root_node = RootNode::new(s1_shared);
+            let mut root_node = RootNode::new(s1_shared, s1_pv);
             unsafe {
                 root_node.populate(s2_options);
             }
