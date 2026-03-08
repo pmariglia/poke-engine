@@ -5,12 +5,14 @@ use poke_engine::engine::abilities::Abilities;
 use poke_engine::engine::generate_instructions::generate_instructions_from_move_pair;
 use poke_engine::engine::items::Items;
 use poke_engine::engine::state::{MoveChoice, PokemonVolatileStatus, Weather};
+use poke_engine::instruction::ChangeSideConditionInstruction;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeStatusInstruction,
     ChangeVolatileStatusDurationInstruction, DamageInstruction, EnableMoveInstruction,
     HealInstruction, Instruction, RemoveVolatileStatusInstruction, SetSleepTurnsInstruction,
     StateInstructions, SwitchInstruction,
 };
+use poke_engine::state::PokemonSideCondition;
 use poke_engine::state::{
     Move, PokemonIndex, PokemonMoveIndex, PokemonStatus, PokemonType, SideReference, State,
 };
@@ -48,6 +50,38 @@ fn set_moves_on_pkmn_and_call_generate_instructions(
         &MoveChoice::Move(PokemonMoveIndex::M0),
     );
     instructions
+}
+
+#[test]
+fn test_regular_move_with_protect_side_condition() {
+    let mut state = State::default();
+    state.side_one.side_conditions.protect = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::TACKLE,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 48,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
+            }),
+            Instruction::ChangeSideCondition(ChangeSideConditionInstruction {
+                side_ref: SideReference::SideOne,
+                side_condition: PokemonSideCondition::Protect,
+                amount: -1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
 }
 
 #[test]
