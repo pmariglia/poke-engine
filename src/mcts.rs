@@ -2,6 +2,7 @@ use crate::engine::evaluate::evaluate;
 use crate::engine::generate_instructions::generate_instructions_from_move_pair;
 use crate::engine::state::MoveChoice;
 use crate::instruction::StateInstructions;
+use crate::mcts_threaded::perform_mcts_shared_tree;
 use crate::state::State;
 use rand::distr::weighted::WeightedIndex;
 use rand::prelude::*;
@@ -245,12 +246,28 @@ fn do_mcts(
     unsafe { (*new_node).backpropagate(rollout_result, state) }
 }
 
+fn should_use_shared_tree_mcts() -> bool {
+    matches!(
+        std::env::var("POKE_ENGINE_MCTS_SHARED_TREE").as_deref(),
+        Ok("1") | Ok("true") | Ok("TRUE")
+    )
+}
+
 pub fn perform_mcts(
     state: &mut State,
     side_one_options: Vec<MoveChoice>,
     side_two_options: Vec<MoveChoice>,
     max_time: Duration,
 ) -> MctsResult {
+    if should_use_shared_tree_mcts() {
+        return perform_mcts_shared_tree(
+            state,
+            side_one_options,
+            side_two_options,
+            max_time,
+            evaluate(state),
+        );
+    }
     let mut root_node = Node::new();
     unsafe {
         root_node.populate(side_one_options, side_two_options);
