@@ -19,7 +19,7 @@ pub mod choices;
 pub mod instruction;
 pub mod io;
 pub mod mcts;
-mod mcts_threaded;
+pub mod mcts_threaded;
 pub mod pokemon;
 pub mod search;
 pub mod state;
