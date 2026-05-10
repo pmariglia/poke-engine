@@ -6,15 +6,16 @@ use crate::mcts::{MctsResult, MctsSideResult};
 use crate::state::State;
 use rand::prelude::*;
 use rand::rng;
-use std::sync::atomic::{AtomicI32, AtomicI64, AtomicU32, Ordering};
-use std::sync::{Arc, OnceLock};
+use std::collections::HashMap;
+use std::sync::atomic::{AtomicI32, AtomicU32, Ordering};
+use std::sync::{Arc, OnceLock, RwLock};
 use std::thread;
 use std::time::{Duration, Instant};
 
 const MCTS_DEADLINE_CHECK_INTERVAL: u32 = 1_000;
 const MCTS_MAX_ITERATIONS_PER_TREE: u32 = 10_000_000;
 const MCTS_DAMAGE_BRANCH_DEPTH: u8 = 2;
-const SCORE_SCALE: f32 = 1_000_000.0;
+const SCORE_SCALE: f32 = 400.0;
 const VIRTUAL_LOSS_VISITS: u32 = 3;
 
 fn sigmoid(x: f32) -> f32 {
@@ -22,18 +23,18 @@ fn sigmoid(x: f32) -> f32 {
     1.0 / (1.0 + (-0.0125 * x).exp())
 }
 
-struct SharedMoveNode {
+struct MoveNode {
     move_choice: MoveChoice,
-    total_score: AtomicI64,
+    total_score: AtomicU32,
     visits: AtomicU32,
     virtual_visits: AtomicU32,
 }
 
-impl SharedMoveNode {
+impl MoveNode {
     fn new(move_choice: MoveChoice) -> Self {
         Self {
             move_choice,
-            total_score: AtomicI64::new(0),
+            total_score: AtomicU32::new(0),
             visits: AtomicU32::new(0),
             virtual_visits: AtomicU32::new(0),
         }
@@ -54,7 +55,7 @@ impl SharedMoveNode {
     #[inline]
     fn add_result(&self, score: f32) {
         self.total_score
-            .fetch_add((score * SCORE_SCALE).round() as i64, Ordering::AcqRel);
+            .fetch_add((score * SCORE_SCALE).round() as u32, Ordering::AcqRel);
         self.visits.fetch_add(1, Ordering::AcqRel);
     }
 
@@ -79,57 +80,63 @@ impl SharedMoveNode {
 }
 
 struct SharedNodeOptions {
-    s1: Vec<SharedMoveNode>,
-    s2: Vec<SharedMoveNode>,
+    s1: Vec<MoveNode>,
+    s2: Vec<MoveNode>,
 }
 
 impl SharedNodeOptions {
     fn new(s1_options: Vec<MoveChoice>, s2_options: Vec<MoveChoice>) -> Self {
         Self {
-            s1: s1_options.into_iter().map(SharedMoveNode::new).collect(),
-            s2: s2_options.into_iter().map(SharedMoveNode::new).collect(),
+            s1: s1_options.into_iter().map(MoveNode::new).collect(),
+            s2: s2_options.into_iter().map(MoveNode::new).collect(),
         }
     }
 }
 
 struct SharedNodeChildren {
-    s2_len: usize,
-    entries: Vec<OnceLock<SharedBranch>>,
+    entries: RwLock<HashMap<(usize, usize), SharedBranch>>,
 }
 
 impl SharedNodeChildren {
-    fn new(s1_len: usize, s2_len: usize) -> Self {
-        let mut entries = Vec::with_capacity(s1_len.saturating_mul(s2_len));
-        entries.resize_with(s1_len.saturating_mul(s2_len), OnceLock::new);
-        Self { s2_len, entries }
+    fn new() -> Self {
+        Self {
+            entries: RwLock::new(HashMap::new()),
+        }
     }
 
-    #[inline]
-    fn index(&self, s1_index: usize, s2_index: usize) -> usize {
-        s1_index * self.s2_len + s2_index
-    }
-
-    #[inline]
-    fn get(&self, s1_index: usize, s2_index: usize) -> Option<&SharedBranch> {
+    fn get_and_sample<R: Rng + ?Sized>(
+        &self,
+        s1_index: usize,
+        s2_index: usize,
+        rng: &mut R,
+    ) -> Option<Arc<Node>> {
         self.entries
-            .get(self.index(s1_index, s2_index))
-            .and_then(|entry| entry.get())
+            .read()
+            .unwrap()
+            .get(&(s1_index, s2_index))
+            .map(|branch| branch.sample(rng))
     }
 
-    #[inline]
-    fn entry(&self, s1_index: usize, s2_index: usize) -> &OnceLock<SharedBranch> {
-        let index = self.index(s1_index, s2_index);
-        &self.entries[index]
+    fn insert_if_absent_and_sample<R: Rng + ?Sized>(
+        &self,
+        s1_index: usize,
+        s2_index: usize,
+        branch: SharedBranch,
+        rng: &mut R,
+    ) -> Arc<Node> {
+        let mut map = self.entries.write().unwrap();
+        let branch = map.entry((s1_index, s2_index)).or_insert(branch);
+        branch.sample(rng)
     }
 }
 
 struct SharedBranch {
-    nodes: Vec<Arc<SharedNode>>,
+    nodes: Vec<Arc<Node>>,
     total_weight: f32,
 }
 
 impl SharedBranch {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Arc<SharedNode> {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Arc<Node> {
         if self.nodes.len() <= 1 || self.total_weight <= 0.0 {
             return self.nodes[0].clone();
         }
@@ -145,17 +152,17 @@ impl SharedBranch {
     }
 }
 
-struct SharedNode {
+struct Node {
     root: bool,
     instructions: StateInstructions,
     depth: u8,
     times_visited: AtomicU32,
     virtual_losses: AtomicI32,
     options: OnceLock<SharedNodeOptions>,
-    children: OnceLock<SharedNodeChildren>,
+    children: SharedNodeChildren,
 }
 
-impl SharedNode {
+impl Node {
     fn new_root(side_one_options: Vec<MoveChoice>, side_two_options: Vec<MoveChoice>) -> Arc<Self> {
         let node = Arc::new(Self {
             root: true,
@@ -164,7 +171,7 @@ impl SharedNode {
             times_visited: AtomicU32::new(0),
             virtual_losses: AtomicI32::new(0),
             options: OnceLock::new(),
-            children: OnceLock::new(),
+            children: SharedNodeChildren::new(),
         });
         let _ = node
             .options
@@ -185,7 +192,7 @@ impl SharedNode {
             times_visited: AtomicU32::new(0),
             virtual_losses: AtomicI32::new(0),
             options: OnceLock::new(),
-            children: OnceLock::new(),
+            children: SharedNodeChildren::new(),
         })
     }
 
@@ -196,7 +203,7 @@ impl SharedNode {
         })
     }
 
-    fn maximize_ucb_for_side(&self, side_options: &[SharedMoveNode]) -> usize {
+    fn maximize_ucb_for_side(&self, side_options: &[MoveNode]) -> usize {
         let mut choice = 0;
         let mut best_ucb1 = f32::MIN;
         let parent_visits = self
@@ -227,25 +234,13 @@ impl SharedNode {
         ))
     }
 
-    fn children(&self) -> &SharedNodeChildren {
-        let options = self
-            .options
-            .get()
-            .expect("node options must be initialized");
-        self.children
-            .get_or_init(|| SharedNodeChildren::new(options.s1.len(), options.s2.len()))
-    }
-
     fn sample_existing_child<R: Rng + ?Sized>(
         &self,
         s1_index: usize,
         s2_index: usize,
         rng: &mut R,
-    ) -> Option<Arc<SharedNode>> {
-        let children = self.children.get()?;
-        children
-            .get(s1_index, s2_index)
-            .map(|branch| branch.sample(rng))
+    ) -> Option<Arc<Node>> {
+        self.children.get_and_sample(s1_index, s2_index, rng)
     }
 
     fn expand_and_sample_child<R: Rng + ?Sized>(
@@ -254,10 +249,10 @@ impl SharedNode {
         s1_index: usize,
         s2_index: usize,
         rng: &mut R,
-    ) -> Option<Arc<SharedNode>> {
-        let children = self.children();
-        if let Some(branch) = children.get(s1_index, s2_index) {
-            return Some(branch.sample(rng));
+    ) -> Option<Arc<Node>> {
+        // Check under read lock first
+        if let Some(existing) = self.children.get_and_sample(s1_index, s2_index, rng) {
+            return Some(existing);
         }
 
         let options = self
@@ -283,7 +278,7 @@ impl SharedNode {
         let nodes = instructions
             .into_iter()
             .map(|state_instructions| {
-                SharedNode::new_child(
+                Node::new_child(
                     state_instructions,
                     s1_index,
                     s2_index,
@@ -293,26 +288,25 @@ impl SharedNode {
             .collect::<Vec<_>>();
         let total_weight = nodes
             .iter()
-            .map(|node| node.instructions.percentage.max(0.0))
+            .map(|n| n.instructions.percentage.max(0.0))
             .sum();
         let branch = SharedBranch {
             nodes,
             total_weight,
         };
-        let sampled = branch.sample(rng);
-        let entry = children.entry(s1_index, s2_index);
-        if entry.set(branch).is_err() {
-            return entry
-                .get()
-                .map(|existing_branch| existing_branch.sample(rng));
-        }
-        Some(sampled)
+
+        // or_insert handles the race — if another thread inserted while we
+        // were generating instructions, we just use theirs
+        Some(
+            self.children
+                .insert_if_absent_and_sample(s1_index, s2_index, branch, rng),
+        )
     }
 }
 
 struct PathStep {
-    parent: Arc<SharedNode>,
-    child: Arc<SharedNode>,
+    parent: Arc<Node>,
+    child: Arc<Node>,
     s1_index: usize,
     s2_index: usize,
 }
@@ -345,7 +339,7 @@ fn remove_virtual_losses(path: &[PathStep]) {
     }
 }
 
-fn backpropagate(path: &[PathStep], leaf: &Arc<SharedNode>, score: f32) {
+fn backpropagate(path: &[PathStep], leaf: &Arc<Node>, score: f32) {
     leaf.times_visited.fetch_add(1, Ordering::AcqRel);
 
     for step in path.iter().rev() {
@@ -357,7 +351,7 @@ fn backpropagate(path: &[PathStep], leaf: &Arc<SharedNode>, score: f32) {
 }
 
 fn do_shared_tree_playout<R: Rng + ?Sized>(
-    root: &Arc<SharedNode>,
+    root: &Arc<Node>,
     state: &mut State,
     root_eval: f32,
     rng: &mut R,
@@ -428,7 +422,7 @@ pub fn perform_mcts_shared_tree(
 ) -> MctsResult {
     let worker_count = mcts_worker_count();
     let deadline = Instant::now() + max_time;
-    let root = SharedNode::new_root(side_one_options, side_two_options);
+    let root = Node::new_root(side_one_options, side_two_options);
     let started_iterations = Arc::new(AtomicU32::new(0));
     let max_iterations = MCTS_MAX_ITERATIONS_PER_TREE;
 
