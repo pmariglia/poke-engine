@@ -27,7 +27,6 @@ struct MoveNode {
     move_choice: MoveChoice,
     total_score: AtomicU32,
     visits: AtomicU32,
-    virtual_visits: AtomicU32,
 }
 
 impl MoveNode {
@@ -36,20 +35,17 @@ impl MoveNode {
             move_choice,
             total_score: AtomicU32::new(0),
             visits: AtomicU32::new(0),
-            virtual_visits: AtomicU32::new(0),
         }
     }
 
     #[inline]
     fn add_virtual_loss(&self) {
-        self.virtual_visits
-            .fetch_add(VIRTUAL_LOSS_VISITS, Ordering::AcqRel);
+        self.visits.fetch_add(VIRTUAL_LOSS_VISITS, Ordering::AcqRel);
     }
 
     #[inline]
     fn remove_virtual_loss(&self) {
-        self.virtual_visits
-            .fetch_sub(VIRTUAL_LOSS_VISITS, Ordering::AcqRel);
+        self.visits.fetch_sub(VIRTUAL_LOSS_VISITS, Ordering::AcqRel);
     }
 
     #[inline]
@@ -67,15 +63,12 @@ impl MoveNode {
     #[inline]
     fn ucb1_with_parent_exploration(&self, parent_exploration_numerator: f32) -> f32 {
         let visits = self.visits.load(Ordering::Acquire);
-        let virtual_visits = self.virtual_visits.load(Ordering::Acquire);
-        if visits == 0 && virtual_visits == 0 {
+        if visits == 0 {
             return f32::INFINITY;
         }
-
-        let effective_visits = visits.saturating_add(virtual_visits).max(1);
         let total_score = self.total_score_f32();
-        let average_score = total_score / effective_visits as f32;
-        average_score + (parent_exploration_numerator / effective_visits as f32).sqrt()
+        let average_score = total_score / visits as f32;
+        average_score + (parent_exploration_numerator / visits as f32).sqrt()
     }
 }
 
