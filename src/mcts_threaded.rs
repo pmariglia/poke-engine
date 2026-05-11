@@ -23,7 +23,7 @@ fn sigmoid(x: f32) -> f32 {
     1.0 / (1.0 + (-0.0125 * x).exp())
 }
 
-struct MoveNode {
+pub struct MoveNode {
     move_choice: MoveChoice,
     total_score: AtomicU32,
     visits: AtomicU32,
@@ -72,7 +72,7 @@ impl MoveNode {
     }
 }
 
-struct SharedNodeOptions {
+pub struct SharedNodeOptions {
     s1: Vec<MoveNode>,
     s2: Vec<MoveNode>,
 }
@@ -86,7 +86,7 @@ impl SharedNodeOptions {
     }
 }
 
-struct SharedNodeChildren {
+pub struct SharedNodeChildren {
     entries: RwLock<HashMap<(usize, usize), SharedBranch>>,
 }
 
@@ -123,7 +123,7 @@ impl SharedNodeChildren {
     }
 }
 
-struct SharedBranch {
+pub struct SharedBranch {
     nodes: Vec<Arc<Node>>,
     total_weight: f32,
 }
@@ -145,7 +145,7 @@ impl SharedBranch {
     }
 }
 
-struct Node {
+pub struct Node {
     root: bool,
     instructions: StateInstructions,
     depth: u8,
