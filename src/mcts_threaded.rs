@@ -13,7 +13,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 const MCTS_DEADLINE_CHECK_INTERVAL: u32 = 1_000;
-const MCTS_MAX_ITERATIONS_PER_TREE: u32 = 10_000_000;
+const MCTS_MAX_ITERATIONS_PER_TREE: u32 = 4_000_000;
 const MCTS_DAMAGE_BRANCH_DEPTH: u8 = 2;
 const SCORE_SCALE: f32 = 400.0;
 const VIRTUAL_LOSS_VISITS: u32 = 3;
@@ -348,8 +348,9 @@ fn do_shared_tree_playout<R: Rng + ?Sized>(
     state: &mut State,
     root_eval: f32,
     rng: &mut R,
+    path: &mut Vec<PathStep>,
 ) {
-    let mut path = Vec::with_capacity(16);
+    path.clear();
     let mut current = root.clone();
 
     loop {
@@ -427,6 +428,7 @@ pub fn perform_mcts_shared_tree(
             scope.spawn(move || {
                 let mut rng = rng();
                 let mut iterations_until_deadline_check = 0;
+                let mut path_vec = Vec::with_capacity(16);
                 loop {
                     if iterations_until_deadline_check == 0 {
                         if Instant::now() >= deadline {
@@ -440,7 +442,13 @@ pub fn perform_mcts_shared_tree(
                         break;
                     }
 
-                    do_shared_tree_playout(&root, &mut worker_state, root_eval, &mut rng);
+                    do_shared_tree_playout(
+                        &root,
+                        &mut worker_state,
+                        root_eval,
+                        &mut rng,
+                        &mut path_vec,
+                    );
                     iterations_until_deadline_check -= 1;
                 }
             });
