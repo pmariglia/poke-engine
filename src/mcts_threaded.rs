@@ -400,21 +400,14 @@ fn do_shared_tree_playout<R: Rng + ?Sized>(
     reverse_path(state, &path);
 }
 
-fn mcts_worker_count() -> usize {
-    std::env::var("POKE_ENGINE_MCTS_WORKER_COUNT")
-        .ok()
-        .and_then(|s| s.parse().ok())
-        .unwrap_or_else(|| 4)
-}
-
 pub fn perform_mcts_shared_tree(
     state: &mut State,
     side_one_options: Vec<MoveChoice>,
     side_two_options: Vec<MoveChoice>,
     max_time: Duration,
-    root_eval: f32,
+    worker_count: usize,
 ) -> MctsResult {
-    let worker_count = mcts_worker_count();
+    let root_eval = evaluate(state);
     let deadline = Instant::now() + max_time;
     let root = Node::new_root(side_one_options, side_two_options);
     let started_iterations = Arc::new(AtomicU32::new(0));
