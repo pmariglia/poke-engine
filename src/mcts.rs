@@ -18,7 +18,6 @@ fn sigmoid(x: f32) -> f32 {
 pub struct Node {
     pub root: bool,
     pub parent: *mut Node,
-    pub children: HashMap<(usize, usize), Vec<Node>>,
     pub times_visited: u32,
 
     // represents the instructions & s1/s2 moves that led to this node from the parent
@@ -39,7 +38,6 @@ impl Node {
             parent: std::ptr::null_mut(),
             instructions: StateInstructions::default(),
             times_visited: 0,
-            children: HashMap::new(),
             s1_choice: 0,
             s2_choice: 0,
             s1_options: None,
@@ -81,24 +79,27 @@ impl Node {
         choice
     }
 
-    pub unsafe fn selection(&mut self, state: &mut State) -> (*mut Node, usize, usize) {
-        let return_node = self as *mut Node;
+    pub unsafe fn selection(
+        &mut self,
+        state: &mut State,
+        children: &mut HashMap<(usize, usize, usize), Vec<Node>>,
+    ) -> (*mut Node, usize, usize) {
         if self.s1_options.is_none() {
             let (s1_options, s2_options) = state.get_all_options();
             self.populate(s1_options, s2_options);
         }
 
-        let s1_mc_index = self.maximize_ucb_for_side(&self.s1_options.as_ref().unwrap());
-        let s2_mc_index = self.maximize_ucb_for_side(&self.s2_options.as_ref().unwrap());
-        let child_vector = self.children.get_mut(&(s1_mc_index, s2_mc_index));
-        match child_vector {
+        let s1_mc_index = self.maximize_ucb_for_side(self.s1_options.as_ref().unwrap());
+        let s2_mc_index = self.maximize_ucb_for_side(self.s2_options.as_ref().unwrap());
+        let key = (self as *mut Node as usize, s1_mc_index, s2_mc_index);
+        match children.get_mut(&key) {
             Some(child_vector) => {
                 let child_vec_ptr = child_vector as *mut Vec<Node>;
                 let chosen_child = self.sample_node(child_vec_ptr);
                 state.apply_instructions(&(*chosen_child).instructions.instruction_list);
-                (*chosen_child).selection(state)
+                (*chosen_child).selection(state, children)
             }
-            None => (return_node, s1_mc_index, s2_mc_index),
+            None => (self as *mut Node, s1_mc_index, s2_mc_index),
         }
     }
 
@@ -119,6 +120,7 @@ impl Node {
         state: &mut State,
         s1_move_index: usize,
         s2_move_index: usize,
+        children: &mut HashMap<(usize, usize, usize), Vec<Node>>,
     ) -> *mut Node {
         let s1_move = &self.s1_options.as_ref().unwrap()[s1_move_index].move_choice;
         let s2_move = &self.s2_options.as_ref().unwrap()[s2_move_index].move_choice;
@@ -138,7 +140,6 @@ impl Node {
             new_node.instructions = state_instructions;
             new_node.s1_choice = s1_move_index as u8;
             new_node.s2_choice = s2_move_index as u8;
-
             this_pair_vec.push(new_node);
         }
 
@@ -146,8 +147,9 @@ impl Node {
         // this is the node that the rollout will be done on
         let new_node_ptr = self.sample_node(&mut this_pair_vec);
         state.apply_instructions(&(*new_node_ptr).instructions.instruction_list);
-        self.children
-            .insert((s1_move_index, s2_move_index), this_pair_vec);
+
+        let key = (self as *mut Node as usize, s1_move_index, s2_move_index);
+        children.insert(key, this_pair_vec);
         new_node_ptr
     }
 
@@ -231,9 +233,14 @@ pub struct MctsResult {
     pub iteration_count: u32,
 }
 
-fn do_mcts(root_node: &mut Node, state: &mut State, root_eval: &f32) {
-    let (mut new_node, s1_move, s2_move) = unsafe { root_node.selection(state) };
-    new_node = unsafe { (*new_node).expand(state, s1_move, s2_move) };
+fn do_mcts(
+    root_node: &mut Node,
+    state: &mut State,
+    root_eval: &f32,
+    children: &mut HashMap<(usize, usize, usize), Vec<Node>>,
+) {
+    let (mut new_node, s1_move, s2_move) = unsafe { root_node.selection(state, children) };
+    new_node = unsafe { (*new_node).expand(state, s1_move, s2_move, children) };
     let rollout_result = unsafe { (*new_node).rollout(state, root_eval) };
     unsafe { (*new_node).backpropagate(rollout_result, state) }
 }
@@ -249,12 +256,13 @@ pub fn perform_mcts(
         root_node.populate(side_one_options, side_two_options);
     }
     root_node.root = true;
+    let mut children: HashMap<(usize, usize, usize), Vec<Node>> = HashMap::new();
 
     let root_eval = evaluate(state);
     let start_time = std::time::Instant::now();
     while start_time.elapsed() < max_time {
         for _ in 0..1000 {
-            do_mcts(&mut root_node, state, &root_eval);
+            do_mcts(&mut root_node, state, &root_eval, &mut children);
         }
 
         /*
