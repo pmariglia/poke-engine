@@ -87,17 +87,17 @@ impl SharedNodeOptions {
 }
 
 pub struct SharedBranch {
-    nodes: Vec<Arc<Node>>,
+    nodes: Arc<[Node]>,
     total_weight: f32,
 }
 
 impl SharedBranch {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> &Arc<Node> {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> *const Node {
         if self.nodes.len() <= 1 || self.total_weight <= 0.0 {
             return &self.nodes[0];
         }
         let mut threshold = rng.random_range(0.0..self.total_weight);
-        for node in &self.nodes {
+        for node in self.nodes.iter() {
             threshold -= node.instructions.percentage.max(0.0);
             if threshold <= 0.0 {
                 return node;
@@ -139,15 +139,15 @@ impl Node {
         node
     }
 
-    fn new_child(instructions: StateInstructions, depth: u8) -> Arc<Self> {
-        Arc::new(Self {
+    fn new_child(instructions: StateInstructions, depth: u8) -> Self {
+        Self {
             root: false,
             instructions,
             depth,
             times_visited: AtomicU32::new(0),
             virtual_losses: AtomicI8::new(0),
             options: OnceLock::new(),
-        })
+        }
     }
 
     fn as_key(&self) -> usize {
@@ -180,28 +180,36 @@ impl Node {
         rng: &mut R,
         children: &ChildMap,
         path: &mut Vec<PathStep>,
-    ) -> (Arc<Node>, usize, usize) {
-        let mut current = root.clone();
+    ) -> (*const Node, usize, usize) {
+        // raw pointers walk both the root (a standalone Arc<Node>) and children
+        // (Nodes living inside a branch's Arc<[Node]>) uniformly. every node is
+        // owned by children/root for the whole search, so the pointers stay
+        // valid
+        let mut current: *const Node = Arc::as_ptr(root);
         loop {
-            let (s1_index, s2_index) = current.select_move_pair(state);
-            let options = current.options.get().expect("options set during selection");
+            let node = unsafe { &*current };
+            let (s1_index, s2_index) = node.select_move_pair(state);
+            let options = node.options.get().expect("options set during selection");
 
-            let key = (current.as_key(), s1_index, s2_index);
+            let key = (node.as_key(), s1_index, s2_index);
             match children.get(&key) {
                 Some(branch) => {
-                    let child = branch.sample(rng).clone();
+                    let child = branch.sample(rng);
 
                     // drop the DashMap ref before mutating state to avoid
-                    // holding the lock any longer than necessary
+                    // holding the lock any longer than necessary. the sampled
+                    // node stays alive via the branch's Arc<[Node]> in the
+                    // ChildMap
                     drop(branch);
 
+                    let child_ref = unsafe { &*child };
                     options.s1[s1_index].add_virtual_loss();
                     options.s2[s2_index].add_virtual_loss();
-                    child.virtual_losses.fetch_add(1, Ordering::AcqRel);
-                    state.apply_instructions(&child.instructions.instruction_list);
+                    child_ref.virtual_losses.fetch_add(1, Ordering::AcqRel);
+                    state.apply_instructions(&child_ref.instructions.instruction_list);
                     path.push(PathStep {
-                        parent: Arc::as_ptr(&current),
-                        child: Arc::as_ptr(&child),
+                        parent: current,
+                        child,
                         s1_index,
                         s2_index,
                     });
@@ -238,7 +246,7 @@ impl Node {
         s2_index: usize,
         rng: &mut R,
         children: &ChildMap,
-    ) -> Option<Arc<Node>> {
+    ) -> Option<*const Node> {
         let options = self
             .options
             .get()
@@ -257,11 +265,13 @@ impl Node {
             generate_instructions_from_move_pair(state, s1_move, s2_move, should_branch_on_damage);
 
         let mut total_weight = 0.0f32;
-        let mut nodes = Vec::with_capacity(instructions.len());
-        for instr in instructions {
-            total_weight += instr.percentage.max(0.0);
-            nodes.push(Node::new_child(instr, self.depth.saturating_add(1)));
-        }
+        let nodes = instructions
+            .into_iter()
+            .map(|instr| {
+                total_weight += instr.percentage.max(0.0);
+                Node::new_child(instr, self.depth.saturating_add(1))
+            })
+            .collect::<Arc<[Node]>>();
         let branch = SharedBranch {
             nodes,
             total_weight,
@@ -272,7 +282,7 @@ impl Node {
         // construct the branch; all others get the winner's branch.
         let branch_ref = children.entry(key).or_insert(branch);
 
-        Some(branch_ref.sample(rng).clone())
+        Some(branch_ref.sample(rng))
     }
 
     fn rollout(&self, state: &State, root_eval: f32) -> f32 {
@@ -317,6 +327,7 @@ fn do_mcts<R: Rng + ?Sized>(
     path.clear();
 
     let (leaf, s1_index, s2_index) = Node::selection(root, state, rng, children, path);
+    let leaf = unsafe { &*leaf };
 
     let options = leaf.options.get().expect("options set during selection");
     options.s1[s1_index].add_virtual_loss();
@@ -324,18 +335,19 @@ fn do_mcts<R: Rng + ?Sized>(
     let expanded = leaf.expand(state, s1_index, s2_index, rng, children);
     match expanded {
         Some(child) => {
+            let child = unsafe { &*child };
             child.virtual_losses.fetch_add(1, Ordering::AcqRel);
             state.apply_instructions(&child.instructions.instruction_list);
             path.push(PathStep {
-                parent: Arc::as_ptr(&leaf),
-                child: Arc::as_ptr(&child),
+                parent: leaf,
+                child,
                 s1_index,
                 s2_index,
             });
 
             let score = child.rollout(state, root_eval);
 
-            Node::backpropagate(path, &child, score, state);
+            Node::backpropagate(path, child, score, state);
         }
 
         // if expansion returns None,
@@ -349,7 +361,7 @@ fn do_mcts<R: Rng + ?Sized>(
 
             let score = leaf.rollout(state, root_eval);
 
-            Node::backpropagate(path, &leaf, score, state);
+            Node::backpropagate(path, leaf, score, state);
         }
     }
 }

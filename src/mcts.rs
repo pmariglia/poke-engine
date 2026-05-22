@@ -82,7 +82,7 @@ impl Node {
     pub unsafe fn selection(
         &mut self,
         state: &mut State,
-        children: &mut HashMap<(usize, usize, usize), Vec<Node>>,
+        children: &mut HashMap<(usize, usize, usize), Box<[Node]>>,
     ) -> (*mut Node, usize, usize) {
         if self.s1_options.is_none() {
             let (s1_options, s2_options) = state.get_all_options();
@@ -94,7 +94,7 @@ impl Node {
         let key = (self as *mut Node as usize, s1_mc_index, s2_mc_index);
         match children.get_mut(&key) {
             Some(child_vector) => {
-                let child_vec_ptr = child_vector as *mut Vec<Node>;
+                let child_vec_ptr = child_vector as *mut Box<[Node]>;
                 let chosen_child = self.sample_node(child_vec_ptr);
                 state.apply_instructions(&(*chosen_child).instructions.instruction_list);
                 (*chosen_child).selection(state, children)
@@ -103,7 +103,7 @@ impl Node {
         }
     }
 
-    unsafe fn sample_node(&self, move_vector: *mut Vec<Node>) -> *mut Node {
+    unsafe fn sample_node(&self, move_vector: *mut Box<[Node]>) -> *mut Node {
         let mut rng = rng();
         let weights: Vec<f64> = (*move_vector)
             .iter()
@@ -120,7 +120,7 @@ impl Node {
         state: &mut State,
         s1_move_index: usize,
         s2_move_index: usize,
-        children: &mut HashMap<(usize, usize, usize), Vec<Node>>,
+        children: &mut HashMap<(usize, usize, usize), Box<[Node]>>,
     ) -> *mut Node {
         let s1_move = &self.s1_options.as_ref().unwrap()[s1_move_index].move_choice;
         let s2_move = &self.s2_options.as_ref().unwrap()[s2_move_index].move_choice;
@@ -144,12 +144,16 @@ impl Node {
         }
 
         // sample a node from the new instruction list.
-        // this is the node that the rollout will be done on
-        let new_node_ptr = self.sample_node(&mut this_pair_vec);
+        // this is the node that the rollout will be done on.
+        // into_boxed_slice drops the Vec's spare capacity and, more importantly,
+        // makes it a type that cannot be resized, which ensures the node
+        // addresses are stable for the children map keys
+        let mut boxed = this_pair_vec.into_boxed_slice();
+        let new_node_ptr = self.sample_node(&mut boxed);
         state.apply_instructions(&(*new_node_ptr).instructions.instruction_list);
 
         let key = (self as *mut Node as usize, s1_move_index, s2_move_index);
-        children.insert(key, this_pair_vec);
+        children.insert(key, boxed);
         new_node_ptr
     }
 
@@ -237,7 +241,7 @@ fn do_mcts(
     root_node: &mut Node,
     state: &mut State,
     root_eval: &f32,
-    children: &mut HashMap<(usize, usize, usize), Vec<Node>>,
+    children: &mut HashMap<(usize, usize, usize), Box<[Node]>>,
 ) {
     let (mut new_node, s1_move, s2_move) = unsafe { root_node.selection(state, children) };
     new_node = unsafe { (*new_node).expand(state, s1_move, s2_move, children) };
@@ -256,7 +260,7 @@ pub fn perform_mcts(
         root_node.populate(side_one_options, side_two_options);
     }
     root_node.root = true;
-    let mut children: HashMap<(usize, usize, usize), Vec<Node>> = HashMap::new();
+    let mut children: HashMap<(usize, usize, usize), Box<[Node]>> = HashMap::new();
 
     let root_eval = evaluate(state);
     let start_time = std::time::Instant::now();
