@@ -16375,6 +16375,37 @@ fn test_stealthrock_basic() {
 }
 
 #[test]
+fn test_rockhead_no_recoil() {
+    let mut state = State::default();
+    state.side_two.get_active().ability = Abilities::ROCKHEAD;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::BRAVEBIRD,
+        Choices::BRAVEBIRD,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 94,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 94,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 6,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_stealthrock_after_opponent_faints_still_works() {
     let mut state = State::default();
     state.side_two.get_active().hp = 1;

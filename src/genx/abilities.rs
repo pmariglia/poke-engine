@@ -1976,6 +1976,9 @@ pub fn ability_modify_attack_being_used(
                 attacker_choice.base_power *= 1.2;
             }
         }
+        Abilities::ROCKHEAD => {
+            attacker_choice.recoil = None;
+        }
         Abilities::HUGEPOWER => {
             if attacker_choice.category == MoveCategory::Physical {
                 attacker_choice.base_power *= 2.0;
