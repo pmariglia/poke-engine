@@ -403,8 +403,8 @@ pub fn apply_boost_instruction(
                     target_side.special_defense_boost += boost_amount
                 }
                 PokemonBoostableStat::Speed => target_side.speed_boost += boost_amount,
-                PokemonBoostableStat::Evasion => target_side.accuracy_boost += boost_amount,
-                PokemonBoostableStat::Accuracy => target_side.evasion_boost += boost_amount,
+                PokemonBoostableStat::Evasion => target_side.evasion_boost += boost_amount,
+                PokemonBoostableStat::Accuracy => target_side.accuracy_boost += boost_amount,
             }
             instructions
                 .instruction_list
