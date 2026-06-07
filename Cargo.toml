@@ -15,6 +15,10 @@ crate-type = ["lib"]
 name = "poke-engine"
 path = "src/main.rs"
 
+[[bin]]
+name = "benchmark"
+path = "data/benchmark.rs"
+
 [profile.release]
 debug = 1
 
