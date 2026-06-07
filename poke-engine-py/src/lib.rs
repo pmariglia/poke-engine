@@ -906,14 +906,21 @@ impl PyIterativeDeepeningResult {
 }
 
 #[pyfunction]
-fn mcts(py_state: PyState, duration_ms: u64, threads: usize) -> PyResult<PyMctsResult> {
+fn mcts(
+    py_state: PyState,
+    duration_ms: u64,
+    iterations: u32,
+    threads: usize,
+) -> PyResult<PyMctsResult> {
     let mut state: State = py_state.into();
     let duration = Duration::from_millis(duration_ms);
     let (s1_options, s2_options) = state.root_get_all_options();
     let mcts_result = if threads > 1 {
-        perform_mcts_shared_tree(&mut state, s1_options, s2_options, duration, threads)
+        perform_mcts_shared_tree(
+            &mut state, s1_options, s2_options, duration, iterations, threads,
+        )
     } else {
-        perform_mcts(&mut state, s1_options, s2_options, duration)
+        perform_mcts(&mut state, s1_options, s2_options, duration, iterations)
     };
 
     let py_mcts_result = PyMctsResult::from_mcts_result(mcts_result, &state);

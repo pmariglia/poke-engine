@@ -237,7 +237,7 @@ pub struct MctsResult {
     pub iteration_count: u32,
 }
 
-fn do_mcts(
+fn mcts_iteration(
     root_node: &mut Node,
     state: &mut State,
     root_eval: &f32,
@@ -249,11 +249,47 @@ fn do_mcts(
     unsafe { (*new_node).backpropagate(rollout_result, state) }
 }
 
+enum SearchLimit {
+    Time(Duration),
+    Iterations(u32),
+}
+
+fn run_mcts_loop(
+    root_node: &mut Node,
+    state: &mut State,
+    root_eval: &f32,
+    children: &mut HashMap<(usize, usize, usize), Box<[Node]>>,
+    limit: SearchLimit,
+) {
+    let start_time = std::time::Instant::now();
+    loop {
+        for _ in 0..1000 {
+            mcts_iteration(root_node, state, root_eval, children);
+        }
+        if root_node.times_visited >= 10_000_000 {
+            break;
+        }
+        match limit {
+            SearchLimit::Time(max_time) => {
+                if start_time.elapsed() >= max_time {
+                    break;
+                }
+            }
+            SearchLimit::Iterations(n) => {
+                if root_node.times_visited >= n {
+                    break;
+                }
+            }
+        }
+    }
+}
+
 pub fn perform_mcts(
     state: &mut State,
     side_one_options: Vec<MoveChoice>,
     side_two_options: Vec<MoveChoice>,
     max_time: Duration,
+    max_iterations: u32,
 ) -> MctsResult {
     let mut root_node = Node::new();
     unsafe {
@@ -263,28 +299,18 @@ pub fn perform_mcts(
     let mut children: HashMap<(usize, usize, usize), Box<[Node]>> = HashMap::new();
 
     let root_eval = evaluate(state);
-    let start_time = std::time::Instant::now();
-    while start_time.elapsed() < max_time {
-        for _ in 0..1000 {
-            do_mcts(&mut root_node, state, &root_eval, &mut children);
-        }
-
-        /*
-        Cut off after 10 million iterations
-
-        Under normal circumstances the bot will only run for 2.5-3.5 million iterations
-        however towards the end of a battle the bot may perform tens of millions of iterations
-
-        Beyond about 30 million iterations some floating point nonsense happens where
-        MoveNode.total_score stops updating because f32 does not have enough precision
-
-        I can push the problem farther out by using f64 but if the bot is running for 10 million iterations
-        then it almost certainly sees a forced win
-        */
-        if root_node.times_visited == 10_000_000 {
-            break;
-        }
-    }
+    let search_limit = if max_iterations > 0 {
+        SearchLimit::Iterations(max_iterations)
+    } else {
+        SearchLimit::Time(max_time)
+    };
+    run_mcts_loop(
+        &mut root_node,
+        state,
+        &root_eval,
+        &mut children,
+        search_limit,
+    );
 
     let result = MctsResult {
         s1: root_node

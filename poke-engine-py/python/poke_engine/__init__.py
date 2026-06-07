@@ -146,21 +146,23 @@ class MctsResult:
 
 
 def monte_carlo_tree_search(
-    state: State, duration_ms: int = 1000, threads: int = 1
+    state: State, duration_ms: int = 1000, iterations: int = 0, threads: int = 1
 ) -> MctsResult:
     """
     Perform monte-carlo-tree-search on the given state and for the given duration
 
     :param state: the state to search through
     :type state: State
-    :param duration_ms: time in milliseconds to run the search
+    :param duration_ms: time in milliseconds to run the search. ignored if iterations > 0
     :type duration_ms: int
+    :param iterations: exact number of monte-carlo iterations to run
+    :type iterations: int
     :param threads: number of threads to use for the search
     :type threads: int
     :return: the result of the search
     :rtype: MctsResult
     """
-    return MctsResult._from_rust(mcts(state, duration_ms, threads))
+    return MctsResult._from_rust(mcts(state, duration_ms, iterations, threads))
 
 
 def iterative_deepening_expectiminimax(

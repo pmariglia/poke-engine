@@ -12,7 +12,6 @@ use std::sync::{Arc, OnceLock};
 use std::thread;
 use std::time::{Duration, Instant};
 
-const MCTS_DEADLINE_CHECK_INTERVAL: u32 = 1_000;
 const MCTS_MAX_ITERATIONS_PER_TREE: u32 = 10_000_000;
 const MCTS_DAMAGE_BRANCH_DEPTH: u8 = 2;
 const SCORE_SCALE: f32 = 400.0;
@@ -316,7 +315,7 @@ impl Node {
     }
 }
 
-fn do_mcts<R: Rng + ?Sized>(
+fn mcts_iteration<R: Rng + ?Sized>(
     root: &Arc<Node>,
     state: &mut State,
     root_eval: f32,
@@ -366,11 +365,59 @@ fn do_mcts<R: Rng + ?Sized>(
     }
 }
 
+enum SearchLimit {
+    Time,
+    Iterations(u32),
+}
+
+fn run_mcts_loop(
+    root: &Arc<Node>,
+    root_eval: f32,
+    children: Arc<ChildMap>,
+    worker_state: &mut State,
+    started_iterations: Arc<AtomicU32>,
+    deadline: Instant,
+    search_limit: SearchLimit,
+) {
+    let mut rng = rng();
+    let mut path = Vec::with_capacity(16);
+    let mut current_iterations = started_iterations.load(Ordering::Acquire);
+    loop {
+        for _ in 0..1000 {
+            mcts_iteration(
+                &root,
+                worker_state,
+                root_eval,
+                &mut rng,
+                &children,
+                &mut path,
+            );
+            current_iterations = started_iterations.fetch_add(1, Ordering::AcqRel);
+        }
+        if current_iterations >= MCTS_MAX_ITERATIONS_PER_TREE {
+            break;
+        }
+        match search_limit {
+            SearchLimit::Time => {
+                if Instant::now() >= deadline {
+                    break;
+                }
+            }
+            SearchLimit::Iterations(max_iterations) => {
+                if current_iterations >= max_iterations {
+                    break;
+                }
+            }
+        }
+    }
+}
+
 pub fn perform_mcts_shared_tree(
     state: &mut State,
     side_one_options: Vec<MoveChoice>,
     side_two_options: Vec<MoveChoice>,
     max_time: Duration,
+    max_iterations: u32,
     worker_count: usize,
 ) -> MctsResult {
     let root_eval = evaluate(state);
@@ -387,34 +434,21 @@ pub fn perform_mcts_shared_tree(
             let started_iterations = started_iterations.clone();
             let children = children.clone();
             let mut worker_state = state.clone();
+            let search_limit = if max_iterations > 0 {
+                SearchLimit::Iterations(max_iterations)
+            } else {
+                SearchLimit::Time
+            };
             scope.spawn(move || {
-                let mut rng = rng();
-                let mut iterations_until_deadline_check = 0u32;
-                let mut path = Vec::with_capacity(16);
-
-                loop {
-                    if iterations_until_deadline_check == 0 {
-                        if Instant::now() >= deadline {
-                            break;
-                        }
-                        iterations_until_deadline_check = MCTS_DEADLINE_CHECK_INTERVAL;
-                    }
-                    if started_iterations.fetch_add(1, Ordering::AcqRel)
-                        >= MCTS_MAX_ITERATIONS_PER_TREE
-                    {
-                        break;
-                    }
-
-                    do_mcts(
-                        &root,
-                        &mut worker_state,
-                        root_eval,
-                        &mut rng,
-                        &children,
-                        &mut path,
-                    );
-                    iterations_until_deadline_check -= 1;
-                }
+                run_mcts_loop(
+                    &root,
+                    root_eval,
+                    children,
+                    &mut worker_state,
+                    started_iterations,
+                    deadline,
+                    search_limit,
+                );
             });
         }
     });

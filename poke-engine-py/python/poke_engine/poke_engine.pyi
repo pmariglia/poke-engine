@@ -429,12 +429,15 @@ class MctsResult:
     side_two: List[MctsSideResult]
     iteration_count: int
 
-def mcts(py_state: State, duration_ms: int, threads: int) -> MctsResult:
+def mcts(
+    py_state: State, duration_ms: int, iterations: int, threads: int
+) -> MctsResult:
     """
     Perform Monte Carlo Tree Search on the given state.
 
     :param py_state: The game state to analyze
-    :param duration_ms: Duration in milliseconds to run MCTS
+    :param duration_ms: Duration in milliseconds to run MCTS. ignored if iterations > 0.
+    :param iterations: Exact number of monte-carlo iterations to run
     :param threads: Number of threads to use for MCTS
     :return: MCTS results for both sides
     """
