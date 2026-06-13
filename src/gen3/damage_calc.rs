@@ -135,31 +135,25 @@ fn burn_modifier(
 
 fn volatile_status_modifier(choice: &Choice, attacking_side: &Side, defending_side: &Side) -> f32 {
     let mut modifier = 1.0;
-    for vs in attacking_side.volatile_statuses.iter() {
-        match vs {
-            PokemonVolatileStatus::FLASHFIRE if choice.move_type == PokemonType::FIRE => {
-                modifier *= 1.5;
-            }
-            PokemonVolatileStatus::SLOWSTART if choice.category == MoveCategory::Physical => {
-                modifier *= 0.5;
-            }
-            PokemonVolatileStatus::CHARGE if choice.move_type == PokemonType::ELECTRIC => {
-                modifier *= 2.0;
-            }
-            _ => {}
-        }
+    let atk = &attacking_side.volatile_statuses;
+    if atk.contains(&PokemonVolatileStatus::FLASHFIRE) && choice.move_type == PokemonType::FIRE {
+        modifier *= 1.5;
+    }
+    if atk.contains(&PokemonVolatileStatus::SLOWSTART) && choice.category == MoveCategory::Physical
+    {
+        modifier *= 0.5;
+    }
+    if atk.contains(&PokemonVolatileStatus::CHARGE) && choice.move_type == PokemonType::ELECTRIC {
+        modifier *= 2.0;
     }
 
-    for vs in defending_side.volatile_statuses.iter() {
-        match vs {
-            PokemonVolatileStatus::BOUNCE
-            | PokemonVolatileStatus::DIG
-            | PokemonVolatileStatus::DIVE
-            | PokemonVolatileStatus::FLY => {
-                return 0.0;
-            }
-            _ => {}
-        }
+    let def = &defending_side.volatile_statuses;
+    if def.contains(&PokemonVolatileStatus::BOUNCE)
+        || def.contains(&PokemonVolatileStatus::DIG)
+        || def.contains(&PokemonVolatileStatus::DIVE)
+        || def.contains(&PokemonVolatileStatus::FLY)
+    {
+        return 0.0;
     }
 
     modifier

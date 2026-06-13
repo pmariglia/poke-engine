@@ -18,7 +18,7 @@ use poke_engine::search::iterative_deepen_expectiminimax;
 use poke_engine::state::{
     LastUsedMove, Move, Pokemon, PokemonIndex, PokemonMoves, PokemonNature, PokemonStatus,
     PokemonType, Side, SideConditions, SidePokemon, State, StateTerrain, StateTrickRoom,
-    StateWeather, VolatileStatusDurations,
+    StateWeather, VolatileStatusBitset, VolatileStatusDurations,
 };
 use std::str::FromStr;
 use std::time::Duration;
@@ -179,6 +179,14 @@ pub struct PySide {
 impl From<Side> for PySide {
     fn from(other: Side) -> Self {
         let pokemon = other.pokemon.pkmn.map(|pokemon| pokemon.into());
+        let mut volatile_statuses = HashSet::new();
+        let mut remaining = other.volatile_statuses.0;
+        while remaining != 0 {
+            let bit_index = remaining.trailing_zeros() as u8;
+            let vs = PokemonVolatileStatus::from(bit_index);
+            volatile_statuses.insert(vs.to_string());
+            remaining &= remaining - 1;
+        }
         PySide {
             pokemon,
             side_conditions: PySideConditions::from(other.side_conditions),
@@ -193,11 +201,7 @@ impl From<Side> for PySide {
             force_switch: other.force_switch,
             force_trapped: other.force_trapped,
             slow_uturn_move: other.slow_uturn_move,
-            volatile_statuses: other
-                .volatile_statuses
-                .iter()
-                .map(|s| s.to_string())
-                .collect(),
+            volatile_statuses,
             substitute_health: other.substitute_health,
             attack_boost: other.attack_boost,
             defense_boost: other.defense_boost,
@@ -214,6 +218,12 @@ impl From<Side> for PySide {
 
 impl Into<Side> for PySide {
     fn into(self) -> Side {
+        let mut volatile_statuses = VolatileStatusBitset::default();
+        for s in &self.volatile_statuses {
+            if let Ok(vs) = PokemonVolatileStatus::from_str(s) {
+                volatile_statuses.insert(vs);
+            }
+        }
         Side {
             active_index: PokemonIndex::deserialize(&self.active_index),
             baton_passing: self.baton_passing,
@@ -240,12 +250,7 @@ impl Into<Side> for PySide {
             force_switch: self.force_switch,
             force_trapped: self.force_trapped,
             slow_uturn_move: self.slow_uturn_move,
-            volatile_statuses: self
-                .volatile_statuses
-                .iter()
-                .map(|s| PokemonVolatileStatus::from_str(s))
-                .collect::<Result<HashSet<_>, _>>()
-                .unwrap(),
+            volatile_statuses,
             substitute_health: self.substitute_health,
             attack_boost: self.attack_boost,
             defense_boost: self.defense_boost,

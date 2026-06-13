@@ -230,65 +230,63 @@ fn terrain_modifier(
 
 fn volatile_status_modifier(choice: &Choice, attacking_side: &Side, defending_side: &Side) -> f32 {
     let mut modifier = 1.0;
-    for vs in attacking_side.volatile_statuses.iter() {
-        match vs {
-            PokemonVolatileStatus::FLASHFIRE if choice.move_type == PokemonType::FIRE => {
-                modifier *= 1.5;
-            }
-            PokemonVolatileStatus::SLOWSTART if choice.category == MoveCategory::Physical => {
-                modifier *= 0.5;
-            }
-            PokemonVolatileStatus::CHARGE if choice.move_type == PokemonType::ELECTRIC => {
-                modifier *= 2.0;
-            }
-            PokemonVolatileStatus::PROTOSYNTHESISATK | PokemonVolatileStatus::QUARKDRIVEATK
-                if choice.category == MoveCategory::Physical =>
-            {
-                modifier *= 1.3;
-            }
-            PokemonVolatileStatus::PROTOSYNTHESISSPA | PokemonVolatileStatus::QUARKDRIVESPA
-                if choice.category == MoveCategory::Special =>
-            {
-                modifier *= 1.3;
-            }
-            _ => {}
-        }
+    let atk = &attacking_side.volatile_statuses;
+    if atk.contains(&PokemonVolatileStatus::FLASHFIRE) && choice.move_type == PokemonType::FIRE {
+        modifier *= 1.5;
+    }
+    if atk.contains(&PokemonVolatileStatus::SLOWSTART) && choice.category == MoveCategory::Physical
+    {
+        modifier *= 0.5;
+    }
+    if atk.contains(&PokemonVolatileStatus::CHARGE) && choice.move_type == PokemonType::ELECTRIC {
+        modifier *= 2.0;
+    }
+    if (atk.contains(&PokemonVolatileStatus::PROTOSYNTHESISATK)
+        || atk.contains(&PokemonVolatileStatus::QUARKDRIVEATK))
+        && choice.category == MoveCategory::Physical
+    {
+        modifier *= 1.3;
+    }
+    if (atk.contains(&PokemonVolatileStatus::PROTOSYNTHESISSPA)
+        || atk.contains(&PokemonVolatileStatus::QUARKDRIVESPA))
+        && choice.category == MoveCategory::Special
+    {
+        modifier *= 1.3;
     }
 
-    for vs in defending_side.volatile_statuses.iter() {
-        match vs {
-            PokemonVolatileStatus::MAGNETRISE
-                if choice.move_type == PokemonType::GROUND
-                    && choice.move_id != Choices::THOUSANDARROWS =>
-            {
-                return 0.0;
-            }
-            PokemonVolatileStatus::TARSHOT if choice.move_type == PokemonType::FIRE => {
-                modifier *= 2.0;
-            }
-            PokemonVolatileStatus::PHANTOMFORCE
-            | PokemonVolatileStatus::SHADOWFORCE
-            | PokemonVolatileStatus::BOUNCE
-            | PokemonVolatileStatus::DIG
-            | PokemonVolatileStatus::DIVE
-            | PokemonVolatileStatus::FLY => {
-                return 0.0;
-            }
-            PokemonVolatileStatus::GLAIVERUSH => {
-                modifier *= 2.0;
-            }
-            PokemonVolatileStatus::PROTOSYNTHESISDEF | PokemonVolatileStatus::QUARKDRIVEDEF
-                if choice.category == MoveCategory::Physical =>
-            {
-                modifier /= 1.3;
-            }
-            PokemonVolatileStatus::PROTOSYNTHESISSPD | PokemonVolatileStatus::QUARKDRIVESPD
-                if choice.category == MoveCategory::Special =>
-            {
-                modifier /= 1.3;
-            }
-            _ => {}
-        }
+    let def = &defending_side.volatile_statuses;
+    if def.contains(&PokemonVolatileStatus::MAGNETRISE)
+        && choice.move_type == PokemonType::GROUND
+        && choice.move_id != Choices::THOUSANDARROWS
+    {
+        return 0.0;
+    }
+    if def.contains(&PokemonVolatileStatus::TARSHOT) && choice.move_type == PokemonType::FIRE {
+        modifier *= 2.0;
+    }
+    if def.contains(&PokemonVolatileStatus::PHANTOMFORCE)
+        || def.contains(&PokemonVolatileStatus::SHADOWFORCE)
+        || def.contains(&PokemonVolatileStatus::BOUNCE)
+        || def.contains(&PokemonVolatileStatus::DIG)
+        || def.contains(&PokemonVolatileStatus::DIVE)
+        || def.contains(&PokemonVolatileStatus::FLY)
+    {
+        return 0.0;
+    }
+    if def.contains(&PokemonVolatileStatus::GLAIVERUSH) {
+        modifier *= 2.0;
+    }
+    if (def.contains(&PokemonVolatileStatus::PROTOSYNTHESISDEF)
+        || def.contains(&PokemonVolatileStatus::QUARKDRIVEDEF))
+        && choice.category == MoveCategory::Physical
+    {
+        modifier /= 1.3;
+    }
+    if (def.contains(&PokemonVolatileStatus::PROTOSYNTHESISSPD)
+        || def.contains(&PokemonVolatileStatus::QUARKDRIVESPD))
+        && choice.category == MoveCategory::Special
+    {
+        modifier /= 1.3;
     }
 
     modifier
@@ -664,12 +662,9 @@ pub fn calculate_futuresight_damage(
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
-    use std::iter::FromIterator;
-
     use super::super::state::{PokemonVolatileStatus, Weather};
     use super::*;
-    use crate::state::{PokemonStatus, PokemonType, SideReference, State};
+    use crate::state::{PokemonStatus, PokemonType, SideReference, State, VolatileStatusBitset};
 
     #[test]
     fn test_basic_damaging_move() {
@@ -979,8 +974,16 @@ mod tests {
                     let mut choice = Choice {
                         ..Default::default()
                     };
-                    state.side_one.volatile_statuses = HashSet::from_iter(attacking_volatile_status);
-                    state.side_two.volatile_statuses = HashSet::from_iter(defending_volatile_status);
+                    let mut s1_vs = VolatileStatusBitset::default();
+                    for vs in attacking_volatile_status {
+                        s1_vs.insert(vs);
+                    }
+                    let mut s2_vs = VolatileStatusBitset::default();
+                    for vs in defending_volatile_status {
+                        s2_vs.insert(vs);
+                    }
+                    state.side_one.volatile_statuses = s1_vs;
+                    state.side_two.volatile_statuses = s2_vs;
 
                     choice.move_id = move_name;
                     choice.category = MoveCategory::Physical;

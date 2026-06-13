@@ -106,15 +106,40 @@ pub fn evaluate(state: &State) -> f32 {
         if pkmn.hp > 0 {
             score += evaluate_pokemon(pkmn);
             if iter.pokemon_index == state.side_one.active_index {
-                for vs in state.side_one.volatile_statuses.iter() {
-                    match vs {
-                        PokemonVolatileStatus::LEECHSEED => score += LEECH_SEED,
-                        PokemonVolatileStatus::SUBSTITUTE => score += SUBSTITUTE,
-                        PokemonVolatileStatus::CONFUSION => score += CONFUSION,
-                        PokemonVolatileStatus::REFLECT => score += REFLECT,
-                        PokemonVolatileStatus::LIGHTSCREEN => score += LIGHT_SCREEN,
-                        _ => {}
-                    }
+                if state
+                    .side_one
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::LEECHSEED)
+                {
+                    score += LEECH_SEED;
+                }
+                if state
+                    .side_one
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::SUBSTITUTE)
+                {
+                    score += SUBSTITUTE;
+                }
+                if state
+                    .side_one
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::CONFUSION)
+                {
+                    score += CONFUSION;
+                }
+                if state
+                    .side_one
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::REFLECT)
+                {
+                    score += REFLECT;
+                }
+                if state
+                    .side_one
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::LIGHTSCREEN)
+                {
+                    score += LIGHT_SCREEN;
                 }
                 score += get_boost_multiplier(state.side_one.attack_boost) * POKEMON_ATTACK_BOOST;
                 score += get_boost_multiplier(state.side_one.defense_boost) * POKEMON_DEFENSE_BOOST;
@@ -129,15 +154,40 @@ pub fn evaluate(state: &State) -> f32 {
         if pkmn.hp > 0 {
             score -= evaluate_pokemon(pkmn);
             if iter.pokemon_index == state.side_two.active_index {
-                for vs in state.side_two.volatile_statuses.iter() {
-                    match vs {
-                        PokemonVolatileStatus::LEECHSEED => score -= LEECH_SEED,
-                        PokemonVolatileStatus::SUBSTITUTE => score -= SUBSTITUTE,
-                        PokemonVolatileStatus::CONFUSION => score -= CONFUSION,
-                        PokemonVolatileStatus::REFLECT => score -= REFLECT,
-                        PokemonVolatileStatus::LIGHTSCREEN => score -= LIGHT_SCREEN,
-                        _ => {}
-                    }
+                if state
+                    .side_two
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::LEECHSEED)
+                {
+                    score -= LEECH_SEED;
+                }
+                if state
+                    .side_two
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::SUBSTITUTE)
+                {
+                    score -= SUBSTITUTE;
+                }
+                if state
+                    .side_two
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::CONFUSION)
+                {
+                    score -= CONFUSION;
+                }
+                if state
+                    .side_two
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::REFLECT)
+                {
+                    score -= REFLECT;
+                }
+                if state
+                    .side_two
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::LIGHTSCREEN)
+                {
+                    score -= LIGHT_SCREEN;
                 }
                 score -= get_boost_multiplier(state.side_two.attack_boost) * POKEMON_ATTACK_BOOST;
                 score -= get_boost_multiplier(state.side_two.defense_boost) * POKEMON_DEFENSE_BOOST;

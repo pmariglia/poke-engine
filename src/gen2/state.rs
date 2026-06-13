@@ -4,12 +4,12 @@ use crate::instruction::{
     ChangeSideConditionInstruction, ChangeStatusInstruction, Instruction,
     RemoveVolatileStatusInstruction,
 };
+use crate::state::VolatileStatusBitset;
 use crate::state::{
     LastUsedMove, Pokemon, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
     PokemonSideCondition, PokemonStatus, PokemonType, Side, SideReference, State,
 };
 use core::panic;
-use std::collections::HashSet;
 
 fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
     match boost_num {
@@ -274,7 +274,7 @@ impl Pokemon {
     pub fn volatile_status_can_be_applied(
         &self,
         volatile_status: &PokemonVolatileStatus,
-        active_volatiles: &HashSet<PokemonVolatileStatus>,
+        active_volatiles: &VolatileStatusBitset,
         first_move: bool,
     ) -> bool {
         if active_volatiles.contains(volatile_status) || self.hp == 0 {
@@ -303,7 +303,7 @@ impl Pokemon {
     pub fn immune_to_stats_lowered_by_opponent(
         &self,
         _stat: &PokemonBoostableStat,
-        volatiles: &HashSet<PokemonVolatileStatus>,
+        volatiles: &VolatileStatusBitset,
     ) -> bool {
         if volatiles.contains(&PokemonVolatileStatus::SUBSTITUTE) {
             return true;
@@ -608,35 +608,24 @@ impl State {
         baton_passing: bool,
     ) {
         let side = self.get_side(side_ref);
-        let mut should_preserve_leechseed = false;
-        let mut should_preserve_substitute = false;
-        for pkmn_volatile_status in &side.volatile_statuses {
-            // dont remove substitute or leechseed if batonpassing
-            if baton_passing {
-                if pkmn_volatile_status == &PokemonVolatileStatus::SUBSTITUTE {
-                    should_preserve_substitute = true;
-                    continue;
-                } else if pkmn_volatile_status == &PokemonVolatileStatus::LEECHSEED {
-                    should_preserve_leechseed = true;
-                    continue;
+        side.volatile_statuses.retain(&mut |pkmn_volatile_status| {
+            let should_retain = match pkmn_volatile_status {
+                PokemonVolatileStatus::SUBSTITUTE | PokemonVolatileStatus::LEECHSEED => {
+                    baton_passing
                 }
+                _ => false,
+            };
+
+            if !should_retain {
+                vec_to_add_to.push(Instruction::RemoveVolatileStatus(
+                    RemoveVolatileStatusInstruction {
+                        side_ref: *side_ref,
+                        volatile_status: *pkmn_volatile_status,
+                    },
+                ));
             }
-            vec_to_add_to.push(Instruction::RemoveVolatileStatus(
-                RemoveVolatileStatusInstruction {
-                    side_ref: *side_ref,
-                    volatile_status: *pkmn_volatile_status,
-                },
-            ));
-        }
-        side.volatile_statuses.drain();
-        if should_preserve_leechseed {
-            side.volatile_statuses
-                .insert(PokemonVolatileStatus::LEECHSEED);
-        }
-        if should_preserve_substitute {
-            side.volatile_statuses
-                .insert(PokemonVolatileStatus::SUBSTITUTE);
-        }
+            should_retain
+        });
     }
 
     pub fn terrain_is_active(&self, terrain: &Terrain) -> bool {

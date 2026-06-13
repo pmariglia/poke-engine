@@ -1,17 +1,16 @@
 use super::abilities::Abilities;
-use super::choice_effects::charge_volatile_to_choice;
 use crate::choices::{Choices, MoveCategory};
 use crate::define_enum_with_from_str;
 use crate::instruction::{
     ChangeSideConditionInstruction, ChangeType, ChangeVolatileStatusDurationInstruction,
     Instruction, RemoveVolatileStatusInstruction,
 };
+use crate::state::VolatileStatusBitset;
 use crate::state::{
     LastUsedMove, Pokemon, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
     PokemonSideCondition, PokemonStatus, PokemonType, Side, SideReference, State,
 };
 use core::panic;
-use std::collections::HashSet;
 
 fn multiply_boost(boost_num: i8, stat_value: i16) -> i16 {
     match boost_num {
@@ -271,7 +270,7 @@ impl Pokemon {
     pub fn volatile_status_can_be_applied(
         &self,
         volatile_status: &PokemonVolatileStatus,
-        active_volatiles: &HashSet<PokemonVolatileStatus>,
+        active_volatiles: &VolatileStatusBitset,
         first_move: bool,
     ) -> bool {
         if active_volatiles.contains(volatile_status) || self.hp == 0 {
@@ -307,7 +306,7 @@ impl Pokemon {
     pub fn immune_to_stats_lowered_by_opponent(
         &self,
         stat: &PokemonBoostableStat,
-        volatiles: &HashSet<PokemonVolatileStatus>,
+        volatiles: &VolatileStatusBitset,
     ) -> bool {
         if [Abilities::CLEARBODY, Abilities::WHITESMOKE].contains(&self.ability) {
             return true;
@@ -329,11 +328,33 @@ impl Pokemon {
 
 impl Side {
     pub fn active_is_charging_move(&self) -> Option<PokemonMoveIndex> {
-        for volatile in self.volatile_statuses.iter() {
-            if let Some(choice) = charge_volatile_to_choice(volatile) {
+        const CHARGE_VOLATILES: &[(PokemonVolatileStatus, Choices)] = &[
+            (PokemonVolatileStatus::BOUNCE, Choices::BOUNCE),
+            (PokemonVolatileStatus::DIG, Choices::DIG),
+            (PokemonVolatileStatus::DIVE, Choices::DIVE),
+            (PokemonVolatileStatus::FLY, Choices::FLY),
+            (PokemonVolatileStatus::FREEZESHOCK, Choices::FREEZESHOCK),
+            (PokemonVolatileStatus::GEOMANCY, Choices::GEOMANCY),
+            (PokemonVolatileStatus::ICEBURN, Choices::ICEBURN),
+            (PokemonVolatileStatus::METEORBEAM, Choices::METEORBEAM),
+            (PokemonVolatileStatus::ELECTROSHOT, Choices::ELECTROSHOT),
+            (PokemonVolatileStatus::PHANTOMFORCE, Choices::PHANTOMFORCE),
+            (PokemonVolatileStatus::RAZORWIND, Choices::RAZORWIND),
+            (PokemonVolatileStatus::SHADOWFORCE, Choices::SHADOWFORCE),
+            (PokemonVolatileStatus::SKULLBASH, Choices::SKULLBASH),
+            (PokemonVolatileStatus::SKYATTACK, Choices::SKYATTACK),
+            (PokemonVolatileStatus::SKYDROP, Choices::SKYDROP),
+            (PokemonVolatileStatus::SOLARBEAM, Choices::SOLARBEAM),
+            (PokemonVolatileStatus::SOLARBLADE, Choices::SOLARBLADE),
+        ];
+
+        let vs = &self.volatile_statuses;
+
+        for (volatile, choice_id) in CHARGE_VOLATILES {
+            if vs.contains(volatile) {
                 let mut iter = self.get_active_immutable().moves.into_iter();
                 while let Some(mv) = iter.next() {
-                    if mv.id == choice {
+                    if mv.id == *choice_id {
                         return Some(iter.pokemon_move_index);
                     }
                 }
@@ -661,7 +682,7 @@ impl State {
         // since we may need to modify the side in the loop
         let mut volatile_statuses = std::mem::take(&mut side.volatile_statuses);
 
-        volatile_statuses.retain(|pkmn_volatile_status| {
+        volatile_statuses.retain(&mut |pkmn_volatile_status| {
             let should_retain = match pkmn_volatile_status {
                 PokemonVolatileStatus::SUBSTITUTE => baton_passing,
                 PokemonVolatileStatus::LEECHSEED => baton_passing,
