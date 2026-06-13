@@ -1,5 +1,51 @@
 # Changelog
 
+## [v0.0.47](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.47) - 2026-06-13
+
+### Features
+
+- Gen3 protect side condition does not affect non-protect moves - ([c046620](https://github.com/pmariglia/poke-engine/commit/c046620c68065862d1f2581e2f76944a95bc2bd7))
+
+- Champions prep (not working) - ([b07ac24](https://github.com/pmariglia/poke-engine/commit/b07ac24893298a2f24f9bc16a4daec3f4f3c11e2))
+
+- Global Hashmap in mcts - ([6047091](https://github.com/pmariglia/poke-engine/commit/6047091f029573921813f3a377a58587889a51e4))
+
+- Multi-threaded search - ([e8bda75](https://github.com/pmariglia/poke-engine/commit/e8bda75a06957e520dfbc1ed7565962889a5df86))
+
+- Vectors to Boxes - ([b1fa1d1](https://github.com/pmariglia/poke-engine/commit/b1fa1d1be1fe4daa67fd70a8b807da0db7e75223))
+
+- Rockhead - ([5bc664d](https://github.com/pmariglia/poke-engine/commit/5bc664dda16bffb58451e3de1ed5003bd57605a6))
+
+- Can pass explicit iteration count to mcts - ([48c919a](https://github.com/pmariglia/poke-engine/commit/48c919aaa39955f2419adbab95cfbc1b08c712ab))
+
+- Benchmark.rs - ([8f68248](https://github.com/pmariglia/poke-engine/commit/8f68248ad15cc2cf418c7c2c17447a3d908c6000))
+
+
+### Bug Fixes
+
+- Evasion and accuracy boost swap - ([810276a](https://github.com/pmariglia/poke-engine/commit/810276aeedc0e7cfff6020f2ac732bcf433778f5))
+
+- Snow/sand boosts always increase defense, even when being crit - ([7d53df0](https://github.com/pmariglia/poke-engine/commit/7d53df0520c7c27d0a26a8db7743f8ddece5fe86))
+
+
+### Miscellaneous Tasks
+
+- Add gen9 state strings - ([5e98084](https://github.com/pmariglia/poke-engine/commit/5e98084abeafc4944edb78046c062e0b3adcbaae))
+
+
+### Misc
+
+- Bump pyo3 to 0.26.0 - ([54bf1fa](https://github.com/pmariglia/poke-engine/commit/54bf1fa5ee3f062b45125235036657699ce94575))
+
+- Bump rand to 0.9.1 - ([19b25f3](https://github.com/pmariglia/poke-engine/commit/19b25f3d523bb07ecc1618f9d0200830aefc5bfa))
+
+
+### Refactor
+
+- Remove lazy_static dependency - ([1c2ddcf](https://github.com/pmariglia/poke-engine/commit/1c2ddcf1c33cac0b33299cfb05c5dd89f22bf897))
+
+- Volatile statuses as bitset - ([a4aa22e](https://github.com/pmariglia/poke-engine/commit/a4aa22ef968af33704e15e7d8280c2bffdc2b900))
+
 ## [v0.0.46](https://github.com/pmariglia/poke-engine/releases/tag/v0.0.46) - 2025-09-30
 
 ### Features

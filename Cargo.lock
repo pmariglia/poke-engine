@@ -209,7 +209,7 @@ dependencies = [
 
 [[package]]
 name = "poke-engine"
-version = "0.0.46"
+version = "0.0.47"
 dependencies = [
  "clap",
  "dashmap",
@@ -218,7 +218,7 @@ dependencies = [
 
 [[package]]
 name = "poke_engine"
-version = "0.0.46"
+version = "0.0.47"
 dependencies = [
  "poke-engine",
  "pyo3",
