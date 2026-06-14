@@ -3,7 +3,6 @@ use crate::engine::generate_instructions::generate_instructions_from_move_pair;
 use crate::engine::state::MoveChoice;
 use crate::instruction::StateInstructions;
 use crate::state::State;
-use rand::distr::weighted::WeightedIndex;
 use rand::prelude::*;
 use rand::rng;
 use std::collections::HashMap;
@@ -83,6 +82,7 @@ impl Node {
         &mut self,
         state: &mut State,
         children: &mut HashMap<(usize, usize, usize), Box<[Node]>>,
+        rng: &mut impl Rng,
     ) -> (*mut Node, usize, usize) {
         if self.s1_options.is_none() {
             let (s1_options, s2_options) = state.get_all_options();
@@ -95,24 +95,33 @@ impl Node {
         match children.get_mut(&key) {
             Some(child_vector) => {
                 let child_vec_ptr = child_vector as *mut Box<[Node]>;
-                let chosen_child = self.sample_node(child_vec_ptr);
+                let chosen_child = self.sample_node(child_vec_ptr, rng);
                 state.apply_instructions(&(*chosen_child).instructions.instruction_list);
-                (*chosen_child).selection(state, children)
+                (*chosen_child).selection(state, children, rng)
             }
             None => (self as *mut Node, s1_mc_index, s2_mc_index),
         }
     }
 
-    unsafe fn sample_node(&self, move_vector: *mut Box<[Node]>) -> *mut Node {
-        let mut rng = rng();
-        let weights: Vec<f64> = (*move_vector)
+    unsafe fn sample_node(&self, move_vector: *mut Box<[Node]>, rng: &mut impl Rng) -> *mut Node {
+        let nodes = &mut **move_vector;
+
+        let total_weight: f32 = nodes
             .iter()
-            .map(|x| x.instructions.percentage as f64)
-            .collect();
-        let dist = WeightedIndex::new(weights).unwrap();
-        let chosen_node = &mut (&mut *move_vector)[dist.sample(&mut rng)];
-        let chosen_node_ptr = chosen_node as *mut Node;
-        chosen_node_ptr
+            .map(|n| n.instructions.percentage.max(0.0))
+            .sum();
+
+        let mut threshold = rng.random_range(0.0..total_weight);
+
+        for node in nodes.iter_mut() {
+            threshold -= node.instructions.percentage.max(0.0);
+            if threshold <= 0.0 {
+                return node as *mut Node;
+            }
+        }
+
+        // fallback: return last node (handles float rounding issues that can come up)
+        &mut nodes[nodes.len() - 1] as *mut Node
     }
 
     pub unsafe fn expand(
@@ -121,6 +130,7 @@ impl Node {
         s1_move_index: usize,
         s2_move_index: usize,
         children: &mut HashMap<(usize, usize, usize), Box<[Node]>>,
+        rng: &mut impl Rng,
     ) -> *mut Node {
         let s1_move = &self.s1_options.as_ref().unwrap()[s1_move_index].move_choice;
         let s2_move = &self.s2_options.as_ref().unwrap()[s2_move_index].move_choice;
@@ -149,7 +159,7 @@ impl Node {
         // makes it a type that cannot be resized, which ensures the node
         // addresses are stable for the children map keys
         let mut boxed = this_pair_vec.into_boxed_slice();
-        let new_node_ptr = self.sample_node(&mut boxed);
+        let new_node_ptr = self.sample_node(&mut boxed, rng);
         state.apply_instructions(&(*new_node_ptr).instructions.instruction_list);
 
         let key = (self as *mut Node as usize, s1_move_index, s2_move_index);
@@ -242,9 +252,10 @@ fn mcts_iteration(
     state: &mut State,
     root_eval: &f32,
     children: &mut HashMap<(usize, usize, usize), Box<[Node]>>,
+    rng: &mut impl Rng,
 ) {
-    let (mut new_node, s1_move, s2_move) = unsafe { root_node.selection(state, children) };
-    new_node = unsafe { (*new_node).expand(state, s1_move, s2_move, children) };
+    let (mut new_node, s1_move, s2_move) = unsafe { root_node.selection(state, children, rng) };
+    new_node = unsafe { (*new_node).expand(state, s1_move, s2_move, children, rng) };
     let rollout_result = unsafe { (*new_node).rollout(state, root_eval) };
     unsafe { (*new_node).backpropagate(rollout_result, state) }
 }
@@ -261,10 +272,11 @@ fn run_mcts_loop(
     children: &mut HashMap<(usize, usize, usize), Box<[Node]>>,
     limit: SearchLimit,
 ) {
+    let mut rng = rng();
     let start_time = std::time::Instant::now();
     loop {
         for _ in 0..1000 {
-            mcts_iteration(root_node, state, root_eval, children);
+            mcts_iteration(root_node, state, root_eval, children, &mut rng);
         }
         if root_node.times_visited >= 10_000_000 {
             break;
