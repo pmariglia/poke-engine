@@ -62,11 +62,8 @@ pub fn modify_choice(
             }
         }
         Choices::PROTECT => {
-            if attacking_side.side_conditions.protect > 0 {
-                // for now, the engine doesn't support consecutive protects
-                // 2nd protect will always fail
-                attacker_choice.volatile_status = None;
-            }
+            // A probabilistic fail chance (halving toward 0) is applied
+            // in generate_instructions_from_existing_status_conditions.
         }
         Choices::PURSUIT => {
             if defender_choice.category == MoveCategory::Switch {

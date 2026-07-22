@@ -1536,3 +1536,31 @@ fn test_mustrecharge_move_only_allows_none() {
     );
     assert_eq!(expected_options, options);
 }
+
+#[test]
+fn test_consecutive_protect_applies_halving_chance_with_no_floor() {
+    let mut state = State::default();
+    state.side_one.side_conditions.protect = 4;
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::PROTECT,
+        Choices::TACKLE,
+    );
+    let success = vec_of_instructions
+        .iter()
+        .find(|si| {
+            si.instruction_list.iter().any(|i| {
+                matches!(
+                    i,
+                    Instruction::ApplyVolatileStatus(a)
+                        if a.volatile_status == PokemonVolatileStatus::PROTECT
+                )
+            })
+        })
+        .expect("a branch in which Protect succeeds");
+    assert!(
+        (success.percentage - 100.0 / 16.0).abs() < 1e-4,
+        "expected gen-2 success chance (1/2)^4 = 6.25% with no floor, got {}%",
+        success.percentage
+    );
+}

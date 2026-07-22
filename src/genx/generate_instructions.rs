@@ -107,6 +107,20 @@ pub const CONSECUTIVE_PROTECT_CHANCE: f32 = 1.0 / 3.0;
 #[cfg(any(feature = "gen4"))]
 pub const CONSECUTIVE_PROTECT_CHANCE: f32 = 1.0 / 2.0;
 
+// Floor for the consecutive-Protect success chance: 1/729 for gens 5+, 1/8 for gen 4.
+#[cfg(any(
+    feature = "gen5",
+    feature = "gen6",
+    feature = "gen7",
+    feature = "gen8",
+    feature = "gen9",
+    feature = "champions"
+))]
+pub const CONSECUTIVE_PROTECT_MIN_CHANCE: f32 = 1.0 / 729.0;
+
+#[cfg(any(feature = "gen4"))]
+pub const CONSECUTIVE_PROTECT_MIN_CHANCE: f32 = 1.0 / 8.0;
+
 #[cfg(any(feature = "gen4", feature = "gen5", feature = "gen6"))]
 pub const PARALYSIS_SPEED_MULTIPLIER: f32 = 0.25;
 
@@ -2003,8 +2017,9 @@ fn generate_instructions_from_existing_status_conditions(
     if attacking_side.side_conditions.protect > 0 {
         if let Some(vs) = &attacker_choice.volatile_status {
             if PROTECT_VOLATILES.contains(&vs.volatile_status) {
-                let protect_success_chance =
-                    CONSECUTIVE_PROTECT_CHANCE.powi(attacking_side.side_conditions.protect as i32);
+                let protect_success_chance = CONSECUTIVE_PROTECT_CHANCE
+                    .powi(attacking_side.side_conditions.protect as i32)
+                    .max(CONSECUTIVE_PROTECT_MIN_CHANCE);
                 let mut protect_fail_instruction = incoming_instructions.clone();
                 protect_fail_instruction.update_percentage(1.0 - protect_success_chance);
                 final_instructions.push(protect_fail_instruction);

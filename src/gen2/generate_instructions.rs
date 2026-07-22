@@ -40,6 +40,10 @@ use crate::{
 use std::cmp;
 
 pub const MAX_SLEEP_TURNS: i8 = 6;
+// In gen 2 the success chance of Protect/Detect halves per prior consecutive use and tends
+// to 0 (255 -> 127 -> 63 ... -> 1/255, then always fails). There is no floor, so this chance is applied without clamping. `(1/2)^n` approximates
+// the cartridge's integer halving of 255.
+pub const CONSECUTIVE_PROTECT_CHANCE: f32 = 1.0 / 2.0;
 pub const SANDSTORM_PERCENT_DAMAGE: f32 = 0.125;
 pub const BURN_PERCENT_DAMAGE: f32 = 0.125;
 pub const TRAPPED_PERCENT_DAMAGE: f32 = 0.0625;
@@ -1317,6 +1321,19 @@ fn generate_instructions_from_existing_status_conditions(
         final_instructions.push(hit_yourself_instruction);
 
         incoming_instructions.update_percentage(0.50);
+    }
+
+    if attacking_side.side_conditions.protect > 0 {
+        if let Some(vs) = &attacker_choice.volatile_status {
+            if vs.volatile_status == PokemonVolatileStatus::PROTECT {
+                let protect_success_chance =
+                    CONSECUTIVE_PROTECT_CHANCE.powi(attacking_side.side_conditions.protect as i32);
+                let mut protect_fail_instruction = incoming_instructions.clone();
+                protect_fail_instruction.update_percentage(1.0 - protect_success_chance);
+                final_instructions.push(protect_fail_instruction);
+                incoming_instructions.update_percentage(protect_success_chance);
+            }
+        }
     }
 }
 

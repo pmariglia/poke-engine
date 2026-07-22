@@ -43,6 +43,8 @@ pub const BASE_CRIT_CHANCE: f32 = 1.0 / 16.0;
 pub const MAX_SLEEP_TURNS: i8 = 4;
 pub const HIT_SELF_IN_CONFUSION_CHANCE: f32 = 1.0 / 2.0;
 pub const CONSECUTIVE_PROTECT_CHANCE: f32 = 1.0 / 2.0;
+// Success chance halves per prior consecutive use down to a floor of 1/8
+pub const CONSECUTIVE_PROTECT_MIN_CHANCE: f32 = 1.0 / 8.0;
 pub const SIDE_CONDITION_DURATION: i8 = 5;
 
 const PROTECT_VOLATILES: [PokemonVolatileStatus; 2] = [
@@ -1458,8 +1460,9 @@ fn generate_instructions_from_existing_status_conditions(
     if attacking_side.side_conditions.protect > 0 {
         if let Some(vs) = &attacker_choice.volatile_status {
             if PROTECT_VOLATILES.contains(&vs.volatile_status) {
-                let protect_success_chance =
-                    CONSECUTIVE_PROTECT_CHANCE.powi(attacking_side.side_conditions.protect as i32);
+                let protect_success_chance = CONSECUTIVE_PROTECT_CHANCE
+                    .powi(attacking_side.side_conditions.protect as i32)
+                    .max(CONSECUTIVE_PROTECT_MIN_CHANCE);
                 let mut protect_fail_instruction = incoming_instructions.clone();
                 protect_fail_instruction.update_percentage(1.0 - protect_success_chance);
                 final_instructions.push(protect_fail_instruction);

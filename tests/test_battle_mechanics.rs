@@ -2675,6 +2675,65 @@ fn test_protect_for_second_turn_in_a_row() {
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
+// Pin the LITERAL floored value at a deep chain, rather than recomputing it from
+// CONSECUTIVE_PROTECT_CHANCE (self-referential, could not catch a missing clamp). The
+// success branch is the one that keeps Protect up.
+fn consecutive_protect_success_percentage(protect_stack: i8) -> f32 {
+    let mut state = State::default();
+    state.side_one.side_conditions.protect = protect_stack;
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::PROTECT,
+        Choices::TACKLE,
+    );
+    let success = vec_of_instructions
+        .iter()
+        .find(|si| {
+            si.instruction_list.iter().any(|i| {
+                matches!(
+                    i,
+                    Instruction::ApplyVolatileStatus(a)
+                        if a.volatile_status == PokemonVolatileStatus::PROTECT
+                )
+            })
+        })
+        .expect("a branch in which Protect succeeds");
+    success.percentage
+}
+
+#[cfg(feature = "gen4")]
+#[test]
+fn test_consecutive_protect_success_is_floored_at_one_eighth() {
+    // 5th consecutive Protect (stack 4). Unclamped (1/2)^4 = 1/16 = 6.25%; the real gen-4
+    // floor is 1/8 = 12.5%, reached from the 4th use onward.
+    let success = consecutive_protect_success_percentage(4);
+    assert!(
+        (success - 100.0 / 8.0).abs() < 1e-4,
+        "expected the gen-4 success chance to be floored at 1/8, got {}%",
+        success
+    );
+}
+
+#[cfg(any(
+    feature = "gen5",
+    feature = "gen6",
+    feature = "gen7",
+    feature = "gen8",
+    feature = "gen9",
+    feature = "champions"
+))]
+#[test]
+fn test_consecutive_protect_success_is_floored_at_one_over_729() {
+    // 8th consecutive Protect (stack 7). Unclamped (1/3)^7 ~= 0.0457%; the real gen-5+
+    // floor is 1/729 ~= 0.137%, reached from the 7th use onward.
+    let success = consecutive_protect_success_percentage(7);
+    assert!(
+        (success - 100.0 / 729.0).abs() < 1e-4,
+        "expected the gen-5+ success chance to be floored at 1/729, got {}%",
+        success
+    );
+}
+
 #[test]
 fn test_regular_move_with_protect_side_condition() {
     let mut state = State::default();

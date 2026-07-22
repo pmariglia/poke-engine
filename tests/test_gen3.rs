@@ -580,3 +580,34 @@ fn test_gen3_branch_when_a_roll_can_kill() {
     ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
+
+#[test]
+fn test_consecutive_protect_success_is_floored_at_one_eighth() {
+    // 5th consecutive Protect (stack 4). Unclamped (1/2)^4 = 1/16 = 6.25%; the real gen-3
+    // floor is 1/8 = 12.5% (4th use onward). Pins the literal floored value so it is not
+    // self-referential with CONSECUTIVE_PROTECT_CHANCE.
+    let mut state = State::default();
+    state.side_one.side_conditions.protect = 4;
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::PROTECT,
+        Choices::TACKLE,
+    );
+    let success = vec_of_instructions
+        .iter()
+        .find(|si| {
+            si.instruction_list.iter().any(|i| {
+                matches!(
+                    i,
+                    Instruction::ApplyVolatileStatus(a)
+                        if a.volatile_status == PokemonVolatileStatus::PROTECT
+                )
+            })
+        })
+        .expect("a branch in which Protect succeeds");
+    assert!(
+        (success.percentage - 100.0 / 8.0).abs() < 1e-4,
+        "expected the gen-3 success chance to be floored at 1/8, got {}%",
+        success.percentage
+    );
+}
