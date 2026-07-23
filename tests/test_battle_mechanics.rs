@@ -22150,3 +22150,172 @@ fn test_mustrecharge_move_only_allows_none() {
     );
     assert_eq!(expected_options, options);
 }
+
+/// Damage dealt to side two, summed over every branch.
+fn damage_to_side_two(instructions: &Vec<StateInstructions>) -> i16 {
+    instructions
+        .iter()
+        .flat_map(|branch| branch.instruction_list.iter())
+        .filter_map(|i| match i {
+            Instruction::Damage(d) if d.side_ref == SideReference::SideTwo => Some(d.damage_amount),
+            _ => None,
+        })
+        .sum()
+}
+
+#[test]
+fn test_dreameater_does_nothing_to_an_awake_target() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DREAMEATER,
+        Choices::SPLASH,
+    );
+
+    // The move fails outright: no damage, and no drain heal either.
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_nightmare_does_nothing_to_an_awake_target() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::NIGHTMARE,
+        Choices::SPLASH,
+    );
+
+    // Specifically: no NIGHTMARE volatile is applied.
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_snore_does_nothing_while_the_user_is_awake() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SNORE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_dreameater_damages_a_sleeping_target() {
+    let mut state = State::default();
+    state.side_two.get_active().status = PokemonStatus::SLEEP;
+    state.side_two.get_active().sleep_turns = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DREAMEATER,
+        Choices::SPLASH,
+    );
+
+    assert!(
+        damage_to_side_two(&vec_of_instructions) > 0,
+        "dream eater must damage a sleeping target: {:?}",
+        vec_of_instructions
+    );
+}
+
+fn facade_damage(status: PokemonStatus, ability: Abilities) -> i16 {
+    let mut state = State::default();
+    state.side_one.get_active().status = status;
+    state.side_one.get_active().ability = ability;
+    state.side_two.get_active().hp = 10000;
+    state.side_two.get_active().maxhp = 10000;
+    damage_to_side_two(&set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::FACADE,
+        Choices::SPLASH,
+    ))
+}
+
+/// Damage is integer-truncated at several steps of the formula, so doubling the BASE POWER does
+/// not double the final number exactly (83 -> 164, not 166). Compare with a small tolerance.
+fn assert_near(actual: i16, expected: i16, what: &str) {
+    assert!(
+        (actual - expected).abs() <= 2,
+        "{}: expected ~{}, got {}",
+        what,
+        expected,
+        actual
+    );
+}
+
+#[test]
+fn test_facade_is_doubled_by_poison_toxic_and_paralysis() {
+    let base = facade_damage(PokemonStatus::NONE, Abilities::NONE);
+    assert!(base > 0, "sanity: an unstatused facade must deal damage");
+
+    assert_near(
+        facade_damage(PokemonStatus::POISON, Abilities::NONE),
+        base * 2,
+        "poison should double facade",
+    );
+    assert_near(
+        facade_damage(PokemonStatus::TOXIC, Abilities::NONE),
+        base * 2,
+        "toxic should double facade",
+    );
+    // Paralysis splits the turn on the full-paralysis roll, so the connecting branch carries all
+    // of the damage and the sum still lands on the doubled figure.
+    assert_near(
+        facade_damage(PokemonStatus::PARALYZE, Abilities::NONE),
+        base * 2,
+        "paralysis should double facade",
+    );
+}
+
+#[test]
+fn test_facade_and_the_burn_halving_across_generations() {
+    let poisoned = facade_damage(PokemonStatus::POISON, Abilities::NONE);
+    let burned = facade_damage(PokemonStatus::BURN, Abilities::NONE);
+    assert!(poisoned > 0);
+
+    #[cfg(any(feature = "gen4", feature = "gen5"))]
+    assert_near(burned, poisoned / 2, "gens 4-5: burn still halves facade");
+
+    #[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
+    assert_near(
+        burned,
+        poisoned,
+        "gen 6+: facade ignores the burn halving, so a burned facade matches a poisoned one",
+    );
+}
+
+#[test]
+fn test_facade_with_guts_is_not_compensated_twice() {
+    let poisoned = facade_damage(PokemonStatus::POISON, Abilities::NONE);
+    let guts_burned = facade_damage(PokemonStatus::BURN, Abilities::GUTS);
+
+    assert_near(
+        guts_burned,
+        poisoned + poisoned / 2,
+        "guts is worth 1.5x on a facade whose burn halving it already ignores",
+    );
+    // Double-compensating would read as 3x the unhalved figure, not 1.5x.
+    assert!(
+        guts_burned < poisoned * 2,
+        "guts facade must not be double-compensated for the burn (poisoned {}, guts {})",
+        poisoned,
+        guts_burned
+    );
+}

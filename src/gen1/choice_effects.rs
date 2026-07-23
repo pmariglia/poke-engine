@@ -14,8 +14,13 @@ pub fn modify_choice(
     _defender_choice: &Choice,
     attacking_side_ref: &SideReference,
 ) {
-    let (_attacking_side, _defending_side) = state.get_both_sides_immutable(attacking_side_ref);
+    let (_attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     match attacker_choice.move_id {
+        Choices::DREAMEATER => {
+            if defending_side.get_active_immutable().status != PokemonStatus::SLEEP {
+                attacker_choice.remove_all_effects();
+            }
+        }
         Choices::EXPLOSION | Choices::SELFDESTRUCT => {
             attacker_choice.base_power *= 2.0;
         }

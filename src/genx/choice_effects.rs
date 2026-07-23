@@ -570,9 +570,41 @@ pub fn modify_choice(
             }
         }
 
+        Choices::DREAMEATER | Choices::NIGHTMARE => {
+            if defending_side.get_active_immutable().status != PokemonStatus::SLEEP {
+                attacker_choice.remove_all_effects();
+            }
+        }
+        Choices::SNORE => {
+            if attacking_side.get_active_immutable().status != PokemonStatus::SLEEP {
+                attacker_choice.remove_all_effects();
+            }
+        }
         Choices::FACADE => {
-            if attacking_side.get_active_immutable().status != PokemonStatus::NONE {
+            // POISON/TOXIC/BURN/PARALYZE only -- NOT sleep or freeze.
+            let attacker = attacking_side.get_active_immutable();
+            if matches!(
+                attacker.status,
+                PokemonStatus::POISON
+                    | PokemonStatus::TOXIC
+                    | PokemonStatus::BURN
+                    | PokemonStatus::PARALYZE
+            ) {
                 attacker_choice.base_power *= 2.0;
+
+                // Gen 6 onward, Facade ignores burn's halving of physical damage. The halving is
+                // applied later, by damage_calc's `burn_modifier`: a flat 0.5 on any physical
+                // move from a burned attacker, which cannot see WHICH move it is halving. So
+                // undo it here by doubling again. Facade is always physical, so this cancels
+                // exactly.
+                //
+                // Skipped for Guts, which pulls the same trick on the same 0.5 and runs after
+                // this (before_move calls modify_choice, then ability_modify_attack_being_used).
+                // Undoing one halving twice would leave Facade at double its real power.
+                #[cfg(any(feature = "gen6", feature = "gen7", feature = "gen8", feature = "gen9"))]
+                if attacker.status == PokemonStatus::BURN && attacker.ability != Abilities::GUTS {
+                    attacker_choice.base_power *= 2.0;
+                }
             }
         }
         Choices::STOREDPOWER | Choices::POWERTRIP => {

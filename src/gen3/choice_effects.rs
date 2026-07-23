@@ -143,8 +143,25 @@ pub fn modify_choice(
                 attacker_choice.remove_all_effects();
             }
         }
+        Choices::DREAMEATER | Choices::NIGHTMARE => {
+            if defending_side.get_active_immutable().status != PokemonStatus::SLEEP {
+                attacker_choice.remove_all_effects();
+            }
+        }
+        Choices::SNORE => {
+            if attacking_side.get_active_immutable().status != PokemonStatus::SLEEP {
+                attacker_choice.remove_all_effects();
+            }
+        }
         Choices::FACADE => {
-            if attacking_side.get_active_immutable().status != PokemonStatus::NONE {
+            // POISON/TOXIC/BURN/PARALYZE only -- NOT sleep or freeze.
+            if matches!(
+                attacking_side.get_active_immutable().status,
+                PokemonStatus::POISON
+                    | PokemonStatus::TOXIC
+                    | PokemonStatus::BURN
+                    | PokemonStatus::PARALYZE
+            ) {
                 attacker_choice.base_power *= 2.0;
             }
         }

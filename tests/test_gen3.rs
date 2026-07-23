@@ -580,3 +580,82 @@ fn test_gen3_branch_when_a_roll_can_kill() {
     ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
+
+#[test]
+fn test_dreameater_does_nothing_to_an_awake_target() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DREAMEATER,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_snore_does_nothing_while_the_user_is_awake() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SNORE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_facade_doubling_condition_and_burn_halving() {
+    let facade_damage = |status: PokemonStatus| -> i16 {
+        let mut state = State::default();
+        state.side_one.get_active().status = status;
+        // Damage is clamped to the target's remaining HP, and a default Pokemon has 100 -- at
+        // which a doubled Facade and an undoubled one both read as 100.
+        state.side_two.get_active().hp = 10000;
+        state.side_two.get_active().maxhp = 10000;
+        set_moves_on_pkmn_and_call_generate_instructions(
+            &mut state,
+            Choices::FACADE,
+            Choices::SPLASH,
+        )
+        .iter()
+        .flat_map(|branch| branch.instruction_list.iter())
+        .filter_map(|i| match i {
+            Instruction::Damage(d) if d.side_ref == SideReference::SideTwo => Some(d.damage_amount),
+            _ => None,
+        })
+        .sum()
+    };
+
+    let base = facade_damage(PokemonStatus::NONE);
+    assert!(base > 0, "sanity: an unstatused facade must deal damage");
+
+    // Integer truncation in the damage formula means doubling the BASE POWER does not double the
+    // final number exactly, hence the tolerance.
+    let poisoned = facade_damage(PokemonStatus::POISON);
+    assert!(
+        (poisoned - base * 2).abs() <= 2,
+        "poison should double facade: base {}, poisoned {}",
+        base,
+        poisoned
+    );
+
+    let burned = facade_damage(PokemonStatus::BURN);
+    assert!(
+        (burned - poisoned / 2).abs() <= 2,
+        "gen 3: burn still halves facade: poisoned {}, burned {}",
+        poisoned,
+        burned
+    );
+}

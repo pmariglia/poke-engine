@@ -22,8 +22,18 @@ pub fn modify_choice(
     defender_choice: &Choice,
     attacking_side_ref: &SideReference,
 ) {
-    let (attacking_side, _defending_side) = state.get_both_sides_immutable(attacking_side_ref);
+    let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
     match attacker_choice.move_id {
+        Choices::DREAMEATER | Choices::NIGHTMARE => {
+            if defending_side.get_active_immutable().status != PokemonStatus::SLEEP {
+                attacker_choice.remove_all_effects();
+            }
+        }
+        Choices::SNORE => {
+            if attacking_side.get_active_immutable().status != PokemonStatus::SLEEP {
+                attacker_choice.remove_all_effects();
+            }
+        }
         Choices::REVERSAL => {
             let attacker = attacking_side.get_active_immutable();
             let hp_ratio = attacker.hp as f32 / attacker.maxhp as f32;
