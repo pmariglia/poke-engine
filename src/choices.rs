@@ -1512,6 +1512,10 @@ pub static MOVES: LazyLock<HashMap<Choices, Choice>> = LazyLock::new(|| {
                 reflectable: true,
                 ..Default::default()
             },
+            volatile_status: Some(VolatileStatus {
+                target: MoveTarget::Opponent,
+                volatile_status: PokemonVolatileStatus::TRAPPED,
+            }),
             ..Default::default()
         },
     );
@@ -10265,6 +10269,10 @@ pub static MOVES: LazyLock<HashMap<Choices, Choice>> = LazyLock::new(|| {
                 reflectable: true,
                 ..Default::default()
             },
+            volatile_status: Some(VolatileStatus {
+                target: MoveTarget::Opponent,
+                volatile_status: PokemonVolatileStatus::TRAPPED,
+            }),
             ..Default::default()
         },
     );
@@ -15773,6 +15781,10 @@ pub static MOVES: LazyLock<HashMap<Choices, Choice>> = LazyLock::new(|| {
                 reflectable: true,
                 ..Default::default()
             },
+            volatile_status: Some(VolatileStatus {
+                target: MoveTarget::Opponent,
+                volatile_status: PokemonVolatileStatus::TRAPPED,
+            }),
             ..Default::default()
         },
     );
