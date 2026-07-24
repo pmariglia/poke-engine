@@ -16,10 +16,10 @@ use poke_engine::instruction::{
     ChangeItemInstruction, ChangeSideConditionInstruction, ChangeStatInstruction,
     ChangeStatusInstruction, ChangeSubsituteHealthInstruction, ChangeTerrain, ChangeType,
     ChangeVolatileStatusDurationInstruction, ChangeWeather, ChangeWishInstruction,
-    DamageInstruction, DecrementFutureSightInstruction, DecrementPPInstruction,
+    DamageInstruction, DecrementFutureAttackInstruction, DecrementPPInstruction, FutureAttackKind,
     DecrementRestTurnsInstruction, DecrementWishInstruction, DisableMoveInstruction,
     EnableMoveInstruction, FormeChangeInstruction, HealInstruction, Instruction,
-    RemoveVolatileStatusInstruction, SetFutureSightInstruction, SetLastUsedMoveInstruction,
+    RemoveVolatileStatusInstruction, SetFutureAttackInstruction, SetLastUsedMoveInstruction,
     SetSecondMoveSwitchOutMoveInstruction, SetSleepTurnsInstruction, StateInstructions,
     SwitchInstruction, ToggleBatonPassingInstruction, ToggleMegaEvolvedInstruction,
     ToggleShedTailingInstruction, ToggleTrickRoomInstruction,
@@ -13079,12 +13079,42 @@ fn test_using_futuresight() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::SetFutureSight(SetFutureSightInstruction {
+            Instruction::SetFutureAttack(SetFutureAttackInstruction {
                 side_ref: SideReference::SideOne,
                 pokemon_index: PokemonIndex::P0,
                 previous_pokemon_index: PokemonIndex::P0,
+                move_id: FutureAttackKind::FutureSight,
+                previous_move_id: FutureAttackKind::None,
             }),
-            Instruction::DecrementFutureSight(DecrementFutureSightInstruction {
+            Instruction::DecrementFutureAttack(DecrementFutureAttackInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_using_doomdesire() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DOOMDESIRE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::SetFutureAttack(SetFutureAttackInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                previous_pokemon_index: PokemonIndex::P0,
+                move_id: FutureAttackKind::DoomDesire,
+                previous_move_id: FutureAttackKind::None,
+            }),
+            Instruction::DecrementFutureAttack(DecrementFutureAttackInstruction {
                 side_ref: SideReference::SideOne,
             }),
         ],
@@ -13095,8 +13125,8 @@ fn test_using_futuresight() {
 #[test]
 fn test_futuresight_decrementing_on_its_own() {
     let mut state = State::default();
-    state.side_one.future_sight.0 = 2;
-    state.side_one.future_sight.1 = PokemonIndex::P0;
+    state.side_one.future_attack.turns_remaining = 2;
+    state.side_one.future_attack.pokemon_index = PokemonIndex::P0;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -13106,8 +13136,8 @@ fn test_futuresight_decrementing_on_its_own() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![Instruction::DecrementFutureSight(
-            DecrementFutureSightInstruction {
+        instruction_list: vec![Instruction::DecrementFutureAttack(
+            DecrementFutureAttackInstruction {
                 side_ref: SideReference::SideOne,
             },
         )],
@@ -13118,8 +13148,9 @@ fn test_futuresight_decrementing_on_its_own() {
 #[test]
 fn test_cannot_use_futuresight_when_it_is_already_active() {
     let mut state = State::default();
-    state.side_one.future_sight.0 = 2;
-    state.side_one.future_sight.1 = PokemonIndex::P0;
+    state.side_one.future_attack.turns_remaining = 2;
+    state.side_one.future_attack.pokemon_index = PokemonIndex::P0;
+    state.side_one.future_attack.move_id = Choices::FUTURESIGHT;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -13129,8 +13160,56 @@ fn test_cannot_use_futuresight_when_it_is_already_active() {
 
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
-        instruction_list: vec![Instruction::DecrementFutureSight(
-            DecrementFutureSightInstruction {
+        instruction_list: vec![Instruction::DecrementFutureAttack(
+            DecrementFutureAttackInstruction {
+                side_ref: SideReference::SideOne,
+            },
+        )],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_cannot_use_doomdesire_when_futuresight_already_active() {
+    let mut state = State::default();
+    state.side_one.future_attack.turns_remaining = 2;
+    state.side_one.future_attack.pokemon_index = PokemonIndex::P0;
+    state.side_one.future_attack.move_id = Choices::FUTURESIGHT;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DOOMDESIRE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::DecrementFutureAttack(
+            DecrementFutureAttackInstruction {
+                side_ref: SideReference::SideOne,
+            },
+        )],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_cannot_use_futuresight_when_doomdesire_already_active() {
+    let mut state = State::default();
+    state.side_one.future_attack.turns_remaining = 2;
+    state.side_one.future_attack.pokemon_index = PokemonIndex::P0;
+    state.side_one.future_attack.move_id = Choices::DOOMDESIRE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::FUTURESIGHT,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::DecrementFutureAttack(
+            DecrementFutureAttackInstruction {
                 side_ref: SideReference::SideOne,
             },
         )],
@@ -13148,8 +13227,9 @@ fn test_cannot_use_futuresight_when_it_is_already_active() {
 ))] // just so that the damage is correct
 fn test_futuresight_activating() {
     let mut state = State::default();
-    state.side_one.future_sight.0 = 1;
-    state.side_one.future_sight.1 = PokemonIndex::P0;
+    state.side_one.future_attack.turns_remaining = 1;
+    state.side_one.future_attack.pokemon_index = PokemonIndex::P0;
+    state.side_one.future_attack.move_id = Choices::FUTURESIGHT;
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
@@ -13164,7 +13244,81 @@ fn test_futuresight_activating() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 94,
             }),
-            Instruction::DecrementFutureSight(DecrementFutureSightInstruction {
+            Instruction::DecrementFutureAttack(DecrementFutureAttackInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(
+    feature = "champions",
+    feature = "gen9",
+    feature = "gen8",
+    feature = "gen7",
+    feature = "gen6"
+))] // just so that the damage is correct
+fn test_doomdesire_activating() {
+    let mut state = State::default();
+    state.side_one.future_attack.turns_remaining = 1;
+    state.side_one.future_attack.pokemon_index = PokemonIndex::P0;
+    state.side_one.future_attack.move_id = Choices::DOOMDESIRE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    // Doom Desire is Special Steel BP 140 (gen 5+); Future Sight is Psychic BP 120 (94 dmg).
+    // On a Normal target both are neutral, so Doom Desire deals more.
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 100,
+            }),
+            Instruction::DecrementFutureAttack(DecrementFutureAttackInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(
+    feature = "champions",
+    feature = "gen9",
+    feature = "gen8",
+    feature = "gen7",
+    feature = "gen6"
+))] // just so that the damage is correct
+fn test_doomdesire_activating_is_steel_type() {
+    let mut state = State::default();
+    state.side_one.future_attack.turns_remaining = 1;
+    state.side_one.future_attack.pokemon_index = PokemonIndex::P0;
+    state.side_one.future_attack.move_id = Choices::DOOMDESIRE;
+    // Fire resists Steel; Psychic would be neutral into Fire.
+    state.side_two.get_active().types = (PokemonType::FIRE, PokemonType::TYPELESS);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 55,
+            }),
+            Instruction::DecrementFutureAttack(DecrementFutureAttackInstruction {
                 side_ref: SideReference::SideOne,
             }),
         ],
@@ -13182,8 +13336,9 @@ fn test_futuresight_activating() {
 ))] // just so that the damage is correct
 fn test_futuresight_activating_on_reserve_pkmn() {
     let mut state = State::default();
-    state.side_one.future_sight.0 = 1;
-    state.side_one.future_sight.1 = PokemonIndex::P1;
+    state.side_one.future_attack.turns_remaining = 1;
+    state.side_one.future_attack.pokemon_index = PokemonIndex::P1;
+    state.side_one.future_attack.move_id = Choices::FUTURESIGHT;
     state.side_one.pokemon[PokemonIndex::P1].special_attack = 10; // very weak
 
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
@@ -13199,7 +13354,7 @@ fn test_futuresight_activating_on_reserve_pkmn() {
                 side_ref: SideReference::SideTwo,
                 damage_amount: 11,
             }),
-            Instruction::DecrementFutureSight(DecrementFutureSightInstruction {
+            Instruction::DecrementFutureAttack(DecrementFutureAttackInstruction {
                 side_ref: SideReference::SideOne,
             }),
         ],

@@ -278,8 +278,8 @@ class Side:
     :type volatile_status_durations: VolatileStatusDurations
     :param wish: Wish status (turns, HP)
     :type wish: tuple[int, int]
-    :param future_sight: Future Sight status (turns, target)
-    :type future_sight: tuple[int, str]
+    :param future_attack: Future Sight / Doom Desire status (turns, pokemon index, move id)
+    :type future_attack: tuple[int, str, str]
     :param force_switch: Whether forced to switch
     :type force_switch: bool
     :param force_trapped: Whether trapped
@@ -317,7 +317,7 @@ class Side:
     shed_tailing: bool
     volatile_status_durations: VolatileStatusDurations
     wish: Tuple[int, int]
-    future_sight: Tuple[int, str]
+    future_attack: Tuple[int, str, str]
     force_switch: bool
     force_trapped: bool
     slow_uturn_move: bool
@@ -341,7 +341,7 @@ class Side:
         shed_tailing: bool = False,
         volatile_status_durations: Optional[VolatileStatusDurations] = None,
         wish: Tuple[int, int] = (0, 0),
-        future_sight: Tuple[int, str] = (0, "0"),
+        future_attack: Tuple[int, str, str] = (0, "0", "none"),
         force_switch: bool = False,
         force_trapped: bool = False,
         slow_uturn_move: bool = False,

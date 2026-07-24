@@ -8,13 +8,15 @@ use poke_engine::engine::state::{MoveChoice, PokemonVolatileStatus, Weather};
 use poke_engine::instruction::ChangeSideConditionInstruction;
 use poke_engine::instruction::{
     ApplyVolatileStatusInstruction, ChangeItemInstruction, ChangeStatusInstruction,
-    ChangeVolatileStatusDurationInstruction, DamageInstruction, EnableMoveInstruction,
-    HealInstruction, Instruction, RemoveVolatileStatusInstruction, SetSleepTurnsInstruction,
+    ChangeVolatileStatusDurationInstruction, DamageInstruction, DecrementFutureAttackInstruction,
+    EnableMoveInstruction, FutureAttackKind, HealInstruction, Instruction,
+    RemoveVolatileStatusInstruction, SetFutureAttackInstruction, SetSleepTurnsInstruction,
     StateInstructions, SwitchInstruction,
 };
 use poke_engine::state::PokemonSideCondition;
 use poke_engine::state::{
-    Move, PokemonIndex, PokemonMoveIndex, PokemonStatus, PokemonType, SideReference, State,
+    FutureAttack, Move, PokemonIndex, PokemonMoveIndex, PokemonStatus, PokemonType, SideReference,
+    State,
 };
 
 pub fn generate_instructions_with_state_assertion(
@@ -578,5 +580,151 @@ fn test_gen3_branch_when_a_roll_can_kill() {
             })],
         },
     ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_using_doomdesire_does_not_damage_immediately() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DOOMDESIRE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::SetFutureAttack(SetFutureAttackInstruction {
+                side_ref: SideReference::SideOne,
+                pokemon_index: PokemonIndex::P0,
+                previous_pokemon_index: PokemonIndex::P0,
+                move_id: FutureAttackKind::DoomDesire,
+                previous_move_id: FutureAttackKind::None,
+            }),
+            Instruction::DecrementFutureAttack(DecrementFutureAttackInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_doomdesire_activating_uses_steel() {
+    let mut state = State::default();
+    state.side_one.future_attack = FutureAttack {
+        turns_remaining: 1,
+        pokemon_index: PokemonIndex::P0,
+        move_id: Choices::DOOMDESIRE,
+    };
+
+    let doomdesire_damage = {
+        let instructions = set_moves_on_pkmn_and_call_generate_instructions(
+            &mut state,
+            Choices::SPLASH,
+            Choices::SPLASH,
+        );
+        instructions
+            .iter()
+            .flat_map(|branch| branch.instruction_list.iter())
+            .find_map(|i| match i {
+                Instruction::Damage(d) if d.side_ref == SideReference::SideTwo => {
+                    Some(d.damage_amount)
+                }
+                _ => None,
+            })
+            .expect("doom desire should deal damage on landing")
+    };
+
+    let mut state = State::default();
+    state.side_one.future_attack = FutureAttack {
+        turns_remaining: 1,
+        pokemon_index: PokemonIndex::P0,
+        move_id: Choices::FUTURESIGHT,
+    };
+    let futuresight_damage = {
+        let instructions = set_moves_on_pkmn_and_call_generate_instructions(
+            &mut state,
+            Choices::SPLASH,
+            Choices::SPLASH,
+        );
+        instructions
+            .iter()
+            .flat_map(|branch| branch.instruction_list.iter())
+            .find_map(|i| match i {
+                Instruction::Damage(d) if d.side_ref == SideReference::SideTwo => {
+                    Some(d.damage_amount)
+                }
+                _ => None,
+            })
+            .expect("future sight should deal damage on landing")
+    };
+
+    // Gen3: Doom Desire is Steel BP 120; Future Sight is Psychic BP 80.
+    assert!(
+        doomdesire_damage > futuresight_damage,
+        "doom desire (bp 120) should outdamage future sight (bp 80): {} vs {}",
+        doomdesire_damage,
+        futuresight_damage
+    );
+
+    let mut state = State::default();
+    state.side_one.future_attack = FutureAttack {
+        turns_remaining: 1,
+        pokemon_index: PokemonIndex::P0,
+        move_id: Choices::DOOMDESIRE,
+    };
+    state.side_two.get_active().types = (PokemonType::FIRE, PokemonType::TYPELESS);
+    let steel_into_fire = {
+        let instructions = set_moves_on_pkmn_and_call_generate_instructions(
+            &mut state,
+            Choices::SPLASH,
+            Choices::SPLASH,
+        );
+        instructions
+            .iter()
+            .flat_map(|branch| branch.instruction_list.iter())
+            .find_map(|i| match i {
+                Instruction::Damage(d) if d.side_ref == SideReference::SideTwo => {
+                    Some(d.damage_amount)
+                }
+                _ => None,
+            })
+            .expect("doom desire should deal damage on landing")
+    };
+
+    assert!(
+        steel_into_fire < doomdesire_damage,
+        "steel into fire should deal less than steel into normal: {} vs {}",
+        steel_into_fire,
+        doomdesire_damage
+    );
+}
+
+#[test]
+fn test_cannot_stack_doomdesire_with_futuresight() {
+    let mut state = State::default();
+    state.side_one.future_attack = FutureAttack {
+        turns_remaining: 2,
+        pokemon_index: PokemonIndex::P0,
+        move_id: Choices::FUTURESIGHT,
+    };
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DOOMDESIRE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::DecrementFutureAttack(
+            DecrementFutureAttackInstruction {
+                side_ref: SideReference::SideOne,
+            },
+        )],
+    }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }

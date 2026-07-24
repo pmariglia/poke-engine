@@ -6,7 +6,7 @@ use crate::choices::{
     Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, SideCondition, Status,
     VolatileStatus, MOVES,
 };
-use crate::instruction::DecrementFutureSightInstruction;
+use crate::instruction::DecrementFutureAttackInstruction;
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeWeather, DecrementRestTurnsInstruction, HealInstruction,
@@ -19,7 +19,7 @@ use crate::instruction::{
 };
 use crate::instruction::{DecrementPPInstruction, SetLastUsedMoveInstruction};
 
-use super::damage_calc::calculate_futuresight_damage;
+use super::damage_calc::calculate_future_attack_damage;
 use super::damage_calc::{calculate_damage, type_effectiveness_modifier, DamageRolls};
 use super::items::{
     item_before_move, item_end_of_turn, item_modify_attack_against, item_modify_attack_being_used,
@@ -1788,32 +1788,32 @@ pub fn add_end_of_turn_instructions(
     // future sight
     for side_ref in sides {
         let (attacking_side, defending_side) = state.get_both_sides(side_ref);
-        if attacking_side.future_sight.0 > 0 {
-            let decrement_future_sight_instruction =
-                Instruction::DecrementFutureSight(DecrementFutureSightInstruction {
+        if attacking_side.future_attack.turns_remaining > 0 {
+            let decrement_future_attack_instruction =
+                Instruction::DecrementFutureAttack(DecrementFutureAttackInstruction {
                     side_ref: *side_ref,
                 });
-            if attacking_side.future_sight.0 == 1 {
-                let mut damage = calculate_futuresight_damage(
+            if attacking_side.future_attack.turns_remaining == 1 {
+                let mut damage = calculate_future_attack_damage(
                     &attacking_side,
                     &defending_side,
-                    &attacking_side.future_sight.1,
+                    &attacking_side.future_attack.pokemon_index,
                 );
                 let defender = defending_side.get_active();
                 damage = cmp::min(damage, defender.hp);
-                let future_sight_damage_instruction = Instruction::Damage(DamageInstruction {
+                let future_attack_damage_instruction = Instruction::Damage(DamageInstruction {
                     side_ref: side_ref.get_other_side(),
                     damage_amount: damage,
                 });
                 incoming_instructions
                     .instruction_list
-                    .push(future_sight_damage_instruction);
+                    .push(future_attack_damage_instruction);
                 defender.hp -= damage;
             }
-            attacking_side.future_sight.0 -= 1;
+            attacking_side.future_attack.turns_remaining -= 1;
             incoming_instructions
                 .instruction_list
-                .push(decrement_future_sight_instruction);
+                .push(decrement_future_attack_instruction);
         }
     }
 

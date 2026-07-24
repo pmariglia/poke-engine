@@ -16,9 +16,9 @@ use poke_engine::mcts_threaded::perform_mcts_shared_tree;
 use poke_engine::pokemon::PokemonName;
 use poke_engine::search::iterative_deepen_expectiminimax;
 use poke_engine::state::{
-    LastUsedMove, Move, Pokemon, PokemonIndex, PokemonMoves, PokemonNature, PokemonStatus,
-    PokemonType, Side, SideConditions, SidePokemon, State, StateTerrain, StateTrickRoom,
-    StateWeather, VolatileStatusBitset, VolatileStatusDurations,
+    FutureAttack, LastUsedMove, Move, Pokemon, PokemonIndex, PokemonMoves, PokemonNature,
+    PokemonStatus, PokemonType, Side, SideConditions, SidePokemon, State, StateTerrain,
+    StateTrickRoom, StateWeather, VolatileStatusBitset, VolatileStatusDurations,
 };
 use std::str::FromStr;
 use std::time::Duration;
@@ -159,7 +159,7 @@ pub struct PySide {
     shed_tailing: bool,
     volatile_status_durations: PyVolatileStatusDurations,
     wish: (i8, i16),
-    future_sight: (i8, String),
+    future_attack: (i8, String, String),
     force_switch: bool,
     force_trapped: bool,
     slow_uturn_move: bool,
@@ -197,7 +197,11 @@ impl From<Side> for PySide {
                 other.volatile_status_durations,
             ),
             wish: other.wish,
-            future_sight: (other.future_sight.0, other.future_sight.1.serialize()),
+            future_attack: (
+                other.future_attack.turns_remaining,
+                other.future_attack.pokemon_index.serialize(),
+                other.future_attack.move_id.to_string(),
+            ),
             force_switch: other.force_switch,
             force_trapped: other.force_trapped,
             slow_uturn_move: other.slow_uturn_move,
@@ -243,10 +247,11 @@ impl Into<Side> for PySide {
                 self.volatile_status_durations.into(),
             ),
             wish: self.wish,
-            future_sight: (
-                self.future_sight.0,
-                PokemonIndex::deserialize(&self.future_sight.1),
-            ),
+            future_attack: FutureAttack {
+                turns_remaining: self.future_attack.0,
+                pokemon_index: PokemonIndex::deserialize(&self.future_attack.1),
+                move_id: Choices::from_str(&self.future_attack.2).unwrap_or(Choices::NONE),
+            },
             force_switch: self.force_switch,
             force_trapped: self.force_trapped,
             slow_uturn_move: self.slow_uturn_move,
@@ -280,7 +285,7 @@ impl PySide {
         shed_tailing=false,
         volatile_status_durations=PyVolatileStatusDurations::new(0, 0, 0, 0, 0, 0),
         wish=(0, 0),
-        future_sight=(0, "0".to_string()),
+        future_attack=(0, "0".to_string(), "none".to_string()),
         force_switch=false,
         force_trapped=false,
         slow_uturn_move=false,
@@ -305,7 +310,7 @@ impl PySide {
         shed_tailing: bool,
         volatile_status_durations: PyVolatileStatusDurations,
         wish: (i8, i16),
-        future_sight: (i8, String),
+        future_attack: (i8, String, String),
         force_switch: bool,
         force_trapped: bool,
         slow_uturn_move: bool,
@@ -339,7 +344,7 @@ impl PySide {
             shed_tailing,
             volatile_status_durations,
             wish,
-            future_sight,
+            future_attack,
             force_switch,
             force_trapped,
             slow_uturn_move,

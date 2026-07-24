@@ -525,7 +525,11 @@ impl Default for Side {
             volatile_status_durations: VolatileStatusDurations::default(),
             volatile_statuses: VolatileStatusBitset::default(),
             wish: (0, 0),
-            future_sight: (0, PokemonIndex::P0),
+            future_attack: FutureAttack {
+                turns_remaining: 0,
+                pokemon_index: PokemonIndex::P0,
+                move_id: Choices::NONE,
+            },
             force_switch: false,
             slow_uturn_move: false,
             force_trapped: false,
@@ -1052,6 +1056,13 @@ impl Pokemon {
     }
 }
 
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct FutureAttack {
+    pub turns_remaining: i8,
+    pub pokemon_index: PokemonIndex,
+    pub move_id: Choices,
+}
+
 #[derive(Debug, Clone)]
 pub struct Side {
     pub active_index: PokemonIndex,
@@ -1061,7 +1072,7 @@ pub struct Side {
     pub side_conditions: SideConditions,
     pub volatile_status_durations: VolatileStatusDurations,
     pub wish: (i8, i16),
-    pub future_sight: (i8, PokemonIndex),
+    pub future_attack: FutureAttack,
     pub force_switch: bool,
     pub force_trapped: bool,
     pub slow_uturn_move: bool,
@@ -1087,10 +1098,12 @@ impl Side {
         if self.wish.0 != 0 {
             output.push_str(&format!("\n  wish: ({}, {})", self.wish.0, self.wish.1));
         }
-        if self.future_sight.0 != 0 {
+        if self.future_attack.turns_remaining != 0 {
             output.push_str(&format!(
-                "\n  future_sight: ({}, {:?})",
-                self.future_sight.0, self.pokemon[self.future_sight.1].id
+                "\n  future_attack: ({}, {:?}, {:?})",
+                self.future_attack.turns_remaining,
+                self.pokemon[self.future_attack.pokemon_index].id,
+                self.future_attack.move_id
             ));
         }
         if self
@@ -1155,7 +1168,7 @@ impl Side {
             remaining &= remaining - 1;
         }
         format!(
-            "{}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}",
+            "{}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}={}",
             self.pokemon.pkmn[0].serialize(),
             self.pokemon.pkmn[1].serialize(),
             self.pokemon.pkmn[2].serialize(),
@@ -1176,8 +1189,9 @@ impl Side {
             self.evasion_boost,
             self.wish.0,
             self.wish.1,
-            self.future_sight.0,
-            self.future_sight.1.serialize(),
+            self.future_attack.turns_remaining,
+            self.future_attack.pokemon_index.serialize(),
+            self.future_attack.move_id.to_string(),
             self.force_switch,
             self.switch_out_move_second_saved_move.to_string(),
             self.baton_passing,
@@ -1223,18 +1237,19 @@ impl Side {
                 split[18].parse::<i8>().unwrap(),
                 split[19].parse::<i16>().unwrap(),
             ),
-            future_sight: (
-                split[20].parse::<i8>().unwrap(),
-                PokemonIndex::deserialize(split[21]),
-            ),
-            force_switch: split[22].parse::<bool>().unwrap(),
-            switch_out_move_second_saved_move: Choices::from_str(split[23]).unwrap(),
-            baton_passing: split[24].parse::<bool>().unwrap(),
-            shed_tailing: split[25].parse::<bool>().unwrap(),
-            force_trapped: split[26].parse::<bool>().unwrap(),
-            last_used_move: LastUsedMove::deserialize(split[27]),
+            future_attack: FutureAttack {
+                turns_remaining: split[20].parse::<i8>().unwrap(),
+                pokemon_index: PokemonIndex::deserialize(split[21]),
+                move_id: Choices::from_str(split[22]).unwrap(),
+            },
+            force_switch: split[23].parse::<bool>().unwrap(),
+            switch_out_move_second_saved_move: Choices::from_str(split[24]).unwrap(),
+            baton_passing: split[25].parse::<bool>().unwrap(),
+            shed_tailing: split[26].parse::<bool>().unwrap(),
+            force_trapped: split[27].parse::<bool>().unwrap(),
+            last_used_move: LastUsedMove::deserialize(split[28]),
             damage_dealt: DamageDealt::default(),
-            slow_uturn_move: split[28].parse::<bool>().unwrap(),
+            slow_uturn_move: split[29].parse::<bool>().unwrap(),
         }
     }
 }
@@ -1687,28 +1702,36 @@ impl State {
         self.get_side(side_reference).wish.0 -= 1;
     }
 
-    fn set_future_sight(&mut self, side_reference: &SideReference, pokemon_index: PokemonIndex) {
+    fn set_future_attack(
+        &mut self,
+        side_reference: &SideReference,
+        pokemon_index: PokemonIndex,
+        move_id: Choices,
+    ) {
         let side = self.get_side(side_reference);
-        side.future_sight.0 = 3;
-        side.future_sight.1 = pokemon_index;
+        side.future_attack.turns_remaining = 3;
+        side.future_attack.pokemon_index = pokemon_index;
+        side.future_attack.move_id = move_id;
     }
 
-    fn unset_future_sight(
+    fn unset_future_attack(
         &mut self,
         side_reference: &SideReference,
         previous_pokemon_index: PokemonIndex,
+        previous_move_id: Choices,
     ) {
         let side = self.get_side(side_reference);
-        side.future_sight.0 = 0;
-        side.future_sight.1 = previous_pokemon_index;
+        side.future_attack.turns_remaining = 0;
+        side.future_attack.pokemon_index = previous_pokemon_index;
+        side.future_attack.move_id = previous_move_id;
     }
 
-    fn increment_future_sight(&mut self, side_reference: &SideReference) {
-        self.get_side(side_reference).future_sight.0 += 1;
+    fn increment_future_attack(&mut self, side_reference: &SideReference) {
+        self.get_side(side_reference).future_attack.turns_remaining += 1;
     }
 
-    fn decrement_future_sight(&mut self, side_reference: &SideReference) {
-        self.get_side(side_reference).future_sight.0 -= 1;
+    fn decrement_future_attack(&mut self, side_reference: &SideReference) {
+        self.get_side(side_reference).future_attack.turns_remaining -= 1;
     }
 
     fn damage_substitute(&mut self, side_reference: &SideReference, amount: i16) {
@@ -1890,11 +1913,15 @@ impl State {
             Instruction::DecrementWish(instruction) => {
                 self.decrement_wish(&instruction.side_ref);
             }
-            Instruction::SetFutureSight(instruction) => {
-                self.set_future_sight(&instruction.side_ref, instruction.pokemon_index);
+            Instruction::SetFutureAttack(instruction) => {
+                self.set_future_attack(
+                    &instruction.side_ref,
+                    instruction.pokemon_index,
+                    instruction.move_id.into(),
+                );
             }
-            Instruction::DecrementFutureSight(instruction) => {
-                self.decrement_future_sight(&instruction.side_ref);
+            Instruction::DecrementFutureAttack(instruction) => {
+                self.decrement_future_attack(&instruction.side_ref);
             }
             Instruction::DamageSubstitute(instruction) => {
                 self.damage_substitute(&instruction.side_ref, instruction.damage_amount);
@@ -2092,11 +2119,15 @@ impl State {
                 self.unset_wish(&instruction.side_ref, instruction.wish_amount_change)
             }
             Instruction::DecrementWish(instruction) => self.increment_wish(&instruction.side_ref),
-            Instruction::SetFutureSight(instruction) => {
-                self.unset_future_sight(&instruction.side_ref, instruction.previous_pokemon_index)
+            Instruction::SetFutureAttack(instruction) => {
+                self.unset_future_attack(
+                    &instruction.side_ref,
+                    instruction.previous_pokemon_index,
+                    instruction.previous_move_id.into(),
+                )
             }
-            Instruction::DecrementFutureSight(instruction) => {
-                self.increment_future_sight(&instruction.side_ref)
+            Instruction::DecrementFutureAttack(instruction) => {
+                self.increment_future_attack(&instruction.side_ref)
             }
             Instruction::DamageSubstitute(instruction) => {
                 self.heal_substitute(&instruction.side_ref, instruction.damage_amount);
@@ -2357,9 +2388,10 @@ impl State {
     /// "0=",
     /// "0=",
     ///
-    /// // future sight is represented by the PokemonIndex of the pokemon that used futuresight, and the number of turns remaining until it hits
+    /// // future attack is turns remaining, PokemonIndex of the user, and move id (futuresight / doomdesire / none)
     /// "0=",
     /// "0=",
+    /// "none=",
     ///
     /// // a boolean representing if the side is forced to switch
     /// "false=",
@@ -2384,7 +2416,7 @@ impl State {
     /// "false/",
     ///
     /// // SIDE 2, all in one line for brevity
-    /// "terrakion,100,Rock,Fighting,Rock,Fighting,323,323,NONE,NONE,FOCUSSASH,SERIOUS,,357,216,163,217,346,None,0,0,25.5,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,false,false,normal=lucario,100,Fighting,Steel,Fighting,Steel,281,281,NONE,NONE,LIFEORB,SERIOUS,,350,176,241,177,279,None,0,0,25.5,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,false,false,normal=breloom,100,Grass,Fighting,Grass,Fighting,262,262,TECHNICIAN,TECHNICIAN,LIFEORB,SERIOUS,,394,196,141,156,239,None,0,0,25.5,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,false,false,normal=keldeo,100,Water,Fighting,Water,Fighting,323,323,NONE,NONE,LEFTOVERS,SERIOUS,,163,216,357,217,346,None,0,0,25.5,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,false,false,normal=conkeldurr,100,Fighting,Typeless,Fighting,Typeless,414,414,GUTS,GUTS,LEFTOVERS,SERIOUS,,416,226,132,167,126,None,0,0,25.5,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,false,false,normal=toxicroak,100,Poison,Fighting,Poison,Fighting,307,307,DRYSKIN,DRYSKIN,LIFEORB,SERIOUS,,311,166,189,167,295,None,0,0,25.5,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,false,false,normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0;0;0;0;0;0=0=0=0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=false=switch:0=false/",
+    /// "terrakion,100,Rock,Fighting,Rock,Fighting,323,323,NONE,NONE,FOCUSSASH,SERIOUS,,357,216,163,217,346,None,0,0,25.5,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,false,false,normal=lucario,100,Fighting,Steel,Fighting,Steel,281,281,NONE,NONE,LIFEORB,SERIOUS,,350,176,241,177,279,None,0,0,25.5,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,false,false,normal=breloom,100,Grass,Fighting,Grass,Fighting,262,262,TECHNICIAN,TECHNICIAN,LIFEORB,SERIOUS,,394,196,141,156,239,None,0,0,25.5,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,false,false,normal=keldeo,100,Water,Fighting,Water,Fighting,323,323,NONE,NONE,LEFTOVERS,SERIOUS,,163,216,357,217,346,None,0,0,25.5,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,false,false,normal=conkeldurr,100,Fighting,Typeless,Fighting,Typeless,414,414,GUTS,GUTS,LEFTOVERS,SERIOUS,,416,226,132,167,126,None,0,0,25.5,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,false,false,normal=toxicroak,100,Poison,Fighting,Poison,Fighting,307,307,DRYSKIN,DRYSKIN,LIFEORB,SERIOUS,,311,166,189,167,295,None,0,0,25.5,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,false,false,normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0;0;0;0;0;0=0=0=0=0=0=0=0=0=0=0=0=0=none=false=NONE=false=false=false=switch:0=false/",
     ///
     /// // weather is a string representing the weather type and the number of turns remaining
     /// "none;5/",
@@ -2411,7 +2443,7 @@ impl State {
     ///
     ///
     /// // the same state, but all in one line
-    /// let serialized_state = "alakazam,100,Psychic,Typeless,Psychic,Typeless,251,251,NONE,NONE,LIFEORB,SERIOUS,252;0;252;0;4;0,121,148,353,206,365,None,0,0,25.5,PSYCHIC;false;16,GRASSKNOT;false;32,SHADOWBALL;false;24,HIDDENPOWERFIRE70;false;24,false,false,normal=skarmory,100,Steel,Flying,Steel,Flying,271,271,STURDY,STURDY,CUSTAPBERRY,SERIOUS,,259,316,104,177,262,None,0,0,25.5,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,false,false,normal=tyranitar,100,Rock,Dark,Rock,Dark,404,404,SANDSTREAM,SANDSTREAM,CHOPLEBERRY,SERIOUS,,305,256,203,327,159,None,0,0,25.5,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,false,false,normal=mamoswine,100,Ice,Ground,Ice,Ground,362,362,THICKFAT,THICKFAT,NEVERMELTICE,SERIOUS,,392,196,158,176,241,None,0,0,25.5,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,false,false,normal=jellicent,100,Water,Ghost,Water,Ghost,404,404,WATERABSORB,WATERABSORB,AIRBALLOON,SERIOUS,,140,237,206,246,180,None,0,0,25.5,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,false,false,normal=excadrill,100,Ground,Steel,Ground,Steel,362,362,SANDFORCE,SANDFORCE,CHOICESCARF,SERIOUS,,367,156,122,168,302,None,0,0,25.5,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,false,false,normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0;0;0;0;0;0=0=0=0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=false=switch:0=false/terrakion,100,Rock,Fighting,Rock,Fighting,323,323,NONE,NONE,FOCUSSASH,SERIOUS,,357,216,163,217,346,None,0,0,25.5,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,false,false,normal=lucario,100,Fighting,Steel,Fighting,Steel,281,281,NONE,NONE,LIFEORB,SERIOUS,,350,176,241,177,279,None,0,0,25.5,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,false,false,normal=breloom,100,Grass,Fighting,Grass,Fighting,262,262,TECHNICIAN,TECHNICIAN,LIFEORB,SERIOUS,,394,196,141,156,239,None,0,0,25.5,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,false,false,normal=keldeo,100,Water,Fighting,Water,Fighting,323,323,NONE,NONE,LEFTOVERS,SERIOUS,,163,216,357,217,346,None,0,0,25.5,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,false,false,normal=conkeldurr,100,Fighting,Typeless,Fighting,Typeless,414,414,GUTS,GUTS,LEFTOVERS,SERIOUS,,416,226,132,167,126,None,0,0,25.5,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,false,false,normal=toxicroak,100,Poison,Fighting,Poison,Fighting,307,307,DRYSKIN,DRYSKIN,LIFEORB,SERIOUS,,311,166,189,167,295,None,0,0,25.5,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,false,false,normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0;0;0;0;0;0=0=0=0=0=0=0=0=0=0=0=0=0=false=NONE=false=false=false=switch:0=false/none;5/none;5/false;5/false";
+    /// let serialized_state = "alakazam,100,Psychic,Typeless,Psychic,Typeless,251,251,NONE,NONE,LIFEORB,SERIOUS,252;0;252;0;4;0,121,148,353,206,365,None,0,0,25.5,PSYCHIC;false;16,GRASSKNOT;false;32,SHADOWBALL;false;24,HIDDENPOWERFIRE70;false;24,false,false,normal=skarmory,100,Steel,Flying,Steel,Flying,271,271,STURDY,STURDY,CUSTAPBERRY,SERIOUS,,259,316,104,177,262,None,0,0,25.5,STEALTHROCK;false;32,SPIKES;false;32,BRAVEBIRD;false;24,THIEF;false;40,false,false,normal=tyranitar,100,Rock,Dark,Rock,Dark,404,404,SANDSTREAM,SANDSTREAM,CHOPLEBERRY,SERIOUS,,305,256,203,327,159,None,0,0,25.5,CRUNCH;false;24,SUPERPOWER;false;8,THUNDERWAVE;false;32,PURSUIT;false;32,false,false,normal=mamoswine,100,Ice,Ground,Ice,Ground,362,362,THICKFAT,THICKFAT,NEVERMELTICE,SERIOUS,,392,196,158,176,241,None,0,0,25.5,ICESHARD;false;48,EARTHQUAKE;false;16,SUPERPOWER;false;8,ICICLECRASH;false;16,false,false,normal=jellicent,100,Water,Ghost,Water,Ghost,404,404,WATERABSORB,WATERABSORB,AIRBALLOON,SERIOUS,,140,237,206,246,180,None,0,0,25.5,TAUNT;false;32,NIGHTSHADE;false;24,WILLOWISP;false;24,RECOVER;false;16,false,false,normal=excadrill,100,Ground,Steel,Ground,Steel,362,362,SANDFORCE,SANDFORCE,CHOICESCARF,SERIOUS,,367,156,122,168,302,None,0,0,25.5,EARTHQUAKE;false;16,IRONHEAD;false;24,ROCKSLIDE;false;16,RAPIDSPIN;false;64,false,false,normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0;0;0;0;0;0=0=0=0=0=0=0=0=0=0=0=0=0=none=false=NONE=false=false=false=switch:0=false/terrakion,100,Rock,Fighting,Rock,Fighting,323,323,NONE,NONE,FOCUSSASH,SERIOUS,,357,216,163,217,346,None,0,0,25.5,CLOSECOMBAT;false;8,STONEEDGE;false;8,STEALTHROCK;false;32,TAUNT;false;32,false,false,normal=lucario,100,Fighting,Steel,Fighting,Steel,281,281,NONE,NONE,LIFEORB,SERIOUS,,350,176,241,177,279,None,0,0,25.5,CLOSECOMBAT;false;8,EXTREMESPEED;false;8,SWORDSDANCE;false;32,CRUNCH;false;24,false,false,normal=breloom,100,Grass,Fighting,Grass,Fighting,262,262,TECHNICIAN,TECHNICIAN,LIFEORB,SERIOUS,,394,196,141,156,239,None,0,0,25.5,MACHPUNCH;false;48,BULLETSEED;false;48,SWORDSDANCE;false;32,LOWSWEEP;false;32,false,false,normal=keldeo,100,Water,Fighting,Water,Fighting,323,323,NONE,NONE,LEFTOVERS,SERIOUS,,163,216,357,217,346,None,0,0,25.5,SECRETSWORD;false;16,HYDROPUMP;false;8,SCALD;false;24,SURF;false;24,false,false,normal=conkeldurr,100,Fighting,Typeless,Fighting,Typeless,414,414,GUTS,GUTS,LEFTOVERS,SERIOUS,,416,226,132,167,126,None,0,0,25.5,MACHPUNCH;false;48,DRAINPUNCH;false;16,ICEPUNCH;false;24,THUNDERPUNCH;false;24,false,false,normal=toxicroak,100,Poison,Fighting,Poison,Fighting,307,307,DRYSKIN,DRYSKIN,LIFEORB,SERIOUS,,311,166,189,167,295,None,0,0,25.5,DRAINPUNCH;false;16,SUCKERPUNCH;false;8,SWORDSDANCE;false;32,ICEPUNCH;false;24,false,false,normal=0=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;==0;0;0;0;0;0=0=0=0=0=0=0=0=0=0=0=0=0=none=false=NONE=false=false=false=switch:0=false/none;5/none;5/false;5/false";
     /// let state2 = State::deserialize(serialized_state);
     /// assert_eq!(state.serialize(), state2.serialize());
     ///

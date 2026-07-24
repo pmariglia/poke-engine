@@ -68,8 +68,8 @@ pub enum Instruction {
     EnableMove(EnableMoveInstruction),
     ChangeWish(ChangeWishInstruction),
     DecrementWish(DecrementWishInstruction),
-    SetFutureSight(SetFutureSightInstruction),
-    DecrementFutureSight(DecrementFutureSightInstruction),
+    SetFutureAttack(SetFutureAttackInstruction),
+    DecrementFutureAttack(DecrementFutureAttackInstruction),
     DamageSubstitute(DamageInstruction),
     DecrementRestTurns(DecrementRestTurnsInstruction),
     SetRestTurns(SetSleepTurnsInstruction),
@@ -226,15 +226,15 @@ impl fmt::Debug for Instruction {
             Instruction::DecrementWish(d) => {
                 write!(f, "DecrementWish {:?}", d.side_ref)
             }
-            Instruction::SetFutureSight(s) => {
+            Instruction::SetFutureAttack(s) => {
                 write!(
                     f,
-                    "SetFutureSight {:?}: {:?} -> {:?}",
-                    s.side_ref, s.previous_pokemon_index, s.pokemon_index
+                    "SetFutureAttack {:?}: {:?} -> {:?} ({:?})",
+                    s.side_ref, s.previous_pokemon_index, s.pokemon_index, s.move_id
                 )
             }
-            Instruction::DecrementFutureSight(d) => {
-                write!(f, "DecrementFutureSight {:?}", d.side_ref)
+            Instruction::DecrementFutureAttack(d) => {
+                write!(f, "DecrementFutureAttack {:?}", d.side_ref)
             }
             Instruction::DamageSubstitute(d) => {
                 write!(
@@ -428,15 +428,47 @@ pub struct DecrementWishInstruction {
     pub side_ref: SideReference,
 }
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct SetFutureSightInstruction {
-    pub side_ref: SideReference,
-    pub pokemon_index: PokemonIndex,
-    pub previous_pokemon_index: PokemonIndex,
+/// Compact encoding for the delayed-attack slot (Future Sight / Doom Desire).
+/// Kept as `u8` so `SetFutureAttackInstruction` fits in a 6-byte `Instruction`.
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[repr(u8)]
+pub enum FutureAttackKind {
+    None = 0,
+    FutureSight = 1,
+    DoomDesire = 2,
+}
+
+impl From<Choices> for FutureAttackKind {
+    fn from(choice: Choices) -> Self {
+        match choice {
+            Choices::FUTURESIGHT => FutureAttackKind::FutureSight,
+            Choices::DOOMDESIRE => FutureAttackKind::DoomDesire,
+            _ => FutureAttackKind::None,
+        }
+    }
+}
+
+impl From<FutureAttackKind> for Choices {
+    fn from(kind: FutureAttackKind) -> Self {
+        match kind {
+            FutureAttackKind::None => Choices::NONE,
+            FutureAttackKind::FutureSight => Choices::FUTURESIGHT,
+            FutureAttackKind::DoomDesire => Choices::DOOMDESIRE,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct DecrementFutureSightInstruction {
+pub struct SetFutureAttackInstruction {
+    pub side_ref: SideReference,
+    pub pokemon_index: PokemonIndex,
+    pub previous_pokemon_index: PokemonIndex,
+    pub move_id: FutureAttackKind,
+    pub previous_move_id: FutureAttackKind,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct DecrementFutureAttackInstruction {
     pub side_ref: SideReference,
 }
 
@@ -594,6 +626,7 @@ pub struct ChangeAbilityInstruction {
 #[cfg(test)]
 mod test {
     use super::Instruction;
+    use std::mem::{align_of, size_of};
 
     // Make sure that the size of the Instruction enum doesn't change
     #[test]

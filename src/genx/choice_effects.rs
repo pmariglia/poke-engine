@@ -10,13 +10,14 @@ use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeItemInstruction,
     ChangeSideConditionInstruction, ChangeStatusInstruction, ChangeSubsituteHealthInstruction,
     ChangeTerrain, ChangeType, ChangeWeather, ChangeWishInstruction, DamageInstruction,
-    HealInstruction, Instruction, RemoveVolatileStatusInstruction, SetFutureSightInstruction,
-    SetSleepTurnsInstruction, StateInstructions, ToggleTrickRoomInstruction,
+    FutureAttackKind, HealInstruction, Instruction, RemoveVolatileStatusInstruction,
+    SetFutureAttackInstruction, SetSleepTurnsInstruction, StateInstructions,
+    ToggleTrickRoomInstruction,
 };
 use crate::pokemon::PokemonName;
 use crate::state::{
-    pokemon_index_iter, LastUsedMove, PokemonBoostableStat, PokemonSideCondition, PokemonStatus,
-    PokemonType, Side, SideReference, State,
+    pokemon_index_iter, FutureAttack, LastUsedMove, PokemonBoostableStat, PokemonSideCondition,
+    PokemonStatus, PokemonType, Side, SideReference, State,
 };
 use std::cmp;
 
@@ -958,17 +959,26 @@ pub fn choice_before_move(
     let defender = defending_side.get_active_immutable();
 
     match choice.move_id {
-        Choices::FUTURESIGHT => {
+        Choices::FUTURESIGHT | Choices::DOOMDESIRE => {
+            let move_id = choice.move_id;
             choice.remove_all_effects();
-            if attacking_side.future_sight.0 == 0 {
+            if attacking_side.future_attack.turns_remaining == 0 {
                 instructions
                     .instruction_list
-                    .push(Instruction::SetFutureSight(SetFutureSightInstruction {
+                    .push(Instruction::SetFutureAttack(SetFutureAttackInstruction {
                         side_ref: *attacking_side_ref,
                         pokemon_index: attacking_side.active_index,
-                        previous_pokemon_index: attacking_side.future_sight.1,
+                        previous_pokemon_index: attacking_side.future_attack.pokemon_index,
+                        move_id: FutureAttackKind::from(move_id),
+                        previous_move_id: FutureAttackKind::from(
+                            attacking_side.future_attack.move_id,
+                        ),
                     }));
-                attacking_side.future_sight = (3, attacking_side.active_index);
+                attacking_side.future_attack = FutureAttack {
+                    turns_remaining: 3,
+                    pokemon_index: attacking_side.active_index,
+                    move_id,
+                };
             }
         }
         Choices::EXPLOSION | Choices::SELFDESTRUCT | Choices::MISTYEXPLOSION

@@ -648,7 +648,7 @@ pub fn calculate_damage(
     Some((damage as i16, crit_damage as i16))
 }
 
-pub fn calculate_futuresight_damage(
+pub fn calculate_future_attack_damage(
     attacking_side: &Side,
     defending_side: &Side,
     attacking_side_pokemon_index: &PokemonIndex,
@@ -667,7 +667,7 @@ pub fn calculate_futuresight_damage(
         defending_stat,
         &Weather::NONE,
         &Terrain::NONE,
-        MOVES.get(&Choices::FUTURESIGHT).unwrap(),
+        MOVES.get(&attacking_side.future_attack.move_id).unwrap(),
     );
     if attacker.ability != Abilities::INFILTRATOR {
         if defending_side.side_conditions.light_screen > 0 {

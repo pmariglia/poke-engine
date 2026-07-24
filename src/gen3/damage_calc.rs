@@ -1,7 +1,7 @@
 use super::abilities::Abilities;
 use super::state::{PokemonVolatileStatus, Weather};
 use crate::choices::{Choice, MoveCategory};
-use crate::choices::{Choices, MOVES};
+use crate::choices::MOVES;
 use crate::state::{
     Pokemon, PokemonBoostableStat, PokemonIndex, PokemonStatus, PokemonType, Side, SideReference,
     State,
@@ -332,7 +332,7 @@ pub fn calculate_damage(
     Some((damage as i16, crit_damage as i16))
 }
 
-pub fn calculate_futuresight_damage(
+pub fn calculate_future_attack_damage(
     attacking_side: &Side,
     defending_side: &Side,
     attacking_side_pokemon_index: &PokemonIndex,
@@ -348,7 +348,7 @@ pub fn calculate_futuresight_damage(
         defending_side.get_active_immutable(),
         defending_stat,
         &Weather::NONE,
-        MOVES.get(&Choices::FUTURESIGHT).unwrap(),
+        MOVES.get(&attacking_side.future_attack.move_id).unwrap(),
     );
     if defending_side.side_conditions.light_screen > 0 {
         damage *= 0.5
