@@ -8,6 +8,12 @@ use rand::rng;
 use std::collections::HashMap;
 use std::time::Duration;
 
+#[cfg(target_arch = "wasm32")]
+use web_time::Instant;
+
+#[cfg(not(target_arch = "wasm32"))]
+use std::time::Instant;
+
 fn sigmoid(x: f32) -> f32 {
     // Tuned so that ~200 points is very close to 1.0
     1.0 / (1.0 + (-0.0125 * x).exp())
@@ -273,7 +279,7 @@ fn run_mcts_loop(
     limit: SearchLimit,
 ) {
     let mut rng = rng();
-    let start_time = std::time::Instant::now();
+    let start_time = Instant::now();
     loop {
         for _ in 0..1000 {
             mcts_iteration(root_node, state, root_eval, children, &mut rng);
