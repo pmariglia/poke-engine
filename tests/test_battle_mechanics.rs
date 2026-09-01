@@ -4624,6 +4624,10 @@ fn test_whirlwind_move_against_substitute() {
         StateInstructions {
             percentage: 20.0,
             instruction_list: vec![
+                Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
+                    side_ref: SideReference::SideOne,
+                    health_change: -25,
+                }),
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
                     volatile_status: PokemonVolatileStatus::SUBSTITUTE,
@@ -4638,6 +4642,10 @@ fn test_whirlwind_move_against_substitute() {
         StateInstructions {
             percentage: 20.0,
             instruction_list: vec![
+                Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
+                    side_ref: SideReference::SideOne,
+                    health_change: -25,
+                }),
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
                     volatile_status: PokemonVolatileStatus::SUBSTITUTE,
@@ -4652,6 +4660,10 @@ fn test_whirlwind_move_against_substitute() {
         StateInstructions {
             percentage: 20.0,
             instruction_list: vec![
+                Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
+                    side_ref: SideReference::SideOne,
+                    health_change: -25,
+                }),
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
                     volatile_status: PokemonVolatileStatus::SUBSTITUTE,
@@ -4666,6 +4678,10 @@ fn test_whirlwind_move_against_substitute() {
         StateInstructions {
             percentage: 20.0,
             instruction_list: vec![
+                Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
+                    side_ref: SideReference::SideOne,
+                    health_change: -25,
+                }),
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
                     volatile_status: PokemonVolatileStatus::SUBSTITUTE,
@@ -4680,6 +4696,10 @@ fn test_whirlwind_move_against_substitute() {
         StateInstructions {
             percentage: 20.0,
             instruction_list: vec![
+                Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
+                    side_ref: SideReference::SideOne,
+                    health_change: -25,
+                }),
                 Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                     side_ref: SideReference::SideOne,
                     volatile_status: PokemonVolatileStatus::SUBSTITUTE,
@@ -11976,6 +11996,41 @@ fn test_switching_out_with_taunt_resets_duration_to_0() {
             Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::TAUNT,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_switching_out_with_substitute_resets_substitute_health() {
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
+    state.side_one.substitute_health = 25;
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeSubstituteHealth(ChangeSubsituteHealthInstruction {
+                side_ref: SideReference::SideOne,
+                health_change: -25,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
             }),
             Instruction::Switch(SwitchInstruction {
                 side_ref: SideReference::SideOne,
