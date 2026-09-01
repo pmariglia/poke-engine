@@ -18,6 +18,8 @@ class VolatileStatusDurations:
     :type taunt: int
     :param yawn: Yawn turns remaining
     :type yawn: int
+    :param disable: Disable turns remaining
+    :type disable: int
     """
 
     confusion: int
@@ -26,6 +28,7 @@ class VolatileStatusDurations:
     slowstart: int
     taunt: int
     yawn: int
+    disable: int
 
     def __init__(
         self,
@@ -35,6 +38,7 @@ class VolatileStatusDurations:
         slowstart: int = 0,
         taunt: int = 0,
         yawn: int = 0,
+        disable: int = 0,
     ) -> None: ...
 
 class SideConditions:

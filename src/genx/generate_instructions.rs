@@ -11,6 +11,7 @@ use crate::choices::{
     Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, SideCondition, StatBoosts,
     Status, VolatileStatus, MOVES,
 };
+use crate::instruction::DisableMoveInstruction;
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeDamageDealtDamageInstruction,
     ChangeDamageDealtMoveCategoryInstruction, ChangeItemInstruction,
@@ -669,6 +670,21 @@ fn get_instructions_from_volatile_statuses(
     {
         return;
     }
+    // disable's `onTryHit` fails when the target has no last-used move and its
+    // `onStart` fails when that move has no PP left. A failed disable applies no
+    // volatile at all, so nothing downstream has a duration to count
+    if volatile_status.volatile_status == PokemonVolatileStatus::DISABLE {
+        let side = state.get_side_immutable(&target_side);
+        match side.last_used_move {
+            LastUsedMove::Move(move_index) => {
+                let m = &side.get_active_immutable().moves[&move_index];
+                if m.pp == 0 || m.disabled {
+                    return;
+                }
+            }
+            _ => return,
+        }
+    }
     let side = state.get_side(&target_side);
     let affected_pkmn = side.get_active_immutable();
     if affected_pkmn.volatile_status_can_be_applied(
@@ -684,6 +700,25 @@ fn get_instructions_from_volatile_statuses(
         side.volatile_statuses
             .insert(volatile_status.volatile_status);
         incoming_instructions.instruction_list.push(ins);
+
+        // and now the restriction disable's `onDisableMove` puts on the slot. This
+        // reuses the per-slot `Move::disabled` flag that choice items and the
+        // locked-move self-disable already drive, which is what makes
+        // `add_available_moves` stop offering the move
+        if volatile_status.volatile_status == PokemonVolatileStatus::DISABLE {
+            if let LastUsedMove::Move(move_index) = side.last_used_move {
+                let m = &mut side.get_active().moves[&move_index];
+                if !m.disabled {
+                    m.disabled = true;
+                    incoming_instructions
+                        .instruction_list
+                        .push(Instruction::DisableMove(DisableMoveInstruction {
+                            side_ref: target_side,
+                            move_index,
+                        }));
+                }
+            }
+        }
     }
 }
 
@@ -3246,6 +3281,51 @@ fn add_end_of_turn_instructions(
             }
         }
 
+        // disable lasts for four of the target's turns
+        if side
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::DISABLE)
+        {
+            if side.volatile_status_durations.disable >= 3 {
+                incoming_instructions.instruction_list.push(
+                    Instruction::ChangeVolatileStatusDuration(
+                        ChangeVolatileStatusDurationInstruction {
+                            side_ref: *side_ref,
+                            volatile_status: PokemonVolatileStatus::DISABLE,
+                            amount: -1 * side.volatile_status_durations.disable,
+                        },
+                    ),
+                );
+                side.volatile_status_durations.disable = 0;
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::RemoveVolatileStatus(
+                        RemoveVolatileStatusInstruction {
+                            side_ref: *side_ref,
+                            volatile_status: PokemonVolatileStatus::DISABLE,
+                        },
+                    ));
+                side.volatile_statuses
+                    .remove(&PokemonVolatileStatus::DISABLE);
+                state.re_enable_disabled_moves(
+                    side_ref,
+                    &mut incoming_instructions.instruction_list,
+                );
+            } else {
+                incoming_instructions.instruction_list.push(
+                    Instruction::ChangeVolatileStatusDuration(
+                        ChangeVolatileStatusDurationInstruction {
+                            side_ref: *side_ref,
+                            volatile_status: PokemonVolatileStatus::DISABLE,
+                            amount: 1,
+                        },
+                    ),
+                );
+                side.volatile_status_durations.disable += 1;
+            }
+        }
+
+        let side = state.get_side(side_ref);
         if side
             .volatile_statuses
             .contains(&PokemonVolatileStatus::LOCKEDMOVE)

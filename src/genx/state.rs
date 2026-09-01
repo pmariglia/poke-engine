@@ -489,6 +489,7 @@ impl Pokemon {
         can_tera: bool,
         side_can_mega: bool,
     ) {
+        let options_before = vec.len();
         let mut iter = self.moves.into_iter();
         while let Some(p) = iter.next() {
             if !p.disabled && p.pp > 0 {
@@ -520,6 +521,29 @@ impl Pokemon {
                 }
                 if side_can_mega && self.can_mega_evolve() {
                     vec.push(MoveChoice::MoveMega(iter.pokemon_move_index));
+                }
+            }
+        }
+
+        // a choice item is modelled by setting `disabled` on the other three slots, so
+        // disabling the fourth leaves a choice-locked pokemon with no move at all.
+        // Showdown gives such a pokemon struggle, which this engine has no move for, and
+        // an empty list makes `get_all_options` fall through to `MoveChoice::None`, which
+        // hands the opponent a free turn. Re-offering the locked move is the closer of the
+        // two. Narrow on purpose: only when nothing else was offered, only for the slot
+        // `last_used_move` names, and only when that slot is disabled rather than out of
+        // PP, which is a case this did not create and does not change
+        if vec.len() == options_before {
+            if let LastUsedMove::Move(move_index) = last_used_move {
+                let locked = &self.moves[move_index];
+                if locked.disabled && locked.pp > 0 {
+                    vec.push(MoveChoice::Move(*move_index));
+                    if can_tera {
+                        vec.push(MoveChoice::MoveTera(*move_index));
+                    }
+                    if side_can_mega && self.can_mega_evolve() {
+                        vec.push(MoveChoice::MoveMega(*move_index));
+                    }
                 }
             }
         }
@@ -1420,6 +1444,21 @@ impl State {
                     side.volatile_status_durations.taunt = 0;
                     false
                 }
+                // the slot itself is re-enabled by the switch path's
+                // `re_enable_disabled_moves`, which runs just before this function.
+                // What is left is the duration, which would otherwise count down
+                // against whoever comes in next
+                PokemonVolatileStatus::DISABLE => {
+                    instructions.push(Instruction::ChangeVolatileStatusDuration(
+                        ChangeVolatileStatusDurationInstruction {
+                            side_ref: *side_ref,
+                            volatile_status: *pkmn_volatile_status,
+                            amount: -1 * side.volatile_status_durations.disable,
+                        },
+                    ));
+                    side.volatile_status_durations.disable = 0;
+                    false
+                }
                 _ => false,
             };
 
@@ -1506,6 +1545,7 @@ impl State {
 
     pub fn set_last_used_move_flag(&mut self) {
         if self._state_contains_any_move(&[
+            Choices::DISABLE,
             Choices::ENCORE,
             Choices::FAKEOUT,
             Choices::FIRSTIMPRESSION,

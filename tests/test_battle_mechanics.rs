@@ -7906,6 +7906,213 @@ fn test_assaultvest_prevents_status_move() {
 }
 
 #[test]
+#[cfg(not(feature = "terastallization"))]
+fn test_disable_prevents_the_disabled_move_from_being_an_option() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P2].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P3].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P4].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P5].hp = 0;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::DISABLE);
+    state.side_one.get_active().moves[&PokemonMoveIndex::M0].disabled = true;
+
+    let (side_one_moves, _) = state.get_all_options();
+    assert_eq!(
+        vec![
+            MoveChoice::Move(PokemonMoveIndex::M1),
+            MoveChoice::Move(PokemonMoveIndex::M2),
+            MoveChoice::Move(PokemonMoveIndex::M3),
+        ],
+        side_one_moves
+    );
+}
+
+#[test]
+#[cfg(not(feature = "terastallization"))]
+fn test_choice_locked_pokemon_disabled_on_its_lock_can_still_act() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P2].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P3].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P4].hp = 0;
+    state.side_one.pokemon[PokemonIndex::P5].hp = 0;
+    state.side_one.last_used_move = LastUsedMove::Move(PokemonMoveIndex::M0);
+
+    // a choice lock is modelled by disabling the other three slots
+    state.side_one.get_active().moves[&PokemonMoveIndex::M0].disabled = true;
+    state.side_one.get_active().moves[&PokemonMoveIndex::M1].disabled = true;
+    state.side_one.get_active().moves[&PokemonMoveIndex::M2].disabled = true;
+    state.side_one.get_active().moves[&PokemonMoveIndex::M3].disabled = true;
+
+    let (side_one_moves, _) = state.get_all_options();
+    assert_eq!(vec![MoveChoice::Move(PokemonMoveIndex::M0)], side_one_moves);
+}
+
+#[test]
+#[cfg(any(
+    feature = "gen5",
+    feature = "gen6",
+    feature = "gen7",
+    feature = "gen8",
+    feature = "gen9"
+))]
+fn test_disable_disables_the_targets_last_used_move() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state.side_two.get_active().speed = 100;
+    state.side_two.last_used_move = LastUsedMove::Move(PokemonMoveIndex::M0);
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DISABLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::DISABLE,
+            }),
+            Instruction::DisableMove(DisableMoveInstruction {
+                side_ref: SideReference::SideTwo,
+                move_index: PokemonMoveIndex::M0,
+            }),
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::DISABLE,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(
+    feature = "gen5",
+    feature = "gen6",
+    feature = "gen7",
+    feature = "gen8",
+    feature = "gen9"
+))]
+fn test_disable_does_nothing_when_the_target_has_no_last_used_move() {
+    let mut state = State::default();
+    state.side_one.get_active().speed = 150;
+    state.side_two.get_active().speed = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::DISABLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(
+    feature = "gen5",
+    feature = "gen6",
+    feature = "gen7",
+    feature = "gen8",
+    feature = "gen9"
+))]
+fn test_disable_volatile_is_removed_and_move_re_enabled_at_the_end_of_the_fourth_turn() {
+    let mut state = State::default();
+    state.side_one.volatile_status_durations.disable = 3;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::DISABLE);
+    state.side_one.get_active().moves[&PokemonMoveIndex::M1].disabled = true;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::DISABLE,
+                amount: -3,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::DISABLE,
+            }),
+            Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: SideReference::SideOne,
+                move_index: PokemonMoveIndex::M1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(
+    feature = "gen5",
+    feature = "gen6",
+    feature = "gen7",
+    feature = "gen8",
+    feature = "gen9"
+))]
+fn test_switching_out_with_disable_resets_duration_to_0() {
+    let mut state = State::default();
+    state.side_one.volatile_status_durations.disable = 1;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::DISABLE);
+    state.side_one.get_active().moves[&PokemonMoveIndex::M1].disabled = true;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: SideReference::SideOne,
+                move_index: PokemonMoveIndex::M1,
+            }),
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::DISABLE,
+                amount: -1,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::DISABLE,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_taunt_prevents_status_move() {
     let mut state = State::default();
     state.side_one.get_active().terastallized = true;

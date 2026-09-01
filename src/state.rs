@@ -791,6 +791,8 @@ pub struct VolatileStatusDurations {
     pub slowstart: i8,
     pub taunt: i8,
     pub yawn: i8,
+    // appended so that every field above keeps its serialized index
+    pub disable: i8,
 }
 
 impl Default for VolatileStatusDurations {
@@ -802,6 +804,7 @@ impl Default for VolatileStatusDurations {
             slowstart: 0,
             taunt: 0,
             yawn: 0,
+            disable: 0,
         }
     }
 }
@@ -815,6 +818,7 @@ impl VolatileStatusDurations {
             ("slowstart", self.slowstart),
             ("taunt", self.taunt),
             ("yawn", self.yawn),
+            ("disable", self.disable),
         ];
 
         let mut output = String::new();
@@ -831,8 +835,14 @@ impl VolatileStatusDurations {
 
     pub fn serialize(&self) -> String {
         format!(
-            "{};{};{};{};{};{}",
-            self.confusion, self.encore, self.lockedmove, self.slowstart, self.taunt, self.yawn
+            "{};{};{};{};{};{};{}",
+            self.confusion,
+            self.encore,
+            self.lockedmove,
+            self.slowstart,
+            self.taunt,
+            self.yawn,
+            self.disable
         )
     }
     pub fn deserialize(serialized: &str) -> VolatileStatusDurations {
@@ -844,6 +854,9 @@ impl VolatileStatusDurations {
             slowstart: split[3].parse::<i8>().unwrap(),
             taunt: split[4].parse::<i8>().unwrap(),
             yawn: split[5].parse::<i8>().unwrap(),
+            // absent means zero, so a state string written before this field
+            // existed is still readable
+            disable: split.get(6).and_then(|s| s.parse::<i8>().ok()).unwrap_or(0),
         }
     }
 }
@@ -1631,6 +1644,9 @@ impl State {
             }
             PokemonVolatileStatus::YAWN => {
                 side.volatile_status_durations.yawn += amount;
+            }
+            PokemonVolatileStatus::DISABLE => {
+                side.volatile_status_durations.disable += amount;
             }
             _ => panic!(
                 "Invalid volatile status for increment_volatile_status_duration: {:?}",

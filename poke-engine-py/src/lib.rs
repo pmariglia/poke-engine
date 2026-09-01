@@ -278,7 +278,7 @@ impl PySide {
         active_index="0".to_string(),
         baton_passing=false,
         shed_tailing=false,
-        volatile_status_durations=PyVolatileStatusDurations::new(0, 0, 0, 0, 0, 0),
+        volatile_status_durations=PyVolatileStatusDurations::new(0, 0, 0, 0, 0, 0, 0),
         wish=(0, 0),
         future_sight=(0, "0".to_string()),
         force_switch=false,
@@ -372,6 +372,7 @@ pub struct PyVolatileStatusDurations {
     pub slowstart: i8,
     pub taunt: i8,
     pub yawn: i8,
+    pub disable: i8,
 }
 
 impl From<VolatileStatusDurations> for PyVolatileStatusDurations {
@@ -383,6 +384,7 @@ impl From<VolatileStatusDurations> for PyVolatileStatusDurations {
             slowstart: other.slowstart,
             taunt: other.taunt,
             yawn: other.yawn,
+            disable: other.disable,
         }
     }
 }
@@ -396,6 +398,7 @@ impl Into<VolatileStatusDurations> for PyVolatileStatusDurations {
             slowstart: self.slowstart,
             taunt: self.taunt,
             yawn: self.yawn,
+            disable: self.disable,
         }
     }
 }
@@ -410,6 +413,7 @@ impl PyVolatileStatusDurations {
         slowstart=0,
         taunt=0,
         yawn=0,
+        disable=0,
     ))]
     fn new(
         confusion: i8,
@@ -418,6 +422,7 @@ impl PyVolatileStatusDurations {
         slowstart: i8,
         taunt: i8,
         yawn: i8,
+        disable: i8,
     ) -> PyVolatileStatusDurations {
         PyVolatileStatusDurations {
             confusion,
@@ -426,6 +431,7 @@ impl PyVolatileStatusDurations {
             slowstart,
             taunt,
             yawn,
+            disable,
         }
     }
 }
