@@ -11869,6 +11869,49 @@ fn test_slow_taunt_gets_applied_and_duration_does_not_increment() {
     feature = "gen8",
     feature = "gen9"
 ))]
+fn test_taunt_against_switch_in_gets_applied_and_duration_increments() {
+    let mut state = State::default();
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::TAUNT);
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Move(PokemonMoveIndex::M0),
+        &MoveChoice::Switch(PokemonIndex::P1),
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideTwo,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::TAUNT,
+            }),
+            Instruction::ChangeVolatileStatusDuration(ChangeVolatileStatusDurationInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::TAUNT,
+                amount: 1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+#[cfg(any(
+    feature = "gen5",
+    feature = "gen6",
+    feature = "gen7",
+    feature = "gen8",
+    feature = "gen9"
+))]
 fn test_taunt_volatile_is_removed_end_of_turn_when_it_would_reach_3() {
     let mut state = State::default();
     state.side_one.volatile_status_durations.taunt = 2;

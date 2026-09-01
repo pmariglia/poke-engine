@@ -3595,6 +3595,22 @@ fn run_move(
         }
         choice_hazard_clear(state, &choice, &attacking_side, &mut instructions);
         if let Some(volatile_status) = &choice.volatile_status {
+            // A taunt landing on a Pokemon that switched in this turn gets no tick from the
+            // block that counts taunt, because that block runs when the taunted Pokemon
+            // processes a move and a Pokemon that switched processes none. The duration is
+            // started at 1 here so that such a taunt lasts the same two turns it lasts for a
+            // Pokemon that was already on the field.
+            let taunt_target = match volatile_status.target {
+                MoveTarget::Opponent => attacking_side.get_other_side(),
+                MoveTarget::User => attacking_side,
+            };
+            let taunt_landing_on_switch_in = volatile_status.volatile_status
+                == PokemonVolatileStatus::TAUNT
+                && defender_choice.category == MoveCategory::Switch
+                && !state
+                    .get_side_immutable(&taunt_target)
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::TAUNT);
             get_instructions_from_volatile_statuses(
                 state,
                 &choice,
@@ -3602,6 +3618,26 @@ fn run_move(
                 &attacking_side,
                 &mut instructions,
             );
+            if taunt_landing_on_switch_in
+                && state
+                    .get_side_immutable(&taunt_target)
+                    .volatile_statuses
+                    .contains(&PokemonVolatileStatus::TAUNT)
+            {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeVolatileStatusDuration(
+                        ChangeVolatileStatusDurationInstruction {
+                            side_ref: taunt_target,
+                            volatile_status: PokemonVolatileStatus::TAUNT,
+                            amount: 1,
+                        },
+                    ));
+                state
+                    .get_side(&taunt_target)
+                    .volatile_status_durations
+                    .taunt += 1;
+            }
         }
         if let Some(status) = &choice.status {
             get_instructions_from_status_effects(
