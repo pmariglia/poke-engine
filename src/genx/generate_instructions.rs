@@ -529,8 +529,14 @@ fn generate_instructions_from_switch(
 
             let switched_in_pkmn = side.get_active_immutable();
             if side.side_conditions.spikes > 0 && switched_in_pkmn.is_grounded() {
+                // 1/8, 1/6 and 1/4 of maxhp for 1, 2 and 3 layers
+                let layer_numerator = match side.side_conditions.spikes {
+                    1 => 3,
+                    2 => 4,
+                    _ => 6,
+                };
                 let dmg_amount = cmp::min(
-                    switched_in_pkmn.maxhp * side.side_conditions.spikes as i16 / 8,
+                    switched_in_pkmn.maxhp * layer_numerator / 24,
                     switched_in_pkmn.hp,
                 );
                 let spikes_dmg_instruction = Instruction::Damage(DamageInstruction {
@@ -8757,6 +8763,78 @@ mod tests {
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideOne,
                     damage_amount: 13,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            &mut incoming_instructions,
+        );
+
+        assert_eq!(expected_instructions, incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_into_two_layers_of_spikes() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.spikes = 2;
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = PokemonIndex::P1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 16,
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let mut incoming_instructions = StateInstructions::default();
+        generate_instructions_from_switch(
+            &mut state,
+            choice.switch_id,
+            SideReference::SideOne,
+            &mut incoming_instructions,
+        );
+
+        assert_eq!(expected_instructions, incoming_instructions);
+    }
+
+    #[test]
+    fn test_switching_into_three_layers_of_spikes() {
+        let mut state: State = State::default();
+        state.side_one.side_conditions.spikes = 3;
+        let mut choice = Choice {
+            ..Default::default()
+        };
+        choice.switch_id = PokemonIndex::P1;
+
+        let expected_instructions: StateInstructions = StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
+                }),
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideOne,
+                    damage_amount: 25,
                 }),
             ],
             ..Default::default()
