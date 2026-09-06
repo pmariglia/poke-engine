@@ -675,7 +675,29 @@ impl Pokemon {
             | Items::EXCADRITE
             | Items::DRAMPANITE
             | Items::CHIMECHITE
-            | Items::CHANDELURITE => true,
+            | Items::CHANDELURITE
+            | Items::ABSOLITEZ
+            | Items::BARBARACITE
+            | Items::BAXCALIBRITE
+            | Items::DARKRANITE
+            | Items::DRAGALGITE
+            | Items::EELEKTROSSITE
+            | Items::FALINKSITE
+            | Items::GARCHOMPITEZ
+            | Items::GOLISOPITE
+            | Items::HEATRANITE
+            | Items::LUCARIONITEZ
+            | Items::MAGEARNITE
+            | Items::MALAMARITE
+            | Items::PYROARITE
+            | Items::RAICHUNITEX
+            | Items::RAICHUNITEY
+            | Items::SCOLIPITE
+            | Items::SCRAFTINITE
+            | Items::STARAPTITE
+            | Items::TATSUGIRINITE
+            | Items::ZERAORITE
+            | Items::ZYGARDITE => true,
             _ => false,
         }
     }

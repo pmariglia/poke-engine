@@ -268,6 +268,17 @@ define_enum_with_from_str! {
         FALINKSITE,
         RAICHUNITEX,
         RAICHUNITEY,
+        DARKRANITE,
+        GOLISOPITE,
+        HEATRANITE,
+        ABSOLITEZ,
+        BAXCALIBRITE,
+        GARCHOMPITEZ,
+        LUCARIONITEZ,
+        MAGEARNITE,
+        TATSUGIRINITE,
+        ZERAORITE,
+        ZYGARDITE,
     },
     default = UNKNOWNITEM
 }

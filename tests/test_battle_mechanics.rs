@@ -1385,6 +1385,29 @@ fn test_cannot_knockoff_mega_stone() {
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
+#[cfg(feature = "champions")]
+#[test]
+fn test_cannot_knockoff_champions_mega_stone() {
+    // Champions-only stones are just as unremovable as the gen6 ones
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::RAICHUNITEX;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SPLASH,
+        Choices::KNOCKOFF,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideOne,
+            damage_amount: 51,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
 #[cfg(feature = "gen8")]
 #[test]
 fn test_knockoff_boosts_damage_but_cannot_remove_if_sub_is_hit() {
@@ -18375,6 +18398,75 @@ fn test_basic_mega_evolving() {
             Instruction::ChangeBaseAbility(ChangeAbilityInstruction {
                 side_ref: SideReference::SideOne,
                 ability_change: Abilities::THICKFAT as i16 - Abilities::CHLOROPHYLL as i16,
+            }),
+            Instruction::ToggleMegaEvolved(ToggleMegaEvolvedInstruction {
+                side_ref: SideReference::SideOne,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[cfg(feature = "champions")]
+#[test]
+fn test_mega_evolving_into_alternate_forme_changes_types() {
+    // Absolite Z turns Absol into Absol-Mega-Z: Dark -> Dark/Ghost, ability Magic Bounce,
+    // base stats 65/130/60/75/60/75 -> 65/154/60/75/60/151.
+    // The default pokemon is level 100 with 11 stat points in every stat, so the
+    // recalculated stats are 365/177/207/177/359 (e.g. atk: 2*154 + 31 + 21 + 5)
+    // against the default 100 in each stat.
+    let mut state = State::default();
+    state.side_one.get_active().id = PokemonName::ABSOL;
+    state.side_one.get_active().item = Items::ABSOLITEZ;
+    state.side_one.get_active().ability = Abilities::PRESSURE;
+    state.side_one.get_active().base_ability = Abilities::PRESSURE;
+    state.side_one.get_active().types = (PokemonType::DARK, PokemonType::TYPELESS);
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::MoveMega(PokemonMoveIndex::M0),
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::FormeChange(FormeChangeInstruction {
+                side_ref: SideReference::SideOne,
+                name_change: PokemonName::ABSOLMEGAZ as i16 - PokemonName::ABSOL as i16,
+            }),
+            Instruction::ChangeAttack(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 265,
+            }),
+            Instruction::ChangeDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 77,
+            }),
+            Instruction::ChangeSpecialAttack(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 107,
+            }),
+            Instruction::ChangeSpecialDefense(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 77,
+            }),
+            Instruction::ChangeSpeed(ChangeStatInstruction {
+                side_ref: SideReference::SideOne,
+                amount: 259,
+            }),
+            Instruction::ChangeAbility(ChangeAbilityInstruction {
+                side_ref: SideReference::SideOne,
+                ability_change: Abilities::MAGICBOUNCE as i16 - Abilities::PRESSURE as i16,
+            }),
+            Instruction::ChangeBaseAbility(ChangeAbilityInstruction {
+                side_ref: SideReference::SideOne,
+                ability_change: Abilities::MAGICBOUNCE as i16 - Abilities::PRESSURE as i16,
+            }),
+            Instruction::ChangeType(ChangeType {
+                side_ref: SideReference::SideOne,
+                new_types: (PokemonType::DARK, PokemonType::GHOST),
+                old_types: (PokemonType::DARK, PokemonType::TYPELESS),
             }),
             Instruction::ToggleMegaEvolved(ToggleMegaEvolvedInstruction {
                 side_ref: SideReference::SideOne,
