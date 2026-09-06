@@ -4,9 +4,9 @@ use crate::choices::{Choices, MoveCategory};
 use crate::define_enum_with_from_str;
 use crate::instruction::BoostInstruction;
 use crate::instruction::{
-    ChangeSideConditionInstruction, ChangeStatInstruction, ChangeType,
-    ChangeVolatileStatusDurationInstruction, Instruction, RemoveVolatileStatusInstruction,
-    StateInstructions,
+    ChangeSideConditionInstruction, ChangeStatInstruction, ChangeSubsituteHealthInstruction,
+    ChangeType, ChangeVolatileStatusDurationInstruction, Instruction,
+    RemoveVolatileStatusInstruction, StateInstructions,
 };
 use crate::pokemon::PokemonName;
 use crate::state::VolatileStatusBitset;
@@ -1372,7 +1372,21 @@ impl State {
 
         volatile_statuses.retain(&mut |pkmn_volatile_status| {
             let should_retain = match pkmn_volatile_status {
-                PokemonVolatileStatus::SUBSTITUTE => baton_passing || shed_tailing,
+                PokemonVolatileStatus::SUBSTITUTE => {
+                    let retain = baton_passing || shed_tailing;
+                    // the substitute's HP goes with the volatile, otherwise the Pokemon
+                    // switching in inherits the one that switched out's substitute
+                    if !retain && side.substitute_health != 0 {
+                        instructions.push(Instruction::ChangeSubstituteHealth(
+                            ChangeSubsituteHealthInstruction {
+                                side_ref: *side_ref,
+                                health_change: -1 * side.substitute_health,
+                            },
+                        ));
+                        side.substitute_health = 0;
+                    }
+                    retain
+                }
                 PokemonVolatileStatus::LEECHSEED => baton_passing,
                 PokemonVolatileStatus::TYPECHANGE => {
                     let active = side.get_active();
