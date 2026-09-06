@@ -7,7 +7,7 @@ use crate::state::State;
 use dashmap::DashMap;
 use rand::prelude::*;
 use rand::rng;
-use std::sync::atomic::{AtomicI8, AtomicU32, Ordering};
+use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, OnceLock};
 use std::thread;
 use std::time::{Duration, Instant};
@@ -15,7 +15,6 @@ use std::time::{Duration, Instant};
 const MCTS_MAX_ITERATIONS_PER_TREE: u32 = 10_000_000;
 const MCTS_DAMAGE_BRANCH_DEPTH: u8 = 2;
 const SCORE_SCALE: f32 = 400.0;
-const VIRTUAL_LOSS_VISITS: u32 = 3;
 
 // Node map type alias for clarity.
 // key: (parent node address, s1_move_index, s2_move_index)
@@ -40,14 +39,6 @@ impl MoveNode {
             total_score: AtomicU32::new(0),
             visits: AtomicU32::new(0),
         }
-    }
-
-    fn add_virtual_loss(&self) {
-        self.visits.fetch_add(VIRTUAL_LOSS_VISITS, Ordering::AcqRel);
-    }
-
-    fn remove_virtual_loss(&self) {
-        self.visits.fetch_sub(VIRTUAL_LOSS_VISITS, Ordering::AcqRel);
     }
 
     fn add_result(&self, score: f32) {
@@ -118,7 +109,6 @@ pub struct Node {
     instructions: StateInstructions,
     depth: u8,
     times_visited: AtomicU32,
-    virtual_losses: AtomicI8,
     options: OnceLock<SharedNodeOptions>,
 }
 
@@ -129,7 +119,6 @@ impl Node {
             instructions: StateInstructions::default(),
             depth: 0,
             times_visited: AtomicU32::new(0),
-            virtual_losses: AtomicI8::new(0),
             options: OnceLock::new(),
         });
         let _ = node
@@ -144,7 +133,6 @@ impl Node {
             instructions,
             depth,
             times_visited: AtomicU32::new(0),
-            virtual_losses: AtomicI8::new(0),
             options: OnceLock::new(),
         }
     }
@@ -162,11 +150,7 @@ impl Node {
 
     fn select_move_pair(&self, state: &State) -> (usize, usize) {
         let options = self.ensure_options(state);
-        let parent_visits = self
-            .times_visited
-            .load(Ordering::Acquire)
-            .saturating_add(self.virtual_losses.load(Ordering::Acquire).max(0) as u32)
-            .max(1);
+        let parent_visits = self.times_visited.load(Ordering::Acquire).max(1);
         (
             self.maximize_ucb_for_side(&options.s1, parent_visits),
             self.maximize_ucb_for_side(&options.s2, parent_visits),
@@ -188,7 +172,6 @@ impl Node {
         loop {
             let node = unsafe { &*current };
             let (s1_index, s2_index) = node.select_move_pair(state);
-            let options = node.options.get().expect("options set during selection");
 
             let key = (node.as_key(), s1_index, s2_index);
             match children.get(&key) {
@@ -202,9 +185,6 @@ impl Node {
                     drop(branch);
 
                     let child_ref = unsafe { &*child };
-                    options.s1[s1_index].add_virtual_loss();
-                    options.s2[s2_index].add_virtual_loss();
-                    child_ref.virtual_losses.fetch_add(1, Ordering::AcqRel);
                     state.apply_instructions(&child_ref.instructions.instruction_list);
                     path.push(PathStep {
                         parent: current,
@@ -223,21 +203,24 @@ impl Node {
     }
 
     fn maximize_ucb_for_side(&self, side_options: &[MoveNode], parent_visits: u32) -> usize {
-        side_options
-            .iter()
-            .enumerate()
-            .max_by(|(_, a), (_, b)| {
-                a.ucb1(parent_visits)
-                    .partial_cmp(&b.ucb1(parent_visits))
-                    .unwrap_or(std::cmp::Ordering::Equal)
-            })
-            .map(|(i, _)| i)
-            .unwrap_or(0)
+        // strict '>' breaks ties by the first index, matching mcts.rs. this matters
+        // because unvisited moves all tie at infinity, and the order they are first
+        // explored in seeds the value estimates of rarely-visited nodes
+        let mut choice = 0;
+        let mut best_ucb1 = f32::MIN;
+        for (index, node) in side_options.iter().enumerate() {
+            let this_ucb1 = node.ucb1(parent_visits);
+            if this_ucb1 > best_ucb1 {
+                best_ucb1 = this_ucb1;
+                choice = index;
+            }
+        }
+        choice
     }
 
     /// looks up or creates the child branch for `(s1_index, s2_index)` and
-    /// returns one sampled child, applying virtual loss bookkeeping.  Returns
-    /// `None` when the node should not be expanded (battle over, both-None).
+    /// returns one sampled child.  Returns `None` when the node should not be
+    /// expanded (battle over, both-None).
     fn expand<R: Rng + ?Sized>(
         &self,
         state: &mut State,
@@ -296,7 +279,7 @@ impl Node {
     }
 
     // walk `path` in reverse, updating visit counts and scores,
-    // removes virtual losses, and reverse-applying instructions to restore `state` to how it
+    // and reverse-applying instructions to restore `state` to how it
     // was in the root
     fn backpropagate(path: &[PathStep], leaf: &Node, score: f32, state: &mut State) {
         leaf.times_visited.fetch_add(1, Ordering::AcqRel);
@@ -305,11 +288,8 @@ impl Node {
             let (parent, child) = unsafe { (&*step.parent, &*step.child) };
             let options = parent.options.get().expect("path parent has options");
             options.s1[step.s1_index].add_result(score);
-            options.s1[step.s1_index].remove_virtual_loss();
             options.s2[step.s2_index].add_result(1.0 - score);
-            options.s2[step.s2_index].remove_virtual_loss();
             parent.times_visited.fetch_add(1, Ordering::AcqRel);
-            child.virtual_losses.fetch_sub(1, Ordering::AcqRel);
             state.reverse_instructions(&child.instructions.instruction_list);
         }
     }
@@ -328,14 +308,10 @@ fn mcts_iteration<R: Rng + ?Sized>(
     let (leaf, s1_index, s2_index) = Node::selection(root, state, rng, children, path);
     let leaf = unsafe { &*leaf };
 
-    let options = leaf.options.get().expect("options set during selection");
-    options.s1[s1_index].add_virtual_loss();
-    options.s2[s2_index].add_virtual_loss();
     let expanded = leaf.expand(state, s1_index, s2_index, rng, children);
     match expanded {
         Some(child) => {
             let child = unsafe { &*child };
-            child.virtual_losses.fetch_add(1, Ordering::AcqRel);
             state.apply_instructions(&child.instructions.instruction_list);
             path.push(PathStep {
                 parent: leaf,
@@ -354,10 +330,6 @@ fn mcts_iteration<R: Rng + ?Sized>(
         // so no child is added to the tree
         // we do a rollout on the leaf and backpropagate without adding a child to the tree
         None => {
-            // remove the virtual loss we added before expansion, since we're not actually expanding
-            options.s1[s1_index].remove_virtual_loss();
-            options.s2[s2_index].remove_virtual_loss();
-
             let score = leaf.rollout(state, root_eval);
 
             Node::backpropagate(path, leaf, score, state);
