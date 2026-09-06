@@ -629,6 +629,51 @@ fn test_force_switch_after_faint_does_not_trigger_end_of_turn() {
 }
 
 #[test]
+fn test_flail_scales_with_remaining_hp() {
+    // Flail and Reversal share the same HP-ratio base-power table; Flail had no
+    // entry at all, so it was doing zero damage.
+    let mut state = State::default();
+    // 5/100 HP -> hp ratio 0.05 -> 150 base power (the same table Reversal uses)
+    state.side_one.get_active().hp = 5;
+    state.side_one.get_active().maxhp = 100;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::FLAIL,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 100,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_flail_is_weak_at_full_hp() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::FLAIL,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 24,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_basic_move_pair_instruction_generation() {
     let mut state = State::default();
 
