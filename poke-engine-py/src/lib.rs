@@ -939,19 +939,12 @@ struct PyCfrResult {
 fn cfr(
     py: Python,
     py_states: Vec<PyState>,
-    weights: Vec<f32>,
     duration_ms: u64,
     mut iterations: u32,
-    threads: usize,
 ) -> PyResult<PyCfrResult> {
     if py_states.is_empty() {
         return Err(pyo3::exceptions::PyValueError::new_err(
             "states must be non-empty",
-        ));
-    }
-    if py_states.len() != weights.len() {
-        return Err(pyo3::exceptions::PyValueError::new_err(
-            "states and weights must have the same length",
         ));
     }
     let mut states: Vec<State> = py_states.into_iter().map(|s| s.into()).collect();
@@ -974,8 +967,7 @@ fn cfr(
 
     let duration = Duration::from_millis(duration_ms);
     // release the GIL: the search is long-running and spawns its own threads
-    let result =
-        py.detach(|| perform_cfr_multi(&mut states, &weights, duration, iterations, threads));
+    let result = py.detach(|| perform_cfr_multi(&mut states, duration, iterations));
     Ok(PyCfrResult {
         s1: result
             .s1

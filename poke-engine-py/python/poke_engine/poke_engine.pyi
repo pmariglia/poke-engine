@@ -442,19 +442,16 @@ class CfrResult:
 
 def cfr(
     py_states: List[State],
-    weights: List[float],
     duration_ms: int,
     iterations: int,
-    threads: int,
 ) -> CfrResult:
     """
-    Perform a CFR search across several possible states, weighted by likelihood.
+    Perform a CFR search across several equally-likely possible states.
+    Each state gets its own search thread.
 
     :param py_states: The possible game states to analyze
-    :param weights: Relative likelihood of each state
     :param duration_ms: Total duration in milliseconds. ignored if iterations > 0.
     :param iterations: Exact number of cfr iterations to run
-    :param threads: Number of worker threads to use for the search
     :return: side one's strategy across all determinizations
     """
     ...

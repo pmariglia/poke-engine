@@ -7,12 +7,10 @@ use rand::prelude::*;
 use rand::rng;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicI64, AtomicU32, Ordering};
-use std::sync::Mutex;
 use std::time::Duration;
 
-// exploration floor mixed into the sampling policy. every action is sampled with
-// probability at least GAMMA / n, which bounds the importance weights in the
-// regret update by n / GAMMA
+// exploration floor mixed into the sampling policy
+// every action is sampled with a probability of at least GAMMA / n
 const GAMMA: f64 = 0.1;
 
 fn sigmoid(x: f32) -> f32 {
@@ -448,9 +446,8 @@ pub fn perform_cfr(
 // ~1e9 in long searches; at this scale that is ~1e15, well within i64 range
 const REGRET_SCALE: f64 = 1_000_000.0;
 
-// one determinization's search tree. a self-contained unit of work: a worker
-// thread locks a tree, runs iterations on it, and touches nothing outside it
-// except the shared s1 table
+// one determinization's search tree. owned entirely by the one thread that
+// works on it; the shared s1 table is the only thing touched outside it
 struct DeterminizationTree<'a> {
     state: &'a mut State,
     root: Box<Node>,
@@ -458,16 +455,16 @@ struct DeterminizationTree<'a> {
     root_eval: f32,
 }
 
-// SAFETY: the raw pointers inside a tree's nodes only ever reference other
-// nodes owned by that same tree, and a tree is only accessed by the thread
-// currently holding its mutex
-unsafe impl Send for DeterminizationTree<'_> {}
+// each shared regret gets its own cache line: a fetch_add on one action would
+// otherwise invalidate the line holding its neighbours on every other core
+#[repr(align(64))]
+struct PaddedAtomicI64(AtomicI64);
 
 // s1's root strategy, shared by every determinization. only the regrets are
 // shared: they are the only field read during the search. strategy/score/visit
 // accumulation is write-only until the end, so it stays thread-local
 struct SharedS1 {
-    regrets: Vec<AtomicI64>,
+    regrets: Vec<PaddedAtomicI64>,
 }
 
 impl SharedS1 {
@@ -476,7 +473,7 @@ impl SharedS1 {
         buf.extend(
             self.regrets
                 .iter()
-                .map(|r| r.load(Ordering::Relaxed) as f64 / REGRET_SCALE),
+                .map(|r| r.0.load(Ordering::Relaxed) as f64 / REGRET_SCALE),
         );
     }
 
@@ -487,7 +484,7 @@ impl SharedS1 {
             } else {
                 -payoff
             };
-            r.fetch_add((delta * REGRET_SCALE) as i64, Ordering::Relaxed);
+            r.0.fetch_add((delta * REGRET_SCALE) as i64, Ordering::Relaxed);
         }
     }
 }
@@ -610,35 +607,18 @@ pub struct CfrMultiResult {
     pub determinization_iterations: Vec<u32>,
 }
 
-fn sample_weighted(weights: &[f32], total_weight: f32, rng: &mut impl Rng) -> usize {
-    if total_weight <= 0.0 {
-        return rng.random_range(0..weights.len());
-    }
-    let mut threshold = rng.random_range(0.0..total_weight);
-    for (i, w) in weights.iter().enumerate() {
-        threshold -= w.max(0.0);
-        if threshold <= 0.0 {
-            return i;
-        }
-    }
-    weights.len() - 1
-}
-
-// runs cfr across several possible states at once, weighted by belief. every
-// determinization gets its own tree, but the roots share one s1 strategy table:
-// s1 does not know which state is real, so its root strategy must be a single
-// answer that does well against the weighted mixture.
-// worker threads each sample a determinization, lock its tree, and run one
-// iteration; the shared s1 regrets are the only cross-thread state
+// runs cfr across several equally-likely possible states at once. every
+// determinization gets its own tree and its own dedicated thread, so trees are
+// never locked or shared; the roots share one s1 strategy table because s1
+// does not know which state is real, so its root strategy must be a single
+// answer that does well against the mixture. the atomic shared regrets are the
+// only cross-thread state
 pub fn perform_cfr_multi(
     states: &mut [State],
-    weights: &[f32],
     max_time: Duration,
     max_iterations: u32,
-    threads: usize,
 ) -> CfrMultiResult {
     assert!(!states.is_empty());
-    assert_eq!(states.len(), weights.len());
 
     // the shared table is indexed by option position, so s1's options must be
     // identical in every determinization. s1's own side is fully known, so this
@@ -646,53 +626,45 @@ pub fn perform_cfr_multi(
     // callers are expected to avoid
     let (s1_options, _) = states[0].root_get_all_options();
     let shared = SharedS1 {
-        regrets: (0..s1_options.len()).map(|_| AtomicI64::new(0)).collect(),
+        regrets: (0..s1_options.len())
+            .map(|_| PaddedAtomicI64(AtomicI64::new(0)))
+            .collect(),
     };
 
-    let trees: Vec<Mutex<DeterminizationTree>> = states
-        .iter_mut()
-        .map(|state| {
-            let (this_s1_options, s2_options) = state.root_get_all_options();
-            debug_assert_eq!(this_s1_options, s1_options);
-            let mut root = Box::new(Node::new());
-            root.root = true;
-            // the root's own s1 stats are never read or updated: expand only
-            // needs the move choices, and the strategy lives in the shared table
-            root.populate(this_s1_options, s2_options);
-            let root_eval = evaluate(state);
-            Mutex::new(DeterminizationTree {
-                state,
-                root,
-                children: HashMap::new(),
-                root_eval,
-            })
-        })
-        .collect();
-
-    let total_weight: f32 = weights.iter().map(|w| w.max(0.0)).sum();
     let total_iterations = AtomicU32::new(0);
     let start_time = std::time::Instant::now();
-    let worker_count = threads.max(1);
 
-    let locals: Vec<Vec<LocalS1Stats>> = std::thread::scope(|s| {
-        let mut handles = Vec::with_capacity(worker_count);
-        for _ in 0..worker_count {
-            handles.push(s.spawn(|| {
+    let per_thread: Vec<(Vec<LocalS1Stats>, u32)> = std::thread::scope(|s| {
+        let mut handles = Vec::with_capacity(states.len());
+        for state in states.iter_mut() {
+            let shared = &shared;
+            let total_iterations = &total_iterations;
+            let expected_s1_options = &s1_options;
+            handles.push(s.spawn(move || {
+                let (this_s1_options, s2_options) = state.root_get_all_options();
+                debug_assert_eq!(&this_s1_options, expected_s1_options);
+                let mut root = Box::new(Node::new());
+                root.root = true;
+                // the root's own s1 stats are never read or updated: expand only
+                // needs the move choices, and the strategy lives in the shared table
+                root.populate(this_s1_options, s2_options);
+                let root_eval = evaluate(state);
+                let mut tree = DeterminizationTree {
+                    state,
+                    root,
+                    children: HashMap::new(),
+                    root_eval,
+                };
+
                 let mut rng = rng();
                 let mut local = vec![LocalS1Stats::default(); shared.regrets.len()];
                 let mut scratch: Vec<f64> = Vec::with_capacity(shared.regrets.len());
                 'search: loop {
                     for _ in 0..100 {
-                        let k = sample_weighted(weights, total_weight, &mut rng);
-                        // block rather than resample: skipping busy trees would
-                        // skew iterations away from the weight distribution and
-                        // bias the shared regret updates. locks are only ever
-                        // held for a single iteration
-                        let mut tree = trees[k].lock().unwrap();
                         unsafe {
                             multi_cfr_iteration(
                                 &mut tree,
-                                &shared,
+                                shared,
                                 &mut local,
                                 &mut scratch,
                                 &mut rng,
@@ -711,14 +683,14 @@ pub fn perform_cfr_multi(
                         break 'search;
                     }
                 }
-                local
+                (local, tree.root.times_visited)
             }));
         }
         handles.into_iter().map(|h| h.join().unwrap()).collect()
     });
 
     let mut merged: Vec<LocalS1Stats> = vec![LocalS1Stats::default(); shared.regrets.len()];
-    for local in &locals {
+    for (local, _) in &per_thread {
         for (m, l) in merged.iter_mut().zip(local.iter()) {
             m.cumulative_strategy += l.cumulative_strategy;
             m.total_score += l.total_score;
@@ -745,9 +717,6 @@ pub fn perform_cfr_multi(
     CfrMultiResult {
         s1,
         iteration_count: total_iterations.load(Ordering::Relaxed),
-        determinization_iterations: trees
-            .iter()
-            .map(|t| t.lock().unwrap().root.times_visited)
-            .collect(),
+        determinization_iterations: per_thread.iter().map(|(_, visits)| *visits).collect(),
     }
 }
