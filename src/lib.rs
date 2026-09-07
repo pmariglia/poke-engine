@@ -15,6 +15,7 @@ pub mod engine;
 #[path = "genx/mod.rs"]
 pub mod engine;
 
+pub mod cfr;
 pub mod choices;
 pub mod instruction;
 pub mod io;

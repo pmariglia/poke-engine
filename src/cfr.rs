@@ -8,9 +8,72 @@ use rand::rng;
 use std::collections::HashMap;
 use std::time::Duration;
 
+// exploration floor mixed into the sampling policy. every action is sampled with
+// probability at least GAMMA / n, which bounds the importance weights in the
+// regret update by n / GAMMA
+const GAMMA: f64 = 0.1;
+
 fn sigmoid(x: f32) -> f32 {
     // Tuned so that ~200 points is very close to 1.0
     1.0 / (1.0 + (-0.0125 * x).exp())
+}
+
+// computes the regret-matching strategy, accumulates it into the average
+// strategy (whose normalization is what converges to equilibrium), and samples
+// an action from the exploration-mixed policy.
+// returns the sampled index and the probability it was sampled with
+fn sample_regret_matching(stats: &mut [ActionStats], rng: &mut impl Rng) -> (usize, f64) {
+    let n = stats.len();
+    let uniform = 1.0 / n as f64;
+    let positive_regret_sum: f64 = stats.iter().map(|s| s.cumulative_regret.max(0.0)).sum();
+
+    if positive_regret_sum > 0.0 {
+        for s in stats.iter_mut() {
+            s.cumulative_strategy += s.cumulative_regret.max(0.0) / positive_regret_sum;
+        }
+    } else {
+        for s in stats.iter_mut() {
+            s.cumulative_strategy += uniform;
+        }
+    }
+
+    let index = if positive_regret_sum <= 0.0 || rng.random_bool(GAMMA) {
+        rng.random_range(0..n)
+    } else {
+        let mut threshold = rng.random_range(0.0..positive_regret_sum);
+        let mut chosen = n - 1;
+        for (i, s) in stats.iter().enumerate() {
+            threshold -= s.cumulative_regret.max(0.0);
+            if threshold <= 0.0 {
+                chosen = i;
+                break;
+            }
+        }
+        chosen
+    };
+
+    let sigma = if positive_regret_sum > 0.0 {
+        stats[index].cumulative_regret.max(0.0) / positive_regret_sum
+    } else {
+        uniform
+    };
+    let prob = (1.0 - GAMMA) * sigma + GAMMA * uniform;
+    (index, prob)
+}
+
+// payoff * I(a == sampled) / sample_prob is an unbiased estimate of each
+// action's value; the raw payoff estimates the value of the current policy.
+// their difference is the sampled instantaneous regret
+fn update_regrets(stats: &mut [ActionStats], sampled: usize, sample_prob: f64, payoff: f64) {
+    for (i, s) in stats.iter_mut().enumerate() {
+        if i == sampled {
+            s.cumulative_regret += payoff / sample_prob - payoff;
+        } else {
+            s.cumulative_regret -= payoff;
+        }
+    }
+    stats[sampled].total_score += payoff as f32;
+    stats[sampled].visits += 1;
 }
 
 #[derive(Debug)]
@@ -24,10 +87,14 @@ pub struct Node {
     pub s1_choice: u8,
     pub s2_choice: u8,
 
-    // represents the total score and number of visits for this node
-    // de-coupled for s1 and s2
-    pub s1_options: Option<Vec<MoveNode>>,
-    pub s2_options: Option<Vec<MoveNode>>,
+    // the probabilities the s1/s2 choices were sampled with when this node was
+    // last traversed, needed for the regret update during backpropagation
+    pub s1_prob: f64,
+    pub s2_prob: f64,
+
+    // regret-matching statistics, de-coupled for s1 and s2
+    pub s1_options: Option<Vec<ActionStats>>,
+    pub s2_options: Option<Vec<ActionStats>>,
 }
 
 impl Node {
@@ -39,43 +106,25 @@ impl Node {
             times_visited: 0,
             s1_choice: 0,
             s2_choice: 0,
+            s1_prob: 1.0,
+            s2_prob: 1.0,
             s1_options: None,
             s2_options: None,
         }
     }
-    unsafe fn populate(&mut self, s1_options: Vec<MoveChoice>, s2_options: Vec<MoveChoice>) {
-        let s1_options_vec: Vec<MoveNode> = s1_options
+
+    fn populate(&mut self, s1_options: Vec<MoveChoice>, s2_options: Vec<MoveChoice>) {
+        let s1_options_vec: Vec<ActionStats> = s1_options
             .iter()
-            .map(|x| MoveNode {
-                move_choice: x.clone(),
-                total_score: 0.0,
-                visits: 0,
-            })
+            .map(|x| ActionStats::new(x.clone()))
             .collect();
-        let s2_options_vec: Vec<MoveNode> = s2_options
+        let s2_options_vec: Vec<ActionStats> = s2_options
             .iter()
-            .map(|x| MoveNode {
-                move_choice: x.clone(),
-                total_score: 0.0,
-                visits: 0,
-            })
+            .map(|x| ActionStats::new(x.clone()))
             .collect();
 
         self.s1_options = Some(s1_options_vec);
         self.s2_options = Some(s2_options_vec);
-    }
-
-    pub fn maximize_ucb_for_side(&self, side_map: &[MoveNode]) -> usize {
-        let mut choice = 0;
-        let mut best_ucb1 = f32::MIN;
-        for (index, node) in side_map.iter().enumerate() {
-            let this_ucb1 = node.ucb1(self.times_visited);
-            if this_ucb1 > best_ucb1 {
-                best_ucb1 = this_ucb1;
-                choice = index;
-            }
-        }
-        choice
     }
 
     pub unsafe fn selection(
@@ -83,23 +132,25 @@ impl Node {
         state: &mut State,
         children: &mut HashMap<(usize, usize, usize), Box<[Node]>>,
         rng: &mut impl Rng,
-    ) -> (*mut Node, usize, usize) {
+    ) -> (*mut Node, usize, usize, f64, f64) {
         if self.s1_options.is_none() {
             let (s1_options, s2_options) = state.get_all_options();
             self.populate(s1_options, s2_options);
         }
 
-        let s1_mc_index = self.maximize_ucb_for_side(self.s1_options.as_ref().unwrap());
-        let s2_mc_index = self.maximize_ucb_for_side(self.s2_options.as_ref().unwrap());
-        let key = (self as *mut Node as usize, s1_mc_index, s2_mc_index);
+        let (s1_index, s1_prob) = sample_regret_matching(self.s1_options.as_mut().unwrap(), rng);
+        let (s2_index, s2_prob) = sample_regret_matching(self.s2_options.as_mut().unwrap(), rng);
+        let key = (self as *mut Node as usize, s1_index, s2_index);
         match children.get_mut(&key) {
             Some(child_vector) => {
                 let child_vec_ptr = child_vector as *mut Box<[Node]>;
                 let chosen_child = self.sample_node(child_vec_ptr, rng);
+                (*chosen_child).s1_prob = s1_prob;
+                (*chosen_child).s2_prob = s2_prob;
                 state.apply_instructions(&(*chosen_child).instructions.instruction_list);
                 (*chosen_child).selection(state, children, rng)
             }
-            None => (self as *mut Node, s1_mc_index, s2_mc_index),
+            None => (self as *mut Node, s1_index, s2_index, s1_prob, s2_prob),
         }
     }
 
@@ -129,6 +180,8 @@ impl Node {
         state: &mut State,
         s1_move_index: usize,
         s2_move_index: usize,
+        s1_prob: f64,
+        s2_prob: f64,
         children: &mut HashMap<(usize, usize, usize), Box<[Node]>>,
         rng: &mut impl Rng,
     ) -> *mut Node {
@@ -150,6 +203,8 @@ impl Node {
             new_node.instructions = state_instructions;
             new_node.s1_choice = s1_move_index as u8;
             new_node.s2_choice = s2_move_index as u8;
+            new_node.s1_prob = s1_prob;
+            new_node.s2_prob = s2_prob;
             this_pair_vec.push(new_node);
         }
 
@@ -173,18 +228,22 @@ impl Node {
             return;
         }
 
-        let parent_s1_movenode =
-            &mut (*self.parent).s1_options.as_mut().unwrap()[self.s1_choice as usize];
-        parent_s1_movenode.total_score += score;
-        parent_s1_movenode.visits += 1;
-
-        let parent_s2_movenode =
-            &mut (*self.parent).s2_options.as_mut().unwrap()[self.s2_choice as usize];
-        parent_s2_movenode.total_score += 1.0 - score;
-        parent_s2_movenode.visits += 1;
+        let parent = &mut *self.parent;
+        update_regrets(
+            parent.s1_options.as_mut().unwrap(),
+            self.s1_choice as usize,
+            self.s1_prob,
+            score as f64,
+        );
+        update_regrets(
+            parent.s2_options.as_mut().unwrap(),
+            self.s2_choice as usize,
+            self.s2_prob,
+            1.0 - score as f64,
+        );
 
         state.reverse_instructions(&self.instructions.instruction_list);
-        (*self.parent).backpropagate(score, state);
+        parent.backpropagate(score, state);
     }
 
     pub fn rollout(&mut self, state: &mut State, root_eval: &f32) -> f32 {
@@ -203,59 +262,82 @@ impl Node {
 }
 
 #[derive(Debug)]
-pub struct MoveNode {
+pub struct ActionStats {
     pub move_choice: MoveChoice,
+    pub cumulative_regret: f64,
+    pub cumulative_strategy: f64,
     pub total_score: f32,
     pub visits: u32,
 }
 
-impl MoveNode {
-    pub fn ucb1(&self, parent_visits: u32) -> f32 {
-        if self.visits == 0 {
-            return f32::INFINITY;
+impl ActionStats {
+    fn new(move_choice: MoveChoice) -> ActionStats {
+        ActionStats {
+            move_choice,
+            cumulative_regret: 0.0,
+            cumulative_strategy: 0.0,
+            total_score: 0.0,
+            visits: 0,
         }
-        let score = (self.total_score / self.visits as f32)
-            + (2.0 * (parent_visits as f32).ln() / self.visits as f32).sqrt();
-        score
-    }
-    pub fn average_score(&self) -> f32 {
-        let score = self.total_score / self.visits as f32;
-        score
     }
 }
 
 #[derive(Clone)]
-pub struct MctsSideResult {
+pub struct CfrSideResult {
     pub move_choice: MoveChoice,
+
+    // normalized average strategy: the probability this move should be
+    // played with. sample from this rather than taking the argmax to
+    // retain the equilibrium properties
+    pub strategy: f32,
+
     pub total_score: f32,
     pub visits: u32,
 }
 
-impl MctsSideResult {
+impl CfrSideResult {
     pub fn average_score(&self) -> f32 {
         if self.visits == 0 {
             return 0.0;
         }
-        let score = self.total_score / self.visits as f32;
-        score
+        self.total_score / self.visits as f32
     }
 }
 
-pub struct MctsResult {
-    pub s1: Vec<MctsSideResult>,
-    pub s2: Vec<MctsSideResult>,
+pub struct CfrResult {
+    pub s1: Vec<CfrSideResult>,
+    pub s2: Vec<CfrSideResult>,
     pub iteration_count: u32,
 }
 
-fn mcts_iteration(
+fn side_result(options: &[ActionStats]) -> Vec<CfrSideResult> {
+    let strategy_sum: f64 = options.iter().map(|v| v.cumulative_strategy).sum();
+    options
+        .iter()
+        .map(|v| CfrSideResult {
+            move_choice: v.move_choice.clone(),
+            strategy: if strategy_sum > 0.0 {
+                (v.cumulative_strategy / strategy_sum) as f32
+            } else {
+                1.0 / options.len() as f32
+            },
+            total_score: v.total_score,
+            visits: v.visits,
+        })
+        .collect()
+}
+
+fn cfr_iteration(
     root_node: &mut Node,
     state: &mut State,
     root_eval: &f32,
     children: &mut HashMap<(usize, usize, usize), Box<[Node]>>,
     rng: &mut impl Rng,
 ) {
-    let (mut new_node, s1_move, s2_move) = unsafe { root_node.selection(state, children, rng) };
-    new_node = unsafe { (*new_node).expand(state, s1_move, s2_move, children, rng) };
+    let (mut new_node, s1_move, s2_move, s1_prob, s2_prob) =
+        unsafe { root_node.selection(state, children, rng) };
+    new_node =
+        unsafe { (*new_node).expand(state, s1_move, s2_move, s1_prob, s2_prob, children, rng) };
     let rollout_result = unsafe { (*new_node).rollout(state, root_eval) };
     unsafe { (*new_node).backpropagate(rollout_result, state) }
 }
@@ -265,7 +347,7 @@ enum SearchLimit {
     Iterations(u32),
 }
 
-fn run_mcts_loop(
+fn run_cfr_loop(
     root_node: &mut Node,
     state: &mut State,
     root_eval: &f32,
@@ -276,7 +358,7 @@ fn run_mcts_loop(
     let start_time = std::time::Instant::now();
     loop {
         for _ in 0..1000 {
-            mcts_iteration(root_node, state, root_eval, children, &mut rng);
+            cfr_iteration(root_node, state, root_eval, children, &mut rng);
         }
         if root_node.times_visited >= 10_000_000 {
             break;
@@ -296,58 +378,15 @@ fn run_mcts_loop(
     }
 }
 
-// experiment: single-threaded search runs CFR (regret matching) instead of DUCT.
-// the result is mapped into the MctsResult shape so that consumers (io, python
-// bindings) need no changes: total_score carries the normalized average strategy
-// (0..1) rather than a score sum
-pub fn perform_mcts(
+pub fn perform_cfr(
     state: &mut State,
     side_one_options: Vec<MoveChoice>,
     side_two_options: Vec<MoveChoice>,
     max_time: Duration,
     max_iterations: u32,
-) -> MctsResult {
-    let cfr_result = crate::cfr::perform_cfr(
-        state,
-        side_one_options,
-        side_two_options,
-        max_time,
-        max_iterations,
-    );
-    MctsResult {
-        s1: cfr_result
-            .s1
-            .iter()
-            .map(|v| MctsSideResult {
-                move_choice: v.move_choice.clone(),
-                total_score: v.strategy,
-                visits: v.visits,
-            })
-            .collect(),
-        s2: cfr_result
-            .s2
-            .iter()
-            .map(|v| MctsSideResult {
-                move_choice: v.move_choice.clone(),
-                total_score: v.strategy,
-                visits: v.visits,
-            })
-            .collect(),
-        iteration_count: cfr_result.iteration_count,
-    }
-}
-
-pub fn perform_duct_mcts(
-    state: &mut State,
-    side_one_options: Vec<MoveChoice>,
-    side_two_options: Vec<MoveChoice>,
-    max_time: Duration,
-    max_iterations: u32,
-) -> MctsResult {
+) -> CfrResult {
     let mut root_node = Node::new();
-    unsafe {
-        root_node.populate(side_one_options, side_two_options);
-    }
+    root_node.populate(side_one_options, side_two_options);
     root_node.root = true;
     let mut children: HashMap<(usize, usize, usize), Box<[Node]>> = HashMap::new();
 
@@ -357,7 +396,7 @@ pub fn perform_duct_mcts(
     } else {
         SearchLimit::Time(max_time)
     };
-    run_mcts_loop(
+    run_cfr_loop(
         &mut root_node,
         state,
         &root_eval,
@@ -365,31 +404,9 @@ pub fn perform_duct_mcts(
         search_limit,
     );
 
-    let result = MctsResult {
-        s1: root_node
-            .s1_options
-            .as_ref()
-            .unwrap()
-            .iter()
-            .map(|v| MctsSideResult {
-                move_choice: v.move_choice.clone(),
-                total_score: v.total_score,
-                visits: v.visits,
-            })
-            .collect(),
-        s2: root_node
-            .s2_options
-            .as_ref()
-            .unwrap()
-            .iter()
-            .map(|v| MctsSideResult {
-                move_choice: v.move_choice.clone(),
-                total_score: v.total_score,
-                visits: v.visits,
-            })
-            .collect(),
+    CfrResult {
+        s1: side_result(root_node.s1_options.as_ref().unwrap()),
+        s2: side_result(root_node.s2_options.as_ref().unwrap()),
         iteration_count: root_node.times_visited,
-    };
-
-    result
+    }
 }

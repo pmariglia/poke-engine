@@ -1,3 +1,4 @@
+use crate::cfr::{perform_cfr, CfrResult};
 use crate::choices::{Choice, Choices, MoveCategory, MOVES};
 use crate::engine::evaluate::evaluate;
 use crate::engine::generate_instructions::{
@@ -36,6 +37,7 @@ enum SubCommand {
     Expectiminimax(Expectiminimax),
     IterativeDeepening(IterativeDeepening),
     MonteCarloTreeSearch(MonteCarloTreeSearch),
+    Cfr(Cfr),
     CalculateDamage(CalculateDamage),
     GenerateInstructions(GenerateInstructions),
 }
@@ -74,6 +76,18 @@ struct MonteCarloTreeSearch {
 
     #[clap(short = 'n', long, default_value_t = 1)]
     threads: usize,
+}
+
+#[derive(Parser)]
+struct Cfr {
+    #[clap(short, long, required = true)]
+    state: String,
+
+    #[clap(short = 't', long, default_value_t = 5000)]
+    time_to_search_ms: u64,
+
+    #[clap(short = 'i', long, default_value_t = 0)]
+    iterations: u32,
 }
 
 #[derive(Parser)]
@@ -217,6 +231,64 @@ fn pprint_mcts_result(state: &State, result: MctsResult) {
     }
 }
 
+fn print_cfr_result(state: &State, result: CfrResult) {
+    let s1_joined_options = result
+        .s1
+        .iter()
+        .map(|x| {
+            format!(
+                "{},{:.4},{}",
+                x.move_choice.to_string(&state.side_one),
+                x.strategy,
+                x.visits
+            )
+        })
+        .collect::<Vec<String>>()
+        .join("|");
+    let s2_joined_options = result
+        .s2
+        .iter()
+        .map(|x| {
+            format!(
+                "{},{:.4},{}",
+                x.move_choice.to_string(&state.side_two),
+                x.strategy,
+                x.visits
+            )
+        })
+        .collect::<Vec<String>>()
+        .join("|");
+
+    println!("Total Iterations: {}", result.iteration_count);
+    println!("side one: {}", s1_joined_options);
+    println!("side two: {}", s2_joined_options);
+}
+
+fn pprint_cfr_result(state: &State, result: CfrResult) {
+    println!("\nTotal Iterations: {}\n", result.iteration_count);
+    for (side_label, side_result, side) in [
+        ("Side One:", &result.s1, &state.side_one),
+        ("Side Two:", &result.s2, &state.side_two),
+    ] {
+        println!("{}", side_label);
+        println!(
+            "\t{:<40}{:>12}{:>12}{:>10}",
+            "Move", "Strategy %", "Avg Score", "Visits"
+        );
+        let mut sorted = side_result.clone();
+        sorted.sort_by(|a, b| b.strategy.total_cmp(&a.strategy));
+        for x in sorted.iter().take(20) {
+            println!(
+                "\t{:<40}{:>12.2}{:>12.2}{:>10}",
+                x.move_choice.to_string(side),
+                x.strategy * 100.0,
+                x.average_score(),
+                x.visits,
+            );
+        }
+    }
+}
+
 fn pprint_state_instruction_vector(instructions: &Vec<StateInstructions>) {
     for (i, instruction) in instructions.iter().enumerate() {
         println!("Index: {}", i);
@@ -322,6 +394,18 @@ pub fn main() {
                     )
                 };
                 print_mcts_result(&state, result);
+            }
+            SubCommand::Cfr(cfr) => {
+                state = State::deserialize(cfr.state.as_str());
+                (side_one_options, side_two_options) = state.root_get_all_options();
+                let result = perform_cfr(
+                    &mut state,
+                    side_one_options.clone(),
+                    side_two_options.clone(),
+                    std::time::Duration::from_millis(cfr.time_to_search_ms),
+                    cfr.iterations,
+                );
+                print_cfr_result(&state, result);
             }
             SubCommand::CalculateDamage(calculate_damage) => {
                 state = State::deserialize(calculate_damage.state.as_str());
@@ -593,6 +677,29 @@ fn command_loop(mut io_data: IOData) {
                 }
                 None => {
                     println!("Usage: monte-carlo-tree-search <timeout_ms>");
+                    continue;
+                }
+            },
+            "counterfactual-regret-minimization" | "cfr" => match args.next() {
+                Some(s) => {
+                    let max_time_ms = s.parse::<u64>().unwrap();
+                    let (side_one_options, side_two_options) = io_data.state.root_get_all_options();
+
+                    let start_time = std::time::Instant::now();
+                    let result = perform_cfr(
+                        &mut io_data.state,
+                        side_one_options.clone(),
+                        side_two_options.clone(),
+                        std::time::Duration::from_millis(max_time_ms),
+                        0,
+                    );
+                    let elapsed = start_time.elapsed();
+                    pprint_cfr_result(&io_data.state, result);
+
+                    println!("\nTook: {:?}", elapsed);
+                }
+                None => {
+                    println!("Usage: counterfactual-regret-minimization <timeout_ms>");
                     continue;
                 }
             },
