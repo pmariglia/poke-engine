@@ -937,10 +937,12 @@ struct PyCfrResult {
 
 #[pyfunction]
 fn cfr(
+    py: Python,
     py_states: Vec<PyState>,
     weights: Vec<f32>,
     duration_ms: u64,
     mut iterations: u32,
+    threads: usize,
 ) -> PyResult<PyCfrResult> {
     if py_states.is_empty() {
         return Err(pyo3::exceptions::PyValueError::new_err(
@@ -971,7 +973,9 @@ fn cfr(
     }
 
     let duration = Duration::from_millis(duration_ms);
-    let result = perform_cfr_multi(&mut states, &weights, duration, iterations);
+    // release the GIL: the search is long-running and spawns its own threads
+    let result =
+        py.detach(|| perform_cfr_multi(&mut states, &weights, duration, iterations, threads));
     Ok(PyCfrResult {
         s1: result
             .s1

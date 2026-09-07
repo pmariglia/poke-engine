@@ -185,6 +185,7 @@ def cfr_search(
     weights: list[float],
     duration_ms: int = 1000,
     iterations: int = 0,
+    threads: int = 1,
 ) -> CfrResult:
     """
     Perform a CFR search across several possible states at once, weighted by
@@ -201,10 +202,12 @@ def cfr_search(
     :type duration_ms: int
     :param iterations: exact number of cfr iterations to run
     :type iterations: int
+    :param threads: number of worker threads to use for the search
+    :type threads: int
     :return: the result of the search
     :rtype: CfrResult
     """
-    return CfrResult._from_rust(cfr(states, weights, duration_ms, iterations))
+    return CfrResult._from_rust(cfr(states, weights, duration_ms, iterations, threads))
 
 
 def monte_carlo_tree_search(
