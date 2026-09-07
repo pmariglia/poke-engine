@@ -145,6 +145,68 @@ class MctsResult:
         )
 
 
+@dataclass
+class CfrResult:
+    """
+    Result of a multi-determinization CFR search
+
+    :param side_one: side one's strategy across all determinizations.
+        total_score holds each move's probability in the normalized average
+        strategy; sample from it rather than taking the argmax
+    :type side_one: list[MctsSideResult]
+    :param total_visits: Total number of cfr iterations
+    :type total_visits: int
+    :param determinization_visits: Number of iterations spent in each determinization
+    :type determinization_visits: list[int]
+    """
+
+    side_one: list[MctsSideResult]
+    total_visits: int
+    determinization_visits: list[int]
+
+    @classmethod
+    def _from_rust(cls, rust_result):
+        return cls(
+            side_one=[
+                MctsSideResult(
+                    move_choice=i.move_choice,
+                    total_score=i.total_score,
+                    visits=i.visits,
+                )
+                for i in rust_result.s1
+            ],
+            total_visits=rust_result.iteration_count,
+            determinization_visits=list(rust_result.determinization_iterations),
+        )
+
+
+def cfr_search(
+    states: list[State],
+    weights: list[float],
+    duration_ms: int = 1000,
+    iterations: int = 0,
+) -> CfrResult:
+    """
+    Perform a CFR search across several possible states at once, weighted by
+    likelihood. The states share a single side-one strategy at the root, so the
+    result is one strategy that plays well against the weighted mixture.
+
+    All states must present side one with the same options.
+
+    :param states: the possible states to search through
+    :type states: list[State]
+    :param weights: relative likelihood of each state
+    :type weights: list[float]
+    :param duration_ms: total time in milliseconds to run the search. ignored if iterations > 0
+    :type duration_ms: int
+    :param iterations: exact number of cfr iterations to run
+    :type iterations: int
+    :return: the result of the search
+    :rtype: CfrResult
+    """
+    return CfrResult._from_rust(cfr(states, weights, duration_ms, iterations))
+
+
 def monte_carlo_tree_search(
     state: State, duration_ms: int = 1000, iterations: int = 0, threads: int = 1
 ) -> MctsResult:

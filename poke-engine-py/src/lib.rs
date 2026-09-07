@@ -3,6 +3,7 @@ use pyo3::types::PyType;
 use pyo3::{pyfunction, pymethods, pymodule, wrap_pyfunction, Bound, PyResult};
 use std::collections::HashSet;
 
+use poke_engine::cfr::perform_cfr_multi;
 use poke_engine::choices::{Choices, MoveCategory, MOVES};
 use poke_engine::engine::abilities::Abilities;
 use poke_engine::engine::generate_instructions::{
@@ -926,6 +927,66 @@ impl PyIterativeDeepeningResult {
     }
 }
 
+#[derive(Clone)]
+#[pyclass(get_all, from_py_object)]
+struct PyCfrResult {
+    s1: Vec<PyMctsSideResult>,
+    iteration_count: u32,
+    determinization_iterations: Vec<u32>,
+}
+
+#[pyfunction]
+fn cfr(
+    py_states: Vec<PyState>,
+    weights: Vec<f32>,
+    duration_ms: u64,
+    mut iterations: u32,
+) -> PyResult<PyCfrResult> {
+    if py_states.is_empty() {
+        return Err(pyo3::exceptions::PyValueError::new_err(
+            "states must be non-empty",
+        ));
+    }
+    if py_states.len() != weights.len() {
+        return Err(pyo3::exceptions::PyValueError::new_err(
+            "states and weights must have the same length",
+        ));
+    }
+    let mut states: Vec<State> = py_states.into_iter().map(|s| s.into()).collect();
+
+    // the shared s1 table is indexed by option position, so every
+    // determinization must present s1 with the same options
+    let (s1_options, _) = states[0].root_get_all_options();
+    for (i, state) in states.iter_mut().enumerate().skip(1) {
+        let (this_s1_options, _) = state.root_get_all_options();
+        if this_s1_options != s1_options {
+            return Err(pyo3::exceptions::PyValueError::new_err(format!(
+                "state {} has different side-one options than state 0",
+                i
+            )));
+        }
+    }
+    if s1_options.len() <= 1 {
+        iterations = 100; // if there's only one option, force a quick exit
+    }
+
+    let duration = Duration::from_millis(duration_ms);
+    let result = perform_cfr_multi(&mut states, &weights, duration, iterations);
+    Ok(PyCfrResult {
+        s1: result
+            .s1
+            .iter()
+            .map(|r| PyMctsSideResult {
+                move_choice: movechoice_to_string(&states[0].side_one, &r.move_choice),
+                total_score: r.strategy,
+                visits: r.visits,
+            })
+            .collect(),
+        iteration_count: result.iteration_count,
+        determinization_iterations: result.determinization_iterations,
+    })
+}
+
 #[pyfunction]
 fn mcts(
     py_state: PyState,
@@ -1130,6 +1191,7 @@ fn py_poke_engine(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(generate_instructions, m)?)?;
     m.add_function(wrap_pyfunction!(id, m)?)?;
     m.add_function(wrap_pyfunction!(mcts, m)?)?;
+    m.add_function(wrap_pyfunction!(cfr, m)?)?;
     m.add_class::<PyState>()?;
     m.add_class::<PySide>()?;
     m.add_class::<PySideConditions>()?;

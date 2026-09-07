@@ -433,6 +433,27 @@ class MctsResult:
     side_two: List[MctsSideResult]
     iteration_count: int
 
+class CfrResult:
+    """Result from a multi-determinization CFR search."""
+
+    s1: List[MctsSideResult]
+    iteration_count: int
+    determinization_iterations: List[int]
+
+def cfr(
+    py_states: List[State], weights: List[float], duration_ms: int, iterations: int
+) -> CfrResult:
+    """
+    Perform a CFR search across several possible states, weighted by likelihood.
+
+    :param py_states: The possible game states to analyze
+    :param weights: Relative likelihood of each state
+    :param duration_ms: Total duration in milliseconds. ignored if iterations > 0.
+    :param iterations: Exact number of cfr iterations to run
+    :return: side one's strategy across all determinizations
+    """
+    ...
+
 def mcts(
     py_state: State, duration_ms: int, iterations: int, threads: int
 ) -> MctsResult:

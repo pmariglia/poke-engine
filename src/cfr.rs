@@ -95,6 +95,11 @@ pub struct Node {
     // regret-matching statistics, de-coupled for s1 and s2
     pub s1_options: Option<Vec<ActionStats>>,
     pub s2_options: Option<Vec<ActionStats>>,
+
+    // in a multi-determinization search the root nodes of every determinization
+    // share a single s1 table: s1 cannot distinguish the determinizations, so it
+    // must play one strategy across all of them. non-null only on such roots
+    pub shared_s1: *mut Vec<ActionStats>,
 }
 
 impl Node {
@@ -110,6 +115,15 @@ impl Node {
             s2_prob: 1.0,
             s1_options: None,
             s2_options: None,
+            shared_s1: std::ptr::null_mut(),
+        }
+    }
+
+    unsafe fn s1_stats_mut(&mut self) -> &mut Vec<ActionStats> {
+        if self.shared_s1.is_null() {
+            self.s1_options.as_mut().unwrap()
+        } else {
+            &mut *self.shared_s1
         }
     }
 
@@ -133,12 +147,14 @@ impl Node {
         children: &mut HashMap<(usize, usize, usize), Box<[Node]>>,
         rng: &mut impl Rng,
     ) -> (*mut Node, usize, usize, f64, f64) {
-        if self.s1_options.is_none() {
+        // s2_options rather than s1_options: a multi-determinization root has its
+        // s2 table populated but keeps s1_options empty in favour of shared_s1
+        if self.s2_options.is_none() {
             let (s1_options, s2_options) = state.get_all_options();
             self.populate(s1_options, s2_options);
         }
 
-        let (s1_index, s1_prob) = sample_regret_matching(self.s1_options.as_mut().unwrap(), rng);
+        let (s1_index, s1_prob) = sample_regret_matching(self.s1_stats_mut(), rng);
         let (s2_index, s2_prob) = sample_regret_matching(self.s2_options.as_mut().unwrap(), rng);
         let key = (self as *mut Node as usize, s1_index, s2_index);
         match children.get_mut(&key) {
@@ -185,17 +201,23 @@ impl Node {
         children: &mut HashMap<(usize, usize, usize), Box<[Node]>>,
         rng: &mut impl Rng,
     ) -> *mut Node {
-        let s1_move = &self.s1_options.as_ref().unwrap()[s1_move_index].move_choice;
-        let s2_move = &self.s2_options.as_ref().unwrap()[s2_move_index].move_choice;
+        let s1_move = self.s1_stats_mut()[s1_move_index].move_choice.clone();
+        let s2_move = self.s2_options.as_ref().unwrap()[s2_move_index]
+            .move_choice
+            .clone();
         // if the battle is over or both moves are none there is no need to expand
         if (state.battle_is_over() != 0.0 && !self.root)
-            || (s1_move == &MoveChoice::None && s2_move == &MoveChoice::None)
+            || (s1_move == MoveChoice::None && s2_move == MoveChoice::None)
         {
             return self as *mut Node;
         }
         let should_branch_on_damage = self.root || (*self.parent).root;
-        let mut new_instructions =
-            generate_instructions_from_move_pair(state, s1_move, s2_move, should_branch_on_damage);
+        let mut new_instructions = generate_instructions_from_move_pair(
+            state,
+            &s1_move,
+            &s2_move,
+            should_branch_on_damage,
+        );
         let mut this_pair_vec = Vec::with_capacity(new_instructions.len());
         for state_instructions in new_instructions.drain(..) {
             let mut new_node = Node::new();
@@ -230,7 +252,7 @@ impl Node {
 
         let parent = &mut *self.parent;
         update_regrets(
-            parent.s1_options.as_mut().unwrap(),
+            parent.s1_stats_mut(),
             self.s1_choice as usize,
             self.s1_prob,
             score as f64,
@@ -408,5 +430,117 @@ pub fn perform_cfr(
         s1: side_result(root_node.s1_options.as_ref().unwrap()),
         s2: side_result(root_node.s2_options.as_ref().unwrap()),
         iteration_count: root_node.times_visited,
+    }
+}
+
+// one determinization's search tree, kept as a self-contained unit so that a
+// future threaded version can hand whole determinizations to worker threads,
+// leaving the shared s1 table as the only cross-thread state
+struct DeterminizationTree {
+    root: Box<Node>,
+    children: HashMap<(usize, usize, usize), Box<[Node]>>,
+    root_eval: f32,
+}
+
+pub struct CfrMultiResult {
+    // s1's single strategy across all determinizations. sample from it
+    pub s1: Vec<CfrSideResult>,
+    pub iteration_count: u32,
+    pub determinization_iterations: Vec<u32>,
+}
+
+fn sample_weighted(weights: &[f32], total_weight: f32, rng: &mut impl Rng) -> usize {
+    if total_weight <= 0.0 {
+        return rng.random_range(0..weights.len());
+    }
+    let mut threshold = rng.random_range(0.0..total_weight);
+    for (i, w) in weights.iter().enumerate() {
+        threshold -= w.max(0.0);
+        if threshold <= 0.0 {
+            return i;
+        }
+    }
+    weights.len() - 1
+}
+
+// runs cfr across several possible states at once, weighted by belief. every
+// determinization gets its own tree, but the roots share one s1 strategy table:
+// s1 does not know which state is real, so its root strategy must be a single
+// answer that does well against the weighted mixture
+pub fn perform_cfr_multi(
+    states: &mut [State],
+    weights: &[f32],
+    max_time: Duration,
+    max_iterations: u32,
+) -> CfrMultiResult {
+    assert!(!states.is_empty());
+    assert_eq!(states.len(), weights.len());
+
+    // the shared table is indexed by option position, so s1's options must be
+    // identical in every determinization. s1's own side is fully known, so this
+    // only breaks if a sampled opponent set restricts s1 (e.g. trapping), which
+    // callers are expected to avoid
+    let (s1_options, _) = states[0].root_get_all_options();
+    let mut shared_s1: Box<Vec<ActionStats>> = Box::new(
+        s1_options
+            .iter()
+            .map(|x| ActionStats::new(x.clone()))
+            .collect(),
+    );
+    let shared_s1_ptr: *mut Vec<ActionStats> = &mut *shared_s1;
+
+    let mut trees: Vec<DeterminizationTree> = Vec::with_capacity(states.len());
+    for state in states.iter_mut() {
+        let (this_s1_options, s2_options) = state.root_get_all_options();
+        debug_assert_eq!(this_s1_options, s1_options);
+        let mut root = Box::new(Node::new());
+        root.root = true;
+        root.shared_s1 = shared_s1_ptr;
+        root.s2_options = Some(
+            s2_options
+                .iter()
+                .map(|x| ActionStats::new(x.clone()))
+                .collect(),
+        );
+        trees.push(DeterminizationTree {
+            root,
+            children: HashMap::new(),
+            root_eval: evaluate(state),
+        });
+    }
+
+    let total_weight: f32 = weights.iter().map(|w| w.max(0.0)).sum();
+    let mut rng = rng();
+    let start_time = std::time::Instant::now();
+    let mut total_iterations: u32 = 0;
+    loop {
+        for _ in 0..1000 {
+            let k = sample_weighted(weights, total_weight, &mut rng);
+            let tree = &mut trees[k];
+            cfr_iteration(
+                &mut tree.root,
+                &mut states[k],
+                &tree.root_eval,
+                &mut tree.children,
+                &mut rng,
+            );
+        }
+        total_iterations += 1000;
+        if total_iterations >= 10_000_000 {
+            break;
+        }
+        if max_iterations > 0 {
+            if total_iterations >= max_iterations {
+                break;
+            }
+        } else if start_time.elapsed() >= max_time {
+            break;
+        }
+    }
+
+    CfrMultiResult {
+        s1: side_result(&shared_s1),
+        iteration_count: total_iterations,
+        determinization_iterations: trees.iter().map(|t| t.root.times_visited).collect(),
     }
 }
