@@ -382,6 +382,8 @@ fn generate_instructions_from_switch(
 
     ability_on_switch_out(state, &switching_side_ref, incoming_instructions);
 
+    super::transform::restore(state, switching_side_ref, incoming_instructions);
+
     let switch_instruction = Instruction::Switch(SwitchInstruction {
         side_ref: switching_side_ref,
         previous_index: state.get_side(&switching_side_ref).active_index,
@@ -551,6 +553,20 @@ fn generate_instructions_from_switch(
         }
     }
 
+    // Imposter triggers only on entry, after entry hazards. Trace/Skill Swap are not entries.
+    if state
+        .get_side_immutable(&switching_side_ref)
+        .get_active_immutable()
+        .ability
+        == Abilities::IMPOSTER
+        && state
+            .get_side_immutable(&switching_side_ref.get_other_side())
+            .get_active_immutable()
+            .ability
+            != Abilities::NEUTRALIZINGGAS
+    {
+        super::transform::transform(state, switching_side_ref, incoming_instructions);
+    }
     ability_on_switch_in(state, &switching_side_ref, incoming_instructions);
     item_on_switch_in(state, &switching_side_ref, incoming_instructions);
 }
@@ -2328,6 +2344,30 @@ pub fn generate_instructions_from_move(
     if move_has_no_effect(state, &choice, &attacking_side) {
         state.reverse_instructions(&incoming_instructions.instruction_list);
         final_instructions.push(incoming_instructions);
+        return;
+    }
+    if choice.move_id == Choices::TRANSFORM {
+        if incoming_instructions.percentage > 0.0 {
+            let was_transformed = state
+                .get_side_immutable(&attacking_side)
+                .get_active_immutable()
+                .transform_original
+                .is_some();
+            super::transform::transform(state, attacking_side, &mut incoming_instructions);
+            if !was_transformed
+                && state
+                    .get_side_immutable(&attacking_side)
+                    .get_active_immutable()
+                    .transform_original
+                    .is_some()
+            {
+                ability_on_switch_in(state, &attacking_side, &mut incoming_instructions);
+            }
+        }
+        state.reverse_instructions(&incoming_instructions.instruction_list);
+        if incoming_instructions.percentage > 0.0 {
+            final_instructions.push(incoming_instructions);
+        }
         return;
     }
     choice_special_effect(state, choice, &attacking_side, &mut incoming_instructions);

@@ -297,6 +297,9 @@ define_enum_with_from_str! {
 
 impl Pokemon {
     pub fn can_mega_evolve(&self) -> bool {
+        if self.transform_original.is_some() {
+            return false;
+        }
         // this assumes that if you have the correct mega stone, you can always mega evolve
         // even if another pkmn on the team already mega evolved
         // it is incorrect but practically most teams aren't going to have multiple mega stones

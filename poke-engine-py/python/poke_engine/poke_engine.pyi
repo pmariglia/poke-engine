@@ -229,6 +229,8 @@ class Pokemon:
     terastallized: bool
     tera_type: str
     moves: List[Move]
+    transform_original: Optional[str]
+    hidden_power_type: str
     times_attacked: int
     stellar_boosted_types: Optional[list[str]]
 
@@ -258,6 +260,8 @@ class Pokemon:
         mega_evolved: bool = False,
         terastallized: bool = False,
         tera_type: str = "typeless",
+        transform_original: Optional[str] = None,
+        hidden_power_type: str = "dark",
         times_attacked: int = 0,
         stellar_boosted_types: Optional[list[str]] = None,
     ) -> None: ...

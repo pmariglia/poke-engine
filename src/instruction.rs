@@ -1,12 +1,14 @@
 use crate::choices::{Choices, MoveCategory};
 use crate::engine::items::Items;
 use crate::engine::state::{PokemonVolatileStatus, Terrain, Weather};
+use crate::state::Pokemon;
 use crate::state::{
     LastUsedMove, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
     PokemonStatus, PokemonType, SideReference,
 };
 use std::fmt;
 use std::fmt::Formatter;
+use std::sync::Arc;
 
 #[derive(PartialEq, Clone)]
 pub struct StateInstructions {
@@ -43,6 +45,7 @@ impl StateInstructions {
 #[derive(PartialEq, Clone)]
 pub enum Instruction {
     Switch(SwitchInstruction),
+    Transform(Arc<TransformInstruction>),
     ApplyVolatileStatus(ApplyVolatileStatusInstruction),
     RemoveVolatileStatus(RemoveVolatileStatusInstruction),
     ChangeStatus(ChangeStatusInstruction),
@@ -98,6 +101,13 @@ pub enum Instruction {
 impl fmt::Debug for Instruction {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
+            Instruction::Transform(s) => {
+                write!(
+                    f,
+                    "Transform {:?}: {:?} -> {:?}",
+                    s.side_ref, s.previous.id, s.next.id
+                )
+            }
             Instruction::Switch(s) => {
                 write!(
                     f,
@@ -598,7 +608,25 @@ mod test {
     // Make sure that the size of the Instruction enum doesn't change
     #[test]
     fn test_instruction_size() {
-        assert_eq!(size_of::<Instruction>(), 6);
-        assert_eq!(align_of::<Instruction>(), 2);
+        assert_eq!(size_of::<Instruction>(), 16);
+        assert_eq!(align_of::<Instruction>(), 8);
+    }
+}
+
+/// Shared snapshots keep cloning a search branch inexpensive. Only copied
+/// attributes are applied, so HP, status, item and PP changes remain reversible.
+#[derive(Debug, Clone)]
+pub struct TransformInstruction {
+    pub side_ref: SideReference,
+    pub pokemon_index: PokemonIndex,
+    pub previous: Arc<Pokemon>,
+    pub next: Arc<Pokemon>,
+}
+impl PartialEq for TransformInstruction {
+    fn eq(&self, other: &Self) -> bool {
+        self.side_ref == other.side_ref
+            && self.pokemon_index == other.pokemon_index
+            && self.previous.serialize() == other.previous.serialize()
+            && self.next.serialize() == other.next.serialize()
     }
 }

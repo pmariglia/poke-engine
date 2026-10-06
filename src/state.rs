@@ -7,6 +7,7 @@ use crate::instruction::{BoostInstruction, EnableMoveInstruction, Instruction};
 use crate::pokemon::PokemonName;
 use std::ops::{Index, IndexMut};
 use std::str::FromStr;
+use std::sync::Arc;
 
 #[cfg(not(feature = "champions"))]
 const DEFAULT_EVS: (u8, u8, u8, u8, u8, u8) = (85, 85, 85, 85, 85, 85);
@@ -874,11 +875,15 @@ pub struct Pokemon {
     pub terastallized: bool,
     pub tera_type: PokemonType,
     pub moves: PokemonMoves,
+    pub transform_original: Option<Arc<Pokemon>>,
+    pub hidden_power_type: PokemonType,
 }
 
 impl Default for Pokemon {
     fn default() -> Pokemon {
         Pokemon {
+            transform_original: None,
+            hidden_power_type: PokemonType::DARK,
             id: PokemonName::NONE,
             level: 100,
             types: (PokemonType::NORMAL, PokemonType::TYPELESS),
@@ -913,6 +918,20 @@ impl Default for Pokemon {
 }
 
 impl Pokemon {
+    /// Copy only Transform attributes; HP, level, item and status remain local.
+    pub fn copy_transform_attributes(&mut self, other: &Pokemon) {
+        self.id = other.id;
+        self.types = other.types;
+        self.ability = other.ability;
+        self.attack = other.attack;
+        self.defense = other.defense;
+        self.special_attack = other.special_attack;
+        self.special_defense = other.special_defense;
+        self.speed = other.speed;
+        self.weight_kg = other.weight_kg;
+        self.moves = other.moves.clone();
+        self.transform_original = other.transform_original.clone();
+    }
     pub fn replace_move(&mut self, move_index: PokemonMoveIndex, new_move_name: Choices) {
         self.moves[&move_index].choice = MOVES.get(&new_move_name).unwrap().to_owned();
         self.moves[&move_index].id = new_move_name;
@@ -963,7 +982,7 @@ impl Pokemon {
             "{};{};{};{};{};{}",
             self.evs.0, self.evs.1, self.evs.2, self.evs.3, self.evs.4, self.evs.5
         );
-        format!(
+        let mut encoded = format!(
             "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}",
             self.id,
             self.level,
@@ -994,7 +1013,16 @@ impl Pokemon {
             self.mega_evolved,
             self.terastallized,
             self.tera_type.to_string(),
-        )
+        );
+        if self.transform_original.is_some() || self.hidden_power_type != PokemonType::DARK {
+            encoded.push(',');
+            if let Some(original) = &self.transform_original {
+                encoded.push_str(&original.serialize().replace(',', "~"));
+            }
+            encoded.push(',');
+            encoded.push_str(&self.hidden_power_type.to_string());
+        }
+        encoded
     }
 
     pub fn deserialize(serialized: &str) -> Pokemon {
@@ -1013,6 +1041,14 @@ impl Pokemon {
             DEFAULT_EVS
         };
         Pokemon {
+            transform_original: split
+                .get(29)
+                .filter(|s| !s.is_empty())
+                .map(|s| Arc::new(Pokemon::deserialize(&s.replace('~', ",")))),
+            hidden_power_type: split
+                .get(30)
+                .map(|s| PokemonType::from_str(s).unwrap())
+                .unwrap_or(PokemonType::DARK),
             id: PokemonName::from_str(split[0]).unwrap(),
             level: split[1].parse::<i8>().unwrap(),
             types: (
@@ -1192,7 +1228,7 @@ impl Side {
 
         let mut vs_bitset = VolatileStatusBitset::default();
         if split[8] != "" {
-            for item in split[8].split(":") {
+            for item in split[8].split(":").filter(|item| !item.is_empty()) {
                 vs_bitset.insert(PokemonVolatileStatus::from_str(item).unwrap());
             }
         }
@@ -1793,6 +1829,10 @@ impl State {
 
     pub fn apply_one_instruction(&mut self, instruction: &Instruction) {
         match instruction {
+            Instruction::Transform(instruction) => {
+                self.get_side(&instruction.side_ref).pokemon[instruction.pokemon_index]
+                    .copy_transform_attributes(&instruction.next);
+            }
             Instruction::Damage(instruction) => {
                 self.damage(&instruction.side_ref, instruction.damage_amount)
             }
@@ -1995,6 +2035,10 @@ impl State {
 
     pub fn reverse_one_instruction(&mut self, instruction: &Instruction) {
         match instruction {
+            Instruction::Transform(instruction) => {
+                self.get_side(&instruction.side_ref).pokemon[instruction.pokemon_index]
+                    .copy_transform_attributes(&instruction.previous);
+            }
             Instruction::Damage(instruction) => {
                 self.heal(&instruction.side_ref, instruction.damage_amount)
             }

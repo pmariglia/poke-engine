@@ -607,11 +607,15 @@ pub struct PyPokemon {
     pub terastallized: bool,
     pub tera_type: String,
     pub moves: Vec<PyMove>,
+    pub transform_original: Option<String>,
+    pub hidden_power_type: String,
 }
 
 impl From<Pokemon> for PyPokemon {
     fn from(other: Pokemon) -> Self {
         Self {
+            hidden_power_type: other.hidden_power_type.to_string(),
+            transform_original: other.transform_original.as_ref().map(|p| p.serialize()),
             id: other.id.to_string(),
             level: other.level,
             types: (other.types.0.to_string(), other.types.1.to_string()),
@@ -661,6 +665,10 @@ impl Into<Pokemon> for PyPokemon {
             moves_vec.push(PyMove::create_empty_move());
         }
         Pokemon {
+            hidden_power_type: PokemonType::from_str(&self.hidden_power_type).unwrap(),
+            transform_original: self
+                .transform_original
+                .map(|s| std::sync::Arc::new(Pokemon::deserialize(&s))),
             id: PokemonName::from_str(&self.id).unwrap(),
             level: self.level,
             types: (
@@ -730,6 +738,8 @@ impl PyPokemon {
         mega_evolved=false,
         terastallized=false,
         tera_type="typeless".to_string(),
+        transform_original=None,
+        hidden_power_type="dark".to_string(),
     ))]
     fn new(
         id: String,
@@ -756,6 +766,8 @@ impl PyPokemon {
         mega_evolved: bool,
         terastallized: bool,
         tera_type: String,
+        transform_original: Option<String>,
+        hidden_power_type: String,
     ) -> Self {
         if base_ability == "" {
             base_ability = ability.clone();
@@ -784,6 +796,8 @@ impl PyPokemon {
             mega_evolved,
             terastallized,
             tera_type,
+            transform_original,
+            hidden_power_type,
             moves,
         }
     }
