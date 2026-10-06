@@ -578,12 +578,30 @@ pub fn calculate_damage(
 ) -> Option<(i16, i16)> {
     if choice.category == MoveCategory::Status || choice.category == MoveCategory::Switch {
         return None;
-    } else if choice.base_power == 0.0 {
-        return Some((0, 0));
     }
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side);
     let attacker = attacking_side.get_active_immutable();
     let defender = defending_side.get_active_immutable();
+
+    if choice.move_id.fixed_damage() {
+        let amount = if type_effectiveness_modifier(&choice.move_type, defender) == 0.0 {
+            0
+        } else {
+            match choice.move_id {
+                Choices::SEISMICTOSS | Choices::NIGHTSHADE => attacker.level as i16,
+                Choices::SUPERFANG | Choices::NATURESMADNESS | Choices::RUINATION => {
+                    (defender.hp / 2).max(1)
+                }
+                Choices::ENDEAVOR => (defender.hp - attacker.hp).max(0),
+                Choices::FINALGAMBIT => attacker.hp,
+                _ => unreachable!(),
+            }
+        };
+        return Some((amount, amount));
+    }
+    if choice.base_power == 0.0 {
+        return Some((0, 0));
+    }
 
     let effective_weather = if attacker.ability == Abilities::MEGASOL {
         Weather::SUN

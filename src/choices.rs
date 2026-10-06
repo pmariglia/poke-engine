@@ -20411,6 +20411,20 @@ define_enum_with_from_str! {
 }
 
 impl Choices {
+    // These moves have exact damage, without random rolls or critical hits.
+    pub fn fixed_damage(&self) -> bool {
+        matches!(
+            self,
+            Choices::SEISMICTOSS
+                | Choices::NIGHTSHADE
+                | Choices::SUPERFANG
+                | Choices::NATURESMADNESS
+                | Choices::RUINATION
+                | Choices::ENDEAVOR
+                | Choices::FINALGAMBIT
+        )
+    }
+
     pub fn is_hiddenpower(&self) -> bool {
         match self {
             Choices::HIDDENPOWER

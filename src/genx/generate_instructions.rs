@@ -1472,10 +1472,11 @@ fn generate_instructions_from_damage(
             let mut knocked_out = false;
             damage_dealt = cmp::min(calculated_damage, defending_pokemon.hp);
             if damage_dealt != 0 {
-                if has_endure
-                    || ((defending_pokemon.ability == Abilities::STURDY
-                        || defending_pokemon.item == Items::FOCUSSASH)
-                        && defending_pokemon.maxhp == defending_pokemon.hp)
+                if damage_dealt >= defending_pokemon.hp
+                    && (has_endure
+                        || ((defending_pokemon.ability == Abilities::STURDY
+                            || defending_pokemon.item == Items::FOCUSSASH)
+                            && defending_pokemon.maxhp == defending_pokemon.hp))
                 {
                     damage_dealt -= 1;
                 }
@@ -2392,7 +2393,9 @@ pub fn generate_instructions_from_move(
         does_damage = true;
         let avg_damage_dealt = (max_damage_dealt as f32 * 0.925) as i16;
         let min_damage_dealt = (max_damage_dealt as f32 * 0.85) as i16;
-        if branch_on_damage
+        if choice.move_id.fixed_damage() {
+            regular_damage = max_damage_dealt;
+        } else if branch_on_damage
             && max_damage_dealt >= defender_active.hp
             && min_damage_dealt < defender_active.hp
         {
@@ -4419,31 +4422,9 @@ pub fn calculate_damage_rolls(
         .get_side_immutable(&attacking_side_ref.get_other_side())
         .get_active_immutable();
     match choice.move_id {
-        Choices::SEISMICTOSS => {
-            if type_effectiveness_modifier(&PokemonType::NORMAL, &defender_active) == 0.0 {
-                return None;
-            }
-            return Some(vec![attacker_active.level as i16]);
-        }
-        Choices::NIGHTSHADE => {
-            if type_effectiveness_modifier(&PokemonType::GHOST, &defender_active) == 0.0 {
-                return None;
-            }
-            return Some(vec![attacker_active.level as i16]);
-        }
-        Choices::FINALGAMBIT => {
-            if type_effectiveness_modifier(&PokemonType::GHOST, &defender_active) == 0.0 {
-                return None;
-            }
-            return Some(vec![attacker_active.hp]);
-        }
-        Choices::ENDEAVOR => {
-            if type_effectiveness_modifier(&PokemonType::GHOST, &defender_active) == 0.0
-                || defender_active.hp <= attacker_active.hp
-            {
-                return None;
-            }
-            return Some(vec![defender_active.hp - attacker_active.hp]);
+        move_id if move_id.fixed_damage() => {
+            return calculate_damage(&state, attacking_side_ref, &choice, DamageRolls::Max)
+                .and_then(|(amount, _)| if amount > 0 { Some(vec![amount]) } else { None });
         }
         Choices::PAINSPLIT => {
             if type_effectiveness_modifier(&PokemonType::GHOST, &defender_active) == 0.0
@@ -4454,14 +4435,6 @@ pub fn calculate_damage_rolls(
             return Some(vec![
                 defender_active.hp - (attacker_active.hp + defender_active.hp) / 2,
             ]);
-        }
-        Choices::SUPERFANG
-            if type_effectiveness_modifier(&PokemonType::NORMAL, &defender_active) == 0.0 =>
-        {
-            return None;
-        }
-        Choices::SUPERFANG | Choices::NATURESMADNESS | Choices::RUINATION => {
-            return Some(vec![defender_active.hp / 2]);
         }
         Choices::SUCKERPUNCH | Choices::THUNDERCLAP => {
             defending_choice = MOVES.get(&Choices::TACKLE).unwrap();

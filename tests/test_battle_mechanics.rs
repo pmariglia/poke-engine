@@ -10341,13 +10341,19 @@ fn test_superfang() {
         Choices::SPLASH,
     );
 
-    let expected_instructions = vec![StateInstructions {
-        percentage: 100.0,
-        instruction_list: vec![Instruction::Damage(DamageInstruction {
-            side_ref: SideReference::SideTwo,
-            damage_amount: 30,
-        })],
-    }];
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 10.000002,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 90.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 30,
+            })],
+        },
+    ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -10424,10 +10430,19 @@ fn test_superfang_at_1hp() {
         Choices::SPLASH,
     );
 
-    let expected_instructions = vec![StateInstructions {
-        percentage: 100.0,
-        instruction_list: vec![],
-    }];
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 10.000002,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 90.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 1,
+            })],
+        },
+    ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
