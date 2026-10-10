@@ -48,3 +48,6 @@ default = []
 members = [
     "poke-engine-py"
 ]
+
+[target.wasm32-unknown-unknown.dependencies]
+web-time = "1.1.0"
