@@ -128,6 +128,23 @@ fn _type_effectiveness_modifier(
     modifier
 }
 
+fn strong_winds_type_effectiveness_modifier(
+    attacking_type: &PokemonType,
+    defending_types: &(PokemonType, PokemonType),
+) -> f32 {
+    let mut modifier = 1.0;
+    let attacking_type_index = type_enum_to_type_matchup_int(attacking_type);
+    for defending_type in [&defending_types.0, &defending_types.1] {
+        let type_modifier = TYPE_MATCHUP_DAMAGE_MULTIPICATION[attacking_type_index]
+            [type_enum_to_type_matchup_int(defending_type)];
+        if *defending_type == PokemonType::FLYING && type_modifier > 1.0 {
+            continue;
+        }
+        modifier *= type_modifier;
+    }
+    modifier
+}
+
 fn weather_modifier(attacking_move_type: &PokemonType, weather: &Weather) -> f32 {
     match weather {
         Weather::SUN => match attacking_move_type {
@@ -540,10 +557,12 @@ fn common_pkmn_damage_calc(
     if defender.terastallized && choice.move_type == PokemonType::STELLAR {
         damage_modifier *= 2.0;
     } else {
-        damage_modifier *= _type_effectiveness_modifier(
-            &choice.move_type,
-            &get_defending_types(&defending_side, defender, attacker, choice),
-        );
+        let defending_types = get_defending_types(&defending_side, defender, attacker, choice);
+        damage_modifier *= if *weather == Weather::DELTASTREAM {
+            strong_winds_type_effectiveness_modifier(&choice.move_type, &defending_types)
+        } else {
+            _type_effectiveness_modifier(&choice.move_type, &defending_types)
+        };
     }
 
     if attacker.ability != Abilities::CLOUDNINE
@@ -891,6 +910,118 @@ mod tests {
         test_heavy_rain_boost_water: (Weather::HEAVYRAIN, PokemonType::WATER, 48),
         test_harsh_sun_makes_water_do_zero: (Weather::HARSHSUN, PokemonType::WATER, 0),
         test_harsh_sun_boosting_fire: (Weather::HARSHSUN, PokemonType::FIRE, 48),
+    }
+
+    fn strong_winds_damage(
+        weather: Weather,
+        defender_types: (PokemonType, PokemonType),
+        move_type: PokemonType,
+    ) -> i16 {
+        let mut state = State::default();
+        state.weather.weather_type = weather;
+        state.side_two.get_active().types = defender_types;
+        let choice = Choice {
+            move_type,
+            base_power: 40.0,
+            category: MoveCategory::Special,
+            ..Default::default()
+        };
+        calculate_damage(
+            &state,
+            &SideReference::SideOne,
+            &choice,
+            DamageRolls::Average,
+        )
+        .unwrap()
+        .0
+    }
+
+    #[test]
+    fn test_strong_winds_make_super_effective_moves_neutral_against_flying() {
+        let flying = (PokemonType::FLYING, PokemonType::TYPELESS);
+        let neutral = (PokemonType::NORMAL, PokemonType::TYPELESS);
+        for move_type in [PokemonType::ICE, PokemonType::ELECTRIC, PokemonType::ROCK] {
+            assert_eq!(
+                strong_winds_damage(Weather::NONE, neutral, move_type),
+                strong_winds_damage(Weather::DELTASTREAM, flying, move_type),
+            );
+            assert!(
+                strong_winds_damage(Weather::NONE, flying, move_type)
+                    > strong_winds_damage(Weather::DELTASTREAM, flying, move_type)
+            );
+        }
+    }
+
+    #[test]
+    fn test_strong_winds_keep_the_weakness_of_the_other_type() {
+        // ice is 4x against flying/dragon, strong winds only remove flying's weakness
+        assert_eq!(
+            strong_winds_damage(
+                Weather::NONE,
+                (PokemonType::DRAGON, PokemonType::TYPELESS),
+                PokemonType::ICE
+            ),
+            strong_winds_damage(
+                Weather::DELTASTREAM,
+                (PokemonType::FLYING, PokemonType::DRAGON),
+                PokemonType::ICE
+            ),
+        );
+    }
+
+    #[test]
+    fn test_strong_winds_do_not_change_flying_resistances_or_immunities() {
+        let flying = (PokemonType::FLYING, PokemonType::TYPELESS);
+        for move_type in [PokemonType::GRASS, PokemonType::GROUND] {
+            assert_eq!(
+                strong_winds_damage(Weather::NONE, flying, move_type),
+                strong_winds_damage(Weather::DELTASTREAM, flying, move_type),
+            );
+        }
+        assert_eq!(
+            0,
+            strong_winds_damage(Weather::DELTASTREAM, flying, PokemonType::GROUND)
+        );
+    }
+
+    #[test]
+    fn test_strong_winds_do_not_affect_other_types() {
+        let dragon = (PokemonType::DRAGON, PokemonType::TYPELESS);
+        assert_eq!(
+            strong_winds_damage(Weather::NONE, dragon, PokemonType::ICE),
+            strong_winds_damage(Weather::DELTASTREAM, dragon, PokemonType::ICE),
+        );
+    }
+
+    #[test]
+    fn test_strong_winds_are_suppressed_by_air_lock() {
+        let mut state = State::default();
+        state.weather.weather_type = Weather::DELTASTREAM;
+        state.side_two.get_active().types = (PokemonType::FLYING, PokemonType::TYPELESS);
+        state.side_two.get_active().ability = Abilities::AIRLOCK;
+        let choice = Choice {
+            move_type: PokemonType::ICE,
+            base_power: 40.0,
+            category: MoveCategory::Special,
+            ..Default::default()
+        };
+        let damage = calculate_damage(
+            &state,
+            &SideReference::SideOne,
+            &choice,
+            DamageRolls::Average,
+        )
+        .unwrap()
+        .0;
+
+        assert_eq!(
+            strong_winds_damage(
+                Weather::NONE,
+                (PokemonType::FLYING, PokemonType::TYPELESS),
+                PokemonType::ICE
+            ),
+            damage
+        );
     }
 
     macro_rules! stab_tests {

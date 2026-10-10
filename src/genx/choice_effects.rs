@@ -461,7 +461,7 @@ pub fn modify_choice(
                         attacker_choice.base_power = 100.0;
                         attacker_choice.move_type = PokemonType::ICE;
                     }
-                    Weather::NONE => {}
+                    Weather::NONE | Weather::DELTASTREAM => {}
                 }
             }
         }
@@ -1586,7 +1586,9 @@ pub fn choice_special_effect(
                 .push(change_defender_item_instruction);
         }
         Choices::SUNNYDAY => {
-            if state.weather.weather_type != Weather::SUN {
+            if state.weather.weather_type != Weather::SUN
+                && !state.weather.strong_winds_block_weather()
+            {
                 instructions
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
@@ -1600,7 +1602,9 @@ pub fn choice_special_effect(
             }
         }
         Choices::RAINDANCE => {
-            if state.weather.weather_type != Weather::RAIN {
+            if state.weather.weather_type != Weather::RAIN
+                && !state.weather.strong_winds_block_weather()
+            {
                 instructions
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
@@ -1614,7 +1618,9 @@ pub fn choice_special_effect(
             }
         }
         Choices::SANDSTORM => {
-            if state.weather.weather_type != Weather::SAND {
+            if state.weather.weather_type != Weather::SAND
+                && !state.weather.strong_winds_block_weather()
+            {
                 instructions
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
@@ -1628,7 +1634,9 @@ pub fn choice_special_effect(
             }
         }
         Choices::HAIL => {
-            if state.weather.weather_type != Weather::HAIL {
+            if state.weather.weather_type != Weather::HAIL
+                && !state.weather.strong_winds_block_weather()
+            {
                 instructions
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
@@ -1642,7 +1650,9 @@ pub fn choice_special_effect(
             }
         }
         Choices::SNOWSCAPE | Choices::CHILLYRECEPTION => {
-            if state.weather.weather_type != Weather::SNOW {
+            if state.weather.weather_type != Weather::SNOW
+                && !state.weather.strong_winds_block_weather()
+            {
                 instructions
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {

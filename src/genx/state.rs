@@ -12,7 +12,7 @@ use crate::pokemon::PokemonName;
 use crate::state::VolatileStatusBitset;
 use crate::state::{
     LastUsedMove, Pokemon, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonNature,
-    PokemonSideCondition, PokemonStatus, PokemonType, Side, SideReference, State,
+    PokemonSideCondition, PokemonStatus, PokemonType, Side, SideReference, State, StateWeather,
 };
 use core::panic;
 
@@ -281,6 +281,13 @@ define_enum_with_from_str! {
         SNOW,
         HARSHSUN,
         HEAVYRAIN,
+        DELTASTREAM,
+    }
+}
+
+impl StateWeather {
+    pub fn strong_winds_block_weather(&self) -> bool {
+        self.weather_type == Weather::DELTASTREAM
     }
 }
 

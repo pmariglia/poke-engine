@@ -884,7 +884,10 @@ pub fn ability_after_damage_hit(
             }
         }
         Abilities::SANDSPIT => {
-            if damage_dealt > 0 && state.weather.weather_type != Weather::SAND {
+            if damage_dealt > 0
+                && state.weather.weather_type != Weather::SAND
+                && !state.weather.strong_winds_block_weather()
+            {
                 instructions
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
@@ -1110,6 +1113,20 @@ pub fn ability_on_switch_out(
         }
         Abilities::DESOLATELAND => {
             if state.weather.weather_type == Weather::HARSHSUN {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeWeather(ChangeWeather {
+                        new_weather: Weather::NONE,
+                        new_weather_turns_remaining: -1,
+                        previous_weather: state.weather.weather_type,
+                        previous_weather_turns_remaining: state.weather.turns_remaining,
+                    }));
+                state.weather.weather_type = Weather::NONE;
+                state.weather.turns_remaining = -1;
+            }
+        }
+        Abilities::DELTASTREAM => {
+            if state.weather.weather_type == Weather::DELTASTREAM {
                 instructions
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
@@ -1499,7 +1516,9 @@ pub fn ability_on_switch_in(
             attacking_side.volatile_status_durations.slowstart = 6;
         }
         Abilities::DROUGHT | Abilities::ORICHALCUMPULSE => {
-            if state.weather.weather_type != Weather::SUN {
+            if state.weather.weather_type != Weather::SUN
+                && !state.weather.strong_winds_block_weather()
+            {
                 instructions
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
@@ -1510,6 +1529,20 @@ pub fn ability_on_switch_in(
                     }));
                 state.weather.weather_type = Weather::SUN;
                 state.weather.turns_remaining = WEATHER_ABILITY_TURNS;
+            }
+        }
+        Abilities::DELTASTREAM => {
+            if state.weather.weather_type != Weather::DELTASTREAM {
+                instructions
+                    .instruction_list
+                    .push(Instruction::ChangeWeather(ChangeWeather {
+                        new_weather: Weather::DELTASTREAM,
+                        new_weather_turns_remaining: -1,
+                        previous_weather: state.weather.weather_type,
+                        previous_weather_turns_remaining: state.weather.turns_remaining,
+                    }));
+                state.weather.weather_type = Weather::DELTASTREAM;
+                state.weather.turns_remaining = -1;
             }
         }
         Abilities::DESOLATELAND => {
@@ -1541,7 +1574,9 @@ pub fn ability_on_switch_in(
             }
         }
         Abilities::SANDSTREAM => {
-            if state.weather.weather_type != Weather::SAND {
+            if state.weather.weather_type != Weather::SAND
+                && !state.weather.strong_winds_block_weather()
+            {
                 instructions
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
@@ -1753,7 +1788,9 @@ pub fn ability_on_switch_in(
             #[cfg(not(any(feature = "gen9", feature = "champions")))]
             let weather_type = Weather::HAIL;
 
-            if state.weather.weather_type != weather_type {
+            if state.weather.weather_type != weather_type
+                && !state.weather.strong_winds_block_weather()
+            {
                 instructions
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {
@@ -1781,7 +1818,9 @@ pub fn ability_on_switch_in(
             }
         }
         Abilities::DRIZZLE => {
-            if state.weather.weather_type != Weather::RAIN {
+            if state.weather.weather_type != Weather::RAIN
+                && !state.weather.strong_winds_block_weather()
+            {
                 instructions
                     .instruction_list
                     .push(Instruction::ChangeWeather(ChangeWeather {

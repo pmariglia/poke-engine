@@ -17862,6 +17862,168 @@ fn test_desolateland_on_switchout() {
 }
 
 #[test]
+fn test_deltastream_on_switchin() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::DELTASTREAM;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::DELTASTREAM,
+                new_weather_turns_remaining: -1,
+                previous_weather: Weather::NONE,
+                previous_weather_turns_remaining: -1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_deltastream_on_switchout() {
+    let mut state = State::default();
+    state.side_one.pokemon[PokemonIndex::P0].ability = Abilities::DELTASTREAM;
+    state.side_one.pokemon[PokemonIndex::P0].base_ability = Abilities::DELTASTREAM;
+    state.weather.weather_type = Weather::DELTASTREAM;
+    state.weather.turns_remaining = -1;
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::Switch(PokemonIndex::P1),
+        &MoveChoice::None,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::ChangeWeather(ChangeWeather {
+                new_weather: Weather::NONE,
+                new_weather_turns_remaining: -1,
+                previous_weather: Weather::DELTASTREAM,
+                previous_weather_turns_remaining: -1,
+            }),
+            Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_weather_moves_fail_in_strong_winds() {
+    for weather_move in [
+        Choices::SUNNYDAY,
+        Choices::RAINDANCE,
+        Choices::SANDSTORM,
+        Choices::HAIL,
+        Choices::SNOWSCAPE,
+    ] {
+        let mut state = State::default();
+        state.weather.weather_type = Weather::DELTASTREAM;
+        state.weather.turns_remaining = -1;
+
+        let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+            &mut state,
+            weather_move,
+            Choices::SPLASH,
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![],
+        }];
+        assert_eq!(
+            expected_instructions, vec_of_instructions,
+            "{:?}",
+            weather_move
+        );
+    }
+}
+
+#[test]
+fn test_weather_abilities_fail_in_strong_winds() {
+    for ability in [
+        Abilities::DROUGHT,
+        Abilities::DRIZZLE,
+        Abilities::SANDSTREAM,
+        Abilities::SNOWWARNING,
+    ] {
+        let mut state = State::default();
+        state.side_one.pokemon[PokemonIndex::P1].ability = ability;
+        state.weather.weather_type = Weather::DELTASTREAM;
+        state.weather.turns_remaining = -1;
+
+        let vec_of_instructions = generate_instructions_with_state_assertion(
+            &mut state,
+            &MoveChoice::Switch(PokemonIndex::P1),
+            &MoveChoice::None,
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![Instruction::Switch(SwitchInstruction {
+                side_ref: SideReference::SideOne,
+                previous_index: PokemonIndex::P0,
+                next_index: PokemonIndex::P1,
+            })],
+        }];
+        assert_eq!(expected_instructions, vec_of_instructions, "{:?}", ability);
+    }
+}
+
+#[test]
+fn test_primal_weather_replaces_strong_winds() {
+    for (ability, weather) in [
+        (Abilities::DESOLATELAND, Weather::HARSHSUN),
+        (Abilities::PRIMORDIALSEA, Weather::HEAVYRAIN),
+    ] {
+        let mut state = State::default();
+        state.side_one.pokemon[PokemonIndex::P1].ability = ability;
+        state.weather.weather_type = Weather::DELTASTREAM;
+        state.weather.turns_remaining = -1;
+
+        let vec_of_instructions = generate_instructions_with_state_assertion(
+            &mut state,
+            &MoveChoice::Switch(PokemonIndex::P1),
+            &MoveChoice::None,
+        );
+
+        let expected_instructions = vec![StateInstructions {
+            percentage: 100.0,
+            instruction_list: vec![
+                Instruction::Switch(SwitchInstruction {
+                    side_ref: SideReference::SideOne,
+                    previous_index: PokemonIndex::P0,
+                    next_index: PokemonIndex::P1,
+                }),
+                Instruction::ChangeWeather(ChangeWeather {
+                    new_weather: weather,
+                    new_weather_turns_remaining: -1,
+                    previous_weather: Weather::DELTASTREAM,
+                    previous_weather_turns_remaining: -1,
+                }),
+            ],
+        }];
+        assert_eq!(expected_instructions, vec_of_instructions, "{:?}", ability);
+    }
+}
+
+#[test]
 fn test_electricsurge() {
     let mut state = State::default();
     state.side_one.pokemon[PokemonIndex::P1].ability = Abilities::ELECTRICSURGE;

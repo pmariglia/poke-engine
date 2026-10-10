@@ -13,6 +13,7 @@ class Weather(StrEnum):
     SNOW = "snow"
     HARSH_SUN = "harshsun"
     HEAVY_RAIN = "heavyrain"
+    DELTA_STREAM = "deltastream"
 
 
 class Terrain(StrEnum):
