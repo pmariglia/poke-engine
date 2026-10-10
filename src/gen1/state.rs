@@ -181,6 +181,7 @@ define_enum_with_from_str! {
         UNBURDEN,
         UPROAR,
         YAWN,
+        TRAPPED,
 
         GEN1BURNNULLIFY,
         GEN1PARALYSISNULLIFY,
