@@ -1,8 +1,8 @@
 use crate::define_enum_with_from_str;
 use crate::engine::state::PokemonVolatileStatus;
 use crate::state::{
-    PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition, PokemonStatus,
-    PokemonType,
+    Pokemon, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
+    PokemonStatus, PokemonType,
 };
 use std::collections::HashMap;
 use std::fmt;
@@ -20500,6 +20500,19 @@ impl Choices {
             | Choices::STORMTHROW
             | Choices::FROSTBREATH => true,
             _ => false,
+        }
+    }
+    pub fn fixed_damage(&self, attacker: &Pokemon, defender: &Pokemon) -> Option<i16> {
+        match self {
+            #[cfg(not(any(feature = "gen2", feature = "gen3")))]
+            Choices::FINALGAMBIT => Some(attacker.hp),
+            Choices::SEISMICTOSS | Choices::NIGHTSHADE => Some(attacker.level as i16),
+            Choices::SUPERFANG => Some((defender.hp / 2).max(1)),
+            #[cfg(not(any(feature = "gen2", feature = "gen3")))]
+            Choices::NATURESMADNESS | Choices::RUINATION => Some((defender.hp / 2).max(1)),
+            #[cfg(not(feature = "gen2"))]
+            Choices::ENDEAVOR => Some((defender.hp - attacker.hp).max(0)),
+            _ => None,
         }
     }
 }

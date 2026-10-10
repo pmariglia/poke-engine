@@ -1521,7 +1521,19 @@ pub fn generate_instructions_from_move(
         final_instructions.push(incoming_instructions);
         return;
     }
-    let damage = calculate_damage(state, &attacking_side, &choice, DamageRolls::Max);
+    let (attacker_side, defender_side) = state.get_both_sides_immutable(&attacking_side);
+    let attacker = attacker_side.get_active_immutable();
+    let defender = defender_side.get_active_immutable();
+    let fixed_damage = choice.move_id.fixed_damage(attacker, defender);
+    let damage = if let Some(fixed_damage) = fixed_damage {
+        if type_effectiveness_modifier(&choice.move_type, defender) == 0.0 {
+            Some((0, 0))
+        } else {
+            Some((fixed_damage, fixed_damage))
+        }
+    } else {
+        calculate_damage(state, &attacking_side, &choice, DamageRolls::Max)
+    };
     choice_special_effect(
         state,
         &choice,
@@ -1572,7 +1584,9 @@ pub fn generate_instructions_from_move(
     if let Some((max_damage_dealt, max_crit_damage)) = damage {
         does_damage = true;
         let min_damage_dealt = (max_damage_dealt as f32 * 0.85) as i16;
-        if branch_on_damage
+        if fixed_damage.is_some() {
+            regular_damage = max_damage_dealt;
+        } else if branch_on_damage
             && max_damage_dealt >= defender_active.hp
             && min_damage_dealt < defender_active.hp
         {

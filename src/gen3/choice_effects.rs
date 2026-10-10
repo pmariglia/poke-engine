@@ -1,5 +1,4 @@
 use super::abilities::Abilities;
-use super::damage_calc::type_effectiveness_modifier;
 use super::generate_instructions::add_remove_status_instructions;
 use super::items::{get_choice_move_disable_instructions, Items};
 use super::state::{PokemonVolatileStatus, Weather};
@@ -537,62 +536,6 @@ pub fn choice_special_effect(
                 active_pkmn.status = PokemonStatus::SLEEP;
                 active_pkmn.rest_turns = 3;
             }
-        }
-        Choices::SUPERFANG => {
-            let target_pkmn = defending_side.get_active();
-            if target_pkmn.hp == 1 {
-                return;
-            }
-            if choice.move_id == Choices::SUPERFANG
-                && type_effectiveness_modifier(&PokemonType::NORMAL, &target_pkmn) == 0.0
-            {
-                return;
-            }
-            let target_hp = target_pkmn.hp / 2;
-            instructions
-                .instruction_list
-                .push(Instruction::Damage(DamageInstruction {
-                    side_ref: attacking_side_ref.get_other_side(),
-                    damage_amount: target_pkmn.hp - target_hp,
-                }));
-            target_pkmn.hp = target_hp;
-        }
-        Choices::SEISMICTOSS => {
-            let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
-            let attacker_level = attacking_side.get_active_immutable().level;
-            let defender_active = defending_side.get_active();
-            if type_effectiveness_modifier(&PokemonType::NORMAL, &defender_active) == 0.0 {
-                return;
-            }
-
-            let damage_amount = cmp::min(attacker_level as i16, defender_active.hp);
-            instructions
-                .instruction_list
-                .push(Instruction::Damage(DamageInstruction {
-                    side_ref: attacking_side_ref.get_other_side(),
-                    damage_amount: damage_amount,
-                }));
-            defender_active.hp -= damage_amount;
-        }
-        Choices::ENDEAVOR => {
-            let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
-            let attacker = attacking_side.get_active();
-            let defender = defending_side.get_active();
-
-            if type_effectiveness_modifier(&PokemonType::NORMAL, &defender) == 0.0
-                || attacker.hp >= defender.hp
-            {
-                return;
-            }
-
-            let damage_amount = defender.hp - attacker.hp;
-            instructions
-                .instruction_list
-                .push(Instruction::Damage(DamageInstruction {
-                    side_ref: attacking_side_ref.get_other_side(),
-                    damage_amount: damage_amount,
-                }));
-            defender.hp -= damage_amount;
         }
         Choices::PAINSPLIT => {
             if !defending_side

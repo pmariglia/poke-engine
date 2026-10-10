@@ -637,3 +637,141 @@ fn test_pechaberry_cures_poison() {
 fn test_pechaberry_cures_toxic() {
     assert_gen3_status_cure_berry(Items::PECHABERRY, PokemonStatus::TOXIC);
 }
+
+#[test]
+fn test_seismictoss_against_sub_breaking() {
+    let mut state = State::default();
+    state.side_one.get_active().level = 88;
+    state
+        .side_two
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
+    state.side_two.substitute_health = 50;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SEISMICTOSS,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DamageSubstitute(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 50,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_seismictoss_versus_ghost() {
+    let mut state = State::default();
+    state.side_two.get_active().types.0 = PokemonType::GHOST;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SEISMICTOSS,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_nightshade() {
+    let mut state = State::default();
+    state.side_one.get_active().level = 44;
+    state.side_two.get_active().types.0 = PokemonType::FIRE;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::NIGHTSHADE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 44,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_superfang_at_1hp() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SUPERFANG,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 10.000002,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 90.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 1,
+            })],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_endeavor() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 30;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::ENDEAVOR,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 70,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_endeavor_when_attacker_hp_is_higher() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 30;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::ENDEAVOR,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}

@@ -692,6 +692,16 @@ pub fn choice_after_damage_hit(
             .insert(PokemonVolatileStatus::TRUANT);
     }
     match choice.move_id {
+        Choices::FINALGAMBIT => {
+            let attacker_active = attacking_side.get_active();
+            instructions
+                .instruction_list
+                .push(Instruction::Damage(DamageInstruction {
+                    side_ref: *attacking_side_ref,
+                    damage_amount: attacker_active.hp,
+                }));
+            attacker_active.hp = 0;
+        }
         Choices::DOUBLESHOCK => {
             let attacker_active = attacking_side.get_active_immutable();
             let instruction = if attacker_active.types.0 == PokemonType::ELECTRIC {
@@ -1440,105 +1450,6 @@ pub fn choice_special_effect(
                     previous_trickroom_turns_remaining: state.trick_room.turns_remaining,
                 }));
             state.trick_room.active = !state.trick_room.active;
-        }
-        Choices::SUPERFANG | Choices::NATURESMADNESS | Choices::RUINATION => {
-            let target_pkmn = defending_side.get_active();
-            if target_pkmn.hp == 1 {
-                return;
-            }
-            if choice.move_id == Choices::SUPERFANG
-                && type_effectiveness_modifier(&PokemonType::NORMAL, &target_pkmn) == 0.0
-            {
-                return;
-            }
-            let target_hp = target_pkmn.hp / 2;
-            instructions
-                .instruction_list
-                .push(Instruction::Damage(DamageInstruction {
-                    side_ref: attacking_side_ref.get_other_side(),
-                    damage_amount: target_pkmn.hp - target_hp,
-                }));
-            target_pkmn.hp = target_hp;
-        }
-        Choices::NIGHTSHADE => {
-            let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
-            let attacker_level = attacking_side.get_active_immutable().level;
-            let defender_active = defending_side.get_active();
-            if type_effectiveness_modifier(&PokemonType::GHOST, &defender_active) == 0.0 {
-                return;
-            }
-
-            let damage_amount = cmp::min(attacker_level as i16, defender_active.hp);
-            instructions
-                .instruction_list
-                .push(Instruction::Damage(DamageInstruction {
-                    side_ref: attacking_side_ref.get_other_side(),
-                    damage_amount: damage_amount,
-                }));
-            defender_active.hp -= damage_amount;
-        }
-        Choices::SEISMICTOSS => {
-            let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
-            let attacker_level = attacking_side.get_active_immutable().level;
-            let defender_active = defending_side.get_active();
-            if type_effectiveness_modifier(&PokemonType::NORMAL, &defender_active) == 0.0 {
-                return;
-            }
-
-            let damage_amount = cmp::min(attacker_level as i16, defender_active.hp);
-            instructions
-                .instruction_list
-                .push(Instruction::Damage(DamageInstruction {
-                    side_ref: attacking_side_ref.get_other_side(),
-                    damage_amount: damage_amount,
-                }));
-            defender_active.hp -= damage_amount;
-        }
-        Choices::ENDEAVOR => {
-            let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
-            let attacker = attacking_side.get_active();
-            let defender = defending_side.get_active();
-
-            if type_effectiveness_modifier(&PokemonType::NORMAL, &defender) == 0.0
-                || attacker.hp >= defender.hp
-            {
-                return;
-            }
-
-            let damage_amount = defender.hp - attacker.hp;
-            instructions
-                .instruction_list
-                .push(Instruction::Damage(DamageInstruction {
-                    side_ref: attacking_side_ref.get_other_side(),
-                    damage_amount: damage_amount,
-                }));
-            defender.hp -= damage_amount;
-        }
-        Choices::FINALGAMBIT => {
-            let (attacking_side, defending_side) = state.get_both_sides(attacking_side_ref);
-            let attacker = attacking_side.get_active();
-            let defender = defending_side.get_active();
-
-            if type_effectiveness_modifier(&PokemonType::NORMAL, &defender) == 0.0 {
-                return;
-            }
-
-            let damage_amount = attacker.hp;
-            instructions
-                .instruction_list
-                .push(Instruction::Damage(DamageInstruction {
-                    side_ref: attacking_side_ref.get_other_side(),
-                    damage_amount: damage_amount,
-                }));
-            defender.hp -= damage_amount;
-
-            instructions
-                .instruction_list
-                .push(Instruction::Damage(DamageInstruction {
-                    side_ref: *attacking_side_ref,
-                    damage_amount: attacker.hp,
-                }));
-            attacker.hp = 0;
         }
         Choices::PAINSPLIT => {
             if !defending_side

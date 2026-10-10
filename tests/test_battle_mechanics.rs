@@ -10474,13 +10474,19 @@ fn test_superfang() {
         Choices::SPLASH,
     );
 
-    let expected_instructions = vec![StateInstructions {
-        percentage: 100.0,
-        instruction_list: vec![Instruction::Damage(DamageInstruction {
-            side_ref: SideReference::SideTwo,
-            damage_amount: 30,
-        })],
-    }];
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 10.000002,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 90.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 30,
+            })],
+        },
+    ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -10547,6 +10553,64 @@ fn test_seismictoss_does_not_overkill() {
 }
 
 #[test]
+fn test_seismictoss_against_sub_nonbreaking() {
+    let mut state = State::default();
+    state.side_one.get_active().level = 44;
+    state
+        .side_two
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
+    state.side_two.substitute_health = 50;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SEISMICTOSS,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::DamageSubstitute(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 44,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_seismictoss_against_sub_breaking() {
+    let mut state = State::default();
+    state.side_one.get_active().level = 88;
+    state
+        .side_two
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
+    state.side_two.substitute_health = 50;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::SEISMICTOSS,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DamageSubstitute(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 50,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
+            }),
+        ],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 fn test_superfang_at_1hp() {
     let mut state = State::default();
     state.side_two.get_active().hp = 1;
@@ -10557,10 +10621,19 @@ fn test_superfang_at_1hp() {
         Choices::SPLASH,
     );
 
-    let expected_instructions = vec![StateInstructions {
-        percentage: 100.0,
-        instruction_list: vec![],
-    }];
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 10.000002,
+            instruction_list: vec![],
+        },
+        StateInstructions {
+            percentage: 90.0,
+            instruction_list: vec![Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 1,
+            })],
+        },
+    ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
@@ -10728,6 +10801,42 @@ fn test_finalgambit_versus_ghost() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_finalgambit_versus_sub() {
+    let mut state = State::default();
+    state.side_one.get_active().hp = 100;
+    state
+        .side_two
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::SUBSTITUTE);
+    state.side_two.substitute_health = 50;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::FINALGAMBIT,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![
+            Instruction::DamageSubstitute(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 50,
+            }),
+            Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                side_ref: SideReference::SideTwo,
+                volatile_status: PokemonVolatileStatus::SUBSTITUTE,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideOne,
+                damage_amount: 100,
+            }),
+        ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
