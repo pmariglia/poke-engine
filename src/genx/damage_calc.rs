@@ -403,7 +403,13 @@ fn get_attacking_and_defending_stats(
                 } else {
                     attacking_final_stat = defender.attack;
                 }
-                crit_attacking_stat = defending_side.get_active_immutable().attack;
+                // a crit only ignores negative boosts of the stat being used
+                if should_calc_attacker_boost && defending_side.attack_boost > 0 {
+                    crit_attacking_stat =
+                        defending_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
+                } else {
+                    crit_attacking_stat = defender.attack;
+                }
             } else if choice.move_id == Choices::BODYPRESS {
                 if should_calc_attacker_boost {
                     attacking_final_stat =
@@ -411,7 +417,12 @@ fn get_attacking_and_defending_stats(
                 } else {
                     attacking_final_stat = attacker.defense;
                 }
-                crit_attacking_stat = attacking_side.get_active_immutable().defense;
+                if should_calc_attacker_boost && attacking_side.defense_boost > 0 {
+                    crit_attacking_stat =
+                        attacking_side.calculate_boosted_stat(PokemonBoostableStat::Defense);
+                } else {
+                    crit_attacking_stat = attacker.defense;
+                }
             } else if should_calc_attacker_boost {
                 attacking_final_stat =
                     attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
@@ -879,6 +890,48 @@ mod tests {
             unboosted_special,
             crit_damage(&state, MoveCategory::Special)
         );
+    }
+
+    fn physical_crit_damage(state: &State, move_id: Choices) -> i16 {
+        let choice = Choice {
+            move_id,
+            move_type: PokemonType::TYPELESS,
+            base_power: 80.0,
+            category: MoveCategory::Physical,
+            ..Default::default()
+        };
+        calculate_damage(
+            state,
+            &SideReference::SideOne,
+            &choice,
+            DamageRolls::Average,
+        )
+        .unwrap()
+        .1
+    }
+
+    #[test]
+    fn test_bodypress_crit_keeps_positive_defense_boosts() {
+        let mut state = State::default();
+        let unboosted = physical_crit_damage(&state, Choices::BODYPRESS);
+
+        state.side_one.defense_boost = 2;
+        assert!(physical_crit_damage(&state, Choices::BODYPRESS) > unboosted);
+
+        state.side_one.defense_boost = -2;
+        assert_eq!(unboosted, physical_crit_damage(&state, Choices::BODYPRESS));
+    }
+
+    #[test]
+    fn test_foulplay_crit_keeps_targets_positive_attack_boosts() {
+        let mut state = State::default();
+        let unboosted = physical_crit_damage(&state, Choices::FOULPLAY);
+
+        state.side_two.attack_boost = 2;
+        assert!(physical_crit_damage(&state, Choices::FOULPLAY) > unboosted);
+
+        state.side_two.attack_boost = -2;
+        assert_eq!(unboosted, physical_crit_damage(&state, Choices::FOULPLAY));
     }
 
     #[test]
