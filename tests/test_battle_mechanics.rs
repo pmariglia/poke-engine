@@ -14726,6 +14726,47 @@ fn test_iceface_eiscue_taking_special_hit() {
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
+fn instructions_against_ability(
+    defender: PokemonName,
+    ability: Abilities,
+    attacker_ability: Abilities,
+    attacker_move: Choices,
+) -> Vec<StateInstructions> {
+    let mut state = State::default();
+    state.side_one.get_active().id = defender;
+    state.side_one.get_active().ability = ability;
+    state.side_two.get_active().ability = attacker_ability;
+    set_moves_on_pkmn_and_call_generate_instructions(&mut state, Choices::SPLASH, attacker_move)
+}
+
+#[test]
+fn test_abilities_that_are_ignored_by_moldbreaker_and_sunsteelstrike() {
+    for (defender, ability) in [
+        (PokemonName::EISCUE, Abilities::ICEFACE),
+        (PokemonName::MIMIKYU, Abilities::DISGUISE),
+    ] {
+        for (attacker_ability, attacker_move) in [
+            (Abilities::NONE, Choices::SUNSTEELSTRIKE),
+            (Abilities::MOLDBREAKER, Choices::TACKLE),
+        ] {
+            // the hit lands as if the defender had no ability: full damage, no forme change
+            assert_eq!(
+                instructions_against_ability(
+                    defender,
+                    Abilities::NONE,
+                    attacker_ability,
+                    attacker_move
+                ),
+                instructions_against_ability(defender, ability, attacker_ability, attacker_move),
+                "{:?} against {:?} with {:?}",
+                attacker_move,
+                ability,
+                attacker_ability
+            );
+        }
+    }
+}
+
 #[test]
 fn test_mimikyu_with_disguise_formechange_on_damaging_move() {
     let mut state = State::default();

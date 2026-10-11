@@ -16,8 +16,8 @@ use crate::instruction::{
 };
 use crate::pokemon::PokemonName;
 use crate::state::{
-    PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType, Side, SideReference,
-    State,
+    Pokemon, PokemonBoostableStat, PokemonSideCondition, PokemonStatus, PokemonType, Side,
+    SideReference, State,
 };
 use std::cmp;
 
@@ -363,6 +363,23 @@ define_enum_with_from_str! {
     default = NONE
 }
 
+// whether the attacker's ability or move ignores the target's ability, e.g. mold breaker or sunsteel strike
+fn ignores_target_ability(
+    attacking_pkmn: &Pokemon,
+    choice: &Choice,
+    target_ability: &Abilities,
+) -> bool {
+    (attacking_pkmn.ability == Abilities::MOLDBREAKER
+        || choice.move_id == Choices::MOONGEISTBEAM
+        || choice.move_id == Choices::PHOTONGEYSER
+        || choice.move_id == Choices::SUNSTEELSTRIKE
+        || (attacking_pkmn.ability == Abilities::MYCELIUMMIGHT
+            && choice.category == MoveCategory::Status)
+        || attacking_pkmn.ability == Abilities::TERAVOLT
+        || attacking_pkmn.ability == Abilities::TURBOBLAZE)
+        && mold_breaker_ignores(target_ability)
+}
+
 // https://bulbapedia.bulbagarden.net/wiki/Ignoring_Abilities#Ignorable_Abilities
 fn mold_breaker_ignores(ability: &Abilities) -> bool {
     match ability {
@@ -533,7 +550,9 @@ pub fn ability_before_move(
         // Incomplete: IceFace should not stop secondaries, but setting base_power to 0 makes
         // secondaries not apply in this engine
         Abilities::ICEFACE => {
-            if defending_pkmn.id == PokemonName::EISCUE && choice.category == MoveCategory::Physical
+            if defending_pkmn.id == PokemonName::EISCUE
+                && choice.category == MoveCategory::Physical
+                && !ignores_target_ability(active_pkmn, choice, &defending_pkmn.ability)
             {
                 // hacky - changing the move to a status move makes it do no
                 // damage but preserve secondary effects
@@ -556,7 +575,8 @@ pub fn ability_before_move(
             if (choice.category == MoveCategory::Physical
                 || choice.category == MoveCategory::Special)
                 && (defending_pkmn.id == PokemonName::MIMIKYU
-                    || defending_pkmn.id == PokemonName::MIMIKYUTOTEM) =>
+                    || defending_pkmn.id == PokemonName::MIMIKYUTOTEM)
+                && !ignores_target_ability(active_pkmn, choice, &defending_pkmn.ability) =>
         {
             choice.base_power = 0.0;
             instructions
@@ -572,7 +592,8 @@ pub fn ability_before_move(
             if (choice.category == MoveCategory::Physical
                 || choice.category == MoveCategory::Special)
                 && (defending_pkmn.id == PokemonName::MIMIKYU
-                    || defending_pkmn.id == PokemonName::MIMIKYUTOTEM) =>
+                    || defending_pkmn.id == PokemonName::MIMIKYUTOTEM)
+                && !ignores_target_ability(active_pkmn, choice, &defending_pkmn.ability) =>
         {
             choice.base_power = 0.0;
             instructions
@@ -2314,16 +2335,7 @@ pub fn ability_modify_attack_against(
     {
         return;
     }
-    if (attacking_pkmn.ability == Abilities::MOLDBREAKER
-        || attacker_choice.move_id == Choices::MOONGEISTBEAM
-        || attacker_choice.move_id == Choices::PHOTONGEYSER
-        || attacker_choice.move_id == Choices::SUNSTEELSTRIKE
-        || (attacking_pkmn.ability == Abilities::MYCELIUMMIGHT
-            && attacker_choice.category == MoveCategory::Status)
-        || attacking_pkmn.ability == Abilities::TERAVOLT
-        || attacking_pkmn.ability == Abilities::TURBOBLAZE)
-        && mold_breaker_ignores(&target_pkmn.ability)
-    {
+    if ignores_target_ability(attacking_pkmn, attacker_choice, &target_pkmn.ability) {
         return;
     }
 
