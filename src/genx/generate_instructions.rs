@@ -4303,10 +4303,16 @@ pub fn generate_instructions_from_move_pair(
             side_one_moves_first_instruction.update_percentage(0.5);
 
             // side_one moves first
+            // Both orders must start from the same, unmodified choices. handle_both_moves mutates its
+            // choices in place (before_move's modify_choice / ability / item changes on the first mover,
+            // `first_move = false` on the second), so the side_one-first branch runs on copies; without
+            // them the side_two-first branch below re-applied side_one's modifications (Dire Claw's
+            // secondaries twice, Tough Claws / Life Orb x1.3 twice) and treated side_two as having moved
+            // second (no flinch, Sucker Punch failing).
             handle_both_moves(
                 state,
-                &mut side_one_choice,
-                &mut side_two_choice,
+                &mut side_one_choice.clone(),
+                &mut side_two_choice.clone(),
                 SideReference::SideOne,
                 side_one_moves_first_instruction,
                 &mut state_instructions_vec,
