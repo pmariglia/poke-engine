@@ -15277,6 +15277,68 @@ fn test_heatcrash_highest_base_power() {
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
+fn weight_move_instructions(
+    choice: Choices,
+    attacker: (f32, Abilities),
+    defender: (f32, Abilities),
+) -> Vec<StateInstructions> {
+    let mut state = State::default();
+    state.side_one.get_active().weight_kg = attacker.0;
+    state.side_one.get_active().ability = attacker.1;
+    state.side_two.get_active().weight_kg = defender.0;
+    state.side_two.get_active().ability = defender.1;
+    set_moves_on_pkmn_and_call_generate_instructions(&mut state, choice, Choices::SPLASH)
+}
+
+#[test]
+fn test_heavymetal_and_lightmetal_change_weight_for_weight_based_moves() {
+    let none = Abilities::NONE;
+
+    // heavy metal doubles the attacker's weight
+    assert_eq!(
+        weight_move_instructions(
+            Choices::HEAVYSLAM,
+            (250.0, Abilities::HEAVYMETAL),
+            (250.0, none)
+        ),
+        weight_move_instructions(Choices::HEAVYSLAM, (500.0, none), (250.0, none)),
+    );
+    // light metal halves the target's weight
+    assert_eq!(
+        weight_move_instructions(
+            Choices::HEATCRASH,
+            (250.0, none),
+            (250.0, Abilities::LIGHTMETAL)
+        ),
+        weight_move_instructions(Choices::HEATCRASH, (250.0, none), (125.0, none)),
+    );
+    // heavy metal doubles the target's weight
+    assert_eq!(
+        weight_move_instructions(
+            Choices::LOWKICK,
+            (100.0, none),
+            (150.0, Abilities::HEAVYMETAL)
+        ),
+        weight_move_instructions(Choices::LOWKICK, (100.0, none), (300.0, none)),
+    );
+}
+
+#[test]
+fn test_moldbreaker_ignores_the_targets_heavymetal() {
+    assert_eq!(
+        weight_move_instructions(
+            Choices::LOWKICK,
+            (100.0, Abilities::MOLDBREAKER),
+            (150.0, Abilities::HEAVYMETAL)
+        ),
+        weight_move_instructions(
+            Choices::LOWKICK,
+            (100.0, Abilities::MOLDBREAKER),
+            (150.0, Abilities::NONE)
+        ),
+    );
+}
+
 #[test]
 #[cfg(any(feature = "gen9", feature = "champions"))]
 fn test_blizzard_in_hail() {

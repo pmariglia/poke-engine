@@ -1,4 +1,4 @@
-use super::abilities::Abilities;
+use super::abilities::{ignores_target_ability, Abilities};
 use super::damage_calc::type_effectiveness_modifier;
 use super::generate_instructions::{add_remove_status_instructions, apply_boost_instruction};
 use super::items::{get_choice_move_disable_instructions, Items};
@@ -15,8 +15,8 @@ use crate::instruction::{
 };
 use crate::pokemon::PokemonName;
 use crate::state::{
-    pokemon_index_iter, LastUsedMove, PokemonBoostableStat, PokemonSideCondition, PokemonStatus,
-    PokemonType, Side, SideReference, State,
+    pokemon_index_iter, LastUsedMove, Pokemon, PokemonBoostableStat, PokemonSideCondition,
+    PokemonStatus, PokemonType, Side, SideReference, State,
 };
 use std::cmp;
 
@@ -32,6 +32,19 @@ const CHOICE_THAWS_USER: [Choices; 10] = [
     Choices::SCORCHINGSANDS,
     Choices::MATCHAGOTCHA,
 ];
+
+// heavy metal doubles a pokemon's weight and light metal halves it
+fn weight_kg(pkmn: &Pokemon, ignore_ability: bool) -> f32 {
+    if ignore_ability {
+        return pkmn.weight_kg;
+    }
+    match pkmn.ability {
+        Abilities::HEAVYMETAL => pkmn.weight_kg * 2.0,
+        // PS works in hectograms and truncates
+        Abilities::LIGHTMETAL => ((pkmn.weight_kg * 10.0 / 2.0).trunc() / 10.0).max(0.1),
+        _ => pkmn.weight_kg,
+    }
+}
 
 pub fn modify_choice(
     state: &State,
@@ -626,16 +639,21 @@ pub fn modify_choice(
             }
         }
         Choices::GRASSKNOT | Choices::LOWKICK => {
-            let defender_active = defending_side.get_active_immutable();
-            if defender_active.weight_kg < 10.0 {
+            let attacker = attacking_side.get_active_immutable();
+            let defender = defending_side.get_active_immutable();
+            let defender_weight = weight_kg(
+                defender,
+                ignores_target_ability(attacker, attacker_choice, &defender.ability),
+            );
+            if defender_weight < 10.0 {
                 attacker_choice.base_power = 20.0;
-            } else if defender_active.weight_kg < 25.0 {
+            } else if defender_weight < 25.0 {
                 attacker_choice.base_power = 40.0;
-            } else if defender_active.weight_kg < 50.0 {
+            } else if defender_weight < 50.0 {
                 attacker_choice.base_power = 60.0;
-            } else if defender_active.weight_kg < 100.0 {
+            } else if defender_weight < 100.0 {
                 attacker_choice.base_power = 80.0;
-            } else if defender_active.weight_kg < 200.0 {
+            } else if defender_weight < 200.0 {
                 attacker_choice.base_power = 100.0;
             } else {
                 attacker_choice.base_power = 120.0;
@@ -644,7 +662,11 @@ pub fn modify_choice(
         Choices::HEATCRASH | Choices::HEAVYSLAM => {
             let attacker = attacking_side.get_active_immutable();
             let defender = defending_side.get_active_immutable();
-            let weight_ratio = defender.weight_kg / attacker.weight_kg;
+            let defender_weight = weight_kg(
+                defender,
+                ignores_target_ability(attacker, attacker_choice, &defender.ability),
+            );
+            let weight_ratio = defender_weight / weight_kg(attacker, false);
             if weight_ratio > 0.5 {
                 attacker_choice.base_power = 40.0;
             } else if weight_ratio > 0.3335 {

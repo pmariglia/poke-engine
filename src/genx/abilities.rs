@@ -364,7 +364,7 @@ define_enum_with_from_str! {
 }
 
 // whether the attacker's ability or move ignores the target's ability, e.g. mold breaker or sunsteel strike
-fn ignores_target_ability(
+pub fn ignores_target_ability(
     attacking_pkmn: &Pokemon,
     choice: &Choice,
     target_ability: &Abilities,
