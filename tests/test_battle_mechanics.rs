@@ -14768,6 +14768,74 @@ fn test_abilities_that_are_ignored_by_moldbreaker_and_sunsteelstrike() {
 }
 
 #[test]
+fn test_moldbreaker_and_teravolt_do_not_ignore_the_ruin_abilities() {
+    // tablets of ruin and vessel of ruin are not `breakable` in pokemon-showdown
+    for (ability, attacker_move) in [
+        (Abilities::TABLETSOFRUIN, Choices::TACKLE),
+        (Abilities::VESSELOFRUIN, Choices::WATERGUN),
+    ] {
+        for attacker_ability in [Abilities::MOLDBREAKER, Abilities::TERAVOLT] {
+            assert_eq!(
+                instructions_against_ability(
+                    PokemonName::PIKACHU,
+                    ability,
+                    Abilities::NONE,
+                    attacker_move
+                ),
+                instructions_against_ability(
+                    PokemonName::PIKACHU,
+                    ability,
+                    attacker_ability,
+                    attacker_move
+                ),
+                "{:?} against {:?} with {:?}",
+                attacker_move,
+                ability,
+                attacker_ability
+            );
+        }
+    }
+}
+
+#[test]
+fn test_moldbreaker_and_fairyaura() {
+    let aura = instructions_against_ability(
+        PokemonName::PIKACHU,
+        Abilities::FAIRYAURA,
+        Abilities::MOLDBREAKER,
+        Choices::MOONBLAST,
+    );
+    let no_aura = instructions_against_ability(
+        PokemonName::PIKACHU,
+        Abilities::NONE,
+        Abilities::MOLDBREAKER,
+        Choices::MOONBLAST,
+    );
+    // gen8+ the target's fairy aura still boosts a mold breaker move, before gen8 it is ignored
+    #[cfg(any(feature = "gen6", feature = "gen7"))]
+    assert_eq!(no_aura, aura);
+    #[cfg(not(any(feature = "gen6", feature = "gen7")))]
+    assert_ne!(no_aura, aura);
+}
+
+#[test]
+fn test_moldbreaker_ignores_grasspelt() {
+    let grassy = |ability: Abilities| {
+        let mut state = State::default();
+        state.terrain.terrain_type = Terrain::GRASSYTERRAIN;
+        state.terrain.turns_remaining = 5;
+        state.side_one.get_active().ability = ability;
+        state.side_two.get_active().ability = Abilities::MOLDBREAKER;
+        set_moves_on_pkmn_and_call_generate_instructions(
+            &mut state,
+            Choices::SPLASH,
+            Choices::TACKLE,
+        )
+    };
+    assert_eq!(grassy(Abilities::NONE), grassy(Abilities::GRASSPELT));
+}
+
+#[test]
 fn test_mimikyu_with_disguise_formechange_on_damaging_move() {
     let mut state = State::default();
     state.side_one.get_active().id = PokemonName::MIMIKYU;

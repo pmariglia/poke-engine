@@ -393,10 +393,8 @@ fn mold_breaker_ignores(ability: &Abilities) -> bool {
         | Abilities::MINDSEYE
         | Abilities::PURIFYINGSALT
         | Abilities::TERASHELL
-        | Abilities::TABLETSOFRUIN
         | Abilities::THERMALEXCHANGE
         | Abilities::WELLBAKEDBODY
-        | Abilities::VESSELOFRUIN
         | Abilities::DAMP
         | Abilities::DRYSKIN
         | Abilities::FILTER
@@ -466,8 +464,10 @@ fn mold_breaker_ignores(ability: &Abilities) -> bool {
         | Abilities::MIRRORARMOR
         | Abilities::PASTELVEIL
         | Abilities::PUNKROCK
-        | Abilities::FAIRYAURA
-        | Abilities::DARKAURA => true,
+        | Abilities::GRASSPELT => true,
+        // the auras could only be ignored before gen8
+        #[cfg(any(feature = "gen6", feature = "gen7"))]
+        Abilities::DARKAURA | Abilities::FAIRYAURA => true,
         _ => false,
     }
 }
