@@ -377,6 +377,13 @@ fn get_attacking_and_defending_stats(
     if attacker.ability == Abilities::UNAWARE && defender.ability != Abilities::MOLDBREAKER {
         should_calc_defender_boost = false;
     }
+    // these moves ignore the target's defensive boosts and drops
+    if choice.move_id == Choices::SACREDSWORD
+        || choice.move_id == Choices::DARKESTLARIAT
+        || choice.move_id == Choices::CHIPAWAY
+    {
+        should_calc_defender_boost = false;
+    }
 
     match choice.category {
         MoveCategory::Physical => {

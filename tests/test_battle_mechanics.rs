@@ -17216,6 +17216,59 @@ fn test_vessel_of_ruin() {
 }
 
 #[test]
+fn test_ruin_abilities_do_not_affect_a_pokemon_with_the_same_ability() {
+    for (ability, move_id) in [
+        (Abilities::SWORDOFRUIN, Choices::TACKLE),
+        (Abilities::BEADSOFRUIN, Choices::WATERGUN),
+        (Abilities::TABLETSOFRUIN, Choices::TACKLE),
+        (Abilities::VESSELOFRUIN, Choices::WATERGUN),
+    ] {
+        let mut unaffected = State::default();
+        let expected = set_moves_on_pkmn_and_call_generate_instructions(
+            &mut unaffected,
+            move_id,
+            Choices::SPLASH,
+        );
+
+        let mut state = State::default();
+        state.side_one.get_active().ability = ability;
+        state.side_two.get_active().ability = ability;
+        let vec_of_instructions =
+            set_moves_on_pkmn_and_call_generate_instructions(&mut state, move_id, Choices::SPLASH);
+
+        assert_eq!(expected, vec_of_instructions, "{:?}", ability);
+    }
+}
+
+#[test]
+fn test_moves_that_ignore_the_targets_defensive_boosts() {
+    for move_id in [Choices::SACREDSWORD, Choices::DARKESTLARIAT] {
+        let mut unboosted = State::default();
+        let expected = set_moves_on_pkmn_and_call_generate_instructions(
+            &mut unboosted,
+            move_id,
+            Choices::SPLASH,
+        );
+
+        for boost in [2, -2] {
+            let mut state = State::default();
+            state.side_two.defense_boost = boost;
+            let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+                &mut state,
+                move_id,
+                Choices::SPLASH,
+            );
+
+            assert_eq!(
+                expected, vec_of_instructions,
+                "{:?} into {} def",
+                move_id, boost
+            );
+        }
+    }
+}
+
+#[test]
 fn test_overcoat_vs_powder_move() {
     let mut state = State::default();
     state.side_two.get_active().ability = Abilities::OVERCOAT;

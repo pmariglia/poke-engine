@@ -1865,12 +1865,16 @@ pub fn ability_modify_attack_being_used(
             }
         }
         Abilities::BEADSOFRUIN => {
-            if attacker_choice.category == MoveCategory::Special {
+            if attacker_choice.category == MoveCategory::Special
+                && defending_side.get_active_immutable().ability != Abilities::BEADSOFRUIN
+            {
                 attacker_choice.base_power *= 1.33;
             }
         }
         Abilities::SWORDOFRUIN => {
-            if attacker_choice.category == MoveCategory::Physical {
+            if attacker_choice.category == MoveCategory::Physical
+                && defending_side.get_active_immutable().ability != Abilities::SWORDOFRUIN
+            {
                 attacker_choice.base_power *= 1.33;
             }
         }
@@ -2323,12 +2327,16 @@ pub fn ability_modify_attack_against(
 
     match target_pkmn.ability {
         Abilities::TABLETSOFRUIN => {
-            if attacker_choice.category == MoveCategory::Physical {
+            if attacker_choice.category == MoveCategory::Physical
+                && attacking_pkmn.ability != Abilities::TABLETSOFRUIN
+            {
                 attacker_choice.base_power *= 0.75;
             }
         }
         Abilities::VESSELOFRUIN => {
-            if attacker_choice.category == MoveCategory::Special {
+            if attacker_choice.category == MoveCategory::Special
+                && attacking_pkmn.ability != Abilities::VESSELOFRUIN
+            {
                 attacker_choice.base_power *= 0.75;
             }
         }
