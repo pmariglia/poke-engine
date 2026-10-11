@@ -1901,8 +1901,10 @@ pub fn ability_modify_attack_being_used(
             }
         }
         Abilities::ORICHALCUMPULSE => {
+            // the boost needs the sun to be active, so cloud nine and air lock suppress it
             if attacker_choice.category == MoveCategory::Physical
-                && state.weather.weather_type == Weather::SUN
+                && (state.weather_is_active(&Weather::SUN)
+                    || state.weather_is_active(&Weather::HARSHSUN))
             {
                 attacker_choice.base_power *= 1.33;
             }

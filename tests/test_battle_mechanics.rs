@@ -20546,6 +20546,55 @@ fn test_orichalcum_boost() {
 }
 
 #[test]
+fn test_orichalcum_boost_in_harsh_sun() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::ORICHALCUMPULSE;
+    state.weather.weather_type = Weather::HARSHSUN;
+    state.weather.turns_remaining = -1;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::Damage(DamageInstruction {
+            side_ref: SideReference::SideTwo,
+            damage_amount: 63,
+        })],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_no_orichalcum_boost_when_cloudnine_suppresses_the_sun() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::ORICHALCUMPULSE;
+    state.side_two.get_active().ability = Abilities::CLOUDNINE;
+    state.weather.weather_type = Weather::SUN;
+    state.weather.turns_remaining = -1;
+
+    let mut no_ability = State::default();
+    no_ability.side_two.get_active().ability = Abilities::CLOUDNINE;
+    no_ability.weather.weather_type = Weather::SUN;
+    no_ability.weather.turns_remaining = -1;
+
+    let expected_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut no_ability,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
 #[cfg(not(feature = "champions"))]
 fn test_unseenfist() {
     let mut state = State::default();
