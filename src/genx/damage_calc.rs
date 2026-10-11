@@ -369,29 +369,28 @@ fn get_attacking_and_defending_stats(
         mut crit_defending_stat,
     );
 
+    // Unaware checks
+    // these apply to critical hits too: a crit only ignores the boosts that unaware would otherwise allow
+    if defender.ability == Abilities::UNAWARE && attacker.ability != Abilities::MOLDBREAKER {
+        should_calc_attacker_boost = false;
+    }
+    if attacker.ability == Abilities::UNAWARE && defender.ability != Abilities::MOLDBREAKER {
+        should_calc_defender_boost = false;
+    }
+
     match choice.category {
         MoveCategory::Physical => {
-            if attacking_side.attack_boost > 0 {
+            if should_calc_attacker_boost && attacking_side.attack_boost > 0 {
                 crit_attacking_stat =
                     attacking_side.calculate_boosted_stat(PokemonBoostableStat::Attack);
             } else {
                 crit_attacking_stat = attacker.attack;
             }
-            if defending_side.defense_boost <= 0 {
+            if should_calc_defender_boost && defending_side.defense_boost <= 0 {
                 crit_defending_stat =
                     defending_side.calculate_boosted_stat(PokemonBoostableStat::Defense);
             } else {
                 crit_defending_stat = defender.defense;
-            }
-
-            // Unaware checks
-            if defender.ability == Abilities::UNAWARE && attacker.ability != Abilities::MOLDBREAKER
-            {
-                should_calc_attacker_boost = false;
-            }
-            if attacker.ability == Abilities::UNAWARE && defender.ability != Abilities::MOLDBREAKER
-            {
-                should_calc_defender_boost = false;
             }
 
             // Get the attacking stat
@@ -430,27 +429,17 @@ fn get_attacking_and_defending_stats(
             }
         }
         MoveCategory::Special => {
-            if attacking_side.special_attack_boost > 0 {
+            if should_calc_attacker_boost && attacking_side.special_attack_boost > 0 {
                 crit_attacking_stat =
                     attacking_side.calculate_boosted_stat(PokemonBoostableStat::SpecialAttack);
             } else {
                 crit_attacking_stat = attacker.special_attack;
             }
-            if defending_side.special_defense_boost <= 0 {
+            if should_calc_defender_boost && defending_side.special_defense_boost <= 0 {
                 crit_defending_stat =
                     defending_side.calculate_boosted_stat(PokemonBoostableStat::SpecialDefense);
             } else {
                 crit_defending_stat = defender.special_defense;
-            }
-
-            // Unaware checks
-            if defender.ability == Abilities::UNAWARE && attacker.ability != Abilities::MOLDBREAKER
-            {
-                should_calc_attacker_boost = false;
-            }
-            if attacker.ability == Abilities::UNAWARE && defender.ability != Abilities::MOLDBREAKER
-            {
-                should_calc_defender_boost = false;
             }
 
             // Get the attacking stat
@@ -467,7 +456,7 @@ fn get_attacking_and_defending_stats(
                 || choice.move_id == Choices::SECRETSWORD
                 || choice.move_id == Choices::PSYSTRIKE
             {
-                if defending_side.defense_boost <= 0 {
+                if should_calc_defender_boost && defending_side.defense_boost <= 0 {
                     crit_defending_stat =
                         defending_side.calculate_boosted_stat(PokemonBoostableStat::Defense);
                 } else {
@@ -832,6 +821,76 @@ mod tests {
         );
 
         assert_eq!(48, dmg.unwrap().0);
+    }
+
+    fn crit_damage(state: &State, category: MoveCategory) -> i16 {
+        let choice = Choice {
+            move_id: Choices::TACKLE,
+            move_type: PokemonType::TYPELESS,
+            base_power: 40.0,
+            category,
+            ..Default::default()
+        };
+        calculate_damage(
+            state,
+            &SideReference::SideOne,
+            &choice,
+            DamageRolls::Average,
+        )
+        .unwrap()
+        .1
+    }
+
+    #[test]
+    fn test_unaware_ignores_attackers_boosts_on_a_crit() {
+        let mut state = State::default();
+        state.side_two.get_active().ability = Abilities::UNAWARE;
+        let unboosted_physical = crit_damage(&state, MoveCategory::Physical);
+        let unboosted_special = crit_damage(&state, MoveCategory::Special);
+
+        state.side_one.attack_boost = 2;
+        state.side_one.special_attack_boost = 2;
+
+        assert_eq!(
+            unboosted_physical,
+            crit_damage(&state, MoveCategory::Physical)
+        );
+        assert_eq!(
+            unboosted_special,
+            crit_damage(&state, MoveCategory::Special)
+        );
+    }
+
+    #[test]
+    fn test_attacker_with_unaware_ignores_defenders_drops_on_a_crit() {
+        let mut state = State::default();
+        state.side_one.get_active().ability = Abilities::UNAWARE;
+        let unboosted_physical = crit_damage(&state, MoveCategory::Physical);
+        let unboosted_special = crit_damage(&state, MoveCategory::Special);
+
+        state.side_two.defense_boost = -2;
+        state.side_two.special_defense_boost = -2;
+
+        assert_eq!(
+            unboosted_physical,
+            crit_damage(&state, MoveCategory::Physical)
+        );
+        assert_eq!(
+            unboosted_special,
+            crit_damage(&state, MoveCategory::Special)
+        );
+    }
+
+    #[test]
+    fn test_moldbreaker_crit_uses_boosts_against_unaware() {
+        let mut state = State::default();
+        state.side_two.get_active().ability = Abilities::UNAWARE;
+        state.side_one.get_active().ability = Abilities::MOLDBREAKER;
+        let unboosted = crit_damage(&state, MoveCategory::Special);
+
+        state.side_one.special_attack_boost = 2;
+
+        assert!(crit_damage(&state, MoveCategory::Special) > unboosted);
     }
 
     #[test]
