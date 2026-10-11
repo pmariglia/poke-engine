@@ -1,6 +1,8 @@
 use super::abilities::Abilities;
 use super::damage_calc::type_effectiveness_modifier;
-use super::generate_instructions::{add_remove_status_instructions, apply_boost_instruction};
+use super::generate_instructions::{
+    add_remove_status_instructions, apply_boost_instruction, immune_to_status,
+};
 use super::items::{get_choice_move_disable_instructions, Items};
 use super::state::{PokemonVolatileStatus, Terrain, Weather};
 use crate::choices::{
@@ -74,23 +76,28 @@ pub fn modify_choice(
         }
         #[cfg(feature = "champions")]
         Choices::DIRECLAW => {
-            // percentages are a hack and are incorrect in situations
-            // where one or more status effects are not possible
-            attacker_choice.add_or_create_secondaries(Secondary {
-                chance: 10.00,
-                target: MoveTarget::Opponent,
-                effect: Effect::Status(PokemonStatus::POISON),
-            });
-            attacker_choice.add_or_create_secondaries(Secondary {
-                chance: 11.125,
-                target: MoveTarget::Opponent,
-                effect: Effect::Status(PokemonStatus::PARALYZE),
-            });
-            attacker_choice.add_or_create_secondaries(Secondary {
-                chance: 12.25,
-                target: MoveTarget::Opponent,
-                effect: Effect::Status(PokemonStatus::SLEEP),
-            });
+            // Champions (data/mods/champions/moves.ts): one 30% roll, then sample(psn, par, slp) - each
+            // status 10%, and a sampled status the target is immune to is wasted, not redrawn. Secondaries
+            // here are independent rolls applied in sequence, and a status that cannot land adds nothing,
+            // so the k-th status that CAN land (k = 0, 1, 2) needs conditional chance 10 / (100 - 10k):
+            // 10%, 100/9 %, 12.5%. Immunity is decided by the same check that applies the status.
+            let defending_side_ref = attacking_side_ref.get_other_side();
+            let mut possible = 0.0;
+            for status in [
+                PokemonStatus::POISON,
+                PokemonStatus::PARALYZE,
+                PokemonStatus::SLEEP,
+            ] {
+                if immune_to_status(state, &MoveTarget::Opponent, &defending_side_ref, &status) {
+                    continue;
+                }
+                attacker_choice.add_or_create_secondaries(Secondary {
+                    chance: 1000.0 / (100.0 - 10.0 * possible),
+                    target: MoveTarget::Opponent,
+                    effect: Effect::Status(status),
+                });
+                possible += 1.0;
+            }
         }
         Choices::DOUBLESHOCK => {
             if !attacking_side
