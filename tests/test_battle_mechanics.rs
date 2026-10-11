@@ -13688,8 +13688,10 @@ fn test_direclaw() {
         Choices::SPLASH,
     );
 
+    // Champions: 30% then an even psn/par/slp pick - each 10% (Showdown). The previous values
+    // (70.18903, 9.79847, 10.0125, 9.999999) recorded the old 11.125/12.25 constants, not the rule.
     let expected_percentages = if cfg!(feature = "champions") {
-        (70.18903, 9.79847, 10.0125, 9.999999)
+        (70.0, 10.0, 9.999999, 10.000001)
     } else {
         (49.998, 16.666, 16.666, 16.67)
     };
