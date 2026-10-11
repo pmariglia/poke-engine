@@ -668,6 +668,9 @@ pub fn calculate_damage(
     }
 
     crit_damage *= CRIT_MULTIPLIER;
+    if attacker.ability == Abilities::SNIPER {
+        crit_damage *= 1.5;
+    }
 
     match _damage_rolls {
         DamageRolls::Average => {
@@ -979,6 +982,16 @@ mod tests {
         )
         .unwrap()
         .1
+    }
+
+    #[test]
+    fn test_sniper_boosts_crit_damage() {
+        let mut state = State::default();
+        let normal_crit = crit_damage(&state, MoveCategory::Physical) as f32;
+        state.side_one.get_active().ability = Abilities::SNIPER;
+        let sniper_crit = crit_damage(&state, MoveCategory::Physical) as f32;
+
+        assert!((sniper_crit - normal_crit * 1.5).abs() <= 1.0);
     }
 
     #[test]
