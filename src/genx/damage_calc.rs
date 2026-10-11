@@ -1,4 +1,4 @@
-use super::abilities::Abilities;
+use super::abilities::{ignores_target_ability, Abilities};
 use super::state::{PokemonVolatileStatus, Terrain, Weather};
 use crate::choices::{Choice, MoveCategory};
 use crate::choices::{Choices, MOVES};
@@ -371,10 +371,14 @@ fn get_attacking_and_defending_stats(
 
     // Unaware checks
     // these apply to critical hits too: a crit only ignores the boosts that unaware would otherwise allow
-    if defender.ability == Abilities::UNAWARE && attacker.ability != Abilities::MOLDBREAKER {
+    // only the attacker can ignore an ability (mold breaker, teravolt, sunsteel strike, ...),
+    // so the defender's mold breaker never ignores the attacker's unaware
+    if defender.ability == Abilities::UNAWARE
+        && !ignores_target_ability(attacker, choice, &defender.ability)
+    {
         should_calc_attacker_boost = false;
     }
-    if attacker.ability == Abilities::UNAWARE && defender.ability != Abilities::MOLDBREAKER {
+    if attacker.ability == Abilities::UNAWARE {
         should_calc_defender_boost = false;
     }
     // these moves ignore the target's defensive boosts and drops
@@ -839,6 +843,72 @@ mod tests {
         );
 
         assert_eq!(48, dmg.unwrap().0);
+    }
+
+    fn boosted_tackle_into_unaware(attacker_ability: Abilities, move_id: Choices) -> i16 {
+        let mut state = State::default();
+        state.side_one.attack_boost = 1;
+        state.side_one.get_active().ability = attacker_ability;
+        state.side_two.get_active().ability = Abilities::UNAWARE;
+        let choice = Choice {
+            move_id,
+            move_type: PokemonType::TYPELESS,
+            base_power: 40.0,
+            category: MoveCategory::Physical,
+            ..Default::default()
+        };
+        calculate_damage(
+            &state,
+            &SideReference::SideOne,
+            &choice,
+            DamageRolls::Average,
+        )
+        .unwrap()
+        .0
+    }
+
+    #[test]
+    fn test_unaware_is_ignored_by_teravolt_turboblaze_and_sunsteelstrike() {
+        assert_eq!(
+            32,
+            boosted_tackle_into_unaware(Abilities::NONE, Choices::TACKLE)
+        );
+        assert_eq!(
+            48,
+            boosted_tackle_into_unaware(Abilities::TERAVOLT, Choices::TACKLE)
+        );
+        assert_eq!(
+            48,
+            boosted_tackle_into_unaware(Abilities::TURBOBLAZE, Choices::TACKLE)
+        );
+        assert_eq!(
+            48,
+            boosted_tackle_into_unaware(Abilities::NONE, Choices::SUNSTEELSTRIKE)
+        );
+    }
+
+    #[test]
+    fn test_attackers_unaware_is_not_ignored_by_defenders_moldbreaker() {
+        let mut state = State::default();
+        let choice = Choice {
+            move_id: Choices::TACKLE,
+            move_type: PokemonType::TYPELESS,
+            base_power: 40.0,
+            category: MoveCategory::Physical,
+            ..Default::default()
+        };
+        state.side_one.get_active().ability = Abilities::UNAWARE;
+        state.side_two.get_active().ability = Abilities::MOLDBREAKER;
+        state.side_two.defense_boost = 2;
+
+        let dmg = calculate_damage(
+            &state,
+            &SideReference::SideOne,
+            &choice,
+            DamageRolls::Average,
+        );
+
+        assert_eq!(32, dmg.unwrap().0);
     }
 
     fn crit_damage(state: &State, category: MoveCategory) -> i16 {
