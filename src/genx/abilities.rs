@@ -2289,16 +2289,10 @@ pub fn ability_modify_attack_being_used(
                 })
             }
         }
+        // guts ignoring the burn's damage reduction is in damage_calc's burn_modifier
         Abilities::GUTS => {
             if attacking_pkmn.status != PokemonStatus::NONE {
                 attacker_choice.base_power *= 1.5;
-
-                // not the right place to put this, but good enough
-                if attacking_pkmn.status == PokemonStatus::BURN
-                    && attacker_choice.category == MoveCategory::Physical
-                {
-                    attacker_choice.base_power *= 2.0;
-                }
             }
         }
         Abilities::SANDFORCE => {

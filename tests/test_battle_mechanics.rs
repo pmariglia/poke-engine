@@ -15277,6 +15277,43 @@ fn test_heatcrash_highest_base_power() {
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
+// the damage side one deals to side two, from the first set of instructions
+fn damage_dealt_with_status(choice: Choices, ability: Abilities, status: PokemonStatus) -> i16 {
+    let mut state = State::default();
+    state.side_one.get_active().ability = ability;
+    state.side_one.get_active().status = status;
+    let instructions =
+        set_moves_on_pkmn_and_call_generate_instructions(&mut state, choice, Choices::SPLASH);
+    instructions[0]
+        .instruction_list
+        .iter()
+        .find_map(|i| match i {
+            Instruction::Damage(d) if d.side_ref == SideReference::SideTwo => Some(d.damage_amount),
+            _ => None,
+        })
+        .unwrap()
+}
+
+#[test]
+fn test_guts_ignores_the_burn() {
+    // both statuses activate guts, only burn would halve the damage
+    for choice in [Choices::TACKLE, Choices::FACADE] {
+        assert_eq!(
+            damage_dealt_with_status(choice, Abilities::GUTS, PokemonStatus::POISON),
+            damage_dealt_with_status(choice, Abilities::GUTS, PokemonStatus::BURN),
+        );
+    }
+}
+
+#[test]
+#[cfg(not(any(feature = "gen4", feature = "gen5")))]
+fn test_burn_does_not_weaken_facade_from_gen6() {
+    assert_eq!(
+        damage_dealt_with_status(Choices::FACADE, Abilities::NONE, PokemonStatus::POISON),
+        damage_dealt_with_status(Choices::FACADE, Abilities::NONE, PokemonStatus::BURN),
+    );
+}
+
 fn weight_move_instructions(
     choice: Choices,
     attacker: (f32, Abilities),

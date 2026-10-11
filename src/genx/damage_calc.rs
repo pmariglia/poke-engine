@@ -191,12 +191,21 @@ fn stab_modifier(attacking_move_type: &PokemonType, active_pkmn: &Pokemon) -> f3
     1.0
 }
 
-fn burn_modifier(
-    attacking_move_category: &MoveCategory,
-    attacking_pokemon_status: &PokemonStatus,
-) -> f32 {
-    if attacking_pokemon_status == &PokemonStatus::BURN
-        && attacking_move_category == &MoveCategory::Physical
+// guts ignores the burn, as does facade from gen6
+fn burn_modifier(choice: &Choice, attacker: &Pokemon) -> f32 {
+    #[cfg(not(any(feature = "gen4", feature = "gen5")))]
+    if attacker.status == PokemonStatus::BURN
+        && choice.category == MoveCategory::Physical
+        && attacker.ability != Abilities::GUTS
+        && choice.move_id != Choices::FACADE
+    {
+        return 0.5;
+    }
+
+    #[cfg(any(feature = "gen4", feature = "gen5"))]
+    if attacker.status == PokemonStatus::BURN
+        && choice.category == MoveCategory::Physical
+        && attacker.ability != Abilities::GUTS
     {
         return 0.5;
     }
@@ -585,7 +594,7 @@ fn common_pkmn_damage_calc(
     }
 
     damage_modifier *= stab_modifier(&choice.move_type, &attacker);
-    damage_modifier *= burn_modifier(&choice.category, &attacker.status);
+    damage_modifier *= burn_modifier(&choice, &attacker);
     damage_modifier *= volatile_status_modifier(&choice, attacking_side, defending_side);
     damage_modifier *= terrain_modifier(terrain, attacker, defender, &choice);
 
@@ -909,6 +918,49 @@ mod tests {
         );
 
         assert_eq!(32, dmg.unwrap().0);
+    }
+
+    fn physical_damage_with_status(move_id: Choices, status: PokemonStatus) -> i16 {
+        let mut state = State::default();
+        state.side_one.get_active().status = status;
+        let choice = Choice {
+            move_id,
+            move_type: PokemonType::TYPELESS,
+            base_power: 70.0,
+            category: MoveCategory::Physical,
+            ..Default::default()
+        };
+        calculate_damage(
+            &state,
+            &SideReference::SideOne,
+            &choice,
+            DamageRolls::Average,
+        )
+        .unwrap()
+        .0
+    }
+
+    #[test]
+    #[cfg(not(any(feature = "gen4", feature = "gen5")))]
+    fn test_burn_does_not_weaken_facade() {
+        assert_eq!(
+            physical_damage_with_status(Choices::FACADE, PokemonStatus::NONE),
+            physical_damage_with_status(Choices::FACADE, PokemonStatus::BURN),
+        );
+        // other physical moves are still weakened
+        assert!(
+            physical_damage_with_status(Choices::TACKLE, PokemonStatus::BURN)
+                < physical_damage_with_status(Choices::TACKLE, PokemonStatus::NONE)
+        );
+    }
+
+    #[test]
+    #[cfg(any(feature = "gen4", feature = "gen5"))]
+    fn test_burn_weakens_facade_before_gen6() {
+        assert!(
+            physical_damage_with_status(Choices::FACADE, PokemonStatus::BURN)
+                < physical_damage_with_status(Choices::FACADE, PokemonStatus::NONE)
+        );
     }
 
     fn crit_damage(state: &State, category: MoveCategory) -> i16 {
