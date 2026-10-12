@@ -1,5 +1,5 @@
 use super::abilities::{ignores_target_ability, Abilities};
-use super::damage_calc::type_effectiveness_modifier;
+use super::damage_calc::move_type_effectiveness;
 use super::generate_instructions::{add_remove_status_instructions, apply_boost_instruction};
 use super::items::{get_choice_move_disable_instructions, Items};
 use super::state::{PokemonVolatileStatus, Terrain, Weather};
@@ -633,8 +633,7 @@ pub fn modify_choice(
             }
         }
         Choices::COLLISIONCOURSE | Choices::ELECTRODRIFT => {
-            let defender_active = defending_side.get_active_immutable();
-            if type_effectiveness_modifier(&attacker_choice.move_type, &defender_active) > 1.0 {
+            if move_type_effectiveness(&attacker_choice.move_type, defending_side) > 1.0 {
                 attacker_choice.base_power *= 1.3;
             }
         }

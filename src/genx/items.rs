@@ -1,6 +1,8 @@
 #![allow(unused_variables)]
 use super::abilities::Abilities;
-use super::damage_calc::type_effectiveness_modifier;
+use super::damage_calc::{
+    _type_effectiveness_modifier, effective_defending_types, move_type_effectiveness,
+};
 use super::generate_instructions::{apply_boost_instruction, immune_to_status};
 use super::state::Terrain;
 use crate::choices::{Choice, Choices, Effect, MoveCategory, MoveTarget, Secondary, StatBoosts};
@@ -303,6 +305,7 @@ pub fn get_choice_move_disable_instructions(
 
 fn damage_reduction_berry(
     defending_pkmn: &mut Pokemon,
+    defending_types: &(PokemonType, PokemonType),
     attacking_side_ref: &SideReference,
     choice: &mut Choice,
     berry: Items,
@@ -310,7 +313,7 @@ fn damage_reduction_berry(
     instructions: &mut StateInstructions,
 ) {
     if &choice.move_type == pkmn_type
-        && type_effectiveness_modifier(pkmn_type, &defending_pkmn) > 1.0
+        && _type_effectiveness_modifier(pkmn_type, defending_types) > 1.0
     {
         instructions
             .instruction_list
@@ -467,10 +470,14 @@ pub fn item_before_move(
 ) {
     let (attacking_side, defending_side) = state.get_both_sides(side_ref);
     let active_pkmn = attacking_side.get_active();
+    // taken before borrowing the defender mutably: the resist berries need roost's effect on its types
+    let defending_types =
+        effective_defending_types(defending_side, defending_side.get_active_immutable());
     let defending_pkmn = defending_side.get_active();
     match defending_pkmn.item {
         Items::CHOPLEBERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::CHOPLEBERRY,
@@ -479,6 +486,7 @@ pub fn item_before_move(
         ),
         Items::BABIRIBERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::BABIRIBERRY,
@@ -487,6 +495,7 @@ pub fn item_before_move(
         ),
         Items::CHARTIBERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::CHARTIBERRY,
@@ -509,6 +518,7 @@ pub fn item_before_move(
         }
         Items::COBABERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::COBABERRY,
@@ -517,6 +527,7 @@ pub fn item_before_move(
         ),
         Items::COLBURBERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::COLBURBERRY,
@@ -525,6 +536,7 @@ pub fn item_before_move(
         ),
         Items::HABANBERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::HABANBERRY,
@@ -533,6 +545,7 @@ pub fn item_before_move(
         ),
         Items::KASIBBERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::KASIBBERRY,
@@ -541,6 +554,7 @@ pub fn item_before_move(
         ),
         Items::KEBIABERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::KEBIABERRY,
@@ -549,6 +563,7 @@ pub fn item_before_move(
         ),
         Items::OCCABERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::OCCABERRY,
@@ -557,6 +572,7 @@ pub fn item_before_move(
         ),
         Items::PASSHOBERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::PASSHOBERRY,
@@ -565,6 +581,7 @@ pub fn item_before_move(
         ),
         Items::PAYAPABERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::PAYAPABERRY,
@@ -573,6 +590,7 @@ pub fn item_before_move(
         ),
         Items::RINDOBERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::RINDOBERRY,
@@ -581,6 +599,7 @@ pub fn item_before_move(
         ),
         Items::ROSELIBERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::ROSELIBERRY,
@@ -589,6 +608,7 @@ pub fn item_before_move(
         ),
         Items::SHUCABERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::SHUCABERRY,
@@ -597,6 +617,7 @@ pub fn item_before_move(
         ),
         Items::TANGABERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::TANGABERRY,
@@ -605,6 +626,7 @@ pub fn item_before_move(
         ),
         Items::WACANBERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::WACANBERRY,
@@ -613,6 +635,7 @@ pub fn item_before_move(
         ),
         Items::YACHEBERRY => damage_reduction_berry(
             defending_pkmn,
+            &defending_types,
             side_ref,
             choice,
             Items::YACHEBERRY,
@@ -1084,10 +1107,7 @@ pub fn item_modify_attack_against(
         }
         Items::WEAKNESSPOLICY => {
             if attacking_choice.category != MoveCategory::Status
-                && type_effectiveness_modifier(
-                    &attacking_choice.move_type,
-                    &defending_side.get_active_immutable(),
-                ) > 1.0
+                && move_type_effectiveness(&attacking_choice.move_type, defending_side) > 1.0
             {
                 attacking_choice.add_or_create_secondaries(Secondary {
                     chance: 100.0,
@@ -1178,11 +1198,7 @@ pub fn item_modify_attack_being_used(
             }
         }
         Items::EXPERTBELT => {
-            if type_effectiveness_modifier(
-                &attacking_choice.move_type,
-                &defending_side.get_active_immutable(),
-            ) > 1.0
-            {
+            if move_type_effectiveness(&attacking_choice.move_type, defending_side) > 1.0 {
                 attacking_choice.base_power *= 1.2;
             }
         }

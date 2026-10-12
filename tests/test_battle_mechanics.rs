@@ -15345,6 +15345,96 @@ fn test_heatcrash_highest_base_power() {
     assert_eq!(expected_instructions, vec_of_instructions);
 }
 
+// the damage side one's move deals to side two: with `roosted`, side two has flying + `types.1`
+// and roosted this turn, otherwise it is just `types.1`
+fn damage_against_roost(
+    choice: Choices,
+    attacker_ability: Abilities,
+    attacker_item: Items,
+    defender_ability: Abilities,
+    second_type: PokemonType,
+    roosted: bool,
+) -> i16 {
+    let mut state = State::default();
+    state.side_one.get_active().ability = attacker_ability;
+    state.side_one.get_active().item = attacker_item;
+    state.side_two.get_active().ability = defender_ability;
+    state.side_two.get_active().hp = 1000;
+    state.side_two.get_active().maxhp = 1000;
+    if roosted {
+        state.side_two.get_active().types = (PokemonType::FLYING, second_type);
+        state
+            .side_two
+            .volatile_statuses
+            .insert(PokemonVolatileStatus::ROOST);
+    } else {
+        state.side_two.get_active().types = (PokemonType::TYPELESS, second_type);
+    }
+    let instructions =
+        set_moves_on_pkmn_and_call_generate_instructions(&mut state, choice, Choices::SPLASH);
+    instructions[0]
+        .instruction_list
+        .iter()
+        .find_map(|i| match i {
+            Instruction::Damage(d) if d.side_ref == SideReference::SideTwo => Some(d.damage_amount),
+            _ => None,
+        })
+        .unwrap()
+}
+
+#[test]
+fn test_roost_removes_flying_for_type_effectiveness_checks() {
+    // bug into a roosted flying/dragon is neutral: tinted lens does not double it
+    // electric into a roosted flying/steel is neutral: no expert belt boost and no filter reduction
+    for (choice, attacker_ability, attacker_item, defender_ability, second_type) in [
+        (
+            Choices::BUGBUZZ,
+            Abilities::TINTEDLENS,
+            Items::NONE,
+            Abilities::NONE,
+            PokemonType::DRAGON,
+        ),
+        (
+            Choices::THUNDERBOLT,
+            Abilities::NONE,
+            Items::EXPERTBELT,
+            Abilities::NONE,
+            PokemonType::STEEL,
+        ),
+        (
+            Choices::THUNDERBOLT,
+            Abilities::NONE,
+            Items::NONE,
+            Abilities::FILTER,
+            PokemonType::STEEL,
+        ),
+    ] {
+        assert_eq!(
+            damage_against_roost(
+                choice,
+                attacker_ability,
+                attacker_item,
+                defender_ability,
+                second_type,
+                false
+            ),
+            damage_against_roost(
+                choice,
+                attacker_ability,
+                attacker_item,
+                defender_ability,
+                second_type,
+                true
+            ),
+            "{:?} {:?} {:?} {:?}",
+            choice,
+            attacker_ability,
+            attacker_item,
+            defender_ability
+        );
+    }
+}
+
 // the damage side one deals to side two, from the first set of instructions
 fn damage_dealt_with_status(choice: Choices, ability: Abilities, status: PokemonStatus) -> i16 {
     let mut state = State::default();

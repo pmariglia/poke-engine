@@ -113,7 +113,37 @@ pub fn type_effectiveness_modifier(attacking_type: &PokemonType, defender: &Poke
     _type_effectiveness_modifier(attacking_type, &defending_types)
 }
 
-fn _type_effectiveness_modifier(
+pub fn effective_defending_types(
+    defending_side: &Side,
+    defending_pkmn: &Pokemon,
+) -> (PokemonType, PokemonType) {
+    if defending_pkmn.terastallized && !(defending_pkmn.tera_type == PokemonType::STELLAR) {
+        return (defending_pkmn.tera_type, PokemonType::TYPELESS);
+    }
+    let mut defender_types = defending_pkmn.types;
+    if defending_side
+        .volatile_statuses
+        .contains(&PokemonVolatileStatus::ROOST)
+    {
+        if defender_types.0 == PokemonType::FLYING {
+            defender_types = (PokemonType::TYPELESS, defender_types.1);
+        }
+        if defender_types.1 == PokemonType::FLYING {
+            defender_types = (defender_types.0, PokemonType::TYPELESS);
+        }
+    }
+    defender_types
+}
+
+// the type effectiveness of a move against the defending side's active pokemon
+pub fn move_type_effectiveness(attacking_type: &PokemonType, defending_side: &Side) -> f32 {
+    _type_effectiveness_modifier(
+        attacking_type,
+        &effective_defending_types(defending_side, defending_side.get_active_immutable()),
+    )
+}
+
+pub fn _type_effectiveness_modifier(
     attacking_type: &PokemonType,
     defending_types: &(PokemonType, PokemonType),
 ) -> f32 {
@@ -330,21 +360,7 @@ fn get_defending_types(
     attacking_pkmn: &Pokemon,
     attacking_choice: &Choice,
 ) -> (PokemonType, PokemonType) {
-    if defending_pkmn.terastallized && !(defending_pkmn.tera_type == PokemonType::STELLAR) {
-        return (defending_pkmn.tera_type, PokemonType::TYPELESS);
-    }
-    let mut defender_types = defending_pkmn.types;
-    if side
-        .volatile_statuses
-        .contains(&PokemonVolatileStatus::ROOST)
-    {
-        if defender_types.0 == PokemonType::FLYING {
-            defender_types = (PokemonType::TYPELESS, defender_types.1);
-        }
-        if defender_types.1 == PokemonType::FLYING {
-            defender_types = (defender_types.0, PokemonType::TYPELESS);
-        }
-    }
+    let mut defender_types = effective_defending_types(side, defending_pkmn);
     if (attacking_pkmn.ability == Abilities::SCRAPPY
         || attacking_pkmn.ability == Abilities::MINDSEYE)
         && (attacking_choice.move_type == PokemonType::NORMAL
