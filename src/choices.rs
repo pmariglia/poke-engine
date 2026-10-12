@@ -2381,7 +2381,7 @@ pub static MOVES: LazyLock<HashMap<Choices, Choice>> = LazyLock::new(|| {
             Choices::CHATTER,
             Choice {
                 move_id: Choices::CHATTER,
-                base_power: 65.0,
+                base_power: 60.0,
                 category: MoveCategory::Special,
                 move_type: PokemonType::FLYING,
                 flags: Flags {
@@ -2390,7 +2390,7 @@ pub static MOVES: LazyLock<HashMap<Choices, Choice>> = LazyLock::new(|| {
                     ..Default::default()
                 },
                 secondaries: Some(vec![Secondary {
-                    chance: 100.0,
+                    chance: if cfg!(feature = "gen4") { 31.0 } else { 10.0 },
                     target: MoveTarget::Opponent,
                     effect: Effect::VolatileStatus(PokemonVolatileStatus::CONFUSION),
                 }]),

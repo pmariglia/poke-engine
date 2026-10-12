@@ -4894,6 +4894,10 @@ mod tests {
     fn test_100_percent_secondary_volatilestatus() {
         let mut state: State = State::default();
         let mut choice = MOVES.get(&Choices::CHATTER).unwrap().to_owned();
+        // chatter's base power and confusion chance differ by generation,
+        // this test is about a secondary that always happens
+        choice.base_power = 65.0;
+        choice.secondaries.as_mut().unwrap()[0].chance = 100.0;
 
         let mut instructions = vec![];
         generate_instructions_from_move(
