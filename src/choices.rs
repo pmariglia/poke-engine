@@ -16376,7 +16376,16 @@ pub static MOVES: LazyLock<HashMap<Choices, Choice>> = LazyLock::new(|| {
             move_id: Choices::STRUGGLE,
             base_power: 50.0,
             category: MoveCategory::Physical,
-            move_type: PokemonType::NORMAL,
+            move_type: if cfg!(any(feature = "gen1", feature = "gen2", feature = "gen3")) {
+                PokemonType::NORMAL
+            } else {
+                PokemonType::TYPELESS
+            },
+            accuracy: if cfg!(any(feature = "gen1", feature = "gen2", feature = "gen3")) {
+                100.0
+            } else {
+                f32::INFINITY
+            },
             flags: Flags {
                 contact: true,
                 protect: true,

@@ -1546,6 +1546,16 @@ fn generate_instructions_from_damage(
         }
 
         let attacking_pokemon = state.get_side(attacking_side_ref).get_active();
+        if choice.move_id == Choices::STRUGGLE {
+            let damage_amount = cmp::min((attacking_pokemon.maxhp + 2) / 4, attacking_pokemon.hp);
+            attacking_pokemon.hp -= damage_amount;
+            incoming_instructions
+                .instruction_list
+                .push(Instruction::Damage(DamageInstruction {
+                    side_ref: *attacking_side_ref,
+                    damage_amount,
+                }));
+        }
         if let Some(drain_fraction) = choice.drain {
             let drain_amount = (damage_dealt as f32 * drain_fraction) as i16;
             let heal_amount =
@@ -2103,9 +2113,10 @@ pub fn generate_instructions_from_move(
     state.apply_instructions(&incoming_instructions.instruction_list);
 
     let side = state.get_side(&attacking_side);
-    if side
-        .volatile_statuses
-        .contains(&PokemonVolatileStatus::ENCORE)
+    if choice.move_id != Choices::STRUGGLE
+        && side
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::ENCORE)
     {
         match side.last_used_move {
             LastUsedMove::Move(last_used_move) => {
@@ -2284,7 +2295,7 @@ pub fn generate_instructions_from_move(
     // to matter
     let (attacker_side, defender_side) = state.get_both_sides(&attacking_side);
     let active = attacker_side.get_active();
-    if active.moves[&choice.move_index].pp < 10 {
+    if choice.move_id != Choices::STRUGGLE && active.moves[&choice.move_index].pp < 10 {
         let pp_decrement_amount = if choice.target == MoveTarget::Opponent
             && defender_side.get_active_immutable().ability == Abilities::PRESSURE
         {
@@ -4115,6 +4126,9 @@ pub fn generate_instructions_from_move_pair(
         MoveChoice::TeamPreview(_, _, _) => {
             panic!("Team preview should not be handled in generate_instructions_from_move_pair");
         }
+        MoveChoice::Struggle => {
+            side_one_choice = MOVES.get(&Choices::STRUGGLE).unwrap().clone();
+        }
         MoveChoice::None => {
             side_one_choice = Choice::default();
         }
@@ -4149,6 +4163,9 @@ pub fn generate_instructions_from_move_pair(
         }
         MoveChoice::TeamPreview(_, _, _) => {
             panic!("Team preview should not be handled in generate_instructions_from_move_pair");
+        }
+        MoveChoice::Struggle => {
+            side_two_choice = MOVES.get(&Choices::STRUGGLE).unwrap().clone();
         }
         MoveChoice::None => {
             side_two_choice = Choice::default();

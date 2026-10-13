@@ -56,6 +56,7 @@ pub enum MoveChoice {
     Move(PokemonMoveIndex),
     Switch(PokemonIndex),
     TeamPreview(PokemonIndex, PokemonIndex, PokemonIndex), // lead, second, third
+    Struggle,
     None,
 }
 
@@ -77,11 +78,15 @@ impl MoveChoice {
                 side.pokemon[*lead].id, side.pokemon[*second].id, side.pokemon[*third].id
             )
             .to_lowercase(),
+            MoveChoice::Struggle => "struggle".to_string(),
             MoveChoice::None => "No Move".to_string(),
         }
     }
     pub fn from_string(s: &str, side: &Side) -> Option<MoveChoice> {
         let s = s.to_lowercase();
+        if s == "struggle" {
+            return Some(MoveChoice::Struggle);
+        }
         if s == "none" {
             return Some(MoveChoice::None);
         }
@@ -534,6 +539,11 @@ impl Pokemon {
     }
 
     pub fn add_move_from_choice(&self, vec: &mut Vec<MoveChoice>, choice: Choices) {
+        // Struggle is synthetic and has no slot when resuming after a pivot.
+        if choice == Choices::STRUGGLE {
+            vec.push(MoveChoice::Struggle);
+            return;
+        }
         let mut iter = self.moves.into_iter();
         while let Some(p) = iter.next() {
             if p.id == choice {
@@ -1195,7 +1205,7 @@ impl State {
                 MoveChoice::Move(_) | MoveChoice::MoveTera(_) | MoveChoice::MoveMega(_) => true,
                 MoveChoice::Switch(_) => false,
                 MoveChoice::TeamPreview(_, _, _) => false,
-                MoveChoice::None => true,
+                MoveChoice::None | MoveChoice::Struggle => true,
             });
         }
         if self.side_one.slow_uturn_move {
@@ -1223,7 +1233,7 @@ impl State {
                 MoveChoice::Move(_) | MoveChoice::MoveTera(_) | MoveChoice::MoveMega(_) => true,
                 MoveChoice::Switch(_) => false,
                 MoveChoice::TeamPreview(_, _, _) => false,
-                MoveChoice::None => true,
+                MoveChoice::None | MoveChoice::Struggle => true,
             });
         }
         if self.side_two.slow_uturn_move {
@@ -1333,6 +1343,9 @@ impl State {
                 self.side_one.can_use_tera(),
                 self.side_one.can_use_mega(),
             );
+            if side_one_options.is_empty() {
+                side_one_options.push(MoveChoice::Struggle);
+            }
             if !self.side_one.trapped(side_two_active) {
                 self.side_one.add_switches(&mut side_one_options);
             }
@@ -1363,6 +1376,9 @@ impl State {
                 self.side_two.can_use_tera(),
                 self.side_two.can_use_mega(),
             );
+            if side_two_options.is_empty() {
+                side_two_options.push(MoveChoice::Struggle);
+            }
             if !self.side_two.trapped(side_one_active) {
                 self.side_two.add_switches(&mut side_two_options);
             }
