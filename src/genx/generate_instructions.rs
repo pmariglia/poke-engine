@@ -3819,27 +3819,30 @@ fn run_move(
 fn after_move_finish(state: &mut State, final_instructions: &mut Vec<StateInstructions>) {
     for state_instructions in final_instructions.iter_mut() {
         state.apply_instructions(&state_instructions.instruction_list);
+        after_move_finish_applied(state, state_instructions);
+        state.reverse_instructions(&state_instructions.instruction_list);
+    }
+}
 
-        // check if anybody has negative boosts and a whiteherb
-        // if so, consume the item and set the boosts to 0
-        for side_ref in [SideReference::SideOne, SideReference::SideTwo] {
-            let side = state.get_side(&side_ref);
-            let active_has_whiteherb = side.get_active_immutable().item == Items::WHITEHERB;
-            if active_has_whiteherb {
-                if side.reset_negative_boosts(side_ref, state_instructions) {
-                    let active = side.get_active();
-                    active.item = Items::NONE;
-                    state_instructions
-                        .instruction_list
-                        .push(Instruction::ChangeItem(ChangeItemInstruction {
-                            side_ref,
-                            current_item: Items::WHITEHERB,
-                            new_item: Items::NONE,
-                        }));
-                }
+fn after_move_finish_applied(state: &mut State, state_instructions: &mut StateInstructions) {
+    // check if anybody has negative boosts and a whiteherb
+    // if so, consume the item and set the boosts to 0
+    for side_ref in [SideReference::SideOne, SideReference::SideTwo] {
+        let side = state.get_side(&side_ref);
+        let active_has_whiteherb = side.get_active_immutable().item == Items::WHITEHERB;
+        if active_has_whiteherb {
+            if side.reset_negative_boosts(side_ref, state_instructions) {
+                let active = side.get_active();
+                active.item = Items::NONE;
+                state_instructions
+                    .instruction_list
+                    .push(Instruction::ChangeItem(ChangeItemInstruction {
+                        side_ref,
+                        current_item: Items::WHITEHERB,
+                        new_item: Items::NONE,
+                    }));
             }
         }
-        state.reverse_instructions(&state_instructions.instruction_list);
     }
 }
 
@@ -3877,7 +3880,6 @@ fn handle_both_moves(
             state_instructions_vec,
             branch_on_damage,
         );
-        after_move_finish(state, state_instructions_vec);
         i += 1;
     }
 }
@@ -4265,6 +4267,7 @@ pub fn generate_instructions_from_move_pair(
 
             for state_instruction in state_instructions_vec.iter_mut() {
                 state.apply_instructions(&state_instruction.instruction_list);
+                after_move_finish_applied(state, state_instruction);
                 if !(s1_replacing_fainted_pkmn
                     || s2_replacing_fainted_pkmn
                     || state.side_one.force_switch
@@ -4287,6 +4290,7 @@ pub fn generate_instructions_from_move_pair(
             );
             for state_instruction in state_instructions_vec.iter_mut() {
                 state.apply_instructions(&state_instruction.instruction_list);
+                after_move_finish_applied(state, state_instruction);
                 if !(s1_replacing_fainted_pkmn
                     || s2_replacing_fainted_pkmn
                     || state.side_one.force_switch
@@ -4314,6 +4318,7 @@ pub fn generate_instructions_from_move_pair(
             );
             for state_instruction in state_instructions_vec.iter_mut() {
                 state.apply_instructions(&state_instruction.instruction_list);
+                after_move_finish_applied(state, state_instruction);
                 if !(s1_replacing_fainted_pkmn
                     || s2_replacing_fainted_pkmn
                     || state.side_one.force_switch
@@ -4337,6 +4342,7 @@ pub fn generate_instructions_from_move_pair(
             );
             for state_instruction in side_two_moves_first_si.iter_mut() {
                 state.apply_instructions(&state_instruction.instruction_list);
+                after_move_finish_applied(state, state_instruction);
                 if !(s1_replacing_fainted_pkmn
                     || s2_replacing_fainted_pkmn
                     || state.side_one.force_switch
