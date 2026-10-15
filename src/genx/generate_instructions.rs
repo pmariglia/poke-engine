@@ -3790,7 +3790,7 @@ fn run_move(
                                 },
                             ),
                         );
-                        state.side_two.switch_out_move_second_saved_move = defender_choice.move_id;
+                        state.side_two.switch_out_move_second_saved_move = Choices::NONE;
                     }
                 }
             }
@@ -3843,7 +3843,7 @@ fn run_move(
                                 },
                             ),
                         );
-                        state.side_one.switch_out_move_second_saved_move = defender_choice.move_id;
+                        state.side_one.switch_out_move_second_saved_move = Choices::NONE;
                     }
                 }
             }
@@ -3914,22 +3914,20 @@ fn handle_both_moves(
     state_instructions_vec: &mut Vec<StateInstructions>,
     branch_on_damage: bool,
 ) {
+    let mut first_move_instructions = Vec::with_capacity(4);
     generate_instructions_from_move(
         state,
         first_move_side_choice,
         second_move_side_choice,
         first_move_side_ref,
         incoming_instructions,
-        state_instructions_vec,
+        &mut first_move_instructions,
         branch_on_damage,
     );
-    after_move_finish(state, state_instructions_vec);
+    after_move_finish(state, &mut first_move_instructions);
 
-    let mut i = 0;
-    let vec_len = state_instructions_vec.len();
     second_move_side_choice.first_move = false;
-    while i < vec_len {
-        let state_instruction = state_instructions_vec.remove(0);
+    for state_instruction in first_move_instructions {
         generate_instructions_from_move(
             state,
             &mut second_move_side_choice.clone(), // this clone is needed because the choice may be modified in this loop
@@ -3939,7 +3937,6 @@ fn handle_both_moves(
             state_instructions_vec,
             branch_on_damage,
         );
-        i += 1;
     }
 }
 

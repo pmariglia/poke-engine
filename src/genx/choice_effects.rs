@@ -1471,6 +1471,7 @@ pub fn choice_special_effect(
                     previous_trickroom_turns_remaining: state.trick_room.turns_remaining,
                 }));
             state.trick_room.active = !state.trick_room.active;
+            state.trick_room.turns_remaining = new_turns_remaining;
         }
         Choices::PAINSPLIT => {
             if !defending_side
