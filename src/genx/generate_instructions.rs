@@ -37,8 +37,8 @@ use crate::instruction::{
     ChangeStatusInstruction, DamageInstruction, Instruction, StateInstructions, SwitchInstruction,
 };
 use crate::state::{
-    LastUsedMove, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex, PokemonSideCondition,
-    PokemonStatus, PokemonType, Side, SideMovesFirst, SideReference, State,
+    DamageDealt, LastUsedMove, PokemonBoostableStat, PokemonIndex, PokemonMoveIndex,
+    PokemonSideCondition, PokemonStatus, PokemonType, Side, SideMovesFirst, SideReference, State,
 };
 use std::cmp;
 
@@ -1308,35 +1308,35 @@ fn get_instructions_from_drag(
 }
 
 fn reset_damage_dealt(
-    side: &Side,
+    damage_dealt: &DamageDealt,
     side_reference: &SideReference,
     incoming_instructions: &mut StateInstructions,
 ) {
     // This creates instructions but does not modify the side
     // because this function is called before the state applies the instructions
 
-    if side.damage_dealt.damage != 0 {
+    if damage_dealt.damage != 0 {
         incoming_instructions
             .instruction_list
             .push(Instruction::ChangeDamageDealtDamage(
                 ChangeDamageDealtDamageInstruction {
                     side_ref: *side_reference,
-                    damage_change: 0 - side.damage_dealt.damage,
+                    damage_change: 0 - damage_dealt.damage,
                 },
             ));
     }
-    if side.damage_dealt.move_category != MoveCategory::Physical {
+    if damage_dealt.move_category != MoveCategory::Physical {
         incoming_instructions
             .instruction_list
             .push(Instruction::ChangeDamageDealtMoveCatagory(
                 ChangeDamageDealtMoveCategoryInstruction {
                     side_ref: *side_reference,
                     move_category: MoveCategory::Physical,
-                    previous_move_category: side.damage_dealt.move_category,
+                    previous_move_category: damage_dealt.move_category,
                 },
             ));
     }
-    if side.damage_dealt.hit_substitute {
+    if damage_dealt.hit_substitute {
         incoming_instructions
             .instruction_list
             .push(Instruction::ToggleDamageDealtHitSubstitute(
@@ -2067,35 +2067,76 @@ fn generate_instructions_from_existing_status_conditions(
     }
 }
 
+struct MoveEntryConditions {
+    damage_dealt: DamageDealt,
+    must_recharge: bool,
+    truant: bool,
+}
+
+impl MoveEntryConditions {
+    fn from_state(state: &State, attacking_side: &SideReference) -> Self {
+        let side = state.get_side_immutable(attacking_side);
+        Self {
+            damage_dealt: side.damage_dealt.clone(),
+            must_recharge: side
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::MUSTRECHARGE),
+            truant: side
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::TRUANT),
+        }
+    }
+}
+
 pub fn generate_instructions_from_move(
     state: &mut State,
     choice: &mut Choice,
     defender_choice: &Choice,
     attacking_side: SideReference,
+    incoming_instructions: StateInstructions,
+    final_instructions: &mut dyn BranchOutput,
+    branch_on_damage: bool,
+) {
+    let entry_conditions = MoveEntryConditions::from_state(state, &attacking_side);
+    generate_instructions_from_move_with_applied_prefix(
+        state,
+        &entry_conditions,
+        choice,
+        defender_choice,
+        attacking_side,
+        incoming_instructions,
+        0,
+        final_instructions,
+        branch_on_damage,
+    );
+}
+
+fn generate_instructions_from_move_with_applied_prefix(
+    state: &mut State,
+    entry_conditions: &MoveEntryConditions,
+    choice: &mut Choice,
+    defender_choice: &Choice,
+    attacking_side: SideReference,
     mut incoming_instructions: StateInstructions,
+    applied_len: usize,
     final_instructions: &mut dyn BranchOutput,
     branch_on_damage: bool,
 ) {
     if choice.category == MoveCategory::Switch {
-        final_instructions.push_partial(state, incoming_instructions, 0);
+        final_instructions.push_partial_and_unwind(state, incoming_instructions, applied_len);
         return;
     }
 
     if state.use_damage_dealt {
         reset_damage_dealt(
-            state.get_side(&attacking_side),
+            &entry_conditions.damage_dealt,
             &attacking_side,
             &mut incoming_instructions,
         );
     }
 
-    let attacker_side = state.get_side(&attacking_side);
-
     if choice.move_id == Choices::NONE {
-        if attacker_side
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::MUSTRECHARGE)
-        {
+        if entry_conditions.must_recharge {
             incoming_instructions
                 .instruction_list
                 .push(Instruction::RemoveVolatileStatus(
@@ -2105,14 +2146,11 @@ pub fn generate_instructions_from_move(
                     },
                 ));
         }
-        final_instructions.push_partial(state, incoming_instructions, 0);
+        final_instructions.push_partial_and_unwind(state, incoming_instructions, applied_len);
         return;
     }
 
-    if attacker_side
-        .volatile_statuses
-        .contains(&PokemonVolatileStatus::TRUANT)
-    {
+    if entry_conditions.truant {
         incoming_instructions
             .instruction_list
             .push(Instruction::RemoveVolatileStatus(
@@ -2121,17 +2159,19 @@ pub fn generate_instructions_from_move(
                     volatile_status: PokemonVolatileStatus::TRUANT,
                 },
             ));
-        final_instructions.push_partial(state, incoming_instructions, 0);
+        final_instructions.push_partial_and_unwind(state, incoming_instructions, applied_len);
         return;
     }
 
     // TODO: test first-turn dragontail missing - it should not trigger this early return
     if !choice.first_move && defender_choice.flags.drag {
-        final_instructions.push_partial(state, incoming_instructions, 0);
+        final_instructions.push_partial_and_unwind(state, incoming_instructions, applied_len);
         return;
     }
 
-    state.apply_instructions(&incoming_instructions.instruction_list);
+    for instruction in incoming_instructions.instruction_list[applied_len..].iter() {
+        state.apply_one_instruction(instruction);
+    }
 
     let side = state.get_side(&attacking_side);
     if side
@@ -2553,6 +2593,12 @@ pub trait BranchOutput {
         instructions: StateInstructions,
         applied_len: usize,
     );
+    fn push_partial_and_unwind(
+        &mut self,
+        state: &mut State,
+        instructions: StateInstructions,
+        applied_len: usize,
+    );
     fn combine_duplicates(&mut self);
 }
 
@@ -2568,6 +2614,18 @@ impl BranchOutput for Vec<StateInstructions> {
         instructions: StateInstructions,
         _applied_len: usize,
     ) {
+        self.push(instructions);
+    }
+
+    fn push_partial_and_unwind(
+        &mut self,
+        state: &mut State,
+        instructions: StateInstructions,
+        applied_len: usize,
+    ) {
+        for instruction in instructions.instruction_list[..applied_len].iter().rev() {
+            state.reverse_one_instruction(instruction);
+        }
         self.push(instructions);
     }
 
@@ -2616,6 +2674,22 @@ impl BranchOutput for EndOfTurnOutput<'_> {
         for instruction in instructions.instruction_list[applied_len..].iter().rev() {
             state.reverse_one_instruction(instruction);
         }
+        self.out.push(instructions);
+    }
+
+    fn push_partial_and_unwind(
+        &mut self,
+        state: &mut State,
+        mut instructions: StateInstructions,
+        applied_len: usize,
+    ) {
+        for instruction in instructions.instruction_list[applied_len..].iter() {
+            state.apply_one_instruction(instruction);
+        }
+        self.unfinished_lens
+            .push(instructions.instruction_list.len());
+        self.finish(state, &mut instructions);
+        state.reverse_instructions(&instructions.instruction_list);
         self.out.push(instructions);
     }
 
@@ -3989,9 +4063,9 @@ fn handle_both_moves(
         &mut first_move_instructions,
         branch_on_damage,
     );
-    after_move_finish(state, &mut first_move_instructions);
-
     second_move_side_choice.first_move = false;
+    let second_move_side_ref = first_move_side_ref.get_other_side();
+    let entry_conditions = MoveEntryConditions::from_state(state, &second_move_side_ref);
     let mut end_of_turn_output = EndOfTurnOutput {
         unfinished_lens: state_instructions_vec
             .iter()
@@ -4001,13 +4075,18 @@ fn handle_both_moves(
         first_move_side_ref,
         skip_end_of_turn,
     };
-    for state_instruction in first_move_instructions {
-        generate_instructions_from_move(
+    for mut state_instruction in first_move_instructions {
+        state.apply_instructions(&state_instruction.instruction_list);
+        after_move_finish_applied(state, &mut state_instruction);
+        let applied_len = state_instruction.instruction_list.len();
+        generate_instructions_from_move_with_applied_prefix(
             state,
+            &entry_conditions,
             &mut second_move_side_choice.clone(), // this clone is needed because the choice may be modified in this loop
             first_move_side_choice,
-            first_move_side_ref.get_other_side(),
+            second_move_side_ref,
             state_instruction,
+            applied_len,
             &mut end_of_turn_output,
             branch_on_damage,
         );
