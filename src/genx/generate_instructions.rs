@@ -2576,6 +2576,70 @@ impl BranchOutput for Vec<StateInstructions> {
     }
 }
 
+struct EndOfTurnOutput<'a> {
+    out: &'a mut Vec<StateInstructions>,
+    unfinished_lens: Vec<usize>,
+    first_move_side_ref: SideReference,
+    skip_end_of_turn: bool,
+}
+
+impl EndOfTurnOutput<'_> {
+    fn finish(&self, state: &mut State, instructions: &mut StateInstructions) {
+        after_move_finish_applied(state, instructions);
+        if !(self.skip_end_of_turn || state.side_one.force_switch || state.side_two.force_switch) {
+            add_end_of_turn_instructions(state, instructions, &self.first_move_side_ref);
+        }
+    }
+}
+
+impl BranchOutput for EndOfTurnOutput<'_> {
+    fn push_and_unwind(&mut self, state: &mut State, mut instructions: StateInstructions) {
+        self.unfinished_lens
+            .push(instructions.instruction_list.len());
+        self.finish(state, &mut instructions);
+        state.reverse_instructions(&instructions.instruction_list);
+        self.out.push(instructions);
+    }
+
+    fn push_partial(
+        &mut self,
+        state: &mut State,
+        mut instructions: StateInstructions,
+        applied_len: usize,
+    ) {
+        for instruction in instructions.instruction_list[applied_len..].iter() {
+            state.apply_one_instruction(instruction);
+        }
+        self.unfinished_lens
+            .push(instructions.instruction_list.len());
+        self.finish(state, &mut instructions);
+        for instruction in instructions.instruction_list[applied_len..].iter().rev() {
+            state.reverse_one_instruction(instruction);
+        }
+        self.out.push(instructions);
+    }
+
+    fn combine_duplicates(&mut self) {
+        let mut i = 0;
+        while i < self.out.len() {
+            let mut j = i + 1;
+            while j < self.out.len() {
+                if self.unfinished_lens[i] == self.unfinished_lens[j]
+                    && self.out[i].instruction_list[..self.unfinished_lens[i]]
+                        == self.out[j].instruction_list[..self.unfinished_lens[j]]
+                {
+                    self.out[i].percentage += self.out[j].percentage;
+                    self.out.remove(j);
+                    self.unfinished_lens.remove(j);
+                } else {
+                    j += 1;
+                }
+            }
+            i += 1;
+        }
+    }
+}
+
 fn combine_duplicate_instructions(list_of_instructions: &mut Vec<StateInstructions>) {
     for i in 0..list_of_instructions.len() {
         let mut j = i + 1;
@@ -3913,6 +3977,7 @@ fn handle_both_moves(
     incoming_instructions: StateInstructions,
     state_instructions_vec: &mut Vec<StateInstructions>,
     branch_on_damage: bool,
+    skip_end_of_turn: bool,
 ) {
     let mut first_move_instructions = Vec::with_capacity(4);
     generate_instructions_from_move(
@@ -3927,6 +3992,15 @@ fn handle_both_moves(
     after_move_finish(state, &mut first_move_instructions);
 
     second_move_side_choice.first_move = false;
+    let mut end_of_turn_output = EndOfTurnOutput {
+        unfinished_lens: state_instructions_vec
+            .iter()
+            .map(|i| i.instruction_list.len())
+            .collect(),
+        out: state_instructions_vec,
+        first_move_side_ref,
+        skip_end_of_turn,
+    };
     for state_instruction in first_move_instructions {
         generate_instructions_from_move(
             state,
@@ -3934,7 +4008,7 @@ fn handle_both_moves(
             first_move_side_choice,
             first_move_side_ref.get_other_side(),
             state_instruction,
-            state_instructions_vec,
+            &mut end_of_turn_output,
             branch_on_damage,
         );
     }
@@ -4304,6 +4378,7 @@ pub fn generate_instructions_from_move_pair(
     // reverse instructions because mega-evolving might've added some
     state.reverse_instructions(&incoming_instructions.instruction_list);
 
+    let skip_end_of_turn = s1_replacing_fainted_pkmn || s2_replacing_fainted_pkmn;
     match moves_first(
         &state,
         &side_one_choice,
@@ -4319,20 +4394,8 @@ pub fn generate_instructions_from_move_pair(
                 incoming_instructions,
                 &mut state_instructions_vec,
                 branch_on_damage,
+                skip_end_of_turn,
             );
-
-            for state_instruction in state_instructions_vec.iter_mut() {
-                state.apply_instructions(&state_instruction.instruction_list);
-                after_move_finish_applied(state, state_instruction);
-                if !(s1_replacing_fainted_pkmn
-                    || s2_replacing_fainted_pkmn
-                    || state.side_one.force_switch
-                    || state.side_two.force_switch)
-                {
-                    add_end_of_turn_instructions(state, state_instruction, &SideReference::SideOne);
-                }
-                state.reverse_instructions(&state_instruction.instruction_list);
-            }
         }
         SideMovesFirst::SideTwo => {
             handle_both_moves(
@@ -4343,19 +4406,8 @@ pub fn generate_instructions_from_move_pair(
                 incoming_instructions,
                 &mut state_instructions_vec,
                 branch_on_damage,
+                skip_end_of_turn,
             );
-            for state_instruction in state_instructions_vec.iter_mut() {
-                state.apply_instructions(&state_instruction.instruction_list);
-                after_move_finish_applied(state, state_instruction);
-                if !(s1_replacing_fainted_pkmn
-                    || s2_replacing_fainted_pkmn
-                    || state.side_one.force_switch
-                    || state.side_two.force_switch)
-                {
-                    add_end_of_turn_instructions(state, state_instruction, &SideReference::SideTwo);
-                }
-                state.reverse_instructions(&state_instruction.instruction_list);
-            }
         }
         SideMovesFirst::SpeedTie => {
             let mut side_one_moves_first_instruction = incoming_instructions.clone();
@@ -4371,19 +4423,8 @@ pub fn generate_instructions_from_move_pair(
                 side_one_moves_first_instruction,
                 &mut state_instructions_vec,
                 branch_on_damage,
+                skip_end_of_turn,
             );
-            for state_instruction in state_instructions_vec.iter_mut() {
-                state.apply_instructions(&state_instruction.instruction_list);
-                after_move_finish_applied(state, state_instruction);
-                if !(s1_replacing_fainted_pkmn
-                    || s2_replacing_fainted_pkmn
-                    || state.side_one.force_switch
-                    || state.side_two.force_switch)
-                {
-                    add_end_of_turn_instructions(state, state_instruction, &SideReference::SideOne);
-                }
-                state.reverse_instructions(&state_instruction.instruction_list);
-            }
 
             // side_two moves first
             let mut side_two_moves_first_si = Vec::with_capacity(4);
@@ -4395,19 +4436,8 @@ pub fn generate_instructions_from_move_pair(
                 incoming_instructions,
                 &mut side_two_moves_first_si,
                 branch_on_damage,
+                skip_end_of_turn,
             );
-            for state_instruction in side_two_moves_first_si.iter_mut() {
-                state.apply_instructions(&state_instruction.instruction_list);
-                after_move_finish_applied(state, state_instruction);
-                if !(s1_replacing_fainted_pkmn
-                    || s2_replacing_fainted_pkmn
-                    || state.side_one.force_switch
-                    || state.side_two.force_switch)
-                {
-                    add_end_of_turn_instructions(state, state_instruction, &SideReference::SideTwo);
-                }
-                state.reverse_instructions(&state_instruction.instruction_list);
-            }
 
             // combine both vectors into the final vector
             state_instructions_vec.extend(side_two_moves_first_si);
