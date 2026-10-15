@@ -1213,7 +1213,7 @@ fn check_move_hit_or_miss(
     attacking_side_ref: &SideReference,
     damage: Option<(i16, i16)>,
     incoming_instructions: &mut StateInstructions,
-    frozen_instructions: &mut Vec<StateInstructions>,
+    frozen_instructions: &mut dyn BranchOutput,
 ) {
     /*
     Checks whether a move can miss
@@ -1233,6 +1233,7 @@ fn check_move_hit_or_miss(
     }
 
     if percent_hit < 1.0 {
+        let applied_len = incoming_instructions.instruction_list.len();
         let mut move_missed_instruction = incoming_instructions.clone();
         move_missed_instruction.update_percentage(1.0 - percent_hit);
         if let Some(crash_fraction) = choice.crash {
@@ -1265,7 +1266,7 @@ fn check_move_hit_or_miss(
                 }));
         }
 
-        frozen_instructions.push(move_missed_instruction);
+        frozen_instructions.push_partial(state, move_missed_instruction, applied_len);
     }
     incoming_instructions.update_percentage(percent_hit);
 }
@@ -1274,12 +1275,11 @@ fn get_instructions_from_drag(
     state: &mut State,
     attacking_side_reference: &SideReference,
     incoming_instructions: StateInstructions,
-    frozen_instructions: &mut Vec<StateInstructions>,
+    frozen_instructions: &mut dyn BranchOutput,
 ) {
     let defending_side = state.get_side(&attacking_side_reference.get_other_side());
     if defending_side.get_active_immutable().hp == 0 {
-        state.reverse_instructions(&incoming_instructions.instruction_list);
-        frozen_instructions.push(incoming_instructions);
+        frozen_instructions.push_and_unwind(state, incoming_instructions);
         return;
     }
 
@@ -1289,7 +1289,7 @@ fn get_instructions_from_drag(
 
     let num_alive_reserve = defending_side_alive_reserve_indices.len();
     if num_alive_reserve == 0 {
-        frozen_instructions.push(incoming_instructions);
+        frozen_instructions.push_partial(state, incoming_instructions, 0);
         return;
     }
 
@@ -1302,9 +1302,8 @@ fn get_instructions_from_drag(
             attacking_side_reference.get_other_side(),
             &mut cloned_instructions,
         );
-        state.reverse_instructions(&cloned_instructions.instruction_list);
         cloned_instructions.update_percentage(1.0 / num_alive_reserve as f32);
-        frozen_instructions.push(cloned_instructions);
+        frozen_instructions.push_and_unwind(state, cloned_instructions);
     }
 }
 
@@ -1798,28 +1797,32 @@ fn generate_instructions_from_existing_status_conditions(
     attacking_side_ref: &SideReference,
     attacker_choice: &Choice,
     incoming_instructions: &mut StateInstructions,
-    final_instructions: &mut Vec<StateInstructions>,
+    final_instructions: &mut dyn BranchOutput,
 ) {
-    let (attacking_side, _defending_side) = state.get_both_sides(attacking_side_ref);
-    let current_active_index = attacking_side.active_index;
-    let attacker_active = attacking_side.get_active();
-    match attacker_active.status {
+    let current_active_index = state.get_side_immutable(attacking_side_ref).active_index;
+    let attacker_status = state
+        .get_side_immutable(attacking_side_ref)
+        .get_active_immutable()
+        .status;
+    match attacker_status {
         PokemonStatus::PARALYZE => {
             // Fully-Paralyzed Branch
+            let applied_len = incoming_instructions.instruction_list.len();
             let mut fully_paralyzed_instruction = incoming_instructions.clone();
             fully_paralyzed_instruction.update_percentage(FULLY_PARALYZED_CHANCE);
-            final_instructions.push(fully_paralyzed_instruction);
+            final_instructions.push_partial(state, fully_paralyzed_instruction, applied_len);
 
             // Non-Paralyzed Branch
             incoming_instructions.update_percentage(1.0 - FULLY_PARALYZED_CHANCE);
         }
         PokemonStatus::FREEZE => {
+            let applied_len = incoming_instructions.instruction_list.len();
             let mut still_frozen_instruction = incoming_instructions.clone();
             still_frozen_instruction.update_percentage(1.0 - THAW_CHANCE);
-            final_instructions.push(still_frozen_instruction);
+            final_instructions.push_partial(state, still_frozen_instruction, applied_len);
 
             incoming_instructions.update_percentage(THAW_CHANCE);
-            attacker_active.status = PokemonStatus::NONE;
+            state.get_side(attacking_side_ref).get_active().status = PokemonStatus::NONE;
             incoming_instructions
                 .instruction_list
                 .push(Instruction::ChangeStatus(ChangeStatusInstruction {
@@ -1830,12 +1833,20 @@ fn generate_instructions_from_existing_status_conditions(
                 }));
         }
         PokemonStatus::SLEEP => {
-            match attacker_active.rest_turns {
+            let attacker_rest_turns = state
+                .get_side_immutable(attacking_side_ref)
+                .get_active_immutable()
+                .rest_turns;
+            match attacker_rest_turns {
                 // Pokemon is not asleep because of Rest.
                 0 => {
-                    let current_sleep_turns = attacker_active.sleep_turns;
+                    let current_sleep_turns = state
+                        .get_side_immutable(attacking_side_ref)
+                        .get_active_immutable()
+                        .sleep_turns;
                     let chance_to_wake = chance_to_wake_up(current_sleep_turns);
                     if chance_to_wake == 1.0 {
+                        let attacker_active = state.get_side(attacking_side_ref).get_active();
                         attacker_active.status = PokemonStatus::NONE;
                         attacker_active.sleep_turns = 0;
                         incoming_instructions
@@ -1866,6 +1877,7 @@ fn generate_instructions_from_existing_status_conditions(
                                 }),
                             );
                         } else {
+                            let applied_len = incoming_instructions.instruction_list.len();
                             let mut still_asleep_instruction = incoming_instructions.clone();
                             still_asleep_instruction.update_percentage(1.0);
                             still_asleep_instruction.instruction_list.push(
@@ -1876,7 +1888,11 @@ fn generate_instructions_from_existing_status_conditions(
                                     previous_turns: current_sleep_turns,
                                 }),
                             );
-                            final_instructions.push(still_asleep_instruction);
+                            final_instructions.push_partial(
+                                state,
+                                still_asleep_instruction,
+                                applied_len,
+                            );
                             incoming_instructions.update_percentage(0.0);
                         }
                     } else {
@@ -1886,6 +1902,7 @@ fn generate_instructions_from_existing_status_conditions(
                         // nothing happens and the other will represent where something happens
                         // Normally "nothing happens" means you stay asleep and "something happens"
                         // means you wake up. If the move is sleeptalk these are reversed.
+                        let applied_len = incoming_instructions.instruction_list.len();
                         let do_nothing_percentage;
                         let mut do_nothing_instructions = incoming_instructions.clone();
                         if attacker_choice.move_id == Choices::SLEEPTALK {
@@ -1906,15 +1923,6 @@ fn generate_instructions_from_existing_status_conditions(
                                     previous_turns: current_sleep_turns,
                                 }),
                             );
-                            incoming_instructions.instruction_list.push(
-                                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
-                                    side_ref: *attacking_side_ref,
-                                    pokemon_index: current_active_index,
-                                    new_turns: current_sleep_turns + 1,
-                                    previous_turns: current_sleep_turns,
-                                }),
-                            );
-                            attacker_active.sleep_turns += 1;
                         } else {
                             do_nothing_percentage = 1.0 - chance_to_wake;
                             do_nothing_instructions.instruction_list.push(
@@ -1925,6 +1933,26 @@ fn generate_instructions_from_existing_status_conditions(
                                     previous_turns: current_sleep_turns,
                                 }),
                             );
+                        }
+                        do_nothing_instructions.update_percentage(do_nothing_percentage);
+                        final_instructions.push_partial(
+                            state,
+                            do_nothing_instructions,
+                            applied_len,
+                        );
+
+                        let attacker_active = state.get_side(attacking_side_ref).get_active();
+                        if attacker_choice.move_id == Choices::SLEEPTALK {
+                            incoming_instructions.instruction_list.push(
+                                Instruction::SetSleepTurns(SetSleepTurnsInstruction {
+                                    side_ref: *attacking_side_ref,
+                                    pokemon_index: current_active_index,
+                                    new_turns: current_sleep_turns + 1,
+                                    previous_turns: current_sleep_turns,
+                                }),
+                            );
+                            attacker_active.sleep_turns += 1;
+                        } else {
                             incoming_instructions
                                 .instruction_list
                                 .push(Instruction::ChangeStatus(ChangeStatusInstruction {
@@ -1944,13 +1972,12 @@ fn generate_instructions_from_existing_status_conditions(
                             attacker_active.status = PokemonStatus::NONE;
                             attacker_active.sleep_turns = 0;
                         }
-                        do_nothing_instructions.update_percentage(do_nothing_percentage);
                         incoming_instructions.update_percentage(1.0 - do_nothing_percentage);
-                        final_instructions.push(do_nothing_instructions);
                     }
                 }
                 // Pokemon is asleep because of Rest, and will wake up this turn
                 1 => {
+                    let attacker_active = state.get_side(attacking_side_ref).get_active();
                     attacker_active.status = PokemonStatus::NONE;
                     attacker_active.rest_turns -= 1;
                     incoming_instructions
@@ -1971,7 +1998,7 @@ fn generate_instructions_from_existing_status_conditions(
                 }
                 // Pokemon is asleep because of Rest, and will stay asleep this turn
                 2 | 3 => {
-                    attacker_active.rest_turns -= 1;
+                    state.get_side(attacking_side_ref).get_active().rest_turns -= 1;
                     incoming_instructions
                         .instruction_list
                         .push(Instruction::DecrementRestTurns(
@@ -1980,16 +2007,18 @@ fn generate_instructions_from_existing_status_conditions(
                             },
                         ));
                 }
-                _ => panic!("Invalid rest_turns value: {}", attacker_active.rest_turns),
+                _ => panic!("Invalid rest_turns value: {}", attacker_rest_turns),
             }
         }
         _ => {}
     }
 
+    let attacking_side = state.get_side(attacking_side_ref);
     if attacking_side
         .volatile_statuses
         .contains(&PokemonVolatileStatus::CONFUSION)
     {
+        let applied_len = incoming_instructions.instruction_list.len();
         let mut hit_yourself_instruction = incoming_instructions.clone();
         hit_yourself_instruction.update_percentage(HIT_SELF_IN_CONFUSION_CHANCE);
 
@@ -2017,19 +2046,21 @@ fn generate_instructions_from_existing_status_conditions(
             .instruction_list
             .push(damage_instruction);
 
-        final_instructions.push(hit_yourself_instruction);
+        final_instructions.push_partial(state, hit_yourself_instruction, applied_len);
 
         incoming_instructions.update_percentage(1.0 - HIT_SELF_IN_CONFUSION_CHANCE);
     }
 
+    let attacking_side = state.get_side_immutable(attacking_side_ref);
     if attacking_side.side_conditions.protect > 0 {
         if let Some(vs) = &attacker_choice.volatile_status {
             if PROTECT_VOLATILES.contains(&vs.volatile_status) {
                 let protect_success_chance =
                     CONSECUTIVE_PROTECT_CHANCE.powi(attacking_side.side_conditions.protect as i32);
+                let applied_len = incoming_instructions.instruction_list.len();
                 let mut protect_fail_instruction = incoming_instructions.clone();
                 protect_fail_instruction.update_percentage(1.0 - protect_success_chance);
-                final_instructions.push(protect_fail_instruction);
+                final_instructions.push_partial(state, protect_fail_instruction, applied_len);
                 incoming_instructions.update_percentage(protect_success_chance);
             }
         }
@@ -2042,11 +2073,11 @@ pub fn generate_instructions_from_move(
     defender_choice: &Choice,
     attacking_side: SideReference,
     mut incoming_instructions: StateInstructions,
-    mut final_instructions: &mut Vec<StateInstructions>,
+    final_instructions: &mut dyn BranchOutput,
     branch_on_damage: bool,
 ) {
     if choice.category == MoveCategory::Switch {
-        final_instructions.push(incoming_instructions);
+        final_instructions.push_partial(state, incoming_instructions, 0);
         return;
     }
 
@@ -2074,7 +2105,7 @@ pub fn generate_instructions_from_move(
                     },
                 ));
         }
-        final_instructions.push(incoming_instructions);
+        final_instructions.push_partial(state, incoming_instructions, 0);
         return;
     }
 
@@ -2090,13 +2121,13 @@ pub fn generate_instructions_from_move(
                     volatile_status: PokemonVolatileStatus::TRUANT,
                 },
             ));
-        final_instructions.push(incoming_instructions);
+        final_instructions.push_partial(state, incoming_instructions, 0);
         return;
     }
 
     // TODO: test first-turn dragontail missing - it should not trigger this early return
     if !choice.first_move && defender_choice.flags.drag {
-        final_instructions.push(incoming_instructions);
+        final_instructions.push_partial(state, incoming_instructions, 0);
         return;
     }
 
@@ -2221,8 +2252,7 @@ pub fn generate_instructions_from_move(
         state
             .get_side(&attacking_side)
             .switch_out_move_second_saved_move = choice.move_id;
-        state.reverse_instructions(&incoming_instructions.instruction_list);
-        final_instructions.push(incoming_instructions);
+        final_instructions.push_and_unwind(state, incoming_instructions);
         return;
     }
 
@@ -2232,8 +2262,7 @@ pub fn generate_instructions_from_move(
         .hp
         == 0
     {
-        state.reverse_instructions(&incoming_instructions.instruction_list);
-        final_instructions.push(incoming_instructions);
+        final_instructions.push_and_unwind(state, incoming_instructions);
         return;
     }
 
@@ -2274,8 +2303,7 @@ pub fn generate_instructions_from_move(
     }
 
     if cannot_use_move(state, &choice, &attacking_side) {
-        state.reverse_instructions(&incoming_instructions.instruction_list);
-        final_instructions.push(incoming_instructions);
+        final_instructions.push_and_unwind(state, incoming_instructions);
         return;
     }
 
@@ -2308,7 +2336,7 @@ pub fn generate_instructions_from_move(
             &attacking_side,
             &choice,
             &mut incoming_instructions,
-            &mut final_instructions,
+            final_instructions,
         );
     }
     let attacker = state
@@ -2328,22 +2356,22 @@ pub fn generate_instructions_from_move(
                 defender_choice,
                 attacking_side,
                 sleep_talk_instructions,
-                &mut final_instructions,
+                final_instructions,
                 false,
             );
         }
         return;
     } else if attacker.status == PokemonStatus::SLEEP && !choice.sleep_talk_move {
-        state.reverse_instructions(&incoming_instructions.instruction_list);
         if incoming_instructions.percentage > 0.0 {
-            final_instructions.push(incoming_instructions);
+            final_instructions.push_and_unwind(state, incoming_instructions);
+        } else {
+            state.reverse_instructions(&incoming_instructions.instruction_list);
         }
         return;
     }
 
     if move_has_no_effect(state, &choice, &attacking_side) {
-        state.reverse_instructions(&incoming_instructions.instruction_list);
-        final_instructions.push(incoming_instructions);
+        final_instructions.push_and_unwind(state, incoming_instructions);
         return;
     }
     choice_special_effect(state, choice, &attacking_side, &mut incoming_instructions);
@@ -2366,7 +2394,7 @@ pub fn generate_instructions_from_move(
         &attacking_side,
         damage,
         &mut incoming_instructions,
-        &mut final_instructions,
+        final_instructions,
     );
 
     if incoming_instructions.percentage == 0.0 {
@@ -2489,7 +2517,7 @@ pub fn generate_instructions_from_move(
             regular_damage,
             choice,
             defender_choice,
-            &mut final_instructions,
+            final_instructions,
         );
     } else {
         state.reverse_instructions(&incoming_instructions.instruction_list);
@@ -2508,13 +2536,44 @@ pub fn generate_instructions_from_move(
                 branch_damage,
                 choice,
                 defender_choice,
-                &mut final_instructions,
+                final_instructions,
             );
         }
     }
 
-    combine_duplicate_instructions(&mut final_instructions);
+    final_instructions.combine_duplicates();
     return;
+}
+
+pub trait BranchOutput {
+    fn push_and_unwind(&mut self, state: &mut State, instructions: StateInstructions);
+    fn push_partial(
+        &mut self,
+        state: &mut State,
+        instructions: StateInstructions,
+        applied_len: usize,
+    );
+    fn combine_duplicates(&mut self);
+}
+
+impl BranchOutput for Vec<StateInstructions> {
+    fn push_and_unwind(&mut self, state: &mut State, instructions: StateInstructions) {
+        state.reverse_instructions(&instructions.instruction_list);
+        self.push(instructions);
+    }
+
+    fn push_partial(
+        &mut self,
+        _state: &mut State,
+        instructions: StateInstructions,
+        _applied_len: usize,
+    ) {
+        self.push(instructions);
+    }
+
+    fn combine_duplicates(&mut self) {
+        combine_duplicate_instructions(self);
+    }
 }
 
 fn combine_duplicate_instructions(list_of_instructions: &mut Vec<StateInstructions>) {
@@ -3613,7 +3672,7 @@ fn run_move(
     damage_amount: i16,
     choice: &mut Choice,
     defender_choice: &Choice,
-    final_instructions: &mut Vec<StateInstructions>,
+    final_instructions: &mut dyn BranchOutput,
 ) {
     let mut hit_sub = false;
     for _ in 0..hit_count {
@@ -3797,8 +3856,7 @@ fn run_move(
         .item
         == Items::COVERTCLOAK
     {
-        state.reverse_instructions(&instructions.instruction_list);
-        final_instructions.push(instructions);
+        final_instructions.push_and_unwind(state, instructions);
     } else if let Some(secondaries_vec) = &choice.secondaries {
         state.reverse_instructions(&instructions.instruction_list);
         let instructions_vec_after_secondaries = get_instructions_from_secondaries(
@@ -3809,10 +3867,11 @@ fn run_move(
             instructions,
             hit_sub,
         );
-        final_instructions.extend(instructions_vec_after_secondaries);
+        for secondary_instructions in instructions_vec_after_secondaries {
+            final_instructions.push_partial(state, secondary_instructions, 0);
+        }
     } else {
-        state.reverse_instructions(&instructions.instruction_list);
-        final_instructions.push(instructions);
+        final_instructions.push_and_unwind(state, instructions);
     }
 }
 
