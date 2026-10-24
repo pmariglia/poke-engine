@@ -20709,7 +20709,8 @@ fn apply_champions_modifiers(moves: &mut HashMap<Choices, Choice>) {
     moves.get_mut(&Choices::BLOODMOON).unwrap().base_power = 130.0;
     moves.get_mut(&Choices::BOLTBEAK).unwrap().base_power = 80.0;
     moves.get_mut(&Choices::BONERUSH).unwrap().base_power = 30.0;
-    moves.get_mut(&Choices::CRABHAMMER).unwrap().base_power = 95.0;
+    moves.get_mut(&Choices::CRABHAMMER).unwrap().base_power = 100.0;
+    moves.get_mut(&Choices::CRABHAMMER).unwrap().accuracy = 95.0;
     moves.get_mut(&Choices::DRAGONCLAW).unwrap().flags.slicing = true;
     moves.get_mut(&Choices::DRAGONHAMMER).unwrap().base_power = 90.0;
     moves.get_mut(&Choices::FIRELASH).unwrap().base_power = 90.0;
@@ -20718,6 +20719,7 @@ fn apply_champions_modifiers(moves: &mut HashMap<Choices, Choice>) {
     moves.get_mut(&Choices::GEARGRIND).unwrap().base_power = 60.0;
     moves.get_mut(&Choices::GEARGRIND).unwrap().accuracy = 90.0;
     moves.get_mut(&Choices::GRAVAPPLE).unwrap().base_power = 90.0;
+    moves.get_mut(&Choices::GROWTH).unwrap().move_type = PokemonType::GRASS;
     moves.get_mut(&Choices::HYPERDRILL).unwrap().base_power = 120.0;
     moves.get_mut(&Choices::INFERNALPARADE).unwrap().base_power = 65.0;
     moves.get_mut(&Choices::IRONHEAD).unwrap().secondaries = Some(vec![Secondary {
@@ -20725,7 +20727,8 @@ fn apply_champions_modifiers(moves: &mut HashMap<Choices, Choice>) {
         target: MoveTarget::Opponent,
         effect: Effect::VolatileStatus(PokemonVolatileStatus::FLINCH),
     }]);
-    moves.get_mut(&Choices::MAKEITRAIN).unwrap().base_power = 95.0;
+    moves.get_mut(&Choices::MAKEITRAIN).unwrap().base_power = 120.0;
+    moves.get_mut(&Choices::MAKEITRAIN).unwrap().accuracy = 95.0;
     moves.get_mut(&Choices::MAKEITRAIN).unwrap().boost = Some(Boost {
         target: MoveTarget::User,
         boosts: StatBoosts {
@@ -20737,6 +20740,7 @@ fn apply_champions_modifiers(moves: &mut HashMap<Choices, Choice>) {
             accuracy: 0,
         },
     });
+    moves.get_mut(&Choices::METEORASSAULT).unwrap().base_power = 170.0;
     moves.get_mut(&Choices::MOONBLAST).unwrap().secondaries = Some(vec![Secondary {
         chance: 10.0,
         target: MoveTarget::Opponent,
@@ -20754,10 +20758,13 @@ fn apply_champions_modifiers(moves: &mut HashMap<Choices, Choice>) {
     moves.get_mut(&Choices::PSYSHIELDBASH).unwrap().base_power = 90.0;
     moves.get_mut(&Choices::REVELATIONDANCE).unwrap().base_power = 100.0;
     moves.get_mut(&Choices::SHADOWCLAW).unwrap().flags.slicing = true;
+    moves.get_mut(&Choices::SLASH).unwrap().base_power = 80.0;
     moves.get_mut(&Choices::SNAPTRAP).unwrap().move_type = PokemonType::STEEL;
     moves.get_mut(&Choices::SNIPESHOT).unwrap().base_power = 85.0;
     moves.get_mut(&Choices::SPIRITSHACKLE).unwrap().base_power = 90.0;
-    moves.get_mut(&Choices::SYRUPBOMB).unwrap().base_power = 90.0;
+    moves.get_mut(&Choices::SWAGGER).unwrap().accuracy = 85.0;
+    moves.get_mut(&Choices::SYRUPBOMB).unwrap().base_power = 60.0;
+    moves.get_mut(&Choices::SYRUPBOMB).unwrap().accuracy = 90.0;
     moves.get_mut(&Choices::TOXICTHREAD).unwrap().boost = Some(Boost {
         target: MoveTarget::Opponent,
         boosts: StatBoosts {

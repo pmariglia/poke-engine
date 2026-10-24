@@ -3,6 +3,8 @@
 use poke_engine::choices::{Choices, MoveCategory, MOVES};
 use poke_engine::engine::abilities::{Abilities, WEATHER_ABILITY_TURNS};
 use poke_engine::engine::damage_calc::CRIT_MULTIPLIER;
+#[cfg(feature = "champions")]
+use poke_engine::engine::generate_instructions::calculate_damage_rolls;
 use poke_engine::engine::generate_instructions::{
     generate_instructions_from_move_pair, BASE_CRIT_CHANCE, BURN_RESIDUAL_DAMAGE_PCT,
     CONSECUTIVE_PROTECT_CHANCE, FULLY_PARALYZED_CHANCE, THAW_CHANCE,
@@ -35,6 +37,9 @@ use poke_engine::instruction::ToggleTerastallizedInstruction;
 
 #[cfg(not(feature = "champions"))]
 use poke_engine::engine::generate_instructions::MAX_SLEEP_TURNS;
+
+#[cfg(feature = "champions")]
+use std::str::FromStr;
 
 pub fn generate_instructions_with_state_assertion(
     state: &mut State,
@@ -19120,7 +19125,7 @@ fn test_basic_mega_evolving() {
 #[cfg(feature = "champions")]
 #[test]
 fn test_mega_evolving_into_alternate_forme_changes_types() {
-    // Absolite Z turns Absol into Absol-Mega-Z: Dark -> Dark/Ghost, ability Magic Bounce,
+    // Absolite Z turns Absol into Absol-Mega-Z: Dark -> Dark/Ghost, ability Sharpness,
     // base stats 65/130/60/75/60/75 -> 65/154/60/75/60/151.
     // The default pokemon is level 100 with 11 stat points in every stat, so the
     // recalculated stats are 365/177/207/177/359 (e.g. atk: 2*154 + 31 + 21 + 5)
@@ -19167,11 +19172,11 @@ fn test_mega_evolving_into_alternate_forme_changes_types() {
             }),
             Instruction::ChangeAbility(ChangeAbilityInstruction {
                 side_ref: SideReference::SideOne,
-                ability_change: Abilities::MAGICBOUNCE as i16 - Abilities::PRESSURE as i16,
+                ability_change: Abilities::SHARPNESS as i16 - Abilities::PRESSURE as i16,
             }),
             Instruction::ChangeBaseAbility(ChangeAbilityInstruction {
                 side_ref: SideReference::SideOne,
-                ability_change: Abilities::MAGICBOUNCE as i16 - Abilities::PRESSURE as i16,
+                ability_change: Abilities::SHARPNESS as i16 - Abilities::PRESSURE as i16,
             }),
             Instruction::ChangeType(ChangeType {
                 side_ref: SideReference::SideOne,
@@ -23090,4 +23095,556 @@ fn test_pechaberry_cures_poison() {
 #[test]
 fn test_pechaberry_cures_toxic() {
     assert_status_cure_berry(Items::PECHABERRY, PokemonStatus::TOXIC);
+}
+
+#[cfg(feature = "champions")]
+fn champions_neutral_state() -> State {
+    let mut state = State::default();
+    for side in [&mut state.side_one, &mut state.side_two] {
+        let pokemon = side.get_active();
+        pokemon.id = PokemonName::MEW;
+        pokemon.level = 50;
+        pokemon.types = (PokemonType::TYPELESS, PokemonType::TYPELESS);
+        pokemon.base_types = pokemon.types;
+        pokemon.hp = 1000;
+        pokemon.maxhp = 1000;
+        pokemon.evs = (0, 0, 0, 0, 0, 0);
+        pokemon.replace_move(PokemonMoveIndex::M0, Choices::SPLASH);
+    }
+    state.side_one.get_active().speed = 200;
+    state.side_two.get_active().speed = 100;
+    state
+}
+
+#[cfg(feature = "champions")]
+fn generate_champions_instructions(
+    state: &mut State,
+    side_one: MoveChoice,
+    side_two: MoveChoice,
+) -> Vec<StateInstructions> {
+    state.set_conditional_mechanics();
+    let result = generate_instructions_with_state_assertion(state, &side_one, &side_two);
+    assert!((result.iter().map(|x| x.percentage).sum::<f32>() - 100.0).abs() < 0.001);
+    result
+}
+
+#[cfg(feature = "champions")]
+fn use_champions_move(state: &mut State, move_id: Choices) -> Vec<StateInstructions> {
+    state
+        .side_one
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, move_id);
+    generate_champions_instructions(
+        state,
+        MoveChoice::Move(PokemonMoveIndex::M0),
+        MoveChoice::None,
+    )
+}
+
+#[cfg(feature = "champions")]
+fn champions_damage_to(outcome: &StateInstructions, side_ref: SideReference) -> i16 {
+    outcome
+        .instruction_list
+        .iter()
+        .filter_map(|instruction| match instruction {
+            Instruction::Damage(damage) if damage.side_ref == side_ref => {
+                Some(damage.damage_amount)
+            }
+            _ => None,
+        })
+        .sum()
+}
+
+#[cfg(feature = "champions")]
+fn champions_damage_rolls(state: &State, move_id: Choices) -> Vec<i16> {
+    calculate_damage_rolls(
+        state.clone(),
+        &SideReference::SideOne,
+        MOVES.get(&move_id).unwrap().clone(),
+        MOVES.get(&Choices::SPLASH).unwrap(),
+    )
+    .unwrap()
+}
+
+#[cfg(feature = "champions")]
+#[test]
+fn test_champions_corrected_move_data_and_snipe_shot_power() {
+    for (id, power, accuracy, move_type, category) in [
+        (
+            Choices::CRABHAMMER,
+            100.0,
+            95.0,
+            PokemonType::WATER,
+            MoveCategory::Physical,
+        ),
+        (
+            Choices::GROWTH,
+            0.0,
+            100.0,
+            PokemonType::GRASS,
+            MoveCategory::Status,
+        ),
+        (
+            Choices::MAKEITRAIN,
+            120.0,
+            95.0,
+            PokemonType::STEEL,
+            MoveCategory::Special,
+        ),
+        (
+            Choices::METEORASSAULT,
+            170.0,
+            100.0,
+            PokemonType::FIGHTING,
+            MoveCategory::Physical,
+        ),
+        (
+            Choices::SLASH,
+            80.0,
+            100.0,
+            PokemonType::NORMAL,
+            MoveCategory::Physical,
+        ),
+        (
+            Choices::SWAGGER,
+            0.0,
+            85.0,
+            PokemonType::NORMAL,
+            MoveCategory::Status,
+        ),
+        (
+            Choices::SYRUPBOMB,
+            60.0,
+            90.0,
+            PokemonType::GRASS,
+            MoveCategory::Special,
+        ),
+        (
+            Choices::SNIPESHOT,
+            85.0,
+            100.0,
+            PokemonType::WATER,
+            MoveCategory::Special,
+        ),
+    ] {
+        let actual = MOVES.get(&id).unwrap();
+        assert_eq!(
+            (
+                actual.base_power,
+                actual.accuracy,
+                actual.move_type,
+                actual.category
+            ),
+            (power, accuracy, move_type, category),
+            "{:?}",
+            id
+        );
+    }
+}
+
+#[cfg(feature = "champions")]
+#[test]
+fn test_champions_corrected_moves_keep_their_accuracy_branches() {
+    for (id, hit_chance) in [
+        (Choices::CRABHAMMER, 95.0),
+        (Choices::MAKEITRAIN, 95.0),
+        (Choices::SWAGGER, 85.0),
+        (Choices::SYRUPBOMB, 90.0),
+    ] {
+        let outcomes = use_champions_move(&mut champions_neutral_state(), id);
+        assert_eq!(outcomes.len(), 2, "{:?}", id);
+        let hit = outcomes
+            .iter()
+            .find(|x| !x.instruction_list.is_empty())
+            .unwrap();
+        let miss = outcomes
+            .iter()
+            .find(|x| x.instruction_list.is_empty())
+            .unwrap();
+        assert!((hit.percentage - hit_chance).abs() < 0.001, "{:?}", id);
+        assert!(
+            (miss.percentage - (100.0 - hit_chance)).abs() < 0.001,
+            "{:?}",
+            id
+        );
+    }
+}
+
+#[cfg(feature = "champions")]
+#[test]
+fn test_champions_make_it_rain_keeps_its_two_stage_special_attack_drop() {
+    let mut state = champions_neutral_state();
+    let outcomes = use_champions_move(&mut state, Choices::MAKEITRAIN);
+    let hit = outcomes
+        .iter()
+        .find(|x| champions_damage_to(x, SideReference::SideTwo) > 0)
+        .unwrap();
+    assert_eq!(champions_damage_to(hit, SideReference::SideTwo), 49);
+    state.apply_instructions(&hit.instruction_list);
+    assert_eq!(state.side_one.special_attack_boost, -2);
+}
+
+#[cfg(feature = "champions")]
+#[test]
+fn test_champions_aura_guard_reduces_physical_special_and_fire_contact_attacks() {
+    // These max/critical values use the existing effective-power model,
+    // including its rounding, rather than halving already calculated damage.
+    for (move_id, unguarded, guarded) in [
+        (Choices::TACKLE, vec![19, 28], vec![10, 15]),
+        (Choices::DRAININGKISS, vec![24, 36], vec![13, 19]),
+        (Choices::FIREPUNCH, vec![35, 52], vec![18, 27]),
+    ] {
+        let mut state = champions_neutral_state();
+        assert_eq!(
+            champions_damage_rolls(&state, move_id),
+            unguarded,
+            "{:?}",
+            move_id
+        );
+        state.side_two.get_active().ability = Abilities::AURAGUARD;
+        assert_eq!(
+            champions_damage_rolls(&state, move_id),
+            guarded,
+            "{:?}",
+            move_id
+        );
+    }
+}
+
+#[cfg(feature = "champions")]
+#[test]
+fn test_champions_aura_guard_and_fluffy_have_distinct_fire_damage_modifiers() {
+    for (ability, fire_punch, flamethrower) in [
+        (Abilities::AURAGUARD, vec![18, 27], vec![41, 61]),
+        (Abilities::FLUFFY, vec![35, 52], vec![81, 121]),
+    ] {
+        let mut state = champions_neutral_state();
+        state.side_two.get_active().ability = ability;
+        assert_eq!(
+            champions_damage_rolls(&state, Choices::FIREPUNCH),
+            fire_punch,
+            "{:?}",
+            ability
+        );
+        assert_eq!(
+            champions_damage_rolls(&state, Choices::FLAMETHROWER),
+            flamethrower,
+            "{:?}",
+            ability
+        );
+    }
+}
+
+#[cfg(feature = "champions")]
+#[test]
+fn test_champions_aura_guard_does_not_affect_noncontact_or_fixed_damage() {
+    for (move_id, expected) in [
+        (Choices::EARTHQUAKE, vec![46, 69]),
+        (Choices::SHADOWBALL, vec![37, 55]),
+        (Choices::SEISMICTOSS, vec![50]),
+    ] {
+        let mut state = champions_neutral_state();
+        state.side_two.get_active().ability = Abilities::AURAGUARD;
+        assert_eq!(
+            champions_damage_rolls(&state, move_id),
+            expected,
+            "{:?}",
+            move_id
+        );
+    }
+    let mut state = champions_neutral_state();
+    state.side_two.get_active().ability = Abilities::AURAGUARD;
+    let outcomes = use_champions_move(&mut state, Choices::SEISMICTOSS);
+    assert_eq!(
+        champions_damage_to(&outcomes[0], SideReference::SideTwo),
+        50
+    );
+}
+
+#[cfg(feature = "champions")]
+#[test]
+fn test_champions_aura_guard_applies_during_instruction_generation() {
+    let mut state = champions_neutral_state();
+    let unguarded = use_champions_move(&mut state, Choices::TACKLE);
+    assert_eq!(
+        champions_damage_to(&unguarded[0], SideReference::SideTwo),
+        17
+    );
+    state.side_two.get_active().ability = Abilities::AURAGUARD;
+    let guarded = use_champions_move(&mut state, Choices::TACKLE);
+    assert_eq!(guarded.len(), 1);
+    assert_eq!(champions_damage_to(&guarded[0], SideReference::SideTwo), 9);
+}
+
+#[cfg(feature = "champions")]
+#[test]
+fn test_champions_aura_guard_is_bypassed_or_suppressed_by_attacking_abilities() {
+    for ability in [
+        Abilities::MOLDBREAKER,
+        Abilities::TERAVOLT,
+        Abilities::TURBOBLAZE,
+        Abilities::NEUTRALIZINGGAS,
+        Abilities::LONGREACH,
+    ] {
+        let mut state = champions_neutral_state();
+        state.side_one.get_active().ability = ability;
+        state.side_two.get_active().ability = Abilities::AURAGUARD;
+        assert_eq!(
+            champions_damage_rolls(&state, Choices::TACKLE),
+            vec![19, 28],
+            "{:?}",
+            ability
+        );
+        let outcomes = use_champions_move(&mut state, Choices::TACKLE);
+        assert_eq!(
+            champions_damage_to(&outcomes[0], SideReference::SideTwo),
+            17,
+            "{:?}",
+            ability
+        );
+    }
+}
+
+#[cfg(feature = "champions")]
+#[test]
+fn test_champions_sunsteel_strike_bypasses_aura_guard() {
+    let mut state = champions_neutral_state();
+    state.side_two.get_active().ability = Abilities::AURAGUARD;
+    assert_eq!(
+        champions_damage_rolls(&state, Choices::SUNSTEELSTRIKE),
+        vec![46, 69]
+    );
+}
+
+#[cfg(feature = "champions")]
+#[test]
+fn test_champions_protective_pads_do_not_bypass_aura_guard() {
+    let mut state = champions_neutral_state();
+    state.side_one.get_active().item = Items::PROTECTIVEPADS;
+    state.side_two.get_active().ability = Abilities::AURAGUARD;
+    assert_eq!(
+        champions_damage_rolls(&state, Choices::TACKLE),
+        vec![10, 15]
+    );
+    let outcomes = use_champions_move(&mut state, Choices::TACKLE);
+    assert_eq!(champions_damage_to(&outcomes[0], SideReference::SideTwo), 9);
+    assert_eq!(
+        champions_damage_rolls(&state, Choices::SHADOWBALL),
+        vec![37, 55]
+    );
+
+    state.side_one.get_active().ability = Abilities::LONGREACH;
+    assert_eq!(
+        champions_damage_rolls(&state, Choices::TACKLE),
+        vec![19, 28]
+    );
+}
+
+#[cfg(feature = "champions")]
+#[test]
+fn test_champions_aura_guard_parses_and_round_trips_in_state() {
+    assert_eq!(Abilities::from_str("auraguard"), Ok(Abilities::AURAGUARD));
+    assert_eq!(Abilities::AURAGUARD.to_string(), "AURAGUARD");
+    // New variants must not shift existing instruction ability identifiers.
+    assert_eq!(Abilities::AURAGUARD as i16, Abilities::FIREMANE as i16 + 1);
+    let mut state = champions_neutral_state();
+    state.side_two.get_active().ability = Abilities::AURAGUARD;
+    state.side_two.get_active().base_ability = Abilities::AURAGUARD;
+    let serialized = state.serialize();
+    let restored = State::deserialize(&serialized);
+    assert_eq!(
+        restored.side_two.get_active_immutable().ability,
+        Abilities::AURAGUARD
+    );
+    assert_eq!(
+        restored.side_two.get_active_immutable().base_ability,
+        Abilities::AURAGUARD
+    );
+    assert_eq!(restored.serialize(), serialized);
+}
+
+#[cfg(feature = "champions")]
+#[test]
+fn test_champions_corrected_megas_evolve_with_expected_stats_types_and_abilities() {
+    use PokemonType::*;
+    for (base, item, mega, ability, base_types, types, base_stats) in [
+        (
+            PokemonName::ABSOL,
+            Items::ABSOLITEZ,
+            PokemonName::ABSOLMEGAZ,
+            Abilities::SHARPNESS,
+            (DARK, TYPELESS),
+            (DARK, GHOST),
+            (65, 154, 60, 75, 60, 151),
+        ),
+        (
+            PokemonName::GARCHOMP,
+            Items::GARCHOMPITEZ,
+            PokemonName::GARCHOMPMEGAZ,
+            Abilities::LEVITATE,
+            (DRAGON, GROUND),
+            (DRAGON, TYPELESS),
+            (108, 130, 85, 141, 85, 151),
+        ),
+        (
+            PokemonName::LUCARIO,
+            Items::LUCARIONITEZ,
+            PokemonName::LUCARIOMEGAZ,
+            Abilities::AURAGUARD,
+            (FIGHTING, STEEL),
+            (FIGHTING, STEEL),
+            (70, 100, 70, 164, 70, 151),
+        ),
+        (
+            PokemonName::GOLISOPOD,
+            Items::GOLISOPITE,
+            PokemonName::GOLISOPODMEGA,
+            Abilities::TOUGHCLAWS,
+            (BUG, WATER),
+            (BUG, STEEL),
+            (75, 150, 175, 70, 120, 40),
+        ),
+        (
+            PokemonName::STARMIE,
+            Items::STARMINITE,
+            PokemonName::STARMIEMEGA,
+            Abilities::HUGEPOWER,
+            (WATER, PSYCHIC),
+            (WATER, PSYCHIC),
+            (60, 100, 105, 130, 105, 120),
+        ),
+        (
+            PokemonName::DRAMPA,
+            Items::DRAMPANITE,
+            PokemonName::DRAMPAMEGA,
+            Abilities::BERSERK,
+            (NORMAL, DRAGON),
+            (NORMAL, DRAGON),
+            (78, 85, 110, 160, 116, 36),
+        ),
+    ] {
+        assert_eq!(mega.base_stats(), base_stats, "{:?}", mega);
+        assert_eq!(
+            base.mega_evolve_target(item).unwrap().base_stats,
+            base_stats,
+            "{:?}",
+            mega
+        );
+        // At level 50 with a neutral nature and 31 IVs, 0 SP gives
+        // base + 20; 11 SP gives base + 31 for each non-HP stat.
+        for (sp, offset) in [(0, 20), (11, 31)] {
+            let mut state = champions_neutral_state();
+            let pokemon = state.side_one.get_active();
+            pokemon.id = base;
+            pokemon.item = item;
+            pokemon.types = base_types;
+            pokemon.base_types = base_types;
+            pokemon.evs = (sp, sp, sp, sp, sp, sp);
+            let outcomes = generate_champions_instructions(
+                &mut state,
+                MoveChoice::MoveMega(PokemonMoveIndex::M0),
+                MoveChoice::None,
+            );
+            assert_eq!(outcomes.len(), 1, "{:?}", mega);
+            state.apply_instructions(&outcomes[0].instruction_list);
+            let evolved = state.side_one.get_active_immutable();
+            assert_eq!(evolved.id, mega);
+            assert_eq!(evolved.ability, ability);
+            assert_eq!(evolved.base_ability, ability);
+            assert_eq!(evolved.types, types);
+            assert!(evolved.mega_evolved);
+            assert_eq!((evolved.hp, evolved.maxhp), (1000, 1000));
+            assert_eq!(
+                (
+                    evolved.attack,
+                    evolved.defense,
+                    evolved.special_attack,
+                    evolved.special_defense,
+                    evolved.speed
+                ),
+                (
+                    base_stats.1 + offset,
+                    base_stats.2 + offset,
+                    base_stats.3 + offset,
+                    base_stats.4 + offset,
+                    base_stats.5 + offset
+                ),
+                "{:?} with {} SP",
+                mega,
+                sp
+            );
+            if mega == PokemonName::STARMIEMEGA && sp == 0 {
+                assert_eq!(evolved.attack, 120);
+                assert_eq!(
+                    champions_damage_rolls(&state, Choices::TACKLE),
+                    vec![44, 66]
+                );
+            }
+        }
+    }
+}
+
+#[cfg(feature = "champions")]
+#[test]
+fn test_champions_mega_lucario_z_uses_aura_guard_before_a_faster_opponent_attacks() {
+    let mut state = champions_neutral_state();
+    let lucario = state.side_one.get_active();
+    lucario.id = PokemonName::LUCARIO;
+    lucario.item = Items::LUCARIONITEZ;
+    lucario.types = (PokemonType::FIGHTING, PokemonType::STEEL);
+    lucario.base_types = lucario.types;
+    state.side_two.get_active().speed = 500;
+    state
+        .side_two
+        .get_active()
+        .replace_move(PokemonMoveIndex::M0, Choices::TACKLE);
+    let outcomes = generate_champions_instructions(
+        &mut state,
+        MoveChoice::MoveMega(PokemonMoveIndex::M0),
+        MoveChoice::Move(PokemonMoveIndex::M0),
+    );
+    assert_eq!(outcomes.len(), 1);
+    assert_eq!(champions_damage_to(&outcomes[0], SideReference::SideOne), 4);
+    state.apply_instructions(&outcomes[0].instruction_list);
+    assert_eq!(
+        state.side_one.get_active_immutable().ability,
+        Abilities::AURAGUARD
+    );
+}
+
+#[cfg(feature = "gen9")]
+#[test]
+fn test_champions_overrides_do_not_change_generation_nine_moves() {
+    for (move_id, power, accuracy) in [
+        (Choices::CRABHAMMER, 100.0, 90.0),
+        (Choices::MAKEITRAIN, 120.0, 100.0),
+        (Choices::METEORASSAULT, 150.0, 100.0),
+        (Choices::SLASH, 70.0, 100.0),
+        (Choices::SWAGGER, 0.0, 90.0),
+        (Choices::SYRUPBOMB, 60.0, 85.0),
+        (Choices::SNIPESHOT, 80.0, 100.0),
+    ] {
+        let choice = MOVES.get(&move_id).unwrap();
+        assert_eq!(
+            (choice.base_power, choice.accuracy),
+            (power, accuracy),
+            "{:?}",
+            move_id
+        );
+    }
+    assert_eq!(
+        MOVES.get(&Choices::GROWTH).unwrap().move_type,
+        PokemonType::NORMAL
+    );
+    assert_eq!(
+        MOVES
+            .get(&Choices::MAKEITRAIN)
+            .unwrap()
+            .boost
+            .as_ref()
+            .unwrap()
+            .boosts
+            .special_attack,
+        -1
+    );
 }

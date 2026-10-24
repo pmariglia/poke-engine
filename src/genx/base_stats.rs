@@ -90,14 +90,14 @@ impl PokemonName {
             PokemonName::GLIMMORAMEGA => (83, 90, 105, 150, 96, 101),
             PokemonName::FLOETTEMEGA => (74, 85, 87, 155, 148, 102),
             PokemonName::VICTREEBELMEGA => (80, 125, 85, 135, 95, 70),
-            PokemonName::STARMIEMEGA => (60, 140, 105, 130, 105, 120),
+            PokemonName::STARMIEMEGA => (60, 100, 105, 130, 105, 120),
             PokemonName::HAWLUCHAMEGA => (78, 137, 100, 74, 93, 118),
             PokemonName::SKARMORYMEGA => (65, 140, 110, 40, 100, 110),
             PokemonName::MEOWSTICMMEGA => (74, 48, 76, 143, 101, 124),
             PokemonName::MEOWSTICFMEGA => (74, 48, 76, 143, 101, 124),
             PokemonName::FROSLASSMEGA => (70, 80, 70, 140, 100, 120),
             PokemonName::EXCADRILLMEGA => (110, 165, 100, 65, 65, 103),
-            PokemonName::DRAMPAMEGA => (78, 85, 110, 160, 114, 36),
+            PokemonName::DRAMPAMEGA => (78, 85, 110, 160, 116, 36),
             PokemonName::CHIMECHOMEGA => (75, 50, 110, 135, 120, 65),
             PokemonName::CHANDELUREMEGA => (60, 75, 110, 175, 110, 90),
             PokemonName::STARAPTORMEGA => (85, 140, 100, 60, 90, 110),
@@ -501,7 +501,7 @@ impl PokemonName {
                 id: PokemonName::STARMIEMEGA,
                 types: (PokemonType::WATER, PokemonType::PSYCHIC),
                 ability: Abilities::HUGEPOWER,
-                base_stats: (60, 140, 105, 130, 105, 120),
+                base_stats: (60, 100, 105, 130, 105, 120),
             }),
             (PokemonName::HAWLUCHA, Items::HAWLUCHANITE) => Some(MegaEvolveData {
                 id: PokemonName::HAWLUCHAMEGA,
@@ -543,7 +543,7 @@ impl PokemonName {
                 id: PokemonName::DRAMPAMEGA,
                 types: (PokemonType::NORMAL, PokemonType::DRAGON),
                 ability: Abilities::BERSERK,
-                base_stats: (78, 85, 110, 160, 114, 36),
+                base_stats: (78, 85, 110, 160, 116, 36),
             }),
             (PokemonName::CHIMECHO, Items::CHIMECHITE) => Some(MegaEvolveData {
                 id: PokemonName::CHIMECHOMEGA,
@@ -632,7 +632,7 @@ impl PokemonName {
             (PokemonName::GOLISOPOD, Items::GOLISOPITE) => Some(MegaEvolveData {
                 id: PokemonName::GOLISOPODMEGA,
                 types: (PokemonType::BUG, PokemonType::STEEL),
-                ability: Abilities::EMERGENCYEXIT,
+                ability: Abilities::TOUGHCLAWS,
                 base_stats: (75, 150, 175, 70, 120, 40),
             }),
             (PokemonName::HEATRAN, Items::HEATRANITE) => Some(MegaEvolveData {
@@ -644,7 +644,7 @@ impl PokemonName {
             (PokemonName::ABSOL, Items::ABSOLITEZ) => Some(MegaEvolveData {
                 id: PokemonName::ABSOLMEGAZ,
                 types: (PokemonType::DARK, PokemonType::GHOST),
-                ability: Abilities::MAGICBOUNCE,
+                ability: Abilities::SHARPNESS,
                 base_stats: (65, 154, 60, 75, 60, 151),
             }),
             (PokemonName::BAXCALIBUR, Items::BAXCALIBRITE) => Some(MegaEvolveData {
@@ -656,13 +656,13 @@ impl PokemonName {
             (PokemonName::GARCHOMP, Items::GARCHOMPITEZ) => Some(MegaEvolveData {
                 id: PokemonName::GARCHOMPMEGAZ,
                 types: (PokemonType::DRAGON, PokemonType::TYPELESS),
-                ability: Abilities::SANDFORCE,
+                ability: Abilities::LEVITATE,
                 base_stats: (108, 130, 85, 141, 85, 151),
             }),
             (PokemonName::LUCARIO, Items::LUCARIONITEZ) => Some(MegaEvolveData {
                 id: PokemonName::LUCARIOMEGAZ,
                 types: (PokemonType::FIGHTING, PokemonType::STEEL),
-                ability: Abilities::ADAPTABILITY,
+                ability: Abilities::AURAGUARD,
                 base_stats: (70, 100, 70, 164, 70, 151),
             }),
             (PokemonName::MAGEARNA, Items::MAGEARNITE) => Some(MegaEvolveData {
