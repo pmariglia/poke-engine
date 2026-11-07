@@ -11,6 +11,7 @@ use crate::choices::{
     Boost, Choices, Effect, Heal, MoveTarget, MultiHitMove, Secondary, SideCondition, StatBoosts,
     Status, VolatileStatus, MOVES,
 };
+use crate::instruction::EnableMoveInstruction;
 use crate::instruction::{
     ApplyVolatileStatusInstruction, BoostInstruction, ChangeDamageDealtDamageInstruction,
     ChangeDamageDealtMoveCategoryInstruction, ChangeItemInstruction,
@@ -2851,6 +2852,71 @@ fn on_terrain_end(
     }
 }
 
+fn branch_on_lockedmove_ending(
+    state: &mut State,
+    state_instructions_vec: &mut Vec<StateInstructions>,
+    end_of_turn_skipped: bool,
+) {
+    /*
+    A locking move (Outrage, Thrash, Petal Dance...) lasts 2 or 3 turns at random.
+
+    At the end of the second turn (lockedmove duration 1), split each outcome in two:
+    half the time, bump the duration to 2 so that `add_end_of_turn_instructions` ends the
+    lock (and confuses the user) this turn; otherwise it carries on for a third turn.
+    */
+    if end_of_turn_skipped {
+        return;
+    }
+    // Cheap check first (this runs for every move pair): only a side that started the
+    // turn on its second locked turn can be ending its lock now
+    let second_locked_turn = |side: &Side| {
+        side.volatile_statuses
+            .contains(&PokemonVolatileStatus::LOCKEDMOVE)
+            && side.volatile_status_durations.lockedmove == 1
+    };
+    let mut sides = Vec::with_capacity(2);
+    if second_locked_turn(&state.side_one) {
+        sides.push(SideReference::SideOne);
+    }
+    if second_locked_turn(&state.side_two) {
+        sides.push(SideReference::SideTwo);
+    }
+    for side_ref in sides {
+        let mut branched = Vec::with_capacity(state_instructions_vec.len() * 2);
+        for mut state_instruction in state_instructions_vec.drain(..) {
+            state.apply_instructions(&state_instruction.instruction_list);
+            let can_end_now = !state.side_one.force_switch && !state.side_two.force_switch && {
+                let side = state.get_side_immutable(&side_ref);
+                side.get_active_immutable().hp > 0
+                    && side
+                        .volatile_statuses
+                        .contains(&PokemonVolatileStatus::LOCKEDMOVE)
+                    && side.volatile_status_durations.lockedmove == 1
+            };
+            state.reverse_instructions(&state_instruction.instruction_list);
+            if can_end_now {
+                let mut ends_now = state_instruction.clone();
+                ends_now.update_percentage(0.5);
+                ends_now
+                    .instruction_list
+                    .push(Instruction::ChangeVolatileStatusDuration(
+                        ChangeVolatileStatusDurationInstruction {
+                            side_ref,
+                            volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
+                            amount: 1,
+                        },
+                    ));
+                state_instruction.update_percentage(0.5);
+                branched.push(state_instruction);
+                branched.push(ends_now);
+            } else {
+                branched.push(state_instruction);
+            }
+        }
+        *state_instructions_vec = branched;
+    }
+}
+
 fn add_end_of_turn_instructions(
     state: &mut State,
     mut incoming_instructions: &mut StateInstructions,
@@ -3292,8 +3358,8 @@ fn add_end_of_turn_instructions(
             .contains(&PokemonVolatileStatus::LOCKEDMOVE)
         {
             // the number says 2 but this is 3 turns of using a locking move
-            // because turn 0 is the first turn the move is used
-            // branching is not implemented here so the engine assumes it always lasts 3 turns
+            // because turn 0 is the first turn the move is used.
+            // A lock that ends after 2 turns gets here early via `branch_on_lockedmove_ending`
             if side.volatile_status_durations.lockedmove == 2 {
                 side.volatile_status_durations.lockedmove = 0;
                 side.volatile_statuses
@@ -3329,6 +3395,30 @@ fn add_end_of_turn_instructions(
                         ));
                     side.volatile_statuses
                         .insert(PokemonVolatileStatus::CONFUSION);
+                }
+                // The lock disabled the other moves; free them again, unless a choice
+                // item keeps the pokemon locked into this move anyway
+                let active = side.get_active();
+                if !matches!(
+                    active.item,
+                    Items::CHOICEBAND | Items::CHOICESPECS | Items::CHOICESCARF
+                ) {
+                    for move_index in [
+                        PokemonMoveIndex::M0,
+                        PokemonMoveIndex::M1,
+                        PokemonMoveIndex::M2,
+                        PokemonMoveIndex::M3,
+                    ] {
+                        if active.moves[&move_index].disabled {
+                            active.moves[&move_index].disabled = false;
+                            incoming_instructions
+                                .instruction_list
+                                .push(Instruction::EnableMove(EnableMoveInstruction {
+                                    side_ref: *side_ref,
+                                    move_index,
+                                }));
+                        }
+                    }
                 }
             } else {
                 side.volatile_status_durations.lockedmove += 1;
@@ -4262,6 +4352,11 @@ pub fn generate_instructions_from_move_pair(
                 &mut state_instructions_vec,
                 branch_on_damage,
             );
+            branch_on_lockedmove_ending(
+                state,
+                &mut state_instructions_vec,
+                s1_replacing_fainted_pkmn || s2_replacing_fainted_pkmn,
+            );
 
             for state_instruction in state_instructions_vec.iter_mut() {
                 state.apply_instructions(&state_instruction.instruction_list);
@@ -4284,6 +4379,11 @@ pub fn generate_instructions_from_move_pair(
                 incoming_instructions,
                 &mut state_instructions_vec,
                 branch_on_damage,
+            );
+            branch_on_lockedmove_ending(
+                state,
+                &mut state_instructions_vec,
+                s1_replacing_fainted_pkmn || s2_replacing_fainted_pkmn,
             );
             for state_instruction in state_instructions_vec.iter_mut() {
                 state.apply_instructions(&state_instruction.instruction_list);
@@ -4312,6 +4412,11 @@ pub fn generate_instructions_from_move_pair(
                 &mut state_instructions_vec,
                 branch_on_damage,
             );
+            branch_on_lockedmove_ending(
+                state,
+                &mut state_instructions_vec,
+                s1_replacing_fainted_pkmn || s2_replacing_fainted_pkmn,
+            );
             for state_instruction in state_instructions_vec.iter_mut() {
                 state.apply_instructions(&state_instruction.instruction_list);
                 if !(s1_replacing_fainted_pkmn
@@ -4334,6 +4439,11 @@ pub fn generate_instructions_from_move_pair(
                 incoming_instructions,
                 &mut side_two_moves_first_si,
                 branch_on_damage,
+            );
+            branch_on_lockedmove_ending(
+                state,
+                &mut side_two_moves_first_si,
+                s1_replacing_fainted_pkmn || s2_replacing_fainted_pkmn,
             );
             for state_instruction in side_two_moves_first_si.iter_mut() {
                 state.apply_instructions(&state_instruction.instruction_list);

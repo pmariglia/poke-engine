@@ -2956,9 +2956,145 @@ fn test_outrage_fatigue_causing_confusion() {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::CONFUSION,
             }),
+            Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: SideReference::SideOne,
+                move_index: PokemonMoveIndex::M1,
+            }),
+            Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: SideReference::SideOne,
+                move_index: PokemonMoveIndex::M2,
+            }),
+            Instruction::EnableMove(EnableMoveInstruction {
+                side_ref: SideReference::SideOne,
+                move_index: PokemonMoveIndex::M3,
+            }),
         ],
     }];
     assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_outrage_fatigue_keeps_choice_item_lock() {
+    let mut state = State::default();
+    state.side_one.get_active().item = Items::CHOICEBAND;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::LOCKEDMOVE);
+    state.side_one.volatile_status_durations.lockedmove = 2;
+    state.side_one.get_active().moves.m1.disabled = true;
+    state.side_one.get_active().moves.m2.disabled = true;
+    state.side_one.get_active().moves.m3.disabled = true;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::OUTRAGE,
+        Choices::SPLASH,
+    );
+
+    assert_eq!(1, vec_of_instructions.len());
+    assert!(!vec_of_instructions[0]
+        .instruction_list
+        .iter()
+        .any(|i| matches!(i, Instruction::EnableMove(_))));
+}
+
+#[test]
+fn test_outrage_second_turn_ends_lock_half_the_time() {
+    // A locking move lasts 2 or 3 turns: after the second turn it ends (with fatigue
+    // confusion) half the time, and carries on for a third turn otherwise
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::LOCKEDMOVE);
+    state.side_one.volatile_status_durations.lockedmove = 1;
+    state.side_one.get_active().moves.m1.disabled = true;
+    state.side_one.get_active().moves.m2.disabled = true;
+    state.side_one.get_active().moves.m3.disabled = true;
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::OUTRAGE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 94,
+                }),
+                Instruction::ChangeVolatileStatusDuration(
+                    ChangeVolatileStatusDurationInstruction {
+                        side_ref: SideReference::SideOne,
+                        volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
+                        amount: 1,
+                    },
+                ),
+            ],
+        },
+        StateInstructions {
+            percentage: 50.0,
+            instruction_list: vec![
+                Instruction::Damage(DamageInstruction {
+                    side_ref: SideReference::SideTwo,
+                    damage_amount: 94,
+                }),
+                Instruction::ChangeVolatileStatusDuration(
+                    ChangeVolatileStatusDurationInstruction {
+                        side_ref: SideReference::SideOne,
+                        volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
+                        amount: 1,
+                    },
+                ),
+                Instruction::ChangeVolatileStatusDuration(
+                    ChangeVolatileStatusDurationInstruction {
+                        side_ref: SideReference::SideOne,
+                        volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
+                        amount: -2,
+                    },
+                ),
+                Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::LOCKEDMOVE,
+                }),
+                Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+                    side_ref: SideReference::SideOne,
+                    volatile_status: PokemonVolatileStatus::CONFUSION,
+                }),
+                Instruction::EnableMove(EnableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M1,
+                }),
+                Instruction::EnableMove(EnableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M2,
+                }),
+                Instruction::EnableMove(EnableMoveInstruction {
+                    side_ref: SideReference::SideOne,
+                    move_index: PokemonMoveIndex::M3,
+                }),
+            ],
+        },
+    ];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_outrage_first_turn_does_not_branch_on_lock_ending() {
+    let mut state = State::default();
+
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::OUTRAGE,
+        Choices::SPLASH,
+    );
+
+    assert_eq!(1, vec_of_instructions.len());
+    assert_eq!(100.0, vec_of_instructions[0].percentage);
 }
 
 #[test]
