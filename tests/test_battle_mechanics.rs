@@ -22839,13 +22839,13 @@ fn test_truant_sets_truant_volatile() {
     let expected_instructions = vec![StateInstructions {
         percentage: 100.0,
         instruction_list: vec![
-            Instruction::Damage(DamageInstruction {
-                side_ref: SideReference::SideTwo,
-                damage_amount: 48,
-            }),
             Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
                 side_ref: SideReference::SideOne,
                 volatile_status: PokemonVolatileStatus::TRUANT,
+            }),
+            Instruction::Damage(DamageInstruction {
+                side_ref: SideReference::SideTwo,
+                damage_amount: 48,
             }),
         ],
     }];
@@ -22944,26 +22944,30 @@ fn test_hyperbeam_sets_mustrecharge() {
 }
 
 #[test]
-fn test_gigaimpact_with_truant_only_sets_mustrecharge() {
+fn test_gigaimpact_with_truant_sets_truant_even_if_it_misses() {
     let mut state = State::default();
     state.side_two.get_active().hp = 500;
     state.side_two.get_active().maxhp = 500;
     state.side_one.get_active().ability = Abilities::TRUANT;
-
     let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
         &mut state,
         Choices::GIGAIMPACT,
         Choices::SPLASH,
     );
 
+    let truant = Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+        side_ref: SideReference::SideOne,
+        volatile_status: PokemonVolatileStatus::TRUANT,
+    });
     let expected_instructions = vec![
         StateInstructions {
             percentage: 10.000002,
-            instruction_list: vec![],
+            instruction_list: vec![truant.clone()],
         },
         StateInstructions {
             percentage: 90.0,
             instruction_list: vec![
+                truant,
                 Instruction::Damage(DamageInstruction {
                     side_ref: SideReference::SideTwo,
                     damage_amount: 177,
@@ -22976,6 +22980,237 @@ fn test_gigaimpact_with_truant_only_sets_mustrecharge() {
         },
     ];
     assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_recharging_also_removes_truant() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::TRUANT;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::MUSTRECHARGE);
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::TRUANT);
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::None,
+        &MoveChoice::Switch(PokemonIndex::P1),
+    );
+
+    let removed_truant = Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+        side_ref: SideReference::SideOne,
+        volatile_status: PokemonVolatileStatus::TRUANT,
+    });
+    let removed_mustrecharge = Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+        side_ref: SideReference::SideOne,
+        volatile_status: PokemonVolatileStatus::MUSTRECHARGE,
+    });
+    assert_eq!(1, vec_of_instructions.len());
+    assert!(vec_of_instructions[0]
+        .instruction_list
+        .contains(&removed_truant));
+    assert!(vec_of_instructions[0]
+        .instruction_list
+        .contains(&removed_mustrecharge));
+}
+
+#[test]
+fn test_truant_is_set_when_move_is_protected_against() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::TRUANT;
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::PROTECT,
+    );
+
+    let truant = Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+        side_ref: SideReference::SideOne,
+        volatile_status: PokemonVolatileStatus::TRUANT,
+    });
+    assert_eq!(1, vec_of_instructions.len());
+    assert!(vec_of_instructions[0].instruction_list.contains(&truant));
+}
+
+#[test]
+fn test_truant_is_set_when_target_is_immune() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::TRUANT;
+    state.side_two.get_active().types = (PokemonType::GHOST, PokemonType::TYPELESS);
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let expected_instructions = vec![StateInstructions {
+        percentage: 100.0,
+        instruction_list: vec![Instruction::ApplyVolatileStatus(
+            ApplyVolatileStatusInstruction {
+                side_ref: SideReference::SideOne,
+                volatile_status: PokemonVolatileStatus::TRUANT,
+            },
+        )],
+    }];
+    assert_eq!(expected_instructions, vec_of_instructions);
+}
+
+#[test]
+fn test_truant_is_set_when_fully_paralyzed() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::TRUANT;
+    state.side_one.get_active().status = PokemonStatus::PARALYZE;
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let truant = Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+        side_ref: SideReference::SideOne,
+        volatile_status: PokemonVolatileStatus::TRUANT,
+    });
+    assert_eq!(2, vec_of_instructions.len());
+    for instructions in vec_of_instructions {
+        assert_eq!(
+            1,
+            instructions
+                .instruction_list
+                .iter()
+                .filter(|i| **i == truant)
+                .count()
+        );
+    }
+}
+
+#[test]
+fn test_truant_is_only_set_when_thawing_if_frozen() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::TRUANT;
+    state.side_one.get_active().status = PokemonStatus::FREEZE;
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let truant = Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+        side_ref: SideReference::SideOne,
+        volatile_status: PokemonVolatileStatus::TRUANT,
+    });
+    assert_eq!(2, vec_of_instructions.len());
+    for instructions in vec_of_instructions {
+        let thawed = instructions
+            .instruction_list
+            .iter()
+            .any(|i| matches!(i, Instruction::ChangeStatus(_)));
+        assert_eq!(
+            thawed as usize,
+            instructions
+                .instruction_list
+                .iter()
+                .filter(|i| **i == truant)
+                .count()
+        );
+    }
+}
+
+#[test]
+fn test_truant_is_not_set_while_asleep() {
+    let mut state = State::default();
+    state.side_one.get_active().ability = Abilities::TRUANT;
+    state.side_one.get_active().status = PokemonStatus::SLEEP;
+    state.side_one.get_active().rest_turns = 2;
+    let vec_of_instructions = set_moves_on_pkmn_and_call_generate_instructions(
+        &mut state,
+        Choices::TACKLE,
+        Choices::SPLASH,
+    );
+
+    let truant = Instruction::ApplyVolatileStatus(ApplyVolatileStatusInstruction {
+        side_ref: SideReference::SideOne,
+        volatile_status: PokemonVolatileStatus::TRUANT,
+    });
+    assert_eq!(1, vec_of_instructions.len());
+    assert!(!vec_of_instructions[0].instruction_list.contains(&truant));
+}
+
+#[test]
+fn test_replacing_fainted_pokemon_does_not_remove_opponents_mustrecharge() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 0;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::MUSTRECHARGE);
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::None,
+        &MoveChoice::Switch(PokemonIndex::P1),
+    );
+
+    let removed_mustrecharge = Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+        side_ref: SideReference::SideOne,
+        volatile_status: PokemonVolatileStatus::MUSTRECHARGE,
+    });
+    assert_eq!(1, vec_of_instructions.len());
+    assert!(!vec_of_instructions[0]
+        .instruction_list
+        .contains(&removed_mustrecharge));
+}
+
+#[test]
+fn test_force_switch_does_not_remove_opponents_mustrecharge() {
+    let mut state = State::default();
+    state.side_two.force_switch = true;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::MUSTRECHARGE);
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::None,
+        &MoveChoice::Switch(PokemonIndex::P1),
+    );
+
+    let removed_mustrecharge = Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+        side_ref: SideReference::SideOne,
+        volatile_status: PokemonVolatileStatus::MUSTRECHARGE,
+    });
+    assert_eq!(1, vec_of_instructions.len());
+    assert!(!vec_of_instructions[0]
+        .instruction_list
+        .contains(&removed_mustrecharge));
+}
+
+#[test]
+fn test_voluntary_switch_into_recharge_turn_removes_mustrecharge() {
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::MUSTRECHARGE);
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::None,
+        &MoveChoice::Switch(PokemonIndex::P1),
+    );
+
+    let removed_mustrecharge = Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+        side_ref: SideReference::SideOne,
+        volatile_status: PokemonVolatileStatus::MUSTRECHARGE,
+    });
+    assert_eq!(1, vec_of_instructions.len());
+    assert!(vec_of_instructions[0]
+        .instruction_list
+        .contains(&removed_mustrecharge));
 }
 
 #[test]

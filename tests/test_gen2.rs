@@ -1635,3 +1635,77 @@ fn test_superfang_at_1hp() {
     ];
     assert_eq!(expected_instructions, vec_of_instructions);
 }
+
+#[test]
+fn test_replacing_fainted_pokemon_does_not_remove_opponents_mustrecharge() {
+    let mut state = State::default();
+    state.side_two.get_active().hp = 0;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::MUSTRECHARGE);
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::None,
+        &MoveChoice::Switch(PokemonIndex::P1),
+    );
+
+    let removed_mustrecharge = Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+        side_ref: SideReference::SideOne,
+        volatile_status: PokemonVolatileStatus::MUSTRECHARGE,
+    });
+    assert_eq!(1, vec_of_instructions.len());
+    assert!(!vec_of_instructions[0]
+        .instruction_list
+        .contains(&removed_mustrecharge));
+}
+
+#[test]
+fn test_force_switch_does_not_remove_opponents_mustrecharge() {
+    let mut state = State::default();
+    state.side_two.force_switch = true;
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::MUSTRECHARGE);
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::None,
+        &MoveChoice::Switch(PokemonIndex::P1),
+    );
+
+    let removed_mustrecharge = Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+        side_ref: SideReference::SideOne,
+        volatile_status: PokemonVolatileStatus::MUSTRECHARGE,
+    });
+    assert_eq!(1, vec_of_instructions.len());
+    assert!(!vec_of_instructions[0]
+        .instruction_list
+        .contains(&removed_mustrecharge));
+}
+
+#[test]
+fn test_voluntary_switch_into_recharge_turn_removes_mustrecharge() {
+    let mut state = State::default();
+    state
+        .side_one
+        .volatile_statuses
+        .insert(PokemonVolatileStatus::MUSTRECHARGE);
+
+    let vec_of_instructions = generate_instructions_with_state_assertion(
+        &mut state,
+        &MoveChoice::None,
+        &MoveChoice::Switch(PokemonIndex::P1),
+    );
+
+    let removed_mustrecharge = Instruction::RemoveVolatileStatus(RemoveVolatileStatusInstruction {
+        side_ref: SideReference::SideOne,
+        volatile_status: PokemonVolatileStatus::MUSTRECHARGE,
+    });
+    assert_eq!(1, vec_of_instructions.len());
+    assert!(vec_of_instructions[0]
+        .instruction_list
+        .contains(&removed_mustrecharge));
+}
