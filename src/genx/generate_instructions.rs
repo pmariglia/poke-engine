@@ -1622,6 +1622,30 @@ fn move_has_no_effect(state: &State, choice: &Choice, attacking_side_ref: &SideR
     false
 }
 
+// truant triggers on any attempt to move, even one that misses or fails
+fn set_truant(
+    state: &mut State,
+    attacking_side_ref: &SideReference,
+    incoming_instructions: &mut StateInstructions,
+) {
+    let side = state.get_side(attacking_side_ref);
+    if side.get_active_immutable().ability == Abilities::TRUANT
+        && !side
+            .volatile_statuses
+            .contains(&PokemonVolatileStatus::TRUANT)
+    {
+        side.volatile_statuses.insert(PokemonVolatileStatus::TRUANT);
+        incoming_instructions
+            .instruction_list
+            .push(Instruction::ApplyVolatileStatus(
+                ApplyVolatileStatusInstruction {
+                    side_ref: *attacking_side_ref,
+                    volatile_status: PokemonVolatileStatus::TRUANT,
+                },
+            ));
+    }
+}
+
 fn cannot_use_move(state: &State, choice: &Choice, attacking_side_ref: &SideReference) -> bool {
     let (attacking_side, defending_side) = state.get_both_sides_immutable(attacking_side_ref);
 
@@ -2058,12 +2082,18 @@ pub fn generate_instructions_from_move(
         );
     }
 
+    // passing while the other side replaces a pokemon (fainted or pivoting) is not the recharge turn
+    let other_side = state.get_side_immutable(&attacking_side.get_other_side());
+    let other_side_is_replacing =
+        other_side.force_switch || other_side.get_active_immutable().hp <= 0;
+
     let attacker_side = state.get_side(&attacking_side);
 
     if choice.move_id == Choices::NONE {
-        if attacker_side
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::MUSTRECHARGE)
+        if !other_side_is_replacing
+            && attacker_side
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::MUSTRECHARGE)
         {
             incoming_instructions
                 .instruction_list
@@ -2073,6 +2103,21 @@ pub fn generate_instructions_from_move(
                         volatile_status: PokemonVolatileStatus::MUSTRECHARGE,
                     },
                 ));
+
+            // recharging uses up truant's loafing turn as well
+            if attacker_side
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::TRUANT)
+            {
+                incoming_instructions
+                    .instruction_list
+                    .push(Instruction::RemoveVolatileStatus(
+                        RemoveVolatileStatusInstruction {
+                            side_ref: attacking_side,
+                            volatile_status: PokemonVolatileStatus::TRUANT,
+                        },
+                    ));
+            }
         }
         final_instructions.push(incoming_instructions);
         return;
@@ -2273,6 +2318,16 @@ pub fn generate_instructions_from_move(
         );
     }
 
+    // being asleep or frozen is checked before truant, everything else that can stop a move is after
+    match state
+        .get_side_immutable(&attacking_side)
+        .get_active_immutable()
+        .status
+    {
+        PokemonStatus::SLEEP | PokemonStatus::FREEZE => {}
+        _ => set_truant(state, &attacking_side, &mut incoming_instructions),
+    }
+
     if cannot_use_move(state, &choice, &attacking_side) {
         state.reverse_instructions(&incoming_instructions.instruction_list);
         final_instructions.push(incoming_instructions);
@@ -2340,6 +2395,9 @@ pub fn generate_instructions_from_move(
         }
         return;
     }
+
+    // woke up or thawed this turn (or is using a move through sleeptalk)
+    set_truant(state, &attacking_side, &mut incoming_instructions);
 
     if move_has_no_effect(state, &choice, &attacking_side) {
         state.reverse_instructions(&incoming_instructions.instruction_list);

@@ -1513,12 +1513,18 @@ pub fn generate_instructions_from_move(
         return;
     }
 
+    // passing while the other side replaces a pokemon (fainted or pivoting) is not the recharge turn
+    let other_side = state.get_side_immutable(&attacking_side.get_other_side());
+    let other_side_is_replacing =
+        other_side.force_switch || other_side.get_active_immutable().hp <= 0;
+
     let attacker_side = state.get_side(&attacking_side);
 
     if choice.move_id == Choices::NONE {
-        if attacker_side
-            .volatile_statuses
-            .contains(&PokemonVolatileStatus::MUSTRECHARGE)
+        if !other_side_is_replacing
+            && attacker_side
+                .volatile_statuses
+                .contains(&PokemonVolatileStatus::MUSTRECHARGE)
         {
             incoming_instructions
                 .instruction_list
